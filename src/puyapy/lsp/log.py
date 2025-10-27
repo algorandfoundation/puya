@@ -3,14 +3,13 @@ from collections.abc import Sequence
 
 import attrs
 import structlog
-from lsprotocol import types as lsp
-from pygls.lsp.server import LanguageServer
 
 from puya import log
 from puya.parse import SourceLocation
 from puya.utils import get_cwd
 from puyapy import code_fixes
 from puyapy.lsp.analyse import get_code_fix_context
+from puyapy.lsp.server import LogToClient
 
 
 def configure_logging(
@@ -87,34 +86,3 @@ def _filter_loggers_to_lsp(
     if not logger.name.startswith("puyapy.lsp"):
         raise structlog.DropEvent
     return event_dict
-
-
-_LOG_LEVEL_TO_MESSAGE_TYPE = {
-    log.LogLevel.debug.name: lsp.MessageType.Debug,
-    log.LogLevel.info.name: lsp.MessageType.Info,
-    log.LogLevel.warning.name: lsp.MessageType.Warning,
-    log.LogLevel.error.name: lsp.MessageType.Error,
-    log.LogLevel.critical.name: lsp.MessageType.Error,
-}
-
-
-@attrs.define
-class LogToClient:
-    server: LanguageServer | None = None
-    log_level: lsp.MessageType = lsp.MessageType.Info
-
-    def __call__(
-        self,
-        _logger: _NamedPrintLogger,
-        _name: str,
-        event_dict: structlog.typing.EventDict,
-    ) -> structlog.typing.EventDict:
-        if self.server is not None:
-            level = event_dict["level"]
-            message_type = _LOG_LEVEL_TO_MESSAGE_TYPE[level]
-            if message_type <= self.log_level:
-                message = event_dict["event"]
-                self.server.window_log_message(
-                    lsp.LogMessageParams(type=message_type, message=message)
-                )
-        return event_dict
