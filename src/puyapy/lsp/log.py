@@ -39,7 +39,6 @@ def configure_logging(
     processors.append(log.PuyaConsoleRender(colors=False, base_path=str(get_cwd())))
     structlog.configure(
         processors=processors,
-        context_class=dict,
         logger_factory=_NamedPrintLoggerFactory(file=file),
         cache_logger_on_first_use=True,
     )
