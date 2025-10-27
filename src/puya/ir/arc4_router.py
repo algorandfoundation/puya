@@ -334,8 +334,10 @@ def _check_allowed_oca_and_create(method: md.ARC4Method) -> Sequence[awst_nodes.
             case [_, [single_disallowed]]:
                 oca_condition = _neq_uint64(oca_expr, single_disallowed, loc)
             case _:
-                oca_condition = _bit_and(
-                    _left_shift(oca_expr, loc), _bit_packed_oca(allowed_ocas, loc), loc
+                oca_condition = _neq_uint64(
+                    _bit_and(_left_shift(oca_expr, loc), _bit_packed_oca(allowed_ocas, loc), loc),
+                    0,
+                    loc,
                 )
         conditions.append(oca_condition)
 
