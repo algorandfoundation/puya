@@ -4,7 +4,7 @@ Algorand Python can be integrated with IDE's that support the Language Server Pr
 
 ## VSCode
 
-Use the official [Algorand Python](https://marketplace.visualstudio.com/items?itemName=AlgorandFoundation.algorand-python-vscode) extension and Algokit Python template to get started
+Use the official [Algorand Python](https://marketplace.visualstudio.com/items?itemName=AlgorandFoundation.algorand-python-vscode) extension and AlgoKit Python template to get started
 
 ## PyCharm and JetBrains IDE's 
 
