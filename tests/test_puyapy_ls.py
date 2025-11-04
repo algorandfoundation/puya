@@ -132,21 +132,18 @@ def no_sub_dec() -> None:
     )
     # wait for expected diagnostics
     diagnostics = await harness.wait_for_diagnostic(unique_uri, 1)
-    assert len(diagnostics.diagnostics) == 5
+    assert len(diagnostics.diagnostics) == 4
 
     # now request code actions
     code_actions = await harness.code_actions(unique_uri)
     assert code_actions is not None, "expected response"
     assert [ca.title for ca in code_actions] == [
         "Use @algopy.subroutine",
-        "Use @algopy.arc4.abimethod",
-        "Use @algopy.arc4.baremethod",
-        "Use @algopy.subroutine",
         "Use algopy.UInt64",
         "Use algopy.urange",
         "Add .copy()",
     ]
-    meth_sub_action, _, _, _, uint64_action, urange_action, copy_action = code_actions
+    meth_sub_action, uint64_action, urange_action, copy_action = code_actions
     assert isinstance(uint64_action, lsp.CodeAction)
     assert uint64_action.kind == "quickfix"
     edits = _get_edits(uint64_action, unique_uri)
@@ -161,7 +158,7 @@ def no_sub_dec() -> None:
     assert edits is not None
     assert [e.new_text for e in edits] == [
         "from algopy import subroutine\n",
-        "\n    @subroutine",
+        "\n@subroutine",
     ]
     assert isinstance(urange_action, lsp.CodeAction)
     edits = _get_edits(urange_action, unique_uri)

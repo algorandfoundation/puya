@@ -18,7 +18,6 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import StableSet, set_add, unique
-from puyapy import code_fixes
 from puyapy.awst_build import constants, intrinsic_factory, pytypes
 from puyapy.awst_build.arc4_decorators import get_arc4_abimethod_data, get_arc4_baremethod_data
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
@@ -287,10 +286,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 func_loc,
             )
         elif not self.fragment.is_arc4:
-            if subroutine_dec is None:
-                logger.error(
-                    f"missing @{constants.SUBROUTINE_HINT_ALIAS} decorator", location=func_loc
-                )
             for invalid_dec in (abimethod_dec, baremethod_dec):
                 if invalid_dec is not None:
                     self._error(
@@ -298,25 +293,15 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         invalid_dec,
                     )
         else:
-            if (
-                num_dec := len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec))))
-            ) != 1:
-                edits = None
-                if num_dec == 0:
-                    edits = [
-                        code_fixes.DecorateFunction(constants.SUBROUTINE_HINT),
-                        code_fixes.DecorateFunction(constants.ABIMETHOD_DECORATOR),
-                        code_fixes.DecorateFunction(constants.BAREMETHOD_DECORATOR),
-                    ]
+            if (len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec))))) > 1:
                 logger.error(
                     f"ARC-4 contract member functions"
                     f" (other than __init__ or approval / clear program methods)"
-                    f" must be annotated with exactly one of"
+                    f" must not be annotated with more than one of"
                     f" @{constants.SUBROUTINE_HINT_ALIAS},"
                     f" @{constants.ABIMETHOD_DECORATOR_ALIAS},"
                     f" or @{constants.BAREMETHOD_DECORATOR_ALIAS}",
                     location=func_loc,
-                    edits=edits,
                 )
 
             if abimethod_dec:
