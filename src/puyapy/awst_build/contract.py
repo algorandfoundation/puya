@@ -296,7 +296,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             if (len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec))))) > 1:
                 logger.error(
                     f"ARC-4 contract member functions"
-                    f" (other than __init__ or approval / clear program methods)"
                     f" must not be annotated with more than one of"
                     f" @{constants.SUBROUTINE_HINT_ALIAS},"
                     f" @{constants.ABIMETHOD_DECORATOR_ALIAS},"
