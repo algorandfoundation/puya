@@ -73,6 +73,9 @@ def get_decorators_by_fullname(
 
         # map alias to canonical name
         full_name = DECORATOR_ALIAS_MAPPING.get(full_name, full_name)
+
+        if full_name in result:
+            logger.error("duplicate decorator", location=ctx.node_location(d))
         result[full_name] = d
     return result
 

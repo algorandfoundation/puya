@@ -480,17 +480,27 @@ from algopy import arc4, public, subroutine
 class MyContract(arc4.ARC4Contract):    
     @public
     @subroutine
-    def a(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
+    def a(self) -> None: ## E: ARC-4 contract member functions must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
         pass
 
     @arc4.abimethod
     @subroutine
-    def b(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
+    def b(self) -> None: ## E: ARC-4 contract member functions must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
         pass
 
     @arc4.abimethod
+    @public ## E: duplicate decorator
+    def c(self) -> None: 
+        pass
+
+    @arc4.abimethod
+    @arc4.abimethod ## E: duplicate decorator
+    def d(self) -> None:
+        pass
+
     @public
-    def c(self) -> None:
+    @public ## E: duplicate decorator
+    def e(self) -> None:
         pass
 
 ## case: bad_signatures
