@@ -126,7 +126,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, 0x)
         test_cases.array.uint64.add_x(arr#0, 1u)
-        store(local.0, 0x000000000000000100000000000000020000000000000003)
         let slot_contents%4#0: Encoded(uint64[]) = load(arr#0)
         let concat%3#0: bytes = (concat slot_contents%4#0 0x000000000000000100000000000000020000000000000003) // on error: max array length exceeded
         store(arr#0, concat%3#0)
@@ -155,7 +154,7 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@7: // overhead_route_L71
         exit 1u
     block@8: // test_array_too_long_route_L75
-        store(local.1, 0x)
+        store(local.0, 0x)
         let value_internal%0#0: uint64 = 0u
         let i#0: uint64 = value_internal%0#0
         goto block@64
@@ -163,25 +162,25 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 512u)
         goto continue_looping%0#0 ? block@65 : block@66
     block@65: // for_body_L79
-        let slot_contents%0#1: Encoded(uint64[]) = load(local.1)
+        let slot_contents%0#1: Encoded(uint64[]) = load(local.0)
         let aggregate%val_as_bytes%12#0: bytes[8] = (itob i#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#1 aggregate%val_as_bytes%12#0) // on error: max array length exceeded
-        store(local.1, concat%0#0)
+        store(local.0, concat%0#0)
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
         goto block@64
     block@66: // after_for_L78
-        let aggregate%slot_contents%18#0: Encoded(uint64[]) = load(local.1)
+        let aggregate%slot_contents%18#0: Encoded(uint64[]) = load(local.0)
         let aggregate%bytes_len%18#0: uint64 = (len aggregate%slot_contents%18#0)
         let aggregate%array_len%18#0: uint64 = (/ aggregate%bytes_len%18#0 8u)
         let tmp%2#2: bool = (== aggregate%array_len%18#0 512u)
         (assert tmp%2#2) // array is expected length
         let aggregate%val_as_bytes%13#0: bytes[8] = (itob 512u)
         let concat%1#0: bytes = (concat aggregate%slot_contents%18#0 aggregate%val_as_bytes%13#0) // on error: max array length exceeded
-        store(local.1, concat%1#0)
+        store(local.0, concat%1#0)
         exit 1u
     block@9: // test_array_copy_and_extend_route_L84
-        store(local.2, 0x)
+        store(local.1, 0x)
         let value_internal%0#0: uint64 = 0u
         let i#0: uint64 = value_internal%0#0
         goto block@59
@@ -189,20 +188,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 5u)
         goto continue_looping%0#0 ? block@60 : block@61
     block@60: // for_body_L88
-        let slot_contents%0#1: Encoded(uint64[]) = load(local.2)
+        let slot_contents%0#1: Encoded(uint64[]) = load(local.1)
         let aggregate%val_as_bytes%14#0: bytes[8] = (itob i#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#1 aggregate%val_as_bytes%14#0) // on error: max array length exceeded
-        store(local.2, concat%0#0)
+        store(local.1, concat%0#0)
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
         goto block@59
     block@61: // after_for_L87
-        let slot_contents%1#0: Encoded(uint64[]) = load(local.2)
-        store(local.3, slot_contents%1#0)
-        let slot_contents%2#1: Encoded(uint64[]) = load(local.2)
+        let slot_contents%1#0: Encoded(uint64[]) = load(local.1)
+        store(local.2, slot_contents%1#0)
+        let slot_contents%2#1: Encoded(uint64[]) = load(local.1)
         let aggregate%val_as_bytes%15#0: bytes[8] = (itob 5u)
         let concat%1#0: bytes = (concat slot_contents%2#1 aggregate%val_as_bytes%15#0) // on error: max array length exceeded
-        store(local.2, concat%1#0)
+        store(local.1, concat%1#0)
         let aggregate%bytes_len%19#0: uint64 = (len concat%1#0)
         let aggregate%array_len%19#0: uint64 = (/ aggregate%bytes_len%19#0 8u)
         let tmp%3#0: bool = (== aggregate%array_len%19#0 6u)
@@ -212,7 +211,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%0#0: uint64 = (extract_uint64 concat%1#0 aggregate%bytes_offset%12#0)
         let tmp%6#3: bool = (== values%0#0 5u)
         (assert tmp%6#3) // expected 5
-        let aggregate%slot_contents%21#0: Encoded(uint64[]) = load(local.3)
+        let aggregate%slot_contents%21#0: Encoded(uint64[]) = load(local.2)
         let aggregate%bytes_len%21#0: uint64 = (len aggregate%slot_contents%21#0)
         let aggregate%array_len%21#0: uint64 = (/ aggregate%bytes_len%21#0 8u)
         let tmp%8#0: bool = (== aggregate%array_len%21#0 5u)
@@ -223,12 +222,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: bool = (== values%1#0 4u)
         (assert tmp%11#0) // expected 4
         let concat%2#0: Encoded(uint64[]) = (concat concat%1#0 aggregate%slot_contents%21#0) // on error: max array length exceeded
-        store(local.2, concat%2#0)
+        store(local.1, concat%2#0)
         let aggregate%bytes_len%23#0: uint64 = (len concat%2#0)
         let aggregate%array_len%23#0: uint64 = (/ aggregate%bytes_len%23#0 8u)
         let tmp%13#0: bool = (== aggregate%array_len%23#0 11u)
         (assert tmp%13#0)
-        let aggregate%slot_contents%24#0: Encoded(uint64[]) = load(local.3)
+        let aggregate%slot_contents%24#0: Encoded(uint64[]) = load(local.2)
         let aggregate%bytes_len%24#0: uint64 = (len aggregate%slot_contents%24#0)
         let aggregate%array_len%24#0: uint64 = (/ aggregate%bytes_len%24#0 8u)
         let tmp%15#0: bool = (== aggregate%array_len%24#0 5u)
@@ -350,7 +349,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let _i#0: uint64 = value_internal%0#0
         goto block@50
     block@13: // test_iteration_route_L140
-        store(local.4, 0x)
+        store(local.3, 0x)
         let value_internal%0#0: uint64 = 0u
         let val#0: uint64 = value_internal%0#0
         goto block@33
@@ -358,15 +357,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< val#0 5u)
         goto continue_looping%0#0 ? block@34 : block@35
     block@34: // for_body_L144
-        let slot_contents%0#1: Encoded(uint64[]) = load(local.4)
+        let slot_contents%0#1: Encoded(uint64[]) = load(local.3)
         let aggregate%val_as_bytes%19#0: bytes[8] = (itob val#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#1 aggregate%val_as_bytes%19#0) // on error: max array length exceeded
-        store(local.4, concat%0#0)
+        store(local.3, concat%0#0)
         let value_internal%0#0: uint64 = (+ val#0 1u)
         let val#0: uint64 = value_internal%0#0
         goto block@33
     block@35: // after_for_L143
-        let aggregate%slot_contents%30#0: Encoded(uint64[]) = load(local.4)
+        let aggregate%slot_contents%30#0: Encoded(uint64[]) = load(local.3)
         let aggregate%bytes_len%30#0: uint64 = (len aggregate%slot_contents%30#0)
         let aggregate%array_len%30#0: uint64 = (/ aggregate%bytes_len%30#0 8u)
         let tmp%2#2: bool = (== aggregate%array_len%30#0 5u)
@@ -378,7 +377,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%1#0: bool = (< item_index_internal%0#0 aggregate%array_len%30#0)
         goto continue_looping%1#0 ? block@37 : block@38
     block@37: // for_body_L150
-        let slot_contents%1#0: Encoded(uint64[]) = load(local.4)
+        let slot_contents%1#0: Encoded(uint64[]) = load(local.3)
         let aggregate%bytes_offset%33#0: uint64 = (* item_index_internal%0#0 8u)
         let value#0: uint64 = (extract_uint64 slot_contents%1#0 aggregate%bytes_offset%33#0)
         let tmp%3#0: bool = (>= value#0 last#0)
@@ -387,7 +386,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let last#0: uint64 = value#0
         goto block@36
     block@38: // after_for_L149
-        let aggregate%slot_contents%32#0: Encoded(uint64[]) = load(local.4)
+        let aggregate%slot_contents%32#0: Encoded(uint64[]) = load(local.3)
         let aggregate%bytes_len%32#0: uint64 = (len aggregate%slot_contents%32#0)
         let aggregate%array_len%32#0: uint64 = (/ aggregate%bytes_len%32#0 8u)
         let item_index_internal%1#0: uint64 = 0u
@@ -397,7 +396,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%2#0: bool = (< idx#0 aggregate%array_len%32#0)
         goto continue_looping%2#0 ? block@40 : block@41
     block@40: // for_body_L155
-        let slot_contents%2#1: Encoded(uint64[]) = load(local.4)
+        let slot_contents%2#1: Encoded(uint64[]) = load(local.3)
         let aggregate%bytes_offset%34#0: uint64 = (* idx#0 8u)
         let value#0: uint64 = (extract_uint64 slot_contents%2#1 aggregate%bytes_offset%34#0)
         let tmp%4#1: bool = (== value#0 idx#0)
@@ -406,7 +405,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let idx#0: uint64 = item_index_internal%1#0
         goto block@39
     block@41: // after_for_L154
-        let aggregate%slot_contents%33#0: Encoded(uint64[]) = load(local.4)
+        let aggregate%slot_contents%33#0: Encoded(uint64[]) = load(local.3)
         let aggregate%bytes_len%33#0: uint64 = (len aggregate%slot_contents%33#0)
         let aggregate%array_len%33#0: uint64 = (/ aggregate%bytes_len%33#0 8u)
         let reverse_index_internal%2#1: uint64 = aggregate%array_len%33#0
@@ -415,7 +414,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto reverse_index_internal%2#1 ? block@43 : block@44
     block@43: // for_body_L159
         let reverse_index_internal%2#1: uint64 = (- reverse_index_internal%2#1 1u)
-        let slot_contents%3#0: Encoded(uint64[]) = load(local.4)
+        let slot_contents%3#0: Encoded(uint64[]) = load(local.3)
         let aggregate%bytes_offset%35#0: uint64 = (* reverse_index_internal%2#1 8u)
         let value#0: uint64 = (extract_uint64 slot_contents%3#0 aggregate%bytes_offset%35#0)
         let tmp%5#2: bool = (<= value#0 last#0)
@@ -424,7 +423,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@42
     block@44: // after_for_L158
         let arc4_arr#0: Encoded(len+uint64[]) = 0x0000
-        store(local.5, 0x)
+        store(local.4, 0x)
         let value_internal%1#0: uint64 = 0u
         let i#0: uint64 = value_internal%1#0
         goto block@45
@@ -439,14 +438,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let arc4_arr#0: Encoded(len+uint64[]) = ((replace2 0) concat%1#0 as_u16_bytes%0#0)
-        let slot_contents%4#0: Encoded(uint64[]) = load(local.5)
+        let slot_contents%4#0: Encoded(uint64[]) = load(local.4)
         let concat%2#0: Encoded(uint64[]) = (concat slot_contents%4#0 aggregate%val_as_bytes%20#0) // on error: max array length exceeded
-        store(local.5, concat%2#0)
+        store(local.4, concat%2#0)
         let value_internal%1#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%1#0
         goto block@45
     block@47: // after_for_L164
-        let slot_contents%5#0: Encoded(uint64[]) = load(local.5)
+        let slot_contents%5#0: Encoded(uint64[]) = load(local.4)
         let concat%3#0: bytes = (concat arc4_arr#0 slot_contents%5#0) // on error: max array length exceeded
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%3#0)
         let len%0#0: uint64 = (len extract_to_end%0#0)
