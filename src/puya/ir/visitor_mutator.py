@@ -96,7 +96,7 @@ class IRMutator(IRVisitor[typing.Any]):
             return None
 
     @typing.override
-    def visit_read_slot(self, read: ir.ReadSlot) -> ir.ValueProvider | ir.Op | None:
+    def visit_read_slot(self, read: ir.ReadSlot) -> ir.ValueProvider | None:
         if replacement := read.slot.accept(self):
             read.slot = replacement
         return None
@@ -293,7 +293,7 @@ class IRMutator(IRVisitor[typing.Any]):
         pass
 
     @typing.override
-    def visit_new_slot(self, new_slot: ir.NewSlot) -> ir.ValueProvider | ir.Op | None:
+    def visit_new_slot(self, new_slot: ir.NewSlot) -> ir.ValueProvider | None:
         pass
 
     @typing.override
