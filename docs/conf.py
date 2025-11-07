@@ -20,6 +20,7 @@ extensions = [
     "sphinx_copybutton",
     "myst_parser",
     "autodoc2",
+    "sphinx_markdown_builder",
 ]
 
 templates_path = ["_templates"]

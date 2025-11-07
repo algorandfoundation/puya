@@ -90,8 +90,19 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
 
 def run_sphinx() -> None:
+    # Build HTML documentation
     subprocess.run(
-        ["sphinx-build", ".", "_build", "-W", "--keep-going", "-n", "-E"], check=True, cwd=DOCS_DIR
+        ["sphinx-build", ".", "_build/html", "-W", "--keep-going", "-n", "-E"],
+        check=True,
+        cwd=DOCS_DIR,
+    )
+    # Build Markdown documentation
+    # Note: -w flag omitted for markdown builds as the markdown builder
+    # doesn't support all MyST directives (e.g., :caption:) that work in HTML
+    subprocess.run(
+        ["sphinx-build", "-b", "markdown", ".", "_build/markdown", "--keep-going", "-n", "-E"],
+        check=True,
+        cwd=DOCS_DIR,
     )
 
 
