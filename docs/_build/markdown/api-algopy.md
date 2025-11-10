@@ -123,7 +123,9 @@ where `OnCompletion` != `ClearState`
 
 Represents the program called when `OnCompletion` == `ClearState`
 
-### *class* algopy.Account(value: [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) = ..., /)
+### *class* algopy.Account
+
+**class* algopy.Account(value: [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) = ..., /)*
 
 An Account on the Algorand network.
 
@@ -252,7 +254,9 @@ Account must be an available resource
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.Application(application_id: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.Application
+
+**class* algopy.Application(application_id: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 An Application on the Algorand network.
 
@@ -398,7 +402,9 @@ Remove and return the last item of this array
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.Asset(asset_id: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.Asset
+
+**class* algopy.Asset(asset_id: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 An Asset on the Algorand network.
 
@@ -522,7 +528,9 @@ URL with additional info about the asset
 #### NOTE
 Asset must be an available resource
 
-### *class* algopy.BigUInt(value: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.BigUInt
+
+**class* algopy.BigUInt(value: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 A variable length (max 512-bit) unsigned integer
 
@@ -685,7 +693,9 @@ Get the underlying Bytes
 
 Construct an instance from the underlying bytes (no validation)
 
-### *class* algopy.Box(type_: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TValue], /, \*, key: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) | [algopy.String](#algopy.String) = ...)
+### *class* algopy.Box
+
+**class* algopy.Box(type_: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TValue], /, \*, key: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) | [algopy.String](#algopy.String) = ...)*
 
 Box abstracts the reading and writing of a single value to a single box.
 The box size will be reconfigured dynamically to fit the size of the value being assigned to
@@ -779,7 +789,9 @@ If the new value is shorter than the box size, it will be padded with zero bytes
 
 Retrieve the contents of the box. Fails if the box has not been created.
 
-### *class* algopy.BoxMap(key_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TKey], value_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TValue], /, \*, key_prefix: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) | [algopy.String](#algopy.String) = ...)
+### *class* algopy.BoxMap
+
+**class* algopy.BoxMap(key_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TKey], value_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TValue], /, \*, key_prefix: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) | [algopy.String](#algopy.String) = ...)*
 
 BoxMap abstracts the reading and writing of a set of boxes using a common key and content type.
 Each composite key (prefix + key) still needs to be made available to the application via the
@@ -846,7 +858,9 @@ box exists.
 * **Parameters:**
   **key** – The key of the box to get
 
-### *class* algopy.BoxRef(/, \*, key: bytes | str | algopy.Bytes | algopy.String = ...)
+### *class* algopy.BoxRef
+
+**class* algopy.BoxRef(/, \*, key: bytes | str | algopy.Bytes | algopy.String = ...)*
 
 BoxRef abstracts the reading and writing of boxes containing raw binary data. The size is
 configured manually, and can be set to values larger than what the AVM can handle in a single
@@ -940,7 +954,9 @@ If the new value is shorter than the box size, it will be padded with zero bytes
   * **length** – The number of bytes after `start_index` to omit from the new value
   * **value** – The `value` to be inserted.
 
-### *class* algopy.Bytes(value: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) = b'', /)
+### *class* algopy.Bytes
+
+**class* algopy.Bytes(value: [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) = b'', /)*
 
 A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM
 
@@ -1176,7 +1192,9 @@ where `OnCompletion` != `ClearState`
 
 Represents the program called when `OnCompletion` == `ClearState`
 
-### *class* algopy.FixedArray(values: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy._TArrayItem])
+### *class* algopy.FixedArray
+
+**class* algopy.FixedArray(values: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy._TArrayItem])*
 
 A fixed length Array of the specified type and length
 
@@ -1467,7 +1485,9 @@ Returns a copy of the array with the item at specified index replaced with the s
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.ImmutableFixedArray(values: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy._TArrayItem])
+### *class* algopy.ImmutableFixedArray
+
+**class* algopy.ImmutableFixedArray(values: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy._TArrayItem])*
 
 An immutable fixed length Array of the specified type and length
 
@@ -1505,7 +1525,9 @@ Returns a copy of the array with the item at the specified index replaced with t
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.LocalState(type_: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TState], /, \*, key: [algopy.String](#algopy.String) | [algopy.Bytes](#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., description: [str](https://docs.python.org/3/library/stdtypes.html#str) = '')
+### *class* algopy.LocalState
+
+**class* algopy.LocalState(type_: [type](https://docs.python.org/3/library/functions.html#type)[algopy._TState], /, \*, key: [algopy.String](#algopy.String) | [algopy.Bytes](#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., description: [str](https://docs.python.org/3/library/stdtypes.html#str) = '')*
 
 Local state associated with the application and an account
 
@@ -1577,7 +1599,9 @@ if not name_exists:
 
 A logic signature
 
-### *class* algopy.OnCompleteAction(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.OnCompleteAction
+
+**class* algopy.OnCompleteAction(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 On Completion actions available in an application call transaction
 
@@ -1837,7 +1861,9 @@ This will error on underflow
 
 A UInt64 can bitwise xor with another UInt64 or int e.g. `UInt64(4) ^ 2`
 
-### *class* algopy.OpUpFeeSource(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.OpUpFeeSource
+
+**class* algopy.OpUpFeeSource(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 Defines the source of fees for the OpUp utility.
 
@@ -2126,7 +2152,9 @@ Returns the current length of the array
 
 Remove and return the last item of this array
 
-### *class* algopy.StateTotals(\*, global_uints: [int](https://docs.python.org/3/library/functions.html#int) = ..., global_bytes: [int](https://docs.python.org/3/library/functions.html#int) = ..., local_uints: [int](https://docs.python.org/3/library/functions.html#int) = ..., local_bytes: [int](https://docs.python.org/3/library/functions.html#int) = ...)
+### *class* algopy.StateTotals
+
+**class* algopy.StateTotals(\*, global_uints: [int](https://docs.python.org/3/library/functions.html#int) = ..., global_bytes: [int](https://docs.python.org/3/library/functions.html#int) = ..., local_uints: [int](https://docs.python.org/3/library/functions.html#int) = ..., local_bytes: [int](https://docs.python.org/3/library/functions.html#int) = ...)*
 
 Options class to manually define the total amount of global and local state contract will use,
 used by [`Contract.__init_subclass__`](#algopy.Contract.__init_subclass__).
@@ -2145,7 +2173,9 @@ Values are validated against the known totals assigned through `self.`, a warnin
 produced if the total specified is insufficient to accommodate all `self.` state values
 at once.
 
-### *class* algopy.String(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '', /)
+### *class* algopy.String
+
+**class* algopy.String(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '', /)*
 
 A UTF-8 encoded string.
 
@@ -2249,7 +2279,9 @@ Ellipsis
 
 Template variables can be used to represent a placeholder for a deploy-time provided value.
 
-### *class* algopy.TransactionType(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.TransactionType
+
+**class* algopy.TransactionType(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 The different transaction types available in a transaction
 
@@ -2922,7 +2954,9 @@ Ellipsis
 
 Asset ID
 
-### *class* algopy.UInt64(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.UInt64
+
+**class* algopy.UInt64(value: [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 A 64-bit unsigned integer, one of the primary data types on the AVM
 
@@ -3139,7 +3173,9 @@ This will error on underflow
 
 A UInt64 can bitwise xor with another UInt64 or int e.g. `UInt64(4) ^ 2`
 
-### algopy.compile_contract(contract: [type](https://docs.python.org/3/library/functions.html#type)[[Contract](#algopy.Contract)], /, \*, extra_program_pages: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., global_uints: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., global_bytes: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., local_uints: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., local_bytes: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., template_vars: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [object](https://docs.python.org/3/library/functions.html#object)] = ..., template_vars_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = ...) → [algopy.CompiledContract](#algopy.CompiledContract)
+### algopy.compile_contract
+
+*algopy.compile_contract(contract: [type](https://docs.python.org/3/library/functions.html#type)[[Contract](#algopy.Contract)], /, \*, extra_program_pages: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., global_uints: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., global_bytes: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., local_uints: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., local_bytes: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ..., template_vars: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [object](https://docs.python.org/3/library/functions.html#object)] = ..., template_vars_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = ...) → [algopy.CompiledContract](#algopy.CompiledContract)*
 
 Returns the compiled data for the specified contract
 
@@ -3156,7 +3192,9 @@ Returns the compiled data for the specified contract
   * **template_vars_prefix** – Prefix to add to provided template vars,
     defaults to the prefix supplied on command line (which defaults to TMPL_)
 
-### algopy.compile_logicsig(logicsig: [LogicSig](#algopy.LogicSig), /, \*, template_vars: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [object](https://docs.python.org/3/library/functions.html#object)] = ..., template_vars_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = ...) → [algopy.CompiledLogicSig](#algopy.CompiledLogicSig)
+### algopy.compile_logicsig
+
+*algopy.compile_logicsig(logicsig: [LogicSig](#algopy.LogicSig), /, \*, template_vars: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [object](https://docs.python.org/3/library/functions.html#object)] = ..., template_vars_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) = ...) → [algopy.CompiledLogicSig](#algopy.CompiledLogicSig)*
 
 Returns the Account for the specified logic signature
 
@@ -3168,27 +3206,37 @@ Returns the Account for the specified logic signature
   * **template_vars_prefix** – Prefix to add to provided template vars,
     defaults to the prefix supplied on command line (which defaults to TMPL_)
 
-### algopy.ensure_budget(required_budget: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), fee_source: [algopy.OpUpFeeSource](#algopy.OpUpFeeSource) = ...) → [None](https://docs.python.org/3/library/constants.html#None)
+### algopy.ensure_budget
+
+*algopy.ensure_budget(required_budget: [algopy.UInt64](#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), fee_source: [algopy.OpUpFeeSource](#algopy.OpUpFeeSource) = ...) → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Ensure the available op code budget is greater than or equal to required_budget
 
-### algopy.log(\*args: [object](https://docs.python.org/3/library/functions.html#object), sep: [algopy.String](#algopy.String) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) = '') → [None](https://docs.python.org/3/library/constants.html#None)
+### algopy.log
+
+*algopy.log(\*args: [object](https://docs.python.org/3/library/functions.html#object), sep: [algopy.String](#algopy.String) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) = '') → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Concatenates and logs supplied args as a single bytes value.
 
 UInt64 args are converted to bytes and each argument is separated by `sep`.
 Literal `str` values will be encoded as UTF8.
 
-### algopy.logicsig(\*, name: [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., avm_version: [int](https://docs.python.org/3/library/functions.html#int) = ..., scratch_slots: [algopy.urange](#algopy.urange) | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](#algopy.urange), ...] | [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](#algopy.urange)] = ()) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[], [bool](https://docs.python.org/3/library/functions.html#bool) | [algopy.UInt64](#algopy.UInt64)]], [algopy.LogicSig](#algopy.LogicSig)]
+### algopy.logicsig
+
+*algopy.logicsig(\*, name: [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., avm_version: [int](https://docs.python.org/3/library/functions.html#int) = ..., scratch_slots: [algopy.urange](#algopy.urange) | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](#algopy.urange), ...] | [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](#algopy.urange)] = ()) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[], [bool](https://docs.python.org/3/library/functions.html#bool) | [algopy.UInt64](#algopy.UInt64)]], [algopy.LogicSig](#algopy.LogicSig)]*
 
 Decorator to indicate a function is a logic signature
 
-### algopy.size_of(type_or_expression: [type](https://docs.python.org/3/library/functions.html#type) | [object](https://docs.python.org/3/library/functions.html#object), /) → [algopy.UInt64](#algopy.UInt64)
+### algopy.size_of
+
+*algopy.size_of(type_or_expression: [type](https://docs.python.org/3/library/functions.html#type) | [object](https://docs.python.org/3/library/functions.html#object), /) → [algopy.UInt64](#algopy.UInt64)*
 
 Returns the number of bytes required to store the provided type object
 or the type of provided expression
 
-### algopy.subroutine(\*, inline: [bool](https://docs.python.org/3/library/functions.html#bool) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[auto] = 'auto') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy._P, algopy._R]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy._P, algopy._R]]
+### algopy.subroutine
+
+*algopy.subroutine(\*, inline: [bool](https://docs.python.org/3/library/functions.html#bool) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[auto] = 'auto') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy._P, algopy._R]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy._P, algopy._R]]*
 
 Decorator to indicate functions or methods that can be called by a Smart Contract
 
@@ -3197,7 +3245,9 @@ When unspecified it defaults to auto, which allows the optimizer to decide wheth
 or not. Setting `inline=True` forces inlining, and `inline=False` ensures the function will
 never be inlined.
 
-### *class* algopy.uenumerate(iterable: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy._T])
+### *class* algopy.uenumerate
+
+**class* algopy.uenumerate(iterable: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy._T])*
 
 Yields pairs containing a count (from zero) and a value yielded by the iterable argument.
 
@@ -3216,7 +3266,9 @@ urange(4) produces 0, 1, 2, 3
 urange(i, j) produces i, i+1, i+2, …, j-1.
 urange(i, j, 2) produces i, i+2, i+4, …, i+2n where n is the largest value where i+2n < j
 
-### algopy.zero_bytes(typ: [type](https://docs.python.org/3/library/functions.html#type)[algopy.zero_bytes.T]) → algopy.zero_bytes.T
+### algopy.zero_bytes
+
+*algopy.zero_bytes(typ: [type](https://docs.python.org/3/library/functions.html#type)[algopy.zero_bytes.T]) → algopy.zero_bytes.T*
 
 Initializes a new value of the specified type, based on it’s zero bytes representation.
 

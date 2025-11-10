@@ -115,7 +115,9 @@ where `OnCompletion` != `ClearState`
 
 Represents the program called when `OnCompletion` == `ClearState`
 
-### *class* algopy.arc4.Address(value: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](api-algopy.md#algopy.Bytes) = ..., /)
+### *class* algopy.arc4.Address
+
+**class* algopy.arc4.Address(value: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](api-algopy.md#algopy.Bytes) = ..., /)*
 
 An alias for an array containing 32 bytes representing an Algorand address
 
@@ -192,7 +194,9 @@ arc4.UInt64 -> UInt64
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.BigUFixedNxM(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '0.0', /)
+### *class* algopy.arc4.BigUFixedNxM
+
+**class* algopy.arc4.BigUFixedNxM(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '0.0', /)*
 
 An ARC-4 UFixed representing a decimal with the number of bits and precision specified.
 
@@ -227,7 +231,9 @@ Load an ABI type from application logs, checking for the ABI return prefix `0x15
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.BigUIntN(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.arc4.BigUIntN
+
+**class* algopy.arc4.BigUIntN(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 An ARC-4 UInt consisting of the number of bits specified.
 
@@ -291,7 +297,9 @@ Return the BigUInt representation of the value after ARC-4 decoding
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.Bool(value: [bool](https://docs.python.org/3/library/functions.html#bool) = False, /)
+### *class* algopy.arc4.Bool
+
+**class* algopy.arc4.Bool(value: [bool](https://docs.python.org/3/library/functions.html#bool) = False, /)*
 
 An ARC-4 encoded bool
 
@@ -325,7 +333,9 @@ Return the bool representation of the value after ARC-4 decoding
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.Byte(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.arc4.Byte
+
+**class* algopy.arc4.Byte(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 An ARC-4 alias for a UInt8
 
@@ -387,7 +397,9 @@ Return the UInt64 representation of the value after ARC-4 decoding
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.DynamicArray(\*items: algopy.arc4._TArrayItem)
+### *class* algopy.arc4.DynamicArray
+
+**class* algopy.arc4.DynamicArray(\*items: algopy.arc4._TArrayItem)*
 
 A dynamically sized ARC-4 Array of the specified type
 
@@ -588,7 +600,9 @@ arc4.UInt64 -> UInt64
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.String(value: [algopy.String](api-algopy.md#algopy.String) | [str](https://docs.python.org/3/library/stdtypes.html#str) = '', /)
+### *class* algopy.arc4.String
+
+**class* algopy.arc4.String(value: [algopy.String](api-algopy.md#algopy.String) | [str](https://docs.python.org/3/library/stdtypes.html#str) = '', /)*
 
 An ARC-4 sequence of bytes containing a UTF8 string
 
@@ -652,7 +666,9 @@ Load an ABI type from application logs, checking for the ABI return prefix `0x15
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.Tuple(items: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[Unpack](https://docs.python.org/3/library/typing.html#typing.Unpack)[algopy.arc4._TTuple]], /)
+### *class* algopy.arc4.Tuple
+
+**class* algopy.arc4.Tuple(items: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[Unpack](https://docs.python.org/3/library/typing.html#typing.Unpack)[algopy.arc4._TTuple]], /)*
 
 An ARC-4 ABI tuple, containing other ARC-4 ABI types
 
@@ -801,7 +817,9 @@ should be considered to be copies of the original elements
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.UFixedNxM(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '0.0', /)
+### *class* algopy.arc4.UFixedNxM
+
+**class* algopy.arc4.UFixedNxM(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '0.0', /)*
 
 An ARC-4 UFixed representing a decimal with the number of bits and precision specified.
 
@@ -836,49 +854,65 @@ Load an ABI type from application logs, checking for the ABI return prefix `0x15
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### algopy.arc4.UInt128 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)*
+### algopy.arc4.UInt128 *: [TypeAlias]
+
+*algopy.arc4.UInt128 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
 None
 
 An ARC-4 UInt128
 
-### algopy.arc4.UInt16 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)*
+### algopy.arc4.UInt16 *: [TypeAlias]
+
+*algopy.arc4.UInt16 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
 None
 
 An ARC-4 UInt16
 
-### algopy.arc4.UInt256 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)*
+### algopy.arc4.UInt256 *: [TypeAlias]
+
+*algopy.arc4.UInt256 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
 None
 
 An ARC-4 UInt256
 
-### algopy.arc4.UInt32 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)*
+### algopy.arc4.UInt32 *: [TypeAlias]
+
+*algopy.arc4.UInt32 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
 None
 
 An ARC-4 UInt32
 
-### algopy.arc4.UInt512 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)*
+### algopy.arc4.UInt512 *: [TypeAlias]
+
+*algopy.arc4.UInt512 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
 None
 
 An ARC-4 UInt512
 
-### algopy.arc4.UInt64 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)*
+### algopy.arc4.UInt64 *: [TypeAlias]
+
+*algopy.arc4.UInt64 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
 None
 
 An ARC-4 UInt64
 
-### algopy.arc4.UInt8 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)*
+### algopy.arc4.UInt8 *: [TypeAlias]
+
+*algopy.arc4.UInt8 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
 None
 
 An ARC-4 UInt8
 
-### *class* algopy.arc4.UIntN(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)
+### *class* algopy.arc4.UIntN
+
+**class* algopy.arc4.UIntN(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 An ARC-4 UInt consisting of the number of bits specified.
 
@@ -1027,7 +1061,9 @@ assert result == "Hello, There"
 txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
 ```
 
-### algopy.arc4.abimethod(\*, name: [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., create: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[allow, require, disallow] = 'disallow', allow_actions: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[NoOp, OptIn, CloseOut, UpdateApplication, DeleteApplication]] = ('NoOp',), resource_encoding: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[index, value] = ..., readonly: [bool](https://docs.python.org/3/library/functions.html#bool) = False, default_args: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | algopy.arc4._ReadOnlyNoArgsMethod | [object](https://docs.python.org/3/library/functions.html#object)] = ..., validate_encoding: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[unsafe_disabled, args] = ...) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R]]
+### algopy.arc4.abimethod
+
+*algopy.arc4.abimethod(\*, name: [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., create: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[allow, require, disallow] = 'disallow', allow_actions: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[NoOp, OptIn, CloseOut, UpdateApplication, DeleteApplication]] = ('NoOp',), resource_encoding: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[index, value] = ..., readonly: [bool](https://docs.python.org/3/library/functions.html#bool) = False, default_args: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | algopy.arc4._ReadOnlyNoArgsMethod | [object](https://docs.python.org/3/library/functions.html#object)] = ..., validate_encoding: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[unsafe_disabled, args] = ...) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R]]*
 
 Decorator that indicates a method is an ARC-4 ABI method.
 
@@ -1056,7 +1092,9 @@ Decorator that indicates a method is an ARC-4 ABI method.
     The default behaviour of this option can be controlled with the
     –validate-abi-args CLI flag.
 
-### algopy.arc4.arc4_create(method: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._TABIResult_co], /, \*args: [object](https://docs.python.org/3/library/functions.html#object), compiled: [algopy.CompiledContract](api-algopy.md#algopy.CompiledContract) = ..., on_completion: [algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) = ..., fee: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, sender: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., note: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., rekey_to: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ...) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[algopy.arc4._TABIResult_co, [algopy.itxn.ApplicationCallInnerTransaction](api-algopy.itxn.md#algopy.itxn.ApplicationCallInnerTransaction)]
+### algopy.arc4.arc4_create
+
+*algopy.arc4.arc4_create(method: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._TABIResult_co], /, \*args: [object](https://docs.python.org/3/library/functions.html#object), compiled: [algopy.CompiledContract](api-algopy.md#algopy.CompiledContract) = ..., on_completion: [algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) = ..., fee: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, sender: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., note: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., rekey_to: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ...) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[algopy.arc4._TABIResult_co, [algopy.itxn.ApplicationCallInnerTransaction](api-algopy.itxn.md#algopy.itxn.ApplicationCallInnerTransaction)]*
 
 Provides a typesafe and convenient way of creating an ARC4Contract via an inner transaction
 
@@ -1072,11 +1110,15 @@ Provides a typesafe and convenient way of creating an ARC4Contract via an inner 
   * **note** – Note to include with the transaction
   * **rekey_to** – Account to rekey to
 
-### algopy.arc4.arc4_signature(signature: [str](https://docs.python.org/3/library/stdtypes.html#str) | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R], /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.arc4.arc4_signature
+
+*algopy.arc4.arc4_signature(signature: [str](https://docs.python.org/3/library/stdtypes.html#str) | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R], /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Returns the ARC-4 encoded method selector for the specified signature or abi method
 
-### algopy.arc4.arc4_update(method: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._TABIResult_co], /, \*args: [object](https://docs.python.org/3/library/functions.html#object), app_id: [algopy.Application](api-algopy.md#algopy.Application) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), compiled: [algopy.CompiledContract](api-algopy.md#algopy.CompiledContract) = ..., fee: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, sender: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., note: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., rekey_to: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., reject_version: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ...) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[algopy.arc4._TABIResult_co, [algopy.itxn.ApplicationCallInnerTransaction](api-algopy.itxn.md#algopy.itxn.ApplicationCallInnerTransaction)]
+### algopy.arc4.arc4_update
+
+*algopy.arc4.arc4_update(method: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._TABIResult_co], /, \*args: [object](https://docs.python.org/3/library/functions.html#object), app_id: [algopy.Application](api-algopy.md#algopy.Application) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), compiled: [algopy.CompiledContract](api-algopy.md#algopy.CompiledContract) = ..., fee: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, sender: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., note: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., rekey_to: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., reject_version: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ...) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[algopy.arc4._TABIResult_co, [algopy.itxn.ApplicationCallInnerTransaction](api-algopy.itxn.md#algopy.itxn.ApplicationCallInnerTransaction)]*
 
 Provides a typesafe and convenient way of updating an ARC4Contract via an inner transaction
 
@@ -1091,7 +1133,9 @@ Provides a typesafe and convenient way of updating an ARC4Contract via an inner 
   * **note** – Note to include with the transaction
   * **rekey_to** – Account to rekey to
 
-### algopy.arc4.baremethod(\*, create: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[allow, require, disallow] = 'disallow', allow_actions: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[NoOp, OptIn, CloseOut, UpdateApplication, DeleteApplication]] = ...) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[algopy.arc4._TARC4Contract], [None](https://docs.python.org/3/library/constants.html#None)]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[algopy.arc4._TARC4Contract], [None](https://docs.python.org/3/library/constants.html#None)]]
+### algopy.arc4.baremethod
+
+*algopy.arc4.baremethod(\*, create: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[allow, require, disallow] = 'disallow', allow_actions: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[NoOp, OptIn, CloseOut, UpdateApplication, DeleteApplication]] = ...) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[algopy.arc4._TARC4Contract], [None](https://docs.python.org/3/library/constants.html#None)]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[algopy.arc4._TARC4Contract], [None](https://docs.python.org/3/library/constants.html#None)]]*
 
 Decorator that indicates a method is an ARC-4 bare method.
 
@@ -1102,7 +1146,9 @@ There can be only one bare method on a contract for each given On-Completion Act
     “disallow” requires it must be non-zero, and “allow” disables the validation.
   * **allow_actions** – Which On-Completion Action(s) to handle.
 
-### algopy.arc4.emit(event: [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.arc4.Struct](#algopy.arc4.Struct), /, \*args: [object](https://docs.python.org/3/library/functions.html#object)) → [None](https://docs.python.org/3/library/constants.html#None)
+### algopy.arc4.emit
+
+*algopy.arc4.emit(event: [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.arc4.Struct](#algopy.arc4.Struct), /, \*args: [object](https://docs.python.org/3/library/functions.html#object)) → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Emit an ARC-28 event for the provided event signature or name, and provided args.
 

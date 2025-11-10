@@ -5659,33 +5659,43 @@ Pad a numeric string with zeros on the left, to fill a field of the given width.
 
 The string is never truncated.
 
-### algopy.op.addw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]
+### algopy.op.addw
+
+*algopy.op.addw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]*
 
 A plus B as a 128-bit result. X is the carry-bit, Y is the low-order 64 bits.
 
 Native TEAL opcode: [`addw`](https://dev.algorand.co/reference/algorand-teal/opcodes/#addw)
 
-### algopy.op.app_opted_in(a: [algopy.Account](api-algopy.md#algopy.Account) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.Application](api-algopy.md#algopy.Application) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### algopy.op.app_opted_in
+
+*algopy.op.app_opted_in(a: [algopy.Account](api-algopy.md#algopy.Account) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.Application](api-algopy.md#algopy.Application) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 1 if account A is opted in to application B, else 0
 params: Txn.Accounts offset (or, since v4, an *available* account address), *available* application id (or, since v4, a Txn.ForeignApps offset). Return: 1 if opted in and 0 otherwise.
 
 Native TEAL opcode: [`app_opted_in`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_opted_in)
 
-### algopy.op.arg(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.arg
+
+*algopy.op.arg(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Ath LogicSig argument
 
 Native TEAL opcode: [`arg`](https://dev.algorand.co/reference/algorand-teal/opcodes/#arg), [`args`](https://dev.algorand.co/reference/algorand-teal/opcodes/#args)
 
-### algopy.op.balance(a: [algopy.Account](api-algopy.md#algopy.Account) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.balance
+
+*algopy.op.balance(a: [algopy.Account](api-algopy.md#algopy.Account) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 balance for account A, in microalgos. The balance is observed after the effects of previous transactions in the group, and after the fee for the current transaction is deducted. Changes caused by inner transactions are observable immediately following `itxn_submit`
 params: Txn.Accounts offset (or, since v4, an *available* account address), *available* application id (or, since v4, a Txn.ForeignApps offset). Return: value.
 
 Native TEAL opcode: [`balance`](https://dev.algorand.co/reference/algorand-teal/opcodes/#balance)
 
-### algopy.op.base64_decode(e: [algopy.op.Base64](#algopy.op.Base64), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.base64_decode
+
+*algopy.op.base64_decode(e: [algopy.op.Base64](#algopy.op.Base64), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 decode A which was base64-encoded using *encoding* E. Fail if A is not base64 encoded with encoding E
 *Warning*: Usage should be restricted to very rare use cases. In almost all cases, smart contracts should directly handle non-encoded byte-strings. This opcode should only be used in cases where base64 is the only available option, e.g. interoperability with a third-party that only signs base64 strings.
@@ -5697,54 +5707,70 @@ Decodes A using the base64 encoding E. Specify the encoding with an immediate ar
 
 Native TEAL opcode: [`base64_decode`](https://dev.algorand.co/reference/algorand-teal/opcodes/#base64_decode)
 
-### algopy.op.bitlen(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.bitlen
+
+*algopy.op.bitlen(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 The highest set bit in A. If A is a byte-array, it is interpreted as a big-endian unsigned integer. bitlen of 0 is 0, bitlen of 8 is 4
 bitlen interprets arrays as big-endian integers, unlike setbit/getbit
 
 Native TEAL opcode: [`bitlen`](https://dev.algorand.co/reference/algorand-teal/opcodes/#bitlen)
 
-### algopy.op.bsqrt(a: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)
+### algopy.op.bsqrt
+
+*algopy.op.bsqrt(a: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)*
 
 The largest integer I such that I^2 <= A. A and I are interpreted as big-endian unsigned integers
 
 Native TEAL opcode: [`bsqrt`](https://dev.algorand.co/reference/algorand-teal/opcodes/#bsqrt)
 
-### algopy.op.btoi(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.btoi
+
+*algopy.op.btoi(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 converts big-endian byte array A to uint64. Fails if len(A) > 8. Padded by leading 0s if len(A) < 8.
 `btoi` fails if the input is longer than 8 bytes.
 
 Native TEAL opcode: [`btoi`](https://dev.algorand.co/reference/algorand-teal/opcodes/#btoi)
 
-### algopy.op.bzero(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.bzero
+
+*algopy.op.bzero(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 zero filled byte-array of length A
 
 Native TEAL opcode: [`bzero`](https://dev.algorand.co/reference/algorand-teal/opcodes/#bzero)
 
-### algopy.op.concat(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.concat
+
+*algopy.op.concat(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 join A and B
 `concat` fails if the result would be greater than 4096 bytes.
 
 Native TEAL opcode: [`concat`](https://dev.algorand.co/reference/algorand-teal/opcodes/#concat)
 
-### algopy.op.divmodw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), d: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]
+### algopy.op.divmodw
+
+*algopy.op.divmodw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), d: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]*
 
 W,X = (A,B / C,D); Y,Z = (A,B modulo C,D)
 The notation J,K indicates that two uint64 values J and K are interpreted as a uint128 value, with J as the high uint64 and K the low.
 
 Native TEAL opcode: [`divmodw`](https://dev.algorand.co/reference/algorand-teal/opcodes/#divmodw)
 
-### algopy.op.divw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.divw
+
+*algopy.op.divw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 A,B / C. Fail if C == 0 or if result overflows.
 The notation A,B indicates that A and B are interpreted as a uint128 value, with A as the high uint64 and B the low.
 
 Native TEAL opcode: [`divw`](https://dev.algorand.co/reference/algorand-teal/opcodes/#divw)
 
-### algopy.op.ecdsa_pk_decompress(v: [algopy.op.ECDSA](#algopy.op.ECDSA), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.Bytes](api-algopy.md#algopy.Bytes), [algopy.Bytes](api-algopy.md#algopy.Bytes)]
+### algopy.op.ecdsa_pk_decompress
+
+*algopy.op.ecdsa_pk_decompress(v: [algopy.op.ECDSA](#algopy.op.ECDSA), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.Bytes](api-algopy.md#algopy.Bytes), [algopy.Bytes](api-algopy.md#algopy.Bytes)]*
 
 decompress pubkey A into components X, Y
 The 33 byte public key in a compressed form to be decompressed into X and Y (top) components. All values are big-endian encoded.
@@ -5754,7 +5780,9 @@ The 33 byte public key in a compressed form to be decompressed into X and Y (top
 
 Native TEAL opcode: [`ecdsa_pk_decompress`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ecdsa_pk_decompress)
 
-### algopy.op.ecdsa_pk_recover(v: [algopy.op.ECDSA](#algopy.op.ECDSA), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), d: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.Bytes](api-algopy.md#algopy.Bytes), [algopy.Bytes](api-algopy.md#algopy.Bytes)]
+### algopy.op.ecdsa_pk_recover
+
+*algopy.op.ecdsa_pk_recover(v: [algopy.op.ECDSA](#algopy.op.ECDSA), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), d: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.Bytes](api-algopy.md#algopy.Bytes), [algopy.Bytes](api-algopy.md#algopy.Bytes)]*
 
 for (data A, recovery id B, signature C, D) recover a public key
 S (top) and R elements of a signature, recovery id and data (bottom) are expected on the stack and used to deriver a public key. All values are big-endian encoded. The signed data must be 32 bytes long.
@@ -5764,7 +5792,9 @@ S (top) and R elements of a signature, recovery id and data (bottom) are expecte
 
 Native TEAL opcode: [`ecdsa_pk_recover`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ecdsa_pk_recover)
 
-### algopy.op.ecdsa_verify(v: [algopy.op.ECDSA](#algopy.op.ECDSA), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), d: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), e: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### algopy.op.ecdsa_verify
+
+*algopy.op.ecdsa_verify(v: [algopy.op.ECDSA](#algopy.op.ECDSA), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), d: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), e: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 for (data A, signature B, C and pubkey D, E) verify the signature of the data against the pubkey => {0 or 1}
 The 32 byte Y-component of a public key is the last element on the stack, preceded by X-component of a pubkey, preceded by S and R components of a signature, preceded by the data that is fifth element on the stack. All values are big-endian encoded. The signed data must be 32 bytes long, and signatures in lower-S form are only accepted.
@@ -5774,20 +5804,26 @@ The 32 byte Y-component of a public key is the last element on the stack, preced
 
 Native TEAL opcode: [`ecdsa_verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ecdsa_verify)
 
-### algopy.op.ed25519verify(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### algopy.op.ed25519verify
+
+*algopy.op.ed25519verify(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 for (data A, signature B, pubkey C) verify the signature of (“ProgData” || program_hash || data) against the pubkey => {0 or 1}
 The 32 byte public key is the last element on the stack, preceded by the 64 byte signature at the second-to-last element on the stack, preceded by the data which was signed at the third-to-last element on the stack.
 
 Native TEAL opcode: [`ed25519verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ed25519verify)
 
-### algopy.op.ed25519verify_bare(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### algopy.op.ed25519verify_bare
+
+*algopy.op.ed25519verify_bare(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 for (data A, signature B, pubkey C) verify the signature of the data against the pubkey => {0 or 1}
 
 Native TEAL opcode: [`ed25519verify_bare`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ed25519verify_bare)
 
-### algopy.op.err() → [Never](https://docs.python.org/3/library/typing.html#typing.Never)
+### algopy.op.err
+
+*algopy.op.err() → [Never](https://docs.python.org/3/library/typing.html#typing.Never)*
 
 Fail immediately.
 
@@ -5796,7 +5832,9 @@ Fail immediately.
 
 Native TEAL opcode: [`err`](https://dev.algorand.co/reference/algorand-teal/opcodes/#err)
 
-### algopy.op.exit(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [Never](https://docs.python.org/3/library/typing.html#typing.Never)
+### algopy.op.exit
+
+*algopy.op.exit(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [Never](https://docs.python.org/3/library/typing.html#typing.Never)*
 
 use A as success value; end
 
@@ -5805,95 +5843,125 @@ use A as success value; end
 
 Native TEAL opcode: [`return`](https://dev.algorand.co/reference/algorand-teal/opcodes/#return)
 
-### algopy.op.exp(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.exp
+
+*algopy.op.exp(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 A raised to the Bth power. Fail if A == B == 0 and on overflow
 
 Native TEAL opcode: [`exp`](https://dev.algorand.co/reference/algorand-teal/opcodes/#exp)
 
-### algopy.op.expw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]
+### algopy.op.expw
+
+*algopy.op.expw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]*
 
 A raised to the Bth power as a 128-bit result in two uint64s. X is the high 64 bits, Y is the low. Fail if A == B == 0 or if the results exceeds 2^128-1
 
 Native TEAL opcode: [`expw`](https://dev.algorand.co/reference/algorand-teal/opcodes/#expw)
 
-### algopy.op.extract(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.extract
+
+*algopy.op.extract(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 A range of bytes from A starting at B up to but not including B+C. If B+C is larger than the array length, the program fails
 `extract3` can be called using `extract` with no immediates.
 
 Native TEAL opcode: [`extract`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract), [`extract3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract3)
 
-### algopy.op.extract_uint16(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.extract_uint16
+
+*algopy.op.extract_uint16(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 A uint16 formed from a range of big-endian bytes from A starting at B up to but not including B+2. If B+2 is larger than the array length, the program fails
 
 Native TEAL opcode: [`extract_uint16`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract_uint16)
 
-### algopy.op.extract_uint32(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.extract_uint32
+
+*algopy.op.extract_uint32(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 A uint32 formed from a range of big-endian bytes from A starting at B up to but not including B+4. If B+4 is larger than the array length, the program fails
 
 Native TEAL opcode: [`extract_uint32`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract_uint32)
 
-### algopy.op.extract_uint64(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.extract_uint64
+
+*algopy.op.extract_uint64(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 A uint64 formed from a range of big-endian bytes from A starting at B up to but not including B+8. If B+8 is larger than the array length, the program fails
 
 Native TEAL opcode: [`extract_uint64`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract_uint64)
 
-### algopy.op.falcon_verify(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### algopy.op.falcon_verify
+
+*algopy.op.falcon_verify(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey => {0 or 1}
 Min AVM version: 12
 
 Native TEAL opcode: [`falcon_verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#falcon_verify)
 
-### algopy.op.gaid(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.gaid
+
+*algopy.op.gaid(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 ID of the asset or application created in the Ath transaction of the current group
 `gaids` fails unless the requested transaction created an asset or application and A < GroupIndex.
 
 Native TEAL opcode: [`gaid`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gaid), [`gaids`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gaids)
 
-### algopy.op.getbit(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [bool](https://docs.python.org/3/library/functions.html#bool)
+### algopy.op.getbit
+
+*algopy.op.getbit(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Bth bit of (byte-array or integer) A. If B is greater than or equal to the bit length of the value (8\*byte length), the program fails
 see explanation of bit ordering in setbit
 
 Native TEAL opcode: [`getbit`](https://dev.algorand.co/reference/algorand-teal/opcodes/#getbit)
 
-### algopy.op.getbyte(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.getbyte
+
+*algopy.op.getbyte(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 Bth byte of A, as an integer. If B is greater than or equal to the array length, the program fails
 
 Native TEAL opcode: [`getbyte`](https://dev.algorand.co/reference/algorand-teal/opcodes/#getbyte)
 
-### algopy.op.gload_bytes(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.gload_bytes
+
+*algopy.op.gload_bytes(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Bth scratch space value of the Ath transaction in the current group
 
 Native TEAL opcode: [`gload`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gload), [`gloads`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gloads), [`gloadss`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gloadss)
 
-### algopy.op.gload_uint64(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.gload_uint64
+
+*algopy.op.gload_uint64(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 Bth scratch space value of the Ath transaction in the current group
 
 Native TEAL opcode: [`gload`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gload), [`gloads`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gloads), [`gloadss`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gloadss)
 
-### algopy.op.itob(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.itob
+
+*algopy.op.itob(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 converts uint64 A to big-endian byte array, always of length 8
 
 Native TEAL opcode: [`itob`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itob)
 
-### algopy.op.keccak256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.keccak256
+
+*algopy.op.keccak256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Keccak256 hash of value A, yields [32]byte
 
 Native TEAL opcode: [`keccak256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#keccak256)
 
-### algopy.op.mimc(c: [algopy.op.MiMCConfigurations](#algopy.op.MiMCConfigurations), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.mimc
+
+*algopy.op.mimc(c: [algopy.op.MiMCConfigurations](#algopy.op.MiMCConfigurations), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 MiMC hash of scalars A, using curve and parameters specified by configuration C
 A is a list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A’s length is not a multiple of 32 or any element exceeds the curve modulus.
@@ -5906,115 +5974,151 @@ Min AVM version: 11
 
 Native TEAL opcode: [`mimc`](https://dev.algorand.co/reference/algorand-teal/opcodes/#mimc)
 
-### algopy.op.min_balance(a: [algopy.Account](api-algopy.md#algopy.Account) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.min_balance
+
+*algopy.op.min_balance(a: [algopy.Account](api-algopy.md#algopy.Account) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 minimum required balance for account A, in microalgos. Required balance is affected by ASA, App, and Box usage. When creating or opting into an app, the minimum balance grows before the app code runs, therefore the increase is visible there. When deleting or closing out, the minimum balance decreases after the app executes. Changes caused by inner transactions or box usage are observable immediately following the opcode effecting the change.
 params: Txn.Accounts offset (or, since v4, an *available* account address), *available* application id (or, since v4, a Txn.ForeignApps offset). Return: value.
 
 Native TEAL opcode: [`min_balance`](https://dev.algorand.co/reference/algorand-teal/opcodes/#min_balance)
 
-### algopy.op.mulw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]
+### algopy.op.mulw
+
+*algopy.op.mulw(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.UInt64](api-algopy.md#algopy.UInt64), [algopy.UInt64](api-algopy.md#algopy.UInt64)]*
 
 A times B as a 128-bit result in two uint64s. X is the high 64 bits, Y is the low
 
 Native TEAL opcode: [`mulw`](https://dev.algorand.co/reference/algorand-teal/opcodes/#mulw)
 
-### algopy.op.online_stake() → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.online_stake
+
+*algopy.op.online_stake() → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 the total online stake in the agreement round
 Min AVM version: 11
 
 Native TEAL opcode: [`online_stake`](https://dev.algorand.co/reference/algorand-teal/opcodes/#online_stake)
 
-### algopy.op.replace(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.replace
+
+*algopy.op.replace(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Copy of A with the bytes starting at B replaced by the bytes of C. Fails if B+len(C) exceeds len(A)
 `replace3` can be called using `replace` with no immediates.
 
 Native TEAL opcode: [`replace2`](https://dev.algorand.co/reference/algorand-teal/opcodes/#replace2), [`replace3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#replace3)
 
-### algopy.op.select_bytes(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [bool](https://docs.python.org/3/library/functions.html#bool) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.select_bytes
+
+*algopy.op.select_bytes(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [bool](https://docs.python.org/3/library/functions.html#bool) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 selects one of two values based on top-of-stack: B if C != 0, else A
 
 Native TEAL opcode: [`select`](https://dev.algorand.co/reference/algorand-teal/opcodes/#select)
 
-### algopy.op.select_uint64(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [bool](https://docs.python.org/3/library/functions.html#bool) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.select_uint64
+
+*algopy.op.select_uint64(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [bool](https://docs.python.org/3/library/functions.html#bool) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 selects one of two values based on top-of-stack: B if C != 0, else A
 
 Native TEAL opcode: [`select`](https://dev.algorand.co/reference/algorand-teal/opcodes/#select)
 
-### algopy.op.setbit_bytes(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [bool](https://docs.python.org/3/library/functions.html#bool), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.setbit_bytes
+
+*algopy.op.setbit_bytes(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [bool](https://docs.python.org/3/library/functions.html#bool), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8\*byte length), the program fails
 When A is a uint64, index 0 is the least significant bit. Setting bit 3 to 1 on the integer 0 yields 8, or 2^3. When A is a byte array, index 0 is the leftmost bit of the leftmost byte. Setting bits 0 through 11 to 1 in a 4-byte-array of 0s yields the byte array 0xfff00000. Setting bit 3 to 1 on the 1-byte-array 0x00 yields the byte array 0x10.
 
 Native TEAL opcode: [`setbit`](https://dev.algorand.co/reference/algorand-teal/opcodes/#setbit)
 
-### algopy.op.setbit_uint64(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [bool](https://docs.python.org/3/library/functions.html#bool), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.setbit_uint64
+
+*algopy.op.setbit_uint64(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [bool](https://docs.python.org/3/library/functions.html#bool), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8\*byte length), the program fails
 When A is a uint64, index 0 is the least significant bit. Setting bit 3 to 1 on the integer 0 yields 8, or 2^3. When A is a byte array, index 0 is the leftmost bit of the leftmost byte. Setting bits 0 through 11 to 1 in a 4-byte-array of 0s yields the byte array 0xfff00000. Setting bit 3 to 1 on the 1-byte-array 0x00 yields the byte array 0x10.
 
 Native TEAL opcode: [`setbit`](https://dev.algorand.co/reference/algorand-teal/opcodes/#setbit)
 
-### algopy.op.setbyte(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.setbyte
+
+*algopy.op.setbyte(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Copy of A with the Bth byte set to small integer (between 0..255) C. If B is greater than or equal to the array length, the program fails
 
 Native TEAL opcode: [`setbyte`](https://dev.algorand.co/reference/algorand-teal/opcodes/#setbyte)
 
-### algopy.op.sha256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.sha256
+
+*algopy.op.sha256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 SHA256 hash of value A, yields [32]byte
 
 Native TEAL opcode: [`sha256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sha256)
 
-### algopy.op.sha3_256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.sha3_256
+
+*algopy.op.sha3_256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 SHA3_256 hash of value A, yields [32]byte
 
 Native TEAL opcode: [`sha3_256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sha3_256)
 
-### algopy.op.sha512_256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.sha512_256
+
+*algopy.op.sha512_256(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 SHA512_256 hash of value A, yields [32]byte
 
 Native TEAL opcode: [`sha512_256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sha512_256)
 
-### algopy.op.shl(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.shl
+
+*algopy.op.shl(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 A times 2^B, modulo 2^64
 
 Native TEAL opcode: [`shl`](https://dev.algorand.co/reference/algorand-teal/opcodes/#shl)
 
-### algopy.op.shr(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.shr
+
+*algopy.op.shr(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 A divided by 2^B
 
 Native TEAL opcode: [`shr`](https://dev.algorand.co/reference/algorand-teal/opcodes/#shr)
 
-### algopy.op.sqrt(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+### algopy.op.sqrt
+
+*algopy.op.sqrt(a: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 The largest integer I such that I^2 <= A
 
 Native TEAL opcode: [`sqrt`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sqrt)
 
-### algopy.op.substring(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.substring
+
+*algopy.op.substring(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), c: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 A range of bytes from A starting at B up to but not including C. If C < B, or either is larger than the array length, the program fails
 
 Native TEAL opcode: [`substring`](https://dev.algorand.co/reference/algorand-teal/opcodes/#substring), [`substring3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#substring3)
 
-### algopy.op.sumhash512(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)
+### algopy.op.sumhash512
+
+*algopy.op.sumhash512(a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 sumhash512 of value A, yields [64]byte
 Min AVM version: 13
 
 Native TEAL opcode: [`sumhash512`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sumhash512)
 
-### algopy.op.vrf_verify(s: [algopy.op.VrfVerify](#algopy.op.VrfVerify), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.Bytes](api-algopy.md#algopy.Bytes), [bool](https://docs.python.org/3/library/functions.html#bool)]
+### algopy.op.vrf_verify
+
+*algopy.op.vrf_verify(s: [algopy.op.VrfVerify](#algopy.op.VrfVerify), a: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), b: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), c: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[algopy.Bytes](api-algopy.md#algopy.Bytes), [bool](https://docs.python.org/3/library/functions.html#bool)]*
 
 Verify the proof B of message A against pubkey C. Returns vrf output and verification flag.
 `VrfAlgorand` is the VRF used in Algorand. It is ECVRF-ED25519-SHA512-Elligator2, specified in the IETF internet draft [draft-irtf-cfrg-vrf-03](https://datatracker.ietf.org/doc/draft-irtf-cfrg-vrf/03/).

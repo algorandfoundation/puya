@@ -16,7 +16,9 @@
 
 ### API
 
-### *class* algopy.gtxn.ApplicationCallTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))
+### *class* algopy.gtxn.ApplicationCallTransaction
+
+**class* algopy.gtxn.ApplicationCallTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))*
 
 Application call group transaction
 
@@ -175,7 +177,9 @@ Transaction type as integer
 
 Transaction type as bytes
 
-### *class* algopy.gtxn.AssetConfigTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))
+### *class* algopy.gtxn.AssetConfigTransaction
+
+**class* algopy.gtxn.AssetConfigTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))*
 
 Asset config group transaction
 
@@ -282,7 +286,9 @@ Unit name of the asset
 
 URL
 
-### *class* algopy.gtxn.AssetFreezeTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))
+### *class* algopy.gtxn.AssetFreezeTransaction
+
+**class* algopy.gtxn.AssetFreezeTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))*
 
 Asset freeze group transaction
 
@@ -349,7 +355,9 @@ Transaction type as integer
 
 Transaction type as bytes
 
-### *class* algopy.gtxn.AssetTransferTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))
+### *class* algopy.gtxn.AssetTransferTransaction
+
+**class* algopy.gtxn.AssetTransferTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))*
 
 Asset transfer group transaction
 
@@ -424,7 +432,9 @@ Transaction type as bytes
 
 Asset ID
 
-### *class* algopy.gtxn.KeyRegistrationTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))
+### *class* algopy.gtxn.KeyRegistrationTransaction
+
+**class* algopy.gtxn.KeyRegistrationTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))*
 
 Key registration group transaction
 
@@ -507,7 +517,9 @@ Dilution for the 2-level participation key
 
 The last round that the participation key is valid.
 
-### *class* algopy.gtxn.PaymentTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))
+### *class* algopy.gtxn.PaymentTransaction
+
+**class* algopy.gtxn.PaymentTransaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))*
 
 Payment group transaction
 
@@ -574,7 +586,9 @@ Transaction type as integer
 
 Transaction type as bytes
 
-### *class* algopy.gtxn.Transaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))
+### *class* algopy.gtxn.Transaction
+
+**class* algopy.gtxn.Transaction(group_index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int))*
 
 Group Transaction of any type
 
