@@ -104,6 +104,13 @@ def run_sphinx() -> None:
         check=True,
         cwd=DOCS_DIR,
     )
+    # Post-process markdown files to fix heading hierarchy and simplify signatures
+    # sphinx-markdown-builder has hardcoded heading levels with no config options,
+    # so we post-process the output to fix hierarchy and improve TOC readability
+    subprocess.run(
+        [sys.executable, str(SCRIPTS_DIR / "fix_api_markdown_headings.py")],
+        check=True,
+    )
 
 
 @attrs.define(kw_only=True)

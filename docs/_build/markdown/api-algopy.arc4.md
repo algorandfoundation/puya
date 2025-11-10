@@ -45,11 +45,11 @@
 
 ### API
 
-### *class* algopy.arc4.ARC4Client
+#### *class* algopy.arc4.ARC4Client
 
 Used to provide typed method signatures for ARC-4 contracts
 
-### *class* algopy.arc4.ARC4Contract
+#### *class* algopy.arc4.ARC4Contract
 
 A contract that conforms to the ARC-4 ABI specification, functions decorated with
 `@abimethod` or `@baremethod` will form the public interface of the contract
@@ -59,7 +59,9 @@ according to the ARC-4 ABI specification
 
 The clear_state_program will by default return True, but can be overridden
 
-#### *classmethod* \_\_init_subclass_\_(\*, name: [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., scratch_slots: [algopy.urange](api-algopy.md#algopy.urange) | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](api-algopy.md#algopy.urange), ...] | [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](api-algopy.md#algopy.urange)] = ..., state_totals: [algopy.StateTotals](api-algopy.md#algopy.StateTotals) = ..., avm_version: [int](https://docs.python.org/3/library/functions.html#int) = ...)
+##### *classmethod* \_\_init_subclass_\_
+
+**classmethod* \_\_init_subclass_\_(\*, name: [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., scratch_slots: [algopy.urange](api-algopy.md#algopy.urange) | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](api-algopy.md#algopy.urange), ...] | [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int) | [algopy.urange](api-algopy.md#algopy.urange)] = ..., state_totals: [algopy.StateTotals](api-algopy.md#algopy.StateTotals) = ..., avm_version: [int](https://docs.python.org/3/library/functions.html#int) = ...)*
 
 When declaring a Contract subclass, options and configuration are passed in
 the base class list:
@@ -106,22 +108,26 @@ class MyContract(algopy.Contract, name="CustomName"):
   * **avm_version** – Determines which AVM version to use, this affects what operations are supported.
     Defaults to value provided supplied on command line (which defaults to current mainnet version)
 
-#### approval_program() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### approval_program
+
+*approval_program() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Represents the program called for all transactions
 where `OnCompletion` != `ClearState`
 
-#### clear_state_program() → [algopy.UInt64](api-algopy.md#algopy.UInt64) | [bool](https://docs.python.org/3/library/functions.html#bool)
+##### clear_state_program
+
+*clear_state_program() → [algopy.UInt64](api-algopy.md#algopy.UInt64) | [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Represents the program called when `OnCompletion` == `ClearState`
 
-### *class* algopy.arc4.Address
+#### *class* algopy.arc4.Address
 
 **class* algopy.arc4.Address(value: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.Bytes](api-algopy.md#algopy.Bytes) = ..., /)*
 
 An alias for an array containing 32 bytes representing an Algorand address
 
-### Initialization
+##### Initialization
 
 If `value` is a string, it should be a 58 character base32 string,
 ie a base32 string-encoded 32 bytes public key + 4 bytes checksum.
@@ -129,72 +135,102 @@ If `value` is a Bytes, it’s length checked to be 32 bytes - to avoid this
 check, use `Address.from_bytes(...)` instead.
 Defaults to the zero-address.
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not equal to the zero address
 
-#### \_\_eq_\_(other: [algopy.arc4.Address](#algopy.arc4.Address) | [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [algopy.arc4.Address](#algopy.arc4.Address) | [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Address equality is determined by the address of another
 `arc4.Address`, `Account` or `str`
 
-#### \_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem
+##### \_\_getitem_\_
+
+*\_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem*
 
 Gets the item of the array at provided index
 
-#### \_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_iter_\_
+
+*\_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array
 
-#### \_\_ne_\_(other: [algopy.arc4.Address](#algopy.arc4.Address) | [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ne_\_
+
+*\_\_ne_\_(other: [algopy.arc4.Address](#algopy.arc4.Address) | [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Address equality is determined by the address of another
 `arc4.Address`, `Account` or `str`
 
-#### \_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_reversed_\_
+
+*\_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array, in reverse order
 
-#### \_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem
+##### \_\_setitem_\_
+
+*\_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem*
 
 Sets the item of the array at specified index to provided value
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### copy
+
+*copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Create a copy of this array
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)*
+##### *property* length *: [algopy.UInt64]
+
+**property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)**
 
 Returns the (compile-time) length of the array
 
-#### *property* native *: [algopy.Account](api-algopy.md#algopy.Account)*
+##### *property* native *: [algopy.Account]
+
+**property* native *: [algopy.Account](api-algopy.md#algopy.Account)**
 
 Return the Account representation of the address after ARC-4 decoding
 
-#### to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.FixedArray](api-algopy.md#algopy.FixedArray)[algopy.arc4._TNativeArrayItem, algopy.arc4._TArrayLength]
+##### to_native
+
+*to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.FixedArray](api-algopy.md#algopy.FixedArray)[algopy.arc4._TNativeArrayItem, algopy.arc4._TArrayLength]*
 
 Convert to an `algopy.FixedArray` with the specified element type.
 
 Only allowed if the element type is compatible with this arrays element type e.g.
 arc4.UInt64 -> UInt64
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.BigUFixedNxM
+#### *class* algopy.arc4.BigUFixedNxM
 
 **class* algopy.arc4.BigUFixedNxM(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '0.0', /)*
 
@@ -202,36 +238,48 @@ An ARC-4 UFixed representing a decimal with the number of bits and precision spe
 
 Max size: 512 bits
 
-### Initialization
+##### Initialization
 
 Construct an instance of UFixedNxM where value (v) is determined from the original
 decimal value (d) by the formula v = round(d \* (10^M))
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not equal to zero
 
-#### \_\_eq_\_(other: [Self](https://docs.python.org/3/library/typing.html#typing.Self)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [Self](https://docs.python.org/3/library/typing.html#typing.Self)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Compare for equality, note both operands must be the exact same type
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.BigUIntN
+#### *class* algopy.arc4.BigUIntN
 
 **class* algopy.arc4.BigUIntN(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
@@ -239,585 +287,837 @@ An ARC-4 UInt consisting of the number of bits specified.
 
 Max size: 512 bits
 
-### Initialization
+##### Initialization
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not equal to zero
 
-#### \_\_eq_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self==value.
 
-#### \_\_ge_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ge_\_
+
+*\_\_ge_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self>=value.
 
-#### \_\_gt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_gt_\_
+
+*\_\_gt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self>value.
 
-#### \_\_le_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_le_\_
+
+*\_\_le_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self<=value.
 
-#### \_\_lt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_lt_\_
+
+*\_\_lt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self<value.
 
-#### \_\_ne_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ne_\_
+
+*\_\_ne_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self!=value.
 
-#### as_biguint() → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)
+##### as_biguint
+
+*as_biguint() → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)*
 
 Return the BigUInt representation of the value after ARC-4 decoding
 
-#### as_uint64() → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+##### as_uint64
+
+*as_uint64() → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 Return the UInt64 representation of the value after ARC-4 decoding
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* native *: [algopy.BigUInt](api-algopy.md#algopy.BigUInt)*
+##### *property* native *: [algopy.BigUInt]
+
+**property* native *: [algopy.BigUInt](api-algopy.md#algopy.BigUInt)**
 
 Return the BigUInt representation of the value after ARC-4 decoding
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.Bool
+#### *class* algopy.arc4.Bool
 
 **class* algopy.arc4.Bool(value: [bool](https://docs.python.org/3/library/functions.html#bool) = False, /)*
 
 An ARC-4 encoded bool
 
-### Initialization
+##### Initialization
 
-#### \_\_eq_\_(other: [algopy.arc4.Bool](#algopy.arc4.Bool) | [bool](https://docs.python.org/3/library/functions.html#bool)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [algopy.arc4.Bool](#algopy.arc4.Bool) | [bool](https://docs.python.org/3/library/functions.html#bool)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self==value.
 
-#### \_\_ne_\_(other: [algopy.arc4.Bool](#algopy.arc4.Bool) | [bool](https://docs.python.org/3/library/functions.html#bool)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ne_\_
+
+*\_\_ne_\_(other: [algopy.arc4.Bool](#algopy.arc4.Bool) | [bool](https://docs.python.org/3/library/functions.html#bool)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self!=value.
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* native *: [bool](https://docs.python.org/3/library/functions.html#bool)*
+##### *property* native *: [bool]
+
+**property* native *: [bool](https://docs.python.org/3/library/functions.html#bool)**
 
 Return the bool representation of the value after ARC-4 decoding
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.Byte
+#### *class* algopy.arc4.Byte
 
 **class* algopy.arc4.Byte(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
 An ARC-4 alias for a UInt8
 
-### Initialization
+##### Initialization
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not equal to zero
 
-#### \_\_eq_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self==value.
 
-#### \_\_ge_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ge_\_
+
+*\_\_ge_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self>=value.
 
-#### \_\_gt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_gt_\_
+
+*\_\_gt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self>value.
 
-#### \_\_le_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_le_\_
+
+*\_\_le_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self<=value.
 
-#### \_\_lt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_lt_\_
+
+*\_\_lt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self<value.
 
-#### \_\_ne_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ne_\_
+
+*\_\_ne_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self!=value.
 
-#### as_biguint() → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)
+##### as_biguint
+
+*as_biguint() → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)*
 
 Return the BigUInt representation of the value after ARC-4 decoding
 
-#### as_uint64() → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+##### as_uint64
+
+*as_uint64() → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 Return the UInt64 representation of the value after ARC-4 decoding
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* native *: [algopy.UInt64](api-algopy.md#algopy.UInt64)*
+##### *property* native *: [algopy.UInt64]
+
+**property* native *: [algopy.UInt64](api-algopy.md#algopy.UInt64)**
 
 Return the UInt64 representation of the value after ARC-4 decoding
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.DynamicArray
+#### *class* algopy.arc4.DynamicArray
 
 **class* algopy.arc4.DynamicArray(\*items: algopy.arc4._TArrayItem)*
 
 A dynamically sized ARC-4 Array of the specified type
 
-### Initialization
+##### Initialization
 
 Initializes a new array with items provided
 
-#### \_\_add_\_(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem]) → [algopy.arc4.DynamicArray](#algopy.arc4.DynamicArray)[algopy.arc4._TArrayItem]
+##### \_\_add_\_
+
+*\_\_add_\_(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem]) → [algopy.arc4.DynamicArray](#algopy.arc4.DynamicArray)[algopy.arc4._TArrayItem]*
 
 Concat two arrays together, returning a new array
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not an empty array
 
-#### \_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem
+##### \_\_getitem_\_
+
+*\_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem*
 
 Gets the item of the array at provided index
 
-#### \_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_iter_\_
+
+*\_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array
 
-#### \_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_reversed_\_
+
+*\_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array, in reverse order
 
-#### \_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem
+##### \_\_setitem_\_
+
+*\_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem*
 
 Sets the item of the array at specified index to provided value
 
-#### append(item: algopy.arc4._TArrayItem, /) → [None](https://docs.python.org/3/library/constants.html#None)
+##### append
+
+*append(item: algopy.arc4._TArrayItem, /) → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Append an item to this array
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### copy
+
+*copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Create a copy of this array
 
-#### extend(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem], /) → [None](https://docs.python.org/3/library/constants.html#None)
+##### extend
+
+*extend(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem], /) → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Extend this array with the contents of another array
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)*
+##### *property* length *: [algopy.UInt64]
+
+**property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)**
 
 Returns the current length of the array
 
-#### pop() → algopy.arc4._TArrayItem
+##### pop
+
+*pop() → algopy.arc4._TArrayItem*
 
 Remove and return the last item of this array
 
-#### to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.Array](api-algopy.md#algopy.Array)[algopy.arc4._TNativeArrayItem]
+##### to_native
+
+*to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.Array](api-algopy.md#algopy.Array)[algopy.arc4._TNativeArrayItem]*
 
 Convert to an `algopy.Array` with the specified element type.
 
 Only allowed if the element type is compatible with this arrays element type e.g.
 arc4.UInt64 -> UInt64
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.DynamicBytes
+#### *class* algopy.arc4.DynamicBytes
 
 A variable sized array of bytes
 
-#### \_\_add_\_(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem]) → [algopy.arc4.DynamicArray](#algopy.arc4.DynamicArray)[algopy.arc4._TArrayItem]
+##### \_\_add_\_
+
+*\_\_add_\_(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem]) → [algopy.arc4.DynamicArray](#algopy.arc4.DynamicArray)[algopy.arc4._TArrayItem]*
 
 Concat two arrays together, returning a new array
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not an empty array
 
-#### \_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem
+##### \_\_getitem_\_
+
+*\_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem*
 
 Gets the item of the array at provided index
 
-#### \_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_iter_\_
+
+*\_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array
 
-#### \_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_reversed_\_
+
+*\_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array, in reverse order
 
-#### \_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem
+##### \_\_setitem_\_
+
+*\_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem*
 
 Sets the item of the array at specified index to provided value
 
-#### append(item: algopy.arc4._TArrayItem, /) → [None](https://docs.python.org/3/library/constants.html#None)
+##### append
+
+*append(item: algopy.arc4._TArrayItem, /) → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Append an item to this array
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### copy
+
+*copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Create a copy of this array
 
-#### extend(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem], /) → [None](https://docs.python.org/3/library/constants.html#None)
+##### extend
+
+*extend(other: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[algopy.arc4._TArrayItem], /) → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Extend this array with the contents of another array
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)*
+##### *property* length *: [algopy.UInt64]
+
+**property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)**
 
 Returns the current length of the array
 
-#### *property* native *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* native *: [algopy.Bytes]
+
+**property* native *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Return the Bytes representation of the address after ARC-4 decoding
 
-#### pop() → algopy.arc4._TArrayItem
+##### pop
+
+*pop() → algopy.arc4._TArrayItem*
 
 Remove and return the last item of this array
 
-#### to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.Array](api-algopy.md#algopy.Array)[algopy.arc4._TNativeArrayItem]
+##### to_native
+
+*to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.Array](api-algopy.md#algopy.Array)[algopy.arc4._TNativeArrayItem]*
 
 Convert to an `algopy.Array` with the specified element type.
 
 Only allowed if the element type is compatible with this arrays element type e.g.
 arc4.UInt64 -> UInt64
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.StaticArray
+#### *class* algopy.arc4.StaticArray
 
 A fixed length ARC-4 Array of the specified type and length
 
-#### \_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem
+##### \_\_getitem_\_
+
+*\_\_getitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int)) → algopy.arc4._TArrayItem*
 
 Gets the item of the array at provided index
 
-#### \_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_iter_\_
+
+*\_\_iter_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array
 
-#### \_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]
+##### \_\_reversed_\_
+
+*\_\_reversed_\_() → [Iterator](https://docs.python.org/3/library/typing.html#typing.Iterator)[algopy.arc4._TArrayItem]*
 
 Returns an iterator for the items in the array, in reverse order
 
-#### \_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem
+##### \_\_setitem_\_
+
+*\_\_setitem_\_(index: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), value: algopy.arc4._TArrayItem) → algopy.arc4._TArrayItem*
 
 Sets the item of the array at specified index to provided value
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### copy
+
+*copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Create a copy of this array
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)*
+##### *property* length *: [algopy.UInt64]
+
+**property* length *: [algopy.UInt64](api-algopy.md#algopy.UInt64)**
 
 Returns the (compile-time) length of the array
 
-#### to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.FixedArray](api-algopy.md#algopy.FixedArray)[algopy.arc4._TNativeArrayItem, algopy.arc4._TArrayLength]
+##### to_native
+
+*to_native(element_type: [type](https://docs.python.org/3/library/functions.html#type)[algopy.arc4._TNativeArrayItem], /) → [algopy.FixedArray](api-algopy.md#algopy.FixedArray)[algopy.arc4._TNativeArrayItem, algopy.arc4._TArrayLength]*
 
 Convert to an `algopy.FixedArray` with the specified element type.
 
 Only allowed if the element type is compatible with this arrays element type e.g.
 arc4.UInt64 -> UInt64
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.String
+#### *class* algopy.arc4.String
 
 **class* algopy.arc4.String(value: [algopy.String](api-algopy.md#algopy.String) | [str](https://docs.python.org/3/library/stdtypes.html#str) = '', /)*
 
 An ARC-4 sequence of bytes containing a UTF8 string
 
-### Initialization
+##### Initialization
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if length is not zero
 
-#### \_\_eq_\_(other: [algopy.arc4.String](#algopy.arc4.String) | [algopy.String](api-algopy.md#algopy.String) | [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [algopy.arc4.String](#algopy.arc4.String) | [algopy.String](api-algopy.md#algopy.String) | [str](https://docs.python.org/3/library/stdtypes.html#str)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self==value.
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* native *: [algopy.String](api-algopy.md#algopy.String)*
+##### *property* native *: [algopy.String]
+
+**property* native *: [algopy.String](api-algopy.md#algopy.String)**
 
 Return the String representation of the UTF8 string after ARC-4 decoding
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.Struct
+#### *class* algopy.arc4.Struct
 
 Base class for ARC-4 Struct types
 
-#### \_replace(\*\*kwargs: [Any](https://docs.python.org/3/library/typing.html#typing.Any)) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### \_replace
+
+*\_replace(\*\*kwargs: [Any](https://docs.python.org/3/library/typing.html#typing.Any)) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Return a new instance of the struct replacing specified fields with new values.
 
 Note that any mutable fields must be explicitly copied to avoid aliasing.
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying bytes[]
 
-#### copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### copy
+
+*copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Create a copy of this struct
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes[] (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.Tuple
+#### *class* algopy.arc4.Tuple
 
 **class* algopy.arc4.Tuple(items: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[Unpack](https://docs.python.org/3/library/typing.html#typing.Unpack)[algopy.arc4._TTuple]], /)*
 
 An ARC-4 ABI tuple, containing other ARC-4 ABI types
 
-### Initialization
+##### Initialization
 
 Construct an ARC-4 tuple from a native Python tuple
 
-#### \_\_add_\_()
+##### \_\_add_\_
+
+*\_\_add_\_()*
 
 Return self+value.
 
-#### \_\_contains_\_()
+##### \_\_contains_\_
+
+*\_\_contains_\_()*
 
 Return bool(key in self).
 
-#### \_\_delattr_\_()
+##### \_\_delattr_\_
+
+*\_\_delattr_\_()*
 
 Implement delattr(self, name).
 
-#### \_\_dir_\_()
+##### \_\_dir_\_
+
+*\_\_dir_\_()*
 
 Default dir() implementation.
 
-#### \_\_eq_\_()
+##### \_\_eq_\_
+
+*\_\_eq_\_()*
 
 Return self==value.
 
-#### \_\_format_\_()
+##### \_\_format_\_
+
+*\_\_format_\_()*
 
 Default object formatter.
 
 Return str(self) if format_spec is empty. Raise TypeError otherwise.
 
-#### \_\_ge_\_()
+##### \_\_ge_\_
+
+*\_\_ge_\_()*
 
 Return self>=value.
 
-#### \_\_getattribute_\_()
+##### \_\_getattribute_\_
+
+*\_\_getattribute_\_()*
 
 Return getattr(self, name).
 
-#### \_\_getitem_\_()
+##### \_\_getitem_\_
+
+*\_\_getitem_\_()*
 
 Return self[key].
 
-#### \_\_getstate_\_()
+##### \_\_getstate_\_
+
+*\_\_getstate_\_()*
 
 Helper for pickle.
 
-#### \_\_gt_\_()
+##### \_\_gt_\_
+
+*\_\_gt_\_()*
 
 Return self>value.
 
-#### \_\_hash_\_()
+##### \_\_hash_\_
+
+*\_\_hash_\_()*
 
 Return hash(self).
 
-#### \_\_iter_\_()
+##### \_\_iter_\_
+
+*\_\_iter_\_()*
 
 Implement iter(self).
 
-#### \_\_le_\_()
+##### \_\_le_\_
+
+*\_\_le_\_()*
 
 Return self<=value.
 
-#### \_\_len_\_()
+##### \_\_len_\_
+
+*\_\_len_\_()*
 
 Return len(self).
 
-#### \_\_lt_\_()
+##### \_\_lt_\_
+
+*\_\_lt_\_()*
 
 Return self<value.
 
-#### \_\_mul_\_()
+##### \_\_mul_\_
+
+*\_\_mul_\_()*
 
 Return self\*value.
 
-#### \_\_ne_\_()
+##### \_\_ne_\_
+
+*\_\_ne_\_()*
 
 Return self!=value.
 
-#### \_\_new_\_()
+##### \_\_new_\_
+
+*\_\_new_\_()*
 
 Create and return a new object.  See help(type) for accurate signature.
 
-#### \_\_reduce_\_()
+##### \_\_reduce_\_
+
+*\_\_reduce_\_()*
 
 Helper for pickle.
 
-#### \_\_reduce_ex_\_()
+##### \_\_reduce_ex_\_
+
+*\_\_reduce_ex_\_()*
 
 Helper for pickle.
 
-#### \_\_repr_\_()
+##### \_\_repr_\_
+
+*\_\_repr_\_()*
 
 Return repr(self).
 
-#### \_\_rmul_\_()
+##### \_\_rmul_\_
+
+*\_\_rmul_\_()*
 
 Return value\*self.
 
-#### \_\_setattr_\_()
+##### \_\_setattr_\_
+
+*\_\_setattr_\_()*
 
 Implement setattr(self, name, value).
 
-#### \_\_sizeof_\_()
+##### \_\_sizeof_\_
+
+*\_\_sizeof_\_()*
 
 Size of object in memory, in bytes.
 
-#### \_\_str_\_()
+##### \_\_str_\_
+
+*\_\_str_\_()*
 
 Return str(self).
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### copy
+
+*copy() → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Create a copy of this tuple
 
-#### count()
+##### count
+
+*count()*
 
 Return number of occurrences of value.
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### index()
+##### index
+
+*index()*
 
 Return first index of value.
 
 Raises ValueError if the value is not present.
 
-#### *property* native *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[Unpack](https://docs.python.org/3/library/typing.html#typing.Unpack)[algopy.arc4._TTuple]]*
+##### *property* native *: [tuple]
+
+**property* native *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[Unpack](https://docs.python.org/3/library/typing.html#typing.Unpack)[algopy.arc4._TTuple]]**
 
 Convert to a native Python tuple - note that the elements of the tuple
 should be considered to be copies of the original elements
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### *class* algopy.arc4.UFixedNxM
+#### *class* algopy.arc4.UFixedNxM
 
 **class* algopy.arc4.UFixedNxM(value: [str](https://docs.python.org/3/library/stdtypes.html#str) = '0.0', /)*
 
@@ -825,36 +1125,48 @@ An ARC-4 UFixed representing a decimal with the number of bits and precision spe
 
 Max size: 64 bits
 
-### Initialization
+##### Initialization
 
 Construct an instance of UFixedNxM where value (v) is determined from the original
 decimal value (d) by the formula v = round(d \* (10^M))
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not equal to zero
 
-#### \_\_eq_\_(other: [Self](https://docs.python.org/3/library/typing.html#typing.Self)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [Self](https://docs.python.org/3/library/typing.html#typing.Self)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Compare for equality, note both operands must be the exact same type
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### algopy.arc4.UInt128 *: [TypeAlias]
+##### algopy.arc4.UInt128 *: [TypeAlias]
 
 *algopy.arc4.UInt128 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
@@ -862,7 +1174,7 @@ None
 
 An ARC-4 UInt128
 
-### algopy.arc4.UInt16 *: [TypeAlias]
+##### algopy.arc4.UInt16 *: [TypeAlias]
 
 *algopy.arc4.UInt16 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
@@ -870,7 +1182,7 @@ None
 
 An ARC-4 UInt16
 
-### algopy.arc4.UInt256 *: [TypeAlias]
+##### algopy.arc4.UInt256 *: [TypeAlias]
 
 *algopy.arc4.UInt256 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
@@ -878,7 +1190,7 @@ None
 
 An ARC-4 UInt256
 
-### algopy.arc4.UInt32 *: [TypeAlias]
+##### algopy.arc4.UInt32 *: [TypeAlias]
 
 *algopy.arc4.UInt32 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
@@ -886,7 +1198,7 @@ None
 
 An ARC-4 UInt32
 
-### algopy.arc4.UInt512 *: [TypeAlias]
+##### algopy.arc4.UInt512 *: [TypeAlias]
 
 *algopy.arc4.UInt512 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
@@ -894,7 +1206,7 @@ None
 
 An ARC-4 UInt512
 
-### algopy.arc4.UInt64 *: [TypeAlias]
+##### algopy.arc4.UInt64 *: [TypeAlias]
 
 *algopy.arc4.UInt64 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
@@ -902,7 +1214,7 @@ None
 
 An ARC-4 UInt64
 
-### algopy.arc4.UInt8 *: [TypeAlias]
+##### algopy.arc4.UInt8 *: [TypeAlias]
 
 *algopy.arc4.UInt8 *: [TypeAlias](https://docs.python.org/3/library/typing.html#typing.TypeAlias)**
 
@@ -910,7 +1222,7 @@ None
 
 An ARC-4 UInt8
 
-### *class* algopy.arc4.UIntN
+#### *class* algopy.arc4.UIntN
 
 **class* algopy.arc4.UIntN(value: [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, /)*
 
@@ -918,65 +1230,93 @@ An ARC-4 UInt consisting of the number of bits specified.
 
 Max Size: 64 bits
 
-### Initialization
+##### Initialization
 
-#### \_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_bool_\_
+
+*\_\_bool_\_() → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Returns `True` if not equal to zero
 
-#### \_\_eq_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_eq_\_
+
+*\_\_eq_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self==value.
 
-#### \_\_ge_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ge_\_
+
+*\_\_ge_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self>=value.
 
-#### \_\_gt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_gt_\_
+
+*\_\_gt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self>value.
 
-#### \_\_le_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_le_\_
+
+*\_\_le_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self<=value.
 
-#### \_\_lt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_lt_\_
+
+*\_\_lt_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self<value.
 
-#### \_\_ne_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)
+##### \_\_ne_\_
+
+*\_\_ne_\_(other: [algopy.arc4.UIntN](#algopy.arc4.UIntN)[algopy.arc4._TBitSize] | [algopy.arc4.BigUIntN](#algopy.arc4.BigUIntN)[algopy.arc4._TBitSize] | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [algopy.BigUInt](api-algopy.md#algopy.BigUInt) | [int](https://docs.python.org/3/library/functions.html#int)) → [bool](https://docs.python.org/3/library/functions.html#bool)*
 
 Return self!=value.
 
-#### as_biguint() → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)
+##### as_biguint
+
+*as_biguint() → [algopy.BigUInt](api-algopy.md#algopy.BigUInt)*
 
 Return the BigUInt representation of the value after ARC-4 decoding
 
-#### as_uint64() → [algopy.UInt64](api-algopy.md#algopy.UInt64)
+##### as_uint64
+
+*as_uint64() → [algopy.UInt64](api-algopy.md#algopy.UInt64)*
 
 Return the UInt64 representation of the value after ARC-4 decoding
 
-#### *property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)*
+##### *property* bytes *: [algopy.Bytes]
+
+**property* bytes *: [algopy.Bytes](api-algopy.md#algopy.Bytes)**
 
 Get the underlying Bytes
 
-#### *classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_bytes
+
+**classmethod* from_bytes(value: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Construct an instance from the underlying bytes (no validation)
 
-#### *classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)
+##### *classmethod* from_log
+
+**classmethod* from_log(log: [algopy.Bytes](api-algopy.md#algopy.Bytes), /) → [Self](https://docs.python.org/3/library/typing.html#typing.Self)*
 
 Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
 
-#### *property* native *: [algopy.UInt64](api-algopy.md#algopy.UInt64)*
+##### *property* native *: [algopy.UInt64]
+
+**property* native *: [algopy.UInt64](api-algopy.md#algopy.UInt64)**
 
 Return the UInt64 representation of the value after ARC-4 decoding
 
-#### validate() → [None](https://docs.python.org/3/library/constants.html#None)
+##### validate
+
+*validate() → [None](https://docs.python.org/3/library/constants.html#None)*
 
 Performs validation to ensure the value is well-formed, errors if it is not
 
-### algopy.arc4.abi_call *: algopy.arc4._ABICallProtocolType*
+##### algopy.arc4.abi_call *: algopy.arc4._ABICallProtocolType*
 
 Ellipsis
 
@@ -1061,7 +1401,7 @@ assert result == "Hello, There"
 txn = abi_call(HelloWorldContract.no_return, arc4.String("World"), app=...)
 ```
 
-### algopy.arc4.abimethod
+##### algopy.arc4.abimethod
 
 *algopy.arc4.abimethod(\*, name: [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., create: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[allow, require, disallow] = 'disallow', allow_actions: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[NoOp, OptIn, CloseOut, UpdateApplication, DeleteApplication]] = ('NoOp',), resource_encoding: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[index, value] = ..., readonly: [bool](https://docs.python.org/3/library/functions.html#bool) = False, default_args: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | algopy.arc4._ReadOnlyNoArgsMethod | [object](https://docs.python.org/3/library/functions.html#object)] = ..., validate_encoding: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[unsafe_disabled, args] = ...) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R]]*
 
@@ -1092,7 +1432,7 @@ Decorator that indicates a method is an ARC-4 ABI method.
     The default behaviour of this option can be controlled with the
     –validate-abi-args CLI flag.
 
-### algopy.arc4.arc4_create
+##### algopy.arc4.arc4_create
 
 *algopy.arc4.arc4_create(method: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._TABIResult_co], /, \*args: [object](https://docs.python.org/3/library/functions.html#object), compiled: [algopy.CompiledContract](api-algopy.md#algopy.CompiledContract) = ..., on_completion: [algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) = ..., fee: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, sender: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., note: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., rekey_to: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ...) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[algopy.arc4._TABIResult_co, [algopy.itxn.ApplicationCallInnerTransaction](api-algopy.itxn.md#algopy.itxn.ApplicationCallInnerTransaction)]*
 
@@ -1110,13 +1450,13 @@ Provides a typesafe and convenient way of creating an ARC4Contract via an inner 
   * **note** – Note to include with the transaction
   * **rekey_to** – Account to rekey to
 
-### algopy.arc4.arc4_signature
+##### algopy.arc4.arc4_signature
 
 *algopy.arc4.arc4_signature(signature: [str](https://docs.python.org/3/library/stdtypes.html#str) | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._R], /) → [algopy.Bytes](api-algopy.md#algopy.Bytes)*
 
 Returns the ARC-4 encoded method selector for the specified signature or abi method
 
-### algopy.arc4.arc4_update
+##### algopy.arc4.arc4_update
 
 *algopy.arc4.arc4_update(method: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[algopy.arc4._P, algopy.arc4._TABIResult_co], /, \*args: [object](https://docs.python.org/3/library/functions.html#object), app_id: [algopy.Application](api-algopy.md#algopy.Application) | [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int), compiled: [algopy.CompiledContract](api-algopy.md#algopy.CompiledContract) = ..., fee: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = 0, sender: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., note: [algopy.Bytes](api-algopy.md#algopy.Bytes) | [bytes](https://docs.python.org/3/library/stdtypes.html#bytes) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., rekey_to: [algopy.Account](api-algopy.md#algopy.Account) | [str](https://docs.python.org/3/library/stdtypes.html#str) = ..., reject_version: [algopy.UInt64](api-algopy.md#algopy.UInt64) | [int](https://docs.python.org/3/library/functions.html#int) = ...) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[algopy.arc4._TABIResult_co, [algopy.itxn.ApplicationCallInnerTransaction](api-algopy.itxn.md#algopy.itxn.ApplicationCallInnerTransaction)]*
 
@@ -1133,7 +1473,7 @@ Provides a typesafe and convenient way of updating an ARC4Contract via an inner 
   * **note** – Note to include with the transaction
   * **rekey_to** – Account to rekey to
 
-### algopy.arc4.baremethod
+##### algopy.arc4.baremethod
 
 *algopy.arc4.baremethod(\*, create: [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[allow, require, disallow] = 'disallow', allow_actions: [collections.abc.Sequence](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence)[[algopy.OnCompleteAction](api-algopy.md#algopy.OnCompleteAction) | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)[NoOp, OptIn, CloseOut, UpdateApplication, DeleteApplication]] = ...) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[algopy.arc4._TARC4Contract], [None](https://docs.python.org/3/library/constants.html#None)]], [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[algopy.arc4._TARC4Contract], [None](https://docs.python.org/3/library/constants.html#None)]]*
 
@@ -1146,7 +1486,7 @@ There can be only one bare method on a contract for each given On-Completion Act
     “disallow” requires it must be non-zero, and “allow” disables the validation.
   * **allow_actions** – Which On-Completion Action(s) to handle.
 
-### algopy.arc4.emit
+##### algopy.arc4.emit
 
 *algopy.arc4.emit(event: [str](https://docs.python.org/3/library/stdtypes.html#str) | [algopy.arc4.Struct](#algopy.arc4.Struct), /, \*args: [object](https://docs.python.org/3/library/functions.html#object)) → [None](https://docs.python.org/3/library/constants.html#None)*
 
