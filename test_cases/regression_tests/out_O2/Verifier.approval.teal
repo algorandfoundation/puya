@@ -3,7 +3,6 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 32 1
     txn NumAppArgs
     bz main___algopy_default_create@5
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
@@ -16,12 +15,12 @@ main_verify_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     txna ApplicationArgs 1
     dup
     pushint 0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 32
+    pushint 32 // 32
     *
     pushint 2 // 2
     +
@@ -30,8 +29,7 @@ main_verify_route@3:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
     dup
-    pushint 258 // 258
-    intc_0 // 32
+    pushints 258 32 // 258, 32
     extract3
     dig 1
     extract 194 32
@@ -57,7 +55,7 @@ main_verify_route@3:
     swap
     concat
     log
-    intc_1 // 1
+    pushint 1 // 1
     return
 
 main___algopy_default_create@5:
@@ -66,6 +64,4 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    intc_1 // 1
     return

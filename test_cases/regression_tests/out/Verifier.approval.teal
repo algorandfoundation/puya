@@ -3,7 +3,6 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 32
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     txn NumAppArgs
@@ -20,7 +19,7 @@ main_verify_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     b verify
 
 main___algopy_default_create@5:
@@ -29,8 +28,6 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    intc_0 // 1
     return
 
 
@@ -42,7 +39,7 @@ verify:
     dup
     pushint 0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 32
+    pushint 32 // 32
     *
     pushint 2 // 2
     +
@@ -53,8 +50,7 @@ verify:
     // regression_tests/jira_ak_752.py:18
     // x = proof[8].bytes  # ok
     dup
-    pushint 258 // 258
-    intc_1 // 32
+    pushints 258 32 // 258, 32
     extract3
     // regression_tests/jira_ak_752.py:19
     // y = proof[6].bytes + proof[7].bytes  # ok
@@ -88,5 +84,5 @@ verify:
     swap
     concat
     log
-    intc_0 // 1
+    pushint 1 // 1
     return

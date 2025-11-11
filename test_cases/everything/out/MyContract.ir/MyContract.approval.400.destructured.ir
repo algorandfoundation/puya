@@ -6,28 +6,28 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#1: uint64 = (txn OnCompletion)
         let tmp%2#0: uint64 = (shl 1u tmp%1#1)
         let tmp%3#0: uint64 = (& tmp%2#0 3u)
-        let tmp%4#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (&& tmp%3#0 tmp%4#0)
-        (assert tmp%6#0) // OnCompletion must be one of NoOp, OptIn && can only call when not creating
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%7#0: bool = (&& tmp%3#0 tmp%5#0)
+        (assert tmp%7#0)
         test_cases.everything.contract.Everything.register[routing]()
         goto block@6
     block@5: // close_out_route_L69
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 CloseOut)
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (&& tmp%8#0 tmp%9#0)
-        (assert tmp%11#0) // OnCompletion must be CloseOut && can only call when not creating
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 CloseOut)
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%12#0: bool = (&& tmp%9#0 tmp%10#0)
+        (assert tmp%12#0)
         test_cases.everything.contract.Everything.close_out[routing]()
         goto block@6
     block@6: // switch_case_next_L37
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // OnCompletion must be NoOp
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        goto tmp%14#0 ? block@7 : block@11
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        let tmp%14#0: bool = (! tmp%13#0)
+        (assert tmp%14#0)
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        goto tmp%15#0 ? block@7 : block@11
     block@7: // call_NoOp_L37
-        let tmp%16#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%16#0 {method "say_hello()string" => block@8, method "calculate(uint64,uint64)uint64" => block@9, * => block@14}
+        let tmp%17#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%17#0 {method "say_hello()string" => block@8, method "calculate(uint64,uint64)uint64" => block@9, * => block@14}
     block@8: // say_hello_route_L56
         test_cases.everything.contract.Everything.say_hello[routing]()
         goto block@14
@@ -35,8 +35,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         test_cases.everything.contract.Everything.calculate[routing]()
         goto block@14
     block@11: // create_NoOp_L37
-        let tmp%17#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%17#0 {method "create()void" => block@12, * => block@14}
+        let tmp%18#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%18#0 {method "create()void" => block@12, * => block@14}
     block@12: // create_route_L41
         test_cases.everything.contract.Everything.create[routing]()
         goto block@14

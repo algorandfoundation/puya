@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1000 1
+    intcblock 0 1000
     txn NumAppArgs
     bz main___algopy_default_create@5
     pushbytes 0x48e9ed7c // method "create_and_transfer()void"
@@ -16,7 +16,7 @@ main_create_and_transfer_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     itxn_begin
     global CurrentApplicationAddress
     dup
@@ -52,7 +52,7 @@ main_create_and_transfer_route@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_2 // 1
+    pushint 1 // 1
     return
 
 main___algopy_default_create@5:
@@ -61,6 +61,4 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    intc_2 // 1
     return

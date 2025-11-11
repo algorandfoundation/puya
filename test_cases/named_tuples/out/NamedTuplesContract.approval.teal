@@ -3,14 +3,14 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 2 64
+    intcblock 0 2 1 64
     // named_tuples/contract.py:21
     // class NamedTuplesContract(arc4.ARC4Contract):
     txn NumAppArgs
     bz main___algopy_default_create@10
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     assert
     pushbytess 0x456eeace 0x06931f77 0x6f9f5bf0 // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])", method "build_tuple_side_effects()(uint64,uint64,uint64)", method "test_tuple((uint64,uint512,string,byte[]))void"
@@ -24,8 +24,6 @@ main___algopy_default_create@10:
     txn ApplicationID
     !
     &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    intc_0 // 1
     return
 
 
@@ -49,9 +47,9 @@ build_tuple:
     assert // invalid number of bytes for arc4.uint512
     txna ApplicationArgs 3
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -60,9 +58,9 @@ build_tuple:
     extract 2 0
     txna ApplicationArgs 4
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -113,7 +111,7 @@ build_tuple:
     swap
     concat
     log
-    intc_0 // 1
+    intc_2 // 1
     return
 
 
@@ -121,14 +119,14 @@ build_tuple:
 build_tuple_side_effects:
     // named_tuples/contract.py:39
     // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
-    intc_0 // 1
+    intc_2 // 1
     // named_tuples/contract.py:51
     // log(value)
     itob
     log
     // named_tuples/contract.py:39
     // return UIntTestTuple(c=echo(UInt64(1)), a=echo(UInt64(2)), b=echo(UInt64(3)))
-    intc_2 // 2
+    intc_1 // 2
     // named_tuples/contract.py:51
     // log(value)
     itob
@@ -144,7 +142,7 @@ build_tuple_side_effects:
     // @arc4.abimethod()
     pushbytes 0x151f7c75000000000000000200000000000000030000000000000001
     log
-    intc_0 // 1
+    intc_2 // 1
     return
 
 
@@ -166,7 +164,7 @@ test_tuple:
     dig 1
     dig 3
     substring3
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 78 // 78
     +
@@ -182,9 +180,9 @@ test_tuple:
     dig 5
     substring3
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     uncover 3
     +
@@ -192,7 +190,7 @@ test_tuple:
     ==
     assert // invalid number of bytes for test_cases.named_tuples.contract.TestTuple
     dig 3
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     dig 4
     extract 8 64
@@ -219,7 +217,7 @@ test_tuple:
     // assert value.c.bytes.length > 1
     swap
     len
-    intc_0 // 1
+    intc_2 // 1
     >
     assert
     // named_tuples/contract.py:46

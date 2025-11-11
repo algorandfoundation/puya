@@ -1,39 +1,39 @@
-// Op                                                                      Stack (out)
+// Op                                                    Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        txn ApplicationID                                                  tmp%0#0
-        l-load tmp%0#0 0                                                   tmp%0#0
+        txn ApplicationID                                tmp%0#0
+        l-load tmp%0#0 0                                 tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
 
     main_call___init__@1:
         // regression_tests/issue_491.py:7
         // self.is_initialised = False
-        byte "is_initialised"                                              "is_initialised"
-        int 0                                                              "is_initialised",0
+        byte "is_initialised"                            "is_initialised"
+        int 0                                            "is_initialised",0
         app_global_put
         b main_after_if_else@2
 
     main_after_if_else@2:
         // regression_tests/issue_491.py:4
         // class Parent(ARC4Contract):
-        txn NumAppArgs                                                     tmp%0#1
-        l-load tmp%0#1 0                                                   tmp%0#1
-        !                                                                  not%tmp%0#1
-        l-load not%tmp%0#1 0                                               not%tmp%0#1
+        txn NumAppArgs                                   tmp%0#1
+        l-load tmp%0#1 0                                 tmp%0#1
+        !                                                not%tmp%0#1
+        l-load not%tmp%0#1 0                             not%tmp%0#1
         assert
-        txn OnCompletion                                                   tmp%2#0
-        l-load tmp%2#0 0                                                   tmp%2#0
-        !                                                                  tmp%3#0
-        txn ApplicationID                                                  tmp%3#0,tmp%4#0
-        l-load tmp%4#0 0                                                   tmp%3#0,tmp%4#0
-        !                                                                  tmp%3#0,tmp%5#0
-        l-load tmp%3#0 1                                                   tmp%5#0,tmp%3#0
-        l-load tmp%5#0 1                                                   tmp%3#0,tmp%5#0
-        &&                                                                 tmp%6#0
-        l-load tmp%6#0 0                                                   tmp%6#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                              1
+        txn OnCompletion                                 tmp%2#0
+        l-load tmp%2#0 0                                 tmp%2#0
+        !                                                tmp%3#0
+        txn ApplicationID                                tmp%3#0,tmp%4#0
+        l-load tmp%4#0 0                                 tmp%3#0,tmp%4#0
+        !                                                tmp%3#0,tmp%5#0
+        l-load tmp%3#0 1                                 tmp%5#0,tmp%3#0
+        l-load tmp%5#0 1                                 tmp%3#0,tmp%5#0
+        &&                                               tmp%6#0
+        l-load tmp%6#0 0                                 tmp%6#0
+        assert
+        int 1                                            1
         return
 
 

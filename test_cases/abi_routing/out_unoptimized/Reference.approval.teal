@@ -45,7 +45,7 @@ main_switch_case_next@8:
     txn OnCompletion
     intc_2 // NoOp
     ==
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     intc_2 // 0
     !=
@@ -191,11 +191,13 @@ main_mixed_oca_route@7:
     shl
     pushint 37 // 37
     &
+    intc_2 // 0
+    !=
     txn ApplicationID
     intc_2 // 0
     !=
     &&
-    assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
+    assert
     callsub mixed_oca
     b main_switch_case_next@8
 
@@ -226,7 +228,7 @@ main_opt_in_route@5:
     intc_2 // 0
     !=
     &&
-    assert // OnCompletion must be OptIn && can only call when not creating
+    assert
     callsub opt_in
     b main_switch_case_next@8
 
@@ -245,7 +247,7 @@ main_bare_abi_config@25:
     txn ApplicationID
     intc_2 // 0
     ==
-    assert // can only call when creating
+    assert
     callsub bare_abi_config
     intc_0 // 1
     return

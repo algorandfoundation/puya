@@ -27,19 +27,20 @@ subroutine test_cases.arc_56.contract.Contract.__puya_arc4_router__() -> bool:
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: uint64 = (shl 1u tmp%3#0)
         let tmp%5#0: uint64 = (& tmp%4#0 3u)
-        (assert tmp%5#0) // OnCompletion must be one of NoOp, OptIn
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%6#0)
         test_cases.arc_56.contract.Contract.create[routing]()
         goto block@3
     block@3: // switch_case_next_L53
-        let tmp%6#0: uint64 = (txn OnCompletion)
-        let tmp%7#0: bool = (== tmp%6#0 NoOp)
-        (assert tmp%7#0) // OnCompletion must be NoOp
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (!= tmp%8#0 0u)
-        goto tmp%9#0 ? block@4 : block@13
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        (assert tmp%8#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        goto tmp%10#0 ? block@4 : block@13
     block@4: // call_NoOp_L53
-        let tmp%10#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%10#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@5, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@6, method "emits_error((uint64,string,(byte[],uint8)))void" => block@7, method "emitter()void" => block@8, method "conditional_emit(bool)void" => block@9, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@10, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@11, * => block@12}
+        let tmp%11#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%11#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@5, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@6, method "emits_error((uint64,string,(byte[],uint8)))void" => block@7, method "emitter()void" => block@8, method "conditional_emit(bool)void" => block@9, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@10, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@11, * => block@12}
     block@5: // struct_arg_route_L88
         test_cases.arc_56.contract.Contract.struct_arg[routing]()
         goto block@12
@@ -68,15 +69,15 @@ subroutine test_cases.arc_56.contract.Contract.__puya_arc4_router__() -> bool:
     block@14: // after_if_else_L53
         goto block@19
     block@15: // bare_routing_L53
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        switch tmp%11#0 {NoOp => block@16, OptIn => block@16, DeleteApplication => block@17, * => block@18}
+        let tmp%12#0: uint64 = (txn OnCompletion)
+        switch tmp%12#0 {NoOp => block@16, OptIn => block@16, DeleteApplication => block@17, * => block@18}
     block@16: // bare_create_L76
         test_cases.arc_56.contract.Contract.bare_create()
         exit 1u
     block@17: // transient_L84
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (== tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when creating
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (== tmp%13#0 0u)
+        (assert tmp%14#0)
         test_cases.arc_56.contract.Contract.transient()
         exit 1u
     block@18: // switch_case_next_L53
