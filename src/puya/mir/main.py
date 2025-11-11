@@ -2,8 +2,11 @@ import functools
 import operator
 import typing
 
+import attrs
+
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.context import ArtifactCompileContext
+from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.models import SlotAllocationStrategy
 from puya.log import get_logger
@@ -12,6 +15,7 @@ from puya.mir.builder import MemoryIRBuilder, build_new_slot_sub
 from puya.mir.context import ProgramMIRContext
 from puya.mir.output import output_memory_ir
 from puya.mir.stack_allocation import global_stack_allocation
+from puya.mir.visitor import DefaultMIRVisitor
 from puya.utils import attrs_extend, bits_to_bytes
 
 logger = get_logger(__name__)
@@ -41,8 +45,43 @@ def program_ir_to_mir(context: ArtifactCompileContext, program_ir: ir.Program) -
     )
     if ctx.options.output_memory_ir:
         output_memory_ir(ctx, result, qualifier="build")
+
+    initial_check_set = _ExplicitCheckCollector.collect(result)
     global_stack_allocation(ctx, result)
+    post_allocation_check_set = _ExplicitCheckCollector.collect(result)
+    if initial_check_set != post_allocation_check_set:
+        raise InternalError("explicit condition check(s) removed during global stack allocation")
     return result
+
+
+@attrs.frozen
+class _ExplicitCheckCollector(DefaultMIRVisitor[None]):
+    explicit_checks: set[models.Assert | models.Err] = attrs.field(factory=set)
+
+    @classmethod
+    def collect(cls, program: models.Program) -> dict[str, set[models.Assert | models.Err]]:
+        result = {}
+        for sub in program.all_subroutines:
+            collector = cls()
+            for block in sub.body:
+                for op in block.ops:
+                    op.accept(collector)
+            result[sub.id] = collector.explicit_checks
+        return result
+
+    @typing.override
+    def visit_default(self, op: models.BaseOp) -> None:
+        pass
+
+    @typing.override
+    def visit_assert(self, assert_: models.Assert) -> None:
+        if assert_.explicit:
+            self.explicit_checks.add(assert_)
+
+    @typing.override
+    def visit_err(self, op: models.Err) -> None:
+        if op.explicit:
+            self.explicit_checks.add(op)
 
 
 def _build_slot_allocation(program: ir.Program) -> models.SlotAllocation:
