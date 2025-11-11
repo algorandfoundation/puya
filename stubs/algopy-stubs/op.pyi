@@ -217,7 +217,7 @@ def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) 
     Native TEAL opcode: [`ed25519verify_bare`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ed25519verify_bare)
     """
 
-def err() -> typing.Never:
+def err(message: typing.LiteralString | None = None, /) -> typing.Never:
     """
     Fail immediately.
     :returns typing.Never: Halts program

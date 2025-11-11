@@ -326,6 +326,8 @@ EXCLUDED_OPCODES = {
     "arg_3",
     # have a higher level abstraction that supersedes it
     "log",
+    # specially handled
+    "err",
 }
 
 
@@ -999,6 +1001,18 @@ def output_stub(
         stub.extend(build_enum(lang_spec, arg_enum))
 
     for function in function_ops:
+        if function.name == "exit":
+            stub.append('''
+
+def err(message: typing.LiteralString | None = None, /) -> typing.Never:
+    """
+    Fail immediately.
+    :returns typing.Never: Halts program
+
+    Native TEAL opcode: [`err`](https://dev.algorand.co/reference/algorand-teal/opcodes/#err)
+    """
+
+''')
         stub.extend(build_method_stub(function))
 
     for class_op in class_ops:

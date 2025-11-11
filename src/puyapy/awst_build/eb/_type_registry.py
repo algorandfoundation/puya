@@ -52,6 +52,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy._template_variables.TemplateVar": (
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
+    "algopy.op.err": intrinsics.ErrFunctionBuilder,
     **{
         (fullname := "".join((constants.ALGOPY_OP_PREFIX, name))): functools.partial(
             intrinsics.IntrinsicFunctionExpressionBuilder, fullname, mappings
