@@ -18,7 +18,7 @@ class MyContract(Contract):
 
 @subroutine(inline=True)
 def never_returns() -> typing.Never:
-    op.err()
+    op.err("destined to fail")
 
 
 @subroutine(inline=True)
@@ -31,7 +31,10 @@ def zero() -> UInt64:
     return UInt64(0)
 
 
+ERR_MSG: typing.LiteralString = "always errors"
+
+
 class NeverReturns(arc4.ARC4Contract):
     @arc4.abimethod()
     def err(self) -> None:
-        op.err()
+        op.err(ERR_MSG)
