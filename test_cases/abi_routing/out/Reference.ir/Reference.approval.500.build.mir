@@ -72,7 +72,7 @@ subroutine main:
         &&                                                                                         tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                             tmp%7#0
-        assert // OnCompletion must be OptIn && can only call when not creating
+        assert
         callsub opt_in
         b main_switch_case_next@8
 
@@ -114,33 +114,33 @@ subroutine main:
         int 37                                                                                     tmp%9#0,37
         &                                                                                          tmp%10#0
         v-store tmp%10#0
-        txn ApplicationID                                                                          tmp%11#0
-        v-store tmp%11#0
+        txn ApplicationID                                                                          tmp%12#0
+        v-store tmp%12#0
         v-load tmp%10#0                                                                            tmp%10#0
-        v-load tmp%11#0                                                                            tmp%10#0,tmp%11#0
-        &&                                                                                         tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                            tmp%13#0
-        assert // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating 
+        v-load tmp%12#0                                                                            tmp%10#0,tmp%12#0
+        &&                                                                                         tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                                                            tmp%14#0
+        assert
         callsub mixed_oca
         b main_switch_case_next@8
 
     main_switch_case_next@8:
         // abi_routing/contract.py:24
         // class Reference(ARC4Contract):
-        txn OnCompletion                                                                           tmp%14#0
-        v-store tmp%14#0
-        v-load tmp%14#0                                                                            tmp%14#0
-        !                                                                                          tmp%15#0
+        txn OnCompletion                                                                           tmp%15#0
         v-store tmp%15#0
         v-load tmp%15#0                                                                            tmp%15#0
-        assert // OnCompletion must be NoOp
-        txn ApplicationID                                                                          tmp%16#0
+        !                                                                                          tmp%16#0
         v-store tmp%16#0
         v-load tmp%16#0                                                                            tmp%16#0
         assert
-        txna ApplicationArgs 0                                                                     tmp%18#0
-        v-store tmp%18#0
+        txn ApplicationID                                                                          tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%17#0                                                                            tmp%17#0
+        assert
+        txna ApplicationArgs 0                                                                     tmp%19#0
+        v-store tmp%19#0
         method noop_with_uint64(uint64)uint8                                                       Method(noop_with_uint64(uint64)uint8)
         method opt_into_asset(uint64)void                                                          Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void)
         method with_transactions(uint64,uint64,pay,uint64)void                                     Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void)
@@ -153,7 +153,7 @@ subroutine main:
         method method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[] Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[])
         method method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64 Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64)
         method hello_with_algopy_string(string)string                                              Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64),Method(hello_with_algopy_string(string)string)
-        v-load tmp%18#0                                                                            Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64),Method(hello_with_algopy_string(string)string),tmp%18#0
+        v-load tmp%19#0                                                                            Method(noop_with_uint64(uint64)uint8),Method(opt_into_asset(uint64)void),Method(with_transactions(uint64,uint64,pay,uint64)void),Method(compare_assets(uint64,uint64)void),Method(get_address()address),Method(get_asset()uint64),Method(get_application()uint64),Method(get_an_int()uint64),Method(method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void),Method(method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]),Method(method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64),Method(hello_with_algopy_string(string)string),tmp%19#0
         match main_noop_with_uint64_route@10 main_opt_into_asset_route@11 main_with_transactions_route@12 main_compare_assets_route@13 main_get_address_route@14 main_get_asset_route@15 main_get_application_route@16 main_get_an_int_route@17 main_method_with_default_args_route@18 main_method_with_15_args_route@19 main_method_with_more_than_15_args_route@20 main_hello_with_algopy_string_route@21 ; b main_after_if_else@24 
 
     main_noop_with_uint64_route@10:
@@ -269,13 +269,13 @@ subroutine main:
         //     ],
         //     create="require",
         // )
-        txn ApplicationID                                                                          tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                                            tmp%19#0
-        !                                                                                          tmp%20#0
+        txn ApplicationID                                                                          tmp%20#0
         v-store tmp%20#0
         v-load tmp%20#0                                                                            tmp%20#0
-        assert // can only call when creating
+        !                                                                                          tmp%21#0
+        v-store tmp%21#0
+        v-load tmp%21#0                                                                            tmp%21#0
+        assert
         // abi_routing/contract.py:90
         // log("Hello World")
         byte "Hello World"                                                                         "Hello World"

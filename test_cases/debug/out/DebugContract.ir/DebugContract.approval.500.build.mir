@@ -1,39 +1,39 @@
-// Op                                                                          Stack (out)
+// Op                                                            Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // debug/contract.py:4
         // class DebugContract(arc4.ARC4Contract):
-        txn NumAppArgs                                                         tmp%0#1
+        txn NumAppArgs                                           tmp%0#1
         v-store tmp%0#1
-        v-load tmp%0#1                                                         tmp%0#1
+        v-load tmp%0#1                                           tmp%0#1
         bz main___algopy_default_create@5 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // debug/contract.py:4
         // class DebugContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                                                 tmp%2#0
+        txna ApplicationArgs 0                                   tmp%2#0
         v-store tmp%2#0
-        method test(uint64,uint64,uint64)uint64                                Method(test(uint64,uint64,uint64)uint64)
-        v-load tmp%2#0                                                         Method(test(uint64,uint64,uint64)uint64),tmp%2#0
+        method test(uint64,uint64,uint64)uint64                  Method(test(uint64,uint64,uint64)uint64)
+        v-load tmp%2#0                                           Method(test(uint64,uint64,uint64)uint64),tmp%2#0
         match main_test_route@3 ; b main_switch_case_next@4
 
     main_test_route@3:
         // debug/contract.py:5
         // @arc4.abimethod
-        txn OnCompletion                                                       tmp%3#0
+        txn OnCompletion                                         tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                                         tmp%3#0
-        !                                                                      tmp%4#0
+        v-load tmp%3#0                                           tmp%3#0
+        !                                                        tmp%4#0
         v-store tmp%4#0
-        txn ApplicationID                                                      tmp%5#0
+        txn ApplicationID                                        tmp%5#0
         v-store tmp%5#0
-        v-load tmp%4#0                                                         tmp%4#0
-        v-load tmp%5#0                                                         tmp%4#0,tmp%5#0
-        &&                                                                     tmp%7#0
+        v-load tmp%4#0                                           tmp%4#0
+        v-load tmp%5#0                                           tmp%4#0,tmp%5#0
+        &&                                                       tmp%7#0
         v-store tmp%7#0
-        v-load tmp%7#0                                                         tmp%7#0
-        assert // OnCompletion must be NoOp && can only call when not creating
+        v-load tmp%7#0                                           tmp%7#0
+        assert
         callsub test
         b main_switch_case_next@4
 
@@ -43,146 +43,146 @@ subroutine main:
         err
 
     main___algopy_default_create@5:
-        txn OnCompletion                                                       tmp%8#0
+        txn OnCompletion                                         tmp%8#0
         v-store tmp%8#0
-        v-load tmp%8#0                                                         tmp%8#0
-        !                                                                      tmp%9#0
+        v-load tmp%8#0                                           tmp%8#0
+        !                                                        tmp%9#0
         v-store tmp%9#0
-        txn ApplicationID                                                      tmp%10#0
+        txn ApplicationID                                        tmp%10#0
         v-store tmp%10#0
-        v-load tmp%10#0                                                        tmp%10#0
-        !                                                                      tmp%11#0
+        v-load tmp%10#0                                          tmp%10#0
+        !                                                        tmp%11#0
         v-store tmp%11#0
-        v-load tmp%9#0                                                         tmp%9#0
-        v-load tmp%11#0                                                        tmp%9#0,tmp%11#0
-        &&                                                                     tmp%12#0
+        v-load tmp%9#0                                           tmp%9#0
+        v-load tmp%11#0                                          tmp%9#0,tmp%11#0
+        &&                                                       tmp%12#0
         v-store tmp%12#0
-        v-load tmp%12#0                                                        tmp%12#0
-        assert // OnCompletion must be NoOp && can only call when creating
-        int 1                                                                  1
+        v-load tmp%12#0                                          tmp%12#0
+        assert
+        int 1                                                    1
         return
 
 
 // test_cases.debug.contract.some_func(a: uint64, b: uint64) -> uint64:
 subroutine some_func:
-    some_func_block@0:                                                         (𝕡) a#0,b#0 |
+    some_func_block@0:                                           (𝕡) a#0,b#0 |
         // debug/contract.py:43
         // a += b
-        p-load a#0                                                             (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        +                                                                      (𝕡) a#0,b#0 | a#0
-        p-store a#0                                                            (𝕡) a#0,b#0 |
+        p-load a#0                                               (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                               (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        +                                                        (𝕡) a#0,b#0 | a#0
+        p-store a#0                                              (𝕡) a#0,b#0 |
         // debug/contract.py:44
         // b *= a
-        p-load b#0                                                             (𝕡) a#0,b#0 | b#0 (copy)
-        p-load a#0                                                             (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        *                                                                      (𝕡) a#0,b#0 | b#0
-        p-store b#0                                                            (𝕡) a#0,b#0 |
+        p-load b#0                                               (𝕡) a#0,b#0 | b#0 (copy)
+        p-load a#0                                               (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
+        *                                                        (𝕡) a#0,b#0 | b#0
+        p-store b#0                                              (𝕡) a#0,b#0 |
         // debug/contract.py:45
         // a += b
-        p-load a#0                                                             (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        +                                                                      (𝕡) a#0,b#0 | a#0
-        p-store a#0                                                            (𝕡) a#0,b#0 |
+        p-load a#0                                               (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                               (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        +                                                        (𝕡) a#0,b#0 | a#0
+        p-store a#0                                              (𝕡) a#0,b#0 |
         // debug/contract.py:46
         // a *= 2
-        p-load a#0                                                             (𝕡) a#0,b#0 | a#0 (copy)
-        int 2                                                                  (𝕡) a#0,b#0 | a#0 (copy),2
-        *                                                                      (𝕡) a#0,b#0 | a#0
-        p-store a#0                                                            (𝕡) a#0,b#0 |
+        p-load a#0                                               (𝕡) a#0,b#0 | a#0 (copy)
+        int 2                                                    (𝕡) a#0,b#0 | a#0 (copy),2
+        *                                                        (𝕡) a#0,b#0 | a#0
+        p-store a#0                                              (𝕡) a#0,b#0 |
         // debug/contract.py:47
         // x = a + b
-        p-load a#0                                                             (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        +                                                                      (𝕡) a#0,b#0 | x#0
-        v-store x#0                                                            (𝕡) a#0,b#0 |
+        p-load a#0                                               (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                               (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        +                                                        (𝕡) a#0,b#0 | x#0
+        v-store x#0                                              (𝕡) a#0,b#0 |
         // debug/contract.py:48
         // y = a * b
-        p-load a#0                                                             (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        *                                                                      (𝕡) a#0,b#0 | y#0
-        v-store y#0                                                            (𝕡) a#0,b#0 |
+        p-load a#0                                               (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                               (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        *                                                        (𝕡) a#0,b#0 | y#0
+        v-store y#0                                              (𝕡) a#0,b#0 |
         // debug/contract.py:49
         // return x if x < y else y
-        v-load x#0                                                             (𝕡) a#0,b#0 | x#0
-        v-load y#0                                                             (𝕡) a#0,b#0 | x#0,y#0
-        <                                                                      (𝕡) a#0,b#0 | tmp%6#0
-        v-store tmp%6#0                                                        (𝕡) a#0,b#0 |
-        v-load y#0                                                             (𝕡) a#0,b#0 | y#0
-        v-load x#0                                                             (𝕡) a#0,b#0 | y#0,x#0
-        v-load tmp%6#0                                                         (𝕡) a#0,b#0 | y#0,x#0,tmp%6#0
-        select                                                                 (𝕡) a#0,b#0 | select%0#0
-        v-store select%0#0                                                     (𝕡) a#0,b#0 |
-        v-load select%0#0                                                      (𝕡) a#0,b#0 | select%0#0
-        retsub                                                                 select%0#0
+        v-load x#0                                               (𝕡) a#0,b#0 | x#0
+        v-load y#0                                               (𝕡) a#0,b#0 | x#0,y#0
+        <                                                        (𝕡) a#0,b#0 | tmp%6#0
+        v-store tmp%6#0                                          (𝕡) a#0,b#0 |
+        v-load y#0                                               (𝕡) a#0,b#0 | y#0
+        v-load x#0                                               (𝕡) a#0,b#0 | y#0,x#0
+        v-load tmp%6#0                                           (𝕡) a#0,b#0 | y#0,x#0,tmp%6#0
+        select                                                   (𝕡) a#0,b#0 | select%0#0
+        v-store select%0#0                                       (𝕡) a#0,b#0 |
+        v-load select%0#0                                        (𝕡) a#0,b#0 | select%0#0
+        retsub                                                   select%0#0
 
 
 // test_cases.debug.contract.itoa(i: uint64) -> bytes:
 subroutine itoa:
-    itoa_block@0:                                                              (𝕡) i#0 |
+    itoa_block@0:                                                (𝕡) i#0 |
         // debug/contract.py:56
         // if i < radix:
-        p-load i#0                                                             (𝕡) i#0 | i#0 (copy)
+        p-load i#0                                               (𝕡) i#0 | i#0 (copy)
         // debug/contract.py:55
         // radix = digits.length
-        int 10                                                                 (𝕡) i#0 | i#0 (copy),10
+        int 10                                                   (𝕡) i#0 | i#0 (copy),10
         // debug/contract.py:56
         // if i < radix:
-        <                                                                      (𝕡) i#0 | tmp%1#0
-        v-store tmp%1#0                                                        (𝕡) i#0 |
-        v-load tmp%1#0                                                         (𝕡) i#0 | tmp%1#0
-        bz itoa_after_if_else@2 ; b itoa_if_body@1                             (𝕡) i#0 |
+        <                                                        (𝕡) i#0 | tmp%1#0
+        v-store tmp%1#0                                          (𝕡) i#0 |
+        v-load tmp%1#0                                           (𝕡) i#0 | tmp%1#0
+        bz itoa_after_if_else@2 ; b itoa_if_body@1               (𝕡) i#0 |
 
-    itoa_if_body@1:                                                            (𝕡) i#0 |
+    itoa_if_body@1:                                              (𝕡) i#0 |
         // debug/contract.py:54
         // digits = Bytes(b"0123456789")
-        byte 0x30313233343536373839                                            (𝕡) i#0 | 0x30313233343536373839
+        byte 0x30313233343536373839                              (𝕡) i#0 | 0x30313233343536373839
         // debug/contract.py:57
         // return digits[i]
-        p-load i#0                                                             (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
-        int 1                                                                  (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
-        extract3                                                               (𝕡) i#0 | extract%0#0
-        v-store extract%0#0                                                    (𝕡) i#0 |
-        v-load extract%0#0                                                     (𝕡) i#0 | extract%0#0
-        retsub                                                                 extract%0#0
+        p-load i#0                                               (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
+        int 1                                                    (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
+        extract3                                                 (𝕡) i#0 | extract%0#0
+        v-store extract%0#0                                      (𝕡) i#0 |
+        v-load extract%0#0                                       (𝕡) i#0 | extract%0#0
+        retsub                                                   extract%0#0
 
-    itoa_after_if_else@2:                                                      (𝕡) i#0 |
+    itoa_after_if_else@2:                                        (𝕡) i#0 |
         // debug/contract.py:58
         // return itoa(i // radix) + digits[i % radix]
-        p-load i#0                                                             (𝕡) i#0 | i#0 (copy)
+        p-load i#0                                               (𝕡) i#0 | i#0 (copy)
         // debug/contract.py:55
         // radix = digits.length
-        int 10                                                                 (𝕡) i#0 | i#0 (copy),10
+        int 10                                                   (𝕡) i#0 | i#0 (copy),10
         // debug/contract.py:58
         // return itoa(i // radix) + digits[i % radix]
-        /                                                                      (𝕡) i#0 | tmp%2#0
-        v-store tmp%2#0                                                        (𝕡) i#0 |
-        v-load tmp%2#0                                                         (𝕡) i#0 | tmp%2#0
-        callsub itoa                                                           (𝕡) i#0 | tmp%3#0
-        v-store tmp%3#0                                                        (𝕡) i#0 |
-        p-load i#0                                                             (𝕡) i#0 | i#0 (copy)
+        /                                                        (𝕡) i#0 | tmp%2#0
+        v-store tmp%2#0                                          (𝕡) i#0 |
+        v-load tmp%2#0                                           (𝕡) i#0 | tmp%2#0
+        callsub itoa                                             (𝕡) i#0 | tmp%3#0
+        v-store tmp%3#0                                          (𝕡) i#0 |
+        p-load i#0                                               (𝕡) i#0 | i#0 (copy)
         // debug/contract.py:55
         // radix = digits.length
-        int 10                                                                 (𝕡) i#0 | i#0 (copy),10
+        int 10                                                   (𝕡) i#0 | i#0 (copy),10
         // debug/contract.py:58
         // return itoa(i // radix) + digits[i % radix]
-        %                                                                      (𝕡) i#0 | tmp%4#0
-        v-store tmp%4#0                                                        (𝕡) i#0 |
+        %                                                        (𝕡) i#0 | tmp%4#0
+        v-store tmp%4#0                                          (𝕡) i#0 |
         // debug/contract.py:54
         // digits = Bytes(b"0123456789")
-        byte 0x30313233343536373839                                            (𝕡) i#0 | 0x30313233343536373839
+        byte 0x30313233343536373839                              (𝕡) i#0 | 0x30313233343536373839
         // debug/contract.py:58
         // return itoa(i // radix) + digits[i % radix]
-        v-load tmp%4#0                                                         (𝕡) i#0 | 0x30313233343536373839,tmp%4#0
-        int 1                                                                  (𝕡) i#0 | 0x30313233343536373839,tmp%4#0,1
-        extract3                                                               (𝕡) i#0 | extract%1#0
-        v-store extract%1#0                                                    (𝕡) i#0 |
-        v-load tmp%3#0                                                         (𝕡) i#0 | tmp%3#0
-        v-load extract%1#0                                                     (𝕡) i#0 | tmp%3#0,extract%1#0
-        concat                                                                 (𝕡) i#0 | tmp%5#0
-        v-store tmp%5#0                                                        (𝕡) i#0 |
-        v-load tmp%5#0                                                         (𝕡) i#0 | tmp%5#0
-        retsub                                                                 tmp%5#0
+        v-load tmp%4#0                                           (𝕡) i#0 | 0x30313233343536373839,tmp%4#0
+        int 1                                                    (𝕡) i#0 | 0x30313233343536373839,tmp%4#0,1
+        extract3                                                 (𝕡) i#0 | extract%1#0
+        v-store extract%1#0                                      (𝕡) i#0 |
+        v-load tmp%3#0                                           (𝕡) i#0 | tmp%3#0
+        v-load extract%1#0                                       (𝕡) i#0 | tmp%3#0,extract%1#0
+        concat                                                   (𝕡) i#0 | tmp%5#0
+        v-store tmp%5#0                                          (𝕡) i#0 |
+        v-load tmp%5#0                                           (𝕡) i#0 | tmp%5#0
+        retsub                                                   tmp%5#0
 
 
 // test_cases.debug.contract.DebugContract.test[routing]() -> void:
@@ -190,296 +190,296 @@ subroutine test:
     test_block@0:
         // debug/contract.py:5
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                 tmp%0#0
+        txna ApplicationArgs 1                                   tmp%0#0
         v-store tmp%0#0
-        v-load tmp%0#0                                                         tmp%0#0
-        len                                                                    len%0#0
+        v-load tmp%0#0                                           tmp%0#0
+        len                                                      len%0#0
         v-store len%0#0
-        v-load len%0#0                                                         len%0#0
-        int 8                                                                  len%0#0,8
-        ==                                                                     eq%0#0
+        v-load len%0#0                                           len%0#0
+        int 8                                                    len%0#0,8
+        ==                                                       eq%0#0
         v-store eq%0#0
-        v-load eq%0#0                                                          eq%0#0
+        v-load eq%0#0                                            eq%0#0
         assert // invalid number of bytes for arc4.uint64
-        v-load tmp%0#0                                                         tmp%0#0
-        btoi                                                                   x#0
+        v-load tmp%0#0                                           tmp%0#0
+        btoi                                                     x#0
         v-store x#0
-        txna ApplicationArgs 2                                                 tmp%2#0
+        txna ApplicationArgs 2                                   tmp%2#0
         v-store tmp%2#0
-        v-load tmp%2#0                                                         tmp%2#0
-        len                                                                    len%1#0
+        v-load tmp%2#0                                           tmp%2#0
+        len                                                      len%1#0
         v-store len%1#0
-        v-load len%1#0                                                         len%1#0
-        int 8                                                                  len%1#0,8
-        ==                                                                     eq%1#0
+        v-load len%1#0                                           len%1#0
+        int 8                                                    len%1#0,8
+        ==                                                       eq%1#0
         v-store eq%1#0
-        v-load eq%1#0                                                          eq%1#0
+        v-load eq%1#0                                            eq%1#0
         assert // invalid number of bytes for arc4.uint64
-        v-load tmp%2#0                                                         tmp%2#0
-        btoi                                                                   y#0
+        v-load tmp%2#0                                           tmp%2#0
+        btoi                                                     y#0
         v-store y#0
-        txna ApplicationArgs 3                                                 tmp%4#0
+        txna ApplicationArgs 3                                   tmp%4#0
         v-store tmp%4#0
-        v-load tmp%4#0                                                         tmp%4#0
-        len                                                                    len%2#0
+        v-load tmp%4#0                                           tmp%4#0
+        len                                                      len%2#0
         v-store len%2#0
-        v-load len%2#0                                                         len%2#0
-        int 8                                                                  len%2#0,8
-        ==                                                                     eq%2#0
+        v-load len%2#0                                           len%2#0
+        int 8                                                    len%2#0,8
+        ==                                                       eq%2#0
         v-store eq%2#0
-        v-load eq%2#0                                                          eq%2#0
+        v-load eq%2#0                                            eq%2#0
         assert // invalid number of bytes for arc4.uint64
-        v-load tmp%4#0                                                         tmp%4#0
-        btoi                                                                   z#0
+        v-load tmp%4#0                                           tmp%4#0
+        btoi                                                     z#0
         v-store z#0
         // debug/contract.py:7
         // a = x * TemplateVar[UInt64]("A_MULT")
-        v-load x#0                                                             x#0
-        int TMPL_A_MULT                                                        x#0,TMPL_A_MULT
-        *                                                                      a#0
+        v-load x#0                                               x#0
+        int TMPL_A_MULT                                          x#0,TMPL_A_MULT
+        *                                                        a#0
         v-store a#0
         // debug/contract.py:8
         // b = x + y
-        v-load x#0                                                             x#0
-        v-load y#0                                                             x#0,y#0
-        +                                                                      b#0
+        v-load x#0                                               x#0
+        v-load y#0                                               x#0,y#0
+        +                                                        b#0
         v-store b#0
         // debug/contract.py:9
         // c = b * z
-        v-load b#0                                                             b#0
-        v-load z#0                                                             b#0,z#0
-        *                                                                      c#0
+        v-load b#0                                               b#0
+        v-load z#0                                               b#0,z#0
+        *                                                        c#0
         v-store c#0
         // debug/contract.py:10
         // if b < c:
-        v-load b#0                                                             b#0
-        v-load c#0                                                             b#0,c#0
-        <                                                                      tmp%3#1
+        v-load b#0                                               b#0
+        v-load c#0                                               b#0,c#0
+        <                                                        tmp%3#1
         v-store tmp%3#1
-        v-load tmp%3#1                                                         tmp%3#1
+        v-load tmp%3#1                                           tmp%3#1
         bz test_else_body@3 ; b test_if_body@2
 
     test_if_body@2:
         // debug/contract.py:11
         // a = a + y
-        v-load a#0                                                             a#0
-        v-load y#0                                                             a#0,y#0
-        +                                                                      a#0
+        v-load a#0                                               a#0
+        v-load y#0                                               a#0,y#0
+        +                                                        a#0
         v-store a#0
         b test_after_if_else@12
 
     test_else_body@3:
         // debug/contract.py:12
         // elif a < c:
-        v-load a#0                                                             a#0
-        v-load c#0                                                             a#0,c#0
-        <                                                                      tmp%5#1
+        v-load a#0                                               a#0
+        v-load c#0                                               a#0,c#0
+        <                                                        tmp%5#1
         v-store tmp%5#1
-        v-load tmp%5#1                                                         tmp%5#1
+        v-load tmp%5#1                                           tmp%5#1
         bz test_else_body@5 ; b test_if_body@4
 
     test_if_body@4:
         // debug/contract.py:13
         // a = a + z
-        v-load a#0                                                             a#0
-        v-load z#0                                                             a#0,z#0
-        +                                                                      a#0
+        v-load a#0                                               a#0
+        v-load z#0                                               a#0,z#0
+        +                                                        a#0
         v-store a#0
         b test_after_if_else@12
 
     test_else_body@5:
         // debug/contract.py:14
         // elif b < a:
-        v-load b#0                                                             b#0
-        v-load a#0                                                             b#0,a#0
-        <                                                                      tmp%7#1
+        v-load b#0                                               b#0
+        v-load a#0                                               b#0,a#0
+        <                                                        tmp%7#1
         v-store tmp%7#1
-        v-load tmp%7#1                                                         tmp%7#1
+        v-load tmp%7#1                                           tmp%7#1
         bz test_else_body@7 ; b test_if_body@6
 
     test_if_body@6:
         // debug/contract.py:15
         // a = a * 3
-        v-load a#0                                                             a#0
-        int 3                                                                  a#0,3
-        *                                                                      a#0
+        v-load a#0                                               a#0
+        int 3                                                    a#0,3
+        *                                                        a#0
         v-store a#0
         b test_after_if_else@12
 
     test_else_body@7:
         // debug/contract.py:16
         // elif b > a:
-        v-load b#0                                                             b#0
-        v-load a#0                                                             b#0,a#0
-        >                                                                      tmp%9#0
+        v-load b#0                                               b#0
+        v-load a#0                                               b#0,a#0
+        >                                                        tmp%9#0
         v-store tmp%9#0
-        v-load tmp%9#0                                                         tmp%9#0
+        v-load tmp%9#0                                           tmp%9#0
         bz test_after_if_else@12 ; b test_if_body@8
 
     test_if_body@8:
         // debug/contract.py:17
         // b = b + a
-        v-load b#0                                                             b#0
-        v-load a#0                                                             b#0,a#0
-        +                                                                      b#0
+        v-load b#0                                               b#0
+        v-load a#0                                               b#0,a#0
+        +                                                        b#0
         v-store b#0
         b test_after_if_else@12
 
     test_after_if_else@12:
         // debug/contract.py:19
         // if a + b < c:
-        v-load a#0                                                             a#0
-        v-load b#0                                                             a#0,b#0
-        +                                                                      tmp%11#0
+        v-load a#0                                               a#0
+        v-load b#0                                               a#0,b#0
+        +                                                        tmp%11#0
         v-store tmp%11#0
-        v-load tmp%11#0                                                        tmp%11#0
-        v-load c#0                                                             tmp%11#0,c#0
-        <                                                                      tmp%12#0
+        v-load tmp%11#0                                          tmp%11#0
+        v-load c#0                                               tmp%11#0,c#0
+        <                                                        tmp%12#0
         v-store tmp%12#0
-        v-load tmp%12#0                                                        tmp%12#0
+        v-load tmp%12#0                                          tmp%12#0
         bz test_else_body@14 ; b test_if_body@13
 
     test_if_body@13:
         // debug/contract.py:20
         // a *= some_func(a, y)
-        v-load a#0                                                             a#0
-        v-load y#0                                                             a#0,y#0
-        callsub some_func                                                      tmp%13#0
+        v-load a#0                                               a#0
+        v-load y#0                                               a#0,y#0
+        callsub some_func                                        tmp%13#0
         v-store tmp%13#0
-        v-load a#0                                                             a#0
-        v-load tmp%13#0                                                        a#0,tmp%13#0
-        *                                                                      a#0
+        v-load a#0                                               a#0
+        v-load tmp%13#0                                          a#0,tmp%13#0
+        *                                                        a#0
         v-store a#0
         b test_after_if_else@15
 
     test_else_body@14:
         // debug/contract.py:22
         // b *= some_func(b, z)
-        v-load b#0                                                             b#0
-        v-load z#0                                                             b#0,z#0
-        callsub some_func                                                      tmp%15#0
+        v-load b#0                                               b#0
+        v-load z#0                                               b#0,z#0
+        callsub some_func                                        tmp%15#0
         v-store tmp%15#0
-        v-load b#0                                                             b#0
-        v-load tmp%15#0                                                        b#0,tmp%15#0
-        *                                                                      b#0
+        v-load b#0                                               b#0
+        v-load tmp%15#0                                          b#0,tmp%15#0
+        *                                                        b#0
         v-store b#0
         b test_after_if_else@15
 
     test_after_if_else@15:
         // debug/contract.py:24
         // bee = itoa(b)
-        v-load b#0                                                             b#0
-        callsub itoa                                                           bee#0
+        v-load b#0                                               b#0
+        callsub itoa                                             bee#0
         v-store bee#0
         // debug/contract.py:25
         // c = a + b
-        v-load a#0                                                             a#0
-        v-load b#0                                                             a#0,b#0
-        +                                                                      c#0
+        v-load a#0                                               a#0
+        v-load b#0                                               a#0,b#0
+        +                                                        c#0
         v-store c#0
         // debug/contract.py:26
         // cea = itoa(c)
-        v-load c#0                                                             c#0
-        callsub itoa                                                           cea#0
+        v-load c#0                                               c#0
+        callsub itoa                                             cea#0
         v-store cea#0
         // debug/contract.py:28
         // if a < c:
-        v-load a#0                                                             a#0
-        v-load c#0                                                             a#0,c#0
-        <                                                                      tmp%20#0
+        v-load a#0                                               a#0
+        v-load c#0                                               a#0,c#0
+        <                                                        tmp%20#0
         v-store tmp%20#0
-        v-load tmp%20#0                                                        tmp%20#0
+        v-load tmp%20#0                                          tmp%20#0
         bz test_after_if_else@17 ; b test_if_body@16
 
     test_if_body@16:
         // debug/contract.py:29
         // a += c
-        v-load a#0                                                             a#0
-        v-load c#0                                                             a#0,c#0
-        +                                                                      a#0
+        v-load a#0                                               a#0
+        v-load c#0                                               a#0,c#0
+        +                                                        a#0
         v-store a#0
         b test_after_if_else@17
 
     test_after_if_else@17:
         // debug/contract.py:30
         // if a < b:
-        v-load a#0                                                             a#0
-        v-load b#0                                                             a#0,b#0
-        <                                                                      tmp%22#0
+        v-load a#0                                               a#0
+        v-load b#0                                               a#0,b#0
+        <                                                        tmp%22#0
         v-store tmp%22#0
-        v-load tmp%22#0                                                        tmp%22#0
+        v-load tmp%22#0                                          tmp%22#0
         bz test_after_if_else@19 ; b test_if_body@18
 
     test_if_body@18:
         // debug/contract.py:31
         // a += b
-        v-load a#0                                                             a#0
-        v-load b#0                                                             a#0,b#0
-        +                                                                      a#0
+        v-load a#0                                               a#0
+        v-load b#0                                               a#0,b#0
+        +                                                        a#0
         v-store a#0
         b test_after_if_else@19
 
     test_after_if_else@19:
         // debug/contract.py:32
         // if a < b + c:
-        v-load b#0                                                             b#0
-        v-load c#0                                                             b#0,c#0
-        +                                                                      tmp%24#0
+        v-load b#0                                               b#0
+        v-load c#0                                               b#0,c#0
+        +                                                        tmp%24#0
         v-store tmp%24#0
-        v-load a#0                                                             a#0
-        v-load tmp%24#0                                                        a#0,tmp%24#0
-        <                                                                      tmp%25#0
+        v-load a#0                                               a#0
+        v-load tmp%24#0                                          a#0,tmp%24#0
+        <                                                        tmp%25#0
         v-store tmp%25#0
-        v-load tmp%25#0                                                        tmp%25#0
+        v-load tmp%25#0                                          tmp%25#0
         bz test_after_if_else@21 ; b test_if_body@20
 
     test_if_body@20:
         // debug/contract.py:33
         // a = a * z
-        v-load a#0                                                             a#0
-        v-load z#0                                                             a#0,z#0
-        *                                                                      a#0
+        v-load a#0                                               a#0
+        v-load z#0                                               a#0,z#0
+        *                                                        a#0
         v-store a#0
         b test_after_if_else@21
 
     test_after_if_else@21:
         // debug/contract.py:35
         // aye = itoa(a)
-        v-load a#0                                                             a#0
-        callsub itoa                                                           aye#0
+        v-load a#0                                               a#0
+        callsub itoa                                             aye#0
         v-store aye#0
         // debug/contract.py:36
         // log(aye, bee, cea, sep=" ")
-        v-load aye#0                                                           aye#0
-        byte " "                                                               aye#0," "
-        concat                                                                 tmp%28#0
+        v-load aye#0                                             aye#0
+        byte " "                                                 aye#0," "
+        concat                                                   tmp%28#0
         v-store tmp%28#0
-        v-load tmp%28#0                                                        tmp%28#0
-        v-load bee#0                                                           tmp%28#0,bee#0
-        concat                                                                 tmp%29#0
+        v-load tmp%28#0                                          tmp%28#0
+        v-load bee#0                                             tmp%28#0,bee#0
+        concat                                                   tmp%29#0
         v-store tmp%29#0
-        v-load tmp%29#0                                                        tmp%29#0
-        byte " "                                                               tmp%29#0," "
-        concat                                                                 tmp%30#0
+        v-load tmp%29#0                                          tmp%29#0
+        byte " "                                                 tmp%29#0," "
+        concat                                                   tmp%30#0
         v-store tmp%30#0
-        v-load tmp%30#0                                                        tmp%30#0
-        v-load cea#0                                                           tmp%30#0,cea#0
-        concat                                                                 tmp%31#0
+        v-load tmp%30#0                                          tmp%30#0
+        v-load cea#0                                             tmp%30#0,cea#0
+        concat                                                   tmp%31#0
         v-store tmp%31#0
-        v-load tmp%31#0                                                        tmp%31#0
+        v-load tmp%31#0                                          tmp%31#0
         log
         // debug/contract.py:5
         // @arc4.abimethod
-        v-load a#0                                                             a#0
-        itob                                                                   aggregate%val_as_bytes%0#0
+        v-load a#0                                               a#0
+        itob                                                     aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
-        byte 0x151f7c75                                                        0x151f7c75
-        v-load aggregate%val_as_bytes%0#0                                      0x151f7c75,aggregate%val_as_bytes%0#0
-        concat                                                                 tmp%8#0
+        byte 0x151f7c75                                          0x151f7c75
+        v-load aggregate%val_as_bytes%0#0                        0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                   tmp%8#0
         v-store tmp%8#0
-        v-load tmp%8#0                                                         tmp%8#0
+        v-load tmp%8#0                                           tmp%8#0
         log
-        int 1                                                                  1
+        int 1                                                    1
         return
 
 

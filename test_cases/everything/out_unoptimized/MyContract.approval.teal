@@ -35,7 +35,7 @@ main_switch_case_next@6:
     txn OnCompletion
     intc_0 // NoOp
     ==
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     intc_0 // 0
     !=
@@ -100,7 +100,7 @@ main_close_out_route@5:
     intc_0 // 0
     !=
     &&
-    assert // OnCompletion must be CloseOut && can only call when not creating
+    assert
     callsub close_out
     b main_switch_case_next@6
 
@@ -113,11 +113,13 @@ main_register_route@4:
     shl
     pushint 3 // 3
     &
+    intc_0 // 0
+    !=
     txn ApplicationID
     intc_0 // 0
     !=
     &&
-    assert // OnCompletion must be one of NoOp, OptIn && can only call when not creating
+    assert
     callsub register
     b main_switch_case_next@6
 

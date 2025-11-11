@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 2 3
+    intcblock 0 2 1 3
     bytecblock 0x61 0x62 0x151f7c75
     // typed_abi_call_txn/txn_contract.py:11
     // class TxnContract(ARC4Contract):
@@ -11,7 +11,7 @@ main:
     bz main___algopy_default_create@10
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     assert
     pushbytess 0xa1f5040d 0x6d4700ad 0xc840077d // method "call_with_txn(byte[],txn,byte[])uint64", method "call_with_acfg(byte[],acfg,byte[])uint64", method "call_with_acfg_no_return(byte[],acfg,byte[])void"
@@ -25,8 +25,6 @@ main___algopy_default_create@10:
     txn ApplicationID
     !
     &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    intc_0 // 1
     return
 
 
@@ -36,9 +34,9 @@ call_with_txn:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -46,13 +44,13 @@ call_with_txn:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txn GroupIndex
-    intc_0 // 1
+    intc_2 // 1
     -
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -89,7 +87,7 @@ call_with_txn:
     swap
     concat
     log
-    intc_0 // 1
+    intc_2 // 1
     return
 
 
@@ -99,9 +97,9 @@ call_with_acfg:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -109,7 +107,7 @@ call_with_acfg:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txn GroupIndex
-    intc_0 // 1
+    intc_2 // 1
     -
     dup
     gtxns TypeEnum
@@ -118,9 +116,9 @@ call_with_acfg:
     assert // transaction type is acfg
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -150,7 +148,7 @@ call_with_acfg:
     swap
     concat
     log
-    intc_0 // 1
+    intc_2 // 1
     return
 
 
@@ -160,9 +158,9 @@ call_with_acfg_no_return:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -170,7 +168,7 @@ call_with_acfg_no_return:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txn GroupIndex
-    intc_0 // 1
+    intc_2 // 1
     -
     dup
     gtxns TypeEnum
@@ -179,9 +177,9 @@ call_with_acfg_no_return:
     assert // transaction type is acfg
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_1 // 2
     +
     dig 1
     len
@@ -205,5 +203,5 @@ call_with_acfg_no_return:
     assert // expected asset id
     // typed_abi_call_txn/txn_contract.py:27
     // @arc4.abimethod
-    intc_0 // 1
+    intc_2 // 1
     return

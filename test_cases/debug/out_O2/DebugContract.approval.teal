@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8 10 TMPL_A_MULT
+    intcblock 8 1 10 TMPL_A_MULT
     bytecblock " " 0x30313233343536373839
     pushint 0 // 0
     dup
@@ -21,18 +21,18 @@ main_test_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
-    intc_1 // 8
+    intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -41,7 +41,7 @@ main_test_route@3:
     txna ApplicationArgs 3
     dup
     len
-    intc_1 // 8
+    intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -142,7 +142,7 @@ main_after_if_else@28:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_else_body@21:
@@ -193,8 +193,6 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    intc_0 // 1
     return
 
 
@@ -240,7 +238,7 @@ itoa:
     bz itoa_after_if_else@2
     bytec_1 // 0x30313233343536373839
     frame_dig -1
-    intc_0 // 1
+    intc_1 // 1
     extract3
     retsub
 
@@ -254,7 +252,7 @@ itoa_after_if_else@2:
     %
     bytec_1 // 0x30313233343536373839
     swap
-    intc_0 // 1
+    intc_1 // 1
     extract3
     concat
     retsub

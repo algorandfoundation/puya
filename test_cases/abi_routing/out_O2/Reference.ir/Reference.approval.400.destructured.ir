@@ -21,7 +21,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: bool = (== tmp%3#0 OptIn)
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
-        (assert tmp%7#0) // OnCompletion must be OptIn && can only call when not creating
+        (assert tmp%7#0)
         let tmp%0#3: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#3)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -58,9 +58,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: uint64 = (shl 1u tmp%8#0)
         let tmp%10#0: uint64 = (& tmp%9#0 37u)
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (&& tmp%10#0 tmp%11#0)
-        (assert tmp%13#0) // OnCompletion must be one of NoOp, CloseOut, DeleteApplication && can only call when not creating
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (&& tmp%10#0 tmp%12#0)
+        (assert tmp%14#0)
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -76,13 +76,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%2#0)
         exit 1u
     block@8: // switch_case_next_L24
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        let tmp%15#0: bool = (! tmp%14#0)
-        (assert tmp%15#0) // OnCompletion must be NoOp
-        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        let tmp%16#0: bool = (! tmp%15#0)
         (assert tmp%16#0)
-        let tmp%18#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%18#0 {method "noop_with_uint64(uint64)uint8" => block@10, method "opt_into_asset(uint64)void" => block@11, method "with_transactions(uint64,uint64,pay,uint64)void" => block@12, method "compare_assets(uint64,uint64)void" => block@13, method "get_address()address" => block@14, method "get_asset()uint64" => block@15, method "get_application()uint64" => block@15, method "get_an_int()uint64" => block@17, method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@18, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@19, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64" => block@20, method "hello_with_algopy_string(string)string" => block@21, * => block@24}
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0)
+        let tmp%19#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%19#0 {method "noop_with_uint64(uint64)uint8" => block@10, method "opt_into_asset(uint64)void" => block@11, method "with_transactions(uint64,uint64,pay,uint64)void" => block@12, method "compare_assets(uint64,uint64)void" => block@13, method "get_address()address" => block@14, method "get_asset()uint64" => block@15, method "get_application()uint64" => block@15, method "get_an_int()uint64" => block@17, method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@18, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@19, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64" => block@20, method "hello_with_algopy_string(string)string" => block@21, * => block@24}
     block@10: // noop_with_uint64_route_L40
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
@@ -234,13 +234,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%11#0: bool = (== len%11#0 8u)
         (assert eq%11#0) // invalid number of bytes for arc4.uint64
         let int_from_local#0: uint64 = (btoi tmp%17#1)
-        let tmp%19#1: bytes = (txna ApplicationArgs 13)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%19#1 0u) // on error: invalid array length header
+        let tmp%19#0: bytes = (txna ApplicationArgs 13)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%19#0 0u) // on error: invalid array length header
         let add%1#0: uint64 = (+ aggregate%array_length%2#0 2u)
-        let len%12#0: uint64 = (len tmp%19#1)
+        let len%12#0: uint64 = (len tmp%19#0)
         let eq%12#0: bool = (== len%12#0 add%1#0)
         (assert eq%12#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let bytes_from_local#0: bytes = ((extract 2 0) tmp%19#1)
+        let bytes_from_local#0: bytes = ((extract 2 0) tmp%19#0)
         let tmp%0#0: bool = (== asset_from_storage#0 123u)
         (assert tmp%0#0) // wrong asset from storage
         let tmp%1#6: bool = (== asset_from_function#0 456u)
@@ -264,14 +264,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_element%2#0: bytes = ((extract 2 1) bytes_from_storage#0) // on error: index access is out of bounds
         let tmp%10#6: bool = (b== aggregate%encoded_element%2#0 0x09)
         (assert tmp%10#6) // wrong 2nd byte from storage
-        let tmp%11#0: uint64 = (btoi int_from_storage#0)
-        let tmp%12#6: bool = (== tmp%11#0 2u)
+        let tmp%11#2: uint64 = (btoi int_from_storage#0)
+        let tmp%12#6: bool = (== tmp%11#2 2u)
         (assert tmp%12#6) // wrong int from storage
         let tmp%13#2: uint64 = (btoi int_from_function#0)
-        let tmp%14#5: bool = (== tmp%13#2 3u)
-        (assert tmp%14#5) // wrong int from function
-        let tmp%15#0: bool = (b== int_from_const#0 0x0000007b)
-        (assert tmp%15#0)
+        let tmp%14#0: bool = (== tmp%13#2 3u)
+        (assert tmp%14#0) // wrong int from function
+        let tmp%15#4: bool = (b== int_from_const#0 0x0000007b)
+        (assert tmp%15#4)
         let tmp%17#4: bool = (== str_from_const#0 0x0003616263)
         (assert tmp%17#4)
         let tmp%18#5: account = (txn Sender)
@@ -282,8 +282,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%20#5: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%20#5 0u "local_bytes")
         (assert maybe_exists%1#0) // check self.local_bytes exists for account
-        let tmp%21#2: bool = (== bytes_from_local#0 maybe_value%1#0)
-        (assert tmp%21#2)
+        let tmp%21#0: bool = (== bytes_from_local#0 maybe_value%1#0)
+        (assert tmp%21#0)
         exit 1u
     block@19: // method_with_15_args_route_L191
         let tmp%0#3: bytes = (txna ApplicationArgs 1)
@@ -331,11 +331,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%8#0: bool = (== len%8#0 8u)
         (assert eq%8#0) // invalid number of bytes for arc4.uint64
         let nine#0: uint64 = (btoi tmp%16#3)
-        let tmp%18#0: bytes = (txna ApplicationArgs 10)
-        let len%9#0: uint64 = (len tmp%18#0)
+        let tmp%18#1: bytes = (txna ApplicationArgs 10)
+        let len%9#0: uint64 = (len tmp%18#1)
         let eq%9#0: bool = (== len%9#0 8u)
         (assert eq%9#0) // invalid number of bytes for arc4.uint64
-        let ten#0: uint64 = (btoi tmp%18#0)
+        let ten#0: uint64 = (btoi tmp%18#1)
         let tmp%20#3: bytes = (txna ApplicationArgs 11)
         let len%10#0: uint64 = (len tmp%20#3)
         let eq%10#0: bool = (== len%10#0 8u)
@@ -373,9 +373,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#0: uint64 = (+ tmp%7#4 ten#0)
         let tmp%9#0: uint64 = (+ tmp%8#0 eleven#0)
         let tmp%10#0: uint64 = (+ tmp%9#0 twelve#0)
-        let tmp%11#0: uint64 = (+ tmp%10#0 thirteen#0)
-        let tmp%12#2: uint64 = (+ tmp%11#0 fourteen#0)
-        (assert tmp%12#2)
+        let tmp%11#2: uint64 = (+ tmp%10#0 thirteen#0)
+        let tmp%12#0: uint64 = (+ tmp%11#2 fourteen#0)
+        (assert tmp%12#0)
         let tmp%32#2: bytes = (concat 0x151f7c75 tmp%28#2)
         (log tmp%32#2)
         exit 1u
@@ -460,53 +460,53 @@ main algopy.arc4.ARC4Contract.approval_program:
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let eq%16#0: bool = (== tuple_len%0#0 add%3#0)
         (assert eq%16#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-        let tmp%18#0: bytes = (txna ApplicationArgs 15)
-        let tuple_len%1#0: uint64 = (len tmp%18#0)
-        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%18#0 40u) // on error: invalid tuple encoding
+        let tmp%18#1: bytes = (txna ApplicationArgs 15)
+        let tuple_len%1#0: uint64 = (len tmp%18#1)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%18#1 40u) // on error: invalid tuple encoding
         let eq%17#0: bool = (== extract_uint16%2#0 68u)
         (assert eq%17#0) // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-        let substring3%2#0: bytes = (substring3 tmp%18#0 extract_uint16%2#0 tuple_len%1#0)
+        let substring3%2#0: bytes = (substring3 tmp%18#1 extract_uint16%2#0 tuple_len%1#0)
         let aggregate%array_length%6#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
         let add%5#0: uint64 = (+ aggregate%array_length%6#0 70u)
-        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%18#0 42u) // on error: invalid tuple encoding
+        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%18#1 42u) // on error: invalid tuple encoding
         let eq%18#0: bool = (== extract_uint16%3#0 add%5#0)
         (assert eq%18#0) // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-        let substring3%3#0: bytes = (substring3 tmp%18#0 extract_uint16%3#0 tuple_len%1#0)
+        let substring3%3#0: bytes = (substring3 tmp%18#1 extract_uint16%3#0 tuple_len%1#0)
         let aggregate%array_length%7#0: uint64 = (extract_uint16 substring3%3#0 0u) // on error: invalid array length header
         let add%6#0: uint64 = (+ aggregate%array_length%7#0 2u)
         let add%7#0: uint64 = (+ add%5#0 add%6#0)
         let eq%19#0: bool = (== tuple_len%1#0 add%7#0)
         (assert eq%19#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-        let tmp%19#1: bytes = (txna ApplicationArgs 15)
-        let tuple_len%2#0: uint64 = (len tmp%19#1)
-        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%19#1 40u) // on error: invalid tuple encoding
+        let tmp%19#0: bytes = (txna ApplicationArgs 15)
+        let tuple_len%2#0: uint64 = (len tmp%19#0)
+        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%19#0 40u) // on error: invalid tuple encoding
         let eq%20#0: bool = (== extract_uint16%4#0 68u)
         (assert eq%20#0) // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-        let substring3%4#0: bytes = (substring3 tmp%19#1 extract_uint16%4#0 tuple_len%2#0)
+        let substring3%4#0: bytes = (substring3 tmp%19#0 extract_uint16%4#0 tuple_len%2#0)
         let aggregate%array_length%8#0: uint64 = (extract_uint16 substring3%4#0 0u) // on error: invalid array length header
         let add%9#0: uint64 = (+ aggregate%array_length%8#0 70u)
-        let extract_uint16%5#0: uint64 = (extract_uint16 tmp%19#1 42u) // on error: invalid tuple encoding
+        let extract_uint16%5#0: uint64 = (extract_uint16 tmp%19#0 42u) // on error: invalid tuple encoding
         let eq%21#0: bool = (== extract_uint16%5#0 add%9#0)
         (assert eq%21#0) // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-        let substring3%5#0: bytes = (substring3 tmp%19#1 extract_uint16%5#0 tuple_len%2#0)
+        let substring3%5#0: bytes = (substring3 tmp%19#0 extract_uint16%5#0 tuple_len%2#0)
         let aggregate%array_length%9#0: uint64 = (extract_uint16 substring3%5#0 0u) // on error: invalid array length header
         let add%10#0: uint64 = (+ aggregate%array_length%9#0 2u)
         let add%11#0: uint64 = (+ add%9#0 add%10#0)
         let eq%22#0: bool = (== tuple_len%2#0 add%11#0)
         (assert eq%22#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-        let p#0: uint64 = (extract_uint64 tmp%19#1 16u)
-        let tmp%21#0: bytes = (txna ApplicationArgs 15)
-        let tuple_len%3#0: uint64 = (len tmp%21#0)
-        let extract_uint16%6#0: uint64 = (extract_uint16 tmp%21#0 40u) // on error: invalid tuple encoding
+        let p#0: uint64 = (extract_uint64 tmp%19#0 16u)
+        let tmp%21#1: bytes = (txna ApplicationArgs 15)
+        let tuple_len%3#0: uint64 = (len tmp%21#1)
+        let extract_uint16%6#0: uint64 = (extract_uint16 tmp%21#1 40u) // on error: invalid tuple encoding
         let eq%23#0: bool = (== extract_uint16%6#0 68u)
         (assert eq%23#0) // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-        let substring3%6#0: bytes = (substring3 tmp%21#0 extract_uint16%6#0 tuple_len%3#0)
+        let substring3%6#0: bytes = (substring3 tmp%21#1 extract_uint16%6#0 tuple_len%3#0)
         let aggregate%array_length%10#0: uint64 = (extract_uint16 substring3%6#0 0u) // on error: invalid array length header
         let add%13#0: uint64 = (+ aggregate%array_length%10#0 70u)
-        let extract_uint16%7#0: uint64 = (extract_uint16 tmp%21#0 42u) // on error: invalid tuple encoding
+        let extract_uint16%7#0: uint64 = (extract_uint16 tmp%21#1 42u) // on error: invalid tuple encoding
         let eq%24#0: bool = (== extract_uint16%7#0 add%13#0)
         (assert eq%24#0) // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-        let substring3%7#0: bytes = (substring3 tmp%21#0 extract_uint16%7#0 tuple_len%3#0)
+        let substring3%7#0: bytes = (substring3 tmp%21#1 extract_uint16%7#0 tuple_len%3#0)
         let aggregate%array_length%11#0: uint64 = (extract_uint16 substring3%7#0 0u) // on error: invalid array length header
         let add%14#0: uint64 = (+ aggregate%array_length%11#0 2u)
         let add%15#0: uint64 = (+ add%13#0 add%14#0)
@@ -638,18 +638,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%8#2)
         let tmp%9#0: uint64 = (btoi a#0)
         let tmp%10#0: uint64 = (btoi b#0)
-        let tmp%11#0: uint64 = (+ tmp%9#0 tmp%10#0)
-        let tmp%12#2: uint64 = (btoi c#0)
-        let tmp%13#2: uint64 = (+ tmp%11#0 tmp%12#2)
-        let tmp%14#0: uint64 = (+ tmp%13#2 d#0)
-        let tmp%15#2: uint64 = (btoi e#0)
-        let tmp%16#0: uint64 = (+ tmp%14#0 tmp%15#2)
-        let tmp%17#2: uint64 = (btoi f#0)
-        let tmp%18#2: uint64 = (+ tmp%16#0 tmp%17#2)
-        let tmp%19#0: uint64 = (btoi g#0)
-        let tmp%20#2: uint64 = (+ tmp%18#2 tmp%19#0)
-        let tmp%21#1: uint64 = (btoi h#0)
-        let tmp%22#1: uint64 = (+ tmp%20#2 tmp%21#1)
+        let tmp%11#2: uint64 = (+ tmp%9#0 tmp%10#0)
+        let tmp%12#0: uint64 = (btoi c#0)
+        let tmp%13#2: uint64 = (+ tmp%11#2 tmp%12#0)
+        let tmp%14#2: uint64 = (+ tmp%13#2 d#0)
+        let tmp%15#0: uint64 = (btoi e#0)
+        let tmp%16#2: uint64 = (+ tmp%14#2 tmp%15#0)
+        let tmp%17#0: uint64 = (btoi f#0)
+        let tmp%18#2: uint64 = (+ tmp%16#2 tmp%17#0)
+        let tmp%19#2: uint64 = (btoi g#0)
+        let tmp%20#0: uint64 = (+ tmp%18#2 tmp%19#2)
+        let tmp%21#2: uint64 = (btoi h#0)
+        let tmp%22#1: uint64 = (+ tmp%20#0 tmp%21#2)
         let tmp%23#1: uint64 = (btoi i#0)
         let tmp%24#1: uint64 = (+ tmp%22#1 tmp%23#1)
         let tmp%25#1: uint64 = (btoi j#0)
@@ -662,10 +662,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%32#1: uint64 = (+ tmp%30#1 tmp%31#1)
         let tmp%33#1: uint64 = (extract_uint64 tmp%17#1 0u)
         let tmp%34#0: uint64 = (+ tmp%32#1 tmp%33#1)
-        let tmp%35#0: uint64 = (extract_uint64 tmp%18#0 8u)
+        let tmp%35#0: uint64 = (extract_uint64 tmp%18#1 8u)
         let tmp%36#0: uint64 = (+ tmp%34#0 tmp%35#0)
         let tmp%37#0: uint64 = (+ tmp%36#0 p#0)
-        let tmp%38#0: uint64 = (extract_uint64 tmp%21#0 24u)
+        let tmp%38#0: uint64 = (extract_uint64 tmp%21#1 24u)
         let tmp%39#0: uint64 = (+ tmp%37#0 tmp%38#0)
         let tmp%40#0: uint64 = (extract_uint64 tmp%22#0 32u)
         let tmp%41#0: uint64 = (+ tmp%39#0 tmp%40#0)
@@ -697,8 +697,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@24: // after_if_else_L24
         fail
     block@25: // bare_abi_config_L79
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // can only call when creating
+        let tmp%20#0: uint64 = (txn ApplicationID)
+        let tmp%21#0: bool = (! tmp%20#0)
+        (assert tmp%21#0)
         (log "Hello World")
         exit 1u

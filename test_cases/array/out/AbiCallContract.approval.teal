@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 2 6 1
+    intcblock 0 2 6 8
     // array/unused_opt_allowed.py:12
     // class AbiCallContract(arc4.ARC4Contract):
     txn NumAppArgs
@@ -20,7 +20,7 @@ main_test_implicit_conversion_abi_call_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     b test_implicit_conversion_abi_call
 
 main___algopy_default_create@5:
@@ -29,8 +29,6 @@ main___algopy_default_create@5:
     txn ApplicationID
     !
     &&
-    assert // OnCompletion must be NoOp && can only call when creating
-    intc_3 // 1
     return
 
 
@@ -42,7 +40,7 @@ test_implicit_conversion_abi_call:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 8 // 8
+    intc_3 // 8
     *
     intc_1 // 2
     +
@@ -53,7 +51,7 @@ test_implicit_conversion_abi_call:
     txna ApplicationArgs 2
     dup
     len
-    pushint 8 // 8
+    intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -172,5 +170,5 @@ test_implicit_conversion_abi_call_after_for@7:
     itxn_submit
     // array/unused_opt_allowed.py:13
     // @arc4.abimethod()
-    intc_3 // 1
+    pushint 1 // 1
     return
