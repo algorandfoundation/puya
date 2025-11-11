@@ -234,7 +234,7 @@ def _optimize_triplet(
                 models.Uncover(n=2, source_location=b.source_location or c.source_location),
             ], True
         case (
-            models.Assert(error_message=None),
+            models.Assert(error_message=None, explicit=False),
             models.Int(value=int(const_return)),
             models.Return(),
         ) if const_return:
