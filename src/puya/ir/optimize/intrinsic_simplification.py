@@ -105,7 +105,6 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "b^",
         "b~",
         # misc
-        "assert",
         "bzero",
         "select",
         "bitlen",
@@ -353,43 +352,53 @@ def _simplify_non_returning_intrinsics(
 ) -> int:
     modified = 0
     for block in subroutine.body:
-        ops = []
+        ops = list[models.Op]()
+        result: models.Op | None
         for op in block.ops:
-            if not isinstance(op, models.Intrinsic):
-                ops.append(op)
-            else:
-                result = _visit_intrinsic_op(op, register_intrinsics)
+            if isinstance(op, models.Intrinsic):
+                result = _visit_intrinsic_op(op)
                 if result is not op:
                     modified += 1
                 if result is not None:
                     ops.append(result)
+            elif isinstance(op, models.Assert):
+                result = _simplify_assert(op, register_intrinsics)
+                if result is not op:
+                    modified += 1
+                if result is not None:
+                    ops.append(result)
+            else:
+                ops.append(op)
         block.ops[:] = ops
     return modified
 
 
-def _visit_intrinsic_op(
-    intrinsic: Intrinsic, register_intrinsics: Mapping[models.Value, models.Intrinsic]
-) -> Intrinsic | None:
+def _simplify_assert(
+    assert_: models.Assert, register_intrinsics: Mapping[models.Value, models.Intrinsic]
+) -> models.Assert | None:
+    result: models.Assert | None = assert_
+    cond = assert_.condition
+    if isinstance(cond, models.UInt64Constant):
+        value = cond.value
+        if value:
+            result = None
+        else:
+            # an assert 0 could be simplified to an err, but
+            # this would make it a ControlOp, so the block would
+            # need to be restructured
+            pass
+    elif cond_op := register_intrinsics.get(cond):
+        assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_op)
+        if assert_cond_maybe_simplified is not None:
+            result = attrs.evolve(assert_, condition=assert_cond_maybe_simplified)
+    return result
+
+
+def _visit_intrinsic_op(intrinsic: Intrinsic) -> Intrinsic | None:
     # if we get here, it means either the intrinsic doesn't have a return or it's ignored,
     # in either case, the result has to be either an Op or None (ie delete),
     # so we don't invoke _try_fold_intrinsic here
-    if intrinsic.op == AVMOp.assert_:
-        (cond,) = intrinsic.args
-        if isinstance(cond, models.UInt64Constant):
-            value = cond.value
-            if value:
-                return None
-            else:
-                # an assert 0 could be simplified to an err, but
-                # this would make it a ControlOp, so the block would
-                # need to be restructured
-                pass
-        elif cond_op := register_intrinsics.get(cond):
-            assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_op)
-            if assert_cond_maybe_simplified is not None:
-                return attrs.evolve(intrinsic, args=[assert_cond_maybe_simplified])
-        return intrinsic
-    elif intrinsic.op == AVMOp.itxn_field:
+    if intrinsic.op == AVMOp.itxn_field:
         (field_im,) = intrinsic.immediates
         if field_im in ("ApprovalProgramPages", "ClearStateProgramPages"):
             (page_value,) = intrinsic.args

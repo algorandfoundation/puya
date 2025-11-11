@@ -336,6 +336,7 @@ class AssertExpression(Expression):
     error_message: str | None
     """An error message to be associated with the assertion failure"""
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+    explicit: bool = True
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_assert_expression(self)

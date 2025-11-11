@@ -110,6 +110,12 @@ class IRMutator(IRVisitor[typing.Any]):
         return None
 
     @typing.override
+    def visit_assert(self, assert_: ir.Assert) -> ir.Op | None:
+        if replacement := assert_.condition.accept(self):
+            assert_.condition = replacement
+        return None
+
+    @typing.override
     def visit_array_length(self, length: ir.ArrayLength) -> ir.ValueProvider | None:
         if replacement := length.base.accept(self):
             length.base = replacement

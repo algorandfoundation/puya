@@ -99,9 +99,10 @@ EXCLUDED_OPCODES = {
     # modifies what other op codes with immediates point to
     "intcblock",
     "bytecblock",
-    # halting
+    # higher level nodes only
     "err",
     "return",
+    "assert",
 }
 
 

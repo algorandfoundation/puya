@@ -552,61 +552,40 @@ class FunctionIRBuilder(
                 values=items, ir_type=ir_type, source_location=expr.source_location
             )
 
-    def _add_assert(
-        self,
-        condition_expr: awst_nodes.Expression | None,
-        error_message: str | None,
-        loc: SourceLocation,
-    ) -> ir.Intrinsic | None:
-        condition_value = (
-            self.visit_and_materialise_single(condition_expr) if condition_expr else None
-        )
-        if isinstance(condition_value, ir.UInt64Constant):
-            if condition_value.value:
-                logger.warning("assertion is always true, ignoring", location=loc)
-                return None
-            else:
-                condition_value = None
-        if condition_value is None:
-            self.context.block_builder.terminate(
-                ir.Fail(source_location=loc, error_message=error_message)
-            )
-            return None
-        else:
-            return ir.Intrinsic(
-                op=AVMOp("assert"),
-                source_location=loc,
-                args=[condition_value],
-                error_message=error_message,
-            )
-
     def visit_intrinsic_call(self, call: awst_nodes.IntrinsicCall) -> TExpression:
         match call.op_code:
-            case "err":
-                return self._add_assert(
-                    condition_expr=None, error_message=None, loc=call.source_location
-                )
             case "return":
-                assert not call.immediates, f"return intrinsic had immediates: {call.immediates}"
-                (arg_expr,) = call.stack_args
+                if call.immediates:
+                    raise CodeError(
+                        "return op code does not take immediates", call.source_location
+                    )
+                try:
+                    (arg_expr,) = call.stack_args
+                except ValueError:
+                    raise CodeError(
+                        "return op code takes exactly one stack argument", call.source_location
+                    ) from None
                 exit_value = self.visit_and_materialise_single(arg_expr)
                 self.context.block_builder.terminate(
                     ir.ProgramExit(source_location=call.source_location, result=exit_value)
                 )
                 return None
-            case "assert":
-                (condition_expr,) = call.stack_args
-                return self._add_assert(
-                    condition_expr=condition_expr, error_message=None, loc=call.source_location
-                )
             case _:
+                try:
+                    op = AVMOp(call.op_code)
+                except ValueError:
+                    raise CodeError(
+                        f"unknown or unsupported intrinsic: {call.op_code}", call.source_location
+                    ) from None
+                immediates = list(call.immediates)
                 args = [self.visit_and_materialise_single(arg) for arg in call.stack_args]
+                ir_types = types.wtype_to_ir_types(call.wtype, call.source_location)
                 return ir.Intrinsic(
-                    op=AVMOp(call.op_code),
-                    source_location=call.source_location,
+                    op=op,
+                    immediates=immediates,
                     args=args,
-                    immediates=list(call.immediates),
-                    types=types.wtype_to_ir_types(call.wtype, call.source_location),
+                    types=ir_types,
+                    source_location=call.source_location,
                 )
 
     def visit_group_transaction_reference(
@@ -1092,13 +1071,35 @@ class FunctionIRBuilder(
         )
 
     def visit_assert_expression(self, expr: awst_nodes.AssertExpression) -> TStatement:
-        op = self._add_assert(
-            condition_expr=expr.condition,
-            error_message=expr.error_message,
-            loc=expr.source_location,
-        )
-        if op:
-            self.context.block_builder.add(op)
+        loc = expr.source_location
+        if expr.condition is None:
+            condition_value = None
+        else:
+            condition_value = self.visit_and_materialise_single(expr.condition)
+            if isinstance(condition_value, ir.UInt64Constant):
+                if condition_value.value:
+                    logger.warning("assertion is always true, ignoring", location=loc)
+                    return None
+                else:  # false constant, treat as fail/err
+                    condition_value = None
+
+        if condition_value is None:
+            self.context.block_builder.terminate(
+                ir.Fail(
+                    error_message=expr.error_message,
+                    explicit=expr.explicit,
+                    source_location=loc,
+                )
+            )
+        else:
+            self.context.block_builder.add(
+                ir.Assert(
+                    condition=condition_value,
+                    message=expr.error_message,
+                    explicit=expr.explicit,
+                    source_location=loc,
+                )
+            )
 
     def visit_template_var(self, expr: awst_nodes.TemplateVar) -> TExpression:
         loc = expr.source_location

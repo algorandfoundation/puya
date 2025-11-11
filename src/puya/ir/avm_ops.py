@@ -710,23 +710,6 @@ class AVMOp(enum.StrEnum):
     Ath LogicSig argument
     """
 
-    assert_ = AVMOpData(
-        op_code="assert",
-        variants=Variant(
-            signature=OpSignature(args=[PrimitiveIRType.uint64], returns=[]),
-            enum=None,
-            supported_modes=RunMode.any,
-            min_avm_version=3,
-        ),
-        immediate_types=(),
-        cost=1,
-        min_avm_version=3,
-        supported_modes=RunMode.any,
-    )
-    """
-    immediately fail unless A is a non-zero number
-    """
-
     asset_holding_get = AVMOpData(
         op_code="asset_holding_get",
         variants=DynamicVariants(

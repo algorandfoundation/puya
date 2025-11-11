@@ -43,7 +43,7 @@ def emit_teal(
                     result.append(f"{indent}// stack manipulations = [")
                     result.extend(f"{indent}//   {sm!r}" for sm in teal_op.stack_manipulations)
                     result.append(f"{indent}// ]")
-                result.append(f"{indent}{teal_op.teal()}")
+                result.append(f"{indent}{teal_op.teal(with_comments=True)}")
             result.append("")
     return "\n".join(result)
 

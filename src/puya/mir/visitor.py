@@ -60,6 +60,9 @@ class MIRVisitor[T](abc.ABC):
     def visit_intrinsic(self, intrinsic: models.IntrinsicOp) -> T: ...
 
     @abc.abstractmethod
+    def visit_assert(self, assert_: models.Assert) -> T: ...
+
+    @abc.abstractmethod
     def visit_retsub(self, retsub: models.RetSub) -> T: ...
 
     @abc.abstractmethod
@@ -161,6 +164,10 @@ class DefaultMIRVisitor[T](MIRVisitor[T], abc.ABC):
     @typing.override
     def visit_intrinsic(self, intrinsic: models.IntrinsicOp) -> T:
         return self.visit_default(intrinsic)
+
+    @typing.override
+    def visit_assert(self, assert_: models.Assert) -> T:
+        return self.visit_default(assert_)
 
     @typing.override
     def visit_retsub(self, retsub: models.RetSub) -> T:

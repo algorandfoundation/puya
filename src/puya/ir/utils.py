@@ -68,10 +68,3 @@ def lvalue_items(tup: awst_nodes.TupleExpression) -> Sequence[awst_nodes.Lvalue]
         assert isinstance(item, awst_nodes.Lvalue)
         items.append(item)
     return items
-
-
-def format_error_comment(op: str, error_message: str) -> str:
-    if op in ("err", "assert"):
-        return error_message
-    else:
-        return f"on error: {error_message}"

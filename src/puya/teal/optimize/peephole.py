@@ -139,9 +139,10 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
         case models.Int(value=0), models.Return() as ret_zero:
             return [
                 models.Err(
-                    source_location=ret_zero.source_location,
-                    comment=ret_zero.comment,
                     error_message=ret_zero.error_message,
+                    comment=ret_zero.comment,
+                    explicit=False,
+                    source_location=ret_zero.source_location,
                 )
             ], True
         case models.TealOp(op_code="dup") as dup, models.Return() as ret_op:
@@ -233,14 +234,14 @@ def _optimize_triplet(
                 models.Uncover(n=2, source_location=b.source_location or c.source_location),
             ], True
         case (
-            models.TealOp(op_code="assert", error_message=assert_message),
+            models.Assert(error_message=None),
             models.Int(value=int(const_return)),
             models.Return(),
-        ) if const_return and (assert_message is None):
+        ) if const_return:
             return [
                 models.Return(
                     source_location=c.source_location or b.source_location or a.source_location,
-                    error_message=c.error_message or assert_message,
+                    error_message=c.error_message,
                 )
             ], True
 

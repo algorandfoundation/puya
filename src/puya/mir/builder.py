@@ -273,6 +273,16 @@ class MemoryIRBuilder(IRVisitor[None]):
             )
         )
 
+    def visit_assert(self, assert_: ir.Assert) -> None:
+        assert_.condition.accept(self)
+        self._add_op(
+            models.Assert(
+                error_message=assert_.message,
+                explicit=assert_.explicit,
+                source_location=assert_.source_location,
+            )
+        )
+
     def visit_invoke_subroutine(self, callsub: ir.InvokeSubroutine) -> None:
         target = callsub.target
 
@@ -354,7 +364,11 @@ class MemoryIRBuilder(IRVisitor[None]):
 
     def visit_fail(self, fail: ir.Fail) -> None:
         self._terminate(
-            models.Err(error_message=fail.error_message, source_location=fail.source_location)
+            models.Err(
+                error_message=fail.error_message,
+                explicit=fail.explicit,
+                source_location=fail.source_location,
+            )
         )
 
     def lower_block_to_mir(self, block: ir.BasicBlock) -> models.MemoryBasicBlock:

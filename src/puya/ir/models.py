@@ -692,6 +692,20 @@ class WriteSlot(Op):
 
 
 @attrs.define(eq=False)
+class Assert(Op):
+    condition: Value
+    message: str | None
+    explicit: bool
+    source_location: SourceLocation | None
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_assert(self)
+
+    def _frozen_data(self) -> object:
+        return self.condition, self.message, self.explicit
+
+
+@attrs.define(eq=False)
 class Intrinsic(Op, ValueProvider):
     """Any TEAL op (or pseudo-op) that doesn't interrupt control flow, in the "basic block" sense.
 
@@ -1198,6 +1212,7 @@ class Fail(ControlOp):
     """
 
     error_message: str | None
+    explicit: bool
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
@@ -1206,7 +1221,7 @@ class Fail(ControlOp):
         return visitor.visit_fail(self)
 
     def _frozen_data(self) -> object:
-        return self.error_message
+        return self.error_message, self.explicit
 
     def replace_target(self, *, find: "BasicBlock", replace: "BasicBlock") -> None:
         pass
