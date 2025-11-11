@@ -2,7 +2,7 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.awst.nodes import IntrinsicCall, MethodConstant
+from puya.awst.nodes import AssertExpression, IntrinsicCall, MethodConstant
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
@@ -122,6 +122,27 @@ class IntrinsicNamespaceTypeBuilder(TypeBuilder[pytypes.IntrinsicNamespaceType])
         else:
             fullname = ".".join((produces.name, name))
             return IntrinsicFunctionExpressionBuilder(fullname, mapping, location)
+
+
+class ErrFunctionBuilder(FunctionBuilder):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        arg = expect.at_most_one_arg(args, location)
+        message: str | None = None
+        if arg is not None:
+            message = expect.simple_string_literal(arg, default=expect.default_none)
+        expr = AssertExpression(
+            condition=None,
+            error_message=message,
+            source_location=location,
+        )
+        return builder_for_instance(pytypes.NoneType, expr)
 
 
 class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
