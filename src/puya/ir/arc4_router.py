@@ -377,6 +377,7 @@ def _assert_statement(
         awst_nodes.AssertExpression(
             condition=condition,
             error_message=None,
+            explicit=False,
             source_location=location,
         )
     )

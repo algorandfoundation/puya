@@ -6,6 +6,7 @@ import attrs
 from puya.avm import AVMType
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import (
+    Assert,
     BytesConstant,
     Intrinsic,
     MultiValue,
@@ -96,11 +97,11 @@ def assert_value(
     source_location: SourceLocation | None,
 ) -> None:
     context.add_op(
-        Intrinsic(
-            op=AVMOp.assert_,
-            args=[value],
-            error_message=error_message,
+        Assert(
+            condition=value,
+            message=error_message,
             source_location=source_location,
+            explicit=False,
         )
     )
 

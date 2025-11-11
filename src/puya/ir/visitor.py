@@ -76,6 +76,9 @@ class IRVisitor[T](ABC):
     def visit_write_slot(self, write_slot: puya.ir.models.WriteSlot) -> T: ...
 
     @abstractmethod
+    def visit_assert(self, assert_: puya.ir.models.Assert) -> T: ...
+
+    @abstractmethod
     def visit_array_length(self, read: puya.ir.models.ArrayLength) -> T: ...
 
     @abstractmethod
@@ -189,6 +192,9 @@ class IRTraverser(IRVisitor[None]):
     def visit_write_slot(self, write: puya.ir.models.WriteSlot) -> None:
         write.slot.accept(self)
         write.value.accept(self)
+
+    def visit_assert(self, assert_: puya.ir.models.Assert) -> None:
+        assert_.condition.accept(self)
 
     def visit_array_length(self, length: puya.ir.models.ArrayLength) -> None:
         length.base.accept(self)
@@ -322,6 +328,9 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
         return None
 
     def visit_write_slot(self, write: puya.ir.models.WriteSlot) -> T | None:
+        return None
+
+    def visit_assert(self, assert_: puya.ir.models.Assert) -> T | None:
         return None
 
     def visit_array_length(self, read: puya.ir.models.ArrayLength) -> T | None:

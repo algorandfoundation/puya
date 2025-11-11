@@ -6,7 +6,7 @@ from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
 from puya.ir.types_ import IRType
-from puya.ir.utils import format_bytes, format_error_comment
+from puya.ir.utils import format_bytes
 from puya.ir.visitor import IRVisitor
 from puya.utils import make_path_relative_to_cwd
 
@@ -106,6 +106,13 @@ class ToTextVisitor(IRVisitor[str]):
         return f"store({slot}, {value})"
 
     @typing.override
+    def visit_assert(self, assert_: models.Assert) -> str:
+        result = f"(assert {assert_.condition.accept(self)})"
+        if assert_.message:
+            result += f" // {assert_.message}"
+        return result
+
+    @typing.override
     def visit_box_read(self, read: models.BoxRead) -> str:
         box = read.key.accept(self)
         return f"box_read({box})"
@@ -154,7 +161,7 @@ class ToTextVisitor(IRVisitor[str]):
         if args:
             callee = f"({callee} {args})"
         if intrinsic.error_message:
-            callee += f" // {format_error_comment(intrinsic.op.code, intrinsic.error_message)}"
+            callee += f" // on error: {intrinsic.error_message}"
         return callee
 
     @typing.override

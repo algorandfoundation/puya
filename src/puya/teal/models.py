@@ -7,7 +7,7 @@ import attrs
 from puya.avm import OnCompletionAction, TransactionType
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
-from puya.ir.utils import format_bytes, format_error_comment
+from puya.ir.utils import format_bytes
 from puya.mir import models as mir
 from puya.parse import SourceLocation
 from puya.program_refs import ProgramKind
@@ -69,18 +69,22 @@ class TealOp:
     def immediates(self) -> Sequence[int | str]:
         return ()
 
-    def teal(self) -> str:
+    @typing.final
+    def teal(self, *, with_comments: bool = False) -> str:
         teal_args = [self.op_code, *map(str, self.immediates)]
-        if self.comment or self.error_message:
-            error_message = (
-                format_error_comment(self.op_code, self.error_message)
-                if self.error_message
-                else ""
-            )
-            comment_lines = error_message.splitlines()
-            comment_lines += (self.comment or "").splitlines()
-            comment = "\n//".join(comment_lines)
-            teal_args.append(f"// {comment}")
+        if with_comments:
+            comment_lines = []
+            if self.error_message:
+                if self.op_code in ("err", "assert"):
+                    error_comment = self.error_message
+                else:
+                    error_comment = f"on error: {self.error_message}"
+                comment_lines = error_comment.splitlines()
+            if self.comment:
+                comment_lines += self.comment.splitlines()
+            if comment_lines:
+                comment = "\n//".join(comment_lines)
+                teal_args.append(f"// {comment}")
         return " ".join(teal_args)
 
     @property
@@ -469,6 +473,14 @@ class Intrinsic(TealOp):
 
 
 @attrs.frozen
+class Assert(TealOp):
+    explicit: bool
+    op_code: str = attrs.field(default="assert", init=False)
+    consumes: int = attrs.field(default=1, init=False)
+    produces: int = attrs.field(default=0, init=False)
+
+
+@attrs.frozen
 class ControlOp(TealOp, abc.ABC):
     @property
     @abc.abstractmethod
@@ -498,6 +510,7 @@ class Return(ControlOp):
 
 @attrs.frozen
 class Err(ControlOp):
+    explicit: bool
     op_code: str = attrs.field(default="err", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=0, init=False)

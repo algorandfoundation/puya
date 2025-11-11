@@ -9,7 +9,7 @@ import attrs
 
 from puya.avm import AVMType
 from puya.errors import InternalError
-from puya.ir.utils import format_bytes, format_error_comment
+from puya.ir.utils import format_bytes
 from puya.program_refs import ProgramKind
 
 if t.TYPE_CHECKING:
@@ -420,9 +420,19 @@ class IntrinsicOp(Op):
     immediates: Sequence[str | int] = attrs.field(default=(), converter=tuple[str | int, ...])
 
     def __attrs_post_init__(self) -> None:
-        if self.op_code in ("b", "bz", "bnz", "switch", "match", "retsub", "err", "return"):
+        if self.op_code in (
+            "b",
+            "bz",
+            "bnz",
+            "switch",
+            "match",
+            "retsub",
+            "assert",
+            "err",
+            "return",
+        ):
             raise InternalError(
-                f"Branching op {self.op_code} should map to explicit MIR ControlOp",
+                f"op {self.op_code} should map to designated MIR op, not generic IntrinsicOp",
                 self.source_location,
             )
 
@@ -432,8 +442,23 @@ class IntrinsicOp(Op):
     def __str__(self) -> str:
         result = [self.op_code, *map(str, self.immediates)]
         if self.error_message:
-            result.append("//")
-            result.append(format_error_comment(self.op_code, self.error_message))
+            result.append(f"// on error: {self.error_message}")
+        return " ".join(result)
+
+
+@attrs.frozen(eq=False)
+class Assert(Op):
+    explicit: bool
+    consumes: int = attrs.field(default=1, init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
+
+    def accept(self, visitor: MIRVisitor[_T]) -> _T:
+        return visitor.visit_assert(self)
+
+    def __str__(self) -> str:
+        result = ["assert"]
+        if self.error_message:
+            result.append(f"// {self.error_message}")
         return " ".join(result)
 
 
@@ -496,6 +521,7 @@ class ProgramExit(ControlOp):
 class Err(ControlOp):
     consumes: int = attrs.field(default=0, init=False)
     produces: tuple[str, ...] = attrs.field(default=(), init=False)
+    explicit: bool
 
     @typing.override
     def accept(self, visitor: MIRVisitor[_T]) -> _T:

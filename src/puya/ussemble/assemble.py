@@ -181,7 +181,7 @@ def _add_op_debug_events(
         event["callsub"] = subroutine_ids[func_block]
     elif op.op_code == "retsub":
         event["retsub"] = True
-    event["op"] = op.teal()
+    event["op"] = op.teal(with_comments=True)
 
     apply_stack_manipulations(op.stack_manipulations, stack=stack, defined=defined)
 

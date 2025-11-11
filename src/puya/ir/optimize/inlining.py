@@ -119,7 +119,7 @@ def _is_trivial(sub: models.Subroutine) -> bool:
         match single_block.ops:
             case []:
                 return True
-            case [models.Intrinsic()]:
+            case [models.Intrinsic() | models.Assert()]:
                 return True
     return False
 

@@ -216,6 +216,9 @@ class Stack(MIRVisitor[None]):
     def visit_intrinsic(self, intrinsic: models.IntrinsicOp) -> None:
         self._apply_lstack_effects(intrinsic)
 
+    def visit_assert(self, assert_: models.Assert) -> None:
+        self._apply_lstack_effects(assert_)
+
     def _apply_lstack_effects(self, op: models.BaseOp) -> None:
         assert len(self._l_stack) >= op.consumes, f"l-stack too small for {op}"
         start = len(self._l_stack) - op.consumes

@@ -1037,7 +1037,7 @@ def test_template_variables(
 
     assert get_uint.return_value == 0
 
-    with pytest.raises(Exception, match="transaction rejected by ApprovalProgram"):
+    with pytest.raises(algokit_utils.logic_error.LogicError, match="assert failed"):
         app_client.update()
 
     app_client.delete()

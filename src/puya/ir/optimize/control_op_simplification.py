@@ -25,7 +25,9 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ProgramExit(result=models.UInt64Constant(value=0)):
                 logger.debug("simplifying exit 0 to err")
                 block.terminator = models.Fail(
-                    source_location=terminator.source_location, error_message=None
+                    error_message=None,
+                    explicit=True,
+                    source_location=terminator.source_location,
                 )
             case models.ConditionalBranch(
                 condition=models.UInt64Constant(value=value), zero=zero, non_zero=non_zero
@@ -43,17 +45,17 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ConditionalBranch(
                 condition=condition,
                 zero=models.BasicBlock(
-                    phis=[], ops=[], terminator=models.Fail(error_message=fail_comment)
+                    phis=[], ops=[], terminator=models.Fail() as fail
                 ) as err_block,
                 non_zero=non_zero,
                 source_location=source_location,
             ):
                 logger.debug("inlining condition branch to err block into an assert true")
                 block.ops.append(
-                    models.Intrinsic(
-                        op=AVMOp.assert_,
-                        args=[condition],
-                        error_message=fail_comment,
+                    models.Assert(
+                        condition=condition,
+                        message=fail.error_message,
+                        explicit=fail.explicit,
                         source_location=source_location,
                     )
                 )
@@ -63,7 +65,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ConditionalBranch(
                 condition=models.Register() as condition,
                 non_zero=models.BasicBlock(
-                    phis=[], ops=[], terminator=models.Fail(error_message=fail_comment)
+                    phis=[], ops=[], terminator=models.Fail() as fail
                 ) as err_block,
                 zero=zero,
                 source_location=source_location,
@@ -88,10 +90,10 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                         )
                     )
                 block.ops.append(
-                    models.Intrinsic(
-                        op=AVMOp.assert_,
-                        args=[not_condition],
-                        error_message=fail_comment,
+                    models.Assert(
+                        condition=not_condition,
+                        message=fail.error_message,
+                        explicit=fail.explicit,
                         source_location=source_location,
                     )
                 )

@@ -94,27 +94,28 @@ class RCEVisitor(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> None:
-        if self._assignment is not None:
-            # only consider ops with stack args because they're much more likely to
-            # produce extra stack manipulations
-            if intrinsic.args and intrinsic.op.code in PURE_AVM_OPS:
-                # can't use .freeze() as we want to exclude error_message for the key,
-                # and evolving the intrinsic to remove the message is slow
-                key = (
-                    models.Intrinsic,
-                    intrinsic.op,
-                    tuple(intrinsic.immediates),
-                    tuple(intrinsic.args),
-                )
-                self._cache_or_replace(self._assignment, key)
-        elif intrinsic.op.code == "assert":
-            (assert_arg,) = intrinsic.args
-            if assert_arg in self.asserted:
-                logger.debug(f"Removing redundant assert of {assert_arg}")
-                self.modified = True
-                self.block.ops.remove(intrinsic)
-            else:
-                self.asserted.add(assert_arg)
+        # only consider ops with stack args because they're much more likely to
+        # produce extra stack manipulations
+        if self._assignment is not None and intrinsic.args and intrinsic.op.code in PURE_AVM_OPS:
+            # can't use .freeze() as we want to exclude error_message for the key,
+            # and evolving the intrinsic to remove the message is slow
+            key = (
+                models.Intrinsic,
+                intrinsic.op,
+                tuple(intrinsic.immediates),
+                tuple(intrinsic.args),
+            )
+            self._cache_or_replace(self._assignment, key)
+
+    @typing.override
+    def visit_assert(self, assert_: models.Assert) -> None:
+        assert_arg = assert_.condition
+        if assert_arg in self.asserted:
+            logger.debug(f"Removing redundant assert of {assert_arg}")
+            self.modified = True
+            self.block.ops.remove(assert_)
+        else:
+            self.asserted.add(assert_arg)
 
     @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> None:

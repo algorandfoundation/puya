@@ -339,6 +339,7 @@ class TealBuilder(MIRVisitor[None]):
         self._add_op(
             teal.Err(
                 error_message=op.error_message,
+                explicit=op.explicit,
                 stack_manipulations=_lstack_manipulations(op),
                 source_location=op.source_location,
             )
@@ -435,6 +436,16 @@ class TealBuilder(MIRVisitor[None]):
                 produces=len(intrinsic.produces),
                 stack_manipulations=_lstack_manipulations(intrinsic),
                 source_location=intrinsic.source_location,
+            )
+        )
+
+    def visit_assert(self, assert_: mir.Assert) -> None:
+        self._add_op(
+            teal.Assert(
+                error_message=assert_.error_message,
+                explicit=assert_.explicit,
+                stack_manipulations=_lstack_manipulations(assert_),
+                source_location=assert_.source_location,
             )
         )
 
