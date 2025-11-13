@@ -1106,6 +1106,13 @@ def _get_bytes_length_safe(
     assert byte_arg.atype is AVMType.bytes
     if byte_arg_defn := register_assignments.get(byte_arg):
         if isinstance(byte_arg_defn.source, models.Intrinsic):
+            # TODO: could expand this to e.g. substring, bzero with additional testing
+            if byte_arg_defn.source.op is AVMOp.extract:
+                _, length = byte_arg_defn.source.immediates
+                assert isinstance(length, int)
+                if length != 0:
+                    return length
+                return None
             (return_ir_type,) = byte_arg_defn.source.op_signature.returns
             return return_ir_type.num_bytes
         if isinstance(byte_arg_defn.source, models.InnerTransactionField):

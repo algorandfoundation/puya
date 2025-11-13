@@ -493,6 +493,58 @@ class _BytesCodec(_ScalarCodec):
         return None
 
 
+@attrs.frozen
+class _SizedBytesCodec(_ScalarCodec):
+    length: int
+    element: encodings.UIntEncoding
+
+    @typing.override
+    def encode_value(
+        self,
+        context: IRRegisterContext,
+        value: ir.Value,
+        encoding: encodings.Encoding,
+        loc: SourceLocation,
+    ) -> ir.ValueProvider | None:
+        factory = OpFactory(context, loc)
+        if isinstance(encoding, encodings.ArrayEncoding) and encoding.element == self.element:
+            if encoding.length_header:
+                assert encoding.size is None, "unexpected array encoding"
+                length = factory.constant(self.length)
+                length_uint16 = factory.as_u16_bytes(length, "length_uint16")
+                return factory.concat(length_uint16, value, "encoded_value")
+            else:
+                if encoding.size is not None and encoding.size != self.length:
+                    logger.error("invalid size", location=loc)
+                return value
+        return None
+
+    @typing.override
+    def decode(
+        self,
+        context: IRRegisterContext,
+        value: ir.Value,
+        encoding: encodings.Encoding,
+        loc: SourceLocation,
+    ) -> ir.ValueProvider | None:
+        if isinstance(encoding, encodings.ArrayEncoding) and encoding.element == self.element:
+            factory = OpFactory(context, loc)
+            data = value
+            if encoding.size is not None:
+                if encoding.size != self.length:
+                    logger.error("invalid size", location=loc)
+            else:
+                if encoding.length_header:
+                    data = factory.extract_to_end(value, start=2)
+                length = factory.len(data, "length")
+                lengths_equal = factory.eq(length, self.length, "lengths_equal")
+                assert_value(
+                    context, lengths_equal, error_message="invalid size", source_location=loc
+                )
+            return data
+        return None
+
+
 class _AccountCodec(_ScalarCodec):
     @typing.override
     def encode_value(
@@ -541,8 +593,10 @@ def _get_arc4_codec(ir_type: types.IRType | types.TupleIRType) -> _ARC4Codec | N
             return _BytesCodec(encodings.UTF8Encoding())
         case types.account:
             return _AccountCodec()
-        case types.bytes_ | types.SizedBytesType():
+        case types.bytes_:
             return _BytesCodec(encodings.UIntEncoding(n=8))
+        case types.SizedBytesType(num_bytes=length):
+            return _SizedBytesCodec(length, encodings.UIntEncoding(n=8))
         case types.IRType(maybe_avm_type=AVMType.uint64):
             return _UInt64Codec()
         case _:
