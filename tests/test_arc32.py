@@ -713,6 +713,16 @@ def test_fixed_bytes(algod_client: AlgodClient, account: algokit_utils.Account) 
     contracts = {a.metadata.name: a for a in result.teal if isinstance(a, CompiledContract)}
     fixed_bytes_abi = contracts["FixedBytesABI"]
     check_abi = contracts["CheckABIApp"]
+    check_spec = algokit_utils.ApplicationSpecification.from_json(
+        create_arc32_json(
+            check_abi.approval_program.teal_src,
+            check_abi.clear_program.teal_src,
+            check_abi.metadata,
+        )
+    )
+
+    check_client = algokit_utils.ApplicationClient(algod_client, check_spec, signer=account)
+    check_client.create()
 
     app_spec = algokit_utils.ApplicationSpecification.from_json(
         create_arc32_json(
@@ -724,24 +734,42 @@ def test_fixed_bytes(algod_client: AlgodClient, account: algokit_utils.Account) 
 
     increased_fee = algod_client.suggested_params()
     increased_fee.flat_fee = True
-    increased_fee.fee = constants.min_txn_fee * 4
+    increased_fee.fee = constants.min_txn_fee * 2
 
     app_client = algokit_utils.ApplicationClient(
         algod_client, app_spec, signer=account, suggested_params=increased_fee
     )
     app_client.create()
-
-    app_client.call(call_abi_method="test_itxn_validate_caller_bytes", val=b"hello world")
-    app_client.call(call_abi_method="test_itxn_validate_callee_manual", val=b"hello world")
-    app_client.call(call_abi_method="test_itxn_validate_callee_router", val=b"hello world")
+    app_client.call(
+        call_abi_method="test_itxn_validate_caller_bytes",
+        checker=check_client.app_id,
+        val=b"hello world",
+    )
+    app_client.call(
+        call_abi_method="test_itxn_validate_callee_manual",
+        checker=check_client.app_id,
+        val=b"hello world",
+    )
+    app_client.call(
+        call_abi_method="test_itxn_validate_callee_router",
+        checker=check_client.app_id,
+        val=b"hello world",
+    )
+    app_client.call(call_abi_method="test_static_to_dynamic_encoding", checker=check_client.app_id)
 
     # for failure in top level txn can just look at the exception raised by algokit_utils
     with pytest.raises(LogicError, match="invalid size\t\t<-- Error"):
-        app_client.call(call_abi_method="test_itxn_validate_caller_bytes", val=b"hello world!")
+        app_client.call(
+            call_abi_method="test_itxn_validate_caller_bytes",
+            checker=check_client.app_id,
+            val=b"hello world!",
+        )
 
     def get_inner_itxn_error(method: str) -> str:
         atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()
-        app_client.compose_call(atc, call_abi_method=method, val=b"hello world!")
+        app_client.compose_call(
+            atc, call_abi_method=method, checker=check_client.app_id, val=b"hello world!"
+        )
         # use simulate so we can assert inner txn is what fails
         simulate_response = atc.simulate(
             app_client.algod_client,
@@ -752,7 +780,7 @@ def test_fixed_bytes(algod_client: AlgodClient, account: algokit_utils.Account) 
                 ),
             ),
         )
-        assert simulate_response.failed_at == [0, 1], "expected failure in inner txn"
+        assert simulate_response.failed_at == [0, 0], "expected failure in inner txn"
         # get pc of failure
         pc_match = re.match(r".*assert failed pc=(\d+)", simulate_response.failure_message)
         assert pc_match, "expected assert failure"

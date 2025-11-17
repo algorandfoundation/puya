@@ -10,25 +10,16 @@ main_block@0:
     b main_block@1
 
 main_block@1:
-    // fixed_bytes_ops/abi_values.py:51
+    // fixed_bytes_ops/abi_values.py:48
     // class CheckABIApp(arc4.ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@11
+    bz main___algopy_default_create@10
     b main_abi_routing@2
 
 main_abi_routing@2:
-    // fixed_bytes_ops/abi_values.py:51
-    // class CheckABIApp(arc4.ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x24378d3c // method "delete()void"
-    uncover 1
-    match main_delete_route@3
-    b main_switch_case_next@4
-
-main_switch_case_next@4:
-    // fixed_bytes_ops/abi_values.py:51
+    // fixed_bytes_ops/abi_values.py:48
     // class CheckABIApp(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // NoOp
@@ -37,60 +28,53 @@ main_switch_case_next@4:
     txn ApplicationID
     intc_0 // 0
     !=
-    bz main_create_NoOp@9
-    b main_call_NoOp@5
+    bz main_create_NoOp@8
+    b main_call_NoOp@3
 
-main_call_NoOp@5:
-    // fixed_bytes_ops/abi_values.py:51
+main_call_NoOp@3:
+    // fixed_bytes_ops/abi_values.py:48
     // class CheckABIApp(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0x1651487b // method "manual_validate(byte[11])void"
     pushbytes 0xe50b9860 // method "router_validate(byte[11])void"
-    uncover 2
-    match main_manual_validate_route@6 main_router_validate_route@7
-    b main_switch_case_next@8
+    pushbytes 0x96f7f4ed // method "i_am_a_dynamic_personality(byte[])void"
+    uncover 3
+    match main_manual_validate_route@4 main_router_validate_route@5 main_i_am_a_dynamic_personality_route@6
+    b main_switch_case_next@7
 
-main_switch_case_next@8:
-    b main_after_if_else@10
+main_switch_case_next@7:
+    b main_after_if_else@9
 
-main_after_if_else@10:
-    b main_after_if_else@12
+main_after_if_else@9:
+    b main_after_if_else@11
 
-main_after_if_else@12:
-    // fixed_bytes_ops/abi_values.py:51
+main_after_if_else@11:
+    // fixed_bytes_ops/abi_values.py:48
     // class CheckABIApp(arc4.ARC4Contract):
     err
 
-main_router_validate_route@7:
-    // fixed_bytes_ops/abi_values.py:56
+main_i_am_a_dynamic_personality_route@6:
+    // fixed_bytes_ops/abi_values.py:57
+    // @arc4.abimethod
+    callsub i_am_a_dynamic_personality
+    b main_switch_case_next@7
+
+main_router_validate_route@5:
+    // fixed_bytes_ops/abi_values.py:53
     // @arc4.abimethod(validate_encoding="args")
     callsub router_validate
-    b main_switch_case_next@8
+    b main_switch_case_next@7
 
-main_manual_validate_route@6:
-    // fixed_bytes_ops/abi_values.py:52
+main_manual_validate_route@4:
+    // fixed_bytes_ops/abi_values.py:49
     // @arc4.abimethod(validate_encoding="unsafe_disabled")
     callsub manual_validate
-    b main_switch_case_next@8
+    b main_switch_case_next@7
 
-main_create_NoOp@9:
-    b main_after_if_else@10
+main_create_NoOp@8:
+    b main_after_if_else@9
 
-main_delete_route@3:
-    // fixed_bytes_ops/abi_values.py:60
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    &&
-    assert
-    callsub delete
-    b main_switch_case_next@4
-
-main___algopy_default_create@11:
+main___algopy_default_create@10:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -99,12 +83,12 @@ main___algopy_default_create@11:
     ==
     &&
     assert
-    b main_block@14
+    b main_block@13
 
-main_block@14:
-    b main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@15
+main_block@13:
+    b main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@14
 
-main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@15:
+main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@14:
     intc_1 // 1
     return
 
@@ -114,7 +98,7 @@ manual_validate:
     b manual_validate_block@0
 
 manual_validate_block@0:
-    // fixed_bytes_ops/abi_values.py:52
+    // fixed_bytes_ops/abi_values.py:49
     // @arc4.abimethod(validate_encoding="unsafe_disabled")
     txna ApplicationArgs 1
     callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate
@@ -127,7 +111,7 @@ router_validate:
     b router_validate_block@0
 
 router_validate_block@0:
-    // fixed_bytes_ops/abi_values.py:56
+    // fixed_bytes_ops/abi_values.py:53
     // @arc4.abimethod(validate_encoding="args")
     txna ApplicationArgs 1
     dup
@@ -140,28 +124,40 @@ router_validate_block@0:
     return
 
 
-// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete[routing]() -> void:
-delete:
-    b delete_block@0
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality[routing]() -> void:
+i_am_a_dynamic_personality:
+    b i_am_a_dynamic_personality_block@0
 
-delete_block@0:
-    // fixed_bytes_ops/abi_values.py:60
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete
+i_am_a_dynamic_personality_block@0:
+    // fixed_bytes_ops/abi_values.py:57
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality
     intc_1 // 1
     return
 
 
 // test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate(value: bytes) -> void:
 test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate:
-    // fixed_bytes_ops/abi_values.py:52-53
+    // fixed_bytes_ops/abi_values.py:49-50
     // @arc4.abimethod(validate_encoding="unsafe_disabled")
     // def manual_validate(self, value: FixedBytes11) -> None:
     proto 1 0
     b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate_block@0
 
 test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate_block@0:
-    // fixed_bytes_ops/abi_values.py:54
+    // fixed_bytes_ops/abi_values.py:51
     // assert value.bytes.length == 11, "callee method check failed"
     frame_dig -1
     len
@@ -173,14 +169,14 @@ test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate_block@0:
 
 // test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate(value: bytes) -> void:
 test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate:
-    // fixed_bytes_ops/abi_values.py:56-57
+    // fixed_bytes_ops/abi_values.py:53-54
     // @arc4.abimethod(validate_encoding="args")
     // def router_validate(self, value: FixedBytes11) -> None:
     proto 1 0
     b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate_block@0
 
 test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate_block@0:
-    // fixed_bytes_ops/abi_values.py:58
+    // fixed_bytes_ops/abi_values.py:55
     // assert value.bytes.length == 11, "callee method check failed"
     frame_dig -1
     len
@@ -190,9 +186,20 @@ test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate_block@0:
     retsub
 
 
-// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete() -> void:
-test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete:
-    b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete_block@0
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality(value: bytes) -> void:
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality:
+    // fixed_bytes_ops/abi_values.py:57-58
+    // @arc4.abimethod
+    // def i_am_a_dynamic_personality(self, value: arc4.DynamicBytes) -> None:
+    proto 1 0
+    b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality_block@0
 
-test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete_block@0:
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality_block@0:
+    // fixed_bytes_ops/abi_values.py:59
+    // assert value.native == b"hello world"
+    frame_dig -1
+    extract 2 0
+    pushbytes 0x68656c6c6f20776f726c64
+    ==
+    assert
     retsub

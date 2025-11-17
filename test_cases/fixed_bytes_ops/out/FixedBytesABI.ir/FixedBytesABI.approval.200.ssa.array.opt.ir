@@ -1,7 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@10
+        goto tmp%0#1 ? block@2 : block@11
     block@2: // abi_routing_L8
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -9,19 +9,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_itxn_validate_caller_bytes(byte[])void" => block@4, method "test_itxn_validate_callee_manual(byte[])void" => block@5, method "test_itxn_validate_callee_router(byte[])void" => block@6, * => block@9}
+        switch tmp%6#0 {method "test_itxn_validate_caller_bytes(application,byte[])void" => block@4, method "test_itxn_validate_callee_manual(application,byte[])void" => block@5, method "test_itxn_validate_callee_router(application,byte[])void" => block@6, method "test_static_to_dynamic_encoding(application)void" => block@7, * => block@10}
     block@4: // test_itxn_validate_caller_bytes_route_L9
         test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes[routing]()
-        goto block@9
-    block@5: // test_itxn_validate_callee_manual_route_L22
+        goto block@10
+    block@5: // test_itxn_validate_callee_manual_route_L18
         test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual[routing]()
-        goto block@9
-    block@6: // test_itxn_validate_callee_router_route_L36
+        goto block@10
+    block@6: // test_itxn_validate_callee_router_route_L28
         test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router[routing]()
-        goto block@9
-    block@9: // after_if_else_L8
+        goto block@10
+    block@7: // test_static_to_dynamic_encoding_route_L38
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding[routing]()
+        goto block@10
+    block@10: // after_if_else_L8
         fail
-    block@10: // __algopy_default_create_L1
+    block@11: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -33,97 +36,93 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes[routing]() -> void:
     block@0: // L9
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let val#0: bytes = ((extract 2 0) tmp%0#0)
-        itxn_begin
-        ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND)
-        ((itxn_field TypeEnum) appl)
-        ((itxn_field Fee) 0u)
-        itxn_submit
-        let app#0: uint64 = (itxn CreatedApplicationID)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%1#0: uint64 = (btoi tmp%0#0)
+        let checker#0: uint64 = ((txnas Applications) tmp%1#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%3#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let val#0: bytes = ((extract 2 0) tmp%3#0)
         itxn_begin
         let aggregate%length%0#0: uint64 = (len val#0)
         let aggregate%lengths_equal%0#0: bool = (== aggregate%length%0#0 11u)
         (assert aggregate%lengths_equal%0#0) // invalid size
-        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationID) checker#0)
         ((itxn_field ApplicationArgs) method "manual_validate(byte[11])void")
         ((itxn_field ApplicationArgs) val#0)
-        ((itxn_field TypeEnum) appl)
-        ((itxn_field Fee) 0u)
-        itxn_submit
-        itxn_begin
-        ((itxn_field OnCompletion) DeleteApplication)
-        ((itxn_field ApplicationID) app#0)
-        ((itxn_field ApplicationArgs) method "delete()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         exit 1u
 
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual[routing]() -> void:
-    block@0: // L22
+    block@0: // L18
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let val#0: bytes = ((extract 2 0) tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%1#0: uint64 = (btoi tmp%0#0)
+        let checker#0: uint64 = ((txnas Applications) tmp%1#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%3#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let val#0: bytes = ((extract 2 0) tmp%3#0)
         itxn_begin
-        ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND)
-        ((itxn_field TypeEnum) appl)
-        ((itxn_field Fee) 0u)
-        itxn_submit
-        let app#0: uint64 = (itxn CreatedApplicationID)
-        itxn_begin
-        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationID) checker#0)
         ((itxn_field ApplicationArgs) method "manual_validate(byte[11])void")
         ((itxn_field ApplicationArgs) val#0)
-        ((itxn_field TypeEnum) appl)
-        ((itxn_field Fee) 0u)
-        itxn_submit
-        itxn_begin
-        ((itxn_field OnCompletion) DeleteApplication)
-        ((itxn_field ApplicationID) app#0)
-        ((itxn_field ApplicationArgs) method "delete()void")
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         exit 1u
 
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router[routing]() -> void:
-    block@0: // L36
+    block@0: // L28
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let val#0: bytes = ((extract 2 0) tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%1#0: uint64 = (btoi tmp%0#0)
+        let checker#0: uint64 = ((txnas Applications) tmp%1#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%3#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let val#0: bytes = ((extract 2 0) tmp%3#0)
         itxn_begin
-        ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND)
-        ((itxn_field TypeEnum) appl)
-        ((itxn_field Fee) 0u)
-        itxn_submit
-        let app#0: uint64 = (itxn CreatedApplicationID)
-        itxn_begin
-        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationID) checker#0)
         ((itxn_field ApplicationArgs) method "router_validate(byte[11])void")
         ((itxn_field ApplicationArgs) val#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
+        exit 1u
+
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding[routing]() -> void:
+    block@0: // L38
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%1#0: uint64 = (btoi tmp%0#0)
+        let checker#0: uint64 = ((txnas Applications) tmp%1#0)
         itxn_begin
-        ((itxn_field OnCompletion) DeleteApplication)
-        ((itxn_field ApplicationID) app#0)
-        ((itxn_field ApplicationArgs) method "delete()void")
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 11u)
+        let aggregate%length_uint16%0#0: bytes = 0x000b
+        let aggregate%encoded_value%0#0: bytes = 0x000b68656c6c6f20776f726c64
+        ((itxn_field ApplicationID) checker#0)
+        ((itxn_field ApplicationArgs) method "i_am_a_dynamic_personality(byte[])void")
+        ((itxn_field ApplicationArgs) 0x000b68656c6c6f20776f726c64)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

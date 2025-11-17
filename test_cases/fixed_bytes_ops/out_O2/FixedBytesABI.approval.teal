@@ -3,26 +3,57 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 2 5
-    bytecblock base64(C4EBQw==) base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD) 0x24378d3c 0x1651487b
+    intcblock 1 0 6 2
+    bytecblock 0x1651487b
     txn NumAppArgs
-    bz main___algopy_default_create@10
+    bz main___algopy_default_create@11
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0x61cc28f5 0xc63ba8e0 0x2d80c6d8 // method "test_itxn_validate_caller_bytes(byte[])void", method "test_itxn_validate_callee_manual(byte[])void", method "test_itxn_validate_callee_router(byte[])void"
+    pushbytess 0xe0909afe 0xb6eb4440 0x925410b0 0xf278798c // method "test_itxn_validate_caller_bytes(application,byte[])void", method "test_itxn_validate_callee_manual(application,byte[])void", method "test_itxn_validate_callee_router(application,byte[])void", method "test_static_to_dynamic_encoding(application)void"
     txna ApplicationArgs 0
-    match main_test_itxn_validate_caller_bytes_route@4 main_test_itxn_validate_callee_manual_route@5 main_test_itxn_validate_callee_router_route@6
+    match main_test_itxn_validate_caller_bytes_route@4 main_test_itxn_validate_callee_manual_route@5 main_test_itxn_validate_callee_router_route@6 main_test_static_to_dynamic_encoding_route@7
     err
+
+main_test_static_to_dynamic_encoding_route@7:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Applications
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0x96f7f4ed // method "i_am_a_dynamic_personality(byte[])void"
+    itxn_field ApplicationArgs
+    pushbytes 0x000b68656c6c6f20776f726c64
+    itxn_field ApplicationArgs
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_0 // 1
+    return
 
 main_test_itxn_validate_callee_router_route@6:
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Applications
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -30,48 +61,33 @@ main_test_itxn_validate_callee_router_route@6:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     itxn_begin
-    bytec_0 // base64(C4EBQw==)
-    itxn_field ClearStateProgramPages
-    bytec_1 // base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD)
-    itxn_field ApprovalProgramPages
-    intc_1 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
+    swap
     itxn_field ApplicationID
     pushbytes 0xe50b9860 // method "router_validate(byte[11])void"
     itxn_field ApplicationArgs
-    swap
     itxn_field ApplicationArgs
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
-    itxn_field ApplicationID
-    bytec_2 // method "delete()void"
-    itxn_field ApplicationArgs
-    intc_1 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 main_test_itxn_validate_callee_manual_route@5:
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Applications
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -79,48 +95,33 @@ main_test_itxn_validate_callee_manual_route@5:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     itxn_begin
-    bytec_0 // base64(C4EBQw==)
-    itxn_field ClearStateProgramPages
-    bytec_1 // base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD)
-    itxn_field ApprovalProgramPages
-    intc_1 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "manual_validate(byte[11])void"
-    itxn_field ApplicationArgs
     swap
-    itxn_field ApplicationArgs
-    intc_1 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
     itxn_field ApplicationID
-    bytec_2 // method "delete()void"
+    bytec_0 // method "manual_validate(byte[11])void"
     itxn_field ApplicationArgs
-    intc_1 // appl
+    itxn_field ApplicationArgs
+    intc_2 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 main_test_itxn_validate_caller_bytes_route@4:
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Applications
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -128,48 +129,25 @@ main_test_itxn_validate_caller_bytes_route@4:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     itxn_begin
-    bytec_0 // base64(C4EBQw==)
-    itxn_field ClearStateProgramPages
-    bytec_1 // base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD)
-    itxn_field ApprovalProgramPages
-    intc_1 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn CreatedApplicationID
-    itxn_begin
-    dig 1
+    dup
     len
     pushint 11 // 11
     ==
     assert // invalid size
-    dup
-    itxn_field ApplicationID
-    bytec_3 // method "manual_validate(byte[11])void"
-    itxn_field ApplicationArgs
     swap
-    itxn_field ApplicationArgs
-    intc_1 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn_begin
-    intc_3 // DeleteApplication
-    itxn_field OnCompletion
     itxn_field ApplicationID
-    bytec_2 // method "delete()void"
+    bytec_0 // method "manual_validate(byte[11])void"
     itxn_field ApplicationArgs
-    intc_1 // appl
+    itxn_field ApplicationArgs
+    intc_2 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
-    pushint 1 // 1
+    intc_0 // 1
     return
 
-main___algopy_default_create@10:
+main___algopy_default_create@11:
     txn OnCompletion
     !
     txn ApplicationID

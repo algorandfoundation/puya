@@ -7,7 +7,7 @@ subroutine main:
         txn NumAppArgs                                                       tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                       tmp%0#1
-        bz main___algopy_default_create@10 ; b main_abi_routing@2
+        bz main___algopy_default_create@11 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // fixed_bytes_ops/abi_values.py:8
@@ -25,36 +25,43 @@ subroutine main:
         assert
         txna ApplicationArgs 0                                               tmp%6#0
         v-store tmp%6#0
-        method test_itxn_validate_caller_bytes(byte[])void                   Method(test_itxn_validate_caller_bytes(byte[])void)
-        method test_itxn_validate_callee_manual(byte[])void                  Method(test_itxn_validate_caller_bytes(byte[])void),Method(test_itxn_validate_callee_manual(byte[])void)
-        method test_itxn_validate_callee_router(byte[])void                  Method(test_itxn_validate_caller_bytes(byte[])void),Method(test_itxn_validate_callee_manual(byte[])void),Method(test_itxn_validate_callee_router(byte[])void)
-        v-load tmp%6#0                                                       Method(test_itxn_validate_caller_bytes(byte[])void),Method(test_itxn_validate_callee_manual(byte[])void),Method(test_itxn_validate_callee_router(byte[])void),tmp%6#0
-        match main_test_itxn_validate_caller_bytes_route@4 main_test_itxn_validate_callee_manual_route@5 main_test_itxn_validate_callee_router_route@6 ; b main_after_if_else@9 
+        method test_itxn_validate_caller_bytes(application,byte[])void       Method(test_itxn_validate_caller_bytes(application,byte[])void)
+        method test_itxn_validate_callee_manual(application,byte[])void      Method(test_itxn_validate_caller_bytes(application,byte[])void),Method(test_itxn_validate_callee_manual(application,byte[])void)
+        method test_itxn_validate_callee_router(application,byte[])void      Method(test_itxn_validate_caller_bytes(application,byte[])void),Method(test_itxn_validate_callee_manual(application,byte[])void),Method(test_itxn_validate_callee_router(application,byte[])void)
+        method test_static_to_dynamic_encoding(application)void              Method(test_itxn_validate_caller_bytes(application,byte[])void),Method(test_itxn_validate_callee_manual(application,byte[])void),Method(test_itxn_validate_callee_router(application,byte[])void),Method(test_static_to_dynamic_encoding(application)void)
+        v-load tmp%6#0                                                       Method(test_itxn_validate_caller_bytes(application,byte[])void),Method(test_itxn_validate_callee_manual(application,byte[])void),Method(test_itxn_validate_callee_router(application,byte[])void),Method(test_static_to_dynamic_encoding(application)void),tmp%6#0
+        match main_test_itxn_validate_caller_bytes_route@4 main_test_itxn_validate_callee_manual_route@5 main_test_itxn_validate_callee_router_route@6 main_test_static_to_dynamic_encoding_route@7 ; b main_after_if_else@10 
 
     main_test_itxn_validate_caller_bytes_route@4:
         // fixed_bytes_ops/abi_values.py:9
-        // @arc4.abimethod()
+        // @arc4.abimethod(resource_encoding="index")
         callsub test_itxn_validate_caller_bytes
-        b main_after_if_else@9
+        b main_after_if_else@10
 
     main_test_itxn_validate_callee_manual_route@5:
-        // fixed_bytes_ops/abi_values.py:22
-        // @arc4.abimethod()
+        // fixed_bytes_ops/abi_values.py:18
+        // @arc4.abimethod(resource_encoding="index")
         callsub test_itxn_validate_callee_manual
-        b main_after_if_else@9
+        b main_after_if_else@10
 
     main_test_itxn_validate_callee_router_route@6:
-        // fixed_bytes_ops/abi_values.py:36
-        // @arc4.abimethod()
+        // fixed_bytes_ops/abi_values.py:28
+        // @arc4.abimethod(resource_encoding="index")
         callsub test_itxn_validate_callee_router
-        b main_after_if_else@9
+        b main_after_if_else@10
 
-    main_after_if_else@9:
+    main_test_static_to_dynamic_encoding_route@7:
+        // fixed_bytes_ops/abi_values.py:38
+        // @arc4.abimethod(resource_encoding="index")
+        callsub test_static_to_dynamic_encoding
+        b main_after_if_else@10
+
+    main_after_if_else@10:
         // fixed_bytes_ops/abi_values.py:8
         // class FixedBytesABI(arc4.ARC4Contract):
         err
 
-    main___algopy_default_create@10:
+    main___algopy_default_create@11:
         txn OnCompletion                                                     tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                       tmp%7#0
@@ -79,51 +86,54 @@ subroutine main:
 subroutine test_itxn_validate_caller_bytes:
     test_itxn_validate_caller_bytes_block@0:
         // fixed_bytes_ops/abi_values.py:9
-        // @arc4.abimethod()
+        // @arc4.abimethod(resource_encoding="index")
         txna ApplicationArgs 1                                               tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                       tmp%0#0
-        int 0                                                                tmp%0#0,0
+        len                                                                  len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                       len%0#0
+        int 1                                                                len%0#0,1
+        ==                                                                   eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                        eq%0#0
+        assert // invalid number of bytes for arc4.uint8
+        v-load tmp%0#0                                                       tmp%0#0
+        btoi                                                                 tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                       tmp%1#0
+        txnas Applications                                                   checker#0
+        v-store checker#0
+        txna ApplicationArgs 2                                               tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                       tmp%3#0
+        int 0                                                                tmp%3#0,0
         extract_uint16 // on error: invalid array length header              aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                    aggregate%array_length%0#0
         int 2                                                                aggregate%array_length%0#0,2
         +                                                                    add%0#0
         v-store add%0#0
-        v-load tmp%0#0                                                       tmp%0#0
-        len                                                                  len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                       len%0#0
-        v-load add%0#0                                                       len%0#0,add%0#0
-        ==                                                                   eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                        eq%0#0
+        v-load tmp%3#0                                                       tmp%3#0
+        len                                                                  len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                       len%1#0
+        v-load add%0#0                                                       len%1#0,add%0#0
+        ==                                                                   eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                        eq%1#0
         assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        v-load tmp%0#0                                                       tmp%0#0
+        v-load tmp%3#0                                                       tmp%3#0
         extract 2 0                                                          val#0
         v-store val#0
-        // fixed_bytes_ops/abi_values.py:11
-        // app = arc4.arc4_create(CheckABIApp).created_app
-        itxn_begin
-        byte C4EBQw==                                                        C4EBQw==
-        itxn_field ClearStateProgramPages
-        byte CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND
-        itxn_field ApprovalProgramPages
-        int appl                                                             appl
-        itxn_field TypeEnum
-        int 0                                                                0
-        itxn_field Fee
-        itxn_submit
-        itxn CreatedApplicationID                                            app#0
-        v-store app#0
-        // fixed_bytes_ops/abi_values.py:14-18
+        // fixed_bytes_ops/abi_values.py:12-16
         // arc4.abi_call(
         //     CheckABIApp.manual_validate,
         //     val,
-        //     app_id=app,
+        //     app_id=checker,
         // )
         itxn_begin
-        // fixed_bytes_ops/abi_values.py:16
+        // fixed_bytes_ops/abi_values.py:14
         // val,
         v-load val#0                                                         val#0
         len                                                                  aggregate%length%0#0
@@ -134,31 +144,17 @@ subroutine test_itxn_validate_caller_bytes:
         v-store aggregate%lengths_equal%0#0
         v-load aggregate%lengths_equal%0#0                                   aggregate%lengths_equal%0#0
         assert // invalid size
-        v-load app#0                                                         app#0
+        v-load checker#0                                                     checker#0
         itxn_field ApplicationID
-        // fixed_bytes_ops/abi_values.py:14-18
+        // fixed_bytes_ops/abi_values.py:12-16
         // arc4.abi_call(
         //     CheckABIApp.manual_validate,
         //     val,
-        //     app_id=app,
+        //     app_id=checker,
         // )
         method manual_validate(byte[11])void                                 Method(manual_validate(byte[11])void)
         itxn_field ApplicationArgs
         v-load val#0                                                         val#0
-        itxn_field ApplicationArgs
-        int appl                                                             appl
-        itxn_field TypeEnum
-        int 0                                                                0
-        itxn_field Fee
-        itxn_submit
-        // fixed_bytes_ops/abi_values.py:20
-        // arc4.abi_call(CheckABIApp.delete, app_id=app)
-        itxn_begin
-        int DeleteApplication                                                DeleteApplication
-        itxn_field OnCompletion
-        v-load app#0                                                         app#0
-        itxn_field ApplicationID
-        method delete()void                                                  Method(delete()void)
         itxn_field ApplicationArgs
         int appl                                                             appl
         itxn_field TypeEnum
@@ -166,7 +162,7 @@ subroutine test_itxn_validate_caller_bytes:
         itxn_field Fee
         itxn_submit
         // fixed_bytes_ops/abi_values.py:9
-        // @arc4.abimethod()
+        // @arc4.abimethod(resource_encoding="index")
         int 1                                                                1
         return
 
@@ -174,52 +170,55 @@ subroutine test_itxn_validate_caller_bytes:
 // test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual[routing]() -> void:
 subroutine test_itxn_validate_callee_manual:
     test_itxn_validate_callee_manual_block@0:
-        // fixed_bytes_ops/abi_values.py:22
-        // @arc4.abimethod()
+        // fixed_bytes_ops/abi_values.py:18
+        // @arc4.abimethod(resource_encoding="index")
         txna ApplicationArgs 1                                               tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                       tmp%0#0
-        int 0                                                                tmp%0#0,0
+        len                                                                  len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                       len%0#0
+        int 1                                                                len%0#0,1
+        ==                                                                   eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                        eq%0#0
+        assert // invalid number of bytes for arc4.uint8
+        v-load tmp%0#0                                                       tmp%0#0
+        btoi                                                                 tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                       tmp%1#0
+        txnas Applications                                                   checker#0
+        v-store checker#0
+        txna ApplicationArgs 2                                               tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                       tmp%3#0
+        int 0                                                                tmp%3#0,0
         extract_uint16 // on error: invalid array length header              aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                    aggregate%array_length%0#0
         int 2                                                                aggregate%array_length%0#0,2
         +                                                                    add%0#0
         v-store add%0#0
-        v-load tmp%0#0                                                       tmp%0#0
-        len                                                                  len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                       len%0#0
-        v-load add%0#0                                                       len%0#0,add%0#0
-        ==                                                                   eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                        eq%0#0
+        v-load tmp%3#0                                                       tmp%3#0
+        len                                                                  len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                       len%1#0
+        v-load add%0#0                                                       len%1#0,add%0#0
+        ==                                                                   eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                        eq%1#0
         assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        v-load tmp%0#0                                                       tmp%0#0
+        v-load tmp%3#0                                                       tmp%3#0
         extract 2 0                                                          val#0
         v-store val#0
-        // fixed_bytes_ops/abi_values.py:24
-        // app = arc4.arc4_create(CheckABIApp).created_app
-        itxn_begin
-        byte C4EBQw==                                                        C4EBQw==
-        itxn_field ClearStateProgramPages
-        byte CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND
-        itxn_field ApprovalProgramPages
-        int appl                                                             appl
-        itxn_field TypeEnum
-        int 0                                                                0
-        itxn_field Fee
-        itxn_submit
-        itxn CreatedApplicationID                                            app#0
-        v-store app#0
-        // fixed_bytes_ops/abi_values.py:28-32
+        // fixed_bytes_ops/abi_values.py:22-26
         // arc4.abi_call(
         //     CheckABIApp.manual_validate,
         //     fb,
-        //     app_id=app,
+        //     app_id=checker,
         // )
         itxn_begin
-        v-load app#0                                                         app#0
+        v-load checker#0                                                     checker#0
         itxn_field ApplicationID
         method manual_validate(byte[11])void                                 Method(manual_validate(byte[11])void)
         itxn_field ApplicationArgs
@@ -230,22 +229,8 @@ subroutine test_itxn_validate_callee_manual:
         int 0                                                                0
         itxn_field Fee
         itxn_submit
-        // fixed_bytes_ops/abi_values.py:34
-        // arc4.abi_call(CheckABIApp.delete, app_id=app)
-        itxn_begin
-        int DeleteApplication                                                DeleteApplication
-        itxn_field OnCompletion
-        v-load app#0                                                         app#0
-        itxn_field ApplicationID
-        method delete()void                                                  Method(delete()void)
-        itxn_field ApplicationArgs
-        int appl                                                             appl
-        itxn_field TypeEnum
-        int 0                                                                0
-        itxn_field Fee
-        itxn_submit
-        // fixed_bytes_ops/abi_values.py:22
-        // @arc4.abimethod()
+        // fixed_bytes_ops/abi_values.py:18
+        // @arc4.abimethod(resource_encoding="index")
         int 1                                                                1
         return
 
@@ -253,52 +238,55 @@ subroutine test_itxn_validate_callee_manual:
 // test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router[routing]() -> void:
 subroutine test_itxn_validate_callee_router:
     test_itxn_validate_callee_router_block@0:
-        // fixed_bytes_ops/abi_values.py:36
-        // @arc4.abimethod()
+        // fixed_bytes_ops/abi_values.py:28
+        // @arc4.abimethod(resource_encoding="index")
         txna ApplicationArgs 1                                               tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                       tmp%0#0
-        int 0                                                                tmp%0#0,0
+        len                                                                  len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                       len%0#0
+        int 1                                                                len%0#0,1
+        ==                                                                   eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                        eq%0#0
+        assert // invalid number of bytes for arc4.uint8
+        v-load tmp%0#0                                                       tmp%0#0
+        btoi                                                                 tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                       tmp%1#0
+        txnas Applications                                                   checker#0
+        v-store checker#0
+        txna ApplicationArgs 2                                               tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                       tmp%3#0
+        int 0                                                                tmp%3#0,0
         extract_uint16 // on error: invalid array length header              aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                    aggregate%array_length%0#0
         int 2                                                                aggregate%array_length%0#0,2
         +                                                                    add%0#0
         v-store add%0#0
-        v-load tmp%0#0                                                       tmp%0#0
-        len                                                                  len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                       len%0#0
-        v-load add%0#0                                                       len%0#0,add%0#0
-        ==                                                                   eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                        eq%0#0
+        v-load tmp%3#0                                                       tmp%3#0
+        len                                                                  len%1#0
+        v-store len%1#0
+        v-load len%1#0                                                       len%1#0
+        v-load add%0#0                                                       len%1#0,add%0#0
+        ==                                                                   eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                        eq%1#0
         assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        v-load tmp%0#0                                                       tmp%0#0
+        v-load tmp%3#0                                                       tmp%3#0
         extract 2 0                                                          val#0
         v-store val#0
-        // fixed_bytes_ops/abi_values.py:38
-        // app = arc4.arc4_create(CheckABIApp).created_app
-        itxn_begin
-        byte C4EBQw==                                                        C4EBQw==
-        itxn_field ClearStateProgramPages
-        byte CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND
-        itxn_field ApprovalProgramPages
-        int appl                                                             appl
-        itxn_field TypeEnum
-        int 0                                                                0
-        itxn_field Fee
-        itxn_submit
-        itxn CreatedApplicationID                                            app#0
-        v-store app#0
-        // fixed_bytes_ops/abi_values.py:42-46
+        // fixed_bytes_ops/abi_values.py:32-36
         // arc4.abi_call(
         //     CheckABIApp.router_validate,
         //     fb,
-        //     app_id=app,
+        //     app_id=checker,
         // )
         itxn_begin
-        v-load app#0                                                         app#0
+        v-load checker#0                                                     checker#0
         itxn_field ApplicationID
         method router_validate(byte[11])void                                 Method(router_validate(byte[11])void)
         itxn_field ApplicationArgs
@@ -309,22 +297,62 @@ subroutine test_itxn_validate_callee_router:
         int 0                                                                0
         itxn_field Fee
         itxn_submit
-        // fixed_bytes_ops/abi_values.py:48
-        // arc4.abi_call(CheckABIApp.delete, app_id=app)
+        // fixed_bytes_ops/abi_values.py:28
+        // @arc4.abimethod(resource_encoding="index")
+        int 1                                                                1
+        return
+
+
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding[routing]() -> void:
+subroutine test_static_to_dynamic_encoding:
+    test_static_to_dynamic_encoding_block@0:
+        // fixed_bytes_ops/abi_values.py:38
+        // @arc4.abimethod(resource_encoding="index")
+        txna ApplicationArgs 1                                               tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                       tmp%0#0
+        len                                                                  len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                       len%0#0
+        int 1                                                                len%0#0,1
+        ==                                                                   eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                        eq%0#0
+        assert // invalid number of bytes for arc4.uint8
+        v-load tmp%0#0                                                       tmp%0#0
+        btoi                                                                 tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                       tmp%1#0
+        txnas Applications                                                   checker#0
+        v-store checker#0
+        // fixed_bytes_ops/abi_values.py:41-45
+        // arc4.abi_call(
+        //     CheckABIApp.i_am_a_dynamic_personality,
+        //     fb,
+        //     app_id=checker,
+        // )
         itxn_begin
-        int DeleteApplication                                                DeleteApplication
-        itxn_field OnCompletion
-        v-load app#0                                                         app#0
+        v-load checker#0                                                     checker#0
         itxn_field ApplicationID
-        method delete()void                                                  Method(delete()void)
+        method i_am_a_dynamic_personality(byte[])void                        Method(i_am_a_dynamic_personality(byte[])void)
         itxn_field ApplicationArgs
+        // fixed_bytes_ops/abi_values.py:43
+        // fb,
+        byte 0x000b68656c6c6f20776f726c64                                    0x000b68656c6c6f20776f726c64
+        itxn_field ApplicationArgs
+        // fixed_bytes_ops/abi_values.py:41-45
+        // arc4.abi_call(
+        //     CheckABIApp.i_am_a_dynamic_personality,
+        //     fb,
+        //     app_id=checker,
+        // )
         int appl                                                             appl
         itxn_field TypeEnum
         int 0                                                                0
         itxn_field Fee
         itxn_submit
-        // fixed_bytes_ops/abi_values.py:36
-        // @arc4.abimethod()
+        // fixed_bytes_ops/abi_values.py:38
+        // @arc4.abimethod(resource_encoding="index")
         int 1                                                                1
         return
 

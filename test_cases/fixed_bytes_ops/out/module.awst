@@ -459,27 +459,27 @@ contract FixedBytesABI
     return true
   }
   
-  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes(val: bytes): void
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes(checker: application, val: bytes): void
   {
-    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=compiled_contract(test_cases.fixed_bytes_ops.abi_values.CheckABIApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=4)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=3).clear_state_program)[0], SINGLE_EVAL(id=5)[1]), ExtraProgramPages=SINGLE_EVAL(id=3).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=3).global_bytes, GlobalNumUint=SINGLE_EVAL(id=3).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=3).local_bytes, LocalNumUint=SINGLE_EVAL(id=3).local_uints)).CreatedApplicationID
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(val, arc4.static_array<arc4.uint8, 11>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(val, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
   }
   
-  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual(val: bytes): void
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual(checker: application, val: bytes): void
   {
-    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=compiled_contract(test_cases.fixed_bytes_ops.abi_values.CheckABIApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=7)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=8, source=SINGLE_EVAL(id=6).clear_state_program)[0], SINGLE_EVAL(id=8)[1]), ExtraProgramPages=SINGLE_EVAL(id=6).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=6).global_bytes, GlobalNumUint=SINGLE_EVAL(id=6).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=6).local_bytes, LocalNumUint=SINGLE_EVAL(id=6).local_uints)).CreatedApplicationID
     fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
   }
   
-  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router(val: bytes): void
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router(checker: application, val: bytes): void
   {
-    app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=10, source=SINGLE_EVAL(id=9, source=compiled_contract(test_cases.fixed_bytes_ops.abi_values.CheckABIApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=10)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=11, source=SINGLE_EVAL(id=9).clear_state_program)[0], SINGLE_EVAL(id=11)[1]), ExtraProgramPages=SINGLE_EVAL(id=9).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=9).global_bytes, GlobalNumUint=SINGLE_EVAL(id=9).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=9).local_bytes, LocalNumUint=SINGLE_EVAL(id=9).local_uints)).CreatedApplicationID
     fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("router_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("router_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding(checker: application): void
+  {
+    fb: bytes[11] = hex<"68656C6C6F20776F726C64">
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("i_am_a_dynamic_personality(byte[])void"), arc4_encode(fb, arc4.dynamic_array<arc4.uint8>)), ApplicationID=checker))
   }
   
   baremethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create(): void
@@ -518,8 +518,9 @@ contract CheckABIApp
     assert(len(reinterpret_cast<bytes>(value)) == 11u, comment="callee method check failed")
   }
   
-  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete(): void
+  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality(value: arc4.dynamic_array<arc4.uint8>): void
   {
+    assert(arc4_decode(value, bytes) == hex<"68656C6C6F20776F726C64">)
   }
   
   baremethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create(): void
