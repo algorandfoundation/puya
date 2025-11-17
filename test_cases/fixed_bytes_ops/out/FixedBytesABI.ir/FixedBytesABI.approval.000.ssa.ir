@@ -4,43 +4,91 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%0#0
 
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__puya_arc4_router__() -> bool:
-    block@0: // L6
+    block@0: // L8
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@4
-    block@1: // abi_routing_L6
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_passing_fixed_bytes()void" => block@2, * => block@3}
-    block@2: // test_passing_fixed_bytes_route_L7
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
-        (assert tmp%7#0)
-        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]()
-        goto block@3
-    block@3: // switch_case_next_L6
-        goto block@5
-    block@4: // __algopy_default_create_L1
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (== tmp%8#0 NoOp)
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (== tmp%10#0 0u)
-        let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
-        (assert tmp%12#0)
+        goto tmp%1#0 ? block@1 : block@9
+    block@1: // abi_routing_L8
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@7
+    block@2: // call_NoOp_L8
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_itxn_validate_caller_bytes(byte[])void" => block@3, method "test_itxn_validate_callee_manual(byte[])void" => block@4, method "test_itxn_validate_callee_router(byte[])void" => block@5, * => block@6}
+    block@3: // test_itxn_validate_caller_bytes_route_L9
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes[routing]()
+        goto block@6
+    block@4: // test_itxn_validate_callee_manual_route_L22
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual[routing]()
+        goto block@6
+    block@5: // test_itxn_validate_callee_router_route_L36
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router[routing]()
+        goto block@6
+    block@6: // switch_case_next_L8
+        goto block@8
+    block@7: // create_NoOp_L8
+        goto block@8
+    block@8: // after_if_else_L8
+        goto block@10
+    block@9: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
         test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create()
         exit 1u
-    block@5: // after_if_else_L6
+    block@10: // after_if_else_L8
         exit 0u
 
-subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]() -> void:
-    block@0: // L7
-        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes()
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes[routing]() -> void:
+    block@0: // L9
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes(tmp%1#0)
         exit 1u
 
-subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes() -> void:
-    block@0: // L7
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual[routing]() -> void:
+    block@0: // L22
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual(tmp%1#0)
+        exit 1u
+
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router[routing]() -> void:
+    block@0: // L36
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router(tmp%1#0)
+        exit 1u
+
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes(val: bytes) -> void:
+    block@0: // L9
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
@@ -118,7 +166,7 @@ subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixe
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         goto block@1
-    block@1: // next_txn_L9
+    block@1: // next_txn_L11
         itxn_submit
         let tmp%0#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
         let app#0: uint64 = tmp%0#0
@@ -128,12 +176,10 @@ subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixe
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let tmp%1#0: Encoded(uint8[11]) = bytes_encode<uint8[11]>(0x48656c6c6f20576f726c64)
-        let tmp%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x48656c6c6f20576f726c64)
-        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "check_fixed_bytes(byte[11],byte[])void"
+        let tmp%1#0: Encoded(uint8[11]) = bytes_encode<uint8[11]>(val#0)
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "manual_validate(byte[11])void"
         let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(uint8[11]) = tmp%1#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = tmp%2#0
-        let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 3u
+        let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
         let inner_txn_params%1%%Sender_length#0: uint64 = 0u
@@ -187,11 +233,521 @@ subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixe
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_0#0)
         ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
-        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_2#0)
         ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
         goto block@2
-    block@2: // next_txn_L11
+    block@2: // next_txn_L14
+        itxn_submit
+        itxn_begin
+        let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
+        let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%2%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
+        let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+        let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+        let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
+        let inner_txn_params%2%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%2%%Note_length#0: uint64 = 0u
+        let inner_txn_params%2%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%2%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%2%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%2%%Type_length#0: uint64 = 0u
+        let inner_txn_params%2%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%2%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%2%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%2%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%RejectVersion_length#0: uint64 = 0u
+        ((itxn_field OnCompletion) inner_txn_params%2%%param_OnCompletion_idx_0#0)
+        ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
+        goto block@3
+    block@3: // next_txn_L20
+        itxn_submit
+        return 
+
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual(val: bytes) -> void:
+    block@0: // L22
+        itxn_begin
+        let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
+        let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ApprovalProgramPages, program_page=0)
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ApprovalProgramPages, program_page=1)
+        let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 2u
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ClearStateProgramPages, program_page=0)
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ClearStateProgramPages, program_page=1)
+        let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 2u
+        let inner_txn_params%0%%param_ExtraProgramPages_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ExtraProgramPages, program_page=None)
+        let inner_txn_params%0%%ExtraProgramPages_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=GlobalNumByteSlice, program_page=None)
+        let inner_txn_params%0%%GlobalNumByteSlice_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_GlobalNumUint_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=GlobalNumUint, program_page=None)
+        let inner_txn_params%0%%GlobalNumUint_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=LocalNumByteSlice, program_page=None)
+        let inner_txn_params%0%%LocalNumByteSlice_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_LocalNumUint_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=LocalNumUint, program_page=None)
+        let inner_txn_params%0%%LocalNumUint_length#0: uint64 = 1u
+        let inner_txn_params%0%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%0%%Note_length#0: uint64 = 0u
+        let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%0%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%0%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%0%%Type_length#0: uint64 = 0u
+        let inner_txn_params%0%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApplicationID_length#0: uint64 = 0u
+        let inner_txn_params%0%%OnCompletion_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%0%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 0u
+        let inner_txn_params%0%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%0%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%0%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%0%%RejectVersion_length#0: uint64 = 0u
+        ((itxn_field LocalNumUint) inner_txn_params%0%%param_LocalNumUint_idx_0#0)
+        ((itxn_field LocalNumByteSlice) inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0)
+        ((itxn_field GlobalNumUint) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ExtraProgramPages) inner_txn_params%0%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L24
+        itxn_submit
+        let tmp%0#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
+        let app#0: uint64 = tmp%0#0
+        let reinterpret_bytes[11]%0#0: bytes[11] = val#0
+        let fb#0: bytes[11] = reinterpret_bytes[11]%0#0
+        itxn_begin
+        let inner_txn_params%1#0: itxn_field_set = itxn_field_set(1)
+        let inner_txn_params%1%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%1%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
+        let tmp%1#0: Encoded(uint8[11]) = bytes_encode<uint8[11]>(fb#0)
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "manual_validate(byte[11])void"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(uint8[11]) = tmp%1#0
+        let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
+        let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+        let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%1%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%1%%Note_length#0: uint64 = 0u
+        let inner_txn_params%1%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%1%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%1%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%1%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%1%%Type_length#0: uint64 = 0u
+        let inner_txn_params%1%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%OnCompletion_length#0: uint64 = 0u
+        let inner_txn_params%1%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%1%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%1%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%1%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%1%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%1%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%1%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%1%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%1%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%1%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%1%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%1%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%1%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%ClearStateProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%RejectVersion_length#0: uint64 = 0u
+        ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
+        goto block@2
+    block@2: // next_txn_L28
+        itxn_submit
+        itxn_begin
+        let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
+        let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%2%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
+        let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+        let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+        let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
+        let inner_txn_params%2%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%2%%Note_length#0: uint64 = 0u
+        let inner_txn_params%2%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%2%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%2%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%2%%Type_length#0: uint64 = 0u
+        let inner_txn_params%2%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%2%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%2%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%2%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%RejectVersion_length#0: uint64 = 0u
+        ((itxn_field OnCompletion) inner_txn_params%2%%param_OnCompletion_idx_0#0)
+        ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
+        goto block@3
+    block@3: // next_txn_L34
+        itxn_submit
+        return 
+
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router(val: bytes) -> void:
+    block@0: // L36
+        itxn_begin
+        let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
+        let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ApprovalProgramPages, program_page=0)
+        let inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ApprovalProgramPages, program_page=1)
+        let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 2u
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ClearStateProgramPages, program_page=0)
+        let inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0: bytes = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ClearStateProgramPages, program_page=1)
+        let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 2u
+        let inner_txn_params%0%%param_ExtraProgramPages_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=ExtraProgramPages, program_page=None)
+        let inner_txn_params%0%%ExtraProgramPages_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=GlobalNumByteSlice, program_page=None)
+        let inner_txn_params%0%%GlobalNumByteSlice_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_GlobalNumUint_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=GlobalNumUint, program_page=None)
+        let inner_txn_params%0%%GlobalNumUint_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=LocalNumByteSlice, program_page=None)
+        let inner_txn_params%0%%LocalNumByteSlice_length#0: uint64 = 1u
+        let inner_txn_params%0%%param_LocalNumUint_idx_0#0: uint64 = compiled_contract('test_cases.fixed_bytes_ops.abi_values.CheckABIApp', field=LocalNumUint, program_page=None)
+        let inner_txn_params%0%%LocalNumUint_length#0: uint64 = 1u
+        let inner_txn_params%0%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%0%%Note_length#0: uint64 = 0u
+        let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%0%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%0%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%0%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%0%%Type_length#0: uint64 = 0u
+        let inner_txn_params%0%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApplicationID_length#0: uint64 = 0u
+        let inner_txn_params%0%%OnCompletion_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%0%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%0%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%0%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%0%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 0u
+        let inner_txn_params%0%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%0%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%0%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%0%%RejectVersion_length#0: uint64 = 0u
+        ((itxn_field LocalNumUint) inner_txn_params%0%%param_LocalNumUint_idx_0#0)
+        ((itxn_field LocalNumByteSlice) inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0)
+        ((itxn_field GlobalNumUint) inner_txn_params%0%%param_GlobalNumUint_idx_0#0)
+        ((itxn_field GlobalNumByteSlice) inner_txn_params%0%%param_GlobalNumByteSlice_idx_0#0)
+        ((itxn_field ExtraProgramPages) inner_txn_params%0%%param_ExtraProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+        ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_1#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+        ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_1#0)
+        ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L38
+        itxn_submit
+        let tmp%0#0: uint64 = itxn[itxn_group_idx(0)].CreatedApplicationID
+        let app#0: uint64 = tmp%0#0
+        let reinterpret_bytes[11]%0#0: bytes[11] = val#0
+        let fb#0: bytes[11] = reinterpret_bytes[11]%0#0
+        itxn_begin
+        let inner_txn_params%1#0: itxn_field_set = itxn_field_set(1)
+        let inner_txn_params%1%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%1%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
+        let tmp%1#0: Encoded(uint8[11]) = bytes_encode<uint8[11]>(fb#0)
+        let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "router_validate(byte[11])void"
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(uint8[11]) = tmp%1#0
+        let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
+        let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
+        let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%1%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%1%%Note_length#0: uint64 = 0u
+        let inner_txn_params%1%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%1%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%1%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%1%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%1%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%1%%Type_length#0: uint64 = 0u
+        let inner_txn_params%1%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%1%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%OnCompletion_length#0: uint64 = 0u
+        let inner_txn_params%1%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%1%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%1%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%1%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%1%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%1%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%1%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%1%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%1%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%1%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%1%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%1%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%1%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%1%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%1%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%ClearStateProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%1%%RejectVersion_length#0: uint64 = 0u
+        ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%1%%param_ApplicationArgs_idx_1#0)
+        ((itxn_field TypeEnum) inner_txn_params%1%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%1%%param_Fee_idx_0#0)
+        goto block@2
+    block@2: // next_txn_L42
+        itxn_submit
+        itxn_begin
+        let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
+        let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
+        let inner_txn_params%2%%Fee_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
+        let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "delete()void"
+        let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
+        let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
+        let inner_txn_params%2%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+        let inner_txn_params%2%%OnCompletion_length#0: uint64 = 1u
+        let inner_txn_params%2%%Sender_length#0: uint64 = 0u
+        let inner_txn_params%2%%Note_length#0: uint64 = 0u
+        let inner_txn_params%2%%Receiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%Amount_length#0: uint64 = 0u
+        let inner_txn_params%2%%CloseRemainderTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%VotePK_length#0: uint64 = 0u
+        let inner_txn_params%2%%SelectionPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteFirst_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteLast_length#0: uint64 = 0u
+        let inner_txn_params%2%%VoteKeyDilution_length#0: uint64 = 0u
+        let inner_txn_params%2%%Type_length#0: uint64 = 0u
+        let inner_txn_params%2%%XferAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetAmount_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetSender_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetReceiver_length#0: uint64 = 0u
+        let inner_txn_params%2%%AssetCloseTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgram_length#0: uint64 = 0u
+        let inner_txn_params%2%%RekeyTo_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetTotal_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDecimals_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetUnitName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetName_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetURL_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetManager_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetReserve_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetFreeze_length#0: uint64 = 0u
+        let inner_txn_params%2%%ConfigAssetClawback_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAsset_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetAccount_length#0: uint64 = 0u
+        let inner_txn_params%2%%FreezeAssetFrozen_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%GlobalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumUint_length#0: uint64 = 0u
+        let inner_txn_params%2%%LocalNumByteSlice_length#0: uint64 = 0u
+        let inner_txn_params%2%%ExtraProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%Nonparticipation_length#0: uint64 = 0u
+        let inner_txn_params%2%%StateProofPK_length#0: uint64 = 0u
+        let inner_txn_params%2%%Accounts_length#0: uint64 = 0u
+        let inner_txn_params%2%%Assets_length#0: uint64 = 0u
+        let inner_txn_params%2%%Applications_length#0: uint64 = 0u
+        let inner_txn_params%2%%ApprovalProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%ClearStateProgramPages_length#0: uint64 = 0u
+        let inner_txn_params%2%%RejectVersion_length#0: uint64 = 0u
+        ((itxn_field OnCompletion) inner_txn_params%2%%param_OnCompletion_idx_0#0)
+        ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
+        ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_0#0)
+        ((itxn_field TypeEnum) inner_txn_params%2%%param_TypeEnum_idx_0#0)
+        ((itxn_field Fee) inner_txn_params%2%%param_Fee_idx_0#0)
+        goto block@3
+    block@3: // next_txn_L48
         itxn_submit
         return 
 

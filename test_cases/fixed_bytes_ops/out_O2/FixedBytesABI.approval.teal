@@ -3,48 +3,173 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0
+    intcblock 0 6 2 5
+    bytecblock base64(C4EBQw==) base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD) 0x24378d3c 0x1651487b
     txn NumAppArgs
-    bz main___algopy_default_create@5
-    pushbytes 0x45228c22 // method "test_passing_fixed_bytes()void"
-    txna ApplicationArgs 0
-    match main_test_passing_fixed_bytes_route@3
-    err
-
-main_test_passing_fixed_bytes_route@3:
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
-    txn ApplicationID
-    &&
     assert
+    txn ApplicationID
+    assert
+    pushbytess 0x61cc28f5 0xc63ba8e0 0x2d80c6d8 // method "test_itxn_validate_caller_bytes(byte[])void", method "test_itxn_validate_callee_manual(byte[])void", method "test_itxn_validate_callee_router(byte[])void"
+    txna ApplicationArgs 0
+    match main_test_itxn_validate_caller_bytes_route@4 main_test_itxn_validate_callee_manual_route@5 main_test_itxn_validate_callee_router_route@6
+    err
+
+main_test_itxn_validate_callee_router_route@6:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
     itxn_begin
-    pushbytes base64(C4EBQw==)
+    bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CzEbQQA1gATG/HPVNhoAjgEAAQAxGRQxGBBENhoBSRWBCxJENhoCSYEAWYECCEsBFRJEVwIAEkSBAUMxGRQxGBQQQw==)
+    bytec_1 // base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD)
     itxn_field ApprovalProgramPages
-    intc_0 // appl
+    intc_1 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn CreatedApplicationID
     itxn_begin
+    dup
     itxn_field ApplicationID
-    pushbytes 0xc6fc73d5 // method "check_fixed_bytes(byte[11],byte[])void"
+    pushbytes 0xe50b9860 // method "router_validate(byte[11])void"
     itxn_field ApplicationArgs
-    pushbytes 0x48656c6c6f20576f726c64
+    swap
     itxn_field ApplicationArgs
-    pushbytes 0x000b48656c6c6f20576f726c64
-    itxn_field ApplicationArgs
-    intc_0 // appl
+    intc_1 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     pushint 1 // 1
     return
 
-main___algopy_default_create@5:
+main_test_itxn_validate_callee_manual_route@5:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    itxn_begin
+    bytec_0 // base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_1 // base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD)
+    itxn_field ApprovalProgramPages
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "manual_validate(byte[11])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    pushint 1 // 1
+    return
+
+main_test_itxn_validate_caller_bytes_route@4:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    itxn_begin
+    bytec_0 // base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_1 // base64(CyACCwExG0EARYAEJDeNPDYaAI4BAC8xGRREMRhEggIEFlFIewTlC5hgNhoAjgIACgABADYaARUiEkQjQzYaARUiEkQjQzEZgQUSMRgQQzEZFDEYFBBD)
+    itxn_field ApprovalProgramPages
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    dig 1
+    len
+    pushint 11 // 11
+    ==
+    assert // invalid size
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "manual_validate(byte[11])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    pushint 1 // 1
+    return
+
+main___algopy_default_create@10:
     txn OnCompletion
     !
     txn ApplicationID
