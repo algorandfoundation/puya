@@ -1,44 +1,45 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@11
-    block@2: // abi_routing_L51
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "delete()void" => block@3, * => block@4}
-    block@3: // delete_route_L60
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 DeleteApplication)
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
-        (assert tmp%7#0)
-        exit 1u
-    block@4: // switch_case_next_L51
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0)
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        (assert tmp%10#0)
-        let tmp%12#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%12#0 {method "manual_validate(byte[11])void" => block@6, method "router_validate(byte[11])void" => block@7, * => block@10}
-    block@6: // manual_validate_route_L52
-        let value#0: bytes[11] = (txna ApplicationArgs 1)
+        goto tmp%0#1 ? block@2 : block@10
+    block@2: // abi_routing_L48
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "manual_validate(byte[11])void" => block@4, method "router_validate(byte[11])void" => block@5, method "i_am_a_dynamic_personality(byte[])void" => block@6, * => block@9}
+    block@4: // manual_validate_route_L49
+        let value#0: bytes = (txna ApplicationArgs 1)
         let tmp%0#1: uint64 = (len value#0)
-        let tmp%1#4: bool = (== tmp%0#1 11u)
-        (assert tmp%1#4) // callee method check failed
+        let tmp%1#1: bool = (== tmp%0#1 11u)
+        (assert tmp%1#1) // callee method check failed
         exit 1u
-    block@7: // router_validate_route_L56
-        let value#0: bytes[11] = (txna ApplicationArgs 1)
+    block@5: // router_validate_route_L53
+        let value#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 11u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 11>
         exit 1u
-    block@10: // after_if_else_L51
+    block@6: // i_am_a_dynamic_personality_route_L57
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%0#3: bytes = ((extract 2 0) value#0)
+        let tmp%1#1: bool = (== tmp%0#3 0x68656c6c6f20776f726c64)
+        (assert tmp%1#1)
+        exit 1u
+    block@9: // after_if_else_L48
         fail
-    block@11: // __algopy_default_create_L1
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (! tmp%13#0)
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (! tmp%15#0)
-        let tmp%17#0: bool = (&& tmp%14#0 tmp%16#0)
-        (assert tmp%17#0)
+    block@10: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
         exit 1u

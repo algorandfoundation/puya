@@ -5,21 +5,34 @@
 main:
     intcblock 11 1
     txn NumAppArgs
-    bz main___algopy_default_create@11
-    pushbytes 0x24378d3c // method "delete()void"
-    txna ApplicationArgs 0
-    match main_delete_route@3
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0x1651487b 0xe50b9860 // method "manual_validate(byte[11])void", method "router_validate(byte[11])void"
+    pushbytess 0x1651487b 0xe50b9860 0x96f7f4ed // method "manual_validate(byte[11])void", method "router_validate(byte[11])void", method "i_am_a_dynamic_personality(byte[])void"
     txna ApplicationArgs 0
-    match main_manual_validate_route@6 main_router_validate_route@7
+    match main_manual_validate_route@4 main_router_validate_route@5 main_i_am_a_dynamic_personality_route@6
     err
 
-main_router_validate_route@7:
+main_i_am_a_dynamic_personality_route@6:
+    txna ApplicationArgs 1
+    dup
+    pushint 0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    pushbytes 0x68656c6c6f20776f726c64
+    ==
+    return
+
+main_router_validate_route@5:
     txna ApplicationArgs 1
     len
     intc_0 // 11
@@ -28,7 +41,7 @@ main_router_validate_route@7:
     intc_1 // 1
     return
 
-main_manual_validate_route@6:
+main_manual_validate_route@4:
     txna ApplicationArgs 1
     len
     intc_0 // 11
@@ -37,15 +50,7 @@ main_manual_validate_route@6:
     intc_1 // 1
     return
 
-main_delete_route@3:
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return
-
-main___algopy_default_create@11:
+main___algopy_default_create@10:
     txn OnCompletion
     !
     txn ApplicationID

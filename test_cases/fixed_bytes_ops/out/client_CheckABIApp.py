@@ -19,7 +19,8 @@ class CheckABIApp(algopy.arc4.ARC4Client, typing.Protocol):
         value: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[11]],
     ) -> None: ...
 
-    @algopy.arc4.abimethod(allow_actions=['DeleteApplication'])
-    def delete(
+    @algopy.arc4.abimethod
+    def i_am_a_dynamic_personality(
         self,
+        value: algopy.arc4.DynamicBytes,
     ) -> None: ...

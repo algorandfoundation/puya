@@ -4,34 +4,21 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 11 1
-    // fixed_bytes_ops/abi_values.py:51
+    // fixed_bytes_ops/abi_values.py:48
     // class CheckABIApp(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@11
-    pushbytes 0x24378d3c // method "delete()void"
-    txna ApplicationArgs 0
-    match main_delete_route@3
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0x1651487b 0xe50b9860 // method "manual_validate(byte[11])void", method "router_validate(byte[11])void"
+    pushbytess 0x1651487b 0xe50b9860 0x96f7f4ed // method "manual_validate(byte[11])void", method "router_validate(byte[11])void", method "i_am_a_dynamic_personality(byte[])void"
     txna ApplicationArgs 0
-    match manual_validate router_validate
+    match manual_validate router_validate i_am_a_dynamic_personality
     err
 
-main_delete_route@3:
-    // fixed_bytes_ops/abi_values.py:60
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    txn OnCompletion
-    pushint 5 // DeleteApplication
-    ==
-    txn ApplicationID
-    &&
-    return
-
-main___algopy_default_create@11:
+main___algopy_default_create@10:
     txn OnCompletion
     !
     txn ApplicationID
@@ -42,16 +29,16 @@ main___algopy_default_create@11:
 
 // test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate[routing]() -> void:
 manual_validate:
-    // fixed_bytes_ops/abi_values.py:52
+    // fixed_bytes_ops/abi_values.py:49
     // @arc4.abimethod(validate_encoding="unsafe_disabled")
     txna ApplicationArgs 1
-    // fixed_bytes_ops/abi_values.py:54
+    // fixed_bytes_ops/abi_values.py:51
     // assert value.bytes.length == 11, "callee method check failed"
     len
     intc_0 // 11
     ==
     assert // callee method check failed
-    // fixed_bytes_ops/abi_values.py:52
+    // fixed_bytes_ops/abi_values.py:49
     // @arc4.abimethod(validate_encoding="unsafe_disabled")
     intc_1 // 1
     return
@@ -59,7 +46,7 @@ manual_validate:
 
 // test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate[routing]() -> void:
 router_validate:
-    // fixed_bytes_ops/abi_values.py:56
+    // fixed_bytes_ops/abi_values.py:53
     // @arc4.abimethod(validate_encoding="args")
     txna ApplicationArgs 1
     len
@@ -67,4 +54,28 @@ router_validate:
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 11>
     intc_1 // 1
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality[routing]() -> void:
+i_am_a_dynamic_personality:
+    // fixed_bytes_ops/abi_values.py:57
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    pushint 0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // fixed_bytes_ops/abi_values.py:59
+    // assert value.native == b"hello world"
+    extract 2 0
+    pushbytes 0x68656c6c6f20776f726c64
+    ==
+    // fixed_bytes_ops/abi_values.py:57
+    // @arc4.abimethod
     return
