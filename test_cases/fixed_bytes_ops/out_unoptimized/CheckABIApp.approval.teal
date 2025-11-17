@@ -3,53 +3,94 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 11
     b main_block@0
 
 main_block@0:
     b main_block@1
 
 main_block@1:
-    // fixed_bytes_ops/abi_values.py:19
+    // fixed_bytes_ops/abi_values.py:51
     // class CheckABIApp(arc4.ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main___algopy_default_create@5
+    bz main___algopy_default_create@11
     b main_abi_routing@2
 
 main_abi_routing@2:
-    // fixed_bytes_ops/abi_values.py:19
+    // fixed_bytes_ops/abi_values.py:51
     // class CheckABIApp(arc4.ARC4Contract):
     txna ApplicationArgs 0
-    pushbytes 0xc6fc73d5 // method "check_fixed_bytes(byte[11],byte[])void"
+    pushbytes 0x24378d3c // method "delete()void"
     uncover 1
-    match main_check_fixed_bytes_route@3
+    match main_delete_route@3
     b main_switch_case_next@4
 
 main_switch_case_next@4:
-    b main_after_if_else@6
+    // fixed_bytes_ops/abi_values.py:51
+    // class CheckABIApp(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@9
+    b main_call_NoOp@5
 
-main_after_if_else@6:
-    // fixed_bytes_ops/abi_values.py:19
+main_call_NoOp@5:
+    // fixed_bytes_ops/abi_values.py:51
+    // class CheckABIApp(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x1651487b // method "manual_validate(byte[11])void"
+    pushbytes 0xe50b9860 // method "router_validate(byte[11])void"
+    uncover 2
+    match main_manual_validate_route@6 main_router_validate_route@7
+    b main_switch_case_next@8
+
+main_switch_case_next@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    b main_after_if_else@12
+
+main_after_if_else@12:
+    // fixed_bytes_ops/abi_values.py:51
     // class CheckABIApp(arc4.ARC4Contract):
     err
 
-main_check_fixed_bytes_route@3:
-    // fixed_bytes_ops/abi_values.py:20
-    // @arc4.abimethod
+main_router_validate_route@7:
+    // fixed_bytes_ops/abi_values.py:56
+    // @arc4.abimethod(validate_encoding="args")
+    callsub router_validate
+    b main_switch_case_next@8
+
+main_manual_validate_route@6:
+    // fixed_bytes_ops/abi_values.py:52
+    // @arc4.abimethod(validate_encoding="unsafe_disabled")
+    callsub manual_validate
+    b main_switch_case_next@8
+
+main_create_NoOp@9:
+    b main_after_if_else@10
+
+main_delete_route@3:
+    // fixed_bytes_ops/abi_values.py:60
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
-    intc_0 // NoOp
+    pushint 5 // DeleteApplication
     ==
     txn ApplicationID
     intc_0 // 0
     !=
     &&
     assert
-    callsub check_fixed_bytes
+    callsub delete
     b main_switch_case_next@4
 
-main___algopy_default_create@5:
+main___algopy_default_create@11:
     txn OnCompletion
     intc_0 // NoOp
     ==
@@ -58,60 +99,100 @@ main___algopy_default_create@5:
     ==
     &&
     assert
-    b main_block@8
+    b main_block@14
 
-main_block@8:
-    b main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@9
+main_block@14:
+    b main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@15
 
-main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@9:
+main_after_inlined_test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create@15:
     intc_1 // 1
     return
 
 
-// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes[routing]() -> void:
-check_fixed_bytes:
-    b check_fixed_bytes_block@0
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate[routing]() -> void:
+manual_validate:
+    b manual_validate_block@0
 
-check_fixed_bytes_block@0:
-    // fixed_bytes_ops/abi_values.py:20
-    // @arc4.abimethod
+manual_validate_block@0:
+    // fixed_bytes_ops/abi_values.py:52
+    // @arc4.abimethod(validate_encoding="unsafe_disabled")
+    txna ApplicationArgs 1
+    callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate
+    intc_1 // 1
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate[routing]() -> void:
+router_validate:
+    b router_validate_block@0
+
+router_validate_block@0:
+    // fixed_bytes_ops/abi_values.py:56
+    // @arc4.abimethod(validate_encoding="args")
     txna ApplicationArgs 1
     dup
     len
-    pushint 11 // 11
+    intc_2 // 11
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 11>
-    txna ApplicationArgs 2
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    pushint 2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes
+    callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate
     intc_1 // 1
     return
 
 
-// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes(value: bytes, expected: bytes) -> void:
-test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes:
-    // fixed_bytes_ops/abi_values.py:20-21
-    // @arc4.abimethod
-    // def check_fixed_bytes(self, value: FixedBytes[typing.Literal[11]], expected: Bytes) -> None:
-    proto 2 0
-    b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes_block@0
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete[routing]() -> void:
+delete:
+    b delete_block@0
 
-test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes_block@0:
-    // fixed_bytes_ops/abi_values.py:22
-    // assert value.bytes == expected, "expected to encode correctly"
-    frame_dig -2
+delete_block@0:
+    // fixed_bytes_ops/abi_values.py:60
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete
+    intc_1 // 1
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate(value: bytes) -> void:
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate:
+    // fixed_bytes_ops/abi_values.py:52-53
+    // @arc4.abimethod(validate_encoding="unsafe_disabled")
+    // def manual_validate(self, value: FixedBytes11) -> None:
+    proto 1 0
+    b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate_block@0
+
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate_block@0:
+    // fixed_bytes_ops/abi_values.py:54
+    // assert value.bytes.length == 11, "callee method check failed"
     frame_dig -1
+    len
+    intc_2 // 11
     ==
-    assert // expected to encode correctly
+    assert // callee method check failed
+    retsub
+
+
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate(value: bytes) -> void:
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate:
+    // fixed_bytes_ops/abi_values.py:56-57
+    // @arc4.abimethod(validate_encoding="args")
+    // def router_validate(self, value: FixedBytes11) -> None:
+    proto 1 0
+    b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate_block@0
+
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate_block@0:
+    // fixed_bytes_ops/abi_values.py:58
+    // assert value.bytes.length == 11, "callee method check failed"
+    frame_dig -1
+    len
+    intc_2 // 11
+    ==
+    assert // callee method check failed
+    retsub
+
+
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete() -> void:
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete:
+    b test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete_block@0
+
+test_cases.fixed_bytes_ops.abi_values.CheckABIApp.delete_block@0:
     retsub

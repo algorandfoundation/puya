@@ -3,27 +3,23 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0
-    // fixed_bytes_ops/abi_values.py:6
+    intcblock 0 6 2 5
+    bytecblock base64(C4EBQw==) base64(CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND) 0x24378d3c 0x1651487b
+    // fixed_bytes_ops/abi_values.py:8
     // class FixedBytesABI(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@5
-    pushbytes 0x45228c22 // method "test_passing_fixed_bytes()void"
-    txna ApplicationArgs 0
-    match main_test_passing_fixed_bytes_route@3
-    err
-
-main_test_passing_fixed_bytes_route@3:
-    // fixed_bytes_ops/abi_values.py:7
-    // @arc4.abimethod
+    bz main___algopy_default_create@10
     txn OnCompletion
     !
-    txn ApplicationID
-    &&
     assert
-    b test_passing_fixed_bytes
+    txn ApplicationID
+    assert
+    pushbytess 0x61cc28f5 0xc63ba8e0 0x2d80c6d8 // method "test_itxn_validate_caller_bytes(byte[])void", method "test_itxn_validate_callee_manual(byte[])void", method "test_itxn_validate_callee_router(byte[])void"
+    txna ApplicationArgs 0
+    match test_itxn_validate_caller_bytes test_itxn_validate_callee_manual test_itxn_validate_callee_router
+    err
 
-main___algopy_default_create@5:
+main___algopy_default_create@10:
     txn OnCompletion
     !
     txn ApplicationID
@@ -32,53 +28,213 @@ main___algopy_default_create@5:
     return
 
 
-// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]() -> void:
-test_passing_fixed_bytes:
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes[routing]() -> void:
+test_itxn_validate_caller_bytes:
     // fixed_bytes_ops/abi_values.py:9
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // fixed_bytes_ops/abi_values.py:11
     // app = arc4.arc4_create(CheckABIApp).created_app
     itxn_begin
-    pushbytes base64(C4EBQw==)
+    bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CzEbQQAYgATG/HPVNhoAjgEAAQAxGRQxGBBEQgAIMRkUMRgUEEM2GgFJFYELEkQ2GgJJgQBZgQIISwEVEkRXAgASRIEBQw==)
+    bytec_1 // base64(CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND)
     itxn_field ApprovalProgramPages
-    intc_0 // appl
+    intc_1 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn CreatedApplicationID
-    // fixed_bytes_ops/abi_values.py:11-16
+    // fixed_bytes_ops/abi_values.py:13-18
+    // # this be validated in the caller as it will attempt to encode val to FixedBytes11
     // arc4.abi_call(
-    //     CheckABIApp.check_fixed_bytes,
-    //     FixedBytes[typing.Literal[11]](b"Hello World"),
-    //     b"Hello World",
+    //     CheckABIApp.manual_validate,
+    //     val,
     //     app_id=app,
     // )
     itxn_begin
+    // fixed_bytes_ops/abi_values.py:16
+    // val,
+    dig 1
+    len
+    pushint 11 // 11
+    ==
+    assert // invalid size
+    dup
     itxn_field ApplicationID
-    pushbytes 0xc6fc73d5 // method "check_fixed_bytes(byte[11],byte[])void"
-    itxn_field ApplicationArgs
-    // fixed_bytes_ops/abi_values.py:13
-    // FixedBytes[typing.Literal[11]](b"Hello World"),
-    pushbytes 0x48656c6c6f20576f726c64
-    itxn_field ApplicationArgs
-    // fixed_bytes_ops/abi_values.py:14
-    // b"Hello World",
-    pushbytes 0x000b48656c6c6f20576f726c64
-    itxn_field ApplicationArgs
-    // fixed_bytes_ops/abi_values.py:11-16
+    // fixed_bytes_ops/abi_values.py:13-18
+    // # this be validated in the caller as it will attempt to encode val to FixedBytes11
     // arc4.abi_call(
-    //     CheckABIApp.check_fixed_bytes,
-    //     FixedBytes[typing.Literal[11]](b"Hello World"),
-    //     b"Hello World",
+    //     CheckABIApp.manual_validate,
+    //     val,
     //     app_id=app,
     // )
-    intc_0 // appl
+    bytec_3 // method "manual_validate(byte[11])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    intc_1 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // fixed_bytes_ops/abi_values.py:7
-    // @arc4.abimethod
+    // fixed_bytes_ops/abi_values.py:20
+    // arc4.abi_call(CheckABIApp.delete, app_id=app)
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // fixed_bytes_ops/abi_values.py:9
+    // @arc4.abimethod()
+    pushint 1 // 1
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual[routing]() -> void:
+test_itxn_validate_callee_manual:
+    // fixed_bytes_ops/abi_values.py:22
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // fixed_bytes_ops/abi_values.py:24
+    // app = arc4.arc4_create(CheckABIApp).created_app
+    itxn_begin
+    bytec_0 // base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_1 // base64(CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND)
+    itxn_field ApprovalProgramPages
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    // fixed_bytes_ops/abi_values.py:27-32
+    // # this will be validated in the callee method as types match
+    // arc4.abi_call(
+    //     CheckABIApp.manual_validate,
+    //     fb,
+    //     app_id=app,
+    // )
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec_3 // method "manual_validate(byte[11])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // fixed_bytes_ops/abi_values.py:34
+    // arc4.abi_call(CheckABIApp.delete, app_id=app)
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // fixed_bytes_ops/abi_values.py:22
+    // @arc4.abimethod()
+    pushint 1 // 1
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router[routing]() -> void:
+test_itxn_validate_callee_router:
+    // fixed_bytes_ops/abi_values.py:36
+    // @arc4.abimethod()
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // fixed_bytes_ops/abi_values.py:38
+    // app = arc4.arc4_create(CheckABIApp).created_app
+    itxn_begin
+    bytec_0 // base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_1 // base64(CyACCwExG0EAM4AEJDeNPDYaAI4BAB0xGRREMRhEggIEFlFIewTlC5hgNhoAjgIAEgAbADEZgQUSMRgQQzEZFDEYFBBDNhoBFSISRCNDNhoBFSISRCND)
+    itxn_field ApprovalProgramPages
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    // fixed_bytes_ops/abi_values.py:41-46
+    // # this will be validated in the callee router as types match
+    // arc4.abi_call(
+    //     CheckABIApp.router_validate,
+    //     fb,
+    //     app_id=app,
+    // )
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    pushbytes 0xe50b9860 // method "router_validate(byte[11])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // fixed_bytes_ops/abi_values.py:48
+    // arc4.abi_call(CheckABIApp.delete, app_id=app)
+    itxn_begin
+    intc_3 // DeleteApplication
+    itxn_field OnCompletion
+    itxn_field ApplicationID
+    bytec_2 // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // fixed_bytes_ops/abi_values.py:36
+    // @arc4.abimethod()
     pushint 1 // 1
     return
