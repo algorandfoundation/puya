@@ -759,9 +759,15 @@ def test_fixed_bytes_ops(harness: _TestHarness) -> None:
         )
 
     harness.call(AppCallRequest(args=["validate_fixed_bytes_3", b"abc"]))
-    with pytest.raises(algokit_utils.LogicError):
+    with pytest.raises(
+        algokit_utils.LogicError,
+        match="invalid number of bytes for arc4.static_array<arc4.uint8, 3>\t\t<-- Error",
+    ):
         harness.call(AppCallRequest(args=["validate_fixed_bytes_3", b"1234"]))
-    with pytest.raises(algokit_utils.LogicError):
+    with pytest.raises(
+        algokit_utils.LogicError,
+        match="invalid number of bytes for arc4.static_array<arc4.uint8, 3>\t\t<-- Error",
+    ):
         harness.call(AppCallRequest(args=["validate_fixed_bytes_3", b"12"]))
 
 
