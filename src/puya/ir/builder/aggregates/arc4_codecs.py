@@ -527,21 +527,15 @@ class _SizedBytesCodec(_ScalarCodec):
         encoding: encodings.Encoding,
         loc: SourceLocation,
     ) -> ir.ValueProvider | None:
-        if isinstance(encoding, encodings.ArrayEncoding) and encoding.element == self.element:
-            factory = OpFactory(context, loc)
-            data = value
-            if encoding.size is not None:
-                if encoding.size != self.length:
-                    logger.error("invalid size", location=loc)
-            else:
-                if encoding.length_header:
-                    data = factory.extract_to_end(value, start=2)
-                length = factory.len(data, "length")
-                lengths_equal = factory.eq(length, self.length, "lengths_equal")
-                assert_value(
-                    context, lengths_equal, error_message="invalid size", source_location=loc
-                )
-            return data
+        if (
+            isinstance(encoding, encodings.ArrayEncoding)
+            and encoding.element == self.element
+            and encoding.size is not None
+        ):
+            assert not encoding.length_header, "fixed array shouldn't have length header"
+            if encoding.size != self.length:
+                logger.error("invalid size", location=loc)
+            return value
         return None
 
 
