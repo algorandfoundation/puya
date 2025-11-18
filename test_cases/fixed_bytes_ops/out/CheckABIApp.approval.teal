@@ -1,0 +1,62 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // fixed_bytes_ops/abi_values.py:19
+    // class CheckABIApp(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0xc6fc73d5 // method "check_fixed_bytes(byte[11],byte[])void"
+    txna ApplicationArgs 0
+    match main_check_fixed_bytes_route@3
+    err
+
+main_check_fixed_bytes_route@3:
+    // fixed_bytes_ops/abi_values.py:20
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b check_fixed_bytes
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes[routing]() -> void:
+check_fixed_bytes:
+    // fixed_bytes_ops/abi_values.py:20
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 11 // 11
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 11>
+    txna ApplicationArgs 2
+    dup
+    pushint 0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // fixed_bytes_ops/abi_values.py:22
+    // assert value.bytes == expected, "expected to encode correctly"
+    ==
+    assert // expected to encode correctly
+    // fixed_bytes_ops/abi_values.py:20
+    // @arc4.abimethod
+    pushint 1 // 1
+    return

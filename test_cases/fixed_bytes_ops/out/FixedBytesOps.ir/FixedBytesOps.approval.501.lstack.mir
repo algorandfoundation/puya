@@ -1,0 +1,809 @@
+// Op                                                                                           Stack (out)
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // fixed_bytes_ops/contract.py:27
+        // if Txn.num_app_args > 0:
+        txn NumAppArgs                                                                          tmp%1#0
+        l-load tmp%1#0 0                                                                        tmp%1#0
+        bz main_else_body@33 ; b main_if_body@3
+
+    main_if_body@3:
+        // fixed_bytes_ops/contract.py:28
+        // method = Txn.application_args(0)
+        txna ApplicationArgs 0                                                                  method#0
+        v-store method#0
+        // fixed_bytes_ops/contract.py:29
+        // if Txn.num_app_args == 1:
+        txn NumAppArgs                                                                          tmp%4#0
+        l-load tmp%4#0 0                                                                        tmp%4#0
+        int 1                                                                                   tmp%4#0,1
+        ==                                                                                      tmp%5#0
+        l-load tmp%5#0 0                                                                        tmp%5#0
+        bz main_else_body@10 ; b main_if_body@4
+
+    main_if_body@4:
+        // fixed_bytes_ops/contract.py:30
+        // if method == b"get_state_data_or_assert":
+        v-load method#0                                                                         method#0
+        byte 0x6765745f73746174655f646174615f6f725f617373657274                                 method#0,0x6765745f73746174655f646174615f6f725f617373657274
+        ==                                                                                      tmp%6#0
+        l-load tmp%6#0 0                                                                        tmp%6#0
+        bz main_else_body@6 ; b main_if_body@5
+
+    main_if_body@5:
+        // fixed_bytes_ops/contract.py:31
+        // log(self.get_state_data_or_assert(Txn.sender))
+        txn Sender                                                                              for_account#0
+        // fixed_bytes_ops/contract.py:125
+        // result, exists = self.local.maybe(for_account)
+        l-load for_account#0 0                                                                  for_account#0
+        int 0                                                                                   for_account#0,0
+        byte "local"                                                                            for_account#0,0,"local"
+        app_local_get_ex                                                                        result#25,exists#0
+        // fixed_bytes_ops/contract.py:126
+        // assert exists, "no data for account"
+        l-load exists#0 0                                                                       result#25,exists#0
+        assert // no data for account                                                           result#25
+        // fixed_bytes_ops/contract.py:31
+        // log(self.get_state_data_or_assert(Txn.sender))
+        l-load result#25 0                                                                      result#25
+        log
+        b main_after_if_else@34
+
+    main_else_body@6:
+        // fixed_bytes_ops/contract.py:32
+        // elif method == b"get_box_data":
+        v-load method#0                                                                         method#0
+        byte 0x6765745f626f785f64617461                                                         method#0,0x6765745f626f785f64617461
+        ==                                                                                      tmp%9#0
+        l-load tmp%9#0 0                                                                        tmp%9#0
+        bz main_after_if_else@34 ; b main_if_body@7
+
+    main_if_body@7:
+        // fixed_bytes_ops/contract.py:33
+        // log(self.box.value)
+        byte "box"                                                                              "box"
+        box_get                                                                                 aggregate%box_get%0#0,aggregate%box_get%1#0
+        l-load aggregate%box_get%1#0 0                                                          aggregate%box_get%0#0,aggregate%box_get%1#0
+        assert // check self.box exists                                                         aggregate%box_get%0#0
+        l-load aggregate%box_get%0#0 0                                                          aggregate%box_get%0#0
+        log
+        b main_after_if_else@34
+
+    main_else_body@10:
+        // fixed_bytes_ops/contract.py:34
+        // elif Txn.num_app_args == 2:
+        txn NumAppArgs                                                                          tmp%10#0
+        l-load tmp%10#0 0                                                                       tmp%10#0
+        int 2                                                                                   tmp%10#0,2
+        ==                                                                                      tmp%11#0
+        l-load tmp%11#0 0                                                                       tmp%11#0
+        bz main_else_body@20 ; b main_if_body@11
+
+    main_if_body@11:
+        // fixed_bytes_ops/contract.py:35
+        // if method == b"set_state_data":
+        v-load method#0                                                                         method#0
+        byte 0x7365745f73746174655f64617461                                                     method#0,0x7365745f73746174655f64617461
+        ==                                                                                      tmp%12#0
+        l-load tmp%12#0 0                                                                       tmp%12#0
+        bz main_else_body@13 ; b main_if_body@12
+
+    main_if_body@12:
+        // fixed_bytes_ops/contract.py:37
+        // Txn.sender,
+        txn Sender                                                                              for_account#0
+        // fixed_bytes_ops/contract.py:38
+        // FixedBytes[typing.Literal[4]].from_bytes(Txn.application_args(1)),
+        txna ApplicationArgs 1                                                                  for_account#0,value#0
+        // fixed_bytes_ops/contract.py:121
+        // self.local[for_account] = value
+        l-load for_account#0 1                                                                  value#0,for_account#0
+        byte "local"                                                                            value#0,for_account#0,"local"
+        l-load value#0 2                                                                        for_account#0,"local",value#0
+        app_local_put
+        b main_after_if_else@34
+
+    main_else_body@13:
+        // fixed_bytes_ops/contract.py:40
+        // elif method == b"set_box_data":
+        v-load method#0                                                                         method#0
+        byte 0x7365745f626f785f64617461                                                         method#0,0x7365745f626f785f64617461
+        ==                                                                                      tmp%14#0
+        l-load tmp%14#0 0                                                                       tmp%14#0
+        bz main_else_body@15 ; b main_if_body@14
+
+    main_if_body@14:
+        // fixed_bytes_ops/contract.py:41
+        // self.box.value = FixedBytes[typing.Literal[5]](Txn.application_args(1))
+        txna ApplicationArgs 1                                                                  awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                                              awst_tmp%0#0,awst_tmp%0#0 (copy)
+        len                                                                                     awst_tmp%0#0,tmp%15#0
+        l-load tmp%15#0 0                                                                       awst_tmp%0#0,tmp%15#0
+        int 5                                                                                   awst_tmp%0#0,tmp%15#0,5
+        ==                                                                                      awst_tmp%0#0,tmp%16#0
+        l-load tmp%16#0 0                                                                       awst_tmp%0#0,tmp%16#0
+        assert // expected bytes to be length 5                                                 awst_tmp%0#0
+        byte "box"                                                                              awst_tmp%0#0,"box"
+        l-load awst_tmp%0#0 1                                                                   "box",awst_tmp%0#0
+        box_put
+        b main_after_if_else@34
+
+    main_else_body@15:
+        // fixed_bytes_ops/contract.py:42
+        // elif method == b"validate_fixed_bytes_3":
+        v-load method#0                                                                         method#0
+        byte 0x76616c69646174655f66697865645f62797465735f33                                     method#0,0x76616c69646174655f66697865645f62797465735f33
+        ==                                                                                      tmp%17#0
+        l-load tmp%17#0 0                                                                       tmp%17#0
+        bz main_after_if_else@34 ; b main_if_body@16
+
+    main_if_body@16:
+        // fixed_bytes_ops/contract.py:44
+        // FixedBytes[typing.Literal[3]].from_bytes(Txn.application_args(1))
+        txna ApplicationArgs 1                                                                  val#6
+        // fixed_bytes_ops/contract.py:155
+        // val.validate()
+        l-load val#6 0                                                                          val#6
+        len                                                                                     len%0#0
+        l-load len%0#0 0                                                                        len%0#0
+        int 3                                                                                   len%0#0,3
+        ==                                                                                      eq%0#0
+        l-load eq%0#0 0                                                                         eq%0#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 3>
+        b main_after_if_else@34
+
+    main_else_body@20:
+        // fixed_bytes_ops/contract.py:46
+        // elif Txn.num_app_args == 3:
+        txn NumAppArgs                                                                          tmp%18#0
+        l-load tmp%18#0 0                                                                       tmp%18#0
+        int 3                                                                                   tmp%18#0,3
+        ==                                                                                      tmp%19#0
+        l-load tmp%19#0 0                                                                       tmp%19#0
+        bz main_after_if_else@34 ; b main_if_body@21
+
+    main_if_body@21:
+        // fixed_bytes_ops/contract.py:47
+        // if method == b"test_augmented_or_assignment_with_bytes":
+        v-load method#0                                                                         method#0
+        byte 0x746573745f6175676d656e7465645f6f725f61737369676e6d656e745f776974685f6279746573 method#0,0x746573745f6175676d656e7465645f6f725f61737369676e6d656e745f776974685f6279746573
+        ==                                                                                      tmp%20#0
+        l-load tmp%20#0 0                                                                       tmp%20#0
+        bz main_else_body@23 ; b main_if_body@22
+
+    main_if_body@22:
+        // fixed_bytes_ops/contract.py:49
+        // FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+        txna ApplicationArgs 1                                                                  val#6
+        // fixed_bytes_ops/contract.py:50
+        // Txn.application_args(2),
+        txna ApplicationArgs 2                                                                  val#6,other#3
+        // fixed_bytes_ops/contract.py:134
+        // val1 |= other
+        l-load-copy other#3 0                                                                   val#6,other#3,other#3 (copy)
+        len                                                                                     val#6,other#3,tmp%0#18
+        l-load tmp%0#18 0                                                                       val#6,other#3,tmp%0#18
+        int 1                                                                                   val#6,other#3,tmp%0#18,1
+        ==                                                                                      val#6,other#3,tmp%1#12
+        l-load tmp%1#12 0                                                                       val#6,other#3,tmp%1#12
+        assert // expected bytes to be length 1                                                 val#6,other#3
+        l-load val#6 1                                                                          other#3,val#6
+        l-load other#3 1                                                                        val#6,other#3
+        b|                                                                                      val1#10
+        // fixed_bytes_ops/contract.py:135
+        // log(val1)
+        l-load val1#10 0                                                                        val1#10
+        log
+        b main_after_if_else@34
+
+    main_else_body@23:
+        // fixed_bytes_ops/contract.py:52
+        // elif method == b"test_augmented_and_assignment_with_bytes":
+        v-load method#0                                                                         method#0
+        byte 0x746573745f6175676d656e7465645f616e645f61737369676e6d656e745f776974685f6279746573 method#0,0x746573745f6175676d656e7465645f616e645f61737369676e6d656e745f776974685f6279746573
+        ==                                                                                      tmp%22#0
+        l-load tmp%22#0 0                                                                       tmp%22#0
+        bz main_else_body@25 ; b main_if_body@24
+
+    main_if_body@24:
+        // fixed_bytes_ops/contract.py:54
+        // FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+        txna ApplicationArgs 1                                                                  val#6
+        // fixed_bytes_ops/contract.py:55
+        // Txn.application_args(2),
+        txna ApplicationArgs 2                                                                  val#6,other#3
+        // fixed_bytes_ops/contract.py:142
+        // val1 &= other
+        l-load-copy other#3 0                                                                   val#6,other#3,other#3 (copy)
+        len                                                                                     val#6,other#3,tmp%0#18
+        l-load tmp%0#18 0                                                                       val#6,other#3,tmp%0#18
+        int 1                                                                                   val#6,other#3,tmp%0#18,1
+        ==                                                                                      val#6,other#3,tmp%1#12
+        l-load tmp%1#12 0                                                                       val#6,other#3,tmp%1#12
+        assert // expected bytes to be length 1                                                 val#6,other#3
+        l-load val#6 1                                                                          other#3,val#6
+        l-load other#3 1                                                                        val#6,other#3
+        b&                                                                                      val1#10
+        // fixed_bytes_ops/contract.py:143
+        // log(val1)
+        l-load val1#10 0                                                                        val1#10
+        log
+        b main_after_if_else@34
+
+    main_else_body@25:
+        // fixed_bytes_ops/contract.py:57
+        // elif method == b"test_augmented_xor_assignment_with_bytes":
+        v-load method#0                                                                         method#0
+        byte 0x746573745f6175676d656e7465645f786f725f61737369676e6d656e745f776974685f6279746573 method#0,0x746573745f6175676d656e7465645f786f725f61737369676e6d656e745f776974685f6279746573
+        ==                                                                                      tmp%24#0
+        l-load tmp%24#0 0                                                                       tmp%24#0
+        bz main_after_if_else@34 ; b main_if_body@26
+
+    main_if_body@26:
+        // fixed_bytes_ops/contract.py:59
+        // FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+        txna ApplicationArgs 1                                                                  val#6
+        // fixed_bytes_ops/contract.py:60
+        // Txn.application_args(2),
+        txna ApplicationArgs 2                                                                  val#6,other#3
+        // fixed_bytes_ops/contract.py:150
+        // val1 ^= other
+        l-load-copy other#3 0                                                                   val#6,other#3,other#3 (copy)
+        len                                                                                     val#6,other#3,tmp%0#18
+        l-load tmp%0#18 0                                                                       val#6,other#3,tmp%0#18
+        int 1                                                                                   val#6,other#3,tmp%0#18,1
+        ==                                                                                      val#6,other#3,tmp%1#12
+        l-load tmp%1#12 0                                                                       val#6,other#3,tmp%1#12
+        assert // expected bytes to be length 1                                                 val#6,other#3
+        l-load val#6 1                                                                          other#3,val#6
+        l-load other#3 1                                                                        val#6,other#3
+        b^                                                                                      val1#10
+        // fixed_bytes_ops/contract.py:151
+        // log(val1)
+        l-load val1#10 0                                                                        val1#10
+        log
+        b main_after_if_else@34
+
+    main_else_body@33:
+        // fixed_bytes_ops/contract.py:90
+        // test_sequence_ops(FixedBytes.from_bytes(b"\xab\xcd\x12\x34"))
+        byte 0xabcd1234                                                                         0xabcd1234
+        callsub test_sequence_ops
+        // fixed_bytes_ops/contract.py:93
+        // FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
+        byte 0xabcd12345678                                                                     0xabcd12345678
+        // fixed_bytes_ops/contract.py:92-94
+        // test_sequence_ops(
+        //     FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
+        // )
+        callsub test_sequence_ops
+        // fixed_bytes_ops/contract.py:518
+        // empty_1 = FixedBytes[typing.Literal[4]]()
+        int 4                                                                                   4
+        bzero                                                                                   empty_1#0
+        v-store empty_1#0
+        // fixed_bytes_ops/contract.py:524
+        // abc = FixedBytes[typing.Literal[3]](b"123" if Txn.application_id == 123 else b"abc")
+        txn ApplicationID                                                                       tmp%12#6
+        l-load tmp%12#6 0                                                                       tmp%12#6
+        int 123                                                                                 tmp%12#6,123
+        ==                                                                                      tmp%13#6
+        byte 0x616263                                                                           tmp%13#6,0x616263
+        byte 0x313233                                                                           tmp%13#6,0x616263,0x313233
+        l-load tmp%13#6 2                                                                       0x616263,0x313233,tmp%13#6
+        select                                                                                  abc#0
+        // fixed_bytes_ops/contract.py:525
+        // assert abc.bytes.length == 3
+        l-load abc#0 0                                                                          abc#0
+        len                                                                                     tmp%14#6
+        l-load tmp%14#6 0                                                                       tmp%14#6
+        int 3                                                                                   tmp%14#6,3
+        ==                                                                                      tmp%15#6
+        l-load tmp%15#6 0                                                                       tmp%15#6
+        assert
+        // fixed_bytes_ops/contract.py:535
+        // result = Bytes()
+        byte 0x                                                                                 0x
+        v-store result#25
+        int 0                                                                                   0
+        v-store item_index_internal%0#0
+        b main_for_header@58
+
+    main_for_header@58:
+        // fixed_bytes_ops/contract.py:537
+        // for item in val:
+        v-load item_index_internal%0#0                                                          item_index_internal%0#0
+        int 3                                                                                   item_index_internal%0#0,3
+        <                                                                                       continue_looping%0#0
+        l-load continue_looping%0#0 0                                                           continue_looping%0#0
+        bz main_after_for@61 ; b main_for_body@59
+
+    main_for_body@59:
+        // fixed_bytes_ops/contract.py:534
+        // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+        byte 0xabcdef                                                                           0xabcdef
+        // fixed_bytes_ops/contract.py:537
+        // for item in val:
+        v-load item_index_internal%0#0                                                          0xabcdef,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                  item_index_internal%0#0,0xabcdef,item_index_internal%0#0 (copy)
+        int 1                                                                                   item_index_internal%0#0,0xabcdef,item_index_internal%0#0 (copy),1
+        extract3                                                                                item_index_internal%0#0,item#0
+        // fixed_bytes_ops/contract.py:538
+        // result += item
+        v-load result#25                                                                        item_index_internal%0#0,item#0,result#25
+        l-load item#0 1                                                                         item_index_internal%0#0,result#25,item#0
+        concat                                                                                  item_index_internal%0#0,result#25
+        v-store result#25                                                                       item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                        item_index_internal%0#0
+        int 1                                                                                   item_index_internal%0#0,1
+        +                                                                                       item_index_internal%0#0
+        v-store item_index_internal%0#0
+        b main_for_header@58
+
+    main_after_for@61:
+        // fixed_bytes_ops/contract.py:534
+        // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+        byte 0xabcdef                                                                           0xabcdef
+        // fixed_bytes_ops/contract.py:539
+        // assert result == val
+        v-load result#25                                                                        0xabcdef,result#25
+        ==                                                                                      tmp%1#12
+        l-load tmp%1#12 0                                                                       tmp%1#12
+        assert
+        int 0                                                                                   0
+        l-store item_index_internal%1#0 0                                                       item_index_internal%1#0
+        l-load item_index_internal%1#0 0                                                        item_index_internal%1#0
+        v-store idx#0
+        b main_for_header@62
+
+    main_for_header@62:
+        // fixed_bytes_ops/contract.py:541
+        // for idx, byte in uenumerate(val):
+        v-load idx#0                                                                            idx#0
+        int 3                                                                                   idx#0,3
+        <                                                                                       continue_looping%1#0
+        l-load continue_looping%1#0 0                                                           continue_looping%1#0
+        bz main_after_for@65 ; b main_for_body@63
+
+    main_for_body@63:
+        // fixed_bytes_ops/contract.py:534
+        // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+        byte 0xabcdef                                                                           0xabcdef
+        // fixed_bytes_ops/contract.py:541
+        // for idx, byte in uenumerate(val):
+        v-load idx#0                                                                            0xabcdef,idx#0
+        l-store-copy idx#0 1                                                                    idx#0,0xabcdef,idx#0 (copy)
+        int 1                                                                                   idx#0,0xabcdef,idx#0 (copy),1
+        extract3                                                                                idx#0,byte#0
+        // fixed_bytes_ops/contract.py:543
+        // assert FB1(byte) == val[idx]
+        l-load-copy byte#0 0                                                                    idx#0,byte#0,byte#0 (copy)
+        len                                                                                     idx#0,byte#0,tmp%3#11
+        l-load tmp%3#11 0                                                                       idx#0,byte#0,tmp%3#11
+        int 1                                                                                   idx#0,byte#0,tmp%3#11,1
+        ==                                                                                      idx#0,byte#0,tmp%4#11
+        l-load tmp%4#11 0                                                                       idx#0,byte#0,tmp%4#11
+        assert // expected bytes to be length 1                                                 idx#0,byte#0
+        // fixed_bytes_ops/contract.py:545
+        // assert byte in val
+        l-load-copy byte#0 0                                                                    idx#0,byte#0,byte#0 (copy)
+        // fixed_bytes_ops/contract.py:534
+        // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+        byte 0xabcdef                                                                           idx#0,byte#0,byte#0 (copy),0xabcdef
+        // fixed_bytes_ops/contract.py:545
+        // assert byte in val
+        callsub is_substring                                                                    idx#0,byte#0,tmp%6#0
+        l-load tmp%6#0 0                                                                        idx#0,byte#0,tmp%6#0
+        assert                                                                                  idx#0,byte#0
+        // fixed_bytes_ops/contract.py:546
+        // assert FB1(byte) in val
+        l-load byte#0 0                                                                         idx#0,byte#0
+        // fixed_bytes_ops/contract.py:534
+        // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+        byte 0xabcdef                                                                           idx#0,byte#0,0xabcdef
+        // fixed_bytes_ops/contract.py:546
+        // assert FB1(byte) in val
+        callsub is_substring                                                                    idx#0,tmp%9#0
+        l-load tmp%9#0 0                                                                        idx#0,tmp%9#0
+        assert                                                                                  idx#0
+        l-load idx#0 0                                                                          idx#0
+        int 1                                                                                   idx#0,1
+        +                                                                                       item_index_internal%1#0
+        l-load item_index_internal%1#0 0                                                        item_index_internal%1#0
+        v-store idx#0
+        b main_for_header@62
+
+    main_after_for@65:
+        // fixed_bytes_ops/contract.py:576
+        // arr = zero_bytes(FixedArray[FixedBytes[typing.Literal[4]], typing.Literal[8]])
+        int 32                                                                                  32
+        bzero                                                                                   arr#0
+        v-store arr#0
+        int 0                                                                                   0
+        v-store item_index_internal%0#0
+        b main_for_header@68
+
+    main_for_header@68:
+        // fixed_bytes_ops/contract.py:579
+        // for v in arr:
+        v-load item_index_internal%0#0                                                          item_index_internal%0#0
+        int 8                                                                                   item_index_internal%0#0,8
+        <                                                                                       continue_looping%0#0
+        l-load continue_looping%0#0 0                                                           continue_looping%0#0
+        bz main_after_for@71 ; b main_for_body@69
+
+    main_for_body@69:
+        // fixed_bytes_ops/contract.py:579
+        // for v in arr:
+        v-load item_index_internal%0#0                                                          item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 0                                                  item_index_internal%0#0,item_index_internal%0#0 (copy)
+        int 4                                                                                   item_index_internal%0#0,item_index_internal%0#0 (copy),4
+        *                                                                                       item_index_internal%0#0,aggregate%bytes_offset%0#0
+        v-load arr#0                                                                            item_index_internal%0#0,aggregate%bytes_offset%0#0,arr#0
+        l-load aggregate%bytes_offset%0#0 1                                                     item_index_internal%0#0,arr#0,aggregate%bytes_offset%0#0
+        int 4                                                                                   item_index_internal%0#0,arr#0,aggregate%bytes_offset%0#0,4
+        extract3 // on error: index access is out of bounds                                     item_index_internal%0#0,v#0
+        // fixed_bytes_ops/contract.py:580
+        // assert v == FixedBytes[typing.Literal[4]]()
+        l-load v#0 0                                                                            item_index_internal%0#0,v#0
+        v-load empty_1#0                                                                        item_index_internal%0#0,v#0,empty_1#0
+        ==                                                                                      item_index_internal%0#0,tmp%15#6
+        l-load tmp%15#6 0                                                                       item_index_internal%0#0,tmp%15#6
+        assert                                                                                  item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                        item_index_internal%0#0
+        int 1                                                                                   item_index_internal%0#0,1
+        +                                                                                       item_index_internal%0#0
+        v-store item_index_internal%0#0
+        b main_for_header@68
+
+    main_after_for@71:
+        // fixed_bytes_ops/contract.py:105
+        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+        byte 0xabcd1234                                                                         0xabcd1234
+        byte 0xabcd1234                                                                         0xabcd1234,0xabcd1234
+        // fixed_bytes_ops/contract.py:606
+        // assert x in x  # noqa: PLR0124
+        callsub is_substring                                                                    tmp%0#15
+        l-load tmp%0#15 0                                                                       tmp%0#15
+        assert
+        // fixed_bytes_ops/contract.py:105
+        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+        byte 0xcd12                                                                             0xcd12
+        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        // fixed_bytes_ops/contract.py:607
+        // assert y in x
+        callsub is_substring                                                                    tmp%1#12
+        l-load tmp%1#12 0                                                                       tmp%1#12
+        assert
+        // fixed_bytes_ops/contract.py:105
+        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+        byte 0xabcd1234                                                                         0xabcd1234
+        byte 0xcd12                                                                             0xabcd1234,0xcd12
+        // fixed_bytes_ops/contract.py:608
+        // assert x not in y
+        callsub is_substring                                                                    tmp%2#14
+        l-load tmp%2#14 0                                                                       tmp%2#14
+        !                                                                                       tmp%3#14
+        l-load tmp%3#14 0                                                                       tmp%3#14
+        assert
+        // fixed_bytes_ops/contract.py:105
+        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+        byte 0xabcd1234                                                                         0xabcd1234
+        byte 0xabcd1234                                                                         0xabcd1234,0xabcd1234
+        // fixed_bytes_ops/contract.py:610
+        // assert (x not in x) == False  # noqa: E712, PLR0124
+        callsub is_substring                                                                    tmp%4#11
+        l-load tmp%4#11 0                                                                       tmp%4#11
+        !                                                                                       tmp%5#0
+        l-load tmp%5#0 0                                                                        tmp%5#0
+        !                                                                                       tmp%6#0
+        l-load tmp%6#0 0                                                                        tmp%6#0
+        assert
+        // fixed_bytes_ops/contract.py:105
+        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+        byte 0xcd12                                                                             0xcd12
+        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        // fixed_bytes_ops/contract.py:611
+        // assert (y not in x) == False  # noqa: E712
+        callsub is_substring                                                                    tmp%7#12
+        l-load tmp%7#12 0                                                                       tmp%7#12
+        !                                                                                       tmp%8#12
+        l-load tmp%8#12 0                                                                       tmp%8#12
+        !                                                                                       tmp%9#0
+        l-load tmp%9#0 0                                                                        tmp%9#0
+        assert
+        // fixed_bytes_ops/contract.py:105
+        // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+        byte 0xabcd1234                                                                         0xabcd1234
+        byte 0xcd12                                                                             0xabcd1234,0xcd12
+        // fixed_bytes_ops/contract.py:612
+        // assert (x in y) == False  # noqa: E712
+        callsub is_substring                                                                    tmp%10#11
+        l-load tmp%10#11 0                                                                      tmp%10#11
+        !                                                                                       tmp%11#0
+        l-load tmp%11#0 0                                                                       tmp%11#0
+        assert
+        // fixed_bytes_ops/contract.py:108
+        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
+        byte 0xcd12                                                                             0xcd12
+        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        // fixed_bytes_ops/contract.py:617
+        // assert y in x
+        callsub is_substring                                                                    tmp%0#15
+        l-load tmp%0#15 0                                                                       tmp%0#15
+        assert
+        // fixed_bytes_ops/contract.py:108
+        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
+        byte 0xabcd1234                                                                         0xabcd1234
+        byte 0xcd12                                                                             0xabcd1234,0xcd12
+        // fixed_bytes_ops/contract.py:618
+        // assert x not in y
+        callsub is_substring                                                                    tmp%1#12
+        l-load tmp%1#12 0                                                                       tmp%1#12
+        !                                                                                       tmp%2#14
+        l-load tmp%2#14 0                                                                       tmp%2#14
+        assert
+        // fixed_bytes_ops/contract.py:108
+        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
+        byte 0xcd12                                                                             0xcd12
+        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        // fixed_bytes_ops/contract.py:620
+        // assert (y not in x) == False  # noqa: E712
+        callsub is_substring                                                                    tmp%3#14
+        l-load tmp%3#14 0                                                                       tmp%3#14
+        !                                                                                       tmp%4#11
+        l-load tmp%4#11 0                                                                       tmp%4#11
+        !                                                                                       tmp%5#0
+        l-load tmp%5#0 0                                                                        tmp%5#0
+        assert
+        // fixed_bytes_ops/contract.py:108
+        // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
+        byte 0xabcd1234                                                                         0xabcd1234
+        byte 0xcd12                                                                             0xabcd1234,0xcd12
+        // fixed_bytes_ops/contract.py:621
+        // assert (x in y) == False  # noqa: E712
+        callsub is_substring                                                                    tmp%6#0
+        l-load tmp%6#0 0                                                                        tmp%6#0
+        !                                                                                       tmp%7#12
+        l-load tmp%7#12 0                                                                       tmp%7#12
+        assert
+        // fixed_bytes_ops/contract.py:626
+        // assert b"\xcd\x12" in x
+        byte 0xcd12                                                                             0xcd12
+        // fixed_bytes_ops/contract.py:110
+        // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
+        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        // fixed_bytes_ops/contract.py:626
+        // assert b"\xcd\x12" in x
+        callsub is_substring                                                                    tmp%0#15
+        l-load tmp%0#15 0                                                                       tmp%0#15
+        assert
+        // fixed_bytes_ops/contract.py:628
+        // assert (b"\xcd\x12" not in x) == False  # noqa: E712
+        byte 0xcd12                                                                             0xcd12
+        // fixed_bytes_ops/contract.py:110
+        // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
+        byte 0xabcd1234                                                                         0xcd12,0xabcd1234
+        // fixed_bytes_ops/contract.py:628
+        // assert (b"\xcd\x12" not in x) == False  # noqa: E712
+        callsub is_substring                                                                    tmp%1#12
+        l-load tmp%1#12 0                                                                       tmp%1#12
+        !                                                                                       tmp%2#14
+        l-load tmp%2#14 0                                                                       tmp%2#14
+        !                                                                                       tmp%3#14
+        l-load tmp%3#14 0                                                                       tmp%3#14
+        assert
+        // fixed_bytes_ops/contract.py:111
+        // result = FixedBytes[typing.Literal[5]](b"hello")
+        byte 0x68656c6c6f                                                                       0x68656c6c6f
+        // fixed_bytes_ops/contract.py:112
+        // log(result)
+        log
+        b main_after_if_else@34
+
+    main_after_if_else@34:
+        // fixed_bytes_ops/contract.py:114
+        // return True
+        int 1                                                                                   1
+        return
+
+
+// _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
+subroutine is_substring:
+    is_substring_block@0:                                                                       (𝕡) item#0,sequence#0 |
+        int 0                                                                                   (𝕡) item#0,sequence#0 | 0
+        v-store start#0                                                                         (𝕡) item#0,sequence#0 |
+        b is_substring_while_top@1                                                              (𝕡) item#0,sequence#0 |
+
+    is_substring_while_top@1:                                                                   (𝕡) item#0,sequence#0 |
+        p-load item#0                                                                           (𝕡) item#0,sequence#0 | item#0 (copy)
+        len                                                                                     (𝕡) item#0,sequence#0 | tmp%0#0
+        v-load start#0                                                                          (𝕡) item#0,sequence#0 | tmp%0#0,start#0
+        l-load tmp%0#0 1                                                                        (𝕡) item#0,sequence#0 | start#0,tmp%0#0
+        +                                                                                       (𝕡) item#0,sequence#0 | tmp%1#0
+        l-store-copy tmp%1#0 0                                                                  (𝕡) item#0,sequence#0 | tmp%1#0,tmp%1#0 (copy)
+        v-store tmp%1#0                                                                         (𝕡) item#0,sequence#0 | tmp%1#0
+        p-load sequence#0                                                                       (𝕡) item#0,sequence#0 | tmp%1#0,sequence#0 (copy)
+        len                                                                                     (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
+        l-load tmp%1#0 1                                                                        (𝕡) item#0,sequence#0 | tmp%2#0,tmp%1#0
+        l-load tmp%2#0 1                                                                        (𝕡) item#0,sequence#0 | tmp%1#0,tmp%2#0
+        <=                                                                                      (𝕡) item#0,sequence#0 | tmp%3#0
+        l-load tmp%3#0 0                                                                        (𝕡) item#0,sequence#0 | tmp%3#0
+        bz is_substring_after_while@5 ; b is_substring_while_body@2                             (𝕡) item#0,sequence#0 |
+
+    is_substring_while_body@2:                                                                  (𝕡) item#0,sequence#0 |
+        p-load sequence#0                                                                       (𝕡) item#0,sequence#0 | sequence#0 (copy)
+        v-load start#0                                                                          (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0
+        v-load tmp%1#0                                                                          (𝕡) item#0,sequence#0 | sequence#0 (copy),start#0,tmp%1#0
+        substring3                                                                              (𝕡) item#0,sequence#0 | tmp%6#0
+        p-load item#0                                                                           (𝕡) item#0,sequence#0 | tmp%6#0,item#0 (copy)
+        l-load tmp%6#0 1                                                                        (𝕡) item#0,sequence#0 | item#0 (copy),tmp%6#0
+        ==                                                                                      (𝕡) item#0,sequence#0 | tmp%7#0
+        l-load tmp%7#0 0                                                                        (𝕡) item#0,sequence#0 | tmp%7#0
+        bz is_substring_after_if_else@4 ; b is_substring_if_body@3                              (𝕡) item#0,sequence#0 |
+
+    is_substring_if_body@3:                                                                     (𝕡) item#0,sequence#0 |
+        int 1                                                                                   (𝕡) item#0,sequence#0 | 1
+        retsub                                                                                  1
+
+    is_substring_after_if_else@4:                                                               (𝕡) item#0,sequence#0 |
+        v-load start#0                                                                          (𝕡) item#0,sequence#0 | start#0
+        int 1                                                                                   (𝕡) item#0,sequence#0 | start#0,1
+        +                                                                                       (𝕡) item#0,sequence#0 | start#0
+        v-store start#0                                                                         (𝕡) item#0,sequence#0 |
+        b is_substring_while_top@1                                                              (𝕡) item#0,sequence#0 |
+
+    is_substring_after_while@5:                                                                 (𝕡) item#0,sequence#0 |
+        int 0                                                                                   (𝕡) item#0,sequence#0 | 0
+        retsub                                                                                  0
+
+
+// test_cases.fixed_bytes_ops.contract.test_sequence_ops(val: bytes) -> void:
+subroutine test_sequence_ops:
+    test_sequence_ops_block@0:                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:449
+        // first_byte = val[0]
+        p-load val#0                                                                            (𝕡) val#0 | val#0 (copy)
+        extract 0 1                                                                             (𝕡) val#0 | first_byte#0
+        // fixed_bytes_ops/contract.py:450
+        // assert first_byte == Bytes.from_hex("AB")
+        l-load first_byte#0 0                                                                   (𝕡) val#0 | first_byte#0
+        byte 0xab                                                                               (𝕡) val#0 | first_byte#0,0xab
+        ==                                                                                      (𝕡) val#0 | tmp%1#0
+        l-load tmp%1#0 0                                                                        (𝕡) val#0 | tmp%1#0
+        assert                                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:452
+        // last_byte = val[3]
+        p-load val#0                                                                            (𝕡) val#0 | val#0 (copy)
+        extract 3 1                                                                             (𝕡) val#0 | last_byte#0
+        // fixed_bytes_ops/contract.py:453
+        // assert last_byte == Bytes.from_hex("34")
+        l-load last_byte#0 0                                                                    (𝕡) val#0 | last_byte#0
+        byte 0x34                                                                               (𝕡) val#0 | last_byte#0,0x34
+        ==                                                                                      (𝕡) val#0 | tmp%2#0
+        l-load tmp%2#0 0                                                                        (𝕡) val#0 | tmp%2#0
+        assert                                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:457
+        // slice_result = val[1:3]
+        p-load val#0                                                                            (𝕡) val#0 | val#0 (copy)
+        substring 1 3                                                                           (𝕡) val#0 | slice_result#0
+        // fixed_bytes_ops/contract.py:458
+        // assert slice_result == Bytes.from_hex("CD12")
+        l-load slice_result#0 0                                                                 (𝕡) val#0 | slice_result#0
+        byte 0xcd12                                                                             (𝕡) val#0 | slice_result#0,0xcd12
+        ==                                                                                      (𝕡) val#0 | tmp%6#0
+        l-load tmp%6#0 0                                                                        (𝕡) val#0 | tmp%6#0
+        assert                                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:460
+        // slice_result = val[:2]
+        p-load val#0                                                                            (𝕡) val#0 | val#0 (copy)
+        substring 0 2                                                                           (𝕡) val#0 | slice_result#0
+        // fixed_bytes_ops/contract.py:461
+        // assert slice_result == Bytes.from_hex("ABCD")
+        l-load slice_result#0 0                                                                 (𝕡) val#0 | slice_result#0
+        byte 0xabcd                                                                             (𝕡) val#0 | slice_result#0,0xabcd
+        ==                                                                                      (𝕡) val#0 | tmp%8#0
+        l-load tmp%8#0 0                                                                        (𝕡) val#0 | tmp%8#0
+        assert                                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:463
+        // slice_result = val[2:]
+        p-load val#0                                                                            (𝕡) val#0 | val#0 (copy)
+        substring 2 4                                                                           (𝕡) val#0 | slice_result#0
+        // fixed_bytes_ops/contract.py:464
+        // assert slice_result == Bytes.from_hex("1234")
+        l-load slice_result#0 0                                                                 (𝕡) val#0 | slice_result#0
+        byte 0x1234                                                                             (𝕡) val#0 | slice_result#0,0x1234
+        ==                                                                                      (𝕡) val#0 | tmp%10#0
+        l-load tmp%10#0 0                                                                       (𝕡) val#0 | tmp%10#0
+        assert                                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:466
+        // slice_result = val[:-1]
+        p-load val#0                                                                            (𝕡) val#0 | val#0 (copy)
+        substring 0 3                                                                           (𝕡) val#0 | slice_result#0
+        // fixed_bytes_ops/contract.py:467
+        // assert slice_result == Bytes.from_hex("ABCD12")
+        l-load slice_result#0 0                                                                 (𝕡) val#0 | slice_result#0
+        byte 0xabcd12                                                                           (𝕡) val#0 | slice_result#0,0xabcd12
+        ==                                                                                      (𝕡) val#0 | tmp%12#0
+        l-load tmp%12#0 0                                                                       (𝕡) val#0 | tmp%12#0
+        assert                                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:476
+        // count = UInt64(0)
+        int 0                                                                                   (𝕡) val#0 | 0
+        v-store count#0                                                                         (𝕡) val#0 |
+        int 0                                                                                   (𝕡) val#0 | 0
+        v-store item_index_internal%0#0                                                         (𝕡) val#0 |
+        b test_sequence_ops_for_header@1                                                        (𝕡) val#0 |
+
+    test_sequence_ops_for_header@1:                                                             (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:477
+        // for _byte in val:
+        v-load item_index_internal%0#0                                                          (𝕡) val#0 | item_index_internal%0#0
+        int 4                                                                                   (𝕡) val#0 | item_index_internal%0#0,4
+        <                                                                                       (𝕡) val#0 | continue_looping%0#0
+        l-load continue_looping%0#0 0                                                           (𝕡) val#0 | continue_looping%0#0
+        bz test_sequence_ops_after_for@4 ; b test_sequence_ops_for_body@2                       (𝕡) val#0 |
+
+    test_sequence_ops_for_body@2:                                                               (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:478
+        // count += 1
+        v-load count#0                                                                          (𝕡) val#0 | count#0
+        int 1                                                                                   (𝕡) val#0 | count#0,1
+        +                                                                                       (𝕡) val#0 | count#0
+        v-store count#0                                                                         (𝕡) val#0 |
+        v-load item_index_internal%0#0                                                          (𝕡) val#0 | item_index_internal%0#0
+        int 1                                                                                   (𝕡) val#0 | item_index_internal%0#0,1
+        +                                                                                       (𝕡) val#0 | item_index_internal%0#0
+        v-store item_index_internal%0#0                                                         (𝕡) val#0 |
+        b test_sequence_ops_for_header@1                                                        (𝕡) val#0 |
+
+    test_sequence_ops_after_for@4:                                                              (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:479
+        // assert count == 4
+        v-load count#0                                                                          (𝕡) val#0 | count#0
+        int 4                                                                                   (𝕡) val#0 | count#0,4
+        ==                                                                                      (𝕡) val#0 | tmp%18#0
+        l-load tmp%18#0 0                                                                       (𝕡) val#0 | tmp%18#0
+        assert                                                                                  (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:482
+        // count = UInt64(0)
+        int 0                                                                                   (𝕡) val#0 | 0
+        v-store count#0                                                                         (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:483
+        // for _byte in reversed(val):
+        int 4                                                                                   (𝕡) val#0 | 4
+        v-store reverse_index_internal%1#0                                                      (𝕡) val#0 |
+        b test_sequence_ops_for_header@5                                                        (𝕡) val#0 |
+
+    test_sequence_ops_for_header@5:                                                             (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:483
+        // for _byte in reversed(val):
+        v-load reverse_index_internal%1#0                                                       (𝕡) val#0 | reverse_index_internal%1#0
+        bz test_sequence_ops_after_for@8 ; b test_sequence_ops_for_body@6                       (𝕡) val#0 |
+
+    test_sequence_ops_for_body@6:                                                               (𝕡) val#0 |
+        v-load reverse_index_internal%1#0                                                       (𝕡) val#0 | reverse_index_internal%1#0
+        int 1                                                                                   (𝕡) val#0 | reverse_index_internal%1#0,1
+        -                                                                                       (𝕡) val#0 | reverse_index_internal%1#0
+        v-store reverse_index_internal%1#0                                                      (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:484
+        // count += 1
+        v-load count#0                                                                          (𝕡) val#0 | count#0
+        int 1                                                                                   (𝕡) val#0 | count#0,1
+        +                                                                                       (𝕡) val#0 | count#0
+        v-store count#0                                                                         (𝕡) val#0 |
+        b test_sequence_ops_for_header@5                                                        (𝕡) val#0 |
+
+    test_sequence_ops_after_for@8:                                                              (𝕡) val#0 |
+        // fixed_bytes_ops/contract.py:485
+        // assert count == 4
+        v-load count#0                                                                          (𝕡) val#0 | count#0
+        int 4                                                                                   (𝕡) val#0 | count#0,4
+        ==                                                                                      (𝕡) val#0 | tmp%20#0
+        l-load tmp%20#0 0                                                                       (𝕡) val#0 | tmp%20#0
+        assert                                                                                  (𝕡) val#0 |
+        retsub
+
+

@@ -1,0 +1,102 @@
+// Op                                                                           Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // fixed_bytes_ops/abi_values.py:6
+        // class FixedBytesABI(arc4.ARC4Contract):
+        txn NumAppArgs                                                          tmp%0#1
+        bz main___algopy_default_create@5 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // fixed_bytes_ops/abi_values.py:6
+        // class FixedBytesABI(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                  tmp%2#0
+        method test_passing_fixed_bytes()void                                   tmp%2#0,Method(test_passing_fixed_bytes()void)
+        l-load tmp%2#0 1                                                        Method(test_passing_fixed_bytes()void),tmp%2#0
+        match main_test_passing_fixed_bytes_route@3 ; b main_switch_case_next@4
+
+    main_test_passing_fixed_bytes_route@3:
+        // fixed_bytes_ops/abi_values.py:7
+        // @arc4.abimethod
+        txn OnCompletion                                                        tmp%3#0
+        !                                                                       tmp%4#0
+        txn ApplicationID                                                       tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                        tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                        tmp%4#0,tmp%5#0
+        &&                                                                      tmp%7#0
+        assert
+        callsub test_passing_fixed_bytes
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        // fixed_bytes_ops/abi_values.py:6
+        // class FixedBytesABI(arc4.ARC4Contract):
+        err
+
+    main___algopy_default_create@5:
+        txn OnCompletion                                                        tmp%8#0
+        !                                                                       tmp%9#0
+        txn ApplicationID                                                       tmp%9#0,tmp%10#0
+        !                                                                       tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                        tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                       tmp%9#0,tmp%11#0
+        &&                                                                      tmp%12#0
+        assert
+        int 1                                                                   1
+        return
+
+
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]() -> void:
+subroutine test_passing_fixed_bytes:
+    test_passing_fixed_bytes_block@0:
+        // fixed_bytes_ops/abi_values.py:9
+        // app = arc4.arc4_create(CheckABIApp).created_app
+        itxn_begin
+        byte C4EBQw==                                                           C4EBQw==
+        itxn_field ClearStateProgramPages
+        byte CzEbQQAYgATG/HPVNhoAjgEAAQAxGRQxGBBEQgAIMRkUMRgUEEM2GgFJFYELEkQ2GgJJgQBZgQIISwEVEkRXAgASRIEBQw== CzEbQQAYgATG/HPVNhoAjgEAAQAxGRQxGBBEQgAIMRkUMRgUEEM2GgFJFYELEkQ2GgJJgQBZgQIISwEVEkRXAgASRIEBQw==
+        itxn_field ApprovalProgramPages
+        int appl                                                                appl
+        itxn_field TypeEnum
+        int 0                                                                   0
+        itxn_field Fee
+        itxn_submit
+        itxn CreatedApplicationID                                               app#0
+        // fixed_bytes_ops/abi_values.py:11-16
+        // arc4.abi_call(
+        //     CheckABIApp.check_fixed_bytes,
+        //     FixedBytes[typing.Literal[11]](b"Hello World"),
+        //     b"Hello World",
+        //     app_id=app,
+        // )
+        itxn_begin                                                              app#0
+        l-load app#0 0                                                          app#0
+        itxn_field ApplicationID
+        method check_fixed_bytes(byte[11],byte[])void                           Method(check_fixed_bytes(byte[11],byte[])void)
+        itxn_field ApplicationArgs
+        // fixed_bytes_ops/abi_values.py:13
+        // FixedBytes[typing.Literal[11]](b"Hello World"),
+        byte 0x48656c6c6f20576f726c64                                           0x48656c6c6f20576f726c64
+        itxn_field ApplicationArgs
+        // fixed_bytes_ops/abi_values.py:14
+        // b"Hello World",
+        byte 0x000b48656c6c6f20576f726c64                                       0x000b48656c6c6f20576f726c64
+        itxn_field ApplicationArgs
+        // fixed_bytes_ops/abi_values.py:11-16
+        // arc4.abi_call(
+        //     CheckABIApp.check_fixed_bytes,
+        //     FixedBytes[typing.Literal[11]](b"Hello World"),
+        //     b"Hello World",
+        //     app_id=app,
+        // )
+        int appl                                                                appl
+        itxn_field TypeEnum
+        int 0                                                                   0
+        itxn_field Fee
+        itxn_submit
+        // fixed_bytes_ops/abi_values.py:7
+        // @arc4.abimethod
+        int 1                                                                   1
+        return
+
+

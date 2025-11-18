@@ -1,0 +1,46 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@5
+    block@2: // abi_routing_L6
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_passing_fixed_bytes()void" => block@3, * => block@4}
+    block@3: // test_passing_fixed_bytes_route_L7
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%5#0)
+        (assert tmp%7#0)
+        test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]()
+        goto block@4
+    block@4: // switch_case_next_L6
+        fail
+    block@5: // __algopy_default_create_L1
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (! tmp%8#0)
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (! tmp%10#0)
+        let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
+        (assert tmp%12#0)
+        exit 1u
+
+subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]() -> void:
+    block@0: // L7
+        itxn_begin
+        ((itxn_field ClearStateProgramPages) C4EBQw==)
+        ((itxn_field ApprovalProgramPages) CzEbQQAYgATG/HPVNhoAjgEAAQAxGRQxGBBEQgAIMRkUMRgUEEM2GgFJFYELEkQ2GgJJgQBZgQIISwEVEkRXAgASRIEBQw==)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let app#0: uint64 = (itxn CreatedApplicationID)
+        itxn_begin
+        let tmp%1#0: Encoded(uint8[11]) = bytes_encode<uint8[11]>(0x48656c6c6f20576f726c64)
+        let tmp%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x48656c6c6f20576f726c64)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "check_fixed_bytes(byte[11],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%1#0)
+        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u

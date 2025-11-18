@@ -853,6 +853,15 @@ contract Arc4ArraysContract
       total += arc4_decode(uint32_item, uint64)
     }
     assert(total == 398u)
+    static_uint8_array: arc4.static_array<arc4.uint8, 4> = reinterpret_cast<arc4.static_array<arc4.uint8, 4>>(hex<"010203040506">)
+    uint8_total: uint64 = 0u
+    count: uint64 = 0u
+    for uint8_item in static_uint8_array {
+      uint8_total += arc4_decode(uint8_item, uint64)
+      count += 1u
+    }
+    assert(uint8_total == 10u)
+    assert(count == 4u)
     aliased_static: arc4.static_array<arc4.uint8, 1> = new arc4.static_array<arc4.uint8, 1>(101_arc4u8)
     index: uint64 = 0u
     assert(arc4_decode(aliased_static[0u], uint64) + arc4_decode(aliased_static[index], uint64) == 202u)

@@ -8,7 +8,7 @@ main:
     intc_1 // 0
     dup
     bytec_0 // ""
-    dupn 5
+    dupn 8
     intc_1 // 0
     dup
 
@@ -36,14 +36,14 @@ main_after_for@4:
     ==
     assert // Total should be sum of dynamic_uint8_array items
     intc_1 // 0
-    bury 6
+    bury 8
 
 main_for_header@5:
-    dig 5
+    dig 7
     intc_2 // 1
     <
     bz main_after_for@8
-    dig 5
+    dig 7
     dup
     intc_0 // 2
     *
@@ -55,7 +55,7 @@ main_for_header@5:
     bury 3
     intc_2 // 1
     +
-    bury 6
+    bury 8
     b main_for_header@5
 
 main_after_for@8:
@@ -64,16 +64,16 @@ main_after_for@8:
     ==
     assert // Total should now include sum of aliased_dynamic items
     bytec_0 // ""
-    bury 9
+    bury 12
     intc_1 // 0
-    bury 7
+    bury 9
 
 main_for_header@9:
-    dig 6
+    dig 8
     intc_0 // 2
     <
     bz main_after_for@15
-    dig 6
+    dig 8
     dup
     intc_0 // 2
     *
@@ -91,13 +91,13 @@ main_for_header@9:
     swap
     bnz main_else_body@12
     extract 2 0
-    bury 9
+    bury 12
 
 main_after_if_else@13:
-    dig 6
+    dig 8
     intc_2 // 1
     +
-    bury 7
+    bury 9
     b main_for_header@9
 
 main_else_body@12:
@@ -105,26 +105,26 @@ main_else_body@12:
     bytec_2 // " "
     swap
     concat
-    dig 9
+    dig 12
     swap
     concat
-    bury 9
+    bury 12
     b main_after_if_else@13
 
 main_after_for@15:
-    dig 8
+    dig 11
     pushbytes "Hello World"
     ==
     assert
     intc_1 // 0
-    bury 5
+    bury 7
 
 main_for_header@16:
-    dig 4
+    dig 6
     intc_3 // 4
     <
     bz main_after_for@19
-    dig 4
+    dig 6
     dup
     intc_3 // 4
     *
@@ -136,7 +136,7 @@ main_for_header@16:
     bury 3
     intc_2 // 1
     +
-    bury 5
+    bury 7
     b main_for_header@16
 
 main_after_for@19:
@@ -144,17 +144,55 @@ main_after_for@19:
     pushint 398 // 398
     ==
     assert
-    bytec_0 // ""
-    bury 9
     intc_1 // 0
-    bury 7
+    bury 3
+    intc_1 // 0
+    bury 11
+    intc_1 // 0
+    bury 6
 
 main_for_header@20:
+    dig 5
+    intc_3 // 4
+    <
+    bz main_after_for@23
+    pushbytes 0x010203040506
     dig 6
+    dup
+    cover 2
+    getbyte
+    dig 4
+    +
+    bury 4
+    dig 11
+    intc_2 // 1
+    +
+    bury 12
+    intc_2 // 1
+    +
+    bury 6
+    b main_for_header@20
+
+main_after_for@23:
+    dig 2
+    pushint 10 // 10
+    ==
+    assert
+    dig 10
+    intc_3 // 4
+    ==
+    assert
+    bytec_0 // ""
+    bury 12
+    intc_1 // 0
+    bury 9
+
+main_for_header@24:
+    dig 8
     intc_0 // 2
     <
-    bz main_after_for@26
-    dig 6
+    bz main_after_for@30
+    dig 8
     dup
     intc_0 // 2
     *
@@ -170,84 +208,84 @@ main_for_header@20:
     cover 2
     extract3
     swap
-    bnz main_else_body@23
+    bnz main_else_body@27
     extract 2 0
-    bury 9
+    bury 12
 
-main_after_if_else@24:
-    dig 6
+main_after_if_else@28:
+    dig 8
     intc_2 // 1
     +
-    bury 7
-    b main_for_header@20
+    bury 9
+    b main_for_header@24
 
-main_else_body@23:
+main_else_body@27:
     extract 2 0
     bytec_2 // " "
     swap
     concat
-    dig 9
+    dig 12
     swap
     concat
-    bury 9
-    b main_after_if_else@24
+    bury 12
+    b main_after_if_else@28
 
-main_after_for@26:
-    dig 8
+main_after_for@30:
+    dig 11
     pushbytes "Ping Pong"
     ==
     assert
     intc_0 // 2
     pushbytes 0x0004000a000450696e67000450696e67
-    bury 11
+    bury 14
     pushint 10 // 10
-    bury 4
-    bury 8
+    bury 5
+    bury 10
 
-main_for_header@32:
-    dig 7
+main_for_header@36:
+    dig 9
     intc_3 // 4
     <
-    bz main_after_for@34
-    dig 2
+    bz main_after_for@38
+    dig 3
     dup
     itob
     extract 6 2
-    dig 11
-    dig 10
+    dig 14
+    dig 12
     dup
     cover 4
     uncover 2
     replace3
     dup
-    bury 13
+    bury 16
     dig 1
     extract_uint16
     intc_0 // 2
     +
     +
-    bury 4
+    bury 5
     intc_0 // 2
     +
-    bury 8
-    b main_for_header@32
+    bury 10
+    b main_for_header@36
 
-main_after_for@34:
+main_after_for@38:
     bytec_0 // ""
-    bury 9
+    bury 12
     intc_1 // 0
-    bury 4
+    bury 5
 
-main_for_header@27:
-    dig 3
+main_for_header@31:
+    dig 4
     intc_0 // 2
     <
-    bz main_after_for@30
-    dig 3
+    bz main_after_for@34
+    dig 4
     dup
     intc_0 // 2
     *
-    dig 11
+    dig 14
     dup
     uncover 2
     extract_uint16
@@ -259,17 +297,17 @@ main_for_header@27:
     extract 2 0
     bytec_2 // " "
     concat
-    dig 10
+    dig 13
     swap
     concat
-    bury 10
+    bury 13
     intc_2 // 1
     +
-    bury 4
-    b main_for_header@27
+    bury 5
+    b main_for_header@31
 
-main_after_for@30:
-    dig 8
+main_after_for@34:
+    dig 11
     pushbytes "Ping Ping "
     ==
     return
