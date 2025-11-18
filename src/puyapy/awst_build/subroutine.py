@@ -874,7 +874,14 @@ class FunctionASTConverter(
                 # forward type-declaration only, no-op
                 return []
         rvalue = require_instance_builder(stmt.rvalue.accept(self))
-        if not all(self._assign_type(lvalue, rvalue.pytype) for lvalue in stmt.lvalues):
+        if stmt.type is not None:
+            annotated_type = self.context.type_to_pytype(stmt.type, source_location=stmt_loc)
+            if not (annotated_type <= rvalue.pytype):
+                raise CodeError("type annotation does not match expression value type", stmt_loc)
+            (lvalue,) = stmt.lvalues
+            if not self._assign_type(lvalue, annotated_type):
+                return []
+        elif not all(self._assign_type(lvalue, rvalue.pytype) for lvalue in stmt.lvalues):
             # already a typing error, don't need a second one
             return []
 
