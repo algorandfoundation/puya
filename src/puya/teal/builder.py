@@ -132,9 +132,6 @@ class TealBuilder(MIRVisitor[None]):
             )
         )
 
-    def visit_comment(self, _comment: mir.Comment) -> None:
-        pass
-
     def visit_abstract_store(self, store: mir.AbstractStore) -> typing.Never:
         raise InternalError(
             "AbstractStore op encountered during TEAL generation", store.source_location

@@ -18,9 +18,6 @@ class MIRVisitor[T](abc.ABC):
     def visit_undefined(self, push: models.Undefined) -> T: ...
 
     @abc.abstractmethod
-    def visit_comment(self, comment: models.Comment) -> T: ...
-
-    @abc.abstractmethod
     def visit_store_l_stack(self, store: models.StoreLStack) -> T: ...
 
     @abc.abstractmethod
@@ -108,10 +105,6 @@ class DefaultMIRVisitor[T](MIRVisitor[T], abc.ABC):
     @typing.override
     def visit_undefined(self, push: models.Undefined) -> T:
         return self.visit_default(push)
-
-    @typing.override
-    def visit_comment(self, comment: models.Comment) -> T:
-        return self.visit_default(comment)
 
     @typing.override
     def visit_store_l_stack(self, store: models.StoreLStack) -> T:
