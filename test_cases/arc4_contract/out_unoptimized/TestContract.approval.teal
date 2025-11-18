@@ -1,0 +1,109 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // arc4_contract/contract.py:4
+    // class TestContract(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@5
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // arc4_contract/contract.py:4
+    // class TestContract(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd0b4016d // method "test_method(uint64)uint64"
+    uncover 1
+    match main_test_method_route@3
+    b main_switch_case_next@4
+
+main_switch_case_next@4:
+    b main_after_if_else@6
+
+main_after_if_else@6:
+    // arc4_contract/contract.py:4
+    // class TestContract(ARC4Contract):
+    err
+
+main_test_method_route@3:
+    // arc4_contract/contract.py:5
+    // @public
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub test_method
+    b main_switch_case_next@4
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@8
+
+main_block@8:
+    b main_after_inlined_test_cases.arc4_contract.contract.TestContract.__algopy_default_create@9
+
+main_after_inlined_test_cases.arc4_contract.contract.TestContract.__algopy_default_create@9:
+    intc_1 // 1
+    return
+
+
+// test_cases.arc4_contract.contract.TestContract.test_method[routing]() -> void:
+test_method:
+    b test_method_block@0
+
+test_method_block@0:
+    // arc4_contract/contract.py:5
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.arc4_contract.contract.TestContract.test_method
+    itob
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.arc4_contract.contract.TestContract.test_method(value: uint64) -> uint64:
+test_cases.arc4_contract.contract.TestContract.test_method:
+    // arc4_contract/contract.py:5-6
+    // @public
+    // def test_method(self, value: UInt64) -> UInt64:
+    proto 1 1
+    b test_cases.arc4_contract.contract.TestContract.test_method_block@0
+
+test_cases.arc4_contract.contract.TestContract.test_method_block@0:
+    // arc4_contract/contract.py:8
+    // return value + UInt64(1)
+    frame_dig -1
+    intc_1 // 1
+    +
+    retsub

@@ -1,0 +1,58 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.arc4_contract.contract.TestContract.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.arc4_contract.contract.TestContract.__puya_arc4_router__() -> bool:
+    block@0: // L4
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@4
+    block@1: // abi_routing_L4
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "test_method(uint64)uint64" => block@2, * => block@3}
+    block@2: // test_method_route_L5
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
+        (assert tmp%7#0)
+        test_cases.arc4_contract.contract.TestContract.test_method[routing]()
+        goto block@3
+    block@3: // switch_case_next_L4
+        goto block@5
+    block@4: // __algopy_default_create_L1
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 NoOp)
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (== tmp%10#0 0u)
+        let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
+        (assert tmp%12#0)
+        test_cases.arc4_contract.contract.TestContract.__algopy_default_create()
+        exit 1u
+    block@5: // after_if_else_L4
+        exit 0u
+
+subroutine test_cases.arc4_contract.contract.TestContract.test_method[routing]() -> void:
+    block@0: // L5
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: uint64 = test_cases.arc4_contract.contract.TestContract.test_method(tmp%1#0)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.arc4_contract.contract.TestContract.test_method(value: uint64) -> uint64:
+    block@0: // L5
+        let tmp%0#0: uint64 = (+ value#0 1u)
+        return tmp%0#0
+
+subroutine test_cases.arc4_contract.contract.TestContract.__algopy_default_create() -> void:
+    block@0: // L1
+        return 
