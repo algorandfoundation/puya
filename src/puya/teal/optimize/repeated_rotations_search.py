@@ -117,8 +117,8 @@ def _maybe_simplified(
         simplified = simplify_rotation_ops(tuple(window))
         if simplified is not None:
             logger.debug(
-                f"Replaced '{'; '.join(map(str, maybe_remove_rotations))}'"
-                f" with '{'; '.join(map(str, simplified))}',"
+                f"Replaced '{'; '.join(op.teal() for op in maybe_remove_rotations)}'"
+                f" with '{'; '.join(op.teal() for op in simplified)}',"
                 f" reducing by {len(maybe_remove_rotations) - len(simplified)} ops by search"
             )
             result_ = maybe_remove_rotations.copy()
