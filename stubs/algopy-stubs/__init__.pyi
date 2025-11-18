@@ -30,3 +30,6 @@ from algopy.op import (
     Global as Global,
     Txn as Txn,
 )
+
+# public decorator is an alias for abimethod to provide a cleaner API
+public = arc4.abimethod

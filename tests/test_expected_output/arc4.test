@@ -457,7 +457,7 @@ class Arc4StructCopyTests(arc4.ARC4Contract):
 
 ## case: abi_decorator_not_arc4_contract
 
-from algopy import arc4, Contract
+from algopy import arc4, Contract, public, subroutine
 
 class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContract is implicitly abstract
     @arc4.abimethod ## E: decorator is only valid in subclasses of algopy.arc4.ARC4Contract
@@ -468,6 +468,30 @@ class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContra
     def bare(self) -> None:
         pass
 
+    @public ## E: decorator is only valid in subclasses of algopy.arc4.ARC4Contract
+    def public(self) -> None:
+        pass
+
+
+## case: public_alias_of_abi_decorator
+
+from algopy import arc4, public, subroutine
+
+class MyContract(arc4.ARC4Contract):    
+    @public
+    @subroutine
+    def a(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
+        pass
+
+    @arc4.abimethod
+    @subroutine
+    def b(self) -> None: ## E: ARC-4 contract member functions (other than __init__ or approval / clear program methods) must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
+        pass
+
+    @arc4.abimethod
+    @public
+    def c(self) -> None:
+        pass
 
 ## case: bad_signatures
 from algopy import *
