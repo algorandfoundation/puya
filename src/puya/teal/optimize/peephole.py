@@ -69,6 +69,7 @@ def optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
                 produces=1,
                 stack_manipulations=a.stack_manipulations,
                 source_location=a.source_location,
+                error_message=None,
             )
         ], True
 
@@ -139,9 +140,8 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
         case models.Int(value=0), models.Return() as ret_zero:
             return [
                 models.Err(
-                    error_message=ret_zero.error_message,
-                    comment=ret_zero.comment,
                     explicit=False,
+                    error_message=None,
                     source_location=ret_zero.source_location,
                 )
             ], True
@@ -149,7 +149,6 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
             return [
                 attrs.evolve(
                     ret_op,
-                    error_message=ret_op.error_message or dup.error_message,
                     source_location=ret_op.source_location or dup.source_location,
                 )
             ], True
@@ -235,13 +234,12 @@ def _optimize_triplet(
             ], True
         case (
             models.Assert(error_message=None, explicit=False),
-            models.Int(value=int(const_return)),
+            models.Int(value=const_return),
             models.Return(),
         ) if const_return:
             return [
                 models.Return(
                     source_location=c.source_location or b.source_location or a.source_location,
-                    error_message=c.error_message,
                 )
             ], True
 

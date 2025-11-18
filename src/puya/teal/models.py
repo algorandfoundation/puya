@@ -55,10 +55,6 @@ class TealOp:
     consumes: int
     produces: int
     source_location: SourceLocation | None = attrs.field(eq=False)
-    comment: str | None = None
-    """A comment that is always emitted after the op in TEAL"""
-    error_message: str | None = None
-    """Error message to display if program fails at this op"""
     stack_manipulations: Sequence[StackManipulation] = attrs.field(
         default=(),
         converter=tuple[StackManipulation, ...],
@@ -69,19 +65,17 @@ class TealOp:
     def immediates(self) -> Sequence[int | str]:
         return ()
 
+    @property
+    def teal_comment(self) -> str | None:
+        """Override this to provide a comment alongside the TEAL, e.g. to show an original constant
+        value or an error message."""
+        return None
+
     @typing.final
     def teal(self, *, with_comments: bool = False) -> str:
         teal_args = [self.op_code, *map(str, self.immediates)]
-        if with_comments:
-            comment_lines = []
-            if self.error_message:
-                if self.op_code in ("err", "assert"):
-                    error_comment = self.error_message
-                else:
-                    error_comment = f"on error: {self.error_message}"
-                comment_lines = error_comment.splitlines()
-            if self.comment:
-                comment_lines += self.comment.splitlines()
+        if with_comments and (comment := self.teal_comment):
+            comment_lines = comment.splitlines()
             if comment_lines:
                 comment = "\n//".join(comment_lines)
                 teal_args.append(f"// {comment}")
@@ -233,11 +227,21 @@ class IntBlock(TealOp):
 
 
 @attrs.frozen
-class IntC(TealOp):
-    index: int = attrs.field(validator=_valid_ref)
-    op_code: str = attrs.field(init=False)
+class _LoadConst(TealOp):
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
+    comment: str | None
+
+    @typing.override
+    @property
+    def teal_comment(self) -> str | None:
+        return self.comment
+
+
+@attrs.frozen
+class IntC(_LoadConst):
+    index: int = attrs.field(validator=_valid_ref)
+    op_code: str = attrs.field(init=False)
 
     @op_code.default
     def _op_code(self) -> str:
@@ -255,11 +259,9 @@ class IntC(TealOp):
 
 
 @attrs.frozen
-class PushInt(TealOp):
+class PushInt(_LoadConst):
     op_code: str = attrs.field(default="pushint", init=False)
     value: int = attrs.field(validator=_valid_uint64)
-    consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(default=1, init=False)
 
     @property
     def immediates(self) -> Sequence[int]:
@@ -272,6 +274,7 @@ class PushInts(TealOp):
     values: list[int] = attrs.field(validator=attrs.validators.deep_iterable(_valid_uint64))
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(init=False)
+    comments: Sequence[str | None]
 
     @produces.default
     def _produces(self) -> int:
@@ -280,6 +283,13 @@ class PushInts(TealOp):
     @property
     def immediates(self) -> Sequence[int]:
         return self.values
+
+    @typing.override
+    @property
+    def teal_comment(self) -> str | None:
+        if any(self.comments):
+            return ", ".join(c or str(v) for c, v in zip(self.comments, self.values, strict=True))
+        return None
 
 
 @attrs.frozen
@@ -298,11 +308,9 @@ class BytesBlock(TealOp):
 
 
 @attrs.frozen
-class BytesC(TealOp):
+class BytesC(_LoadConst):
     index: int = attrs.field(validator=_valid_ref)
     op_code: str = attrs.field(init=False)
-    consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(default=1, init=False)
 
     @op_code.default
     def _op_code(self) -> str:
@@ -320,13 +328,11 @@ class BytesC(TealOp):
 
 
 @attrs.frozen
-class PushBytes(TealOp):
+class PushBytes(_LoadConst):
     op_code: str = attrs.field(default="pushbytes", init=False)
     value: bytes = attrs.field(validator=_valid_bytes)
     # exclude encoding from equality so for example 0x and "" can be combined
     encoding: AVMBytesEncoding = attrs.field(eq=False)
-    consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(default=1, init=False)
 
     @property
     def immediates(self) -> Sequence[str]:
@@ -339,6 +345,7 @@ class PushBytess(TealOp):
     values: Sequence[tuple[bytes, AVMBytesEncoding]] = attrs.field()
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(init=False)
+    comments: Sequence[str | None]
 
     @produces.default
     def _produces(self) -> int:
@@ -354,6 +361,15 @@ class PushBytess(TealOp):
     @property
     def immediates(self) -> Sequence[str]:
         return tuple(_encoded_bytes(c, e) for c, e in self.values)
+
+    @typing.override
+    @property
+    def teal_comment(self) -> str | None:
+        if any(self.comments):
+            return ", ".join(
+                c or _encoded_bytes(*v) for c, v in zip(self.comments, self.values, strict=True)
+            )
+        return None
 
 
 @attrs.frozen
@@ -372,10 +388,11 @@ class FrameBury(TealOpInt8):
 
 @attrs.frozen
 class Int(TealOp):
-    value: int | str
+    value: int
     op_code: str = attrs.field(default="int", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
+    comment: str | None = attrs.field(default=None, kw_only=True)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -425,6 +442,7 @@ class Byte(TealOp):
     op_code: str = attrs.field(default="byte", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
+    comment: str | None = attrs.field(default=None, kw_only=True)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -444,40 +462,30 @@ class TemplateVar(TealOp):
 
 
 @attrs.frozen
-class Address(TealOp):
-    value: str
-    op_code: str = attrs.field(default="addr", init=False)
-    consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(default=1, init=False)
-
-    @property
-    def immediates(self) -> Sequence[int | str]:
-        return (self.value,)
-
-
-@attrs.frozen
-class Method(TealOp):
-    value: str
-    op_code: str = attrs.field(default="method", init=False)
-    consumes: int = attrs.field(default=0, init=False)
-    produces: int = attrs.field(default=1, init=False)
-
-    @property
-    def immediates(self) -> Sequence[int | str]:
-        return (f'"{self.value}"',)
-
-
-@attrs.frozen
 class Intrinsic(TealOp):
     immediates: Sequence[int | str]
+    error_message: str | None
+
+    @typing.override
+    @property
+    def teal_comment(self) -> str | None:
+        if self.error_message:
+            return f"on error: {self.error_message}"
+        return None
 
 
 @attrs.frozen
 class Assert(TealOp):
     explicit: bool
+    error_message: str | None
     op_code: str = attrs.field(default="assert", init=False)
     consumes: int = attrs.field(default=1, init=False)
     produces: int = attrs.field(default=0, init=False)
+
+    @typing.override
+    @property
+    def teal_comment(self) -> str | None:
+        return self.error_message
 
 
 @attrs.frozen
@@ -511,6 +519,7 @@ class Return(ControlOp):
 @attrs.frozen
 class Err(ControlOp):
     explicit: bool
+    error_message: str | None
     op_code: str = attrs.field(default="err", init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=0, init=False)
@@ -518,6 +527,11 @@ class Err(ControlOp):
     @property
     def targets(self) -> Sequence[str]:
         return ()
+
+    @typing.override
+    @property
+    def teal_comment(self) -> str | None:
+        return self.error_message
 
 
 @attrs.frozen

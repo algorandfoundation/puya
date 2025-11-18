@@ -8,53 +8,43 @@ from puya.teal import models
 
 def combine_pushes(program: models.TealProgram) -> None:
     for block in itertools.chain.from_iterable(sub.blocks for sub in program.all_subroutines):
-        pushes = list[models.PushInt | models.PushBytes]()
         result = list[models.TealOp]()
-        for op in block.ops:
-            if _is_different_push_type(pushes, op):
-                result.append(_combine_ops(pushes))
-                pushes = []
-            if isinstance(op, models.PushInt | models.PushBytes):
-                pushes.append(op)
+        for push_type, group in itertools.groupby(block.ops, key=_push_type):
+            ops = list(group)
+            if push_type is None or len(ops) < 2:
+                result.extend(ops)
             else:
-                result.append(op)
-        if pushes:
-            result.append(_combine_ops(pushes))
+                loc = sequential_source_locations_merge(op.source_location for op in ops)
+                stack_manipulations = list(
+                    itertools.chain.from_iterable(op.stack_manipulations for op in ops)
+                )
+                if push_type == "int":
+                    consecutive_i = typing.cast(Sequence[models.PushInt], ops)
+                    result.append(
+                        models.PushInts(
+                            values=[v.value for v in consecutive_i],
+                            stack_manipulations=stack_manipulations,
+                            source_location=loc,
+                            comments=[op.comment for op in consecutive_i],
+                        )
+                    )
+                else:
+                    typing.assert_type(push_type, typing.Literal["bytes"])
+                    consecutive_b = typing.cast(Sequence[models.PushBytes], ops)
+                    result.append(
+                        models.PushBytess(
+                            values=[(v.value, v.encoding) for v in consecutive_b],
+                            stack_manipulations=stack_manipulations,
+                            source_location=loc,
+                            comments=[op.comment for op in consecutive_b],
+                        )
+                    )
         block.ops[:] = result
 
 
-def _is_different_push_type(
-    consecutive: list[models.PushInt | models.PushBytes], next_op: models.TealOp
-) -> bool:
-    return bool(consecutive) and type(consecutive[-1]) is not type(next_op)
-
-
-def _combine_ops(consecutive: Sequence[models.PushInt | models.PushBytes]) -> models.TealOp:
-    if len(consecutive) == 1:
-        return consecutive[0]
-    loc = sequential_source_locations_merge(op.source_location for op in consecutive)
-    stack_manipulations = list(
-        itertools.chain.from_iterable(op.stack_manipulations for op in consecutive)
-    )
-    if isinstance(consecutive[0], models.PushInt):
-        consecutive = typing.cast(Sequence[models.PushInt], consecutive)
-        return models.PushInts(
-            values=[v.value for v in consecutive],
-            stack_manipulations=stack_manipulations,
-            source_location=loc,
-            comment=_comment_ops(consecutive),
-        )
-    else:
-        consecutive = typing.cast(Sequence[models.PushBytes], consecutive)
-        return models.PushBytess(
-            values=[(v.value, v.encoding) for v in consecutive],
-            stack_manipulations=stack_manipulations,
-            source_location=loc,
-            comment=_comment_ops(consecutive),
-        )
-
-
-def _comment_ops(consecutive: Sequence[models.PushInt | models.PushBytes]) -> str:
-    return ", ".join(
-        map(str, ((v.comment or " ".join(map(str, v.immediates))) for v in consecutive))
-    )
+def _push_type(op: models.TealOp) -> typing.Literal["int", "bytes", None]:
+    if type(op) is models.PushInt:
+        return "int"
+    if type(op) is models.PushBytes:
+        return "bytes"
+    return None
