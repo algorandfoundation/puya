@@ -522,3 +522,18 @@ class No(ARC4Contract):
     @arc4.abimethod
     def test(self, foo: BadTuple) -> None: ## E: ARC-4 tuples can only contain persistable elements
         a, b = foo.native
+
+
+## case: annotation_type_variance
+import typing
+from algopy import *
+
+@subroutine
+def test_annotation_supertype() -> arc4.DynamicArray[arc4.Byte]:
+    c: arc4.DynamicArray[arc4.Byte] = arc4.DynamicBytes(b"123")
+    return c
+
+@subroutine
+def test_annotation_subtype() -> arc4.DynamicBytes:
+    c: arc4.DynamicBytes = arc4.DynamicArray(arc4.Byte(), arc4.Byte()) # type: ignore[assignment] ## E: type annotation does not match expression value type
+    return c
