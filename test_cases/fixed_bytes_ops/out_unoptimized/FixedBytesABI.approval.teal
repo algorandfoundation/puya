@@ -1,0 +1,177 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 6
+    bytecblock 0x48656c6c6f20576f726c64 0x
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // fixed_bytes_ops/abi_values.py:6
+    // class FixedBytesABI(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@5
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // fixed_bytes_ops/abi_values.py:6
+    // class FixedBytesABI(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x45228c22 // method "test_passing_fixed_bytes()void"
+    uncover 1
+    match main_test_passing_fixed_bytes_route@3
+    b main_switch_case_next@4
+
+main_switch_case_next@4:
+    b main_after_if_else@6
+
+main_after_if_else@6:
+    // fixed_bytes_ops/abi_values.py:6
+    // class FixedBytesABI(arc4.ARC4Contract):
+    err
+
+main_test_passing_fixed_bytes_route@3:
+    // fixed_bytes_ops/abi_values.py:7
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub test_passing_fixed_bytes
+    b main_switch_case_next@4
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@8
+
+main_block@8:
+    b main_after_inlined_test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create@9
+
+main_after_inlined_test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create@9:
+    intc_1 // 1
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]() -> void:
+test_passing_fixed_bytes:
+    b test_passing_fixed_bytes_block@0
+
+test_passing_fixed_bytes_block@0:
+    // fixed_bytes_ops/abi_values.py:7
+    // @arc4.abimethod
+    callsub test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes
+    intc_1 // 1
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes() -> void:
+test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes:
+    b test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes_block@0
+
+test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes_block@0:
+    // fixed_bytes_ops/abi_values.py:9
+    // app = arc4.arc4_create(CheckABIApp).created_app
+    itxn_begin
+    intc_0 // 0
+    itxn_field LocalNumUint
+    intc_0 // 0
+    itxn_field LocalNumByteSlice
+    intc_0 // 0
+    itxn_field GlobalNumUint
+    intc_0 // 0
+    itxn_field GlobalNumByteSlice
+    intc_0 // 0
+    itxn_field ExtraProgramPages
+    pushbytes base64(C0IAAIEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_1 // 0x
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyACAAFCAABCAAAxGyITQQApQgAANhoAgATG/HPVTwGOAQAHQgAAQgAAADEZIhIxGCITEESIABVC/+wxGSISMRgiEhBEQgAAQgAAI0NCAAA2GgFJFYELEkQ2GgJJIlkjC4ECCEsBFRJEVwIAiAACI0OKAgBCAACL/ov/EkSJ)
+    itxn_field ApprovalProgramPages
+    bytec_1 // 0x
+    itxn_field ApprovalProgramPages
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes_next_txn@1
+
+test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes_next_txn@1:
+    // fixed_bytes_ops/abi_values.py:9
+    // app = arc4.arc4_create(CheckABIApp).created_app
+    itxn_submit
+    itxn CreatedApplicationID
+    // fixed_bytes_ops/abi_values.py:11-16
+    // arc4.abi_call(
+    //     CheckABIApp.check_fixed_bytes,
+    //     FixedBytes[typing.Literal[11]](b"Hello World"),
+    //     b"Hello World",
+    //     app_id=app,
+    // )
+    itxn_begin
+    // fixed_bytes_ops/abi_values.py:14
+    // b"Hello World",
+    bytec_0 // 0x48656c6c6f20576f726c64
+    len
+    itob
+    extract 6 2
+    bytec_0 // 0x48656c6c6f20576f726c64
+    concat
+    // fixed_bytes_ops/abi_values.py:15
+    // app_id=app,
+    uncover 1
+    itxn_field ApplicationID
+    // fixed_bytes_ops/abi_values.py:11-16
+    // arc4.abi_call(
+    //     CheckABIApp.check_fixed_bytes,
+    //     FixedBytes[typing.Literal[11]](b"Hello World"),
+    //     b"Hello World",
+    //     app_id=app,
+    // )
+    pushbytes 0xc6fc73d5 // method "check_fixed_bytes(byte[11],byte[])void"
+    itxn_field ApplicationArgs
+    // fixed_bytes_ops/abi_values.py:13
+    // FixedBytes[typing.Literal[11]](b"Hello World"),
+    bytec_0 // 0x48656c6c6f20576f726c64
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // fixed_bytes_ops/abi_values.py:11-16
+    // arc4.abi_call(
+    //     CheckABIApp.check_fixed_bytes,
+    //     FixedBytes[typing.Literal[11]](b"Hello World"),
+    //     b"Hello World",
+    //     app_id=app,
+    // )
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes_next_txn@2
+
+test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes_next_txn@2:
+    // fixed_bytes_ops/abi_values.py:11-16
+    // arc4.abi_call(
+    //     CheckABIApp.check_fixed_bytes,
+    //     FixedBytes[typing.Literal[11]](b"Hello World"),
+    //     b"Hello World",
+    //     app_id=app,
+    // )
+    itxn_submit
+    retsub

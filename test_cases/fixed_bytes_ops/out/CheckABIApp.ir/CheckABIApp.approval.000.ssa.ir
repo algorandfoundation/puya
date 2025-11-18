@@ -1,0 +1,65 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#0: bool = test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__puya_arc4_router__()
+        return tmp%0#0
+
+subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__puya_arc4_router__() -> bool:
+    block@0: // L19
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@4
+    block@1: // abi_routing_L19
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "check_fixed_bytes(byte[11],byte[])void" => block@2, * => block@3}
+    block@2: // check_fixed_bytes_route_L20
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
+        (assert tmp%7#0)
+        test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes[routing]()
+        goto block@3
+    block@3: // switch_case_next_L19
+        goto block@5
+    block@4: // __algopy_default_create_L1
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 NoOp)
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (== tmp%10#0 0u)
+        let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
+        (assert tmp%12#0)
+        test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create()
+        exit 1u
+    block@5: // after_if_else_L19
+        exit 0u
+
+subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes[routing]() -> void:
+    block@0: // L20
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 11u)
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 11>
+        let as_Encoded(uint8[11])%0#0: Encoded(uint8[11]) = tmp%0#0
+        let tmp%1#0: bytes[11] = decode_bytes<bytes[11]>(as_Encoded(uint8[11])%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(tmp%2#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes(tmp%1#0, tmp%3#0)
+        exit 1u
+
+subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes(value: bytes[11], expected: bytes) -> void:
+    block@0: // L20
+        let tmp%0#0: bool = (== value#0 expected#0)
+        (assert tmp%0#0) // expected to encode correctly
+        return 
+
+subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

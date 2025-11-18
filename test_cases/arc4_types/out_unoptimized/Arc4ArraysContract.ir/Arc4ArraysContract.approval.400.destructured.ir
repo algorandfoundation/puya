@@ -180,121 +180,147 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@19: // after_for_L49
         let tmp%20#0: bool = (== total#0 398u)
         (assert tmp%20#0)
+        let uint8_total#0: uint64 = 0u
+        let count#0: uint64 = 0u
+        let item_index_internal%4#0: uint64 = 0u
+        goto block@20
+    block@20: // for_header_L58
+        let continue_looping%4#0: bool = (< item_index_internal%4#0 4u)
+        goto continue_looping%4#0 ? block@21 : block@23
+    block@21: // for_body_L59
+        let aggregate%bytes_offset%3#0: uint64 = (* item_index_internal%4#0 1u)
+        let aggregate%encoded_element%3#0: bytes = (extract3 0x010203040506 aggregate%bytes_offset%3#0 1u) // on error: index access is out of bounds
+        let array_item%5#0: Encoded(uint8) = aggregate%encoded_element%3#0
+        let uint8_item#0: Encoded(uint8) = array_item%5#0
+        let tmp%21#0: uint64 = (btoi uint8_item#0)
+        let tmp%22#0: uint64 = (+ uint8_total#0 tmp%21#0)
+        let uint8_total#0: uint64 = tmp%22#0
+        let tmp%23#0: uint64 = (+ count#0 1u)
+        let count#0: uint64 = tmp%23#0
+        goto block@22
+    block@22: // for_footer_L58
+        let item_index_internal%4#0: uint64 = (+ item_index_internal%4#0 1u)
+        goto block@20
+    block@23: // after_for_L58
+        let tmp%24#0: bool = (== uint8_total#0 10u)
+        (assert tmp%24#0)
+        let tmp%25#0: bool = (== count#0 4u)
+        (assert tmp%25#0)
         let aggregate%head%9#0: bytes = (concat 0x 0x65)
         let aggregate%as_Encoded(uint8[1])%0#0: Encoded(uint8[1]) = aggregate%head%9#0
         let encoded_array%4#0: Encoded(uint8[1]) = aggregate%as_Encoded(uint8[1])%0#0
         let aliased_static#0: Encoded(uint8[1]) = encoded_array%4#0
-        let aggregate%bytes_offset%3#0: uint64 = (* 0u 1u)
-        let aggregate%encoded_element%3#0: bytes = (extract3 aliased_static#0 aggregate%bytes_offset%3#0 1u) // on error: index access is out of bounds
-        let array_item%5#0: Encoded(uint8) = aggregate%encoded_element%3#0
-        let tmp%21#0: uint64 = (btoi array_item%5#0)
         let aggregate%bytes_offset%4#0: uint64 = (* 0u 1u)
         let aggregate%encoded_element%4#0: bytes = (extract3 aliased_static#0 aggregate%bytes_offset%4#0 1u) // on error: index access is out of bounds
         let array_item%6#0: Encoded(uint8) = aggregate%encoded_element%4#0
-        let tmp%22#0: uint64 = (btoi array_item%6#0)
-        let tmp%23#0: uint64 = (+ tmp%21#0 tmp%22#0)
-        let tmp%24#0: bool = (== tmp%23#0 202u)
-        (assert tmp%24#0)
+        let tmp%26#0: uint64 = (btoi array_item%6#0)
+        let aggregate%bytes_offset%5#0: uint64 = (* 0u 1u)
+        let aggregate%encoded_element%5#0: bytes = (extract3 aliased_static#0 aggregate%bytes_offset%5#0 1u) // on error: index access is out of bounds
+        let array_item%7#0: Encoded(uint8) = aggregate%encoded_element%5#0
+        let tmp%27#0: uint64 = (btoi array_item%7#0)
+        let tmp%28#0: uint64 = (+ tmp%26#0 tmp%27#0)
+        let tmp%29#0: bool = (== tmp%28#0 202u)
+        (assert tmp%29#0)
         let aggregate%length%3#0: uint64 = (len "Ping")
         let aggregate%as_bytes%8#0: bytes[8] = (itob aggregate%length%3#0)
         let aggregate%length_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%8#0)
         let aggregate%encoded_value%3#0: bytes = (concat aggregate%length_uint16%3#0 "Ping")
         let aggregate%as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = aggregate%encoded_value%3#0
-        let tmp%25#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%3#0
+        let tmp%30#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%3#0
         let aggregate%length%4#0: uint64 = (len "Pong")
         let aggregate%as_bytes%9#0: bytes[8] = (itob aggregate%length%4#0)
         let aggregate%length_uint16%4#0: bytes = ((extract 6 2) aggregate%as_bytes%9#0)
         let aggregate%encoded_value%4#0: bytes = (concat aggregate%length_uint16%4#0 "Pong")
         let aggregate%as_Encoded(len+utf8[])%4#0: Encoded(len+utf8[]) = aggregate%encoded_value%4#0
-        let tmp%26#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%4#0
+        let tmp%31#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%4#0
         let aggregate%as_bytes%10#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%10#0)
         let aggregate%head%10#0: bytes = (concat 0x aggregate%offset_as_uint16%2#0)
-        let aggregate%data_length%2#0: uint64 = (len tmp%25#0)
+        let aggregate%data_length%2#0: uint64 = (len tmp%30#0)
         let aggregate%current_tail_offset%2#0: uint64 = (+ 4u aggregate%data_length%2#0)
         let aggregate%as_bytes%11#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%11#0)
         let aggregate%head%11#0: bytes = (concat aggregate%head%10#0 aggregate%offset_as_uint16%3#0)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%11#0 tmp%25#0)
-        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 tmp%26#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%head%11#0 tmp%30#0)
+        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 tmp%31#0)
         let aggregate%as_Encoded((len+utf8[])[2])%0#0: Encoded((len+utf8[])[2]) = aggregate%concat%3#0
         let encoded_array%5#0: Encoded((len+utf8[])[2]) = aggregate%as_Encoded((len+utf8[])[2])%0#0
         let static_string_array#0: Encoded((len+utf8[])[2]) = encoded_array%5#0
         let result#0: string = ""
-        let item_index_internal%4#0: uint64 = 0u
-        goto block@20
-    block@20: // for_header_L63
-        let continue_looping%4#0: bool = (< item_index_internal%4#0 2u)
-        goto continue_looping%4#0 ? block@21 : block@26
-    block@21: // for_body_L64
-        let aggregate%item_offset_offset%2#0: uint64 = (* item_index_internal%4#0 2u)
+        let item_index_internal%5#0: uint64 = 0u
+        goto block@24
+    block@24: // for_header_L73
+        let continue_looping%5#0: bool = (< item_index_internal%5#0 2u)
+        goto continue_looping%5#0 ? block@25 : block@30
+    block@25: // for_body_L74
+        let aggregate%item_offset_offset%2#0: uint64 = (* item_index_internal%5#0 2u)
         let aggregate%item_offset%2#0: uint64 = (extract_uint16 static_string_array#0 aggregate%item_offset_offset%2#0)
         let aggregate%item_length%2#0: uint64 = (extract_uint16 static_string_array#0 aggregate%item_offset%2#0)
         let aggregate%item_length_in_bytes%2#0: uint64 = (* aggregate%item_length%2#0 1u)
         let aggregate%item_head_tail_length%2#0: uint64 = (+ aggregate%item_length_in_bytes%2#0 2u)
         let aggregate%item%2#0: bytes = (extract3 static_string_array#0 aggregate%item_offset%2#0 aggregate%item_head_tail_length%2#0)
-        let array_item%7#0: Encoded(len+utf8[]) = aggregate%item%2#0
-        let string_item#0: Encoded(len+utf8[]) = array_item%7#0
-        let index#0: uint64 = item_index_internal%4#0
-        let tmp%27#0: bool = (== index#0 0u)
-        goto tmp%27#0 ? block@22 : block@23
-    block@22: // if_body_L65
-        let tmp%28#0: string = ((extract 2 0) string_item#0)
-        let result#0: string = tmp%28#0
+        let array_item%8#0: Encoded(len+utf8[]) = aggregate%item%2#0
+        let string_item#0: Encoded(len+utf8[]) = array_item%8#0
+        let index#0: uint64 = item_index_internal%5#0
+        let tmp%32#0: bool = (== index#0 0u)
+        goto tmp%32#0 ? block@26 : block@27
+    block@26: // if_body_L75
+        let tmp%33#0: string = ((extract 2 0) string_item#0)
+        let result#0: string = tmp%33#0
+        goto block@28
+    block@27: // else_body_L77
+        let tmp%34#0: string = ((extract 2 0) string_item#0)
+        let tmp%35#0: bytes = (concat " " tmp%34#0)
+        let tmp%36#0: bytes = (concat result#0 tmp%35#0)
+        let result#0: string = tmp%36#0
+        goto block@28
+    block@28: // after_if_else_L74
+        goto block@29
+    block@29: // for_footer_L73
+        let item_index_internal%5#0: uint64 = (+ item_index_internal%5#0 1u)
         goto block@24
-    block@23: // else_body_L67
-        let tmp%29#0: string = ((extract 2 0) string_item#0)
-        let tmp%30#0: bytes = (concat " " tmp%29#0)
-        let tmp%31#0: bytes = (concat result#0 tmp%30#0)
-        let result#0: string = tmp%31#0
-        goto block@24
-    block@24: // after_if_else_L64
-        goto block@25
-    block@25: // for_footer_L63
-        let item_index_internal%4#0: uint64 = (+ item_index_internal%4#0 1u)
-        goto block@20
-    block@26: // after_for_L63
-        let tmp%32#0: bool = (== result#0 "Ping Pong")
-        (assert tmp%32#0)
+    block@30: // after_for_L73
+        let tmp%37#0: bool = (== result#0 "Ping Pong")
+        (assert tmp%37#0)
         let aggregate%length%5#0: uint64 = (len "Ping")
         let aggregate%as_bytes%12#0: bytes[8] = (itob aggregate%length%5#0)
         let aggregate%length_uint16%5#0: bytes = ((extract 6 2) aggregate%as_bytes%12#0)
         let aggregate%encoded_value%5#0: bytes = (concat aggregate%length_uint16%5#0 "Ping")
         let aggregate%as_Encoded(len+utf8[])%5#0: Encoded(len+utf8[]) = aggregate%encoded_value%5#0
-        let tmp%33#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%5#0
+        let tmp%38#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%5#0
         let aggregate%lt%1#0: bool = (< 1u 2u)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%lt%2#0: bool = (< 1u 2u)
         (assert aggregate%lt%2#0) // index access is out of bounds
-        let aggregate%updated_array%0#0: bytes = _puya_lib.arc4.static_array_replace_byte_length_head(static_string_array#0, tmp%33#0, 1u, 2u)
+        let aggregate%updated_array%0#0: bytes = _puya_lib.arc4.static_array_replace_byte_length_head(static_string_array#0, tmp%38#0, 1u, 2u)
         let updated_array%0#0: Encoded((len+utf8[])[2]) = aggregate%updated_array%0#0
         let static_string_array#0: Encoded((len+utf8[])[2]) = updated_array%0#0
         let result#0: string = ""
-        let item_index_internal%5#0: uint64 = 0u
-        goto block@27
-    block@27: // for_header_L73
-        let continue_looping%5#0: bool = (< item_index_internal%5#0 2u)
-        goto continue_looping%5#0 ? block@28 : block@30
-    block@28: // for_body_L74
-        let aggregate%item_offset_offset%4#0: uint64 = (* item_index_internal%5#0 2u)
+        let item_index_internal%6#0: uint64 = 0u
+        goto block@31
+    block@31: // for_header_L83
+        let continue_looping%6#0: bool = (< item_index_internal%6#0 2u)
+        goto continue_looping%6#0 ? block@32 : block@34
+    block@32: // for_body_L84
+        let aggregate%item_offset_offset%4#0: uint64 = (* item_index_internal%6#0 2u)
         let aggregate%item_offset%4#0: uint64 = (extract_uint16 static_string_array#0 aggregate%item_offset_offset%4#0)
         let aggregate%item_length%4#0: uint64 = (extract_uint16 static_string_array#0 aggregate%item_offset%4#0)
         let aggregate%item_length_in_bytes%4#0: uint64 = (* aggregate%item_length%4#0 1u)
         let aggregate%item_head_tail_length%4#0: uint64 = (+ aggregate%item_length_in_bytes%4#0 2u)
         let aggregate%item%4#0: bytes = (extract3 static_string_array#0 aggregate%item_offset%4#0 aggregate%item_head_tail_length%4#0)
-        let array_item%8#0: Encoded(len+utf8[]) = aggregate%item%4#0
-        let string_item#0: Encoded(len+utf8[]) = array_item%8#0
-        let tmp%34#0: string = ((extract 2 0) string_item#0)
-        let tmp%35#0: bytes = (concat tmp%34#0 " ")
-        let tmp%36#0: bytes = (concat result#0 tmp%35#0)
-        let result#0: string = tmp%36#0
-        goto block@29
-    block@29: // for_footer_L73
-        let item_index_internal%5#0: uint64 = (+ item_index_internal%5#0 1u)
-        goto block@27
-    block@30: // after_for_L73
-        let tmp%37#0: bool = (== result#0 "Ping Ping ")
-        (assert tmp%37#0)
+        let array_item%9#0: Encoded(len+utf8[]) = aggregate%item%4#0
+        let string_item#0: Encoded(len+utf8[]) = array_item%9#0
+        let tmp%39#0: string = ((extract 2 0) string_item#0)
+        let tmp%40#0: bytes = (concat tmp%39#0 " ")
+        let tmp%41#0: bytes = (concat result#0 tmp%40#0)
+        let result#0: string = tmp%41#0
+        goto block@33
+    block@33: // for_footer_L83
+        let item_index_internal%6#0: uint64 = (+ item_index_internal%6#0 1u)
+        goto block@31
+    block@34: // after_for_L83
+        let tmp%42#0: bool = (== result#0 "Ping Ping ")
+        (assert tmp%42#0)
         test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(0x54657374696e6720313233)
         return 1u
 
@@ -352,6 +378,6 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         return array_head_and_tail#0
 
 subroutine test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(commitment_args_concat: bytes) -> Encoded(uint8[32]):
-    block@0: // L81
+    block@0: // L91
         let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (sha3_256 commitment_args_concat#0)
         return reinterpret_Encoded(uint8[32])%0#0

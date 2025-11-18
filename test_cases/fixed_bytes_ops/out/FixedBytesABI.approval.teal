@@ -1,0 +1,84 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 6 0
+    // fixed_bytes_ops/abi_values.py:6
+    // class FixedBytesABI(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x45228c22 // method "test_passing_fixed_bytes()void"
+    txna ApplicationArgs 0
+    match main_test_passing_fixed_bytes_route@3
+    err
+
+main_test_passing_fixed_bytes_route@3:
+    // fixed_bytes_ops/abi_values.py:7
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b test_passing_fixed_bytes
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_passing_fixed_bytes[routing]() -> void:
+test_passing_fixed_bytes:
+    // fixed_bytes_ops/abi_values.py:9
+    // app = arc4.arc4_create(CheckABIApp).created_app
+    itxn_begin
+    pushbytes base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CzEbQQAYgATG/HPVNhoAjgEAAQAxGRQxGBBEQgAIMRkUMRgUEEM2GgFJFYELEkQ2GgJJgQBZgQIISwEVEkRXAgASRIEBQw==)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    // fixed_bytes_ops/abi_values.py:11-16
+    // arc4.abi_call(
+    //     CheckABIApp.check_fixed_bytes,
+    //     FixedBytes[typing.Literal[11]](b"Hello World"),
+    //     b"Hello World",
+    //     app_id=app,
+    // )
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0xc6fc73d5 // method "check_fixed_bytes(byte[11],byte[])void"
+    itxn_field ApplicationArgs
+    // fixed_bytes_ops/abi_values.py:13
+    // FixedBytes[typing.Literal[11]](b"Hello World"),
+    pushbytes 0x48656c6c6f20576f726c64
+    itxn_field ApplicationArgs
+    // fixed_bytes_ops/abi_values.py:14
+    // b"Hello World",
+    pushbytes 0x000b48656c6c6f20576f726c64
+    itxn_field ApplicationArgs
+    // fixed_bytes_ops/abi_values.py:11-16
+    // arc4.abi_call(
+    //     CheckABIApp.check_fixed_bytes,
+    //     FixedBytes[typing.Literal[11]](b"Hello World"),
+    //     b"Hello World",
+    //     app_id=app,
+    // )
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // fixed_bytes_ops/abi_values.py:7
+    // @arc4.abimethod
+    pushint 1 // 1
+    return

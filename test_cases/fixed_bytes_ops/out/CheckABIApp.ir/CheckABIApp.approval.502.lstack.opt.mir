@@ -1,0 +1,84 @@
+// Op                                                                           Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // fixed_bytes_ops/abi_values.py:19
+        // class CheckABIApp(arc4.ARC4Contract):
+        txn NumAppArgs                                                          tmp%0#1
+        bz main___algopy_default_create@5 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // fixed_bytes_ops/abi_values.py:19
+        // class CheckABIApp(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                  tmp%2#0
+        method check_fixed_bytes(byte[11],byte[])void                           tmp%2#0,Method(check_fixed_bytes(byte[11],byte[])void)
+        l-load tmp%2#0 1                                                        Method(check_fixed_bytes(byte[11],byte[])void),tmp%2#0
+        match main_check_fixed_bytes_route@3 ; b main_switch_case_next@4
+
+    main_check_fixed_bytes_route@3:
+        // fixed_bytes_ops/abi_values.py:20
+        // @arc4.abimethod
+        txn OnCompletion                                                        tmp%3#0
+        !                                                                       tmp%4#0
+        txn ApplicationID                                                       tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                        tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                        tmp%4#0,tmp%5#0
+        &&                                                                      tmp%7#0
+        assert
+        callsub check_fixed_bytes
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        // fixed_bytes_ops/abi_values.py:19
+        // class CheckABIApp(arc4.ARC4Contract):
+        err
+
+    main___algopy_default_create@5:
+        txn OnCompletion                                                        tmp%8#0
+        !                                                                       tmp%9#0
+        txn ApplicationID                                                       tmp%9#0,tmp%10#0
+        !                                                                       tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                        tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                       tmp%9#0,tmp%11#0
+        &&                                                                      tmp%12#0
+        assert
+        int 1                                                                   1
+        return
+
+
+// test_cases.fixed_bytes_ops.abi_values.CheckABIApp.check_fixed_bytes[routing]() -> void:
+subroutine check_fixed_bytes:
+    check_fixed_bytes_block@0:
+        // fixed_bytes_ops/abi_values.py:20
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                                  value#0
+        l-load-copy value#0 0                                                   value#0,value#0 (copy)
+        len                                                                     value#0,len%0#0
+        int 11                                                                  value#0,len%0#0,11
+        ==                                                                      value#0,eq%0#0
+        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 11> value#0
+        txna ApplicationArgs 2                                                  value#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                   value#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                   value#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16 // on error: invalid array length header                 value#0,tmp%2#0,aggregate%array_length%0#0
+        int 2                                                                   value#0,tmp%2#0,aggregate%array_length%0#0,2
+        +                                                                       value#0,tmp%2#0,add%0#0
+        l-load-copy tmp%2#0 1                                                   value#0,tmp%2#0,add%0#0,tmp%2#0 (copy)
+        len                                                                     value#0,tmp%2#0,add%0#0,len%1#0
+        l-load add%0#0 1                                                        value#0,tmp%2#0,len%1#0,add%0#0
+        ==                                                                      value#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>    value#0,tmp%2#0
+        l-load tmp%2#0 0                                                        value#0,tmp%2#0
+        extract 2 0                                                             value#0,expected#0
+        // fixed_bytes_ops/abi_values.py:22
+        // assert value.bytes == expected, "expected to encode correctly"
+        l-load value#0 1                                                        expected#0,value#0
+        l-load expected#0 1                                                     value#0,expected#0
+        ==                                                                      tmp%0#1
+        assert // expected to encode correctly
+        // fixed_bytes_ops/abi_values.py:20
+        // @arc4.abimethod
+        int 1                                                                   1
+        return
+
+

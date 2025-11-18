@@ -1,0 +1,2294 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.approval_program() -> uint64:
+main:
+    intcblock 4 1 0 2
+    bytecblock 0xabcd 0xff 0x0f0f 0x0f 0xabcdef 0x1234 0x0fff 0xf0 0xcd12 0x0ff0 0x000f 0x796179 0xabcd1234 0xabcd12 0x6e6179 0xff0f0f 0x0f0fff 0x00 0xabcd123456 "box" 0xf0f0ffff 0x00000000 "local"
+    intc_2 // 0
+    b main_block@0
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+    b main_call___init__@1
+
+main_call___init__@1:
+    callsub __init__
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    // fixed_bytes_ops/contract.py:27
+    // if Txn.num_app_args > 0:
+    txn NumAppArgs
+    intc_2 // 0
+    >
+    bz main_else_body@33
+    b main_if_body@3
+
+main_if_body@3:
+    // fixed_bytes_ops/contract.py:28
+    // method = Txn.application_args(0)
+    txna ApplicationArgs 0
+    bury 1
+    // fixed_bytes_ops/contract.py:29
+    // if Txn.num_app_args == 1:
+    txn NumAppArgs
+    intc_1 // 1
+    ==
+    bz main_else_body@10
+    b main_if_body@4
+
+main_if_body@4:
+    // fixed_bytes_ops/contract.py:30
+    // if method == b"get_state_data_or_assert":
+    dup
+    pushbytes 0x6765745f73746174655f646174615f6f725f617373657274
+    ==
+    bz main_else_body@6
+    b main_if_body@5
+
+main_if_body@5:
+    // fixed_bytes_ops/contract.py:31
+    // log(self.get_state_data_or_assert(Txn.sender))
+    txn Sender
+    callsub get_state_data_or_assert
+    log
+    b main_after_if_else@9
+
+main_after_if_else@9:
+    b main_after_if_else@32
+
+main_after_if_else@32:
+    b main_after_if_else@34
+
+main_after_if_else@34:
+    // fixed_bytes_ops/contract.py:114
+    // return True
+    intc_1 // 1
+    return
+
+main_else_body@6:
+    // fixed_bytes_ops/contract.py:32
+    // elif method == b"get_box_data":
+    dup
+    pushbytes 0x6765745f626f785f64617461
+    ==
+    bz main_after_if_else@8
+    b main_if_body@7
+
+main_if_body@7:
+    // fixed_bytes_ops/contract.py:33
+    // log(self.box.value)
+    bytec 19 // "box"
+    box_get
+    assert // check self.box exists
+    log
+    b main_after_if_else@8
+
+main_after_if_else@8:
+    b main_after_if_else@9
+
+main_else_body@10:
+    // fixed_bytes_ops/contract.py:34
+    // elif Txn.num_app_args == 2:
+    txn NumAppArgs
+    intc_3 // 2
+    ==
+    bz main_else_body@20
+    b main_if_body@11
+
+main_if_body@11:
+    // fixed_bytes_ops/contract.py:35
+    // if method == b"set_state_data":
+    dup
+    pushbytes 0x7365745f73746174655f64617461
+    ==
+    bz main_else_body@13
+    b main_if_body@12
+
+main_if_body@12:
+    // fixed_bytes_ops/contract.py:37
+    // Txn.sender,
+    txn Sender
+    // fixed_bytes_ops/contract.py:38
+    // FixedBytes[typing.Literal[4]].from_bytes(Txn.application_args(1)),
+    txna ApplicationArgs 1
+    // fixed_bytes_ops/contract.py:36-39
+    // self.set_state_data(
+    //     Txn.sender,
+    //     FixedBytes[typing.Literal[4]].from_bytes(Txn.application_args(1)),
+    // )
+    callsub set_state_data
+    b main_after_if_else@19
+
+main_after_if_else@19:
+    b main_after_if_else@31
+
+main_after_if_else@31:
+    b main_after_if_else@32
+
+main_else_body@13:
+    // fixed_bytes_ops/contract.py:40
+    // elif method == b"set_box_data":
+    dup
+    pushbytes 0x7365745f626f785f64617461
+    ==
+    bz main_else_body@15
+    b main_if_body@14
+
+main_if_body@14:
+    // fixed_bytes_ops/contract.py:41
+    // self.box.value = FixedBytes[typing.Literal[5]](Txn.application_args(1))
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 5 // 5
+    ==
+    assert // expected bytes to be length 5
+    bytec 19 // "box"
+    uncover 1
+    box_put
+    b main_after_if_else@18
+
+main_after_if_else@18:
+    b main_after_if_else@19
+
+main_else_body@15:
+    // fixed_bytes_ops/contract.py:42
+    // elif method == b"validate_fixed_bytes_3":
+    dup
+    pushbytes 0x76616c69646174655f66697865645f62797465735f33
+    ==
+    bz main_after_if_else@17
+    b main_if_body@16
+
+main_if_body@16:
+    // fixed_bytes_ops/contract.py:44
+    // FixedBytes[typing.Literal[3]].from_bytes(Txn.application_args(1))
+    txna ApplicationArgs 1
+    // fixed_bytes_ops/contract.py:43-45
+    // self.validate_fixed_bytes_3(
+    //     FixedBytes[typing.Literal[3]].from_bytes(Txn.application_args(1))
+    // )
+    callsub validate_fixed_bytes_3
+    b main_after_if_else@17
+
+main_after_if_else@17:
+    b main_after_if_else@18
+
+main_else_body@20:
+    // fixed_bytes_ops/contract.py:46
+    // elif Txn.num_app_args == 3:
+    txn NumAppArgs
+    pushint 3 // 3
+    ==
+    bz main_after_if_else@30
+    b main_if_body@21
+
+main_if_body@21:
+    // fixed_bytes_ops/contract.py:47
+    // if method == b"test_augmented_or_assignment_with_bytes":
+    dup
+    pushbytes 0x746573745f6175676d656e7465645f6f725f61737369676e6d656e745f776974685f6279746573
+    ==
+    bz main_else_body@23
+    b main_if_body@22
+
+main_if_body@22:
+    // fixed_bytes_ops/contract.py:49
+    // FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+    txna ApplicationArgs 1
+    // fixed_bytes_ops/contract.py:50
+    // Txn.application_args(2),
+    txna ApplicationArgs 2
+    // fixed_bytes_ops/contract.py:48-51
+    // self.test_augmented_or_assignment_with_bytes(
+    //     FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+    //     Txn.application_args(2),
+    // )
+    callsub test_augmented_or_assignment_with_bytes
+    b main_after_if_else@29
+
+main_after_if_else@29:
+    b main_after_if_else@30
+
+main_after_if_else@30:
+    b main_after_if_else@31
+
+main_else_body@23:
+    // fixed_bytes_ops/contract.py:52
+    // elif method == b"test_augmented_and_assignment_with_bytes":
+    dup
+    pushbytes 0x746573745f6175676d656e7465645f616e645f61737369676e6d656e745f776974685f6279746573
+    ==
+    bz main_else_body@25
+    b main_if_body@24
+
+main_if_body@24:
+    // fixed_bytes_ops/contract.py:54
+    // FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+    txna ApplicationArgs 1
+    // fixed_bytes_ops/contract.py:55
+    // Txn.application_args(2),
+    txna ApplicationArgs 2
+    // fixed_bytes_ops/contract.py:53-56
+    // self.test_augmented_and_assignment_with_bytes(
+    //     FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+    //     Txn.application_args(2),
+    // )
+    callsub test_augmented_and_assignment_with_bytes
+    b main_after_if_else@28
+
+main_after_if_else@28:
+    b main_after_if_else@29
+
+main_else_body@25:
+    // fixed_bytes_ops/contract.py:57
+    // elif method == b"test_augmented_xor_assignment_with_bytes":
+    dup
+    pushbytes 0x746573745f6175676d656e7465645f786f725f61737369676e6d656e745f776974685f6279746573
+    ==
+    bz main_after_if_else@27
+    b main_if_body@26
+
+main_if_body@26:
+    // fixed_bytes_ops/contract.py:59
+    // FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+    txna ApplicationArgs 1
+    // fixed_bytes_ops/contract.py:60
+    // Txn.application_args(2),
+    txna ApplicationArgs 2
+    // fixed_bytes_ops/contract.py:58-61
+    // self.test_augmented_xor_assignment_with_bytes(
+    //     FixedBytes[typing.Literal[1]].from_bytes(Txn.application_args(1)),
+    //     Txn.application_args(2),
+    // )
+    callsub test_augmented_xor_assignment_with_bytes
+    b main_after_if_else@27
+
+main_after_if_else@27:
+    b main_after_if_else@28
+
+main_else_body@33:
+    // fixed_bytes_ops/contract.py:63
+    // test_binary_ops(FixedBytes.from_hex("FF"), FixedBytes.from_hex("0F"))
+    bytec_1 // 0xff
+    bytec_3 // 0x0f
+    callsub test_binary_ops
+    // fixed_bytes_ops/contract.py:66
+    // FixedBytes.from_hex("FF"), FixedBytes.from_hex("0F0F")
+    bytec_1 // 0xff
+    bytec_2 // 0x0f0f
+    // fixed_bytes_ops/contract.py:65-67
+    // test_binary_ops_with_fixed_bytes_of_different_size(
+    //     FixedBytes.from_hex("FF"), FixedBytes.from_hex("0F0F")
+    // )
+    callsub test_binary_ops_with_fixed_bytes_of_different_size
+    // fixed_bytes_ops/contract.py:70
+    // FixedBytes.from_hex("FF"), Bytes.from_hex("0F0F")
+    bytec_1 // 0xff
+    bytec_2 // 0x0f0f
+    // fixed_bytes_ops/contract.py:69-71
+    // test_binary_ops_with_bytes_of_different_size(
+    //     FixedBytes.from_hex("FF"), Bytes.from_hex("0F0F")
+    // )
+    callsub test_binary_ops_with_bytes_of_different_size
+    // fixed_bytes_ops/contract.py:73
+    // test_binary_ops_with_literal_bytes(FixedBytes.from_hex("FF"))
+    bytec_1 // 0xff
+    callsub test_binary_ops_with_literal_bytes
+    // fixed_bytes_ops/contract.py:76
+    // FixedBytes[typing.Literal[3]].from_bytes(b"\xf0\xf0\xf0\xf0"),
+    pushbytes 0xf0f0f0f0
+    // fixed_bytes_ops/contract.py:77
+    // FixedBytes[typing.Literal[3]].from_bytes(Bytes.from_hex("0f0f")),
+    bytec_2 // 0x0f0f
+    // fixed_bytes_ops/contract.py:75-78
+    // test_augmented_assignment_with_invalid_lengths(
+    //     FixedBytes[typing.Literal[3]].from_bytes(b"\xf0\xf0\xf0\xf0"),
+    //     FixedBytes[typing.Literal[3]].from_bytes(Bytes.from_hex("0f0f")),
+    // )
+    callsub test_augmented_assignment_with_invalid_lengths
+    // fixed_bytes_ops/contract.py:80
+    // test_augmented_assignment(FixedBytes.from_hex("F0"), FixedBytes.from_hex("0F"))
+    bytec 7 // 0xf0
+    bytec_3 // 0x0f
+    callsub test_augmented_assignment
+    // fixed_bytes_ops/contract.py:82
+    // test_augmented_assignment_with_bytes(FixedBytes.from_hex("F0"), Bytes.from_hex("0F"))
+    bytec 7 // 0xf0
+    bytec_3 // 0x0f
+    callsub test_augmented_assignment_with_bytes
+    // fixed_bytes_ops/contract.py:84
+    // test_augmented_assignment_with_literal_bytes(FixedBytes.from_hex("F0"))
+    bytec 7 // 0xf0
+    callsub test_augmented_assignment_with_literal_bytes
+    // fixed_bytes_ops/contract.py:86
+    // test_unary_ops()
+    callsub test_unary_ops
+    // fixed_bytes_ops/contract.py:88
+    // test_comparison_ops()
+    callsub test_comparison_ops
+    // fixed_bytes_ops/contract.py:90
+    // test_sequence_ops(FixedBytes.from_bytes(b"\xab\xcd\x12\x34"))
+    bytec 12 // 0xabcd1234
+    callsub test_sequence_ops
+    // fixed_bytes_ops/contract.py:93
+    // FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
+    pushbytes 0xabcd12345678
+    // fixed_bytes_ops/contract.py:92-94
+    // test_sequence_ops(
+    //     FixedBytes[typing.Literal[4]].from_bytes(Bytes.from_hex("ABCD12345678"))
+    // )
+    callsub test_sequence_ops
+    // fixed_bytes_ops/contract.py:96
+    // test_construction()
+    callsub test_construction
+    // fixed_bytes_ops/contract.py:98
+    // test_iteration()
+    callsub test_iteration
+    // fixed_bytes_ops/contract.py:100
+    // test_size_of()
+    callsub test_size_of
+    // fixed_bytes_ops/contract.py:102
+    // test_passing_fixed_bytes()
+    callsub test_passing_fixed_bytes
+    // fixed_bytes_ops/contract.py:105
+    // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+    bytec 12 // 0xabcd1234
+    bytec 8 // 0xcd12
+    // fixed_bytes_ops/contract.py:104-106
+    // test_contains_fixed_bytes(
+    //     FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
+    // )
+    callsub test_contains_fixed_bytes
+    // fixed_bytes_ops/contract.py:108
+    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
+    bytec 12 // 0xabcd1234
+    bytec 8 // 0xcd12
+    callsub test_contains_bytes
+    // fixed_bytes_ops/contract.py:110
+    // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
+    bytec 12 // 0xabcd1234
+    callsub test_contains_literal_bytes
+    // fixed_bytes_ops/contract.py:111
+    // result = FixedBytes[typing.Literal[5]](b"hello")
+    pushbytes 0x68656c6c6f
+    // fixed_bytes_ops/contract.py:112
+    // log(result)
+    log
+    b main_after_if_else@34
+
+
+// _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
+is_substring:
+    proto 2 1
+    b is_substring_block@0
+
+is_substring_block@0:
+    intc_2 // 0
+    b is_substring_while_top@1
+
+is_substring_while_top@1:
+    frame_dig -2
+    len
+    frame_dig 0
+    +
+    frame_dig -1
+    len
+    <=
+    bz is_substring_after_while@5
+    b is_substring_while_body@2
+
+is_substring_while_body@2:
+    frame_dig -2
+    len
+    frame_dig 0
+    dup
+    cover 2
+    +
+    frame_dig -1
+    uncover 2
+    uncover 2
+    substring3
+    frame_dig -2
+    ==
+    bz is_substring_after_if_else@4
+    b is_substring_if_body@3
+
+is_substring_if_body@3:
+    intc_1 // 1
+    uncover 1
+    retsub
+
+is_substring_after_if_else@4:
+    frame_dig 0
+    intc_1 // 1
+    +
+    frame_bury 0
+    b is_substring_while_top@1
+
+is_substring_after_while@5:
+    intc_2 // 0
+    uncover 1
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_binary_ops(left: bytes, right: bytes) -> void:
+test_binary_ops:
+    // fixed_bytes_ops/contract.py:158-161
+    // @subroutine
+    // def test_binary_ops(
+    //     left: FixedBytes[typing.Literal[1]], right: FixedBytes[typing.Literal[1]]
+    // ) -> None:
+    proto 2 0
+    b test_binary_ops_block@0
+
+test_binary_ops_block@0:
+    // fixed_bytes_ops/contract.py:164-165
+    // # Bitwise OR
+    // result = left | right
+    frame_dig -2
+    frame_dig -1
+    b|
+    // fixed_bytes_ops/contract.py:166
+    // assert result == FixedBytes[typing.Literal[1]].from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:168-169
+    // # Reverse bitwise OR
+    // result = right | left
+    frame_dig -1
+    frame_dig -2
+    b|
+    // fixed_bytes_ops/contract.py:170
+    // assert result == FixedBytes[typing.Literal[1]].from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:172-173
+    // # Bitwise XOR
+    // result = left ^ right
+    frame_dig -2
+    frame_dig -1
+    b^
+    // fixed_bytes_ops/contract.py:174
+    // assert result == FixedBytes[typing.Literal[1]].from_hex("F0")
+    bytec 7 // 0xf0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:176-177
+    // # Reverse bitwise XOR
+    // result = right ^ left
+    frame_dig -1
+    frame_dig -2
+    b^
+    // fixed_bytes_ops/contract.py:178
+    // assert result == FixedBytes[typing.Literal[1]].from_hex("F0")
+    bytec 7 // 0xf0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:180-181
+    // # Bitwise AND
+    // result = left & right
+    frame_dig -2
+    frame_dig -1
+    b&
+    // fixed_bytes_ops/contract.py:182
+    // assert result == FixedBytes[typing.Literal[1]].from_hex("0F")
+    bytec_3 // 0x0f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:184-185
+    // # Reverse bitwise AND
+    // result = right & left
+    frame_dig -1
+    frame_dig -2
+    b&
+    // fixed_bytes_ops/contract.py:186
+    // assert result == FixedBytes[typing.Literal[1]].from_hex("0F")
+    bytec_3 // 0x0f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:188-189
+    // # Concatenation (returns Bytes)
+    // concat_result = left + right
+    frame_dig -2
+    frame_dig -1
+    concat
+    // fixed_bytes_ops/contract.py:190
+    // assert concat_result == Bytes.from_hex("FF0F")
+    pushbytes 0xff0f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:192-193
+    // # Reverse concatenation
+    // concat_result = right + left
+    frame_dig -1
+    frame_dig -2
+    concat
+    // fixed_bytes_ops/contract.py:194
+    // assert concat_result == Bytes.from_hex("0FFF")
+    bytec 6 // 0x0fff
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_binary_ops_with_fixed_bytes_of_different_size(left: bytes, right: bytes) -> void:
+test_binary_ops_with_fixed_bytes_of_different_size:
+    // fixed_bytes_ops/contract.py:197-200
+    // @subroutine
+    // def test_binary_ops_with_fixed_bytes_of_different_size(
+    //     left: FixedBytes[typing.Literal[1]], right: FixedBytes[typing.Literal[2]]
+    // ) -> None:
+    proto 2 0
+    b test_binary_ops_with_fixed_bytes_of_different_size_block@0
+
+test_binary_ops_with_fixed_bytes_of_different_size_block@0:
+    // fixed_bytes_ops/contract.py:203
+    // result = left | right
+    frame_dig -2
+    frame_dig -1
+    b|
+    // fixed_bytes_ops/contract.py:204
+    // assert result == Bytes.from_hex("0FFF")
+    bytec 6 // 0x0fff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:206-207
+    // # Reverse bitwise OR
+    // result = right | left
+    frame_dig -1
+    frame_dig -2
+    b|
+    // fixed_bytes_ops/contract.py:208
+    // assert result == Bytes.from_hex("0FFF")
+    bytec 6 // 0x0fff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:210-211
+    // # Bitwise XOR
+    // result = left ^ right
+    frame_dig -2
+    frame_dig -1
+    b^
+    // fixed_bytes_ops/contract.py:212
+    // assert result == Bytes.from_hex("0FF0")
+    bytec 9 // 0x0ff0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:214-215
+    // # Reverse bitwise XOR
+    // result = right ^ left
+    frame_dig -1
+    frame_dig -2
+    b^
+    // fixed_bytes_ops/contract.py:216
+    // assert result == Bytes.from_hex("0FF0")
+    bytec 9 // 0x0ff0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:218-219
+    // # Bitwise AND
+    // result = left & right
+    frame_dig -2
+    frame_dig -1
+    b&
+    // fixed_bytes_ops/contract.py:220
+    // assert result == Bytes.from_hex("000F")
+    bytec 10 // 0x000f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:222-223
+    // # Reverse bitwise AND
+    // result = right & left
+    frame_dig -1
+    frame_dig -2
+    b&
+    // fixed_bytes_ops/contract.py:224
+    // assert result == Bytes.from_hex("000F")
+    bytec 10 // 0x000f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:226-227
+    // # Concatenation (returns Bytes)
+    // concat_result = left + right
+    frame_dig -2
+    frame_dig -1
+    concat
+    // fixed_bytes_ops/contract.py:228
+    // assert concat_result == Bytes.from_hex("FF0F0F")
+    bytec 15 // 0xff0f0f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:230-231
+    // # Reverse concatenation
+    // concat_result = right + left
+    frame_dig -1
+    frame_dig -2
+    concat
+    // fixed_bytes_ops/contract.py:232
+    // assert concat_result == Bytes.from_hex("0F0FFF")
+    bytec 16 // 0x0f0fff
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_binary_ops_with_bytes_of_different_size(left: bytes, right: bytes) -> void:
+test_binary_ops_with_bytes_of_different_size:
+    // fixed_bytes_ops/contract.py:235-238
+    // @subroutine
+    // def test_binary_ops_with_bytes_of_different_size(
+    //     left: FixedBytes[typing.Literal[1]], right: Bytes
+    // ) -> None:
+    proto 2 0
+    b test_binary_ops_with_bytes_of_different_size_block@0
+
+test_binary_ops_with_bytes_of_different_size_block@0:
+    // fixed_bytes_ops/contract.py:241-242
+    // # Bitwise OR
+    // result = left | right
+    frame_dig -2
+    frame_dig -1
+    b|
+    // fixed_bytes_ops/contract.py:243
+    // assert result == Bytes.from_hex("0FFF")
+    bytec 6 // 0x0fff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:245-246
+    // # Reverse bitwise OR
+    // result = right | left
+    frame_dig -1
+    frame_dig -2
+    b|
+    // fixed_bytes_ops/contract.py:247
+    // assert result == Bytes.from_hex("0FFF")
+    bytec 6 // 0x0fff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:249-250
+    // # Bitwise XOR
+    // result = left ^ right
+    frame_dig -2
+    frame_dig -1
+    b^
+    // fixed_bytes_ops/contract.py:251
+    // assert result == Bytes.from_hex("0FF0")
+    bytec 9 // 0x0ff0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:253-254
+    // # Reverse bitwise XOR
+    // result = right ^ left
+    frame_dig -1
+    frame_dig -2
+    b^
+    // fixed_bytes_ops/contract.py:255
+    // assert result == Bytes.from_hex("0FF0")
+    bytec 9 // 0x0ff0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:257-258
+    // # Bitwise AND
+    // result = left & right
+    frame_dig -2
+    frame_dig -1
+    b&
+    // fixed_bytes_ops/contract.py:259
+    // assert result == Bytes.from_hex("000F")
+    bytec 10 // 0x000f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:261-262
+    // # Reverse bitwise AND
+    // result = right & left
+    frame_dig -1
+    frame_dig -2
+    b&
+    // fixed_bytes_ops/contract.py:263
+    // assert result == Bytes.from_hex("000F")
+    bytec 10 // 0x000f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:265-266
+    // # Concatenation (returns Bytes)
+    // concat_result = left + right
+    frame_dig -2
+    frame_dig -1
+    concat
+    // fixed_bytes_ops/contract.py:267
+    // assert concat_result == Bytes.from_hex("FF0F0F")
+    bytec 15 // 0xff0f0f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:269-270
+    // # Reverse concatenation
+    // concat_result = right + left
+    frame_dig -1
+    frame_dig -2
+    concat
+    // fixed_bytes_ops/contract.py:271
+    // assert concat_result == Bytes.from_hex("0F0FFF")
+    bytec 16 // 0x0f0fff
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_binary_ops_with_literal_bytes(left: bytes) -> void:
+test_binary_ops_with_literal_bytes:
+    // fixed_bytes_ops/contract.py:274-275
+    // @subroutine
+    // def test_binary_ops_with_literal_bytes(left: FixedBytes[typing.Literal[1]]) -> None:
+    proto 1 0
+    b test_binary_ops_with_literal_bytes_block@0
+
+test_binary_ops_with_literal_bytes_block@0:
+    // fixed_bytes_ops/contract.py:278-279
+    // # Bitwise OR
+    // result = left | b"\x0f\x0f"
+    frame_dig -1
+    bytec_2 // 0x0f0f
+    b|
+    // fixed_bytes_ops/contract.py:280
+    // assert result == Bytes.from_hex("0FFF")
+    bytec 6 // 0x0fff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:282-283
+    // # Reverse bitwise OR
+    // result = b"\x0f\x0f" | left
+    bytec_2 // 0x0f0f
+    frame_dig -1
+    b|
+    // fixed_bytes_ops/contract.py:284
+    // assert result == Bytes.from_hex("0FFF")
+    bytec 6 // 0x0fff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:286-287
+    // # Bitwise XOR
+    // result = left ^ b"\x0f\x0f"
+    frame_dig -1
+    bytec_2 // 0x0f0f
+    b^
+    // fixed_bytes_ops/contract.py:288
+    // assert result == Bytes.from_hex("0FF0")
+    bytec 9 // 0x0ff0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:290-291
+    // # Reverse bitwise XOR
+    // result = b"\x0f\x0f" ^ left
+    bytec_2 // 0x0f0f
+    frame_dig -1
+    b^
+    // fixed_bytes_ops/contract.py:292
+    // assert result == Bytes.from_hex("0FF0")
+    bytec 9 // 0x0ff0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:294-295
+    // # Bitwise AND
+    // result = left & b"\x0f\x0f"
+    frame_dig -1
+    bytec_2 // 0x0f0f
+    b&
+    // fixed_bytes_ops/contract.py:296
+    // assert result == Bytes.from_hex("000F")
+    bytec 10 // 0x000f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:298-299
+    // # Reverse bitwise AND
+    // result = b"\x0f\x0f" & left
+    bytec_2 // 0x0f0f
+    frame_dig -1
+    b&
+    // fixed_bytes_ops/contract.py:300
+    // assert result == Bytes.from_hex("000F")
+    bytec 10 // 0x000f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:302-303
+    // # Concatenation (returns Bytes)
+    // concat_result = left + b"\x0f\x0f"
+    frame_dig -1
+    bytec_2 // 0x0f0f
+    concat
+    // fixed_bytes_ops/contract.py:304
+    // assert concat_result == Bytes.from_hex("FF0F0F")
+    bytec 15 // 0xff0f0f
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:306-307
+    // # Reverse concatenation
+    // concat_result = b"\x0f\x0f" + left
+    bytec_2 // 0x0f0f
+    frame_dig -1
+    concat
+    // fixed_bytes_ops/contract.py:308
+    // assert concat_result == Bytes.from_hex("0F0FFF")
+    bytec 16 // 0x0f0fff
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_augmented_assignment_with_invalid_lengths(val: bytes, other: bytes) -> void:
+test_augmented_assignment_with_invalid_lengths:
+    // fixed_bytes_ops/contract.py:311-314
+    // @subroutine
+    // def test_augmented_assignment_with_invalid_lengths(
+    //     val: FixedBytes[typing.Literal[3]], other: FixedBytes[typing.Literal[3]]
+    // ) -> None:
+    proto 2 0
+    b test_augmented_assignment_with_invalid_lengths_block@0
+
+test_augmented_assignment_with_invalid_lengths_block@0:
+    // fixed_bytes_ops/contract.py:315
+    // val1 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:316
+    // val1 |= other
+    frame_dig -1
+    b|
+    // fixed_bytes_ops/contract.py:317
+    // assert val1 == Bytes.from_hex("F0F0FFFF")
+    bytec 20 // 0xf0f0ffff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:319-320
+    // # Test &=
+    // val2 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:321
+    // val2 &= other
+    frame_dig -1
+    b&
+    // fixed_bytes_ops/contract.py:322
+    // assert val2 == Bytes.from_hex("00000000")
+    bytec 21 // 0x00000000
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:324-325
+    // # Test ^=
+    // val3 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:326
+    // val3 ^= other
+    frame_dig -1
+    b^
+    // fixed_bytes_ops/contract.py:327
+    // assert val3 == Bytes.from_hex("F0F0FFFF")
+    bytec 20 // 0xf0f0ffff
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_augmented_assignment(val: bytes, other: bytes) -> void:
+test_augmented_assignment:
+    // fixed_bytes_ops/contract.py:330-333
+    // @subroutine
+    // def test_augmented_assignment(
+    //     val: FixedBytes[typing.Literal[1]], other: FixedBytes[typing.Literal[1]]
+    // ) -> None:
+    proto 2 0
+    b test_augmented_assignment_block@0
+
+test_augmented_assignment_block@0:
+    // fixed_bytes_ops/contract.py:335-336
+    // # Test |=
+    // val1 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:337
+    // val1 |= other
+    frame_dig -1
+    b|
+    // fixed_bytes_ops/contract.py:338
+    // assert val1 == Bytes.from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:340-341
+    // # Test &=
+    // val2 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:342
+    // val2 &= other
+    frame_dig -1
+    b&
+    // fixed_bytes_ops/contract.py:343
+    // assert val2 == Bytes.from_hex("00")
+    bytec 17 // 0x00
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:345-346
+    // # Test ^=
+    // val3 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:347
+    // val3 ^= other
+    frame_dig -1
+    b^
+    // fixed_bytes_ops/contract.py:348
+    // assert val3 == Bytes.from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:350
+    // bytes_value = val + b"test"
+    frame_dig -2
+    pushbytes 0x74657374
+    concat
+    // fixed_bytes_ops/contract.py:351
+    // bytes_value += other
+    frame_dig -1
+    concat
+    // fixed_bytes_ops/contract.py:352
+    // assert bytes_value.length == 6
+    len
+    pushint 6 // 6
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_augmented_assignment_with_bytes(val: bytes, other: bytes) -> void:
+test_augmented_assignment_with_bytes:
+    // fixed_bytes_ops/contract.py:355-356
+    // @subroutine
+    // def test_augmented_assignment_with_bytes(val: FixedBytes[typing.Literal[1]], other: Bytes) -> None:
+    proto 2 0
+    b test_augmented_assignment_with_bytes_block@0
+
+test_augmented_assignment_with_bytes_block@0:
+    // fixed_bytes_ops/contract.py:358-359
+    // # Test |=
+    // val1 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:360
+    // val1 |= other
+    frame_dig -1
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    b|
+    // fixed_bytes_ops/contract.py:361
+    // assert val1 == Bytes.from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:363-364
+    // # Test &=
+    // val2 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:365
+    // val2 &= other
+    frame_dig -1
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    b&
+    // fixed_bytes_ops/contract.py:366
+    // assert val2 == Bytes.from_hex("00")
+    bytec 17 // 0x00
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:368-369
+    // # Test ^=
+    // val3 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:370
+    // val3 ^= other
+    frame_dig -1
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    b^
+    // fixed_bytes_ops/contract.py:371
+    // assert val3 == Bytes.from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_augmented_assignment_with_literal_bytes(val: bytes) -> void:
+test_augmented_assignment_with_literal_bytes:
+    // fixed_bytes_ops/contract.py:374-375
+    // @subroutine
+    // def test_augmented_assignment_with_literal_bytes(val: FixedBytes[typing.Literal[1]]) -> None:
+    proto 1 0
+    b test_augmented_assignment_with_literal_bytes_block@0
+
+test_augmented_assignment_with_literal_bytes_block@0:
+    // fixed_bytes_ops/contract.py:377-378
+    // # Test |=
+    // val1 = val
+    frame_dig -1
+    // fixed_bytes_ops/contract.py:379
+    // val1 |= b"\x0f"
+    bytec_3 // 0x0f
+    b|
+    // fixed_bytes_ops/contract.py:380
+    // assert val1 == Bytes.from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:382-383
+    // # Test &=
+    // val2 = val
+    frame_dig -1
+    // fixed_bytes_ops/contract.py:384
+    // val2 &= b"\x0f"
+    bytec_3 // 0x0f
+    b&
+    // fixed_bytes_ops/contract.py:385
+    // assert val2 == Bytes.from_hex("00")
+    bytec 17 // 0x00
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:387-388
+    // # Test ^=
+    // val3 = val
+    frame_dig -1
+    // fixed_bytes_ops/contract.py:389
+    // val3 ^= b"\x0f"
+    bytec_3 // 0x0f
+    b^
+    // fixed_bytes_ops/contract.py:390
+    // assert val3 == Bytes.from_hex("FF")
+    bytec_1 // 0xff
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_unary_ops() -> void:
+test_unary_ops:
+    b test_unary_ops_block@0
+
+test_unary_ops_block@0:
+    // fixed_bytes_ops/contract.py:397-398
+    // # Bitwise invert
+    // val = FixedBytes[typing.Literal[1]].from_hex("0F")
+    bytec_3 // 0x0f
+    // fixed_bytes_ops/contract.py:399
+    // inverted = ~val
+    b~
+    // fixed_bytes_ops/contract.py:400
+    // assert inverted == FixedBytes[typing.Literal[1]].from_hex("F0")
+    bytec 7 // 0xf0
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_comparison_ops() -> void:
+test_comparison_ops:
+    b test_comparison_ops_block@0
+
+test_comparison_ops_block@0:
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:407
+    // val2 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:410-411
+    // # Equality
+    // assert val1 == val2
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:412
+    // assert val1 == Bytes.from_hex("ABCD")
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:413
+    // assert val1 == b"\xab\xcd"
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:407
+    // val2 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:415
+    // assert val2 == val1
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:416
+    // assert Bytes.from_hex("ABCD") == val1
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:417
+    // assert b"\xab\xcd" == val1  # noqa: SIM300
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:408
+    // val3 = FixedBytes[typing.Literal[2]].from_hex("1234")
+    bytec 5 // 0x1234
+    // fixed_bytes_ops/contract.py:419-420
+    // # Inequality
+    // assert val1 != val3
+    !=
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:421
+    // assert val1 != Bytes.from_hex("1234")
+    bytec 5 // 0x1234
+    !=
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:422
+    // assert val1 != b"\x12\x34"
+    bytec 5 // 0x1234
+    !=
+    assert
+    // fixed_bytes_ops/contract.py:408
+    // val3 = FixedBytes[typing.Literal[2]].from_hex("1234")
+    bytec 5 // 0x1234
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:424
+    // assert val3 != val1
+    !=
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:425
+    // assert Bytes.from_hex("1234") != val1
+    bytec 5 // 0x1234
+    !=
+    assert
+    // fixed_bytes_ops/contract.py:406
+    // val1 = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:426
+    // assert b"\x12\x34" != val1  # noqa: SIM300
+    bytec 5 // 0x1234
+    !=
+    assert
+    // fixed_bytes_ops/contract.py:428-429
+    // # invalid length
+    // val4 = FixedBytes[typing.Literal[3]].from_bytes(b"\xab\xcd\x12\x34\x56")
+    bytec 18 // 0xabcd123456
+    // fixed_bytes_ops/contract.py:430
+    // assert val4 == b"\xab\xcd\x12\x34\x56"
+    bytec 18 // 0xabcd123456
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:431
+    // assert val4.length == 3
+    pushint 3 // 3
+    pushint 3 // 3
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:428-429
+    // # invalid length
+    // val4 = FixedBytes[typing.Literal[3]].from_bytes(b"\xab\xcd\x12\x34\x56")
+    bytec 18 // 0xabcd123456
+    // fixed_bytes_ops/contract.py:433
+    // val5 = FixedBytes[typing.Literal[3]](b"\xab\xcd\x12")
+    bytec 13 // 0xabcd12
+    // fixed_bytes_ops/contract.py:434
+    // assert val4 != val5
+    !=
+    assert
+    // fixed_bytes_ops/contract.py:436
+    // val6 = FixedBytes[typing.Literal[2]].from_bytes(b"\xab\xcd\x12")
+    bytec 13 // 0xabcd12
+    // fixed_bytes_ops/contract.py:437
+    // val7 = FixedBytes[typing.Literal[2]].from_bytes(b"\xab\xcd\x12")
+    bytec 13 // 0xabcd12
+    // fixed_bytes_ops/contract.py:438
+    // assert val6 == val7
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_sequence_ops(val: bytes) -> void:
+test_sequence_ops:
+    // fixed_bytes_ops/contract.py:441-442
+    // @subroutine(inline=False)
+    // def test_sequence_ops(val: FixedBytes[typing.Literal[4]]) -> None:
+    proto 1 0
+    pushbytes ""
+    b test_sequence_ops_block@0
+
+test_sequence_ops_block@0:
+    // fixed_bytes_ops/contract.py:445-446
+    // # Length property
+    // assert val.length == UInt64(4)
+    intc_0 // 4
+    intc_0 // 4
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:448-449
+    // # Indexing (returns Bytes)
+    // first_byte = val[0]
+    frame_dig -1
+    intc_2 // 0
+    intc_1 // 1
+    extract3
+    // fixed_bytes_ops/contract.py:450
+    // assert first_byte == Bytes.from_hex("AB")
+    pushbytes 0xab
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:452
+    // last_byte = val[3]
+    frame_dig -1
+    pushint 3 // 3
+    intc_1 // 1
+    extract3
+    // fixed_bytes_ops/contract.py:453
+    // assert last_byte == Bytes.from_hex("34")
+    dup
+    pushbytes 0x34
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:454
+    // assert last_byte == val[-1]
+    intc_0 // 4
+    intc_1 // 1
+    -
+    frame_dig -1
+    uncover 1
+    intc_1 // 1
+    extract3
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:456-457
+    // # Slicing (returns Bytes)
+    // slice_result = val[1:3]
+    intc_1 // 1
+    intc_0 // 4
+    >=
+    intc_1 // 1
+    intc_0 // 4
+    uncover 2
+    select
+    pushint 3 // 3
+    intc_0 // 4
+    >=
+    pushint 3 // 3
+    intc_0 // 4
+    uncover 2
+    select
+    frame_dig -1
+    uncover 2
+    uncover 2
+    substring3
+    // fixed_bytes_ops/contract.py:458
+    // assert slice_result == Bytes.from_hex("CD12")
+    bytec 8 // 0xcd12
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:460
+    // slice_result = val[:2]
+    intc_3 // 2
+    intc_0 // 4
+    >=
+    intc_3 // 2
+    intc_0 // 4
+    uncover 2
+    select
+    frame_dig -1
+    intc_2 // 0
+    uncover 2
+    substring3
+    // fixed_bytes_ops/contract.py:461
+    // assert slice_result == Bytes.from_hex("ABCD")
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:463
+    // slice_result = val[2:]
+    intc_3 // 2
+    intc_0 // 4
+    >=
+    intc_3 // 2
+    intc_0 // 4
+    uncover 2
+    select
+    frame_dig -1
+    uncover 1
+    intc_0 // 4
+    substring3
+    // fixed_bytes_ops/contract.py:464
+    // assert slice_result == Bytes.from_hex("1234")
+    bytec 5 // 0x1234
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:466
+    // slice_result = val[:-1]
+    intc_1 // 1
+    intc_0 // 4
+    >=
+    intc_1 // 1
+    intc_0 // 4
+    uncover 2
+    select
+    intc_0 // 4
+    uncover 1
+    -
+    frame_dig -1
+    intc_2 // 0
+    uncover 2
+    substring3
+    // fixed_bytes_ops/contract.py:467
+    // assert slice_result == Bytes.from_hex("ABCD12")
+    bytec 13 // 0xabcd12
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:469
+    // slice_result = val[-2:]
+    intc_3 // 2
+    intc_0 // 4
+    >=
+    intc_3 // 2
+    intc_0 // 4
+    uncover 2
+    select
+    intc_0 // 4
+    uncover 1
+    -
+    frame_dig -1
+    uncover 1
+    intc_0 // 4
+    substring3
+    // fixed_bytes_ops/contract.py:470
+    // assert slice_result == Bytes.from_hex("1234")
+    bytec 5 // 0x1234
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:472
+    // slice_result = val[-3:-1]
+    pushint 3 // 3
+    intc_0 // 4
+    >=
+    pushint 3 // 3
+    intc_0 // 4
+    uncover 2
+    select
+    intc_0 // 4
+    uncover 1
+    -
+    intc_1 // 1
+    intc_0 // 4
+    >=
+    intc_1 // 1
+    intc_0 // 4
+    uncover 2
+    select
+    intc_0 // 4
+    uncover 1
+    -
+    frame_dig -1
+    uncover 2
+    uncover 2
+    substring3
+    // fixed_bytes_ops/contract.py:473
+    // assert slice_result == Bytes.from_hex("CD12")
+    bytec 8 // 0xcd12
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:475-476
+    // # Iteration
+    // count = UInt64(0)
+    intc_2 // 0
+    intc_2 // 0
+    b test_sequence_ops_for_header@1
+
+test_sequence_ops_for_header@1:
+    // fixed_bytes_ops/contract.py:477
+    // for _byte in val:
+    frame_dig 2
+    intc_0 // 4
+    <
+    bz test_sequence_ops_after_for@4
+    b test_sequence_ops_for_body@2
+
+test_sequence_ops_for_body@2:
+    // fixed_bytes_ops/contract.py:478
+    // count += 1
+    frame_dig 1
+    intc_1 // 1
+    +
+    frame_bury 1
+    b test_sequence_ops_for_footer@3
+
+test_sequence_ops_for_footer@3:
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b test_sequence_ops_for_header@1
+
+test_sequence_ops_after_for@4:
+    // fixed_bytes_ops/contract.py:479
+    // assert count == 4
+    frame_dig 1
+    intc_0 // 4
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:481-482
+    // # Reverse iteration
+    // count = UInt64(0)
+    intc_2 // 0
+    frame_bury 1
+    // fixed_bytes_ops/contract.py:483
+    // for _byte in reversed(val):
+    intc_0 // 4
+    frame_bury 0
+    b test_sequence_ops_for_header@5
+
+test_sequence_ops_for_header@5:
+    // fixed_bytes_ops/contract.py:483
+    // for _byte in reversed(val):
+    frame_dig 0
+    intc_2 // 0
+    >
+    bz test_sequence_ops_after_for@8
+    b test_sequence_ops_for_body@6
+
+test_sequence_ops_for_body@6:
+    frame_dig 0
+    intc_1 // 1
+    -
+    frame_bury 0
+    // fixed_bytes_ops/contract.py:484
+    // count += 1
+    frame_dig 1
+    intc_1 // 1
+    +
+    frame_bury 1
+    b test_sequence_ops_for_footer@7
+
+test_sequence_ops_for_footer@7:
+    b test_sequence_ops_for_header@5
+
+test_sequence_ops_after_for@8:
+    // fixed_bytes_ops/contract.py:485
+    // assert count == 4
+    frame_dig 1
+    intc_0 // 4
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_construction() -> void:
+test_construction:
+    b test_construction_block@0
+
+test_construction_block@0:
+    // fixed_bytes_ops/contract.py:491-492
+    // # from_hex
+    // hex_val = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:493
+    // assert hex_val == b"\xab\xcd"
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:495-496
+    // # from_base64
+    // base64_val = FixedBytes[typing.Literal[2]].from_base64("q80=")  # "ABCD" in base64
+    bytec_0 // base64(q80=)
+    // fixed_bytes_ops/contract.py:497
+    // assert base64_val == b"\xab\xcd"
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:499-500
+    // # from_base32
+    // base32_val = FixedBytes[typing.Literal[2]].from_base32("VPGQ====")  # "ABCD" in base32
+    bytec_0 // base32(VPGQ)
+    // fixed_bytes_ops/contract.py:501
+    // assert base32_val == b"\xab\xcd"
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:503-504
+    // # Direct initialization
+    // direct_val = FixedBytes[typing.Literal[2]](b"\xab\xcd")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:505
+    // assert direct_val == Bytes(b"\xab\xcd")
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:491-492
+    // # from_hex
+    // hex_val = FixedBytes[typing.Literal[2]].from_hex("ABCD")
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:509
+    // assert bytes_val == Bytes.from_hex("ABCD")
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:511-512
+    // # from_bytes class method (from BytesBacked)
+    // from_bytes_val = FixedBytes[typing.Literal[2]].from_bytes(Bytes.from_hex("ABCD"))
+    bytec_0 // 0xabcd
+    // fixed_bytes_ops/contract.py:513
+    // assert from_bytes_val == b"\xab\xcd"
+    bytec_0 // 0xabcd
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:515
+    // from_txn_sender = FixedBytes[typing.Literal[32]](Txn.sender.bytes)
+    txn Sender
+    len
+    pushint 32 // 32
+    ==
+    assert // expected bytes to be length 32
+    // fixed_bytes_ops/contract.py:516
+    // assert from_txn_sender.length == 32
+    pushint 32 // 32
+    pushint 32 // 32
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:518
+    // empty_1 = FixedBytes[typing.Literal[4]]()
+    intc_0 // 4
+    bzero
+    // fixed_bytes_ops/contract.py:519
+    // assert empty_1 == b"\x00\x00\x00\x00"
+    bytec 21 // 0x00000000
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:521
+    // empty_2 = FixedBytes[typing.Literal[0]]()
+    pushbytes 0x
+    // fixed_bytes_ops/contract.py:522
+    // assert empty_2 == b""
+    pushbytes 0x
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:524
+    // abc = FixedBytes[typing.Literal[3]](b"123" if Txn.application_id == 123 else b"abc")
+    txn ApplicationID
+    pushint 123 // 123
+    ==
+    pushbytes 0x616263
+    pushbytes 0x313233
+    uncover 2
+    select
+    // fixed_bytes_ops/contract.py:525
+    // assert abc.bytes.length == 3
+    len
+    pushint 3 // 3
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_iteration() -> void:
+test_iteration:
+    // fixed_bytes_ops/contract.py:531-532
+    // @subroutine
+    // def test_iteration() -> None:
+    proto 0 0
+    pushbytes ""
+    b test_iteration_block@0
+
+test_iteration_block@0:
+    // fixed_bytes_ops/contract.py:535
+    // result = Bytes()
+    pushbytes 0x
+    intc_2 // 0
+    b test_iteration_for_header@1
+
+test_iteration_for_header@1:
+    // fixed_bytes_ops/contract.py:537
+    // for item in val:
+    frame_dig 2
+    pushint 3 // 3
+    <
+    bz test_iteration_after_for@4
+    b test_iteration_for_body@2
+
+test_iteration_for_body@2:
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:537
+    // for item in val:
+    frame_dig 2
+    intc_1 // 1
+    extract3
+    // fixed_bytes_ops/contract.py:538
+    // result += item
+    frame_dig 1
+    uncover 1
+    concat
+    frame_bury 1
+    b test_iteration_for_footer@3
+
+test_iteration_for_footer@3:
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b test_iteration_for_header@1
+
+test_iteration_after_for@4:
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:539
+    // assert result == val
+    frame_dig 1
+    ==
+    assert
+    intc_2 // 0
+    frame_bury 0
+    b test_iteration_for_header@5
+
+test_iteration_for_header@5:
+    // fixed_bytes_ops/contract.py:541
+    // for idx, byte in uenumerate(val):
+    frame_dig 0
+    pushint 3 // 3
+    <
+    bz test_iteration_after_for@8
+    b test_iteration_for_body@6
+
+test_iteration_for_body@6:
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:541
+    // for idx, byte in uenumerate(val):
+    frame_dig 0
+    dup
+    cover 2
+    intc_1 // 1
+    extract3
+    cover 1
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:542
+    // assert byte == val[idx]
+    dig 1
+    intc_1 // 1
+    extract3
+    dig 2
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:543
+    // assert FB1(byte) == val[idx]
+    dig 1
+    cover 1
+    dig 2
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:543
+    // assert FB1(byte) == val[idx]
+    uncover 1
+    intc_1 // 1
+    extract3
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:545
+    // assert byte in val
+    dup
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:545
+    // assert byte in val
+    callsub is_substring
+    assert
+    // fixed_bytes_ops/contract.py:546
+    // assert FB1(byte) in val
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:546
+    // assert FB1(byte) in val
+    callsub is_substring
+    assert
+    b test_iteration_for_footer@7
+
+test_iteration_for_footer@7:
+    frame_dig 0
+    intc_1 // 1
+    +
+    frame_bury 0
+    b test_iteration_for_header@5
+
+test_iteration_after_for@8:
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:548
+    // exploded = tuple[Bytes, Bytes, Bytes](val)  # type: ignore[arg-type]
+    intc_2 // 0
+    intc_1 // 1
+    extract3
+    // fixed_bytes_ops/contract.py:533-534
+    // # from_hex
+    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
+    bytec 4 // 0xabcdef
+    // fixed_bytes_ops/contract.py:548
+    // exploded = tuple[Bytes, Bytes, Bytes](val)  # type: ignore[arg-type]
+    intc_3 // 2
+    intc_1 // 1
+    extract3
+    cover 1
+    // fixed_bytes_ops/contract.py:549
+    // assert exploded[0] == Bytes.from_hex("AB")
+    pushbytes 0xab
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:550
+    // assert exploded[-1] == Bytes.from_hex("EF")
+    pushbytes 0xef
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_size_of() -> void:
+test_size_of:
+    // fixed_bytes_ops/contract.py:553-554
+    // @subroutine
+    // def test_size_of() -> None:
+    proto 0 0
+    b test_size_of_block@0
+
+test_size_of_block@0:
+    // fixed_bytes_ops/contract.py:556
+    // assert size_of(hex_val) == 2
+    intc_3 // 2
+    intc_3 // 2
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:557
+    // assert hex_val.length == 2
+    intc_3 // 2
+    intc_3 // 2
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:559
+    // from_txn_sender = FixedBytes[typing.Literal[32]](Txn.sender.bytes)
+    txn Sender
+    len
+    pushint 32 // 32
+    ==
+    assert // expected bytes to be length 32
+    // fixed_bytes_ops/contract.py:560
+    // assert size_of(from_txn_sender) == 32
+    pushint 32 // 32
+    pushint 32 // 32
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:561
+    // assert from_txn_sender.length == 32
+    pushint 32 // 32
+    pushint 32 // 32
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:564
+    // assert size_of(from_bytes_empty) == 16
+    pushint 16 // 16
+    pushint 16 // 16
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:567
+    // assert size_of(from_bytes_less) == 16
+    pushint 16 // 16
+    pushint 16 // 16
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:570
+    // assert size_of(from_bytes_more) == 2
+    intc_3 // 2
+    intc_3 // 2
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:573
+    // assert size_of(empty) == 4
+    intc_0 // 4
+    intc_0 // 4
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:574
+    // assert empty.length == 4
+    intc_0 // 4
+    intc_0 // 4
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:576
+    // arr = zero_bytes(FixedArray[FixedBytes[typing.Literal[4]], typing.Literal[8]])
+    pushint 32 // 32
+    bzero
+    // fixed_bytes_ops/contract.py:577
+    // assert size_of(arr) == 32  # 4 bytes * 8 elements = 32 bytes
+    pushint 32 // 32
+    pushint 32 // 32
+    ==
+    assert
+    intc_2 // 0
+    b test_size_of_for_header@1
+
+test_size_of_for_header@1:
+    // fixed_bytes_ops/contract.py:579
+    // for v in arr:
+    frame_dig 1
+    pushint 8 // 8
+    <
+    bz test_size_of_after_for@4
+    b test_size_of_for_body@2
+
+test_size_of_for_body@2:
+    // fixed_bytes_ops/contract.py:579
+    // for v in arr:
+    frame_dig 1
+    intc_0 // 4
+    *
+    frame_dig 0
+    uncover 1
+    intc_0 // 4
+    extract3 // on error: index access is out of bounds
+    // fixed_bytes_ops/contract.py:580
+    // assert v == FixedBytes[typing.Literal[4]]()
+    intc_0 // 4
+    bzero
+    ==
+    assert
+    b test_size_of_for_footer@3
+
+test_size_of_for_footer@3:
+    frame_dig 1
+    intc_1 // 1
+    +
+    frame_bury 1
+    b test_size_of_for_header@1
+
+test_size_of_after_for@4:
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_passing_fixed_bytes() -> void:
+test_passing_fixed_bytes:
+    b test_passing_fixed_bytes_block@0
+
+test_passing_fixed_bytes_block@0:
+    // fixed_bytes_ops/contract.py:585
+    // assert bytes_to_bool(FixedBytes(Bytes(b"yay")))
+    bytec 11 // 0x796179
+    len
+    pushint 3 // 3
+    ==
+    assert // expected bytes to be length 3
+    bytec 11 // 0x796179
+    callsub bytes_to_bool
+    assert
+    // fixed_bytes_ops/contract.py:586
+    // assert not bytes_to_bool(FixedBytes(b"nay"))
+    bytec 14 // 0x6e6179
+    callsub bytes_to_bool
+    !
+    assert
+    // fixed_bytes_ops/contract.py:588
+    // assert bool_to_bytes(True) == FixedBytes(b"yay")
+    intc_1 // 1
+    callsub bool_to_bytes
+    bytec 11 // 0x796179
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:589
+    // assert bool_to_bytes(False) == FixedBytes(Bytes(b"nay"))
+    intc_2 // 0
+    callsub bool_to_bytes
+    bytec 14 // 0x6e6179
+    len
+    pushint 3 // 3
+    ==
+    assert // expected bytes to be length 3
+    bytec 14 // 0x6e6179
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.bool_to_bytes(x: uint64) -> bytes:
+bool_to_bytes:
+    // fixed_bytes_ops/contract.py:592-593
+    // @subroutine
+    // def bool_to_bytes(x: bool) -> FixedBytes[typing.Literal[3]]:
+    proto 1 1
+    b bool_to_bytes_block@0
+
+bool_to_bytes_block@0:
+    // fixed_bytes_ops/contract.py:594
+    // return FixedBytes[typing.Literal[3]](b"yay" if x else b"nay")
+    bytec 14 // 0x6e6179
+    bytec 11 // 0x796179
+    frame_dig -1
+    select
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.bytes_to_bool(x: bytes) -> uint64:
+bytes_to_bool:
+    // fixed_bytes_ops/contract.py:597-598
+    // @subroutine
+    // def bytes_to_bool(x: FixedBytes[typing.Literal[3]]) -> bool:
+    proto 1 1
+    b bytes_to_bool_block@0
+
+bytes_to_bool_block@0:
+    // fixed_bytes_ops/contract.py:599
+    // return x == FixedBytes[typing.Literal[3]](b"yay")
+    frame_dig -1
+    bytec 11 // 0x796179
+    ==
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_contains_fixed_bytes(x: bytes, y: bytes) -> void:
+test_contains_fixed_bytes:
+    // fixed_bytes_ops/contract.py:602-605
+    // @subroutine
+    // def test_contains_fixed_bytes(
+    //     x: FixedBytes[typing.Literal[4]], y: FixedBytes[typing.Literal[2]]
+    // ) -> None:
+    proto 2 0
+    b test_contains_fixed_bytes_block@0
+
+test_contains_fixed_bytes_block@0:
+    // fixed_bytes_ops/contract.py:606
+    // assert x in x  # noqa: PLR0124
+    frame_dig -2
+    frame_dig -2
+    callsub is_substring
+    assert
+    // fixed_bytes_ops/contract.py:607
+    // assert y in x
+    frame_dig -1
+    frame_dig -2
+    callsub is_substring
+    assert
+    // fixed_bytes_ops/contract.py:608
+    // assert x not in y
+    frame_dig -2
+    frame_dig -1
+    callsub is_substring
+    !
+    assert
+    // fixed_bytes_ops/contract.py:610
+    // assert (x not in x) == False  # noqa: E712, PLR0124
+    frame_dig -2
+    frame_dig -2
+    callsub is_substring
+    !
+    intc_2 // 0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:611
+    // assert (y not in x) == False  # noqa: E712
+    frame_dig -1
+    frame_dig -2
+    callsub is_substring
+    !
+    intc_2 // 0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:612
+    // assert (x in y) == False  # noqa: E712
+    frame_dig -2
+    frame_dig -1
+    callsub is_substring
+    intc_2 // 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_contains_bytes(x: bytes, y: bytes) -> void:
+test_contains_bytes:
+    // fixed_bytes_ops/contract.py:615-616
+    // @subroutine
+    // def test_contains_bytes(x: FixedBytes[typing.Literal[4]], y: Bytes) -> None:
+    proto 2 0
+    b test_contains_bytes_block@0
+
+test_contains_bytes_block@0:
+    // fixed_bytes_ops/contract.py:617
+    // assert y in x
+    frame_dig -1
+    frame_dig -2
+    callsub is_substring
+    assert
+    // fixed_bytes_ops/contract.py:618
+    // assert x not in y
+    frame_dig -2
+    frame_dig -1
+    callsub is_substring
+    !
+    assert
+    // fixed_bytes_ops/contract.py:620
+    // assert (y not in x) == False  # noqa: E712
+    frame_dig -1
+    frame_dig -2
+    callsub is_substring
+    !
+    intc_2 // 0
+    ==
+    assert
+    // fixed_bytes_ops/contract.py:621
+    // assert (x in y) == False  # noqa: E712
+    frame_dig -2
+    frame_dig -1
+    callsub is_substring
+    intc_2 // 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.test_contains_literal_bytes(x: bytes) -> void:
+test_contains_literal_bytes:
+    // fixed_bytes_ops/contract.py:624-625
+    // @subroutine
+    // def test_contains_literal_bytes(x: FixedBytes[typing.Literal[4]]) -> None:
+    proto 1 0
+    b test_contains_literal_bytes_block@0
+
+test_contains_literal_bytes_block@0:
+    // fixed_bytes_ops/contract.py:626
+    // assert b"\xcd\x12" in x
+    bytec 8 // 0xcd12
+    frame_dig -1
+    callsub is_substring
+    assert
+    // fixed_bytes_ops/contract.py:628
+    // assert (b"\xcd\x12" not in x) == False  # noqa: E712
+    bytec 8 // 0xcd12
+    frame_dig -1
+    callsub is_substring
+    !
+    intc_2 // 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.__init__() -> void:
+__init__:
+    b __init___block@0
+
+__init___block@0:
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.set_state_data(for_account: bytes, value: bytes) -> void:
+set_state_data:
+    // fixed_bytes_ops/contract.py:119-120
+    // @subroutine
+    // def set_state_data(self, for_account: Account, value: FixedBytes[typing.Literal[4]]) -> None:
+    proto 2 0
+    b set_state_data_block@0
+
+set_state_data_block@0:
+    // fixed_bytes_ops/contract.py:121
+    // self.local[for_account] = value
+    frame_dig -2
+    bytec 22 // "local"
+    frame_dig -1
+    app_local_put
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.get_state_data_or_assert(for_account: bytes) -> bytes:
+get_state_data_or_assert:
+    // fixed_bytes_ops/contract.py:123-124
+    // @subroutine
+    // def get_state_data_or_assert(self, for_account: Account) -> FixedBytes[typing.Literal[4]]:
+    proto 1 1
+    b get_state_data_or_assert_block@0
+
+get_state_data_or_assert_block@0:
+    // fixed_bytes_ops/contract.py:125
+    // result, exists = self.local.maybe(for_account)
+    frame_dig -1
+    intc_2 // 0
+    bytec 22 // "local"
+    app_local_get_ex
+    // fixed_bytes_ops/contract.py:126
+    // assert exists, "no data for account"
+    assert // no data for account
+    // fixed_bytes_ops/contract.py:127
+    // return result
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.test_augmented_or_assignment_with_bytes(val: bytes, other: bytes) -> void:
+test_augmented_or_assignment_with_bytes:
+    // fixed_bytes_ops/contract.py:129-132
+    // @subroutine
+    // def test_augmented_or_assignment_with_bytes(
+    //     self, val: FixedBytes[typing.Literal[1]], other: Bytes
+    // ) -> None:
+    proto 2 0
+    b test_augmented_or_assignment_with_bytes_block@0
+
+test_augmented_or_assignment_with_bytes_block@0:
+    // fixed_bytes_ops/contract.py:133
+    // val1 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:134
+    // val1 |= other
+    frame_dig -1
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    b|
+    // fixed_bytes_ops/contract.py:135
+    // log(val1)
+    log
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.test_augmented_and_assignment_with_bytes(val: bytes, other: bytes) -> void:
+test_augmented_and_assignment_with_bytes:
+    // fixed_bytes_ops/contract.py:137-140
+    // @subroutine
+    // def test_augmented_and_assignment_with_bytes(
+    //     self, val: FixedBytes[typing.Literal[1]], other: Bytes
+    // ) -> None:
+    proto 2 0
+    b test_augmented_and_assignment_with_bytes_block@0
+
+test_augmented_and_assignment_with_bytes_block@0:
+    // fixed_bytes_ops/contract.py:141
+    // val1 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:142
+    // val1 &= other
+    frame_dig -1
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    b&
+    // fixed_bytes_ops/contract.py:143
+    // log(val1)
+    log
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.test_augmented_xor_assignment_with_bytes(val: bytes, other: bytes) -> void:
+test_augmented_xor_assignment_with_bytes:
+    // fixed_bytes_ops/contract.py:145-148
+    // @subroutine
+    // def test_augmented_xor_assignment_with_bytes(
+    //     self, val: FixedBytes[typing.Literal[1]], other: Bytes
+    // ) -> None:
+    proto 2 0
+    b test_augmented_xor_assignment_with_bytes_block@0
+
+test_augmented_xor_assignment_with_bytes_block@0:
+    // fixed_bytes_ops/contract.py:149
+    // val1 = val
+    frame_dig -2
+    // fixed_bytes_ops/contract.py:150
+    // val1 ^= other
+    frame_dig -1
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // expected bytes to be length 1
+    b^
+    // fixed_bytes_ops/contract.py:151
+    // log(val1)
+    log
+    retsub
+
+
+// test_cases.fixed_bytes_ops.contract.FixedBytesOps.validate_fixed_bytes_3(val: bytes) -> void:
+validate_fixed_bytes_3:
+    // fixed_bytes_ops/contract.py:153-154
+    // @subroutine
+    // def validate_fixed_bytes_3(self, val: FixedBytes[typing.Literal[3]]) -> None:
+    proto 1 0
+    b validate_fixed_bytes_3_block@0
+
+validate_fixed_bytes_3_block@0:
+    // fixed_bytes_ops/contract.py:155
+    // val.validate()
+    frame_dig -1
+    len
+    pushint 3 // 3
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 3>
+    retsub

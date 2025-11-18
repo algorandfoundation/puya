@@ -1,0 +1,53 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 6 0
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x45228c22 // method "test_passing_fixed_bytes()void"
+    txna ApplicationArgs 0
+    match main_test_passing_fixed_bytes_route@3
+    err
+
+main_test_passing_fixed_bytes_route@3:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    itxn_begin
+    pushbytes base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CzEbQQA1gATG/HPVNhoAjgEAAQAxGRQxGBBENhoBSRWBCxJENhoCSYEAWYECCEsBFRJEVwIAEkSBAUMxGRQxGBQQQw==)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0xc6fc73d5 // method "check_fixed_bytes(byte[11],byte[])void"
+    itxn_field ApplicationArgs
+    pushbytes 0x48656c6c6f20576f726c64
+    itxn_field ApplicationArgs
+    pushbytes 0x000b48656c6c6f20576f726c64
+    itxn_field ApplicationArgs
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    pushint 1 // 1
+    return
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
