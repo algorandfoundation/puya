@@ -2,11 +2,11 @@ import itertools
 import typing
 from collections import Counter
 
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.parse import SourceLocation
 from puya.teal import models
-from puya.utils import Address, coalesce, method_selector_hash, unique
+from puya.utils import coalesce, unique
 
 _T = typing.TypeVar("_T")
 
@@ -20,35 +20,15 @@ def gather_program_constants(program: models.TealProgram) -> None:
 
     # collect constants
     for block in itertools.chain.from_iterable(sub.blocks for sub in program.all_subroutines):
-        for idx, op in enumerate(block.ops):
+        for op in block.ops:
             # replace Method & Address constants with Byte before gathering
             match op:
-                case models.Method(value=method_value):
-                    op = block.ops[idx] = models.Byte(
-                        value=method_selector_hash(method_value),
-                        encoding=AVMBytesEncoding.base16,
-                        comment=op.teal(),
-                        stack_manipulations=op.stack_manipulations,
-                        source_location=op.source_location,
-                    )
-                case models.Address(value=address_value, source_location=loc):
-                    address = Address.parse(address_value)
-                    if not address.is_valid:
-                        raise InternalError(f"Invalid address literal: {address_value}", loc)
-                    op = block.ops[idx] = models.Byte(
-                        value=address.public_key,
-                        encoding=AVMBytesEncoding.base32,
-                        comment=op.teal(),
-                        stack_manipulations=op.stack_manipulations,
-                        source_location=op.source_location,
-                    )
-            match op:
-                case models.Int(value=int_or_alias):
-                    all_ints.append(_resolve_teal_alias(int_or_alias))
-                case models.Byte(value=bytes_value) as byte:
+                case models.Int(value=int_value):
+                    all_ints.append(int_value)
+                case models.Byte(value=bytes_value):
                     all_bytes.append(bytes_value)
                     # preserve bytes encoding if it matches
-                    if bytes_encodings.setdefault(bytes_value, byte.encoding) != byte.encoding:
+                    if bytes_encodings.setdefault(bytes_value, op.encoding) != op.encoding:
                         bytes_encodings[bytes_value] = AVMBytesEncoding.base16
                 # put template vars in constant blocks regardless of optimization level
                 case models.TemplateVar(name=name, op_code=op_code):
@@ -93,12 +73,6 @@ def gather_program_constants(program: models.TealProgram) -> None:
         for idx, op in enumerate(block.ops):
             match op:
                 case models.Int(value=int_value):
-                    comment = coalesce(
-                        op.comment,
-                        int_value if isinstance(int_value, str) else None,
-                        str(int_value),
-                    )
-                    int_value = _resolve_teal_alias(int_value)
                     try:
                         const_index = int_block[int_value]
                     except KeyError:
@@ -106,22 +80,22 @@ def gather_program_constants(program: models.TealProgram) -> None:
                             value=int_value,
                             stack_manipulations=op.stack_manipulations,
                             source_location=op.source_location,
-                            comment=comment,
+                            comment=op.comment,
                         )
                     else:
                         block.ops[idx] = models.IntC(
                             index=const_index,
                             stack_manipulations=op.stack_manipulations,
                             source_location=op.source_location,
-                            comment=comment,
+                            comment=coalesce(op.comment, str(int_value)),
                         )
-                case models.Byte(value=bytes_value) as byte_op:
+                case models.Byte():
                     try:
-                        const_index = byte_block[bytes_value]
+                        const_index = byte_block[op.value]
                     except KeyError:
                         block.ops[idx] = models.PushBytes(
-                            value=bytes_value,
-                            encoding=byte_op.encoding,
+                            value=op.value,
+                            encoding=op.encoding,
                             stack_manipulations=op.stack_manipulations,
                             source_location=op.source_location,
                             comment=op.comment,
@@ -131,7 +105,7 @@ def gather_program_constants(program: models.TealProgram) -> None:
                             index=const_index,
                             stack_manipulations=op.stack_manipulations,
                             source_location=op.source_location,
-                            comment=op.comment or " ".join(map(str, op.immediates)),
+                            comment=coalesce(op.comment, " ".join(map(str, op.immediates))),
                         )
                 case models.TemplateVar(name=name, op_code=op_code):
                     match op_code:
@@ -140,14 +114,14 @@ def gather_program_constants(program: models.TealProgram) -> None:
                                 index=int_block[name],
                                 stack_manipulations=op.stack_manipulations,
                                 source_location=op.source_location,
-                                comment=op.comment or name,
+                                comment=name,
                             )
                         case "byte":
                             block.ops[idx] = models.BytesC(
                                 index=byte_block[name],
                                 stack_manipulations=op.stack_manipulations,
                                 source_location=op.source_location,
-                                comment=op.comment or name,
+                                comment=name,
                             )
                         case _:
                             typing.assert_never(op_code)
@@ -204,7 +178,3 @@ def _encoded_size(value: object) -> int:
         return _encoded_size(len(value)) + len(value)
     else:
         raise TypeError(f"unencodable type: {value!r}")
-
-
-def _resolve_teal_alias(value: int | str) -> int:
-    return models.TEAL_ALIASES[value] if isinstance(value, str) else value

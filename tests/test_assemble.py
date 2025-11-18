@@ -106,6 +106,7 @@ def test_assemble_last_op_jump() -> None:
                 consumes=0,
                 produces=0,
                 source_location=None,
+                error_message=None,
             )
         ],
         x_stack_in=(),

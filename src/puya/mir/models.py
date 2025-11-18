@@ -24,7 +24,6 @@ _T = t.TypeVar("_T")
 
 @attrs.frozen(kw_only=True, eq=False, str=False)
 class BaseOp(abc.ABC):
-    error_message: str | None = None
     source_location: SourceLocation | None = None
     consumes: int
     """How many values are removed from the top of l-stack
@@ -398,13 +397,14 @@ class CallSub(Op):
         return f"callsub {self.target}"
 
 
-@attrs.frozen(eq=False)
+@attrs.frozen(eq=False, kw_only=True)
 class IntrinsicOp(Op):
     """An Op that does something other than just manipulating memory"""
 
     # TODO: use enum values for these ops
     op_code: str
     immediates: Sequence[str | int] = attrs.field(default=(), converter=tuple[str | int, ...])
+    error_message: str | None
 
     def __attrs_post_init__(self) -> None:
         if self.op_code in (
@@ -433,8 +433,9 @@ class IntrinsicOp(Op):
         return " ".join(result)
 
 
-@attrs.frozen(eq=False)
+@attrs.frozen(eq=False, kw_only=True)
 class Assert(Op):
+    error_message: str | None
     explicit: bool
     consumes: int = attrs.field(default=1, init=False)
     produces: tuple[str, ...] = attrs.field(default=(), init=False)
@@ -459,10 +460,7 @@ class ControlOp(BaseOp, abc.ABC):
 
     @typing.final
     def __str__(self) -> str:
-        result = tuple(self._str_components())
-        if self.error_message:
-            result += ("//", self.error_message)
-        return " ".join(result)
+        return " ".join(self._str_components())
 
 
 @attrs.frozen(eq=False)
@@ -504,11 +502,12 @@ class ProgramExit(ControlOp):
         return ("return",)
 
 
-@attrs.frozen(eq=False)
+@attrs.frozen(eq=False, kw_only=True)
 class Err(ControlOp):
+    error_message: str | None
+    explicit: bool
     consumes: int = attrs.field(default=0, init=False)
     produces: tuple[str, ...] = attrs.field(default=(), init=False)
-    explicit: bool
 
     @typing.override
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
@@ -520,7 +519,10 @@ class Err(ControlOp):
 
     @typing.override
     def _str_components(self) -> tuple[str, ...]:
-        return ("err",)
+        result: tuple[str, ...] = ("err",)
+        if self.error_message:
+            result += ("//", self.error_message)
+        return result
 
 
 @attrs.frozen(eq=False)

@@ -141,6 +141,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                     immediates=immediates,
                     consumes=consumes,
                     produces=_produces_from_op(op, 1, self.active_op),
+                    error_message=None,
                 )
             )
 
@@ -171,6 +172,7 @@ class MemoryIRBuilder(IRVisitor[None]):
                     immediates=immediates,
                     consumes=consumes,
                     produces=(),
+                    error_message=None,
                 )
             )
 

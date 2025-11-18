@@ -62,7 +62,7 @@ def assemble_bytecode_and_debug_info(
 
             for op in block.ops:
                 current_event = pc_events[pc]
-                if op.error_message:
+                if isinstance(op, teal.Intrinsic | teal.Assert | teal.Err) and op.error_message:
                     current_event["error"] = op.error_message
                 avm_op = _lower_op(ctx, op)
                 # actual label offsets can't be determined until all PC values are known
