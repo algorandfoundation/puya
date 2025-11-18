@@ -71,7 +71,6 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):  # TODO: can we fold this wi
         return None
 
     @typing.override
-    @typing.final
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         raise CodeError("generic type requires parameters", location)
 

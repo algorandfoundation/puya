@@ -160,16 +160,23 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
                 )
-        case wtypes.BytesWType():
+        case wtypes.BytesWType(length=maybe_length):
             bytes_value = context.visitor.visit_and_materialise_single(sequence_)
-            byte_length = assign_temp(
-                context,
-                temp_description="bytes_length",
-                source=Intrinsic(
+            if maybe_length is not None:
+                bytes_length_vp: ValueProvider = UInt64Constant(
+                    value=maybe_length, source_location=statement.source_location
+                )
+            else:
+                bytes_length_vp = Intrinsic(
                     op=AVMOp.len_,
                     args=[bytes_value],
                     source_location=statement.source_location,
-                ),
+                )
+
+            byte_length = assign_temp(
+                context,
+                temp_description="bytes_length",
+                source=bytes_length_vp,
                 source_location=statement.source_location,
             )
 

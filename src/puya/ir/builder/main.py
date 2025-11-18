@@ -740,7 +740,9 @@ class FunctionIRBuilder(
         if isinstance(sliceable_type, wtypes.WTuple):
             return self._visit_tuple_slice(expr, sliceable_type)
         elif isinstance(sliceable_type, wtypes.BytesWType):
-            return bytes.visit_bytes_intersection_slice_expression(self.context, expr)
+            return bytes.visit_bytes_intersection_slice_expression(
+                self.context, expr, sliceable_type
+            )
         elif isinstance(sliceable_type, wtypes.ARC4DynamicArray):
             if expr.begin_index is not None or expr.end_index != -1:
                 raise InternalError(

@@ -31,7 +31,9 @@ class _DecoratorData:
 
 def pytype_to_arc4_pytype(
     pytype: pytypes.PyType,
-    on_error: Callable[[pytypes.PyType, SourceLocation | None], pytypes.PyType],
+    on_error: (
+        Callable[[pytypes.PyType, SourceLocation | None], pytypes.PyType] | typing.Literal["fail"]
+    ),
     *,
     encode_resource_types: bool,
     source_location: SourceLocation | None,
@@ -72,6 +74,17 @@ def pytype_to_arc4_pytype(
                 ],
                 pytype.source_location,
             )
+        case pytypes.FixedBytesType():
+            return pytypes.GenericARC4StaticArrayType.parameterise(
+                [
+                    pytypes.ARC4ByteType,
+                    pytypes.TypingLiteralType(
+                        value=pytype.length,
+                        source_location=source_location,
+                    ),
+                ],
+                source_location,
+            )
         case pytypes.NoneType | pytypes.GroupTransactionType():
             return pytype
 
@@ -94,7 +107,11 @@ def pytype_to_arc4_pytype(
         else:
             return pytype
     else:
-        return on_error(pytype, source_location)
+        if on_error != "fail":
+            return on_error(pytype, source_location)
+        raise InternalError(
+            f"unexpected failure mapping PyType to ARC-4 PyType: {pytype.name}", source_location
+        )
 
 
 _UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")

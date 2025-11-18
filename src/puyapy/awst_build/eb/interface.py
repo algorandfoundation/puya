@@ -297,7 +297,7 @@ class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
         if result is not None:
             return result
         logger.error(
-            f"can't covert literal to {self.produces()}", location=literal.source_location
+            f"can't convert literal to {self.produces()}", location=literal.source_location
         )
         return dummy_value(self.produces(), location)
 

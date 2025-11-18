@@ -2,6 +2,8 @@
 import typing
 from collections.abc import Container, Iterator, Reversible
 
+from algopy._interfaces import _Validatable
+
 class UInt64:
     """A 64-bit unsigned integer, one of the primary data types on the AVM"""
 
@@ -195,7 +197,65 @@ class UInt64:
     def __pos__(self) -> UInt64:
         """Supports unary + operator. Redundant given the type is unsigned"""
 
-class Bytes(Reversible[Bytes]):
+class _BytesBase(typing.Protocol, Reversible[Bytes]):
+    """A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM"""
+
+    @classmethod
+    def from_base32(cls, value: str, /) -> typing.Self:
+        """Creates an instance from a base32 encoded string"""
+
+    @classmethod
+    def from_base64(cls, value: str, /) -> typing.Self:
+        """Creates an instance from a base64 encoded string"""
+
+    @classmethod
+    def from_hex(cls, value: str, /) -> typing.Self:
+        """Creates an instance from a hex/octal encoded string"""
+
+    # NOTE: __len__ is enforced to return int at runtime (not even a subtype is allowed)
+    @property
+    def length(self) -> UInt64:
+        """Returns the length of the instance"""
+
+    # truthiness
+    def __bool__(self) -> bool:
+        """Returns `True` if the length is >0"""
+
+    def __add__(self, other: Bytes | FixedBytes | bytes) -> Bytes:  # type: ignore[type-arg]
+        """Concatenate with another Bytes, bytes, or FixedBytes"""
+
+    def __radd__(self, other: bytes) -> Bytes:
+        """Concatenate with another Bytes, bytes, or FixedBytes"""
+
+    def __contains__(self, other: Bytes | FixedBytes | bytes) -> bool:  # type: ignore[type-arg]
+        """Test whether another Bytes, bytes, or FixedBytes is a substring of this one.
+        Note this is expensive due to a lack of AVM support."""
+
+    # ~
+    def __invert__(self) -> typing.Self:
+        """Can be bitwise inverted"""
+
+    def __getitem__(
+        self, index: UInt64 | int | slice[int | UInt64 | None, int | UInt64 | None, None]
+    ) -> Bytes:  # maps to substring/substring3 if slice, extract/extract3 otherwise?
+        """Returns a Bytes containing a single byte if indexed with UInt64 or int
+        otherwise the substring of Bytes described by the slice"""
+
+    def __iter__(self) -> Iterator[Bytes]:
+        """Can be iterated, yielding each consecutive byte"""
+
+    def __reversed__(self) -> Iterator[Bytes]:
+        """Can be iterated in reverse, yield each preceding byte starting at the end"""
+
+    # mypy suggests due to Liskov below should be other: object
+    # need to consider ramifications here, ignoring it for now
+    def __eq__(self, other: Bytes | FixedBytes | bytes) -> bool:  # type: ignore[override,type-arg]
+        """Compare with with another Bytes, bytes, or FixedBytes using the `==` operator"""
+
+    def __ne__(self, other: Bytes | FixedBytes | bytes) -> bool:  # type: ignore[override,type-arg]
+        """Compare with with another Bytes, bytes, or FixedBytes using the `!=` operator"""
+
+class Bytes(_BytesBase):
     """A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM"""
 
     __match_value__: bytes
@@ -205,88 +265,39 @@ class Bytes(Reversible[Bytes]):
         """Bytes can be initialized with a Python bytes literal, or bytes variable
         declared at the module level"""
 
-    @staticmethod
-    def from_base32(value: str, /) -> Bytes:
-        """Creates Bytes from a base32 encoded string e.g. `Bytes.from_base32("74======")`"""
-
-    @staticmethod
-    def from_base64(value: str, /) -> Bytes:
-        """Creates Bytes from a base64 encoded string e.g. `Bytes.from_base64("RkY=")`"""
-
-    @staticmethod
-    def from_hex(value: str, /) -> Bytes:
-        """Creates Bytes from a hex/octal encoded string e.g. `Bytes.from_hex("FF")`"""
-
-    def __add__(self, other: Bytes | bytes) -> Bytes:
-        """Concatenate Bytes with another Bytes or bytes literal
-        e.g. `Bytes(b"Hello ") + b"World"`."""
-
-    def __radd__(self, other: Bytes | bytes) -> Bytes:
-        """Concatenate Bytes with another Bytes or bytes literal
-        e.g. `b"Hello " + Bytes(b"World")`."""
-
-    def __iadd__(self, other: Bytes | bytes) -> Bytes:
-        """Concatenate Bytes with another Bytes or bytes literal
+    def __iadd__(self, other: _BytesBase | bytes) -> typing.Self:
+        """Concatenate Bytes with another Bytes, bytes, or FixedBytes
         e.g. `a += Bytes(b"World")`."""
-
-    # NOTE: __len__ is enforced to return int at runtime (not even a subtype is allowed)
-    @property
-    def length(self) -> UInt64:
-        """Returns the length of the Bytes"""
-
-    # truthiness
-    def __bool__(self) -> bool:
-        """Returns `True` if length of bytes is >0"""
-
-    def __getitem__(
-        self, index: UInt64 | int | slice[int | UInt64 | None, int | UInt64 | None, None]
-    ) -> Bytes:  # maps to substring/substring3 if slice, extract/extract3 otherwise?
-        """Returns a Bytes containing a single byte if indexed with UInt64 or int
-        otherwise the substring o bytes described by the slice"""
-
-    def __iter__(self) -> Iterator[Bytes]:
-        """Bytes can be iterated, yielding each consecutive byte"""
-
-    def __reversed__(self) -> Iterator[Bytes]:
-        """Bytes can be iterated in reverse, yield each preceding byte starting at the end"""
-
-    # mypy suggests due to Liskov below should be other: object
-    # need to consider ramifications here, ignoring it for now
-    def __eq__(self, other: Bytes | bytes) -> bool:  # type: ignore[override]
-        """Bytes can be compared using the `==` operator with another Bytes or bytes"""
-
-    def __ne__(self, other: Bytes | bytes) -> bool:  # type: ignore[override]
-        """Bytes can be compared using the `!=` operator with another Bytes or bytes"""
 
     # bitwise operators
     # &
-    def __and__(self, other: Bytes | bytes) -> Bytes:
-        """Bytes can bitwise and with another Bytes or bytes e.g. `Bytes(b"FF") & b"0F")`"""
+    def __and__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
+        """Bytes can bitwise and with another Bytes, bytes, or FixedBytes e.g. `Bytes(b"FF") & b"0F")`"""
 
-    def __iand__(self, other: Bytes | bytes) -> Bytes:
-        """Bytes can bitwise and with another Bytes or bytes e.g. `a &= Bytes(b"0F")`"""
+    def __rand__(self, other: bytes) -> typing.Self:
+        """Bytes can bitwise and with another Bytes, bytes, or FixedBytes e.g. `Bytes(b"FF") & b"0F")`"""
+
+    def __iand__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
+        """Bytes can bitwise and with another Bytes, bytes, or FixedBytes e.g. `a &= Bytes(b"0F")`"""
 
     # ^
-    def __xor__(self, other: Bytes | bytes) -> Bytes:
-        """Bytes can bitwise xor with another Bytes or bytes e.g. `Bytes(b"FF") ^ b"0F")`"""
+    def __xor__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
+        """Bytes can bitwise xor with another Bytes, bytes, or FixedBytes e.g. `Bytes(b"FF") ^ b"0F")`"""
 
-    def __ixor__(self, other: Bytes | bytes) -> Bytes:
-        """Bytes can bitwise xor with another Bytes or bytes e.g. `a ^= Bytes(b"0F")`"""
+    def __rxor__(self, other: bytes) -> typing.Self:
+        """Bytes can bitwise xor with another Bytes, bytes, or FixedBytes e.g. `Bytes(b"FF") ^ b"0F")`"""
 
+    def __ixor__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
+        """Bytes can bitwise xor with another Bytes, bytes, or FixedBytes e.g. `a ^= Bytes(b"0F")`"""
     # |
-    def __or__(self, other: Bytes | bytes) -> Bytes:
-        """Bytes can bitwise or with another Bytes or bytes e.g. `Bytes(b"FF") | b"0F")`"""
+    def __or__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
+        """Bytes can bitwise or with another Bytes, bytes, or FixedBytes e.g. `Bytes(b"FF") | b"0F")`"""
 
-    def __ior__(self, other: Bytes | bytes) -> Bytes:
-        """Bytes can bitwise or with another Bytes or bytes e.g. `a |= Bytes(b"0F")`"""
+    def __ror__(self, other: bytes) -> typing.Self:
+        """Bytes can bitwise or with another Bytes, bytes, or FixedBytes e.g. `Bytes(b"FF") | b"0F")`"""
 
-    # ~
-    def __invert__(self) -> Bytes:
-        """Bytes can be bitwise inverted e.g. `~Bytes(b"FF)`"""
-
-    def __contains__(self, other: Bytes | bytes) -> bool:
-        """Test whether another Bytes is a substring of this one.
-        Note this is expensive due to a lack of AVM support."""
+    def __ior__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
+        """Bytes can bitwise or with another Bytes, bytes, or FixedBytes e.g. `a |= Bytes(b"0F")`"""
 
 class BytesBacked(typing.Protocol):
     """Represents a type that is a single bytes value"""
@@ -298,6 +309,68 @@ class BytesBacked(typing.Protocol):
     @property
     def bytes(self) -> Bytes:
         """Get the underlying Bytes"""
+
+_TBytesLength = typing.TypeVar("_TBytesLength", bound=int)
+
+class FixedBytes(typing.Generic[_TBytesLength], BytesBacked, _BytesBase, _Validatable):
+    """A statically-sized byte sequence, where the length is known at compile time.
+
+    Example:
+        FixedBytes[typing.Literal[32]]  # A 32-byte fixed-size bytes value
+    """
+
+    __match_value__: bytes
+    __match_args__ = ("__match_value__",)
+
+    def __init__(self, value: Bytes | bytes = ..., /):
+        """FixedBytes can be initialized with a Python bytes literal, or bytes variable declared at the module level.
+        The length must match the type parameter."""
+
+    # bitwise operators
+    # &
+    @typing.overload
+    def __and__(self, other: typing.Self) -> typing.Self:
+        """FixedBytes can bitwise and with another FixedBytes of the same length e.g. `FixedBytes(b"FF") & FixedBytes(b"0F")`"""
+
+    @typing.overload
+    def __and__(self, other: Bytes | FixedBytes | bytes) -> Bytes:  # type: ignore[type-arg]
+        """FixedBytes can bitwise and with another Bytes, bytes, or FixedBytes e.g. `FixedBytes(b"FF") & b"0F")`"""
+
+    def __rand__(self, other: bytes) -> Bytes:
+        """FixedBytes can bitwise and with another Bytes, bytes, or FixedBytes e.g. `FixedBytes(b"FF") & b"0F")`"""
+
+    def __iand__(self, other: Bytes | typing.Self | bytes) -> typing.Self:  # type: ignore[misc]
+        """FixedBytes can bitwise and with another Bytes, bytes, or FixedBytes of the same length e.g. `a &= FixedBytes(b"0F")`"""
+
+    # ^
+    @typing.overload
+    def __xor__(self, other: typing.Self) -> typing.Self:
+        """FixedBytes can bitwise xor with another FixedBytes of the same length e.g. `FixedBytes(b"FF") ^ FixedBytes(b"0F")`"""
+
+    @typing.overload
+    def __xor__(self, other: Bytes | FixedBytes | bytes) -> Bytes:  # type: ignore[type-arg]
+        """FixedBytes can bitwise xor with another Bytes, bytes, or FixedBytes e.g. `FixedBytes(b"FF") ^ b"0F")`"""
+
+    def __rxor__(self, other: bytes) -> Bytes:
+        """FixedBytes can bitwise xor with another FixedBytes, Bytes or bytes e.g. `FixedBytes(b"FF") ^ b"0F")`"""
+
+    def __ixor__(self, other: Bytes | typing.Self | bytes) -> typing.Self:  # type: ignore[misc]
+        """FixedBytes can bitwise xor with another Bytes, bytes, or FixedBytes of the same length e.g. `a ^= FixedBytes(b"0F")`"""
+
+    # |
+    @typing.overload
+    def __or__(self, other: typing.Self) -> typing.Self:
+        """FixedBytes can bitwise or with another FixedBytes of the same length e.g. `FixedBytes(b"FF") | FixedBytes(b"0F")`"""
+
+    @typing.overload
+    def __or__(self, other: Bytes | FixedBytes | bytes) -> Bytes:  # type: ignore[type-arg]
+        """FixedBytes can bitwise or with another Bytes, bytes, or FixedBytes e.g. `FixedBytes(b"FF") | b"0F")`"""
+
+    def __ror__(self, other: bytes) -> Bytes:
+        """FixedBytes can bitwise or with another Bytes, bytes, or FixedBytes e.g. `FixedBytes(b"FF") | b"0F")`"""
+
+    def __ior__(self, other: Bytes | typing.Self | bytes) -> typing.Self:  # type: ignore[misc]
+        """FixedBytes can bitwise or with another Bytes, bytes, or FixedBytes of the same length e.g. `a |= FixedBytes(b"0F")`"""
 
 class String(BytesBacked, Container[String]):
     """A UTF-8 encoded string.
