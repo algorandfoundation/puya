@@ -95,6 +95,57 @@ See [Python builtins](lg-builtins.md#len---length) for an explanation of why `le
 
 [See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/bytes.py).
 
+### FixedBytes
+
+[`algopy.FixedBytes[T]`](#algopy.FixedBytes) represents the underlying AVM `bytes[]` type where `T` is the literal number denoting the length of the bytes sequence. It is intended to represent binary data, for UTF-8 it might be preferable to use [String](#string).
+
+```python
+# you can instantiate with a bytes literal
+data = algopy.FixedBytes[typing.Literal[2]](b"\x0f\x0f")
+# no arguments defaults to an empty value
+empty = algopy.FixedBytes[typing.Literal[2]]()
+# both data and empty is True as both are specified to have length of 2
+assert data
+assert empty
+
+# Like Python's `bytes`, `FixedBytes` is immutable, augmented assignment operators return new values
+# if the oprand is not FixedBytes of the same length, `Bytes` is returned
+abc = data
+data |= b"\xf0\xf0"
+assert abc == b"\x0f\x0f"
+assert data == b"\xff\xff"
+# indexing and slicing are supported, and both return a Bytes
+assert abc[0] == b"\x0f"
+assert data[:2] == abc
+# check if a bytes sequence occurs within another
+assert abc in data
+```
+
+```{hint}
+Indexing a `FixedBytes` returning a `Bytes` differs from the behaviour of Python's bytes type, which
+returns an `int`.
+```
+
+```python
+# you can iterate
+for i in abc:
+    ...
+# construct from encoded values
+base32_seq = algopy.FixedBytes[typing.Literal[2]].from_base32("VPGQ====")
+base64_seq = algopy.FixedBytes[typing.Literal[2]].from_base64("q80=")
+hex_seq = algopy.FixedBytes[typing.Literal[2]].from_hex("ABCD")
+# binary manipulations ^, &, |, and ~ are supported
+data ^= ~((base32_seq & base64_seq) | hex_seq)
+# access the length via the .length property
+assert abc.length == 2
+```
+
+```{note}
+See [Python builtins](lg-builtins.md#len---length) for an explanation of why `len()` isn't supported.
+```
+
+[See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/fixed_bytes_ops/contract.py).
+
 ### String
 
 [`String`](#algopy.String) is a special Algorand Python type that represents a UTF-8 encoded string.
@@ -329,9 +380,9 @@ For more detailed information on the impacts of type validation refer to [this s
 
 The following sources of ABI values are always validated by the compiler by default.
 
-- ABI method arguments (when called externally)
-- ABI return values
-- Bytes.to_fixed (with the `assert-length` strategy)
+-   ABI method arguments (when called externally)
+-   ABI return values
+-   Bytes.to_fixed (with the `assert-length` strategy)
 
 **NOTE**: Argument validation can be disabled globally via the `--validate-abi-args` flags. Similarly, return value validation can be disable via the `--validate-abi-return` flag. It is also possible for a method implementation to disable validation for its own arguments via the `validate_encoding` option on the `abimethod` decorator. Per-method argument validation settings override the global compiler settings. If one wishes to disable the return validation, you can parse the return value directly from the inner transaction's last log and use an unsafe method (`.from_bytes`) for converting the bytes to the desired ABI type.
 
@@ -339,12 +390,12 @@ The following sources of ABI values are always validated by the compiler by defa
 
 There are certain places where one can get an ABI value that is not fully validated:
 
-- Global state
-- Local state
-- Boxes
-- Subroutine arguments
-- Subroutine return values
-- `from_bytes` methods on ABI types
+-   Global state
+-   Local state
+-   Boxes
+-   Subroutine arguments
+-   Subroutine return values
+-   `from_bytes` methods on ABI types
 
 There are no automatic validation steps taken for these values because it is assumed that the value was validated before reaching this point by the compiler.
 
@@ -377,7 +428,7 @@ class BoxReadWrite(ARC4Contract):
     def __init__(self):
         self.acct_box = Box(Account)
 
-    @abimethod(validate_encoding="unsafe_disabled") 
+    @abimethod(validate_encoding="unsafe_disabled")
     def write_to_box(self, acct: Account) -> None:
         acct.validate()
         self.acct_box.value = acct

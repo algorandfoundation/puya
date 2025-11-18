@@ -6,7 +6,7 @@ After these directives the following code is treated as puya code, and used as t
 
 The puya code can be annotated with expected compiler log messages from the compiler using the following prefixes
 
-`## E: ` An expected error fo this line
+`## E: ` An expected error for this line
 `## W: ` An expected warning for this line
 `## N: ` An expected info for this line
 

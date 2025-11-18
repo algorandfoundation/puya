@@ -12,6 +12,7 @@ from puyapy.awst_build.eb import (
     bytes as bytes_,
     compiled,
     ensure_budget,
+    fixed_bytes,
     intrinsics,
     log,
     native,
@@ -92,6 +93,7 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     pytypes.ApplicationType: application.ApplicationTypeBuilder,
     pytypes.BigUIntType: biguint.BigUIntTypeBuilder,
     pytypes.BytesType: bytes_.BytesTypeBuilder,
+    pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesGenericTypeBuilder,
     pytypes.StringType: string.StringTypeBuilder,
     pytypes.UInt64Type: uint64.UInt64TypeBuilder,
     pytypes.TransactionTypeType: uint64_enums.TransactionTypeTypeBuilder,
@@ -161,6 +163,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericARC4BigUIntNType: arc4.UIntNTypeBuilder,
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayTypeBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayTypeBuilder,
+    pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesTypeBuilder,
 }
 
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
@@ -246,6 +249,7 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericARC4BigUIntNType: arc4.UIntNExpressionBuilder,
     pytypes.GenericGlobalStateType: storage.GlobalStateExpressionBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateExpressionBuilder,
+    pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesExpressionBuilder,
 }
 
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {

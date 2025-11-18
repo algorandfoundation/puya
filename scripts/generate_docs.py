@@ -59,7 +59,7 @@ def output_doc_stubs(manager: mypy.build.BuildManager) -> None:
 
 def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     # remove algopy imports that have been inlined
-    lines = ["# ruff: noqa: A001, E501, F403, PYI021, PYI034, W291, FBT001"]
+    lines = ["# ruff: noqa: A001, E501, F403, PYI021, PYI034, W291, FBT001, PYI018"]
     rexported = list[str]()
     for module, imports in stubs.collected_imports.items():
         if imports.import_module:

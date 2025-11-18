@@ -48,8 +48,18 @@ class Arc4ArraysContract(Contract):
 
         for uint32_item in static_uint32_array:
             total += uint32_item.as_uint64()
-
         assert total == 4 + 1 + 10 + 255 + 128
+
+        static_uint8_array = StaticArray[UInt8, t.Literal[4]].from_bytes(
+            b"\x01\x02\x03\x04\x05\x06"
+        )
+        uint8_total = UInt64(0)
+        count = UInt64(0)
+        for uint8_item in static_uint8_array:
+            uint8_total += uint8_item.as_uint64()
+            count += UInt64(1)
+        assert uint8_total == 1 + 2 + 3 + 4
+        assert count == 4
 
         aliased_static = AliasedStaticArray(UInt8(101))
 

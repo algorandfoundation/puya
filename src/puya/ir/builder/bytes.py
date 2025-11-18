@@ -1,4 +1,7 @@
-from puya.awst import nodes as awst_nodes
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
+)
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assign_temp
 from puya.ir.context import IRFunctionBuildContext
@@ -51,16 +54,21 @@ def visit_bytes_slice_expression(
 
 
 def visit_bytes_intersection_slice_expression(
-    context: IRFunctionBuildContext, expr: awst_nodes.IntersectionSliceExpression
+    context: IRFunctionBuildContext,
+    expr: awst_nodes.IntersectionSliceExpression,
+    bytes_wtype: wtypes.BytesWType,
 ) -> ValueProvider:
     base = context.visitor.visit_and_materialise_single(expr.base)
-    length = assign_intrinsic_op(
-        context,
-        target="length",
-        op=AVMOp.len_,
-        args=[base],
-        source_location=expr.source_location,
-    )
+    if bytes_wtype.length is None:
+        length: Value = assign_intrinsic_op(
+            context,
+            target="length",
+            op=AVMOp.len_,
+            args=[base],
+            source_location=expr.source_location,
+        )
+    else:
+        length = UInt64Constant(value=bytes_wtype.length, source_location=None)
     start = (
         UInt64Constant(value=0, source_location=expr.source_location)
         if expr.begin_index is None

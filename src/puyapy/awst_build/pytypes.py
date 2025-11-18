@@ -239,6 +239,10 @@ class TypeType(PyType):
         return ErrorMessage("type objects are not usable as values")
 
 
+def _typing_literal_name(value: TypingLiteralValue) -> str:
+    return f"typing.Literal[{value!r}]"
+
+
 @typing.final
 @attrs.frozen(order=False)
 class TypingLiteralType(PyType):
@@ -251,7 +255,7 @@ class TypingLiteralType(PyType):
 
     @name.default
     def _name_default(self) -> str:
-        return f"typing.Literal[{self.value!r}]"
+        return _typing_literal_name(self.value)
 
     @typing.override
     @property
@@ -385,7 +389,7 @@ class SequenceType(PyType, abc.ABC):
 @typing.final
 @attrs.frozen(order=False)
 class ArrayType(SequenceType, RuntimeType):
-    size: int | None
+    size: int | None = attrs.field(validator=attrs.validators.optional(attrs.validators.ge(0)))
     wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray | wtypes.ReferenceArray
     # convenience accessors
     items_wtype: wtypes.WType
@@ -570,6 +574,50 @@ BytesType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._primitives.Bytes",
     wtype=wtypes.bytes_wtype,
 )
+
+
+@attrs.frozen(order=False)
+class FixedBytesType(RuntimeType):
+    generic: _GenericType = attrs.field(init=False)
+    length: int = attrs.field(validator=attrs.validators.ge(0))
+    name: str = attrs.field(init=False)
+    wtype: wtypes.BytesWType = attrs.field(init=False)
+
+    @generic.default
+    def _generic(self) -> _GenericType[FixedBytesType]:
+        return GenericFixedBytesType
+
+    @name.default
+    def _name(self) -> str:
+        return f"{self.generic.name}[{_typing_literal_name(self.length)}]"
+
+    @wtype.default
+    def _wtype(self) -> wtypes.BytesWType:
+        return wtypes.BytesWType(length=self.length)
+
+
+def _parameterise_fixed_bytes(
+    self: _GenericType[FixedBytesType],
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
+) -> FixedBytesType:
+    try:
+        (length_t,) = args
+    except ValueError:
+        raise CodeError(
+            f"expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    length = _require_int_literal(self, length_t, source_location)
+    if length < 0:
+        raise CodeError("FixedBytes length should be non-negative", source_location)
+    return FixedBytesType(length=length)
+
+
+GenericFixedBytesType: typing.Final = _GenericType(
+    name="algopy._primitives.FixedBytes",
+    parameterise=_parameterise_fixed_bytes,
+)
+
 StringType: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._primitives.String",
     wtype=wtypes.string_wtype,

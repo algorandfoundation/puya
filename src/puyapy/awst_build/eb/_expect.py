@@ -95,9 +95,10 @@ def exactly_one_arg(
     location: SourceLocation,
     *,
     default: Callable[[str, SourceLocation], _T],
+    missing_message: str = "expected 1 argument, got 0",
 ) -> InstanceBuilder | _T:
     if not args:
-        msg = "expected 1 argument, got 0"
+        msg = missing_message
         result = default(msg, location)
         logger.error(msg, location=location)
         return result
@@ -114,9 +115,10 @@ def exactly_one_arg_of_type(
     *,
     default: Callable[[str, SourceLocation], _T],
     resolve_literal: bool = False,
+    missing_message: str = "expected 1 argument, got 0",
 ) -> InstanceBuilder | _T:
     if not args:
-        msg = "expected 1 argument, got 0"
+        msg = missing_message
         result = default(msg, location)
         logger.error(msg, location=location)
         return result

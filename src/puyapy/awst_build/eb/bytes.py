@@ -234,9 +234,15 @@ class BytesExpressionBuilder(InstanceExpressionBuilder[pytypes.RuntimeType]):
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        item_expr = expect.argument_of_type_else_dummy(
-            item, pytypes.BytesType, resolve_literal=True
-        ).resolve()
+        if isinstance(item.pytype, pytypes.FixedBytesType):
+            # this will cast to unsized bytes, not strictly required currently, but that is
+            # the specified argument type of `PuyaLibFunction.is_substring`
+            item_expr = item.to_bytes(location)
+        else:
+            item_expr = expect.argument_of_type_else_dummy(
+                item, pytypes.BytesType, resolve_literal=True
+            ).resolve()
+
         is_substring_expr = PuyaLibCall(
             func=PuyaLibFunction.is_substring,
             args=[CallArg(value=item_expr, name=None), CallArg(value=self.resolve(), name=None)],
@@ -286,12 +292,17 @@ class BytesExpressionBuilder(InstanceExpressionBuilder[pytypes.RuntimeType]):
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
 
-        rhs = expect.argument_of_type_else_dummy(rhs, self.pytype, resolve_literal=True)
+        if isinstance(rhs.pytype, pytypes.FixedBytesType):
+            other = rhs.to_bytes(rhs.source_location)
+        else:
+            rhs = expect.argument_of_type_else_dummy(rhs, self.pytype, resolve_literal=True)
+            other = rhs.resolve()
+
         target = self.resolve_lvalue()
         return BytesAugmentedAssignment(
             target=target,
             op=bytes_op,
-            value=rhs.resolve(),
+            value=other,
             source_location=location,
         )
 

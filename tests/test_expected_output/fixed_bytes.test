@@ -1,0 +1,161 @@
+# fmt: off
+# ruff: noqa
+
+## case: constructor
+import typing
+from algopy import *
+
+@subroutine
+def test_constructor() -> None:
+    a = FixedBytes[typing.Literal[1]](b"FFFF") ## E: invalid bytes constant length of 4, expected 1
+    b: FixedBytes[typing.Literal[1]] = FixedBytes(b"FFFF") ## E: type annotation does not match expression value type
+
+@subroutine
+def test_length_lower_bound() -> None:
+    a = FixedBytes[typing.Literal[-1]]() ## E: FixedBytes length should be non-negative
+
+@subroutine
+def foo() -> None:
+    c = FixedBytes()  # type: ignore[var-annotated] ## E: an argument is required when no type annotation is supplied
+
+@subroutine
+def bar(b: Bytes) -> None:
+    a: FixedBytes[typing.Literal[3]] = FixedBytes(b) ## E: argument must be constant when type annotation is not provided
+
+@subroutine
+def baz() -> None:
+    a: FixedBytes[typing.Literal[3]] = FixedBytes("FF") # type: ignore[arg-type] ## E: unexpected argument type
+
+## case: from_bytes
+import typing
+from algopy import *
+
+@subroutine
+def test_from_bytes_empty() -> None:
+    c: FixedBytes[typing.Literal[4]] = FixedBytes.from_bytes() # type: ignore[call-arg] ## E: expected 1 argument, got 0
+
+@subroutine
+def test_from_bytes_var(a: Bytes) -> None:
+    c: FixedBytes[typing.Literal[4]] = FixedBytes.from_bytes(a) ## E: requires a literal value to be passed in when type annotation is not provided
+
+## case: from_encoding
+import typing
+from algopy import *
+
+@subroutine
+def test_from_encoding() -> None:
+    a = FixedBytes[typing.Literal[1]].from_hex("FFFF") ## E: decoded bytes length 2 does not match FixedBytes length 1
+    b = FixedBytes[typing.Literal[1]].from_hex("Z") ## E: invalid base16 value
+    c = FixedBytes[typing.Literal[1]].from_hex(b"Z") # type: ignore[arg-type] ## E: unexpected argument type
+
+
+@subroutine
+def test_from_invalid_arg_type_without_annotation() -> None:
+    a: FixedBytes[typing.Literal[1]] = FixedBytes.from_hex(b"Z") # type: ignore[arg-type] ## E: unexpected argument type
+
+@subroutine
+def test_from_invalid_base16_encoding_without_annotation() -> None:
+    a: FixedBytes[typing.Literal[1]] = FixedBytes.from_hex("Z") ## E: invalid base16 value
+
+@subroutine
+def test_from_invalid_base32_encoding_without_annotation() -> None:
+    a: FixedBytes[typing.Literal[1]] = FixedBytes.from_base32("Z") ## E: invalid base32 value
+
+@subroutine
+def test_from_invalid_base64_encoding_without_annotation() -> None:
+    a: FixedBytes[typing.Literal[1]] = FixedBytes.from_base64("Z") ## E: invalid base64 value
+
+
+@subroutine
+def test_wrong_size_from_encoding_without_annotation() -> None:
+    a: FixedBytes[typing.Literal[1]] = FixedBytes.from_hex("FFFF") ## E: type annotation does not match expression value type
+
+
+## case: bool
+import typing
+from algopy import *
+
+@subroutine
+def foo() -> None:
+    empty = FixedBytes[typing.Literal[0]]()
+    non_empty = FixedBytes[typing.Literal[1]]()
+    assert not empty ## E: expression is always True
+    assert non_empty ## E: expression is always True
+
+    from_bytes_empty = FixedBytes[typing.Literal[16]].from_bytes(Bytes())
+    assert from_bytes_empty ## E: expression is always True
+
+    from_bytes_less = FixedBytes[typing.Literal[16]].from_bytes(Bytes(b"ABCD"))
+    assert from_bytes_less ## E: expression is always True
+
+    from_bytes_more = FixedBytes[typing.Literal[2]].from_bytes(Bytes(b"ABCD"))
+    assert from_bytes_more ## E: expression is always True
+
+    empty_from_bytes = FixedBytes[typing.Literal[0]].from_bytes(Bytes(b"ABCD"))
+    assert not empty_from_bytes ## E: expression is always True
+
+@subroutine
+def bar() -> None:
+    a = FixedBytes[typing.Literal[4]](b"ABCD")
+    assert "A" in a # type: ignore[operator] ## E: can't convert literal to algopy.Bytes
+
+
+## case: compare
+import typing
+from algopy import *
+
+@subroutine
+def test_different_lengths() -> None:
+    a = FixedBytes[typing.Literal[2]].from_bytes(b"\xab\xcd\x12")    
+    b = FixedBytes[typing.Literal[3]].from_bytes(b"\xab\xcd\x12")
+    assert a != b ## E: expression is always True
+    assert a == b ## E: expression is always False
+    assert a >= b # type: ignore[operator] ## E: unsupported comparison '>=' between types 
+
+## case: agumented_assginment
+import typing
+from algopy import *
+
+@subroutine
+def test_augmented_or_assignment_with_literal_bytes_of_different_size(
+    val: FixedBytes[typing.Literal[1]]
+) -> None:
+    val1 = val
+    val1 |= b"\x0f\x0f" ## E: invalid bytes constant length of 2, expected 1
+
+
+@subroutine
+def test_augmented_or_assignment_with_fixed_bytes_of_different_size(
+    val: FixedBytes[typing.Literal[1]], other: FixedBytes[typing.Literal[2]]
+) -> None:
+    val1 = val
+    val1 |= other  # type: ignore[arg-type] ## E: Augmented assignment of differing types, expected bytes[1], got bytes[2]
+
+
+@subroutine
+def test_augmented_and_assignment_with_fixed_bytes_of_different_size(
+    val: FixedBytes[typing.Literal[1]], other: FixedBytes[typing.Literal[2]]
+) -> None:
+    val1 = val
+    val1 &= other  # type: ignore[arg-type] ## E: Augmented assignment of differing types, expected bytes[1], got bytes[2]
+
+
+@subroutine
+def test_augmented_xor_assignment_with_fixed_bytes_of_different_size(
+    val: FixedBytes[typing.Literal[1]], other: FixedBytes[typing.Literal[2]]
+) -> None:
+    val1 = val
+    val1 ^= other  # type: ignore[arg-type] ## E: Augmented assignment of differing types, expected bytes[1], got bytes[2]
+
+
+@subroutine
+def test_augmented_or_assignment_with_uint64(
+    val: FixedBytes[typing.Literal[1]], other: UInt64
+) -> None:
+    val1 = val
+    val1 |= other  # type: ignore[arg-type] ## E: unexpected argument type
+
+
+@subroutine
+def test_augmented_add(left: FixedBytes[typing.Literal[1]], right: FixedBytes[typing.Literal[1]]) -> None:
+    left += right  # type: ignore[assignment] ## E: unsupported operator for type: '+'
