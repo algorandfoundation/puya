@@ -86,9 +86,6 @@ class Stack(MIRVisitor[None]):
     def visit_method(self, const: models.Method) -> None:
         self._apply_lstack_effects(const)
 
-    def visit_comment(self, _: models.Comment) -> None:
-        pass
-
     def visit_abstract_store(self, store: models.AbstractStore) -> None:
         self._apply_lstack_effects(store)
 

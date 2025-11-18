@@ -164,19 +164,6 @@ class Method(Op):
         return f"method {self.value}"
 
 
-@attrs.frozen(eq=False)
-class Comment(Op):
-    comment: str
-    consumes: int = attrs.field(default=0, init=False)
-    produces: tuple[str, ...] = attrs.field(default=(), init=False)
-
-    def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_comment(self)
-
-    def __str__(self) -> str:
-        return f"// {self.comment}"
-
-
 @attrs.frozen(kw_only=True, eq=False)
 class StoreOp(Op, abc.ABC):
     """An op for storing values"""
