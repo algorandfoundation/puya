@@ -1,0 +1,42 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0xd0b4016d // method "test_method(uint64)uint64"
+    txna ApplicationArgs 0
+    match main_test_method_route@3
+    err
+
+main_test_method_route@3:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    pushint 1
+    +
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1
+    return
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
