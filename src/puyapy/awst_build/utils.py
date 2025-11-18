@@ -14,6 +14,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import unique
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.constants import ABIMETHOD_DECORATOR, PUBLIC_DECORATOR_ALIAS
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb.factories import builder_for_type
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
@@ -50,6 +51,11 @@ def get_aliased_instance(ref_expr: mypy.nodes.RefExpr) -> mypy.types.Instance | 
     return None
 
 
+DECORATOR_ALIAS_MAPPING = {
+    PUBLIC_DECORATOR_ALIAS: ABIMETHOD_DECORATOR,
+}
+
+
 def get_decorators_by_fullname(
     ctx: ASTConversionModuleContext,
     decorator: mypy.nodes.Decorator,
@@ -60,11 +66,13 @@ def get_decorators_by_fullname(
     for d in decorator.original_decorators if original else decorator.decorators:
         if isinstance(d, mypy.nodes.RefExpr):
             full_name = get_unaliased_fullname(d)
-            result[get_unaliased_fullname(d)] = d
         elif isinstance(d, mypy.nodes.CallExpr) and isinstance(d.callee, mypy.nodes.RefExpr):
             full_name = get_unaliased_fullname(d.callee)
         else:
             raise CodeError("Unsupported decorator usage", ctx.node_location(d))
+
+        # map alias to canonical name
+        full_name = DECORATOR_ALIAS_MAPPING.get(full_name, full_name)
         result[full_name] = d
     return result
 

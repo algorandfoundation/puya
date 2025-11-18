@@ -300,6 +300,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     f" must not be annotated with more than one of"
                     f" @{constants.SUBROUTINE_HINT_ALIAS},"
                     f" @{constants.ABIMETHOD_DECORATOR_ALIAS},"
+                    f" @{constants.PUBLIC_DECORATOR_ALIAS},"
                     f" or @{constants.BAREMETHOD_DECORATOR_ALIAS}",
                     location=func_loc,
                 )
