@@ -384,7 +384,7 @@ The following sources of ABI values are always validated by the compiler by defa
 -   ABI return values
 -   Bytes.to_fixed (with the `assert-length` strategy)
 
-**NOTE**: Argument validation can be disabled globally via the `--validate-abi-args` flags. Similarly, return value validation can be disable via the `--validate-abi-return` flag. It is also possible for a method implementation to disable validation for its own arguments via the `validate_encoding` option on the `abimethod` decorator. Per-method argument validation settings override the global compiler settings. If one wishes to disable the return validation, you can parse the return value directly from the inner transaction's last log and use an unsafe method (`.from_bytes`) for converting the bytes to the desired ABI type.
+**NOTE**: Argument validation can be disabled globally via the `--validate-abi-args` flags. Similarly, return value validation can be disable via the `--validate-abi-return` flag. It is also possible for a method implementation to disable validation for its own arguments via the `validate_encoding` option on the `abimethod` decorator or its alias, `public`. Per-method argument validation settings override the global compiler settings. If one wishes to disable the return validation, you can parse the return value directly from the inner transaction's last log and use an unsafe method (`.from_bytes`) for converting the bytes to the desired ABI type.
 
 ### Non-Validated Sources
 

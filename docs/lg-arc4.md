@@ -20,24 +20,31 @@ contracts as `<ContractName>.arc32.json` or `<ContractName>.arc56.json`
 
 ## Methods
 
-Individual methods on a smart contract should be annotated with an `abimethod` decorator. This decorator is used to indicate a method which should be externally callable. The decorator itself includes properties to restrict when the method should be callable, for instance only when the application is being created or only when the OnComplete action is OptIn.
+Individual methods on a smart contract should be annotated with an `abimethod` decorator or its alias, `public`. This decorator is used to indicate a method which should be externally callable. The decorator itself includes properties to restrict when the method should be callable, for instance only when the application is being created or only when the OnComplete action is OptIn.
 
-A method that should not be externally available should be annotated with a `subroutine` decorator.
+A method that should not be externally available can be optionally annotated with a `subroutine` decorator.
 
 Method docstrings will be used when outputting ARC-32 or ARC-56 application specifications, the following docstrings styles are supported ReST, Google, Numpydoc-style and Epydoc.
 
 ```python
-from algopy import ARC4Contract, subroutine, arc4
+from algopy import ARC4Contract, subroutine, arc4, public
 
 
 class HelloWorldContract(ARC4Contract):
-    @arc4.abimethod(create=False, allow_actions=["NoOp", "OptIn"], name="external_name")
+    @arc4.abimethod(create="disallow", allow_actions=["NoOp", "OptIn"], name="external_name")
     def hello(self, name: arc4.String) -> arc4.String:
-        return self.internal_method() + name
+        return self.hello_impl() + name
+
+    @public(name="greetings")
+    def hi(self, name: arc4.String) -> arc4.String:
+        return self.hi_impl() + name
 
     @subroutine
-    def internal_method(self) -> arc4.String:
+    def hello_impl(self) -> arc4.String:
         return arc4.String("Hello, ")
+
+    def hi_impl(self) -> arc4.String:
+        return arc4.String("Hi, ")
 ```
 
 ## Router
