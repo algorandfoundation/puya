@@ -477,20 +477,26 @@ class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContra
 
 from algopy import arc4, public, subroutine
 
-class MyContract(arc4.ARC4Contract):    
+class MyContract(arc4.ARC4Contract):
     @public
     @subroutine
-    def a(self) -> None: ## E: ARC-4 contract member functions must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
+    def a(self) -> None: ## E: unsupported decorator combination: @subroutine with @public
         pass
 
     @arc4.abimethod
     @subroutine
-    def b(self) -> None: ## E: ARC-4 contract member functions must not be annotated with more than one of @algopy.subroutine, @algopy.arc4.abimethod, @algopy.public, or @algopy.arc4.baremethod
+    def b(self) -> None: ## E: unsupported decorator combination: @subroutine with @arc4.abimethod
+        pass
+
+    @arc4.abimethod
+    @subroutine
+    @arc4.baremethod
+    def b2(self) -> None: ## E: unsupported decorator combination: @subroutine with @arc4.abimethod and @arc4.baremethod
         pass
 
     @arc4.abimethod
     @public ## E: duplicate decorator
-    def c(self) -> None: 
+    def c(self) -> None:
         pass
 
     @arc4.abimethod
@@ -502,6 +508,7 @@ class MyContract(arc4.ARC4Contract):
     @public ## E: duplicate decorator
     def e(self) -> None:
         pass
+
 
 ## case: bad_signatures
 from algopy import *

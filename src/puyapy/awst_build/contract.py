@@ -263,8 +263,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
         baremethod_dec = dec_by_fullname.pop(constants.BAREMETHOD_DECORATOR, None)
 
-        for unknown_dec_fullname, dec in dec_by_fullname.items():
-            self._error(f'unsupported decorator "{unknown_dec_fullname}"', dec)
+        for dec in dec_by_fullname.values():
+            logger.error("unsupported decorator", location=dec.loc)
 
         # TODO: handle difference of subroutine vs abimethod and overrides???
 
@@ -276,7 +276,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         if method_name in (_INIT_METHOD, constants.APPROVAL_METHOD, constants.CLEAR_STATE_METHOD):
             for invalid_dec in (subroutine_dec, abimethod_dec, baremethod_dec):
                 if invalid_dec is not None:
-                    self._error("method should not be decorated", location=invalid_dec)
+                    logger.error("method should not be decorated", location=invalid_dec.loc)
         elif method_name.startswith("__") and method_name.endswith("__"):
             raise CodeError(
                 "methods starting and ending with a double underscore"
@@ -288,19 +288,17 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         elif not self.fragment.is_arc4:
             for invalid_dec in (abimethod_dec, baremethod_dec):
                 if invalid_dec is not None:
-                    self._error(
+                    logger.error(
                         f"decorator is only valid in subclasses of {pytypes.ARC4ContractBaseType}",
-                        invalid_dec,
+                        location=invalid_dec.loc,
                     )
         else:
-            if len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec)))) > 1:
+            supplied = list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec)))
+            if len(supplied) > 1:
+                first, *rest = supplied
                 logger.error(
-                    f"ARC-4 contract member functions"
-                    f" must not be annotated with more than one of"
-                    f" @{constants.SUBROUTINE_HINT_ALIAS},"
-                    f" @{constants.ABIMETHOD_DECORATOR_ALIAS},"
-                    f" @{constants.PUBLIC_DECORATOR_ALIAS},"
-                    f" or @{constants.BAREMETHOD_DECORATOR_ALIAS}",
+                    f"unsupported decorator combination: @{first.fullname}"
+                    f" with {' and '.join(f'@{d.fullname}' for d in rest)}",
                     location=func_loc,
                 )
 

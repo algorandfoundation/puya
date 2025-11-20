@@ -24,6 +24,7 @@ from puyapy.awst_build.contract import ContractASTConverter
 from puyapy.awst_build.exceptions import UnsupportedASTError
 from puyapy.awst_build.subroutine import FunctionASTConverter
 from puyapy.awst_build.utils import (
+    DecoratorInfo,
     extract_bytes_literal_from_mypy,
     fold_binary_expr,
     fold_unary_expr,
@@ -95,8 +96,8 @@ class ModuleASTConverter(
         source_location = self._location(decorator or func_def)
         logicsig_dec = dec_by_fullname.pop(constants.LOGICSIG_DECORATOR, None)
         if logicsig_dec:
-            for dec_fullname, dec in dec_by_fullname.items():
-                self._error(f'Unsupported logicsig decorator "{dec_fullname}"', dec)
+            for dec in dec_by_fullname.values():
+                logger.error("unsupported logicsig decorator", location=dec.loc)
             info = self._process_logic_sig_decorator(logicsig_dec)
 
             def deferred(ctx: ASTConversionModuleContext) -> RootNode:
@@ -109,7 +110,7 @@ class ModuleASTConverter(
                     program=program,
                     short_name=coalesce(info.name_override, program.name),
                     docstring=func_def.docstring,
-                    source_location=self._location(logicsig_dec),
+                    source_location=logicsig_dec.loc,
                     avm_version=info.avm_version,
                     reserved_scratch_space=info.scratch_slots,
                 )
@@ -129,10 +130,10 @@ class ModuleASTConverter(
             inline = get_subroutine_decorator_inline_arg(self.context, subroutine_dec)
         abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
         if abimethod_dec is not None:
-            self._error("free functions cannot be ARC-4 ABI methods", abimethod_dec)
+            logger.error("free functions cannot be ARC-4 ABI methods", location=abimethod_dec.loc)
         # any further decorators are unsupported
-        for dec_fullname, dec in dec_by_fullname.items():
-            self._error(f'unsupported function decorator "{dec_fullname}"', dec)
+        for dec in dec_by_fullname.values():
+            logger.error("unsupported function decorator", location=dec.loc)
 
         return [
             lambda ctx: FunctionASTConverter.convert(
@@ -140,53 +141,42 @@ class ModuleASTConverter(
             )
         ]
 
-    def _process_logic_sig_decorator(
-        self, decorator: mypy.nodes.Expression
-    ) -> _LogicSigDecoratorInfo:
+    def _process_logic_sig_decorator(self, decorator: DecoratorInfo) -> _LogicSigDecoratorInfo:
         name_override = None
         avm_version = None
         scratch_slot_reservations = set[int]()
-        match decorator:
-            case mypy.nodes.NameExpr():
-                pass
-            case mypy.nodes.CallExpr(arg_names=arg_names, args=args):
-                for arg_name, arg in zip(arg_names, args, strict=True):
-                    match arg_name:
-                        case "name":
-                            name_const = arg.accept(self)
-                            if isinstance(name_const, str):
-                                name_override = name_const
-                            else:
-                                self.context.error("expected a str", arg)
-                        case "avm_version":
-                            version_const = arg.accept(self)
-                            if isinstance(version_const, int):
-                                avm_version = version_const
-                            else:
-                                self.context.error("expected an int", arg)
-                        case "scratch_slots":
-                            if isinstance(arg, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
-                                slot_items = arg.items
-                            else:
-                                slot_items = [arg]
-                            for item_expr in slot_items:
-                                slots = _map_scratch_space_reservation(
-                                    self.context, self, item_expr
-                                )
-                                if not slots:
-                                    self.context.error("range is empty", item_expr)
-                                elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
-                                    self.context.error(
-                                        "invalid scratch slot reservation - range must fall"
-                                        f" entirely between 0 and {MAX_SCRATCH_SLOT_NUMBER}",
-                                        item_expr,
-                                    )
-                                else:
-                                    scratch_slot_reservations.update(slots)
-            case _:
-                self.context.error(
-                    f"invalid {constants.LOGICSIG_DECORATOR_ALIAS} usage", decorator
-                )
+        for arg_data in decorator.args or ():
+            arg = arg_data.expr
+            match arg_data.name:
+                case "name":
+                    name_const = arg.accept(self)
+                    if isinstance(name_const, str):
+                        name_override = name_const
+                    else:
+                        self.context.error("expected a str", arg)
+                case "avm_version":
+                    version_const = arg.accept(self)
+                    if isinstance(version_const, int):
+                        avm_version = version_const
+                    else:
+                        self.context.error("expected an int", arg)
+                case "scratch_slots":
+                    if isinstance(arg, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
+                        slot_items = arg.items
+                    else:
+                        slot_items = [arg]
+                    for item_expr in slot_items:
+                        slots = _map_scratch_space_reservation(self.context, self, item_expr)
+                        if not slots:
+                            self.context.error("range is empty", item_expr)
+                        elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
+                            self.context.error(
+                                "invalid scratch slot reservation - range must fall"
+                                f" entirely between 0 and {MAX_SCRATCH_SLOT_NUMBER}",
+                                item_expr,
+                            )
+                        else:
+                            scratch_slot_reservations.update(slots)
         return _LogicSigDecoratorInfo(
             name_override=name_override,
             avm_version=avm_version,
