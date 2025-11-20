@@ -2,9 +2,6 @@ import re
 import typing
 from collections.abc import Callable, Iterable
 
-import attrs
-import mypy.nodes
-
 from puya import log
 from puya.avm import TransactionType
 from puya.awst import wtypes
@@ -20,13 +17,6 @@ __all__ = [
 ]
 
 logger = log.get_logger(__name__)
-
-
-@attrs.frozen
-class _DecoratorData:
-    fullname: str
-    args: list[tuple[str | None, mypy.nodes.Expression]]
-    source_location: SourceLocation
 
 
 def pytype_to_arc4_pytype(
