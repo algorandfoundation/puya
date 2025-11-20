@@ -5,4 +5,7 @@ class TestContract(ARC4Contract):
     @public
     def test_method(self, value: UInt64) -> UInt64:
         """Test method using @public decorator"""
-        return value + UInt64(1)
+        return value + self.internal_method()
+
+    def internal_method(self) -> UInt64:
+        return UInt64(1)

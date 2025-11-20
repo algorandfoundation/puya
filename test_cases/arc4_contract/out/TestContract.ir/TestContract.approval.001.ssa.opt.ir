@@ -34,11 +34,16 @@ subroutine test_cases.arc4_contract.contract.TestContract.test_method[routing]()
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let value#0: uint64 = decode_bytes<uint64>(tmp%0#0)
-        let tmp%0#1: uint64 = (+ value#0 1u)
-        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#1)
+        let tmp%0#1: uint64 = test_cases.arc4_contract.contract.TestContract.internal_method()
+        let tmp%1#1: uint64 = (+ value#0 tmp%0#1)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#1)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
         (log tmp%4#0)
         exit 1u
+
+subroutine test_cases.arc4_contract.contract.TestContract.internal_method() -> uint64:
+    block@0: // L10
+        return 1u
 
 subroutine test_cases.arc4_contract.contract.TestContract.__algopy_default_create() -> void:
     block@0: // L1
