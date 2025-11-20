@@ -4,8 +4,10 @@ import re
 import typing
 import warnings
 from collections.abc import Callable, Iterator, Mapping, Sequence
+from functools import cached_property
 from itertools import zip_longest
 
+import attrs
 import mypy.nodes
 import mypy.types
 
@@ -17,7 +19,7 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb.factories import builder_for_type
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
-from puyapy.models import ConstantValue
+from puyapy.models import ArgKind, ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -50,25 +52,59 @@ def get_aliased_instance(ref_expr: mypy.nodes.RefExpr) -> mypy.types.Instance | 
     return None
 
 
+@attrs.frozen(kw_only=True)
+class DecoratorArg:
+    expr: mypy.nodes.Expression
+    kind: ArgKind
+    name: str | None
+
+
+@attrs.frozen(kw_only=True)
+class DecoratorInfo:
+    callee: mypy.nodes.RefExpr
+    args: Sequence[DecoratorArg] | None
+    loc: SourceLocation
+
+    @cached_property
+    def fullname(self) -> str:
+        return _expand_ref_expr(self.callee)
+
+
+def _expand_ref_expr(expr: mypy.nodes.RefExpr) -> str:
+    match expr:
+        case mypy.nodes.NameExpr(name=name):
+            return name
+        case mypy.nodes.MemberExpr(expr=mypy.nodes.RefExpr() as base, name=name):
+            return f"{_expand_ref_expr(base)}.{name}"
+        case _:
+            return expr.fullname
+
+
 def get_decorators_by_fullname(
     ctx: ASTConversionModuleContext,
     decorator: mypy.nodes.Decorator,
     *,
     original: bool = False,
-) -> dict[str, mypy.nodes.Expression]:
-    result = dict[str, mypy.nodes.Expression]()
+) -> dict[str, DecoratorInfo]:
+    result = dict[str, DecoratorInfo]()
     for d in decorator.original_decorators if original else decorator.decorators:
+        args = None
         if isinstance(d, mypy.nodes.CallExpr):
             callee = d.callee
+            args = [
+                DecoratorArg(expr=expr, kind=kind, name=name)
+                for expr, kind, name in zip(d.args, d.arg_kinds, d.arg_names, strict=True)
+            ]
         else:
             callee = d
+        loc = ctx.node_location(d)
         if not isinstance(callee, mypy.nodes.RefExpr):
-            logger.error("unsupported decorator usage", location=ctx.node_location(d))
+            logger.error("unsupported decorator usage", location=loc)
         else:
             full_name = get_unaliased_fullname(callee)
             if full_name in result:
-                logger.error("duplicate decorator", location=ctx.node_location(d))
-            result[full_name] = d
+                logger.error("duplicate decorator", location=loc)
+            result[full_name] = DecoratorInfo(callee=callee, args=args, loc=loc)
     return result
 
 
@@ -287,21 +323,17 @@ def determine_base_type(
 
 
 def extract_decorator_args(
-    decorator: mypy.nodes.Expression, location: SourceLocation
+    decorator: DecoratorInfo,
 ) -> list[tuple[str | None, mypy.nodes.Expression]]:
-    match decorator:
-        case mypy.nodes.RefExpr():
-            return []
-        case mypy.nodes.CallExpr(args=args, arg_names=arg_names):
-            return list(zip(arg_names, args, strict=True))
-        case unexpected_node:
-            raise InternalError(f"unexpected decorator node: {unexpected_node}", location)
+    if decorator.args is None:
+        return []
+    return [(arg.name, arg.expr) for arg in decorator.args]
 
 
 def get_subroutine_decorator_inline_arg(
-    context: ASTConversionModuleContext, decorator: mypy.nodes.Expression
+    context: ASTConversionModuleContext, decorator: DecoratorInfo
 ) -> bool | None:
-    args = extract_decorator_args(decorator, context.node_location(decorator))
+    args = extract_decorator_args(decorator)
     for name, expr in args:
         match name, expr:
             case "inline", mypy.nodes.NameExpr(fullname="builtins.True"):

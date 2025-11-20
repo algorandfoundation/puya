@@ -21,7 +21,7 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb.interface import NodeBuilder
 from puyapy.awst_build.subroutine import ExpressionASTConverter, require_instance_builder
-from puyapy.awst_build.utils import extract_decorator_args, get_unaliased_fullname
+from puyapy.awst_build.utils import DecoratorInfo, extract_decorator_args, get_unaliased_fullname
 from puyapy.models import ARC4ABIMethodData, ARC4BareMethodData
 
 logger = log.get_logger(__name__)
@@ -29,15 +29,15 @@ logger = log.get_logger(__name__)
 
 def get_arc4_baremethod_data(
     context: ASTConversionModuleContext,
-    decorator: mypy.nodes.Expression,
+    decorator: DecoratorInfo,
     func_def: mypy.nodes.FuncDef,
 ) -> ARC4BareMethodData:
-    dec_loc = context.node_location(decorator, func_def.info)
+    dec_loc = decorator.loc
     pytype, func_types = _get_func_types(context, func_def, dec_loc)
     if func_types != {"output": pytypes.NoneType}:
         logger.error("bare methods should have no arguments or return values", location=dec_loc)
 
-    named_args = _extract_decorator_named_args(context, decorator, dec_loc)
+    named_args = _extract_decorator_named_args(context, decorator)
     evaluated_args = {n: _parse_decorator_arg(context, n, a) for n, a in named_args.items()}
 
     create = _extract_create_option(evaluated_args, dec_loc)
@@ -70,13 +70,13 @@ _NAME_OVERRIDE = "name"
 
 def get_arc4_abimethod_data(
     context: ASTConversionModuleContext,
-    decorator: mypy.nodes.Expression,
+    decorator: DecoratorInfo,
     func_def: mypy.nodes.FuncDef,
 ) -> ARC4ABIMethodData:
-    dec_loc = context.node_location(decorator, func_def.info)
+    dec_loc = decorator.loc
     pytype, func_types = _get_func_types(context, func_def, dec_loc)
 
-    named_args = _extract_decorator_named_args(context, decorator, dec_loc)
+    named_args = _extract_decorator_named_args(context, decorator)
     evaluated_args = {n: _parse_decorator_arg(context, n, a) for n, a in named_args.items()}
 
     create = _extract_create_option(evaluated_args, dec_loc)
@@ -203,10 +203,10 @@ def _get_func_types(
 
 
 def _extract_decorator_named_args(
-    context: ASTConversionModuleContext, decorator: mypy.nodes.Expression, location: SourceLocation
+    context: ASTConversionModuleContext, decorator: DecoratorInfo
 ) -> dict[str, mypy.nodes.Expression]:
     result = {}
-    for name, value in extract_decorator_args(decorator, location):
+    for name, value in extract_decorator_args(decorator):
         if name is None:
             logger.error("unexpected positional argument", location=context.node_location(value))
         elif name in result:

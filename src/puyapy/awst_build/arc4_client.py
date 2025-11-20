@@ -105,11 +105,8 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[ARC4ABIMethodData | None]):
         if decorator is not None:
             dec_by_fullname = get_decorators_by_fullname(self.context, decorator, original=True)
             abimethod_dec = dec_by_fullname.pop(constants.ABIMETHOD_DECORATOR, None)
-            for dec_fullname, dec in dec_by_fullname.items():
-                logger.error(
-                    f'unsupported decorator in ARC4Client: "{dec_fullname}"',
-                    location=self._location(dec),
-                )
+            for dec in dec_by_fullname.values():
+                logger.error("unsupported decorator in ARC4Client", location=dec.loc)
             if abimethod_dec is not None:
                 return get_arc4_abimethod_data(self.context, abimethod_dec, func_def)
         logger.error(f"expected an {constants.ABIMETHOD_DECORATOR} decorator", location=func_loc)
