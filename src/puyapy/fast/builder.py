@@ -21,20 +21,13 @@ _NO_TYPE_COMMENTS_MSG = "type comments are not supported"
 _NO_TYPE_PARAMS_MSG = "type parameters are not supported"
 
 
-@attrs.frozen
-class FASTResult:
-    ast: ast.Module | None
-    module: nodes.Module | None
-
-
 def parse_module(
     *,
     source: str,
     module_path: Path,
     module_name: str,
     feature_version: int | tuple[int, int] | None = None,
-) -> FASTResult:
-    mod: ast.Module | None
+) -> nodes.Module | None:
     try:
         mod = ast.parse(
             source, module_path, "exec", type_comments=True, feature_version=feature_version
@@ -50,11 +43,10 @@ def parse_module(
                 end_column=e.end_offset,
             )
         logger.error(f"{_INVALID_SYNTAX_MSG}: {e.msg}", location=loc)  # noqa: TRY400
-        mod = None
         fast = None
     else:
         fast = _convert_module(mod, module_path=module_path, module_name=module_name)
-    return FASTResult(ast=mod, module=fast)
+    return fast
 
 
 _ASTNodeWithLocation = ast.expr | ast.stmt | ast.pattern | ast.alias | ast.arg | ast.keyword
