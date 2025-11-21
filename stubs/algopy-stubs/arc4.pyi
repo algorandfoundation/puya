@@ -1,16 +1,17 @@
 import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
+from typing_extensions import deprecated
+
 import algopy
 from algopy._interfaces import _Validatable
-from typing_extensions import deprecated
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
 _ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[explicit-any]
 
-class ARC4Contract(algopy.Contract):
+class ARC4Contract(algopy.BaseContract):
     """A contract that conforms to the ARC-4 ABI specification, functions decorated with
     `@abimethod` or `@baremethod` will form the public interface of the contract
 

@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, subroutine, urange
+from algopy import BaseContract, UInt64, subroutine, urange
 
 
 @subroutine(inline=False)
@@ -6,7 +6,7 @@ def get_bool() -> bool:
     return True
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> UInt64:
         val = UInt64(0)
         for _idx in urange(2):

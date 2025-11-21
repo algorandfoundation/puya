@@ -1,7 +1,7 @@
-from algopy import BigUInt, Contract, op, subroutine
+from algopy import BaseContract, BigUInt, op, subroutine
 
 
-class BiguintBinaryOps(Contract):
+class BiguintBinaryOps(BaseContract):
     def approval_program(self) -> bool:
         left = BigUInt(58446744073709552000)
         right = BigUInt(18446744073709552000)
