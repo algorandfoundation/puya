@@ -32,7 +32,12 @@ def _transform_ast(
         module_rel_path = make_path_relative_to_cwd(src.path)
         logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
         module_ctx = ctx.for_module(src.path)
-        user_modules.append((src, ModuleASTConverter(module_ctx, src.mypy_module)))
+        if src.fast is None:
+            logger.debug(
+                f"skipping transformation of AST for {module_name} due to parsing failures"
+            )
+        else:
+            user_modules.append((src, ModuleASTConverter(module_ctx, src.mypy_module, src.fast)))
 
     compilation_set = list[ContractReference | LogicSigReference]()
     awst = list[RootNode]()

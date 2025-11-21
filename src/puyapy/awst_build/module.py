@@ -5,6 +5,7 @@ import attrs
 import mypy.nodes
 import mypy.types
 
+import puyapy.fast.nodes
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals
@@ -63,9 +64,15 @@ class ModuleASTConverter(
     """This does basic validation, and traversal of valid module scope elements, collecting
     and folding constants."""
 
-    def __init__(self, context: ASTConversionModuleContext, module: mypy.nodes.MypyFile):
+    def __init__(
+        self,
+        context: ASTConversionModuleContext,
+        module: mypy.nodes.MypyFile,
+        tree: puyapy.fast.nodes.Module,
+    ):
         super().__init__(context)
-        self.module_name: typing.Final = module.fullname
+        self.module_name: typing.Final = tree.name
+        assert tree.name == module.fullname
         self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
         for node in module.defs:
             with self.context.log_exceptions(fallback_location=node):
