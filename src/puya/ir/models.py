@@ -647,7 +647,7 @@ def _arity_matches(
 
 
 @attrs.define(eq=False)
-class NewSlot(Op, ValueProvider):
+class NewSlot(ValueProvider):
     ir_type: SlotType = attrs.field(converter=_narrow_to_slot_type)
 
     def _frozen_data(self) -> object:
@@ -662,7 +662,7 @@ class NewSlot(Op, ValueProvider):
 
 
 @attrs.define(eq=False)
-class ReadSlot(Op, ValueProvider):
+class ReadSlot(ValueProvider):
     slot: Value = attrs.field(validator=_is_slot_type)
 
     def _frozen_data(self) -> object:

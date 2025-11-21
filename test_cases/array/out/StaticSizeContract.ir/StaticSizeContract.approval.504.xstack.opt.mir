@@ -618,8 +618,6 @@ subroutine test_extend_from_tuple:
         l-load some_more.0#0 1                                                                    some_more.1#0,some_more.0#0
         l-load-copy some_more.1#0 1                                                               some_more.1#0,some_more.0#0,some_more.1#0 (copy)
         concat                                                                                    some_more.1#0,aggregate%head%1#0
-        l-load-copy aggregate%head%1#0 0                                                          some_more.1#0,aggregate%head%1#0,aggregate%head%1#0 (copy)
-        pop 1                                                                                     some_more.1#0,aggregate%head%1#0
         // array/static_size.py:63
         // last = arr[-1]
         l-load-copy aggregate%head%1#0 0                                                          some_more.1#0,aggregate%head%1#0,aggregate%head%1#0 (copy)
@@ -689,10 +687,6 @@ subroutine test_extend_from_arc4_tuple:
         int 32                                                                                    some_more#0,len%0#0,len%0#0 (copy),32
         ==                                                                                        some_more#0,len%0#0,eq%0#0
         assert // invalid number of bytes for arc4.tuple<test_cases.array.static_size.More,test_cases.array.static_size.More> some_more#0,len%0#0
-        // array/static_size.py:74
-        // arr.extend(some_more)
-        l-load-copy some_more#0 1                                                                 some_more#0,len%0#0,some_more#0 (copy)
-        pop 1                                                                                     some_more#0,len%0#0
         // array/static_size.py:75
         // return arr.freeze()
         l-load len%0#0 0                                                                          some_more#0,len%0#0
@@ -786,21 +780,14 @@ subroutine test_bool_array:
         l-store-copy length#0 3                                                                   length#0,slot%0,aggregate%slot_contents%1#0,aggregate%bytes_len%1#0,length#0 (copy)
         ==                                                                                        length#0,slot%0,aggregate%slot_contents%1#0,tmp%7#0
         assert // expected correct length                                                         length#0,slot%0,aggregate%slot_contents%1#0
-        // array/static_size.py:86
-        // arr2 = arr.copy()
-        l-load-copy aggregate%slot_contents%1#0 0                                                 length#0,slot%0,aggregate%slot_contents%1#0,aggregate%slot_contents%1#0 (copy)
-        pop 1                                                                                     length#0,slot%0,aggregate%slot_contents%1#0
         l-load-copy slot%0 1                                                                      length#0,slot%0,aggregate%slot_contents%1#0,slot_contents%2#0
         // array/static_size.py:87
         // arr2.extend(arr)
         l-load aggregate%slot_contents%1#0 1                                                      length#0,slot%0,slot_contents%2#0,aggregate%slot_contents%1#0
         l-load slot_contents%2#0 1                                                                length#0,slot%0,aggregate%slot_contents%1#0,slot_contents%2#0
         concat // on error: max array length exceeded                                             length#0,slot%0,concat%1#0
-        l-load-copy concat%1#0 0                                                                  length#0,slot%0,concat%1#0,concat%1#0 (copy)
-        pop 1                                                                                     length#0,slot%0,concat%1#0
         // array/static_size.py:88
         // assert arr2.length == length * 2, "expected correct length"
-        l-load concat%1#0 0                                                                       length#0,slot%0,concat%1#0
         len                                                                                       length#0,slot%0,aggregate%bytes_len%2#0
         l-load length#0 2                                                                         slot%0,aggregate%bytes_len%2#0,length#0
         int 2                                                                                     slot%0,aggregate%bytes_len%2#0,length#0,2
