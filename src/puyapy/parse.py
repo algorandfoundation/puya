@@ -1,4 +1,3 @@
-import ast
 import codecs
 import enum
 import functools
@@ -63,7 +62,7 @@ class SourceModule:
     name: str
     node: MypyFile
     path: Path
-    tree: ast.Module
+    fast: FastModule | None
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
     dependencies: frozenset[str]
@@ -186,7 +185,7 @@ def parse_python(
                     node=module,
                     path=module_path,
                     lines=lines,
-                    tree=md.tree,
+                    fast=md.fast,
                     discovery_mechanism=discovery_mechanism,
                     dependencies=md.dependencies,
                 )
@@ -316,7 +315,6 @@ class _ModuleData:
     """Module name (e.g. 'pkg.module')"""
     data: str
     dependencies: frozenset[str]
-    tree: ast.Module
     fast: FastModule | None
     is_source: bool
 
@@ -334,16 +332,12 @@ def _find_dependencies(
         file_bytes = fs_cache.read(str(rs.path))
         _check_encoding(file_bytes, rs.path)
         source = decode_python_encoding(file_bytes)
-        fast_result = parse_module(
+        fast = parse_module(
             source=source,
             module_path=rs.path,
             module_name=rs.module,
             feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
         )
-        tree = fast_result.ast
-        if tree is None:
-            continue  # fatal syntax error
-        fast = fast_result.module
         module_dep_ids = set[str]()
         if fast is not None:
             dependencies = resolve_import_dependencies(rs, fast, fmc)
@@ -364,7 +358,6 @@ def _find_dependencies(
             path=rs.path,
             module=rs.module,
             data=source,
-            tree=tree,
             fast=fast,
             dependencies=frozenset(module_dep_ids),
             is_source=rs.module in initial_source_ids,
