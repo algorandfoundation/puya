@@ -293,7 +293,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         invalid_dec,
                     )
         else:
-            if (len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec))))) > 1:
+            if len(list(filter(None, (subroutine_dec, abimethod_dec, baremethod_dec)))) > 1:
                 logger.error(
                     f"ARC-4 contract member functions"
                     f" must not be annotated with more than one of"
