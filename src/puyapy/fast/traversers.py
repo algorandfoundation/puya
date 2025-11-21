@@ -5,6 +5,10 @@ from puyapy.fast.visitors import StatementVisitor
 
 
 class StatementTraverser(StatementVisitor[None]):
+    def visit_module(self, module: nodes.Module) -> None:
+        for stmt in module.body:
+            stmt.accept(self)
+
     @typing.override
     def visit_function_def(self, func_def: nodes.FunctionDef) -> None:
         for stmt in func_def.body:
