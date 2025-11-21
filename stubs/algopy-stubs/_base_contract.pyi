@@ -31,7 +31,7 @@ class StateTotals:
         at once.
         """
 
-class Contract(abc.ABC):
+class BaseContract(abc.ABC):
     """Base class for an Algorand Smart Contract"""
 
     def __init_subclass__(

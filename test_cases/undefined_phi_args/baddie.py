@@ -1,7 +1,7 @@
-from algopy import BigUInt, Contract, UInt64, op, subroutine
+from algopy import BaseContract, BigUInt, UInt64, op, subroutine
 
 
-class Baddie(Contract):
+class Baddie(BaseContract):
     def approval_program(self) -> bool:
         test_case = op.Txn.application_args(0)
         invert_second_condition = (

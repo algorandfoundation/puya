@@ -2,7 +2,7 @@
 from algopy import *
 
 
-class BooleanBinaryOps(Contract):
+class BooleanBinaryOps(BaseContract):
     def approval_program(self) -> bool:
         boolean = False
         uint64 = UInt64(3)

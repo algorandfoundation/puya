@@ -1,7 +1,7 @@
-from algopy import Contract, GlobalState, UInt64, op
+from algopy import BaseContract, GlobalState, UInt64, op
 
 
-class Overloaded(Contract):
+class Overloaded(BaseContract):
     def __init__(self) -> None:
         self.key = GlobalState(UInt64(0))
 

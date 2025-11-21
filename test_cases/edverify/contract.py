@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64, log, op
+from algopy import BaseContract, UInt64, log, op
 
 
-class VerifyContract(Contract):
+class VerifyContract(BaseContract):
     def approval_program(self) -> bool:
         assert op.Txn.num_app_args == 3
         result = op.ed25519verify_bare(
