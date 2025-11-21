@@ -1,4 +1,4 @@
-# ruff: noqa: F403
+# ruff: noqa: F403, I001
 # note: arc4 deliberately imported as module instead of re-exporting
 # this order is intentional, so that when the stubs are processed for documentation the
 # types are in the correct dependency order
@@ -21,6 +21,10 @@ from algopy import gtxn as gtxn
 from algopy import itxn as itxn
 from algopy import op as op
 
+# this uses indirection as a way to rename an imported symbol without having to add it to
+# specify an __all__ in this module to satisfy mypy
+from algopy._aliases import *
+
 # import some common types into root module
 from algopy.arc4 import (
     # this one specially because it's already prefixed with arc4
@@ -30,6 +34,3 @@ from algopy.op import (
     Global as Global,
     Txn as Txn,
 )
-
-# public decorator is an alias for abimethod to provide a cleaner API
-public = arc4.abimethod

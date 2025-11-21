@@ -396,7 +396,8 @@ class DocStub(NodeVisitor[None]):
     def _add_all_symbols(self, module_id: str) -> None:
         module = self._get_module(module_id)
         for sym in module.symbols:
-            self.add_symbol(module, sym)
+            if sym != "__all__":
+                self.add_symbol(module, sym)
 
     @typing.override
     def visit_import(self, o: mypy.nodes.Import) -> None:
