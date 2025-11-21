@@ -90,7 +90,7 @@ An [Algorand smart contract](https://dev.algorand.co/concepts/smart-contracts/ap
 consists of two distinct "programs"; an approval program, and a
 clear-state program. These are tied together in Algorand Python as a single class.
 
-All contracts must inherit from the base class `algopy.Contract` - either directly or indirectly,
+All contracts must inherit from the base class `algopy.BaseContract` - either directly or indirectly,
 which can include inheriting from `algopy.ARC4Contract`.
 
 The life-cycle of a smart contract matches the semantics of Python classes when you consider
@@ -111,7 +111,7 @@ definitions. Forward type declarations are allowed.
 Example:
 
 ```python
-class MyContract(algopy.Contract):
+class MyContract(algopy.BaseContract):
     foo: algopy.UInt64  # okay
     bar = algopy.UInt64(1) # not allowed
 
@@ -129,8 +129,8 @@ abstract methods are unimplemented.
 
 ### Contract class configuration
 
-When defining a contract subclass you can pass configuration options to the `algopy.Contract`
-base class [per the API documentation](./api-algopy.md#algopy.Contract).
+When defining a contract subclass you can pass configuration options to the `algopy.BaseContract`
+base class [per the API documentation](./api-algopy.md#algopy.BaseContract).
 
 Namely you can pass in:
 
@@ -147,7 +147,7 @@ Full example:
 GLOBAL_UINTS = 3
 
 class MyContract(
-    algopy.Contract,
+    algopy.BaseContract,
     name="CustomName",
     scratch_slots=[5, 25, algopy.urange(110, 115)],
     state_totals=algopy.StateTotals(local_bytes=1, local_uints=2, global_bytes=4, global_uints=GLOBAL_UINTS),
@@ -155,7 +155,7 @@ class MyContract(
     ...
 ```
 
-### Example: Simplest possible `algopy.Contract` implementation
+### Example: Simplest possible `algopy.BaseContract` implementation
 
 For a non-ARC-4 contract, the contract class must implement an `approval_program` and
 a `clear_state_program` method.
@@ -163,7 +163,7 @@ a `clear_state_program` method.
 As an example, this is a valid contract that always approves:
 
 ```python
-class Contract(algopy.Contract):
+class Contract(algopy.BaseContract):
     def approval_program(self) -> bool:
         return True
 
@@ -181,7 +181,7 @@ Here is a very simple example contract that maintains a counter of how many time
 been called (including on create).
 
 ```python
-class Counter(algopy.Contract):
+class Counter(algopy.BaseContract):
     def __init__(self) -> None:
         self.counter = algopy.UInt64(0)
 

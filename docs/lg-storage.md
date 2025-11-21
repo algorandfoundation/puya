@@ -105,10 +105,10 @@ Once declared, you can interact with the box via its instance methods.
 
 ```python
 import typing as t
-from algopy import Box, arc4, Contract, op
+from algopy import Box, arc4, BaseContract, op
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def __init__(self) -> None:
         self.box_a = Box(arc4.StaticArray[arc4.UInt32, t.Literal[20]], key=b"a")
 
@@ -129,10 +129,10 @@ class MyContract(Contract):
 In addition to being able to set and read the box value, there are operations for extracting and replacing just a portion of the box data which is useful for minimizing the amount of reads and writes required, but also allows you to interact with byte arrays which are longer than the AVM can support (currently 4096).
 
 ```python
-from algopy import Box, Contract, Global, Txn
+from algopy import Box, BaseContract, Global, Txn
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         my_blob = Box(Bytes, key=b"blob")
 
@@ -162,9 +162,9 @@ A custom `key_prefix` can optionally be provided, with the default being to use 
 The key can be a `Bytes` value, or anything that can be converted to `Bytes`. The final box name is the combination of `key_prefix + key`.
 
 ```python
-from algopy import BoxMap, Contract, Account, Txn, String
+from algopy import BoxMap, BaseContract, Account, Txn, String
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def __init__(self) -> None:
         self.my_map = BoxMap(Account, String, key_prefix=b"a_")
 
@@ -200,13 +200,13 @@ To use scratch storage you need to [register the scratch storage that you want t
 For example:
 
 ```python
-from algopy import Bytes, Contract, UInt64, op, urange
+from algopy import Bytes, BaseContract, UInt64, op, urange
 
 TWO = 2
 TWENTY = 20
 
 
-class MyContract(Contract, scratch_slots=(1, TWO, urange(3, TWENTY))):
+class MyContract(BaseContract, scratch_slots=(1, TWO, urange(3, TWENTY))):
     def approval_program(self) -> bool:
         op.Scratch.store(1, UInt64(5))
 
