@@ -1,6 +1,6 @@
 import typing
 
-from algopy import ARC4Contract, arc4
+from algopy import Contract, arc4
 
 
 class Swapped(arc4.Struct):
@@ -8,7 +8,7 @@ class Swapped(arc4.Struct):
     b: arc4.UInt64
 
 
-class EventEmitter(ARC4Contract):
+class EventEmitter(Contract):
     @arc4.abimethod
     def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
         arc4.emit(Swapped(b, a))
