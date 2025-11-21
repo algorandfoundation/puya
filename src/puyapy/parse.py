@@ -35,6 +35,7 @@ from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
 from puyapy.fast.builder import parse_module
+from puyapy.fast.nodes import Module as FastModule
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.import_analysis import resolve_import_dependencies
 from puyapy.modulefinder import FindModuleCache
@@ -311,6 +312,7 @@ class _ModuleData:
     data: str
     dependencies: frozenset[str]
     tree: ast.Module
+    fast: FastModule | None
     is_source: bool
 
 
@@ -335,27 +337,30 @@ def _find_dependencies(
         )
         tree = fast_result.ast
         if tree is None:
-            continue
-        dependencies = resolve_import_dependencies(rs, tree, fmc)
+            continue  # fatal syntax error
+        fast = fast_result.module
         module_dep_ids = set[str]()
-        for dep in dependencies:
-            mod_path = dep.path
-            module_dep_ids.add(dep.module_id)
-            assert mod_path == mod_path.resolve()  # TODO: REMOVE ME
-            # assert mod_path.suffix == ".py", mod_path  # TODO: reinstate me?
-            if mod_path.suffix == ".py" and set_add(queued_id_set, dep.module_id):
-                dep_rs = ResolvedSource(
-                    path=mod_path,
-                    module=dep.module_id,
-                    base_dir=_infer_base_dir(mod_path, dep.module_id),
-                )
-                source_queue.append(dep_rs)
-        module_dep_ids.discard(rs.module)  # TODO: is this required?
+        if fast is not None:
+            dependencies = resolve_import_dependencies(rs, fast, fmc)
+            for dep in dependencies:
+                mod_path = dep.path
+                module_dep_ids.add(dep.module_id)
+                assert mod_path == mod_path.resolve()  # TODO: REMOVE ME
+                # assert mod_path.suffix == ".py", mod_path  # TODO: reinstate me?
+                if mod_path.suffix == ".py" and set_add(queued_id_set, dep.module_id):
+                    dep_rs = ResolvedSource(
+                        path=mod_path,
+                        module=dep.module_id,
+                        base_dir=_infer_base_dir(mod_path, dep.module_id),
+                    )
+                    source_queue.append(dep_rs)
+            module_dep_ids.discard(rs.module)  # TODO: is this required?
         result_by_id[rs.module] = _ModuleData(
             path=rs.path,
             module=rs.module,
             data=source,
             tree=tree,
+            fast=fast,
             dependencies=frozenset(module_dep_ids),
             is_source=rs.module in initial_source_ids,
         )
