@@ -1,7 +1,7 @@
-from algopy import Contract, op
+from algopy import BaseContract, op
 
 
-class SetBitFoldOOBUInt64(Contract):
+class SetBitFoldOOBUInt64(BaseContract):
     def approval_program(self) -> bool:
         # out of bounds bit index write (valid indices are 0...63 for uint64)
         # value=True case: folding produces source | (1 << 64), exceeding uint64 range

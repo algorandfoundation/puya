@@ -1,7 +1,7 @@
-from algopy import Account, Contract, log, op
+from algopy import Account, BaseContract, log, op
 
 
-class AddressConstantContract(Contract):
+class AddressConstantContract(BaseContract):
     def approval_program(self) -> bool:
         some_address = Account()
         assert not some_address

@@ -1,7 +1,7 @@
 from algopy import (
     Account,
+    BaseContract,
     Bytes,
-    Contract,
     LocalState,
     OnCompleteAction,
     String,
@@ -12,7 +12,7 @@ from algopy import (
 )
 
 
-class LocalStateContract(Contract):
+class LocalStateContract(BaseContract):
     def __init__(self) -> None:
         self.local = LocalState(Bytes)
         self.local_bool = LocalState(bool)

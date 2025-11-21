@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64, logicsig, op
+from algopy import BaseContract, UInt64, logicsig, op
 
 
-class ReplaceOpSelection(Contract):
+class ReplaceOpSelection(BaseContract):
     def approval_program(self) -> bool:
         assert op.replace(b"\x01" * 259, 256, b"abc") == b"\x01" * 256 + b"abc"
         return True
@@ -10,7 +10,7 @@ class ReplaceOpSelection(Contract):
         return True
 
 
-class ExtractOpSelection(Contract):
+class ExtractOpSelection(BaseContract):
     def approval_program(self) -> bool:
         # start > 255 forces extract3 (uint64 stack args) over extract (uint8 immediates)
         assert op.extract(b"\xab" * 260, 256, 3) == b"\xab\xab\xab"
@@ -22,7 +22,7 @@ class ExtractOpSelection(Contract):
         return True
 
 
-class SubstringOpSelection(Contract):
+class SubstringOpSelection(BaseContract):
     def approval_program(self) -> bool:
         # end > 255 forces substring3 (uint64 stack args) over substring (uint8 immediates)
         assert op.substring(b"\xab" * 300, 0, 300) == b"\xab" * 300
@@ -34,7 +34,7 @@ class SubstringOpSelection(Contract):
         return True
 
 
-class GaidOpSelection(Contract):
+class GaidOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # T > 255 forces gaids (uint64 stack arg) over gaid (uint8 immediate).
         # Compile-only: runtime would fail since group indices are bounded by GroupIndex.
@@ -44,7 +44,7 @@ class GaidOpSelection(Contract):
         return True
 
 
-class GloadTOpSelection(Contract):
+class GloadTOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # T > 255, I <= 255 lets the optimizer downgrade gloadss -> gloads
         # (I as uint8 immediate, T on stack). At O0 it stays as gloadss.
@@ -55,7 +55,7 @@ class GloadTOpSelection(Contract):
         return True
 
 
-class GloadIOpSelection(Contract):
+class GloadIOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # I > 255 must leave gloadss alone: no AVM variant has T as immediate
         # with I on the stack. Compile-only: runtime would fail since I is not
@@ -66,7 +66,7 @@ class GloadIOpSelection(Contract):
         return True
 
 
-class TxnArrayOpSelection(Contract):
+class TxnArrayOpSelection(BaseContract):
     def approval_program(self) -> bool:
         # I > 255 forces txnas (uint64 stack arg) over txna (uint8 immediate).
         # Compile-only: runtime would fail since 256 is beyond the txn's ApplicationArgs array.
@@ -77,7 +77,7 @@ class TxnArrayOpSelection(Contract):
         return True
 
 
-class GTxnOpSelection(Contract):
+class GTxnOpSelection(BaseContract):
     def approval_program(self) -> UInt64:
         # T > 255 forces gtxns (uint64 stack arg) over gtxn (uint8 immediate).
         # Compile-only: runtime would fail since 256 is beyond the txn group.
@@ -87,7 +87,7 @@ class GTxnOpSelection(Contract):
         return True
 
 
-class GTxnArrayGroupOpSelection(Contract):
+class GTxnArrayGroupOpSelection(BaseContract):
     def approval_program(self) -> bool:
         # T > 255, I <= 255 forces gtxnsas (both on stack) -> gtxnsa (I immediate, T on stack).
         # Compile-only: runtime would fail since 256 is beyond the txn group.
@@ -98,7 +98,7 @@ class GTxnArrayGroupOpSelection(Contract):
         return True
 
 
-class GTxnArrayIndexOpSelection(Contract):
+class GTxnArrayIndexOpSelection(BaseContract):
     def approval_program(self) -> bool:
         # T <= 255, I > 255 forces gtxnsas -> gtxnas (T immediate, I on stack).
         # Compile-only: runtime would fail since 256 is beyond ApplicationArgs.

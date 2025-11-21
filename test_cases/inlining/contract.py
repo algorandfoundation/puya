@@ -1,9 +1,9 @@
 import typing
 
-from algopy import Contract, UInt64, arc4, op, subroutine
+from algopy import BaseContract, UInt64, arc4, op, subroutine
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         z = zero()
         a = one()

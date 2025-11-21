@@ -1,7 +1,7 @@
-from algopy import BigUInt, Contract
+from algopy import BaseContract, BigUInt
 
 
-class LargeBigUInt(Contract):
+class LargeBigUInt(BaseContract):
     """Regression test: compiler crashes with AssertionError when BigUInt
     constants exceed 64 bytes (e.g. 2**512)."""
 

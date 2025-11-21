@@ -4,9 +4,9 @@ from algopy import (
     Account,
     Application,
     Asset,
+    BaseContract,
     BigUInt,
     Bytes,
-    Contract,
     String,
     Struct,
     UInt64,
@@ -30,7 +30,7 @@ class MyNamedTuple(typing.NamedTuple):
     y: String
 
 
-class Arc4EncodeDecodeContract(Contract):
+class Arc4EncodeDecodeContract(BaseContract):
     def approval_program(self) -> bool:
         test_native_struct()
         test_arc4_struct()

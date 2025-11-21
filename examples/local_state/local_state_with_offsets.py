@@ -1,6 +1,6 @@
 from algopy import (
+    BaseContract,
     Bytes,
-    Contract,
     LocalState,
     OnCompleteAction,
     Txn,
@@ -11,7 +11,7 @@ from algopy import (
 )
 
 
-class LocalStateContract(Contract, name="LocalStateWithOffsets"):
+class LocalStateContract(BaseContract, name="LocalStateWithOffsets"):
     def __init__(self) -> None:
         self.local = LocalState(Bytes)
 

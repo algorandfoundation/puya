@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64, subroutine
+from algopy import BaseContract, UInt64, subroutine
 
 
-class DivIdentityFoldUInt64(Contract):
+class DivIdentityFoldUInt64(BaseContract):
     def approval_program(self) -> bool:
         assert self_div(UInt64(5)) == 1
         assert self_div(UInt64(0)) == 1

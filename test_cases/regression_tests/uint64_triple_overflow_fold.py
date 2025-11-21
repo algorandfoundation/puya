@@ -1,7 +1,7 @@
-from algopy import Contract, Global
+from algopy import BaseContract, Global
 
 
-class UInt64TripleAddOverflow(Contract):
+class UInt64TripleAddOverflow(BaseContract):
     def approval_program(self) -> bool:
         x = Global.group_size
         assert x + 10000000000000000000 + 10000000000000000000 > 0
@@ -11,7 +11,7 @@ class UInt64TripleAddOverflow(Contract):
         return True
 
 
-class UInt64TripleMulOverflow(Contract):
+class UInt64TripleMulOverflow(BaseContract):
     def approval_program(self) -> bool:
         x = Global.group_size
         assert x * 8589934592 * 8589934592 > 0

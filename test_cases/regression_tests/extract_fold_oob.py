@@ -1,7 +1,7 @@
-from algopy import Contract, op
+from algopy import BaseContract, op
 
 
-class ExtractLengthOOB(Contract):
+class ExtractLengthOOB(BaseContract):
     def approval_program(self) -> bool:
         # extract3: length extends past end of source (S+L > len)
         assert op.extract(b"\xab", 0, 5) == b"\xab"
@@ -11,7 +11,7 @@ class ExtractLengthOOB(Contract):
         return True
 
 
-class ExtractStartOOB(Contract):
+class ExtractStartOOB(BaseContract):
     def approval_program(self) -> bool:
         # extract3: start index beyond end of source (S > len)
         assert op.extract(b"\xab", 5, 1) == b""
@@ -21,7 +21,7 @@ class ExtractStartOOB(Contract):
         return True
 
 
-class SubstringEndOOB(Contract):
+class SubstringEndOOB(BaseContract):
     def approval_program(self) -> bool:
         # substring3: end index beyond end of source (E > len)
         assert op.substring(b"\xab", 0, 5) == b"\xab"

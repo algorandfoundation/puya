@@ -1,7 +1,7 @@
-from algopy import Contract, Txn, log  # noqa: INP001
+from algopy import BaseContract, Txn, log  # noqa: INP001
 
 
-class HelloWorldContract(Contract):
+class HelloWorldContract(BaseContract):
     def approval_program(self) -> bool:
         name = Txn.application_args(0)
         log(b"Hello, " + name)

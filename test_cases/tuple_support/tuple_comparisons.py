@@ -1,7 +1,7 @@
-from algopy import Contract, String, UInt64, log, subroutine
+from algopy import BaseContract, String, UInt64, log, subroutine
 
 
-class TupleComparisons(Contract):
+class TupleComparisons(BaseContract):
     def approval_program(self) -> bool:
         test_tuple_cmp_eval()
         test_tuple_cmp_empty()

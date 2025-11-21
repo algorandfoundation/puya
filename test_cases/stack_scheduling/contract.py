@@ -1,7 +1,7 @@
-from algopy import Bytes, Contract, Txn, log, op, subroutine, urange
+from algopy import BaseContract, Bytes, Txn, log, op, subroutine, urange
 
 
-class OpPrefixConcat(Contract):
+class OpPrefixConcat(BaseContract):
     def approval_program(self) -> bool:
         a = Txn.num_app_args
         b = Txn.application_args(0)
@@ -13,7 +13,7 @@ class OpPrefixConcat(Contract):
         return True
 
 
-class ConstPrefixConcat(Contract):
+class ConstPrefixConcat(BaseContract):
     def approval_program(self) -> bool:
         prefix = Bytes(b"log:")
         value = op.itob(Txn.num_app_args)
@@ -24,7 +24,7 @@ class ConstPrefixConcat(Contract):
         return True
 
 
-class LocalVarConcat(Contract):
+class LocalVarConcat(BaseContract):
     def approval_program(self) -> bool:
         x = Txn.application_args(0)
         a = Txn.application_args(1)
@@ -36,7 +36,7 @@ class LocalVarConcat(Contract):
         return True
 
 
-class VarConcatRight(Contract):
+class VarConcatRight(BaseContract):
     def approval_program(self) -> bool:
         x = Txn.application_args(0)
         a = Txn.application_args(1)
@@ -48,7 +48,7 @@ class VarConcatRight(Contract):
         return True
 
 
-class FrameSlotMutationConcat(Contract):
+class FrameSlotMutationConcat(BaseContract):
     def approval_program(self) -> bool:
         log(_chain(Txn.application_args(0), Txn.application_args(1)))
         return True
@@ -57,7 +57,7 @@ class FrameSlotMutationConcat(Contract):
         return True
 
 
-class FrameMutateInLoopConcat(Contract):
+class FrameMutateInLoopConcat(BaseContract):
     def approval_program(self) -> bool:
         result = Bytes(b"")
         sep = Bytes(b",")
@@ -70,7 +70,7 @@ class FrameMutateInLoopConcat(Contract):
         return True
 
 
-class DeepShuffleConcat(Contract):
+class DeepShuffleConcat(BaseContract):
     def approval_program(self) -> bool:
         a = Txn.application_args(0)
         b = Txn.application_args(1)
@@ -84,7 +84,7 @@ class DeepShuffleConcat(Contract):
         return True
 
 
-class DupedLocalConcat(Contract):
+class DupedLocalConcat(BaseContract):
     def approval_program(self) -> bool:
         x = Txn.application_args(0)
         y = Txn.application_args(1)
@@ -95,7 +95,7 @@ class DupedLocalConcat(Contract):
         return True
 
 
-class IntLocalShuffleConcat(Contract):
+class IntLocalShuffleConcat(BaseContract):
     def approval_program(self) -> bool:
         n = Txn.num_app_args
         a = Txn.application_args(0)
@@ -109,7 +109,7 @@ class IntLocalShuffleConcat(Contract):
         return True
 
 
-class ScratchLoadShuffleConcat(Contract, scratch_slots=(0,)):
+class ScratchLoadShuffleConcat(BaseContract, scratch_slots=(0,)):
     def approval_program(self) -> bool:
         op.Scratch.store(0, Txn.application_args(0))
         b = op.itob(Txn.num_app_args)
@@ -121,7 +121,7 @@ class ScratchLoadShuffleConcat(Contract, scratch_slots=(0,)):
         return True
 
 
-class ScratchLoadBarrierConcat(Contract, scratch_slots=(0,)):
+class ScratchLoadBarrierConcat(BaseContract, scratch_slots=(0,)):
     def approval_program(self) -> bool:
         op.Scratch.store(0, Txn.application_args(0))
         b = op.itob(Txn.num_app_args)
@@ -134,7 +134,7 @@ class ScratchLoadBarrierConcat(Contract, scratch_slots=(0,)):
         return True
 
 
-class SubroutineParamSwapConcat(Contract):
+class SubroutineParamSwapConcat(BaseContract):
     def approval_program(self) -> bool:
         log(_swap_and_concat(Txn.application_args(0), Txn.application_args(1)))
         return True

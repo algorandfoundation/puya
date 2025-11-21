@@ -1,4 +1,4 @@
-from algopy import Bytes, Contract, Txn, UInt64, log, op, subroutine
+from algopy import BaseContract, Bytes, Txn, UInt64, log, op, subroutine
 
 ADD = 1
 SUB = 2
@@ -15,7 +15,7 @@ def itoa(i: UInt64) -> Bytes:
     return itoa(i // radix) + digits[i % radix]
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> UInt64:
         num_args = Txn.num_app_args
         if num_args == 0:

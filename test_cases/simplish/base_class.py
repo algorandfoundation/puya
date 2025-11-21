@@ -1,9 +1,9 @@
 import abc
 
-from algopy import Bytes, Contract, LocalState, UInt64, subroutine
+from algopy import BaseContract, Bytes, LocalState, UInt64, subroutine
 
 
-class CallCounter(Contract, abc.ABC):
+class CallCounter(BaseContract, abc.ABC):
     def __init__(self) -> None:
         self.counter = UInt64(0)
         self.name = LocalState(Bytes)

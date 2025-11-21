@@ -1,7 +1,7 @@
-from algopy import Contract, op
+from algopy import BaseContract, op
 
 
-class GetBitFoldOOBUInt64(Contract):
+class GetBitFoldOOBUInt64(BaseContract):
     def approval_program(self) -> bool:
         # out of bounds bit index access (should be indices 0...63)
         assert op.getbit(0, 64) == 0

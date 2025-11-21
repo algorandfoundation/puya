@@ -5,9 +5,9 @@ from tests.utils.deployer import Deployer
 
 def test_biguint_from_to_bytes(deployer: Deployer, optimization_level: int) -> None:
     def contract() -> None:
-        from algopy import BigUInt, Contract, log, op
+        from algopy import BaseContract, BigUInt, log, op
 
-        class BigUIntByteTests(Contract):
+        class BigUIntByteTests(BaseContract):
             def approval_program(self) -> bool:
                 arg = op.Txn.application_args(0)
                 big_uint = BigUInt.from_bytes(arg)
