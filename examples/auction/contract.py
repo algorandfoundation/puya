@@ -1,7 +1,7 @@
 from algopy import (
     Account,
-    ARC4Contract,
     Asset,
+    Contract,
     Global,
     LocalState,
     Txn,
@@ -13,7 +13,7 @@ from algopy import (
 )
 
 
-class Auction(ARC4Contract):
+class Auction(Contract):
     def __init__(self) -> None:
         self.auction_end = UInt64(0)
         self.previous_bid = UInt64(0)
