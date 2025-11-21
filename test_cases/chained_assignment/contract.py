@@ -1,11 +1,11 @@
 import abc
 
-from algopy import Bytes, Contract, log, subroutine
+from algopy import BaseContract, Bytes, log, subroutine
 
 WAVE = "👋".encode()
 
 
-class BaseContract(Contract, abc.ABC):
+class Base(BaseContract, abc.ABC):
     def __init__(self) -> None:
         self.state1 = self.state2 = join_log_and_return(
             right=Bytes(WAVE),
@@ -13,7 +13,7 @@ class BaseContract(Contract, abc.ABC):
         )
 
 
-class ChainedAssignment(BaseContract):
+class ChainedAssignment(Base):
     def __init__(self) -> None:
         super().__init__()
 
