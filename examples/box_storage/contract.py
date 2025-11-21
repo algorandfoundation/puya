@@ -5,6 +5,7 @@ from algopy import (
     Box,
     BoxMap,
     Bytes,
+    Contract,
     FixedArray,
     FixedBytes,
     Global,
@@ -61,7 +62,7 @@ class LargeNestedStruct(Struct):
     nested: NestedStruct
 
 
-class BoxContract(arc4.ARC4Contract):
+class BoxContract(Contract):
     def __init__(self) -> None:
         self.box_a = Box(UInt64)
         self.box_b = Box[arc4.DynamicBytes](arc4.DynamicBytes, key="b")

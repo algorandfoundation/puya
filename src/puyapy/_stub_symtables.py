@@ -79,13 +79,15 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "gtxn": SymbolData(fullname="algopy.gtxn", module_public=True),
         "itxn": SymbolData(fullname="algopy.itxn", module_public=True),
         "op": SymbolData(fullname="algopy.op", module_public=True),
+        "Contract": SymbolData(fullname="algopy.arc4.ARC4Contract", module_public=True),
         "public": SymbolData(fullname="algopy.arc4.abimethod", module_public=True),
         "ARC4Contract": SymbolData(fullname="algopy.arc4.ARC4Contract", module_public=True),
         "Global": SymbolData(fullname="algopy.op.Global", module_public=True),
         "Txn": SymbolData(fullname="algopy.op.Txn", module_public=True),
     },
     "algopy._aliases": {
-        "public": SymbolData(fullname="algopy.arc4.abimethod", module_public=True)
+        "Contract": SymbolData(fullname="algopy.arc4.ARC4Contract", module_public=True),
+        "public": SymbolData(fullname="algopy.arc4.abimethod", module_public=True),
     },
     "algopy._base_contract": {
         "StateTotals": SymbolData(
