@@ -32,7 +32,7 @@ def _transform_ast(
         module_rel_path = make_path_relative_to_cwd(src.path)
         logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
         module_ctx = ctx.for_module(src.path)
-        user_modules.append((src, ModuleASTConverter(module_ctx, src.node)))
+        user_modules.append((src, ModuleASTConverter(module_ctx, src.mypy_module)))
 
     compilation_set = list[ContractReference | LogicSigReference]()
     awst = list[RootNode]()
