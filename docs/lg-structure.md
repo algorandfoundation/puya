@@ -91,7 +91,7 @@ consists of two distinct "programs"; an approval program, and a
 clear-state program. These are tied together in Algorand Python as a single class.
 
 All contracts must inherit from the base class `algopy.BaseContract` - either directly or indirectly,
-which can include inheriting from `algopy.ARC4Contract`.
+which can include inheriting from `algopy.ARC4Contract` or its alias, `algopy.Contract`.
 
 The life-cycle of a smart contract matches the semantics of Python classes when you consider
 deploying a smart contract as "instantiating" the class. Any calls to that smart contract are made
@@ -209,12 +209,12 @@ Some things to note:
 -   Any methods other than `__init__`, `approval_program` or `clear_state_program` must be decorated
     with `@subroutine`.
 
-### Example: Simplest possible `algopy.ARC4Contract` implementation
+### Example: Simplest possible `algopy.Contract` implementation
 
 And here is a valid ARC-4 contract:
 
 ```python
-class ABIContract(algopy.ARC4Contract):
+class ABIContract(algopy.Contract):
     pass
 ```
 
@@ -231,7 +231,7 @@ A default `clear_state_program` is implemented which always approves, but this c
 ```python
 import algopy
 
-class ARC4Counter(algopy.ARC4Contract):
+class ARC4Counter(algopy.Contract):
     def __init__(self) -> None:
         self.counter = algopy.UInt64(0)
 
@@ -255,9 +255,11 @@ Things to note here:
 -   The default options for `abimethod` is to only allow `NoOp` as an on-completion-action, so we
     don't need to check this manually.
 -   The current call count is returned from the `invoke` method.
--   Every method in an `ARC4Contract` except for the optional `__init__` and `clear_state_program`
-    methods must be decorated with one of `algopy.arc4.abimethod`, `algopy.arc4.baremethod`, or
-    `algopy.subroutine`. `subroutines` won't be directly callable through the default router.
+-   Every method in an `Contract` except for the optional `__init__` and `clear_state_program`
+    methods must be decorated with one of `algopy.arc4.baremethod`, `algopy.arc4.abimethod`
+    (or its alias, `public`), to indicate that they are externally callable. Other methods which won't
+    be directly callable through the default router can be optionally decorated with
+    `algopy.subroutine` decorator.
 
 See the [ARC-4 section](lg-arc4.md) of this language guide for more info on the above.
 
