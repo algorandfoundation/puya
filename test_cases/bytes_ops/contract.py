@@ -1,7 +1,7 @@
-from algopy import Bytes, Contract, subroutine
+from algopy import BaseContract, Bytes, subroutine
 
 
-class BiguintBinaryOps(Contract):
+class BiguintBinaryOps(BaseContract):
     def approval_program(self) -> bool:
         do_some_ops(
             left=Bytes.from_hex("FF"),

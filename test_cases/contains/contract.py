@@ -1,7 +1,7 @@
-from algopy import Application, BigUInt, Bytes, Contract, String, UInt64, arc4, subroutine
+from algopy import Application, BaseContract, BigUInt, Bytes, String, UInt64, arc4, subroutine
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     """My contract"""
 
     def approval_program(self) -> UInt64:

@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Contract, UInt64, subroutine
+from algopy import BaseContract, UInt64, subroutine
 from algopy.arc4 import (
     Bool,
     StaticArray,
@@ -24,7 +24,7 @@ class StructWithArray(Struct):
     test_array: TestArray
 
 
-class Arc4MutableParamsContract(Contract):
+class Arc4MutableParamsContract(BaseContract):
     def approval_program(self) -> bool:
         self.mutating_copies()
 

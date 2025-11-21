@@ -1,7 +1,7 @@
 from algopy import (
+    BaseContract,
     BigUInt,
     Bytes,
-    Contract,
     UInt64,
     subroutine,
 )
@@ -10,7 +10,7 @@ MAX_UINT64 = 2**64 - 1
 MAX_BIGUINT = 2**512 - 1
 
 
-class UnaryContract(Contract):
+class UnaryContract(BaseContract):
     def approval_program(self) -> bool:
         uint_unary()
         biguint_unary()

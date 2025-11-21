@@ -90,8 +90,8 @@ An [Algorand smart contract](https://dev.algorand.co/concepts/smart-contracts/ap
 consists of two distinct "programs"; an approval program, and a
 clear-state program. These are tied together in Algorand Python as a single class.
 
-All contracts must inherit from the base class `algopy.Contract` - either directly or indirectly,
-which can include inheriting from `algopy.ARC4Contract`.
+All contracts must inherit from the base class `algopy.BaseContract` - either directly or indirectly,
+which can include inheriting from `algopy.ARC4Contract` or its alias, `algopy.Contract`.
 
 The life-cycle of a smart contract matches the semantics of Python classes when you consider
 deploying a smart contract as "instantiating" the class. Any calls to that smart contract are made
@@ -111,7 +111,7 @@ definitions. Forward type declarations are allowed.
 Example:
 
 ```python
-class MyContract(algopy.Contract):
+class MyContract(algopy.BaseContract):
     foo: algopy.UInt64  # okay
     bar = algopy.UInt64(1) # not allowed
 
@@ -129,8 +129,8 @@ abstract methods are unimplemented.
 
 ### Contract class configuration
 
-When defining a contract subclass you can pass configuration options to the `algopy.Contract`
-base class [per the API documentation](./api-algopy.md#algopy.Contract).
+When defining a contract subclass you can pass configuration options to the `algopy.BaseContract`
+base class [per the API documentation](./api-algopy.md#algopy.BaseContract).
 
 Namely you can pass in:
 
@@ -147,7 +147,7 @@ Full example:
 GLOBAL_UINTS = 3
 
 class MyContract(
-    algopy.Contract,
+    algopy.BaseContract,
     name="CustomName",
     scratch_slots=[5, 25, algopy.urange(110, 115)],
     state_totals=algopy.StateTotals(local_bytes=1, local_uints=2, global_bytes=4, global_uints=GLOBAL_UINTS),
@@ -155,7 +155,7 @@ class MyContract(
     ...
 ```
 
-### Example: Simplest possible `algopy.Contract` implementation
+### Example: Simplest possible `algopy.BaseContract` implementation
 
 For a non-ARC-4 contract, the contract class must implement an `approval_program` and
 a `clear_state_program` method.
@@ -163,7 +163,7 @@ a `clear_state_program` method.
 As an example, this is a valid contract that always approves:
 
 ```python
-class Contract(algopy.Contract):
+class Contract(algopy.BaseContract):
     def approval_program(self) -> bool:
         return True
 
@@ -181,7 +181,7 @@ Here is a very simple example contract that maintains a counter of how many time
 been called (including on create).
 
 ```python
-class Counter(algopy.Contract):
+class Counter(algopy.BaseContract):
     def __init__(self) -> None:
         self.counter = algopy.UInt64(0)
 
@@ -209,12 +209,12 @@ Some things to note:
 -   Any methods other than `__init__`, `approval_program` or `clear_state_program` must be decorated
     with `@subroutine`.
 
-### Example: Simplest possible `algopy.ARC4Contract` implementation
+### Example: Simplest possible `algopy.Contract` implementation
 
 And here is a valid ARC-4 contract:
 
 ```python
-class ABIContract(algopy.ARC4Contract):
+class ABIContract(algopy.Contract):
     pass
 ```
 
@@ -231,7 +231,7 @@ A default `clear_state_program` is implemented which always approves, but this c
 ```python
 import algopy
 
-class ARC4Counter(algopy.ARC4Contract):
+class ARC4Counter(algopy.Contract):
     def __init__(self) -> None:
         self.counter = algopy.UInt64(0)
 
@@ -255,9 +255,11 @@ Things to note here:
 -   The default options for `abimethod` is to only allow `NoOp` as an on-completion-action, so we
     don't need to check this manually.
 -   The current call count is returned from the `invoke` method.
--   Every method in an `ARC4Contract` except for the optional `__init__` and `clear_state_program`
-    methods must be decorated with one of `algopy.arc4.abimethod`, `algopy.arc4.baremethod`, or
-    `algopy.subroutine`. `subroutines` won't be directly callable through the default router.
+-   Every method in an `Contract` except for the optional `__init__` and `clear_state_program`
+    methods must be decorated with one of `algopy.arc4.baremethod`, `algopy.arc4.abimethod`
+    (or its alias, `public`), to indicate that they are externally callable. Other methods which won't
+    be directly callable through the default router can be optionally decorated with
+    `algopy.subroutine` decorator.
 
 See the [ARC-4 section](lg-arc4.md) of this language guide for more info on the above.
 
