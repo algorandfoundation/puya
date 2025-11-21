@@ -70,9 +70,9 @@ Individual methods can be forced to use the original behaviour by setting the `r
 on `arc4.abimethod` e.g.
 
 ```python
-from algopy import arc4, Account, Application, Asset
+from algopy import arc4, Account, Application, Asset, Contract
 
-class MyContract(arc4.ARC4Contract):
+class MyContract(Contract):
     @arc4.abimethod(resource_encoding="index")
     def my_abi_method(self, app: Application, asset: Asset, account: Account) -> None:
         ...

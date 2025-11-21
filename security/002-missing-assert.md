@@ -40,9 +40,9 @@ The following examples show how the vulnerability would appear in a contract.
 #### Example 1: global flag check
 
 ```py
-from algopy import ARC4Contract, arc4
+from algopy import Contract, arc4
 
-class VulnerableContract(ARC4Contract):
+class VulnerableContract(Contract):
     @arc4.abimethod(create="require")
     def create(self, value: bool) -> None:
         self.global_flag = value

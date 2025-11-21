@@ -51,7 +51,7 @@ Your contract is vulnerable to the fixed-length argument overflow if the followi
 Example 1: Fixed-Length Argument Overflow
 
 ```py
-from algopy import arc4, UInt64
+from algopy import arc4, Contract, UInt64
 from typing import Literal
 
 # Type alias for a 32-byte static array
@@ -59,7 +59,7 @@ StaticBytes32 = arc4.StaticArray[arc4.Byte, Literal[32]]
 
 SUPER_IMPORTANT_VALUE = 42
 
-class VulnerableContract(arc4.ARC4Contract):
+class VulnerableContract(Contract):
     @arc4.abimethod
     def static_value(self, static_bytes: StaticBytes32) -> arc4.UInt64:
         # ⚠️ VULNERABLE: If static_bytes is more than 32 bytes,
@@ -73,13 +73,13 @@ class VulnerableContract(arc4.ARC4Contract):
 Example 2: Fixed-Length ABI Return Overflow
 
 ```py
-from algopy import arc4, UInt64
+from algopy import arc4, Contract, UInt64
 from typing import Literal
 
 StaticBytes32 = arc4.StaticArray[arc4.Byte, Literal[32]]
 SUPER_IMPORTANT_VALUE = 42
 
-class VulnerableContract(arc4.ARC4Contract):
+class VulnerableContract(Contract):
     @arc4.abimethod
     def malicious_contract_return(self, malicious_app_id: UInt64) -> arc4.UInt64:
         # Call external contract that claims to return 32 bytes
@@ -110,7 +110,7 @@ Your contract may be vulnerable to “hidden” values in dynamic arrays if the 
 Example “Hidden” Dynamic Array Values
 
 ```py
-class HiddenValues(ARC4Contract):
+class HiddenValues(Contract):
     even_numbers: GlobalState[DynamicArray[UInt64]]
 
     def __init__(self) -> None:
@@ -142,7 +142,7 @@ Your contract may panic at unexpected times if the following is true:
 3. You save the value in the contract state and try to use it in a subsequent call.
 
 ```py
-class InvalidEncoding(ARC4Contract):
+class InvalidEncoding(Contract):
     numbers: Box[DynamicArray[UInt64]]
     numbers_sum: Box[UInt64]
 

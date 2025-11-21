@@ -33,8 +33,8 @@ Alternatively, if you want to start from scratch you can do the following:
 4. Install Algorand Python into your project `poetry add algorand-python`
 5. Create a contract in a (e.g.) `contract.py` file:
     ```python
-    from algopy import ARC4Contract, arc4
-    class HelloWorldContract(ARC4Contract):
+    from algopy import Contract, arc4
+    class HelloWorldContract(Contract):
         @arc4.abimethod
         def hello(self, name: arc4.String) -> arc4.String:
             return "Hello, " + name
