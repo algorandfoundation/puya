@@ -1,7 +1,7 @@
 # ruff: noqa: PT018
 import typing
 
-from algopy import Account, GlobalState, Txn, UInt64, arc4, op, subroutine
+from algopy import Account, Contract, GlobalState, Txn, UInt64, arc4, op, subroutine
 
 Row: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[3]]
 Game: typing.TypeAlias = arc4.StaticArray[Row, typing.Literal[3]]
@@ -12,7 +12,7 @@ CHALLENGER = 2
 DRAW = 3
 
 
-class TicTacToeContract(arc4.ARC4Contract):
+class TicTacToeContract(Contract):
     def __init__(self) -> None:
         self.challenger = GlobalState(Account)
         self.winner = GlobalState(arc4.UInt8)

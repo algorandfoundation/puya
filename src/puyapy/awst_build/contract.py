@@ -288,7 +288,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             for invalid_dec in (abimethod_dec, baremethod_dec):
                 if invalid_dec is not None:
                     logger.error(
-                        f"decorator is only valid in subclasses of {pytypes.ARC4ContractBaseType}",
+                        f"decorator is only valid in subclasses of algopy.Contract,"
+                        f" algopy.ARC4Contract, or {pytypes.ARC4ContractBaseType}",
                         location=invalid_dec.loc,
                     )
         else:
