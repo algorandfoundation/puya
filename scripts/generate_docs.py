@@ -15,6 +15,7 @@ import mypy.build
 import mypy.find_sources
 import mypy.nodes
 from mypy.visitor import NodeVisitor
+from sphinx.cmd.build import main as sphinx_build
 
 from puyapy.parse import _get_mypy_options
 
@@ -33,14 +34,16 @@ class ModuleImports:
     import_module: bool = False
 
 
-def main() -> None:
+def main() -> int:
     configure_stdio()
     mypy_opts = _get_mypy_options()
     mypy_opts.python_executable = sys.executable
     source_list = mypy.find_sources.create_source_list([str(STUBS_DIR)], mypy_opts)
     result = mypy.build.build(source_list, options=mypy_opts)
     output_doc_stubs(result.manager)
-    run_sphinx()
+    return sphinx_build(
+        [str(DOCS_DIR), str(DOCS_DIR / "_build"), "-W", "--keep-going", "-n", "-E"]
+    )
 
 
 def output_doc_stubs(manager: mypy.build.BuildManager) -> None:
@@ -87,12 +90,6 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
 
     subprocess.run(["ruff", "format", str(output)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
-
-
-def run_sphinx() -> None:
-    subprocess.run(
-        ["sphinx-build", ".", "_build", "-W", "--keep-going", "-n", "-E"], check=True, cwd=DOCS_DIR
-    )
 
 
 @attrs.define(kw_only=True)
@@ -422,4 +419,4 @@ def _should_inline_module(module_id: str) -> bool:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
