@@ -24,10 +24,10 @@ For example, the following contract has `UInt64` and `Bytes` template variables.
 
 ```{code-block} python
 :caption: templated_contract.py
-from algopy import ARC4Contract, Bytes, TemplateVar, UInt64, arc4
+from algopy import Contract, Bytes, TemplateVar, UInt64, arc4
 
 
-class TemplatedContract(ARC4Contract):
+class TemplatedContract(Contract):
 
     @arc4.abimethod
     def my_method(self) -> UInt64:
