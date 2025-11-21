@@ -1,7 +1,7 @@
-from algopy import Bytes, Contract, op, subroutine
+from algopy import BaseContract, Bytes, op, subroutine
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         a = op.Txn.application_args(0)
         b = op.Txn.application_args(1)

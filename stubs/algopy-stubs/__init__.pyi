@@ -8,7 +8,7 @@ from algopy._constants import *
 from algopy._reference import *
 from algopy._box import *
 from algopy._compiled import *
-from algopy._contract import *
+from algopy._base_contract import *
 from algopy._hints import *
 from algopy._native import *
 from algopy._state import *

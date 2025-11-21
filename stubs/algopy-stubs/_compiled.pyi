@@ -1,9 +1,10 @@
-from collections.abc import Mapping
 import typing
+from collections.abc import Mapping
+
 from algopy import (
     Account,
+    BaseContract,
     Bytes,
-    Contract,
     LogicSig,
     UInt64,
 )
@@ -71,7 +72,7 @@ class CompiledLogicSig(typing.NamedTuple):
     """
 
 def compile_contract(
-    contract: type[Contract],
+    contract: type[BaseContract],
     /,
     *,
     extra_program_pages: UInt64 | int = ...,

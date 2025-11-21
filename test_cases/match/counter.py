@@ -1,7 +1,7 @@
 import algopy
 
 
-class Counter(algopy.Contract):
+class Counter(algopy.BaseContract):
     def __init__(self) -> None:
         self.counter = algopy.UInt64(0)
 

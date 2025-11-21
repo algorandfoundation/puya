@@ -1,7 +1,7 @@
-from algopy import Contract, arc4, op
+from algopy import BaseContract, arc4, op
 
 
-class Arc4RefTypesContract(Contract):
+class Arc4RefTypesContract(BaseContract):
     def approval_program(self) -> bool:
         # When creating an address from an account no need to check the length as we assume the
         # Account is valid

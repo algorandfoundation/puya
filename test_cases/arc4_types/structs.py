@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Contract, arc4, log, op, subroutine
+from algopy import BaseContract, arc4, log, op, subroutine
 
 Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 
@@ -35,7 +35,7 @@ class EmptyStruct(arc4.Struct):
     pass
 
 
-class Arc4StructsTypeContract(Contract):
+class Arc4StructsTypeContract(BaseContract):
     def approval_program(self) -> bool:
         coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
         coord_2 = Vector(y=Decimal("150.382884930"), x=Decimal("35.382882839"))

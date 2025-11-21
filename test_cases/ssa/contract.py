@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64, log, op, subroutine, urange
+from algopy import BaseContract, UInt64, log, op, subroutine, urange
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     """My contract"""
 
     def approval_program(self) -> UInt64:

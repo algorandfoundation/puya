@@ -1,6 +1,6 @@
 from algopy import (
     Asset,
-    Contract,
+    BaseContract,
     TransactionType,
     UInt64,
     subroutine,
@@ -13,7 +13,7 @@ from algopy.op import (
 )
 
 
-class Reference(Contract):
+class Reference(BaseContract):
     def __init__(self) -> None:
         self.asa = Asset()
 

@@ -1,10 +1,10 @@
-from algopy import Bytes, Contract, Txn, UInt64, op, urange
+from algopy import BaseContract, Bytes, Txn, UInt64, op, urange
 
 TWO = 2
 TWENTY = 20
 
 
-class MyContract(Contract, scratch_slots=(1, TWO, urange(3, TWENTY))):
+class MyContract(BaseContract, scratch_slots=(1, TWO, urange(3, TWENTY))):
     def approval_program(self) -> bool:
         op.Scratch.store(UInt64(1), 5 if Txn.application_id == 0 else 0)
 

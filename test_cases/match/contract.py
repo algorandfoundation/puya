@@ -1,7 +1,7 @@
 import algopy
 
 
-class MyContract(algopy.Contract):
+class MyContract(algopy.BaseContract):
     def approval_program(self) -> bool:
         self.case_one = algopy.UInt64(1)
         self.case_two = algopy.UInt64(2)

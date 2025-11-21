@@ -608,9 +608,9 @@ def test_calculator(harness: _TestHarness) -> None:
 
 def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Bytes, Contract, log, op, subroutine
+        from algopy import BaseContract, Bytes, log, op, subroutine
 
-        class Exclaimer(Contract):
+        class Exclaimer(BaseContract):
             def approval_program(self) -> bool:
                 num_args = op.Txn.num_app_args
                 assert num_args == 1, "expected one arg"
@@ -945,9 +945,9 @@ def test_biguint_stubs(harness: _TestHarness) -> None:
 
 def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import BigUInt, Contract, log, op
+        from algopy import BaseContract, BigUInt, log, op
 
-        class BigUIntByteTests(Contract):
+        class BigUIntByteTests(BaseContract):
             def approval_program(self) -> bool:
                 arg = op.Txn.application_args(0)
                 big_uint = BigUInt.from_bytes(arg)
@@ -1276,9 +1276,9 @@ def test_iteration(harness: _TestHarness, name: str, increase_budget: int) -> No
 
 def test_ignored_value(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Contract, subroutine
+        from algopy import BaseContract, subroutine
 
-        class Silly(Contract):
+        class Silly(BaseContract):
             def approval_program(self) -> bool:
                 True  # noqa: B018
                 self.silly()
@@ -1395,9 +1395,9 @@ def test_inheritance_direct_method_invocation(harness: _TestHarness) -> None:
 
 def test_account_from_bytes_validation(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Account, Contract, Txn
+        from algopy import Account, BaseContract, Txn
 
-        class Baddie(Contract):
+        class Baddie(BaseContract):
             def approval_program(self) -> bool:
                 b = Txn.sender.bytes + b"!"
                 x = Account(b)
@@ -1415,9 +1415,9 @@ def test_account_from_bytes_validation(harness: _TestHarness) -> None:
 
 def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Contract, Txn, arc4
+        from algopy import BaseContract, Txn, arc4
 
-        class Baddie(Contract):
+        class Baddie(BaseContract):
             def approval_program(self) -> bool:
                 b = Txn.sender.bytes + b"!"
                 x = arc4.Address(b)
@@ -1435,9 +1435,9 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
 
 def test_tuple_element_mutation(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Contract, arc4
+        from algopy import BaseContract, arc4
 
-        class MyContract(Contract):
+        class MyContract(BaseContract):
             def approval_program(self) -> bool:
                 t = (arc4.UInt64(1), arc4.DynamicBytes(b"abc"))
                 assert t[1].bytes[2:] == b"abc", "initial value"
@@ -1453,9 +1453,9 @@ def test_tuple_element_mutation(harness: _TestHarness) -> None:
 
 def test_arc4_tuple_element_mutation(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Contract, arc4
+        from algopy import BaseContract, arc4
 
-        class MyContract(Contract):
+        class MyContract(BaseContract):
             def approval_program(self) -> bool:
                 t = arc4.Tuple((arc4.UInt64(1), arc4.DynamicBytes(b"abc")))
                 assert t[1].bytes[2:] == b"abc", "initial value"

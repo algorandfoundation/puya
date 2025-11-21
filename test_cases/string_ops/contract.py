@@ -1,7 +1,7 @@
-from algopy import Bytes, Contract
+from algopy import BaseContract, Bytes
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         assert Bytes(b"brown fox") in Bytes(b"The quick brown fox jumped over the lazy dog")
         assert b"brown fox" in Bytes(b"The quick brown fox jumped over the lazy dog")

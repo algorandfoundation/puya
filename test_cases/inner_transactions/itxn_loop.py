@@ -1,6 +1,6 @@
 from algopy import (
+    BaseContract,
     Bytes,
-    Contract,
     OnCompleteAction,
     UInt64,
     itxn,
@@ -12,7 +12,7 @@ from algopy import (
 from test_cases.inner_transactions import programs
 
 
-class MyContract(Contract, name="itxn_loop"):
+class MyContract(BaseContract, name="itxn_loop"):
     def clear_state_program(self) -> bool:
         return True
 

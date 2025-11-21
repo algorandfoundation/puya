@@ -2,9 +2,9 @@ import typing
 
 from algopy import (
     Account,
+    BaseContract,
     Box,
     Bytes,
-    Contract,
     FixedArray,
     FixedBytes,
     LocalState,
@@ -18,7 +18,7 @@ from algopy import (
 from algopy.op import Txn
 
 
-class FixedBytesOps(Contract):
+class FixedBytesOps(BaseContract):
     def __init__(self) -> None:
         self.local = LocalState(FixedBytes[typing.Literal[4]])
         self.box = Box(FixedBytes[typing.Literal[5]])
