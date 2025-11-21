@@ -1,6 +1,6 @@
 import typing as t
 
-from algopy import Bytes, Contract, String, UInt64, op, subroutine, uenumerate
+from algopy import BaseContract, Bytes, String, UInt64, op, subroutine, uenumerate
 from algopy.arc4 import (
     Byte,
     DynamicArray,
@@ -20,7 +20,7 @@ Decimal: t.TypeAlias = UFixedNxM[t.Literal[64], t.Literal[10]]
 HashResult: t.TypeAlias = StaticArray[Byte, t.Literal[32]]
 
 
-class Arc4ArraysContract(Contract):
+class Arc4ArraysContract(BaseContract):
     def approval_program(self) -> bool:
         dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
         total = UInt64(0)

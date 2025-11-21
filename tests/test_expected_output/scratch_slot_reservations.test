@@ -1,16 +1,16 @@
 ## case: negative_scratch_slot_arg
 import abc
-from algopy import Contract, urange
+from algopy import BaseContract, urange
 
 class MyContract(
-    Contract,
+    BaseContract,
     abc.ABC,
     scratch_slots=[-1], ## E: invalid scratch slot reservation - range must fall entirely between 0 and 255
 ):
     pass
 
 class MyContract2(
-    Contract,
+    BaseContract,
     abc.ABC,
     scratch_slots=urange(1, -2, -1), ## E: invalid scratch slot reservation - range must fall entirely between 0 and 255
 ):
@@ -18,7 +18,7 @@ class MyContract2(
 
 
 class MyContract3(
-    Contract,
+    BaseContract,
     abc.ABC,
     scratch_slots=[urange(1, -2, -1)], ## E: invalid scratch slot reservation - range must fall entirely between 0 and 255
 ):
@@ -26,10 +26,10 @@ class MyContract3(
 
 ## case: scratch_slot_too_high
 import abc
-from algopy import Contract, urange
+from algopy import BaseContract, urange
 
 class MyContract(
-    Contract,
+    BaseContract,
     abc.ABC,
     scratch_slots=[256], ## E: invalid scratch slot reservation - range must fall entirely between 0 and 255
 ):
@@ -38,10 +38,10 @@ class MyContract(
 
 ## case: scratch_slot_range_empty
 import abc
-from algopy import Contract, urange
+from algopy import BaseContract, urange
 
 class MyContract(
-    Contract,
+    BaseContract,
     abc.ABC,
     scratch_slots=urange(0, 1, -1), ## E: range is empty
 ):
@@ -50,10 +50,10 @@ class MyContract(
 
 ## case: scratch_slot_bad_urange_args
 import abc
-from algopy import Contract, urange
+from algopy import BaseContract, urange
 
 class MyContract(
-    Contract,
+    BaseContract,
     abc.ABC,
     scratch_slots=urange(0, 2, 0),  ## E: urange arg 3 must not be zero
 ):

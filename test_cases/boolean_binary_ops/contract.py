@@ -2,7 +2,7 @@
 from algopy import *
 
 
-class BooleanBinaryOps(Contract):
+class BooleanBinaryOps(BaseContract):
     def approval_program(self) -> bool:
         test_boolean_binary_ops(true=True, false=False)
         test_boolean_shortcircuit_binary_ops()

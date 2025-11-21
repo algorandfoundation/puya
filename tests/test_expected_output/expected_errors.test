@@ -23,10 +23,10 @@ def typing_interactions() -> None:
 
 ## case: test_unreachable
 
-from algopy import Contract, UInt64, op
+from algopy import BaseContract, UInt64, op
 
 
-class ContractWithUnreachableCode(Contract):
+class ContractWithUnreachableCode(BaseContract):
     def approval_program(self) -> UInt64:
         x = UInt64(0)
         if x:
@@ -41,10 +41,10 @@ class ContractWithUnreachableCode(Contract):
 
 ## case: test_invalid_address_literal
 
-from algopy import arc4, Account, Bytes, Contract
+from algopy import arc4, Account, Bytes, BaseContract
 
 
-class ContractWithInvalidAddressLiteral(Contract):
+class ContractWithInvalidAddressLiteral(BaseContract):
     def approval_program(self) -> bool:
         some_address = arc4.Address("ABC") ## E: Invalid address value. Address literals should be 58 characters and not include base32 padding
         return True
@@ -277,7 +277,7 @@ class Base2(ARC4Contract):
 ## case: void_state_decl
 from algopy import *
 
-class Con(Contract):
+class Con(BaseContract):
     x: None ## E: type is not suitable for storage
 
     def approval_program(self) -> bool:
@@ -290,7 +290,7 @@ class Con(Contract):
 ## case: void_state
 from algopy import *
 
-class Con(Contract):
+class Con(BaseContract):
     x: None
 
     def approval_program(self) -> bool:

@@ -1,9 +1,9 @@
-from algopy import Contract, UInt64, log, op, uenumerate, urange
+from algopy import BaseContract, UInt64, log, op, uenumerate, urange
 
 LOOP_ITERATIONS = 2  # max op code budget is exceeded with more
 
 
-class Nested(Contract):
+class Nested(BaseContract):
     def approval_program(self) -> UInt64:
         n = UInt64(LOOP_ITERATIONS)
         x = UInt64(0)

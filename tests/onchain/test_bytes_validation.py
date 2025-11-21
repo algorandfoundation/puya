@@ -7,9 +7,9 @@ from tests.utils.deployer import Deployer
 
 def test_account_from_bytes_validation(deployer: Deployer, optimization_level: int) -> None:
     def contract() -> None:
-        from algopy import Account, Contract, Txn
+        from algopy import Account, BaseContract, Txn
 
-        class Baddie(Contract):
+        class Baddie(BaseContract):
             def approval_program(self) -> bool:
                 b = Txn.sender.bytes + b"!"
                 x = Account(b)
@@ -26,9 +26,9 @@ def test_account_from_bytes_validation(deployer: Deployer, optimization_level: i
 
 def test_arc4_address_from_bytes_validation(deployer: Deployer, optimization_level: int) -> None:
     def contract() -> None:
-        from algopy import Contract, Txn, arc4
+        from algopy import BaseContract, Txn, arc4
 
-        class Baddie(Contract):
+        class Baddie(BaseContract):
             def approval_program(self) -> bool:
                 b = Txn.sender.bytes + b"!"
                 x = arc4.Address(b)

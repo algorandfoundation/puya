@@ -1,10 +1,10 @@
 import typing as t
 
-from algopy import Contract, arc4
+from algopy import BaseContract, arc4
 from algopy.op import Txn
 
 
-class Arc4BoolEvalContract(Contract):
+class Arc4BoolEvalContract(BaseContract):
     def approval_program(self) -> bool:
         assert not arc4.Bool(False)
         assert arc4.Bool(True)

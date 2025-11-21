@@ -11,7 +11,7 @@ _R = typing.TypeVar("_R")
 
 _ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[explicit-any]
 
-class ARC4Contract(algopy.Contract):
+class ARC4Contract(algopy.BaseContract):
     """A contract that conforms to the ARC-4 ABI specification, functions decorated with
     `@abimethod` or `@baremethod` will form the public interface of the contract
 

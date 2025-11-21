@@ -2,7 +2,7 @@
 from algopy import *
 
 
-class LoopElseContract(Contract):
+class LoopElseContract(BaseContract):
     def approval_program(self) -> bool:
         test_empty_loop(UInt64(0))
 

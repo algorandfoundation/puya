@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Bytes, Contract, UInt64, subroutine
+from algopy import BaseContract, Bytes, UInt64, subroutine
 from algopy.arc4 import Bool, Byte, DynamicBytes, String, Tuple, UInt8
 
 TestTuple: typing.TypeAlias = Tuple[UInt8, UInt8, String, String, UInt8]
@@ -10,7 +10,7 @@ TestBooleanPacking: typing.TypeAlias = Tuple[
 ]
 
 
-class Arc4TuplesTypeContract(Contract):
+class Arc4TuplesTypeContract(BaseContract):
     def approval_program(self) -> bool:
         my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
 

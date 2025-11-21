@@ -4,9 +4,9 @@ from tests.utils.deployer import Deployer
 
 def test_arc4_tuple_element_mutation(deployer: Deployer, optimization_level: int) -> None:
     def contract() -> None:
-        from algopy import Contract, arc4
+        from algopy import BaseContract, arc4
 
-        class MyContract(Contract):
+        class MyContract(BaseContract):
             def approval_program(self) -> bool:
                 t = arc4.Tuple((arc4.UInt64(1), arc4.DynamicBytes(b"abc")))
                 assert t[1].bytes[2:] == b"abc", "initial value"

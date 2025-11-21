@@ -1,7 +1,7 @@
-from algopy import Contract, subroutine
+from algopy import BaseContract, subroutine
 
 
-class ConditionalExecutionContract(Contract):
+class ConditionalExecutionContract(BaseContract):
     def __init__(self) -> None:
         self.did_execute_a = False
         self.did_execute_b = False

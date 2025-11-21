@@ -57,9 +57,9 @@ def my_sub(t: MyTuple) -> None:
     pass
 
 ## case: unsupported_class
-from algopy import Contract, UInt64
+from algopy import BaseContract, UInt64
 
-class AllowedContract(Contract):
+class AllowedContract(BaseContract):
 
     def approval_program(self) -> UInt64:
         return UInt64(1)
@@ -67,7 +67,7 @@ class AllowedContract(Contract):
     def clear_state_program(self) -> UInt64:
         return UInt64(1)
 
-class NotAllowed: ## E: Unsupported class declaration. Contract classes must inherit either directly or indirectly from algopy.Contract.
+class NotAllowed: ## E: Unsupported class declaration. Contract classes must inherit either directly or indirectly from algopy.BaseContract.
     pass
 
 ## case: all_ignored
@@ -164,9 +164,9 @@ THREE = ONE + pkg.two.TWO
 ## case: imported_contract_test
 ## path: my_contract.py
 import abc
-from algopy import Contract, UInt64, subroutine
+from algopy import BaseContract, UInt64, subroutine
 
-class MyContractBase(Contract, abc.ABC):
+class MyContractBase(BaseContract, abc.ABC):
 
     def approval_program(self) -> UInt64:
         return UInt64(1)
@@ -262,16 +262,16 @@ class BaseContract( ## W: State totals declared on the class are less than total
 
 ## case: state_too_big
 
-from algopy import Contract, StateTotals
+from algopy import BaseContract, StateTotals
 
-class Contract1(Contract, state_totals=StateTotals(global_uints=50, global_bytes=50)): ## W: Total global state key count of 100 exceeds consensus parameter value 64
+class Contract1(BaseContract, state_totals=StateTotals(global_uints=50, global_bytes=50)): ## W: Total global state key count of 100 exceeds consensus parameter value 64
     def approval_program(self) -> bool:
         return True
 
     def clear_state_program(self) -> bool:
         return True
 
-class Contract2(Contract, state_totals=StateTotals(local_uints=10, local_bytes=10)): ## W: Total local state key count of 20 exceeds consensus parameter value 16
+class Contract2(BaseContract, state_totals=StateTotals(local_uints=10, local_bytes=10)): ## W: Total local state key count of 20 exceeds consensus parameter value 16
     def approval_program(self) -> bool:
         return True
 
@@ -280,8 +280,8 @@ class Contract2(Contract, state_totals=StateTotals(local_uints=10, local_bytes=1
 
 
 ## case: implicitly_abstract_warning
-from algopy import Contract
+from algopy import BaseContract
 
-class IForgotToImplementClearState(Contract): ## W: Class implicitly_abstract_warning.IForgotToImplementClearState is implicitly abstract
+class IForgotToImplementClearState(BaseContract): ## W: Class implicitly_abstract_warning.IForgotToImplementClearState is implicitly abstract
     def approval_program(self) -> bool:
         return True

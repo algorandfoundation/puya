@@ -4,9 +4,9 @@ from tests.utils.deployer import Deployer
 
 def test_ignored_value(deployer: Deployer, optimization_level: int) -> None:
     def contract() -> None:
-        from algopy import Contract, subroutine
+        from algopy import BaseContract, subroutine
 
-        class Silly(Contract):
+        class Silly(BaseContract):
             def approval_program(self) -> bool:
                 True  # noqa: B018
                 self.silly()
