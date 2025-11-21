@@ -135,7 +135,7 @@ class ReferenceArray(Reversible[_TArrayItem]):
 
     These arrays may use scratch slots if required. If a contract also needs to use scratch slots
     for other purposes then they should be reserved using the `scratch_slots` parameter
-    in [`algopy.Contract`](#algopy.Contract),
+    in [`algopy.BaseContract`](#algopy.BaseContract),
     [`algopy.arc4.ARC4Contract`](#algopy.arc4.ARC4Contract) or [`algopy.logicsig`](#algopy.logicsig)
     """
 
