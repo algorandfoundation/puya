@@ -1,5 +1,5 @@
 ARC4_CONTRACT_BASE = "algopy.arc4.ARC4Contract"
-CONTRACT_BASE = "algopy._contract.Contract"
+CONTRACT_BASE = "algopy._base_contract.BaseContract"
 SUBROUTINE_HINT = "algopy._hints.subroutine"
 SUBROUTINE_HINT_ALIAS = "algopy.subroutine"
 PURE_HINT = "algopy._hints.__pure"

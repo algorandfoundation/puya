@@ -1,7 +1,7 @@
-from algopy import BigUInt, Contract
+from algopy import BaseContract, BigUInt
 
 
-class BigUIntConstDivZero(Contract):
+class BigUIntConstDivZero(BaseContract):
     """Regression test: compiler crashes with ZeroDivisionError when
     attempting to constant-fold a BigUInt floor division by zero."""
 

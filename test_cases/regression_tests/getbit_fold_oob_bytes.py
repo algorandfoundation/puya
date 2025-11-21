@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64, op
+from algopy import BaseContract, UInt64, op
 
 
-class GetBitFoldOOBBytes(Contract):
+class GetBitFoldOOBBytes(BaseContract):
     def approval_program(self) -> bool:
         # out of bounds bit index access (8 bits, indices 0...7)
         assert op.getbit(b"\xff", 8) == UInt64(0)

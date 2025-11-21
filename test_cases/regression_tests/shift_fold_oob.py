@@ -1,7 +1,7 @@
-from algopy import Contract, op
+from algopy import BaseContract, op
 
 
-class ShlFoldOOB(Contract):
+class ShlFoldOOB(BaseContract):
     def approval_program(self) -> bool:
         assert op.shl(1, 64) == 0
         return True
@@ -10,7 +10,7 @@ class ShlFoldOOB(Contract):
         return True
 
 
-class ShrFoldOOB(Contract):
+class ShrFoldOOB(BaseContract):
     def approval_program(self) -> bool:
         assert op.shr(1, 64) == 0
         return True

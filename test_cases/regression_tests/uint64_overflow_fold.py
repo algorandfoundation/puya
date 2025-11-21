@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64
+from algopy import BaseContract, UInt64
 
 
-class UInt64AddOverflow(Contract):
+class UInt64AddOverflow(BaseContract):
     def approval_program(self) -> bool:
         assert UInt64(2**64 - 1) + 1 > 0
         return True
@@ -10,7 +10,7 @@ class UInt64AddOverflow(Contract):
         return True
 
 
-class UInt64MulOverflow(Contract):
+class UInt64MulOverflow(BaseContract):
     def approval_program(self) -> bool:
         assert UInt64(4294967296) * 8589934592 > 0
         return True
@@ -19,7 +19,7 @@ class UInt64MulOverflow(Contract):
         return True
 
 
-class UInt64ExpOverflow(Contract):
+class UInt64ExpOverflow(BaseContract):
     def approval_program(self) -> bool:
         assert UInt64(2) ** 64 > 0
         return True

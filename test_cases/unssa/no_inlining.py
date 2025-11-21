@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64, log, op, subroutine, urange
+from algopy import BaseContract, UInt64, log, op, subroutine, urange
 
 
-class UnSSAContractNoInlining(Contract):
+class UnSSAContractNoInlining(BaseContract):
     # This contract exists as a duplicate of the one in unssa/contract.py, but
     # where everything is marked as inline=False.
     # The reason for the duplication is that these contain convoluted phi-webs,

@@ -1,7 +1,7 @@
-from algopy import BigUInt, Contract, subroutine
+from algopy import BaseContract, BigUInt, subroutine
 
 
-class DivIdentityFoldBigUInt(Contract):
+class DivIdentityFoldBigUInt(BaseContract):
     def approval_program(self) -> bool:
         assert self_div(BigUInt(5)) == 1
         assert self_div(BigUInt(0)) == 1
