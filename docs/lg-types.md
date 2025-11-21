@@ -325,11 +325,11 @@ value. This can be declared using the `TemplateVar[TYPE]` type where `TYPE` is t
 Algorand Python type that it will be interpreted as.
 
 ```python
-from algopy import BigUInt, Bytes, TemplateVar, UInt64, arc4
+from algopy import BigUInt, Bytes, Contract, TemplateVar, UInt64, arc4
 from algopy.arc4 import UInt512
 
 
-class TemplateVariablesContract(arc4.ARC4Contract):
+class TemplateVariablesContract(Contract):
     @arc4.abimethod()
     def get_bytes(self) -> Bytes:
         return TemplateVar[Bytes]("SOME_BYTES")
@@ -406,7 +406,7 @@ It should be noted, however, that all the validation methods the Puya compiler d
 For example, given the following contract:
 
 ```py
-class BoxReadWrite(ARC4Contract):
+class BoxReadWrite(Contract):
 
     def __init__(self) -> None:
         self.acct_box = Box(Account)
@@ -423,7 +423,7 @@ class BoxReadWrite(ARC4Contract):
 One can be sure that the value in `acctBox` is always valid because the only source of the value is an ABI argument (`acct` in `writeToBox`). If validation was disabled, however, then one cannot trust that it is properly encoded and should perform a manual validation if required:
 
 ```py
-class BoxReadWrite(ARC4Contract):
+class BoxReadWrite(Contract):
 
     def __init__(self):
         self.acct_box = Box(Account)

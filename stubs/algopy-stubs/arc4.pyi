@@ -720,9 +720,9 @@ def arc4_create(
     rekey_to: algopy.Account | str = ...,
 ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]:
     """
-    Provides a typesafe and convenient way of creating an ARC4Contract via an inner transaction
+    Provides a typesafe and convenient way of creating a Contract via an inner transaction
 
-    :param method: An ARC-4 create method (ABI or bare), or an ARC4Contract with a single create method
+    :param method: An ARC-4 create method (ABI or bare), or a Contract with a single create method
     :param args: ABI args for chosen method
     :param compiled: If supplied will be used to specify transaction parameters required for creation,
                      can be omitted if template variables are not used
@@ -761,9 +761,9 @@ def arc4_update(
     reject_version: algopy.UInt64 | int = ...,
 ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]:
     """
-    Provides a typesafe and convenient way of updating an ARC4Contract via an inner transaction
+    Provides a typesafe and convenient way of updating a Contract via an inner transaction
 
-    :param method: An ARC-4 update method (ABI or bare), or an ARC4Contract with a single update method
+    :param method: An ARC-4 update method (ABI or bare), or a Contract with a single update method
     :param args: ABI args for chosen method
     :param app_id: Application to update
     :param compiled: If supplied will be used to specify transaction parameters required for updating,

@@ -55,7 +55,7 @@ class BaseContract(abc.ABC):
          Will affect the output TEAL file name if there are multiple non-abstract contracts
          in the same file.
 
-         If the contract is a subclass of algopy.ARC4Contract, `name` will also be used as the
+         If the contract is a subclass of algopy.Contract, `name` will also be used as the
          contract name in the ARC-32 application.json, instead of the class name.
 
         :param scratch_slots:

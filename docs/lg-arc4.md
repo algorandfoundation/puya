@@ -2,12 +2,12 @@
 
 [ARC-4](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md) defines a set of encodings and behaviors for authoring and interacting with an Algorand Smart Contract. It is not the only way to author a smart contract, but adhering to it will make it easier for other clients and users to interop with your contract.
 
-To author an arc4 contract you should extend the `ARC4Contract` base class.
+To author an arc4 contract you should extend the `Contract` base class.
 
 ```python
-from algopy import ARC4Contract
+from algopy import Contract
 
-class HelloWorldContract(ARC4Contract):
+class HelloWorldContract(Contract):
     ...
 ```
 
@@ -27,10 +27,10 @@ A method that should not be externally available can be optionally annotated wit
 Method docstrings will be used when outputting ARC-32 or ARC-56 application specifications, the following docstrings styles are supported ReST, Google, Numpydoc-style and Epydoc.
 
 ```python
-from algopy import ARC4Contract, subroutine, arc4, public
+from algopy import Contract, subroutine, arc4, public
 
 
-class HelloWorldContract(ARC4Contract):
+class HelloWorldContract(Contract):
     @arc4.abimethod(create="disallow", allow_actions=["NoOp", "OptIn"], name="external_name")
     def hello(self, name: arc4.String) -> arc4.String:
         return self.hello_impl() + name
@@ -51,7 +51,7 @@ class HelloWorldContract(ARC4Contract):
 
 Algorand Smart Contracts only have two possible programs that are invoked when making an ApplicationCall Transaction (`appl`). The "clear state" program which is called when using an OnComplete action of `ClearState` or the "approval" program which is called for all other OnComplete actions.
 
-Routing is required to dispatch calls handled by the approval program to the relevant ABI methods. When extending `ARC4Contract`, the routing code is automatically generated for you by the PuyaPy compiler.
+Routing is required to dispatch calls handled by the approval program to the relevant ABI methods. When extending `Contract`, the routing code is automatically generated for you by the PuyaPy compiler.
 
 ## Types
 
@@ -202,13 +202,13 @@ These types can only be used as parameters, and not as return types.
 from algopy import (
     Account,
     Application,
-    ARC4Contract,
+    Contract,
     Asset,
     arc4,
     gtxn,
 )
 
-class Reference(ARC4Contract):
+class Reference(Contract):
     @arc4.abimethod
     def with_transactions(
         self,
