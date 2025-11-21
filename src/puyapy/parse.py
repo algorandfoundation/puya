@@ -60,7 +60,7 @@ class SourceDiscoveryMechanism(enum.Enum):
 @attrs.frozen
 class SourceModule:
     name: str
-    node: MypyFile
+    mypy_module: MypyFile
     path: Path
     fast: FastModule | None
     lines: Sequence[str] | None
@@ -182,7 +182,7 @@ def parse_python(
                     discovery_mechanism = SourceDiscoveryMechanism.dependency
                 ordered_modules[module_name] = SourceModule(
                     name=module_name,
-                    node=module,
+                    mypy_module=module,
                     path=module_path,
                     lines=lines,
                     fast=md.fast,

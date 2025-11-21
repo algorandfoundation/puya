@@ -263,7 +263,7 @@ class _AlgopySymbolResolver:
     @classmethod
     def create(cls, module: SourceModule) -> typing.Self:
         module_symbols = dict[str, str]()
-        for name, sym in module.node.names.items():
+        for name, sym in module.mypy_module.names.items():
             fullname = sym.fullname or ""
             root_module, _, _ = fullname.partition(".")
             if root_module == "algopy":
@@ -272,7 +272,7 @@ class _AlgopySymbolResolver:
         import_block_end = max(
             (
                 coalesce(i.end_line, i.line) + 1
-                for i in module.node.imports
+                for i in module.mypy_module.imports
                 if i.is_top_level and not i.is_mypy_only and not i.is_unreachable
             ),
             default=1,
