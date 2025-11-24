@@ -6,7 +6,7 @@ import attrs
 
 from puya.parse import SourceLocation
 from puyapy.fast import nodes as fast_nodes
-from puyapy.fast.traversers import StatementTraverser
+from puyapy.fast.visitors.traversers import StatementTraverser
 from puyapy.find_sources import ResolvedSource
 from puyapy.modulefinder import FindModuleCache
 
