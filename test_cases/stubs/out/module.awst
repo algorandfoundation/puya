@@ -1,74 +1,24 @@
-contract Uint64Contract
+contract BigUIntContract
 {
   method_resolution_order: (
     algopy._contract.Contract,
   )
   
-  subroutine test_cases.stubs.uint64.Uint64Contract.approval_program(): uint64
+  subroutine test_cases.stubs.biguint.BigUIntContract.approval_program(): bool
   {
-    zero: uint64 = 0u
-    one: uint64 = 1u
-    two: uint64 = 2u
-    five: uint64 = 5u
-    three: uint64 = 3u
-    sixty: uint64 = 60u
-    assert(one != 0u, comment="Any non-zero number should be Truthy")
-    assert(zero == 0u, comment="Zero should beFalsy")
-    assert(one < five)
-    assert(five > one)
-    assert(one <= one)
-    assert(five >= five)
-    assert(one + five == 6u)
-    c: uint64 = five
-    c += sixty
-    assert(c == 65u)
-    assert(sixty - five == 55u)
-    c -= five
-    assert(c == 60u)
-    assert(sixty // five == 12u)
-    c //= five
-    assert(c == 12u)
-    assert(five * sixty == 300u)
-    assert(five ** three == 125u)
-    c **= 2u
-    assert(c == 144u)
-    assert(one << two == 4u)
-    c >>= 6u
-    assert(c == 2u)
-    c <<= 6u
-    assert(c == 128u)
-    assert(five >> three == 0u)
-    assert(~(one) == 18446744073709551614u)
-    true: uint64 = 1u
-    false: uint64 = 0u
-    assert((true == 0u) ? (true) : (true) == true)
-    assert((true == 0u) ? (true) : (false) == false)
-    assert((false == 0u) ? (false) : (true) == false)
-    assert((false == 0u) ? (false) : (false) == false)
-    assert((true != 0u) ? (true) : (true) == true)
-    assert((true != 0u) ? (true) : (false) == true)
-    assert((false != 0u) ? (false) : (true) == true)
-    assert((false != 0u) ? (false) : (false) == false)
-    assert(one & five == one)
-    assert(sixty | five == 61u)
-    assert(sixty ^ five == 57u)
-    y: uint64 = 254u
-    y &= 31u
-    assert(y == 30u)
-    y |= 54u
-    assert(y == 62u)
-    y ^= 255u
-    assert(y == 193u)
-    assert(sqrt(17u) == sqrt(16u))
+    one: biguint = 1n
+    test_cases.stubs.biguint.compare_biguints(one, 2n)
+    test_cases.stubs.biguint.compare_biguint_vs_uint64(one, 2u)
+    test_cases.stubs.biguint.compare_uint64_vs_biguint(1u, 2n)
+    assert((txn<NumAppArgs>() != 0u) ? (1n) : (5n) == 5n, comment="constructor expressions supported")
+    assert(bsqrt(9n) == bsqrt(10n))
     assert(one == one)
-    assert((txn<NumAppArgs>() != 0u) ? (1u) : (5u) == 5u, comment="constructor expressions supported")
-    return 1u
+    return true
   }
   
-  subroutine test_cases.stubs.uint64.Uint64Contract.clear_state_program(): bool
+  subroutine test_cases.stubs.biguint.BigUIntContract.clear_state_program(): bool
   {
-    assert(0u == 0u)
-    assert(reinterpret_cast<uint64>(false) == 0u)
+    assert(0n == 0n)
     return true
   }
   
@@ -77,61 +27,34 @@ contract Uint64Contract
   }
 }
 
-contract StringContract
+subroutine compare_biguints(one: biguint, two: biguint): void
 {
-  method_resolution_order: (
-    algopy._contract.Contract,
-  )
-  
-  subroutine test_cases.stubs.string.StringContract.approval_program(): bool
-  {
-    empty: string = ''
-    assert(len(empty) == 0u, comment="Empty bytes should be False")
-    non_empty: string = ' '
-    assert(len(non_empty) != 0u, comment="Non-empty bytes should be True")
-    assert('a' + 'b' == 'ab')
-    assert('a' + 'b' == 'ab')
-    assert('a' + 'b' == 'ab')
-    assert(empty != non_empty)
-    c: string = 'c'
-    c += 'd'
-    c += 'e'
-    assert(c == 'cde')
-    assert(_puya_lib.bytes_.is_substring('brown fox', 'The quick brown fox jumped over the lazy dog'))
-    assert(!(_puya_lib.bytes_.is_substring('red fox', 'The quick brown fox jumped over the lazy dog')))
-    alpha: string = 'abcdefg'
-    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0, source=''))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0)))) == SINGLE_EVAL(id=0)))
-    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=1, source='a'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=1)))) == SINGLE_EVAL(id=1)))
-    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=2, source='ab'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=2)))) == SINGLE_EVAL(id=2)))
-    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=3, source='b'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=3)))) == SINGLE_EVAL(id=3))))
-    assert((len(reinterpret_cast<bytes>(alpha)) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(alpha))) == alpha))
-    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=4, source=alpha + '!'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=4)))) == SINGLE_EVAL(id=4))))
-    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5, source=''))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5)))) == SINGLE_EVAL(id=5)))
-    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6, source='g'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6)))) == SINGLE_EVAL(id=6)))
-    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7, source='fg'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7)))) == SINGLE_EVAL(id=7)))
-    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8, source='f'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8)))) == SINGLE_EVAL(id=8))))
-    assert((len(reinterpret_cast<bytes>(alpha)) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(alpha)), len(reinterpret_cast<bytes>(alpha))) == alpha))
-    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9, source='!' + alpha))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9)))) == SINGLE_EVAL(id=9))))
-    (d, e, f): tuple<string,string,string> = ('d', 'e', 'f')
-    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=10, source='.')), e), SINGLE_EVAL(id=10)), f) == 'd.e.f')
-    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=11, source='.')), 'e'), SINGLE_EVAL(id=11)), f) == 'd.e.f')
-    assert(concat(concat(concat(concat('d', SINGLE_EVAL(id=12, source='.')), 'e'), SINGLE_EVAL(id=12)), 'f') == 'd.e.f')
-    assert(concat(concat(concat(concat('d', SINGLE_EVAL(id=13, source='.')), 'e'), SINGLE_EVAL(id=13)), 'f') == 'd.e.f')
-    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=14, source='')), e), SINGLE_EVAL(id=14)), f) == 'def')
-    assert(d == 'd')
-    assert(d == 'd')
-    assert((txn<NumAppArgs>() != 0u) ? ('args') : ('no args') == 'no args', comment="constructor expressions supported")
-    return true
-  }
-  
-  subroutine test_cases.stubs.string.StringContract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
+  assert(one < two)
+  assert(one <= two)
+  assert(one == one)
+  assert(two > one)
+  assert(two >= one)
+  assert(one != two)
+}
+
+subroutine compare_biguint_vs_uint64(one: biguint, two: uint64): void
+{
+  assert(one < itob(two))
+  assert(one <= itob(two))
+  assert(one == one)
+  assert(one < itob(two))
+  assert(one <= itob(two))
+  assert(one != itob(two))
+}
+
+subroutine compare_uint64_vs_biguint(one: uint64, two: biguint): void
+{
+  assert(two > itob(one))
+  assert(two >= itob(one))
+  assert(one == one)
+  assert(two > itob(one))
+  assert(two >= itob(one))
+  assert(two != itob(one))
 }
 
 contract BytesContract
@@ -230,27 +153,55 @@ subroutine one_to_seven(): bytes
   return hex<"31323334353637">
 }
 
-contract BigUIntContract
+contract StringContract
 {
   method_resolution_order: (
     algopy._contract.Contract,
   )
   
-  subroutine test_cases.stubs.biguint.BigUIntContract.approval_program(): bool
+  subroutine test_cases.stubs.string.StringContract.approval_program(): bool
   {
-    one: biguint = 1n
-    test_cases.stubs.biguint.compare_biguints(one, 2n)
-    test_cases.stubs.biguint.compare_biguint_vs_uint64(one, 2u)
-    test_cases.stubs.biguint.compare_uint64_vs_biguint(1u, 2n)
-    assert((txn<NumAppArgs>() != 0u) ? (1n) : (5n) == 5n, comment="constructor expressions supported")
-    assert(bsqrt(9n) == bsqrt(10n))
-    assert(one == one)
+    empty: string = ''
+    assert(len(empty) == 0u, comment="Empty bytes should be False")
+    non_empty: string = ' '
+    assert(len(non_empty) != 0u, comment="Non-empty bytes should be True")
+    assert('a' + 'b' == 'ab')
+    assert('a' + 'b' == 'ab')
+    assert('a' + 'b' == 'ab')
+    assert(empty != non_empty)
+    c: string = 'c'
+    c += 'd'
+    c += 'e'
+    assert(c == 'cde')
+    assert(_puya_lib.bytes_.is_substring('brown fox', 'The quick brown fox jumped over the lazy dog'))
+    assert(!(_puya_lib.bytes_.is_substring('red fox', 'The quick brown fox jumped over the lazy dog')))
+    alpha: string = 'abcdefg'
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0, source=''))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=0)))) == SINGLE_EVAL(id=0)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=1, source='a'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=1)))) == SINGLE_EVAL(id=1)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=2, source='ab'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=2)))) == SINGLE_EVAL(id=2)))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=3, source='b'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=3)))) == SINGLE_EVAL(id=3))))
+    assert((len(reinterpret_cast<bytes>(alpha)) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(alpha))) == alpha))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=4, source=alpha + '!'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, 0u, len(reinterpret_cast<bytes>(SINGLE_EVAL(id=4)))) == SINGLE_EVAL(id=4))))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5, source=''))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=5)))) == SINGLE_EVAL(id=5)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6, source='g'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=6)))) == SINGLE_EVAL(id=6)))
+    assert((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7, source='fg'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=7)))) == SINGLE_EVAL(id=7)))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8, source='f'))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=8)))) == SINGLE_EVAL(id=8))))
+    assert((len(reinterpret_cast<bytes>(alpha)) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(alpha)), len(reinterpret_cast<bytes>(alpha))) == alpha))
+    assert(!((len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9, source='!' + alpha))) > len(reinterpret_cast<bytes>(alpha))) ? (false) : (extract3(alpha, len(reinterpret_cast<bytes>(alpha)) - len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9))), len(reinterpret_cast<bytes>(SINGLE_EVAL(id=9)))) == SINGLE_EVAL(id=9))))
+    (d, e, f): tuple<string,string,string> = ('d', 'e', 'f')
+    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=10, source='.')), e), SINGLE_EVAL(id=10)), f) == 'd.e.f')
+    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=11, source='.')), 'e'), SINGLE_EVAL(id=11)), f) == 'd.e.f')
+    assert(concat(concat(concat(concat('d', SINGLE_EVAL(id=12, source='.')), 'e'), SINGLE_EVAL(id=12)), 'f') == 'd.e.f')
+    assert(concat(concat(concat(concat('d', SINGLE_EVAL(id=13, source='.')), 'e'), SINGLE_EVAL(id=13)), 'f') == 'd.e.f')
+    assert(concat(concat(concat(concat(d, SINGLE_EVAL(id=14, source='')), e), SINGLE_EVAL(id=14)), f) == 'def')
+    assert(d == 'd')
+    assert(d == 'd')
+    assert((txn<NumAppArgs>() != 0u) ? ('args') : ('no args') == 'no args', comment="constructor expressions supported")
     return true
   }
   
-  subroutine test_cases.stubs.biguint.BigUIntContract.clear_state_program(): bool
+  subroutine test_cases.stubs.string.StringContract.clear_state_program(): bool
   {
-    assert(0n == 0n)
     return true
   }
   
@@ -259,32 +210,81 @@ contract BigUIntContract
   }
 }
 
-subroutine compare_biguints(one: biguint, two: biguint): void
+contract Uint64Contract
 {
-  assert(one < two)
-  assert(one <= two)
-  assert(one == one)
-  assert(two > one)
-  assert(two >= one)
-  assert(one != two)
-}
-
-subroutine compare_biguint_vs_uint64(one: biguint, two: uint64): void
-{
-  assert(one < itob(two))
-  assert(one <= itob(two))
-  assert(one == one)
-  assert(one < itob(two))
-  assert(one <= itob(two))
-  assert(one != itob(two))
-}
-
-subroutine compare_uint64_vs_biguint(one: uint64, two: biguint): void
-{
-  assert(two > itob(one))
-  assert(two >= itob(one))
-  assert(one == one)
-  assert(two > itob(one))
-  assert(two >= itob(one))
-  assert(two != itob(one))
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stubs.uint64.Uint64Contract.approval_program(): uint64
+  {
+    zero: uint64 = 0u
+    one: uint64 = 1u
+    two: uint64 = 2u
+    five: uint64 = 5u
+    three: uint64 = 3u
+    sixty: uint64 = 60u
+    assert(one != 0u, comment="Any non-zero number should be Truthy")
+    assert(zero == 0u, comment="Zero should beFalsy")
+    assert(one < five)
+    assert(five > one)
+    assert(one <= one)
+    assert(five >= five)
+    assert(one + five == 6u)
+    c: uint64 = five
+    c += sixty
+    assert(c == 65u)
+    assert(sixty - five == 55u)
+    c -= five
+    assert(c == 60u)
+    assert(sixty // five == 12u)
+    c //= five
+    assert(c == 12u)
+    assert(five * sixty == 300u)
+    assert(five ** three == 125u)
+    c **= 2u
+    assert(c == 144u)
+    assert(one << two == 4u)
+    c >>= 6u
+    assert(c == 2u)
+    c <<= 6u
+    assert(c == 128u)
+    assert(five >> three == 0u)
+    assert(~(one) == 18446744073709551614u)
+    true: uint64 = 1u
+    false: uint64 = 0u
+    assert((true == 0u) ? (true) : (true) == true)
+    assert((true == 0u) ? (true) : (false) == false)
+    assert((false == 0u) ? (false) : (true) == false)
+    assert((false == 0u) ? (false) : (false) == false)
+    assert((true != 0u) ? (true) : (true) == true)
+    assert((true != 0u) ? (true) : (false) == true)
+    assert((false != 0u) ? (false) : (true) == true)
+    assert((false != 0u) ? (false) : (false) == false)
+    assert(one & five == one)
+    assert(sixty | five == 61u)
+    assert(sixty ^ five == 57u)
+    y: uint64 = 254u
+    y &= 31u
+    assert(y == 30u)
+    y |= 54u
+    assert(y == 62u)
+    y ^= 255u
+    assert(y == 193u)
+    assert(sqrt(17u) == sqrt(16u))
+    assert(one == one)
+    assert((txn<NumAppArgs>() != 0u) ? (1u) : (5u) == 5u, comment="constructor expressions supported")
+    return 1u
+  }
+  
+  subroutine test_cases.stubs.uint64.Uint64Contract.clear_state_program(): bool
+  {
+    assert(0u == 0u)
+    assert(reinterpret_cast<uint64>(false) == 0u)
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
