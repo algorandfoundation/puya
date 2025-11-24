@@ -1,15 +1,29 @@
+import abc
+import typing
+
 from algopy import Application, ARC4Contract, String, arc4
 
-from test_cases.circular_dependency.a import A
+
+class PingPongBase(ARC4Contract, abc.ABC):
+    @abc.abstractmethod
+    @arc4.abimethod
+    def name(self) -> String: ...
 
 
-class B(ARC4Contract):
+class B(PingPongBase):
+    @typing.override
+    @arc4.abimethod
+    def name(self) -> String:
+        return String("B")
+
     @arc4.abimethod()
     def ping(self) -> String:
         return String("ping")
 
     @arc4.abimethod
     def pong(self, a: Application) -> String:
+        from test_cases.circular_dependency.a import A
+
         result, _txn = arc4.abi_call(A.pong, app_id=a)
         return result
 
