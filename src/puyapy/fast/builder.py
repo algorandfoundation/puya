@@ -108,6 +108,10 @@ def _convert_module(
     # Feature flag imports do technically exist as objects of type _Feature,
     # but there's no use case for being able to access these from Algorand Python,
     # so just collect them up as flags.
+    # TODO: we currently don't support __future__ at all so consider if we want to remove this
+    #       handling here and error immediately, allow it to error generally due to unresolved
+    #       import (current behaviour), or handle a non-empty result at a higher level to try
+    #       and keep this pass as "generic" as practical
     future_flags = list[str]()
     while body:
         match body[0]:
