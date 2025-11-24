@@ -1,27 +1,179 @@
-contract TealSwitchInlining
+contract ConstBigIntToIntOverflow
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(upper_bound: uint64): uint64
+  {
+    lower_bound: uint64 = 0u
+    abs_bound: uint64 = 0u
+    if (upper_bound != 0u) {
+      abs_bound: uint64 = btoi(reinterpret_cast<bytes>(18446744073709551616n b- itob(lower_bound)))
+    }
+    return abs_bound
+  }
+  
+  abimethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2(): uint64
+  {
+    abs_bound: uint64 = btoi(reinterpret_cast<bytes>(18446744073709551616n b- 0n))
+    return abs_bound
+  }
+  
+  baremethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract BoolOnly
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(inp: bytes): bytes
+  {
+    return setbit(inp, 0u, txn<NumAppArgs>() != 0u)
+  }
+  
+  abimethod test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(inp: bytes): bytes
+  {
+    return setbit(inp, 0u, txn<NumAppArgs>() > 0u)
+  }
+  
+  abimethod test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties(): void
+  {
+    itxn_begin()
+    itxn_field<TypeEnum>(acfg)
+    itxn_field<ConfigAssetDefaultFrozen>(txn<NumAppArgs>() != 0u)
+    itxn_submit()
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=keyreg, Nonparticipation=true))
+  }
+  
+  baremethod test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract VRFVerifier
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(message: bytes, proof: bytes, pk: bytes): tuple<bytes,bool>
+  {
+    _puya_lib.util.ensure_budget(required_budget=10000u, fee_source=1u)
+    return vrf_verify<VrfAlgorand>(message, proof, pk)
+  }
+  
+  baremethod test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Issue118
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.issue_118.Issue118.verify(values: arc4.dynamic_array<arc4.uint256>): arc4.tuple<arc4.bool,arc4.dynamic_array<arc4.uint8>>
+  {
+    val1: arc4.bool = arc4_encode(txn<NumAppArgs>() != 0u, arc4.bool)
+    if (values.length != 2u) {
+      return arc4_encode((val1, ''), arc4.tuple<arc4.bool,arc4.dynamic_array<arc4.uint8>>)
+    }
+    return arc4_encode((val1, ''), arc4.tuple<arc4.bool,arc4.dynamic_array<arc4.uint8>>)
+  }
+  
+  baremethod test_cases.regression_tests.issue_118.Issue118.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Issue194
 {
   method_resolution_order: (
     algopy._contract.Contract,
   )
   
-  subroutine test_cases.regression_tests.teal_switch_inlining.TealSwitchInlining.approval_program(): bool
+  subroutine test_cases.regression_tests.issue_194.Issue194.approval_program(): bool
   {
-    switch (txn<NumAppArgs>()) {
-      case 0u: {
-        match_case_L17:
+    assert(1u != 0u == 2u != 0u)
+    two: uint64 = 2u
+    switch (two != 0u) {
+      case true: {
+        match_case_L11:
         return true
-      }
-      case 1u: {
-        match_case_L19:
-        return false
       }
       case _: {
-        return true
+        return false
       }
     }
   }
   
-  subroutine test_cases.regression_tests.teal_switch_inlining.TealSwitchInlining.clear_state_program(): bool
+  subroutine test_cases.regression_tests.issue_194.Issue194.clear_state_program(): bool
   {
     return true
   }
@@ -31,44 +183,7 @@ contract TealSwitchInlining
   }
 }
 
-contract SlotAllocationInlining
-{
-  method_resolution_order: (
-    algopy._contract.Contract,
-  )
-  
-  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program(): bool
-  {
-    _puya_lib.util.ensure_budget(required_budget=800u, fee_source=0u)
-    test_cases.regression_tests.slot_allocation_inlining.do_something_with_array()
-    return true
-  }
-  
-  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-subroutine do_something_with_array(): void
-{
-  arr: ref_array<uint64> = new ref_array<uint64>()
-  test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr)
-  assert(arr.length == 32u, comment="expected array of length 32")
-}
-
-subroutine append_to_array(arr: ref_array<uint64>): void
-{
-  for b in reinterpret_cast<bytes>(txn<Sender>()) {
-    arr.extend((btoi(b)))
-  }
-}
-
-contract NeverReturnsInlining
+contract Issue434
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
@@ -85,271 +200,20 @@ contract NeverReturnsInlining
     return true
   }
   
-  abimethod test_cases.regression_tests.never_returns.NeverReturnsInlining.method(): uint64
+  abimethod test_cases.regression_tests.issue_434.Issue434.method(c: uint64): void
   {
-    result: uint64 = test_cases.regression_tests.never_returns.invoke()
-    return result
-  }
-  
-  baremethod test_cases.regression_tests.never_returns.NeverReturnsInlining.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-subroutine invoke(): uint64
-{
-  err()
-}
-
-contract NeverReturnsFStack
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.never_returns.NeverReturnsFStack.method(): uint64
-  {
-    result: uint64 = test_cases.regression_tests.never_returns.invoke_with_fstack()
-    return result
-  }
-  
-  baremethod test_cases.regression_tests.never_returns.NeverReturnsFStack.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-subroutine invoke_with_fstack(): uint64
-{
-  x: uint64 = 1u
-  if (txn<NumAppArgs>() > 0u) {
-    x: uint64 = 2u
-  }
-  one: uint64 = 0u
-  for idx in range(0u, txn<NumAppArgs>(), 1u) {
-    x += idx
-    if (idx == 0u) {
-      one += 1u
+    while (global<OpcodeBudget>() > 350u) {
+      assert(sha3_256(reinterpret_cast<bytes>(txn<Sender>())) != reinterpret_cast<bytes>(txn<Sender>()))
     }
-  }
-  log(concat(concat("you won't see this", ''), itob(one)))
-  err()
-}
-
-contract BranchElimination
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.leftover_branch.BranchElimination.umm(): uint64
-  {
-    ahuh: uint64 = 0u
-    while (true) {
-      for _i in range(0u, test_cases.regression_tests.leftover_branch.hmm_uint64(), 1u) {
-        if (test_cases.regression_tests.leftover_branch.hmm()) {
-          if (test_cases.regression_tests.leftover_branch.hmm()) {
-            if (test_cases.regression_tests.leftover_branch.hmm()) {
-              ahuh += reinterpret_cast<uint64>(test_cases.regression_tests.leftover_branch.hmm())
-            }
-          }
-        }
-      }
-      if (test_cases.regression_tests.leftover_branch.hmm()) {
-        break
-      }
+    if (c > 0u) {
+      x: uint64 = c + 2u
+    } else {
+      x: uint64 = c + 2u
     }
-    return ahuh
+    assert(x - 2u == c)
   }
   
-  abimethod test_cases.regression_tests.leftover_branch.BranchElimination.umm2(): void
-  {
-    ahuh: uint64 = 0u
-    while (true) {
-      if (test_cases.regression_tests.leftover_branch.hmm()) {
-        if (test_cases.regression_tests.leftover_branch.hmm()) {
-          if (test_cases.regression_tests.leftover_branch.hmm()) {
-            ahuh += reinterpret_cast<uint64>(test_cases.regression_tests.leftover_branch.hmm())
-          }
-        }
-      }
-      if (test_cases.regression_tests.leftover_branch.hmm()) {
-        break
-      }
-    }
-  }
-  
-  abimethod test_cases.regression_tests.leftover_branch.BranchElimination.calculate(nested_list: arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>, threshold: arc4.uint64): void
-  {
-    total: uint64 = 0u
-    num_boosts: uint64 = 0u
-    for i in range(0u, nested_list.length, 1u) {
-      inner_list: arc4.dynamic_array<arc4.uint64> = nested_list[i].copy()
-      last_inner_list_index: uint64 = inner_list.length - 1u
-      for j in range(0u, inner_list.length, 1u) {
-        value: arc4.uint64 = inner_list[j]
-        if (reinterpret_cast<biguint>(value) >= reinterpret_cast<biguint>(threshold)) {
-          has_next: bool = j < last_inner_list_index
-          if (has_next) {
-            total += 1u
-            next_value: arc4.uint64 = inner_list[j + 1u]
-            if (reinterpret_cast<biguint>(value) < reinterpret_cast<biguint>(next_value)) {
-              total *= 2u
-              num_boosts += 1u
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  baremethod test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-subroutine hmm(): bool
-{
-  return false
-}
-
-subroutine hmm_uint64(): uint64
-{
-  return 0u
-}
-
-contract Verifier
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>): bytes
-  {
-    x: bytes = reinterpret_cast<bytes>(proof[8u])
-    y: bytes = reinterpret_cast<bytes>(proof[6u]) + reinterpret_cast<bytes>(proof[7u])
-    z: bytes = reinterpret_cast<bytes>(proof[7u]) + reinterpret_cast<bytes>(proof[8u])
-    return x + y + z
-  }
-  
-  baremethod test_cases.regression_tests.jira_ak_752.Verifier.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract Jira241
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.jira_241.Jira241.oh_no(wrong_size: bool): void
-  {
-  }
-  
-  abimethod test_cases.regression_tests.jira_241.Jira241.oh_yes(wrong_size: bool): void
-  {
-  }
-  
-  baremethod test_cases.regression_tests.jira_241.Jira241.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract Jira142
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.regression_tests.jira_142.Jira142.some_subroutine(char: test_cases.regression_tests.jira_142.MyStruct): void
-  {
-  }
-  
-  abimethod test_cases.regression_tests.jira_142.Jira142.battle(): void
-  {
-    my_struct: test_cases.regression_tests.jira_142.MyStruct = new test_cases.regression_tests.jira_142.MyStruct(foo=200_arc4u64)
-    if (reinterpret_cast<biguint>(my_struct.foo) > reinterpret_cast<biguint>(100_arc4u64)) {
-      this::some_subroutine(my_struct)
-    }
-    log(reinterpret_cast<bytes>(my_struct.copy()))
-  }
-  
-  baremethod test_cases.regression_tests.jira_142.Jira142.__algopy_default_create(): void
+  baremethod test_cases.regression_tests.issue_434.Issue434.__algopy_default_create(): void
   {
   }
   
@@ -480,7 +344,7 @@ contract Child
   }
 }
 
-contract Issue434
+contract Jira142
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
@@ -497,20 +361,20 @@ contract Issue434
     return true
   }
   
-  abimethod test_cases.regression_tests.issue_434.Issue434.method(c: uint64): void
+  subroutine test_cases.regression_tests.jira_142.Jira142.some_subroutine(char: test_cases.regression_tests.jira_142.MyStruct): void
   {
-    while (global<OpcodeBudget>() > 350u) {
-      assert(sha3_256(reinterpret_cast<bytes>(txn<Sender>())) != reinterpret_cast<bytes>(txn<Sender>()))
-    }
-    if (c > 0u) {
-      x: uint64 = c + 2u
-    } else {
-      x: uint64 = c + 2u
-    }
-    assert(x - 2u == c)
   }
   
-  baremethod test_cases.regression_tests.issue_434.Issue434.__algopy_default_create(): void
+  abimethod test_cases.regression_tests.jira_142.Jira142.battle(): void
+  {
+    my_struct: test_cases.regression_tests.jira_142.MyStruct = new test_cases.regression_tests.jira_142.MyStruct(foo=200_arc4u64)
+    if (reinterpret_cast<biguint>(my_struct.foo) > reinterpret_cast<biguint>(100_arc4u64)) {
+      this::some_subroutine(my_struct)
+    }
+    log(reinterpret_cast<bytes>(my_struct.copy()))
+  }
+  
+  baremethod test_cases.regression_tests.jira_142.Jira142.__algopy_default_create(): void
   {
   }
   
@@ -519,184 +383,320 @@ contract Issue434
   }
 }
 
-contract Issue194
+contract Jira241
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.jira_241.Jira241.oh_no(wrong_size: bool): void
+  {
+  }
+  
+  abimethod test_cases.regression_tests.jira_241.Jira241.oh_yes(wrong_size: bool): void
+  {
+  }
+  
+  baremethod test_cases.regression_tests.jira_241.Jira241.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Verifier
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>): bytes
+  {
+    x: bytes = reinterpret_cast<bytes>(proof[8u])
+    y: bytes = reinterpret_cast<bytes>(proof[6u]) + reinterpret_cast<bytes>(proof[7u])
+    z: bytes = reinterpret_cast<bytes>(proof[7u]) + reinterpret_cast<bytes>(proof[8u])
+    return x + y + z
+  }
+  
+  baremethod test_cases.regression_tests.jira_ak_752.Verifier.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract BranchElimination
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.leftover_branch.BranchElimination.umm(): uint64
+  {
+    ahuh: uint64 = 0u
+    while (true) {
+      for _i in range(0u, test_cases.regression_tests.leftover_branch.hmm_uint64(), 1u) {
+        if (test_cases.regression_tests.leftover_branch.hmm()) {
+          if (test_cases.regression_tests.leftover_branch.hmm()) {
+            if (test_cases.regression_tests.leftover_branch.hmm()) {
+              ahuh += reinterpret_cast<uint64>(test_cases.regression_tests.leftover_branch.hmm())
+            }
+          }
+        }
+      }
+      if (test_cases.regression_tests.leftover_branch.hmm()) {
+        break
+      }
+    }
+    return ahuh
+  }
+  
+  abimethod test_cases.regression_tests.leftover_branch.BranchElimination.umm2(): void
+  {
+    ahuh: uint64 = 0u
+    while (true) {
+      if (test_cases.regression_tests.leftover_branch.hmm()) {
+        if (test_cases.regression_tests.leftover_branch.hmm()) {
+          if (test_cases.regression_tests.leftover_branch.hmm()) {
+            ahuh += reinterpret_cast<uint64>(test_cases.regression_tests.leftover_branch.hmm())
+          }
+        }
+      }
+      if (test_cases.regression_tests.leftover_branch.hmm()) {
+        break
+      }
+    }
+  }
+  
+  abimethod test_cases.regression_tests.leftover_branch.BranchElimination.calculate(nested_list: arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>, threshold: arc4.uint64): void
+  {
+    total: uint64 = 0u
+    num_boosts: uint64 = 0u
+    for i in range(0u, nested_list.length, 1u) {
+      inner_list: arc4.dynamic_array<arc4.uint64> = nested_list[i].copy()
+      last_inner_list_index: uint64 = inner_list.length - 1u
+      for j in range(0u, inner_list.length, 1u) {
+        value: arc4.uint64 = inner_list[j]
+        if (reinterpret_cast<biguint>(value) >= reinterpret_cast<biguint>(threshold)) {
+          has_next: bool = j < last_inner_list_index
+          if (has_next) {
+            total += 1u
+            next_value: arc4.uint64 = inner_list[j + 1u]
+            if (reinterpret_cast<biguint>(value) < reinterpret_cast<biguint>(next_value)) {
+              total *= 2u
+              num_boosts += 1u
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  baremethod test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine hmm(): bool
+{
+  return false
+}
+
+subroutine hmm_uint64(): uint64
+{
+  return 0u
+}
+
+contract NeverReturnsInlining
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.never_returns.NeverReturnsInlining.method(): uint64
+  {
+    result: uint64 = test_cases.regression_tests.never_returns.invoke()
+    return result
+  }
+  
+  baremethod test_cases.regression_tests.never_returns.NeverReturnsInlining.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine invoke(): uint64
+{
+  err()
+}
+
+contract NeverReturnsFStack
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.never_returns.NeverReturnsFStack.method(): uint64
+  {
+    result: uint64 = test_cases.regression_tests.never_returns.invoke_with_fstack()
+    return result
+  }
+  
+  baremethod test_cases.regression_tests.never_returns.NeverReturnsFStack.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine invoke_with_fstack(): uint64
+{
+  x: uint64 = 1u
+  if (txn<NumAppArgs>() > 0u) {
+    x: uint64 = 2u
+  }
+  one: uint64 = 0u
+  for idx in range(0u, txn<NumAppArgs>(), 1u) {
+    x += idx
+    if (idx == 0u) {
+      one += 1u
+    }
+  }
+  log(concat(concat("you won't see this", ''), itob(one)))
+  err()
+}
+
+contract SlotAllocationInlining
 {
   method_resolution_order: (
     algopy._contract.Contract,
   )
   
-  subroutine test_cases.regression_tests.issue_194.Issue194.approval_program(): bool
+  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program(): bool
   {
-    assert(1u != 0u == 2u != 0u)
-    two: uint64 = 2u
-    switch (two != 0u) {
-      case true: {
-        match_case_L11:
+    _puya_lib.util.ensure_budget(required_budget=800u, fee_source=0u)
+    test_cases.regression_tests.slot_allocation_inlining.do_something_with_array()
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine do_something_with_array(): void
+{
+  arr: ref_array<uint64> = new ref_array<uint64>()
+  test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr)
+  assert(arr.length == 32u, comment="expected array of length 32")
+}
+
+subroutine append_to_array(arr: ref_array<uint64>): void
+{
+  for b in reinterpret_cast<bytes>(txn<Sender>()) {
+    arr.extend((btoi(b)))
+  }
+}
+
+contract TealSwitchInlining
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.regression_tests.teal_switch_inlining.TealSwitchInlining.approval_program(): bool
+  {
+    switch (txn<NumAppArgs>()) {
+      case 0u: {
+        match_case_L17:
         return true
       }
-      case _: {
+      case 1u: {
+        match_case_L19:
         return false
+      }
+      case _: {
+        return true
       }
     }
   }
   
-  subroutine test_cases.regression_tests.issue_194.Issue194.clear_state_program(): bool
+  subroutine test_cases.regression_tests.teal_switch_inlining.TealSwitchInlining.clear_state_program(): bool
   {
     return true
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract Issue118
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.issue_118.Issue118.verify(values: arc4.dynamic_array<arc4.uint256>): arc4.tuple<arc4.bool,arc4.dynamic_array<arc4.uint8>>
-  {
-    val1: arc4.bool = arc4_encode(txn<NumAppArgs>() != 0u, arc4.bool)
-    if (values.length != 2u) {
-      return arc4_encode((val1, ''), arc4.tuple<arc4.bool,arc4.dynamic_array<arc4.uint8>>)
-    }
-    return arc4_encode((val1, ''), arc4.tuple<arc4.bool,arc4.dynamic_array<arc4.uint8>>)
-  }
-  
-  baremethod test_cases.regression_tests.issue_118.Issue118.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract VRFVerifier
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(message: bytes, proof: bytes, pk: bytes): tuple<bytes,bool>
-  {
-    _puya_lib.util.ensure_budget(required_budget=10000u, fee_source=1u)
-    return vrf_verify<VrfAlgorand>(message, proof, pk)
-  }
-  
-  baremethod test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract BoolOnly
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.bool_only.BoolOnly.set_0_convert(inp: bytes): bytes
-  {
-    return setbit(inp, 0u, txn<NumAppArgs>() != 0u)
-  }
-  
-  abimethod test_cases.regression_tests.bool_only.BoolOnly.set_0_compare(inp: bytes): bytes
-  {
-    return setbit(inp, 0u, txn<NumAppArgs>() > 0u)
-  }
-  
-  abimethod test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties(): void
-  {
-    itxn_begin()
-    itxn_field<TypeEnum>(acfg)
-    itxn_field<ConfigAssetDefaultFrozen>(txn<NumAppArgs>() != 0u)
-    itxn_submit()
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=keyreg, Nonparticipation=true))
-  }
-  
-  baremethod test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract ConstBigIntToIntOverflow
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(upper_bound: uint64): uint64
-  {
-    lower_bound: uint64 = 0u
-    abs_bound: uint64 = 0u
-    if (upper_bound != 0u) {
-      abs_bound: uint64 = btoi(reinterpret_cast<bytes>(18446744073709551616n b- itob(lower_bound)))
-    }
-    return abs_bound
-  }
-  
-  abimethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2(): uint64
-  {
-    abs_bound: uint64 = btoi(reinterpret_cast<bytes>(18446744073709551616n b- 0n))
-    return abs_bound
-  }
-  
-  baremethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create(): void
-  {
   }
   
   subroutine algopy._contract.Contract.__init__(): void

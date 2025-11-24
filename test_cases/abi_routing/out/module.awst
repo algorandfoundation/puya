@@ -1,189 +1,3 @@
-contract MinimumARC4
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  globals {
-    ['gvalue']: uint64
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.abi_routing.minimal.MinimumARC4.__init__(): void
-  {
-    GlobalState['gvalue']: uint64 = 4u
-  }
-  
-  baremethod test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract CustomApproval
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
-      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
-    }
-    result: bool = super::approval_program()
-    if (!(result)) {
-      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
-    }
-    return result
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__(): void
-  {
-    super::__init__()
-    assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
-  }
-  
-  abimethod test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64): uint64
-  {
-    return x + 1u
-  }
-  
-  baremethod test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract CustomApproval2
-{
-  method_resolution_order: (
-    test_cases.abi_routing.custom_approval.CustomApproval,
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval2.approval_program(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    return false
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  baremethod test_cases.abi_routing.custom_approval.CustomApproval2.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__(): void
-  {
-    super::__init__()
-    assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
-  }
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
-      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
-    }
-    result: bool = super::approval_program()
-    if (!(result)) {
-      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
-    }
-    return result
-  }
-  
-  abimethod test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64): uint64
-  {
-    return x + 1u
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract CustomApproval3
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine test_cases.abi_routing.custom_approval.CustomApproval3.approval_program(): bool
-  {
-    return false
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.abi_routing.custom_approval.CustomApproval3.unused(): void
-  {
-    return
-  }
-  
-  baremethod test_cases.abi_routing.custom_approval.CustomApproval3.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
 contract Reference
 {
   method_resolution_order: (
@@ -340,6 +154,192 @@ contract Reference
   abimethod test_cases.abi_routing.contract.Reference.hello_with_algopy_string(name: string): string
   {
     return 'Hello ' + name + '!'
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract CustomApproval
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
+      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
+    }
+    result: bool = super::approval_program()
+    if (!(result)) {
+      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
+    }
+    return result
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__(): void
+  {
+    super::__init__()
+    assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
+  }
+  
+  abimethod test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64): uint64
+  {
+    return x + 1u
+  }
+  
+  baremethod test_cases.abi_routing.custom_approval.CustomApproval.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract CustomApproval2
+{
+  method_resolution_order: (
+    test_cases.abi_routing.custom_approval.CustomApproval,
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval2.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return false
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  baremethod test_cases.abi_routing.custom_approval.CustomApproval2.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.__init__(): void
+  {
+    super::__init__()
+    assert(txn<ApplicationID>() == reinterpret_cast<application>(0u), comment="nonsense assert just to generate an init method")
+  }
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    if (txn<NumAppArgs>() == 2u and txna<ApplicationArgs, 1>() == itob(42u)) {
+      log('\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89')
+    }
+    result: bool = super::approval_program()
+    if (!(result)) {
+      log("this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
+    }
+    return result
+  }
+  
+  abimethod test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64): uint64
+  {
+    return x + 1u
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract CustomApproval3
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.abi_routing.custom_approval.CustomApproval3.approval_program(): bool
+  {
+    return false
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.abi_routing.custom_approval.CustomApproval3.unused(): void
+  {
+    return
+  }
+  
+  baremethod test_cases.abi_routing.custom_approval.CustomApproval3.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract MinimumARC4
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['gvalue']: uint64
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.abi_routing.minimal.MinimumARC4.__init__(): void
+  {
+    GlobalState['gvalue']: uint64 = 4u
+  }
+  
+  baremethod test_cases.abi_routing.minimal.MinimumARC4.__algopy_default_create(): void
+  {
   }
   
   subroutine algopy._contract.Contract.__init__(): void
