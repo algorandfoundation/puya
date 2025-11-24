@@ -1,89 +1,3 @@
-contract A
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.circular_dependency.a.A.ping(b: application): string
-  {
-    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("ping()string")), ApplicationID=b))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=1)), string))[-1], SINGLE_EVAL(id=0))
-    return result
-  }
-  
-  abimethod test_cases.circular_dependency.a.A.pong(): string
-  {
-    return 'pong'
-  }
-  
-  abimethod test_cases.circular_dependency.a.A.create_b(factory_id: application): application
-  {
-    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=3, source=SINGLE_EVAL(id=2, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("deploy_b()uint64")), ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=3)), application))[-1], SINGLE_EVAL(id=2))
-    return result
-  }
-  
-  baremethod test_cases.circular_dependency.a.A.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract B
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.circular_dependency.b.B.ping(): string
-  {
-    return 'ping'
-  }
-  
-  abimethod test_cases.circular_dependency.b.B.pong(a: application): string
-  {
-    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("pong()string")), ApplicationID=a))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=5)), string))[-1], SINGLE_EVAL(id=4))
-    return result
-  }
-  
-  abimethod test_cases.circular_dependency.b.B.create_a(factory_id: application): application
-  {
-    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("deploy_a()uint64")), ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=7)), application))[-1], SINGLE_EVAL(id=6))
-    return result
-  }
-  
-  baremethod test_cases.circular_dependency.b.B.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
 contract Factory
 {
   method_resolution_order: (
@@ -103,17 +17,115 @@ contract Factory
   
   abimethod test_cases.circular_dependency.factory.Factory.deploy_a(): application
   {
-    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=9, source=SINGLE_EVAL(id=8, source=compiled_contract(test_cases.circular_dependency.a.A,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=9)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=10, source=SINGLE_EVAL(id=8).clear_state_program)[0], SINGLE_EVAL(id=10)[1]), ExtraProgramPages=SINGLE_EVAL(id=8).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=8).global_bytes, GlobalNumUint=SINGLE_EVAL(id=8).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=8).local_bytes, LocalNumUint=SINGLE_EVAL(id=8).local_uints))
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=compiled_contract(test_cases.circular_dependency.a.A,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=1)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=0).clear_state_program)[0], SINGLE_EVAL(id=2)[1]), ExtraProgramPages=SINGLE_EVAL(id=0).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=0).global_bytes, GlobalNumUint=SINGLE_EVAL(id=0).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=0).local_bytes, LocalNumUint=SINGLE_EVAL(id=0).local_uints))
     return txn.CreatedApplicationID
   }
   
   abimethod test_cases.circular_dependency.factory.Factory.deploy_b(): application
   {
-    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=12, source=SINGLE_EVAL(id=11, source=compiled_contract(test_cases.circular_dependency.b.B,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=12)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=13, source=SINGLE_EVAL(id=11).clear_state_program)[0], SINGLE_EVAL(id=13)[1]), ExtraProgramPages=SINGLE_EVAL(id=11).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=11).global_bytes, GlobalNumUint=SINGLE_EVAL(id=11).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=11).local_bytes, LocalNumUint=SINGLE_EVAL(id=11).local_uints))
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=compiled_contract(test_cases.circular_dependency.b.B,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=4)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=3).clear_state_program)[0], SINGLE_EVAL(id=5)[1]), ExtraProgramPages=SINGLE_EVAL(id=3).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=3).global_bytes, GlobalNumUint=SINGLE_EVAL(id=3).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=3).local_bytes, LocalNumUint=SINGLE_EVAL(id=3).local_uints))
     return txn.CreatedApplicationID
   }
   
   baremethod test_cases.circular_dependency.factory.Factory.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract B
+{
+  method_resolution_order: (
+    test_cases.circular_dependency.b.PingPongBase,
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.circular_dependency.b.B.name(): string
+  {
+    return 'B'
+  }
+  
+  abimethod test_cases.circular_dependency.b.B.ping(): string
+  {
+    return 'ping'
+  }
+  
+  abimethod test_cases.circular_dependency.b.B.pong(a: application): string
+  {
+    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("pong()string")), ApplicationID=a))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=7)), string))[-1], SINGLE_EVAL(id=6))
+    return result
+  }
+  
+  abimethod test_cases.circular_dependency.b.B.create_a(factory_id: application): application
+  {
+    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=9, source=SINGLE_EVAL(id=8, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("deploy_a()uint64")), ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=9)), application))[-1], SINGLE_EVAL(id=8))
+    return result
+  }
+  
+  baremethod test_cases.circular_dependency.b.B.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract A
+{
+  method_resolution_order: (
+    test_cases.circular_dependency.b.PingPongBase,
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.circular_dependency.a.A.name(): string
+  {
+    return 'A'
+  }
+  
+  abimethod test_cases.circular_dependency.a.A.ping(b: application): string
+  {
+    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=11, source=SINGLE_EVAL(id=10, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("ping()string")), ApplicationID=b))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=11)), string))[-1], SINGLE_EVAL(id=10))
+    return result
+  }
+  
+  abimethod test_cases.circular_dependency.a.A.pong(): string
+  {
+    return 'pong'
+  }
+  
+  abimethod test_cases.circular_dependency.a.A.create_b(factory_id: application): application
+  {
+    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=13, source=SINGLE_EVAL(id=12, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("deploy_b()uint64")), ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=13)), application))[-1], SINGLE_EVAL(id=12))
+    return result
+  }
+  
+  baremethod test_cases.circular_dependency.a.A.__algopy_default_create(): void
   {
   }
   
