@@ -1,3 +1,4 @@
+import contextlib
 import typing
 from collections.abc import Iterator
 from pathlib import Path
@@ -26,6 +27,7 @@ class Dependency:
     path: Path
     loc: SourceLocation | None
     implicit: bool
+    is_module_scope: bool
 
 
 def resolve_import_dependencies(
@@ -38,7 +40,7 @@ def resolve_import_dependencies(
 
     dependencies = []
     import_base_dir = source.base_dir or source.path.parent
-    for mod_imp in visitor.module_imports:
+    for mod_imp, is_top_level in visitor.module_imports:
         for alias in mod_imp.names:
             if alias.name in _ALLOWED_STDLIB_STUBS:
                 continue
@@ -52,7 +54,13 @@ def resolve_import_dependencies(
 
             path = Path(path_str)
             dependencies.append(
-                Dependency(alias.name, path, alias.source_location, implicit=False)
+                Dependency(
+                    alias.name,
+                    path,
+                    alias.source_location,
+                    implicit=False,
+                    is_module_scope=is_top_level,
+                )
             )
             for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
                 alias.name, path
@@ -63,9 +71,10 @@ def resolve_import_dependencies(
                         ancestor_init_path,
                         alias.source_location,
                         implicit=True,
+                        is_module_scope=is_top_level,
                     )
                 )
-    for from_imp in visitor.from_imports:
+    for from_imp, is_top_level in visitor.from_imports:
         module_id = from_imp.module
         if module_id in _ALLOWED_STDLIB_STUBS:
             continue
@@ -83,13 +92,21 @@ def resolve_import_dependencies(
             continue
 
         path = Path(path_str)
-        sub_deps = []
-        any_unresolved = False
+        dependencies.append(
+            Dependency(
+                module_id,
+                path,
+                from_imp.source_location,
+                implicit=False,
+                is_module_scope=is_top_level,
+            )
+        )
         # If not resolving to an init file, then all imported symbols must be from that file.
         # Similarly, when a `from x.y import *` resolves to x/y/__init__.py, all imported symbols
         # must be from that file.
         # TODO: not true if __all__ is defined, see:
         #  https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
+        # also see: https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
         if path.name == "__init__.py" and from_imp.names is not None:
             # There are two complications at this point:
             # The first is that if x/__init__.py defines a variable foo, but there is also a
@@ -108,19 +125,24 @@ def resolve_import_dependencies(
                     maybe_path = maybe_path.with_suffix(".py")
                 if maybe_path.is_file():
                     submodule_id = ".".join((module_id, alias.name))
-                    sub_deps.append(
-                        Dependency(submodule_id, maybe_path, alias.source_location, implicit=False)
+                    dependencies.append(
+                        Dependency(
+                            submodule_id,
+                            maybe_path,
+                            alias.source_location,
+                            implicit=False,
+                            is_module_scope=is_top_level,
+                        )
                     )
-                else:
-                    any_unresolved = True
-        dependencies.append(
-            Dependency(module_id, path, from_imp.source_location, implicit=not any_unresolved)
-        )
-        dependencies.extend(sub_deps)
+
         for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(module_id, path):
             dependencies.append(
                 Dependency(
-                    ancestor_module_id, ancestor_init_path, from_imp.source_location, implicit=True
+                    ancestor_module_id,
+                    ancestor_init_path,
+                    from_imp.source_location,
+                    implicit=True,
+                    is_module_scope=is_top_level,
                 )
             )
 
@@ -128,23 +150,51 @@ def resolve_import_dependencies(
         source.module, source.path
     ):
         dependencies.append(
-            Dependency(ancestor_module_id, ancestor_init_path, None, implicit=True)
+            Dependency(
+                ancestor_module_id,
+                ancestor_init_path,
+                None,
+                implicit=True,
+                is_module_scope=True,
+            )
         )
     return dependencies
 
 
 @attrs.define
 class _ImportCollector(StatementTraverser):
-    module_imports: list[fast_nodes.ModuleImport] = attrs.field(factory=list, init=False)
-    from_imports: list[fast_nodes.FromImport] = attrs.field(factory=list, init=False)
+    module_imports: list[tuple[fast_nodes.ModuleImport, bool]] = attrs.field(
+        factory=list, init=False
+    )
+    from_imports: list[tuple[fast_nodes.FromImport, bool]] = attrs.field(factory=list, init=False)
+    _is_top_level: bool = attrs.field(default=True, init=False)
 
     @typing.override
     def visit_module_import(self, module_import: fast_nodes.ModuleImport) -> None:
-        self.module_imports.append(module_import)
+        self.module_imports.append((module_import, self._is_top_level))
 
     @typing.override
     def visit_from_import(self, from_import: fast_nodes.FromImport) -> None:
-        self.from_imports.append(from_import)
+        self.from_imports.append((from_import, self._is_top_level))
+
+    @typing.override
+    def visit_class_def(self, class_def: fast_nodes.ClassDef) -> None:
+        with self._enter_nested_scope():
+            super().visit_class_def(class_def)
+
+    @typing.override
+    def visit_function_def(self, func_def: fast_nodes.FunctionDef) -> None:
+        with self._enter_nested_scope():
+            super().visit_function_def(func_def)
+
+    @contextlib.contextmanager
+    def _enter_nested_scope(self) -> Iterator[None]:
+        is_top_level = self._is_top_level
+        self._is_top_level = False
+        try:
+            yield
+        finally:
+            self._is_top_level = is_top_level
 
 
 def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
