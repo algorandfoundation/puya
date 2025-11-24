@@ -131,13 +131,11 @@ def parse_python(
         typeshed_path=tuple(map(str, typeshed_paths)),
         mypy_path=(),
     )
-    manager, graph = _mypy_build(
+    sorted_modules = _mypy_build(
         mypy_build_sources, mypy_options, mypy_search_paths, fs_cache, algopy_sources
     )
-    # Sometimes when we call back into mypy, there might be errors.
-    # We don't want to crash when that happens.
-    manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
-    missing_module_names = sources_by_module_name.keys() - manager.modules.keys()
+
+    missing_module_names = sources_by_module_name.keys() - sorted_modules.keys()
     # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
     assert (
         not missing_module_names
@@ -145,22 +143,22 @@ def parse_python(
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
-    for scc in sorted_components(graph):
-        for module_name in sorted(scc.mod_ids):
-            module = manager.modules[module_name]
-            assert (
-                module_name == module.fullname
-            ), f"mypy module mismatch, expected {module_name}, got {module.fullname}"
-            assert module.path, f"no path for mypy module: {module_name}"
-            module_path = Path(module.path).resolve()
-            if module.is_stub:
+    for module_name, mypy_module in sorted_modules.items():
+        assert (
+            module_name == mypy_module.fullname
+        ), f"mypy module mismatch, expected {module_name}, got {mypy_module.fullname}"
+        md = module_data.pop(module_name, None)
+        if md is None:
+            assert mypy_module.path, f"no path for mypy module: {module_name}"
+            module_path = Path(mypy_module.path).resolve()
+            if mypy_module.is_stub:
                 assert module_name not in module_data, "shouldn't have stub as input"
                 module_rel_path = make_path_relative_to_cwd(module_path)
                 if module_name in ("abc", "typing", "collections.abc"):
                     logger.debug(f"Skipping stdlib stub {module_rel_path}")  # TODO: lowercase
                 elif module_name.startswith("algopy"):
                     logger.debug(f"Skipping algopy stub {module_rel_path}")
-                elif module.is_typeshed_file(mypy_options):
+                elif mypy_module.is_typeshed_file(mypy_options):
                     logger.debug(f"Skipping typeshed stub {module_rel_path}")
                 else:
                     logger.warning(f"Skipping stub: {module_rel_path}")
@@ -169,21 +167,27 @@ def parse_python(
                 # nothing and is only in the graph as a reference
                 pass
             else:
-                md = module_data[module_name]
-                lines = md.data.splitlines()
-                if md.is_source:
-                    discovery_mechanism = SourceDiscoveryMechanism.explicit
-                else:
-                    discovery_mechanism = SourceDiscoveryMechanism.dependency
-                ordered_modules[module_name] = SourceModule(
-                    name=module_name,
-                    mypy_module=module,
-                    path=module_path,
-                    lines=lines,
-                    fast=md.fast,
-                    discovery_mechanism=discovery_mechanism,
-                    dependencies=md.dependencies,
+                raise InternalError(
+                    f"mypy parse result returned unexpected reference: {module_name}"
                 )
+        else:
+            assert mypy_module.fullname == md.module, "mypy and fast module name mismatch"
+            lines = md.data.splitlines()
+            if md.is_source:
+                discovery_mechanism = SourceDiscoveryMechanism.explicit
+            else:
+                discovery_mechanism = SourceDiscoveryMechanism.dependency
+            ordered_modules[md.module] = SourceModule(
+                name=md.module,
+                mypy_module=mypy_module,
+                path=md.path,
+                lines=lines,
+                fast=md.fast,
+                discovery_mechanism=discovery_mechanism,
+                dependencies=md.dependencies,
+            )
+    if module_data:
+        raise InternalError(f"parse has leftover modules: {', '.join(module_data.keys())}")
 
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
 
@@ -316,7 +320,7 @@ class _ModuleData:
 
 def _find_dependencies(
     sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
-) -> Mapping[str, _ModuleData]:
+) -> dict[str, _ModuleData]:
     result_by_id = dict[str, _ModuleData]()
     source_queue = deque(sources)
     queued_id_set = {rs.module for rs in source_queue}
@@ -442,12 +446,11 @@ def _mypy_build(
     search_paths: SearchPaths,
     fscache: FileSystemCache,
     algopy_sources: Mapping[str, Path],
-) -> tuple[BuildManager, Graph]:
+) -> dict[str, MypyFile]:
     """
     Our own implementation of mypy.build.build which handles errors via logging,
     and uses our computed search paths.
     """
-
     all_messages = list[str]()
 
     instance_cache.reset()
@@ -490,7 +493,15 @@ def _mypy_build(
     _log_mypy_messages(all_messages)
     if not options.fine_grained_incremental:
         type_state.reset_all_subtype_caches()
-    return manager, graph
+    # Sometimes when we call back into mypy, there might be errors.
+    # We don't want to crash when that happens.
+    manager.errors.set_file("<puyapy>", module=None, scope=None, options=options)
+    sccs = sorted_components(graph)
+    return {
+        module_name: manager.modules[module_name]
+        for scc in sccs
+        for module_name in sorted(scc.mod_ids)
+    }
 
 
 def _log_mypy_message(message: log.Log | None, related_lines: list[str]) -> None:
