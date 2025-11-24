@@ -20,20 +20,6 @@ _ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
 )
 
 
-@attrs.define
-class _ImportCollector(StatementTraverser):
-    module_imports: list[fast_nodes.ModuleImport] = attrs.field(factory=list, init=False)
-    from_imports: list[fast_nodes.FromImport] = attrs.field(factory=list, init=False)
-
-    @typing.override
-    def visit_module_import(self, module_import: fast_nodes.ModuleImport) -> None:
-        self.module_imports.append(module_import)
-
-    @typing.override
-    def visit_from_import(self, from_import: fast_nodes.FromImport) -> None:
-        self.from_imports.append(from_import)
-
-
 @attrs.frozen
 class Dependency:
     module_id: str
@@ -145,6 +131,20 @@ def resolve_import_dependencies(
             Dependency(ancestor_module_id, ancestor_init_path, None, implicit=True)
         )
     return dependencies
+
+
+@attrs.define
+class _ImportCollector(StatementTraverser):
+    module_imports: list[fast_nodes.ModuleImport] = attrs.field(factory=list, init=False)
+    from_imports: list[fast_nodes.FromImport] = attrs.field(factory=list, init=False)
+
+    @typing.override
+    def visit_module_import(self, module_import: fast_nodes.ModuleImport) -> None:
+        self.module_imports.append(module_import)
+
+    @typing.override
+    def visit_from_import(self, from_import: fast_nodes.FromImport) -> None:
+        self.from_imports.append(from_import)
 
 
 def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
