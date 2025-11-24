@@ -38,10 +38,10 @@ from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
+from puyapy.dependency_analysis import resolve_import_dependencies
 from puyapy.fast.builder import parse_module
 from puyapy.fast.nodes import Module as FastModule
 from puyapy.find_sources import ResolvedSource, create_source_list
-from puyapy.import_analysis import resolve_import_dependencies
 from puyapy.modulefinder import FindModuleCache
 
 logger = log.get_logger(__name__)
