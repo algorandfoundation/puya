@@ -1,0 +1,110 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 0 1 6
+    bytecblock 0x151f7c75
+    txn NumAppArgs
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x351e02b6 0x810b3bac 0x60b98521 // method "ping(uint64)string", method "pong()string", method "create_b(uint64)uint64"
+    txna ApplicationArgs 0
+    match main_ping_route@4 main_pong_route@5 main_create_b_route@6
+    err
+
+main_create_b_route@6:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0xd02a4bc9 // method "deploy_b()uint64"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+main_pong_route@5:
+    pushbytes 0x151f7c750004706f6e67
+    log
+    intc_2 // 1
+    return
+
+main_ping_route@4:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0xb132c056 // method "ping()string"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+main___algopy_default_create@10:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return

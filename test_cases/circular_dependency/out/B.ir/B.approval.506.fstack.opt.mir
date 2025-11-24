@@ -1,0 +1,163 @@
+// Op                                                                        Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // circular_dependency/b.py:6
+        // class B(ARC4Contract):
+        txn NumAppArgs                                                       tmp%0#1
+        bz main___algopy_default_create@10 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // circular_dependency/b.py:6
+        // class B(ARC4Contract):
+        txn OnCompletion                                                     tmp%2#0
+        !                                                                    tmp%3#0
+        assert
+        txn ApplicationID                                                    tmp%4#0
+        assert
+        txna ApplicationArgs 0                                               tmp%6#0
+        method ping()string                                                  tmp%6#0,Method(ping()string)
+        method pong(uint64)string                                            tmp%6#0,Method(ping()string),Method(pong(uint64)string)
+        method create_a(uint64)uint64                                        tmp%6#0,Method(ping()string),Method(pong(uint64)string),Method(create_a(uint64)uint64)
+        l-load tmp%6#0 3                                                     Method(ping()string),Method(pong(uint64)string),Method(create_a(uint64)uint64),tmp%6#0
+        match main_ping_route@4 main_pong_route@5 main_create_a_route@6 ; b main_after_if_else@9 
+
+    main_ping_route@4:
+        // circular_dependency/b.py:7
+        // @arc4.abimethod()
+        byte 0x151f7c75000470696e67                                          0x151f7c75000470696e67
+        log
+        int 1                                                                1
+        return
+
+    main_pong_route@5:
+        // circular_dependency/b.py:11
+        // @arc4.abimethod
+        callsub pong
+        b main_after_if_else@9
+
+    main_create_a_route@6:
+        // circular_dependency/b.py:16
+        // @arc4.abimethod
+        callsub create_a
+        b main_after_if_else@9
+
+    main_after_if_else@9:
+        // circular_dependency/b.py:6
+        // class B(ARC4Contract):
+        err
+
+    main___algopy_default_create@10:
+        txn OnCompletion                                                     tmp%7#0
+        !                                                                    tmp%8#0
+        txn ApplicationID                                                    tmp%8#0,tmp%9#0
+        !                                                                    tmp%8#0,tmp%10#0
+        l-load tmp%8#0 1                                                     tmp%10#0,tmp%8#0
+        l-load tmp%10#0 1                                                    tmp%8#0,tmp%10#0
+        &&                                                                   tmp%11#0
+        assert
+        int 1                                                                1
+        return
+
+
+// test_cases.circular_dependency.b.B.pong[routing]() -> void:
+subroutine pong:
+    pong_block@0:
+        // circular_dependency/b.py:11
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                  tmp%0#0,len%0#0
+        int 8                                                                tmp%0#0,len%0#0,8
+        ==                                                                   tmp%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64                    tmp%0#0
+        l-load tmp%0#0 0                                                     tmp%0#0
+        btoi                                                                 a#0
+        // circular_dependency/b.py:13
+        // result, _txn = arc4.abi_call(A.pong, app_id=a)
+        itxn_begin                                                           a#0
+        l-load a#0 0                                                         a#0
+        itxn_field ApplicationID
+        method pong()string                                                  Method(pong()string)
+        itxn_field ApplicationArgs
+        int appl                                                             appl
+        itxn_field TypeEnum
+        int 0                                                                0
+        itxn_field Fee
+        itxn_submit
+        itxn LastLog                                                         awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                           awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                          awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16 // on error: invalid array length header              awst_tmp%0#0,tmp%0#0,aggregate%array_length%0#0
+        int 2                                                                awst_tmp%0#0,tmp%0#0,aggregate%array_length%0#0,2
+        +                                                                    awst_tmp%0#0,tmp%0#0,add%0#0
+        l-load-copy tmp%0#0 1                                                awst_tmp%0#0,tmp%0#0,add%0#0,tmp%0#0 (copy)
+        len                                                                  awst_tmp%0#0,tmp%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                     awst_tmp%0#0,tmp%0#0,len%0#0,add%0#0
+        ==                                                                   awst_tmp%0#0,tmp%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8> awst_tmp%0#0,tmp%0#0
+        l-load awst_tmp%0#0 1                                                tmp%0#0,awst_tmp%0#0
+        extract 0 4                                                          tmp%0#0,tmp%1#1
+        byte 0x151f7c75                                                      tmp%0#0,tmp%1#1,0x151f7c75
+        ==                                                                   tmp%0#0,tmp%2#1
+        assert // application log value is not the result of an ABI return   tmp%0#0
+        // circular_dependency/b.py:11
+        // @arc4.abimethod
+        byte 0x151f7c75                                                      tmp%0#0,0x151f7c75
+        l-load tmp%0#0 1                                                     0x151f7c75,tmp%0#0
+        concat                                                               tmp%4#0
+        log
+        int 1                                                                1
+        return
+
+
+// test_cases.circular_dependency.b.B.create_a[routing]() -> void:
+subroutine create_a:
+    create_a_block@0:
+        // circular_dependency/b.py:16
+        // @arc4.abimethod
+        txna ApplicationArgs 1                                               tmp%0#0
+        l-load-copy tmp%0#0 0                                                tmp%0#0,tmp%0#0 (copy)
+        len                                                                  tmp%0#0,len%0#0
+        int 8                                                                tmp%0#0,len%0#0,8
+        ==                                                                   tmp%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64                    tmp%0#0
+        l-load tmp%0#0 0                                                     tmp%0#0
+        btoi                                                                 factory_id#0
+        // circular_dependency/b.py:20
+        // result, _txn = arc4.abi_call(Factory.deploy_a, app_id=factory_id)
+        itxn_begin                                                           factory_id#0
+        l-load factory_id#0 0                                                factory_id#0
+        itxn_field ApplicationID
+        method deploy_a()uint64                                              Method(deploy_a()uint64)
+        itxn_field ApplicationArgs
+        int appl                                                             appl
+        itxn_field TypeEnum
+        int 0                                                                0
+        itxn_field Fee
+        itxn_submit
+        itxn LastLog                                                         awst_tmp%0#0
+        l-load-copy awst_tmp%0#0 0                                           awst_tmp%0#0,awst_tmp%0#0 (copy)
+        extract 4 0                                                          awst_tmp%0#0,tmp%0#0
+        l-load-copy tmp%0#0 0                                                awst_tmp%0#0,tmp%0#0,tmp%0#0 (copy)
+        len                                                                  awst_tmp%0#0,tmp%0#0,len%0#0
+        int 8                                                                awst_tmp%0#0,tmp%0#0,len%0#0,8
+        ==                                                                   awst_tmp%0#0,tmp%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64                    awst_tmp%0#0,tmp%0#0
+        l-load awst_tmp%0#0 1                                                tmp%0#0,awst_tmp%0#0
+        extract 0 4                                                          tmp%0#0,tmp%1#1
+        byte 0x151f7c75                                                      tmp%0#0,tmp%1#1,0x151f7c75
+        ==                                                                   tmp%0#0,tmp%2#1
+        assert // application log value is not the result of an ABI return   tmp%0#0
+        // circular_dependency/b.py:16
+        // @arc4.abimethod
+        byte 0x151f7c75                                                      tmp%0#0,0x151f7c75
+        l-load tmp%0#0 1                                                     0x151f7c75,tmp%0#0
+        concat                                                               tmp%4#0
+        log
+        int 1                                                                1
+        return
+
+

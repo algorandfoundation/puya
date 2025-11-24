@@ -1,0 +1,66 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 6 0 1
+    bytecblock base64(C4EBQw==) 0x151f7c75
+    txn NumAppArgs
+    bz main___algopy_default_create@9
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x48feec7e 0xd02a4bc9 // method "deploy_a()uint64", method "deploy_b()uint64"
+    txna ApplicationArgs 0
+    match main_deploy_a_route@4 main_deploy_b_route@5
+    err
+
+main_deploy_b_route@5:
+    itxn_begin
+    bytec_0 // base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyAECAABBiYBBBUffHUxG0EAnzEZFEQxGESCAwSxMsBWBPSeickEFRkZHjYaAI4DAG0ANAABADYaAUkVIhJEF7GyGIAESP7sfrIaJbIQI7IBs7Q+SVcEAEkVIhJETFcABCgSRChMULAkQzYaAUkVIhJEF7GyGIAEgQs7rLIaJbIQI7IBs7Q+SVcEAEkjWYECCEsBFRJETFcABCgSRChMULAkQ4AKFR98dQAEcGluZ7AkQzEZFDEYFBBD)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+main_deploy_a_route@4:
+    itxn_begin
+    bytec_0 // base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyAECAABBiYBBBUffHUxG0EAnzEZFEQxGESCAwQ1HgK2BIELO6wEYLmFITYaAI4DAEMANAABADYaAUkVIhJEF7GyGIAE0CpLybIaJbIQI7IBs7Q+SVcEAEkVIhJETFcABCgSRChMULAkQ4AKFR98dQAEcG9uZ7AkQzYaAUkVIhJEF7GyGIAEsTLAVrIaJbIQI7IBs7Q+SVcEAEkjWYECCEsBFRJETFcABCgSRChMULAkQzEZFDEYFBBD)
+    itxn_field ApprovalProgramPages
+    intc_0 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn CreatedApplicationID
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+main___algopy_default_create@9:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return

@@ -1,0 +1,130 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 8 0 6
+    bytecblock 0x151f7c75
+    // circular_dependency/b.py:6
+    // class B(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xb132c056 0xf49e89c9 0x1519191e // method "ping()string", method "pong(uint64)string", method "create_a(uint64)uint64"
+    txna ApplicationArgs 0
+    match main_ping_route@4 pong create_a
+    err
+
+main_ping_route@4:
+    // circular_dependency/b.py:7
+    // @arc4.abimethod()
+    pushbytes 0x151f7c75000470696e67
+    log
+    intc_0 // 1
+    return
+
+main___algopy_default_create@10:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.circular_dependency.b.B.pong[routing]() -> void:
+pong:
+    // circular_dependency/b.py:11
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // circular_dependency/b.py:13
+    // result, _txn = arc4.abi_call(A.pong, app_id=a)
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0x810b3bac // method "pong()string"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_2 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    // circular_dependency/b.py:11
+    // @arc4.abimethod
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.circular_dependency.b.B.create_a[routing]() -> void:
+create_a:
+    // circular_dependency/b.py:16
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // circular_dependency/b.py:20
+    // result, _txn = arc4.abi_call(Factory.deploy_a, app_id=factory_id)
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0x48feec7e // method "deploy_a()uint64"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_2 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    // circular_dependency/b.py:16
+    // @arc4.abimethod
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return

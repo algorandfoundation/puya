@@ -1,0 +1,205 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 6
+    bytecblock 0x 0x151f7c75 base64(C0IAAIEBQw==)
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // circular_dependency/factory.py:4
+    // class Factory(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@9
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // circular_dependency/factory.py:4
+    // class Factory(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@7
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
+    // circular_dependency/factory.py:4
+    // class Factory(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x48feec7e // method "deploy_a()uint64"
+    pushbytes 0xd02a4bc9 // method "deploy_b()uint64"
+    uncover 2
+    match main_deploy_a_route@4 main_deploy_b_route@5
+    b main_switch_case_next@6
+
+main_switch_case_next@6:
+    b main_after_if_else@8
+
+main_after_if_else@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    // circular_dependency/factory.py:4
+    // class Factory(ARC4Contract):
+    err
+
+main_deploy_b_route@5:
+    // circular_dependency/factory.py:12
+    // @arc4.abimethod
+    callsub deploy_b
+    b main_switch_case_next@6
+
+main_deploy_a_route@4:
+    // circular_dependency/factory.py:5
+    // @arc4.abimethod
+    callsub deploy_a
+    b main_switch_case_next@6
+
+main_create_NoOp@7:
+    b main_after_if_else@8
+
+main___algopy_default_create@9:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@12
+
+main_block@12:
+    b main_after_inlined_test_cases.circular_dependency.factory.Factory.__algopy_default_create@13
+
+main_after_inlined_test_cases.circular_dependency.factory.Factory.__algopy_default_create@13:
+    intc_1 // 1
+    return
+
+
+// test_cases.circular_dependency.factory.Factory.deploy_a[routing]() -> void:
+deploy_a:
+    b deploy_a_block@0
+
+deploy_a_block@0:
+    // circular_dependency/factory.py:5
+    // @arc4.abimethod
+    callsub test_cases.circular_dependency.factory.Factory.deploy_a
+    itob
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.circular_dependency.factory.Factory.deploy_b[routing]() -> void:
+deploy_b:
+    b deploy_b_block@0
+
+deploy_b_block@0:
+    // circular_dependency/factory.py:12
+    // @arc4.abimethod
+    callsub test_cases.circular_dependency.factory.Factory.deploy_b
+    itob
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.circular_dependency.factory.Factory.deploy_a() -> uint64:
+test_cases.circular_dependency.factory.Factory.deploy_a:
+    b test_cases.circular_dependency.factory.Factory.deploy_a_block@0
+
+test_cases.circular_dependency.factory.Factory.deploy_a_block@0:
+    // circular_dependency/factory.py:9
+    // txn = arc4.arc4_create(A)
+    itxn_begin
+    intc_0 // 0
+    itxn_field LocalNumUint
+    intc_0 // 0
+    itxn_field LocalNumByteSlice
+    intc_0 // 0
+    itxn_field GlobalNumUint
+    intc_0 // 0
+    itxn_field GlobalNumByteSlice
+    intc_0 // 0
+    itxn_field ExtraProgramPages
+    bytec_2 // base64(C0IAAIEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_0 // 0x
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyAEAAEIBiYBBBUffHVCAABCAAAxGyITQQBQQgAAMRkiEkQxGCITQQA+QgAANhoAgAQ1HgK2gASBCzusgARguYUhTwOOAwAWABAACkIAAEIAAEIAAACIAFlC//OIAD1C/+2IABhC/+dC/+cxGSISMRgiEhBEQgAAQgAAI0NCAAA2GgFJFSQSRBeIAD1JFRZXBgJPAVAoTwFQsCNDQgAAiABjSRUWVwYCTwFQKE8BULAjQ0IAADYaAUkVJBJEF4gAThYoTwFQsCNDigEBQgAAsYv/shiABLEywFayGiWyECKyAUIAALO0PklXBABJIlkjC4ECCEsBFRJETwFXAAQoEkRXAgCJQgAAgARwb25niYoBAUIAALGL/7IYgATQKkvJsholshAisgFCAACztD5JVwQASRUkEkRPAVcABCgSRBeJ)
+    itxn_field ApprovalProgramPages
+    bytec_0 // 0x
+    itxn_field ApprovalProgramPages
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.circular_dependency.factory.Factory.deploy_a_next_txn@1
+
+test_cases.circular_dependency.factory.Factory.deploy_a_next_txn@1:
+    // circular_dependency/factory.py:9
+    // txn = arc4.arc4_create(A)
+    itxn_submit
+    itxn CreatedApplicationID
+    // circular_dependency/factory.py:10
+    // return txn.created_app
+    retsub
+
+
+// test_cases.circular_dependency.factory.Factory.deploy_b() -> uint64:
+test_cases.circular_dependency.factory.Factory.deploy_b:
+    b test_cases.circular_dependency.factory.Factory.deploy_b_block@0
+
+test_cases.circular_dependency.factory.Factory.deploy_b_block@0:
+    // circular_dependency/factory.py:16
+    // txn = arc4.arc4_create(B)
+    itxn_begin
+    intc_0 // 0
+    itxn_field LocalNumUint
+    intc_0 // 0
+    itxn_field LocalNumByteSlice
+    intc_0 // 0
+    itxn_field GlobalNumUint
+    intc_0 // 0
+    itxn_field GlobalNumByteSlice
+    intc_0 // 0
+    itxn_field ExtraProgramPages
+    bytec_2 // base64(C0IAAIEBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_0 // 0x
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyAEAAEIBiYBBBUffHVCAABCAAAxGyITQQBQQgAAMRkiEkQxGCITQQA+QgAANhoAgASxMsBWgAT0nonJgAQVGRkeTwOOAwAWABAACkIAAEIAAEIAAACIAFlC//OIADRC/+2IABhC/+dC/+cxGSISMRgiEhBEQgAAQgAAI0NCAACIAEZJFRZXBgJPAVAoTwFQsCNDQgAANhoBSRUkEkQXiAAxSRUWVwYCTwFQKE8BULAjQ0IAADYaAUkVJBJEF4gAThYoTwFQsCNDQgAAgARwaW5niYoBAUIAALGL/7IYgASBCzussholshAisgFCAACztD5JVwQASSJZIwuBAghLARUSRE8BVwAEKBJEVwIAiYoBAUIAALGL/7IYgARI/ux+sholshAisgFCAACztD5JVwQASRUkEkRPAVcABCgSRBeJ)
+    itxn_field ApprovalProgramPages
+    bytec_0 // 0x
+    itxn_field ApprovalProgramPages
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.circular_dependency.factory.Factory.deploy_b_next_txn@1
+
+test_cases.circular_dependency.factory.Factory.deploy_b_next_txn@1:
+    // circular_dependency/factory.py:16
+    // txn = arc4.arc4_create(B)
+    itxn_submit
+    itxn CreatedApplicationID
+    // circular_dependency/factory.py:17
+    // return txn.created_app
+    retsub
