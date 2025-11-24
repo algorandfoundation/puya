@@ -131,7 +131,7 @@ def parse_python(
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
     for scc_module_names in sorted_components(graph):
-        for module_name in scc_module_names:
+        for module_name in sorted(scc_module_names):
             module = manager.modules[module_name]
             state = graph[module_name]
             assert (
