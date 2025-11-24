@@ -1,6 +1,7 @@
 import codecs
 import enum
 import functools
+import graphlib
 import os
 import shutil
 import subprocess
@@ -14,6 +15,7 @@ from importlib import metadata
 from pathlib import Path
 
 import attrs
+from immutabledict import immutabledict
 from mypy.build import (
     BuildManager,
     load_graph,
@@ -34,7 +36,7 @@ from mypy.version import __version__ as mypy_version
 from packaging import version
 
 from puya import log
-from puya.errors import ConfigurationError, InternalError
+from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
@@ -148,49 +150,40 @@ def parse_python(
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
-    for module_name, mypy_module in sorted_modules.items():
+    module_graph = {
+        md.module: [
+            dep_id
+            for dep_id, is_module_level in md.dependencies.items()
+            if is_module_level and dep_id in module_data
+        ]
+        for md in module_data.values()
+    }
+    try:
+        module_order = list(graphlib.TopologicalSorter(module_graph).static_order())
+    except graphlib.CycleError as ex:
+        module_cycle: Sequence[str] = ex.args[1]
+        raise CodeError(f"cyclical module reference: {' -> '.join(module_cycle)}") from None
+    for module_name in module_order:
+        mypy_module = sorted_modules[module_name]
         assert (
             module_name == mypy_module.fullname
         ), f"mypy module mismatch, expected {module_name}, got {mypy_module.fullname}"
-        md = module_data.pop(module_name, None)
-        if md is None:
-            assert mypy_module.path, f"no path for mypy module: {module_name}"
-            module_path = Path(mypy_module.path).resolve()
-            if mypy_module.is_stub:
-                assert module_name not in module_data, "shouldn't have stub as input"
-                module_rel_path = make_path_relative_to_cwd(module_path)
-                if module_name in ("abc", "typing", "collections.abc"):
-                    logger.debug(f"Skipping stdlib stub {module_rel_path}")  # TODO: lowercase
-                elif module_name.startswith("algopy"):
-                    logger.debug(f"Skipping algopy stub {module_rel_path}")
-                elif mypy_module.is_typeshed_file(mypy_options):
-                    logger.debug(f"Skipping typeshed stub {module_rel_path}")
-                else:
-                    logger.warning(f"Skipping stub: {module_rel_path}")
-            elif module_path.is_dir():
-                # this module is a module directory with no __init__.py, ie it contains
-                # nothing and is only in the graph as a reference
-                pass
-            else:
-                raise InternalError(
-                    f"mypy parse result returned unexpected reference: {module_name}"
-                )
+        md = module_data.pop(module_name)
+        assert mypy_module.fullname == md.module, "mypy and fast module name mismatch"
+        lines = md.data.splitlines()
+        if md.is_source:
+            discovery_mechanism = SourceDiscoveryMechanism.explicit
         else:
-            assert mypy_module.fullname == md.module, "mypy and fast module name mismatch"
-            lines = md.data.splitlines()
-            if md.is_source:
-                discovery_mechanism = SourceDiscoveryMechanism.explicit
-            else:
-                discovery_mechanism = SourceDiscoveryMechanism.dependency
-            ordered_modules[md.module] = SourceModule(
-                name=md.module,
-                mypy_module=mypy_module,
-                path=md.path,
-                lines=lines,
-                fast=md.fast,
-                discovery_mechanism=discovery_mechanism,
-                dependencies=md.dependencies,
-            )
+            discovery_mechanism = SourceDiscoveryMechanism.dependency
+        ordered_modules[md.module] = SourceModule(
+            name=md.module,
+            mypy_module=mypy_module,
+            path=md.path,
+            lines=lines,
+            fast=md.fast,
+            discovery_mechanism=discovery_mechanism,
+            dependencies=frozenset(md.dependencies.keys()),
+        )
     if module_data:
         raise InternalError(f"parse has leftover modules: {', '.join(module_data.keys())}")
 
@@ -318,7 +311,8 @@ class _ModuleData:
     module: str
     """Module name (e.g. 'pkg.module')"""
     data: str
-    dependencies: frozenset[str]
+    dependencies: immutabledict[str, bool]
+    """Dependency set, and whether it's a module-level dependency (vs function scoped)"""
     fast: FastModule | None
     is_source: bool
 
@@ -343,11 +337,14 @@ def _find_dependencies(
             feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
         )
         module_dep_ids = set[str]()
+        top_level_module_dep_ids = set[str]()
         if fast is not None:
             dependencies = resolve_import_dependencies(rs, fast, fmc)
             for dep in dependencies:
                 mod_path = dep.path
                 module_dep_ids.add(dep.module_id)
+                if dep.is_module_scope and not dep.implicit:
+                    top_level_module_dep_ids.add(dep.module_id)
                 assert mod_path == mod_path.resolve()  # TODO: REMOVE ME
                 # assert mod_path.suffix == ".py", mod_path  # TODO: reinstate me?
                 if mod_path.suffix == ".py" and set_add(queued_id_set, dep.module_id):
@@ -363,7 +360,12 @@ def _find_dependencies(
             module=rs.module,
             data=source,
             fast=fast,
-            dependencies=frozenset(module_dep_ids),
+            dependencies=immutabledict(
+                {
+                    dep_name: (dep_name in top_level_module_dep_ids)
+                    for dep_name in sorted(module_dep_ids)
+                }
+            ),
             is_source=rs.module in initial_source_ids,
         )
     return result_by_id
