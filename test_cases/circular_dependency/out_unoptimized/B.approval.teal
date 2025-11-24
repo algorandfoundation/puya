@@ -1,0 +1,276 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 8 6
+    bytecblock 0x151f7c75
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // circular_dependency/b.py:6
+    // class B(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@10
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // circular_dependency/b.py:6
+    // class B(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@8
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
+    // circular_dependency/b.py:6
+    // class B(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xb132c056 // method "ping()string"
+    pushbytes 0xf49e89c9 // method "pong(uint64)string"
+    pushbytes 0x1519191e // method "create_a(uint64)uint64"
+    uncover 3
+    match main_ping_route@4 main_pong_route@5 main_create_a_route@6
+    b main_switch_case_next@7
+
+main_switch_case_next@7:
+    b main_after_if_else@9
+
+main_after_if_else@9:
+    b main_after_if_else@11
+
+main_after_if_else@11:
+    // circular_dependency/b.py:6
+    // class B(ARC4Contract):
+    err
+
+main_create_a_route@6:
+    // circular_dependency/b.py:16
+    // @arc4.abimethod
+    callsub create_a
+    b main_switch_case_next@7
+
+main_pong_route@5:
+    // circular_dependency/b.py:11
+    // @arc4.abimethod
+    callsub pong
+    b main_switch_case_next@7
+
+main_ping_route@4:
+    // circular_dependency/b.py:7
+    // @arc4.abimethod()
+    callsub ping
+    b main_switch_case_next@7
+
+main_create_NoOp@8:
+    b main_after_if_else@9
+
+main___algopy_default_create@10:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@13
+
+main_block@13:
+    b main_after_inlined_test_cases.circular_dependency.b.B.__algopy_default_create@14
+
+main_after_inlined_test_cases.circular_dependency.b.B.__algopy_default_create@14:
+    intc_1 // 1
+    return
+
+
+// test_cases.circular_dependency.b.B.ping[routing]() -> void:
+ping:
+    b ping_block@0
+
+ping_block@0:
+    // circular_dependency/b.py:7
+    // @arc4.abimethod()
+    callsub test_cases.circular_dependency.b.B.ping
+    dup
+    len
+    itob
+    extract 6 2
+    uncover 1
+    concat
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.circular_dependency.b.B.pong[routing]() -> void:
+pong:
+    b pong_block@0
+
+pong_block@0:
+    // circular_dependency/b.py:11
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.circular_dependency.b.B.pong
+    dup
+    len
+    itob
+    extract 6 2
+    uncover 1
+    concat
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.circular_dependency.b.B.create_a[routing]() -> void:
+create_a:
+    b create_a_block@0
+
+create_a_block@0:
+    // circular_dependency/b.py:16
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.circular_dependency.b.B.create_a
+    itob
+    bytec_0 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.circular_dependency.b.B.ping() -> bytes:
+test_cases.circular_dependency.b.B.ping:
+    b test_cases.circular_dependency.b.B.ping_block@0
+
+test_cases.circular_dependency.b.B.ping_block@0:
+    // circular_dependency/b.py:9
+    // return String("ping")
+    pushbytes "ping"
+    retsub
+
+
+// test_cases.circular_dependency.b.B.pong(a: uint64) -> bytes:
+test_cases.circular_dependency.b.B.pong:
+    // circular_dependency/b.py:11-12
+    // @arc4.abimethod
+    // def pong(self, a: Application) -> String:
+    proto 1 1
+    b test_cases.circular_dependency.b.B.pong_block@0
+
+test_cases.circular_dependency.b.B.pong_block@0:
+    // circular_dependency/b.py:13
+    // result, _txn = arc4.abi_call(A.pong, app_id=a)
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    pushbytes 0x810b3bac // method "pong()string"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.circular_dependency.b.B.pong_next_txn@1
+
+test_cases.circular_dependency.b.B.pong_next_txn@1:
+    // circular_dependency/b.py:13
+    // result, _txn = arc4.abi_call(A.pong, app_id=a)
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    uncover 1
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    extract 2 0
+    // circular_dependency/b.py:14
+    // return result
+    retsub
+
+
+// test_cases.circular_dependency.b.B.create_a(factory_id: uint64) -> uint64:
+test_cases.circular_dependency.b.B.create_a:
+    // circular_dependency/b.py:16-17
+    // @arc4.abimethod
+    // def create_a(self, factory_id: Application) -> Application:
+    proto 1 1
+    b test_cases.circular_dependency.b.B.create_a_block@0
+
+test_cases.circular_dependency.b.B.create_a_block@0:
+    // circular_dependency/b.py:20
+    // result, _txn = arc4.abi_call(Factory.deploy_a, app_id=factory_id)
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    pushbytes 0x48feec7e // method "deploy_a()uint64"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b test_cases.circular_dependency.b.B.create_a_next_txn@1
+
+test_cases.circular_dependency.b.B.create_a_next_txn@1:
+    // circular_dependency/b.py:20
+    // result, _txn = arc4.abi_call(Factory.deploy_a, app_id=factory_id)
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    uncover 1
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    btoi
+    // circular_dependency/b.py:21
+    // return result
+    retsub
