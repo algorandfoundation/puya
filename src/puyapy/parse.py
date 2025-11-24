@@ -62,7 +62,7 @@ class SourceModule:
     name: str
     mypy_module: MypyFile
     path: Path
-    fast: FastModule | None
+    fast: FastModule | None  # TODO: make this non-optional and handle failures differently
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
     dependencies: frozenset[str]
