@@ -43,6 +43,10 @@ def infer_condition_value(expr: fast_nodes.Expression) -> ConditionValue:
                 return ALWAYS_TRUE
             else:
                 return ALWAYS_FALSE
+        # TODO: these next two cases are hacks,which other type checkers also employ, but
+        #       maybe we can do without it here if we keep track of imports of/from typing and
+        #       don't allow importing typing/TYPE_CHECKING from another module? a false negative
+        #       seems preferable to a false positive?
         case fast_nodes.Attribute(attr="TYPE_CHECKING", ctx=ast.Load()):
             return TYPE_CHECKING_TRUE
         case fast_nodes.Name(id="TYPE_CHECKING", ctx=ast.Load()):
