@@ -5,6 +5,10 @@ from algopy import Application, String, arc4
 from test_cases.circular_dependency.b import B, PingPongBase
 
 
+class MyInnerStruct(arc4.Struct):
+    value: arc4.UInt64
+
+
 class A(PingPongBase):
     @typing.override
     @arc4.abimethod
