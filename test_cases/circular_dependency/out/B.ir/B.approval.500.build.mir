@@ -2,7 +2,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // circular_dependency/b.py:13
+        // circular_dependency/b.py:22
         // class B(PingPongBase):
         txn NumAppArgs                                                       tmp%0#1
         v-store tmp%0#1
@@ -10,7 +10,7 @@ subroutine main:
         bz main___algopy_default_create@11 ; b main_abi_routing@2
 
     main_abi_routing@2:
-        // circular_dependency/b.py:13
+        // circular_dependency/b.py:22
         // class B(PingPongBase):
         txn OnCompletion                                                     tmp%2#0
         v-store tmp%2#0
@@ -33,7 +33,7 @@ subroutine main:
         match main_name_route@4 main_ping_route@5 main_pong_route@6 main_create_a_route@7 ; b main_after_if_else@10 
 
     main_name_route@4:
-        // circular_dependency/b.py:15
+        // circular_dependency/b.py:24
         // @arc4.abimethod
         byte 0x151f7c75000142                                                0x151f7c75000142
         log
@@ -41,7 +41,7 @@ subroutine main:
         return
 
     main_ping_route@5:
-        // circular_dependency/b.py:19
+        // circular_dependency/b.py:28
         // @arc4.abimethod()
         byte 0x151f7c75000470696e67                                          0x151f7c75000470696e67
         log
@@ -49,19 +49,19 @@ subroutine main:
         return
 
     main_pong_route@6:
-        // circular_dependency/b.py:23
+        // circular_dependency/b.py:32
         // @arc4.abimethod
         callsub pong
         b main_after_if_else@10
 
     main_create_a_route@7:
-        // circular_dependency/b.py:30
+        // circular_dependency/b.py:39
         // @arc4.abimethod
         callsub create_a
         b main_after_if_else@10
 
     main_after_if_else@10:
-        // circular_dependency/b.py:13
+        // circular_dependency/b.py:22
         // class B(PingPongBase):
         err
 
@@ -89,7 +89,7 @@ subroutine main:
 // test_cases.circular_dependency.b.B.pong[routing]() -> void:
 subroutine pong:
     pong_block@0:
-        // circular_dependency/b.py:23
+        // circular_dependency/b.py:32
         // @arc4.abimethod
         txna ApplicationArgs 1                                               tmp%0#0
         v-store tmp%0#0
@@ -105,7 +105,7 @@ subroutine pong:
         v-load tmp%0#0                                                       tmp%0#0
         btoi                                                                 a#0
         v-store a#0
-        // circular_dependency/b.py:27
+        // circular_dependency/b.py:36
         // result, _txn = arc4.abi_call(A.pong, app_id=a)
         itxn_begin
         v-load a#0                                                           a#0
@@ -148,7 +148,7 @@ subroutine pong:
         v-store eq%0#0
         v-load eq%0#0                                                        eq%0#0
         assert // invalid number of bytes for string
-        // circular_dependency/b.py:23
+        // circular_dependency/b.py:32
         // @arc4.abimethod
         byte 0x151f7c75                                                      0x151f7c75
         v-load tmp%2#1                                                       0x151f7c75,tmp%2#1
@@ -163,7 +163,7 @@ subroutine pong:
 // test_cases.circular_dependency.b.B.create_a[routing]() -> void:
 subroutine create_a:
     create_a_block@0:
-        // circular_dependency/b.py:30
+        // circular_dependency/b.py:39
         // @arc4.abimethod
         txna ApplicationArgs 1                                               tmp%0#0
         v-store tmp%0#0
@@ -179,7 +179,7 @@ subroutine create_a:
         v-load tmp%0#0                                                       tmp%0#0
         btoi                                                                 factory_id#0
         v-store factory_id#0
-        // circular_dependency/b.py:34
+        // circular_dependency/b.py:43
         // result, _txn = arc4.abi_call(Factory.deploy_a, app_id=factory_id)
         itxn_begin
         v-load factory_id#0                                                  factory_id#0
@@ -214,7 +214,7 @@ subroutine create_a:
         v-store eq%0#0
         v-load eq%0#0                                                        eq%0#0
         assert // invalid number of bytes for application
-        // circular_dependency/b.py:30
+        // circular_dependency/b.py:39
         // @arc4.abimethod
         byte 0x151f7c75                                                      0x151f7c75
         v-load tmp%2#1                                                       0x151f7c75,tmp%2#1

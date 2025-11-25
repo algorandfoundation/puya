@@ -1,37 +1,37 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         goto block@1
-    block@1: // L13
+    block@1: // L22
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%1#0 ? block@2 : block@11
-    block@2: // abi_routing_L13
+    block@2: // abi_routing_L22
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0)
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
         goto tmp%5#0 ? block@3 : block@9
-    block@3: // call_NoOp_L13
+    block@3: // call_NoOp_L22
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "name()string" => block@4, method "ping()string" => block@5, method "pong(uint64)string" => block@6, method "create_a(uint64)uint64" => block@7, * => block@8}
-    block@4: // name_route_L15
+    block@4: // name_route_L24
         test_cases.circular_dependency.b.B.name[routing]()
         goto block@8
-    block@5: // ping_route_L19
+    block@5: // ping_route_L28
         test_cases.circular_dependency.b.B.ping[routing]()
         goto block@8
-    block@6: // pong_route_L23
+    block@6: // pong_route_L32
         test_cases.circular_dependency.b.B.pong[routing]()
         goto block@8
-    block@7: // create_a_route_L30
+    block@7: // create_a_route_L39
         test_cases.circular_dependency.b.B.create_a[routing]()
         goto block@8
-    block@8: // switch_case_next_L13
+    block@8: // switch_case_next_L22
         goto block@10
-    block@9: // create_NoOp_L13
+    block@9: // create_NoOp_L22
         goto block@10
-    block@10: // after_if_else_L13
+    block@10: // after_if_else_L22
         goto block@12
     block@11: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
@@ -45,14 +45,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@15
     block@15: // after_inlined_test_cases.circular_dependency.b.B.__algopy_default_create_L1
         exit 1u
-    block@12: // after_if_else_L13
+    block@12: // after_if_else_L22
         exit 0u
     block@13: // after_inlined_test_cases.circular_dependency.b.B.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 
 subroutine test_cases.circular_dependency.b.B.name[routing]() -> void:
-    block@0: // L15
+    block@0: // L24
         let tmp%0#0: string = test_cases.circular_dependency.b.B.name()
         let aggregate%length%0#0: uint64 = (len tmp%0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
@@ -65,7 +65,7 @@ subroutine test_cases.circular_dependency.b.B.name[routing]() -> void:
         exit 1u
 
 subroutine test_cases.circular_dependency.b.B.ping[routing]() -> void:
-    block@0: // L19
+    block@0: // L28
         let tmp%0#0: string = test_cases.circular_dependency.b.B.ping()
         let aggregate%length%0#0: uint64 = (len tmp%0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
@@ -78,7 +78,7 @@ subroutine test_cases.circular_dependency.b.B.ping[routing]() -> void:
         exit 1u
 
 subroutine test_cases.circular_dependency.b.B.pong[routing]() -> void:
-    block@0: // L23
+    block@0: // L32
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -97,7 +97,7 @@ subroutine test_cases.circular_dependency.b.B.pong[routing]() -> void:
         exit 1u
 
 subroutine test_cases.circular_dependency.b.B.create_a[routing]() -> void:
-    block@0: // L30
+    block@0: // L39
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -113,15 +113,15 @@ subroutine test_cases.circular_dependency.b.B.create_a[routing]() -> void:
         exit 1u
 
 subroutine test_cases.circular_dependency.b.B.name() -> string:
-    block@0: // L14
+    block@0: // L23
         return "B"
 
 subroutine test_cases.circular_dependency.b.B.ping() -> string:
-    block@0: // L19
+    block@0: // L28
         return "ping"
 
 subroutine test_cases.circular_dependency.b.B.pong(a: uint64) -> string:
-    block@0: // L23
+    block@0: // L32
         itxn_begin
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = a#0
         ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -129,7 +129,7 @@ subroutine test_cases.circular_dependency.b.B.pong(a: uint64) -> string:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         goto block@1
-    block@1: // next_txn_L27
+    block@1: // next_txn_L36
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 0 4) awst_tmp%0#0)
@@ -149,7 +149,7 @@ subroutine test_cases.circular_dependency.b.B.pong(a: uint64) -> string:
         return result#0
 
 subroutine test_cases.circular_dependency.b.B.create_a(factory_id: uint64) -> uint64:
-    block@0: // L30
+    block@0: // L39
         itxn_begin
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = factory_id#0
         ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -157,7 +157,7 @@ subroutine test_cases.circular_dependency.b.B.create_a(factory_id: uint64) -> ui
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         goto block@1
-    block@1: // next_txn_L34
+    block@1: // next_txn_L43
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
         let tmp%0#0: bytes = ((extract 0 4) awst_tmp%0#0)

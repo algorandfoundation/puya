@@ -11,7 +11,7 @@ main_block@0:
     b main_block@1
 
 main_block@1:
-    // circular_dependency/a.py:8
+    // circular_dependency/a.py:12
     // class A(PingPongBase):
     txn NumAppArgs
     intc_0 // 0
@@ -20,7 +20,7 @@ main_block@1:
     b main_abi_routing@2
 
 main_abi_routing@2:
-    // circular_dependency/a.py:8
+    // circular_dependency/a.py:12
     // class A(PingPongBase):
     txn OnCompletion
     intc_0 // NoOp
@@ -33,7 +33,7 @@ main_abi_routing@2:
     b main_call_NoOp@3
 
 main_call_NoOp@3:
-    // circular_dependency/a.py:8
+    // circular_dependency/a.py:12
     // class A(PingPongBase):
     txna ApplicationArgs 0
     pushbytes 0x19750616 // method "name()string"
@@ -51,30 +51,30 @@ main_after_if_else@10:
     b main_after_if_else@12
 
 main_after_if_else@12:
-    // circular_dependency/a.py:8
+    // circular_dependency/a.py:12
     // class A(PingPongBase):
     err
 
 main_create_b_route@7:
-    // circular_dependency/a.py:23
+    // circular_dependency/a.py:27
     // @arc4.abimethod
     callsub create_b
     b main_switch_case_next@8
 
 main_pong_route@6:
-    // circular_dependency/a.py:19
+    // circular_dependency/a.py:23
     // @arc4.abimethod()
     callsub pong
     b main_switch_case_next@8
 
 main_ping_route@5:
-    // circular_dependency/a.py:14
+    // circular_dependency/a.py:18
     // @arc4.abimethod
     callsub ping
     b main_switch_case_next@8
 
 main_name_route@4:
-    // circular_dependency/a.py:10
+    // circular_dependency/a.py:14
     // @arc4.abimethod
     callsub name
     b main_switch_case_next@8
@@ -106,7 +106,7 @@ name:
     b name_block@0
 
 name_block@0:
-    // circular_dependency/a.py:10
+    // circular_dependency/a.py:14
     // @arc4.abimethod
     callsub test_cases.circular_dependency.a.A.name
     dup
@@ -128,7 +128,7 @@ ping:
     b ping_block@0
 
 ping_block@0:
-    // circular_dependency/a.py:14
+    // circular_dependency/a.py:18
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
@@ -157,7 +157,7 @@ pong:
     b pong_block@0
 
 pong_block@0:
-    // circular_dependency/a.py:19
+    // circular_dependency/a.py:23
     // @arc4.abimethod()
     callsub test_cases.circular_dependency.a.A.pong
     dup
@@ -179,7 +179,7 @@ create_b:
     b create_b_block@0
 
 create_b_block@0:
-    // circular_dependency/a.py:23
+    // circular_dependency/a.py:27
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
@@ -203,7 +203,7 @@ test_cases.circular_dependency.a.A.name:
     b test_cases.circular_dependency.a.A.name_block@0
 
 test_cases.circular_dependency.a.A.name_block@0:
-    // circular_dependency/a.py:12
+    // circular_dependency/a.py:16
     // return String("A")
     pushbytes "A"
     retsub
@@ -211,14 +211,14 @@ test_cases.circular_dependency.a.A.name_block@0:
 
 // test_cases.circular_dependency.a.A.ping(b: uint64) -> bytes:
 test_cases.circular_dependency.a.A.ping:
-    // circular_dependency/a.py:14-15
+    // circular_dependency/a.py:18-19
     // @arc4.abimethod
     // def ping(self, b: Application) -> String:
     proto 1 1
     b test_cases.circular_dependency.a.A.ping_block@0
 
 test_cases.circular_dependency.a.A.ping_block@0:
-    // circular_dependency/a.py:16
+    // circular_dependency/a.py:20
     // result, _txn = arc4.abi_call(B.ping, app_id=b)
     itxn_begin
     frame_dig -1
@@ -232,7 +232,7 @@ test_cases.circular_dependency.a.A.ping_block@0:
     b test_cases.circular_dependency.a.A.ping_next_txn@1
 
 test_cases.circular_dependency.a.A.ping_next_txn@1:
-    // circular_dependency/a.py:16
+    // circular_dependency/a.py:20
     // result, _txn = arc4.abi_call(B.ping, app_id=b)
     itxn_submit
     itxn LastLog
@@ -254,7 +254,7 @@ test_cases.circular_dependency.a.A.ping_next_txn@1:
     ==
     assert // invalid number of bytes for string
     extract 2 0
-    // circular_dependency/a.py:17
+    // circular_dependency/a.py:21
     // return result
     retsub
 
@@ -264,7 +264,7 @@ test_cases.circular_dependency.a.A.pong:
     b test_cases.circular_dependency.a.A.pong_block@0
 
 test_cases.circular_dependency.a.A.pong_block@0:
-    // circular_dependency/a.py:21
+    // circular_dependency/a.py:25
     // return String("pong")
     pushbytes "pong"
     retsub
@@ -272,14 +272,14 @@ test_cases.circular_dependency.a.A.pong_block@0:
 
 // test_cases.circular_dependency.a.A.create_b(factory_id: uint64) -> uint64:
 test_cases.circular_dependency.a.A.create_b:
-    // circular_dependency/a.py:23-24
+    // circular_dependency/a.py:27-28
     // @arc4.abimethod
     // def create_b(self, factory_id: Application) -> Application:
     proto 1 1
     b test_cases.circular_dependency.a.A.create_b_block@0
 
 test_cases.circular_dependency.a.A.create_b_block@0:
-    // circular_dependency/a.py:27
+    // circular_dependency/a.py:31
     // result, _txn = arc4.abi_call(Factory.deploy_b, app_id=factory_id)
     itxn_begin
     frame_dig -1
@@ -293,7 +293,7 @@ test_cases.circular_dependency.a.A.create_b_block@0:
     b test_cases.circular_dependency.a.A.create_b_next_txn@1
 
 test_cases.circular_dependency.a.A.create_b_next_txn@1:
-    // circular_dependency/a.py:27
+    // circular_dependency/a.py:31
     // result, _txn = arc4.abi_call(Factory.deploy_b, app_id=factory_id)
     itxn_submit
     itxn LastLog
@@ -309,6 +309,6 @@ test_cases.circular_dependency.a.A.create_b_next_txn@1:
     ==
     assert // invalid number of bytes for application
     btoi
-    // circular_dependency/a.py:28
+    // circular_dependency/a.py:32
     // return result
     retsub
