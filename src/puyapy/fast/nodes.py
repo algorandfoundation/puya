@@ -450,7 +450,7 @@ class BinOp(Expression):
 
 @attrs.frozen
 class UnaryOp(Expression):
-    op: ast.unaryop
+    op: ast.unaryop  # TODO: type union here and elsewhere for similar types in this file?
     operand: Expression
 
     @typing.override
