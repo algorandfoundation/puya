@@ -1,7 +1,16 @@
 import abc
 import typing
 
-from algopy import Application, ARC4Contract, String, arc4
+from algopy import Application, ARC4Contract, String, arc4, subroutine
+
+if typing.TYPE_CHECKING:
+    from test_cases.circular_dependency.a import MyInnerStruct
+
+
+# TODO: allow this to work
+# class MyStruct(arc4.Struct):
+#     value: arc4.UInt64
+#     inner: "MyInnerStruct"
 
 
 class PingPongBase(ARC4Contract, abc.ABC):
@@ -33,3 +42,13 @@ class B(PingPongBase):
 
         result, _txn = arc4.abi_call(Factory.deploy_a, app_id=factory_id)
         return result
+
+    # TODO: allow this to work
+    # @arc4.abimethod
+    # def check_inner(self, s: "MyInnerStruct") -> None:
+    #     check_inner(s)
+
+
+@subroutine
+def check_inner(s: "MyInnerStruct") -> None:
+    assert s.value == 42
