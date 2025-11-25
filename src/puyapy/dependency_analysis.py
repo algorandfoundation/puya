@@ -6,6 +6,7 @@ from pathlib import Path
 import attrs
 
 from puya.parse import SourceLocation
+from puyapy import reachability
 from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.visitors.traversers import StatementTraverser
 from puyapy.find_sources import ResolvedSource
@@ -167,34 +168,64 @@ class _ImportCollector(StatementTraverser):
         factory=list, init=False
     )
     from_imports: list[tuple[fast_nodes.FromImport, bool]] = attrs.field(factory=list, init=False)
-    _is_top_level: bool = attrs.field(default=True, init=False)
+    # "immediate" here means something that is imported immediately on module execution,
+    # i.e. not within a function/method and not inside a TYPE_CHECKING block
+    _is_immediate: bool = attrs.field(default=True, init=False)
 
     @typing.override
     def visit_module_import(self, module_import: fast_nodes.ModuleImport) -> None:
-        self.module_imports.append((module_import, self._is_top_level))
+        self.module_imports.append((module_import, self._is_immediate))
 
     @typing.override
     def visit_from_import(self, from_import: fast_nodes.FromImport) -> None:
-        self.from_imports.append((from_import, self._is_top_level))
+        self.from_imports.append((from_import, self._is_immediate))
 
     @typing.override
-    def visit_class_def(self, class_def: fast_nodes.ClassDef) -> None:
-        with self._enter_nested_scope():
-            super().visit_class_def(class_def)
+    def visit_if(self, if_stmt: fast_nodes.If) -> None:
+        condition = reachability.infer_condition_value(if_stmt.test)
+        match condition:
+            case reachability.TRUTH_VALUE_UNKNOWN:
+                super().visit_if(if_stmt)
+            case reachability.ALWAYS_TRUE:
+                # visit only the "if" branch
+                for stmt in if_stmt.body:
+                    stmt.accept(self)
+            case reachability.ALWAYS_FALSE:
+                # visit only the "else" branch
+                for stmt in if_stmt.else_body or ():
+                    stmt.accept(self)
+            case reachability.TYPE_CHECKING_TRUE:
+                # visit the "if" branch but don't treat imports as immediate dependencies
+                with self._enter_deferred_scope():
+                    for stmt in if_stmt.body:
+                        stmt.accept(self)
+                # visit the "else" branch normally
+                for stmt in if_stmt.else_body or ():
+                    stmt.accept(self)
+            case reachability.TYPE_CHECKING_FALSE:
+                # visit the "if" branch normally
+                for stmt in if_stmt.body:
+                    stmt.accept(self)
+                # visit the "else" branch but don't treat imports as immediate dependencies
+                with self._enter_deferred_scope():
+                    for stmt in if_stmt.else_body or ():
+                        stmt.accept(self)
+            case unexpected:
+                typing.assert_never(unexpected)
 
     @typing.override
     def visit_function_def(self, func_def: fast_nodes.FunctionDef) -> None:
-        with self._enter_nested_scope():
+        with self._enter_deferred_scope():
             super().visit_function_def(func_def)
 
     @contextlib.contextmanager
-    def _enter_nested_scope(self) -> Iterator[None]:
-        is_top_level = self._is_top_level
-        self._is_top_level = False
+    def _enter_deferred_scope(self) -> Iterator[None]:
+        is_immediate = self._is_immediate
+        self._is_immediate = False
         try:
             yield
         finally:
-            self._is_top_level = is_top_level
+            self._is_immediate = is_immediate
 
 
 def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
