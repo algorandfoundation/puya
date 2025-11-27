@@ -160,15 +160,16 @@ def _visit_stmt_list(ctx: _BuildContext, stmts: list[ast.stmt]) -> tuple[nodes.S
 
 
 def _visit_stmt(ctx: _BuildContext, node: ast.stmt) -> nodes.Statement | None:
+    node_type = type(node)
+    try:
+        handler = _STATEMENT_HANDLERS[node_type]
+    except KeyError:
+        logger.debug(f"unknown statement node type: {node_type.__name__}")
+        handler = _unsupported_stmt
     loc = ctx.loc(node)
     result = None
-    try:
-        handler = _STATEMENT_HANDLERS[type(node)]
-    except KeyError:
-        ctx.unsupported_syntax(loc)
-    else:
-        with log_exceptions(loc):
-            result = handler(ctx, node)
+    with log_exceptions(loc):
+        result = handler(ctx, node)
     return result
 
 
@@ -673,7 +674,7 @@ def _visit_match_pattern(ctx: _BuildContext, pattern: ast.pattern) -> nodes.Matc
             raise CodeError(_UNSUPPORTED_SYNTAX_MSG, loc)
 
 
-_TStatementVisitor = Callable[[_BuildContext, ast.stmt], nodes.Statement]
+_TStatementVisitor = Callable[[_BuildContext, ast.stmt], nodes.Statement | None]
 
 
 def _stmt_visitor_pair[TIn: ast.stmt, TOut: nodes.Statement](
@@ -688,33 +689,41 @@ def _stmt_visitor_pair[TIn: ast.stmt, TOut: nodes.Statement](
     return typ, visitor
 
 
+def _unsupported_stmt(ctx: _BuildContext, stmt: ast.stmt) -> None:
+    loc = ctx.loc(stmt)
+    ctx.unsupported_syntax(loc)
+
+
 _STATEMENT_HANDLERS: typing.Final[
-    Mapping[type[ast.stmt], Callable[[_BuildContext, ast.stmt], nodes.Statement]]
+    Mapping[type[ast.stmt], Callable[[_BuildContext, ast.stmt], nodes.Statement | None]]
 ] = dict(
     (
-        # supported statements are listed here in the same order as the appear in:
-        # https://docs.python.org/3.12/library/ast.html#abstract-grammar
+        # statements are listed here in the same order as the appear in:
+        # https://docs.python.org/3/library/ast.html#abstract-grammar
         _stmt_visitor_pair(ast.FunctionDef, _visit_function_def),
-        # <br>
+        (ast.AsyncFunctionDef, _unsupported_stmt),
         _stmt_visitor_pair(ast.ClassDef, _visit_class_def),
         _stmt_visitor_pair(ast.Return, _visit_return),
-        # <br>
         _stmt_visitor_pair(ast.Delete, _visit_delete),
         _stmt_visitor_pair(ast.Assign, _visit_assign),
+        (ast.TypeAlias, _unsupported_stmt),
         _stmt_visitor_pair(ast.AugAssign, _visit_augmented_assign),
         _stmt_visitor_pair(ast.AnnAssign, _visit_annotated_assign),
-        # <br>
         _stmt_visitor_pair(ast.For, _visit_for_loop),
+        (ast.AsyncFor, _unsupported_stmt),
         _stmt_visitor_pair(ast.While, _visit_while_loop),
         _stmt_visitor_pair(ast.If, _visit_if),
-        # <br>
+        (ast.With, _unsupported_stmt),
+        (ast.AsyncWith, _unsupported_stmt),
         _stmt_visitor_pair(ast.Match, _visit_match),
-        # <br>
+        (ast.Raise, _unsupported_stmt),
+        (ast.Try, _unsupported_stmt),
+        (ast.TryStar, _unsupported_stmt),
         _stmt_visitor_pair(ast.Assert, _visit_assert),
-        # <br>
         _stmt_visitor_pair(ast.Import, _visit_import),
         _stmt_visitor_pair(ast.ImportFrom, _visit_import_from),
-        # <br>
+        (ast.Global, _unsupported_stmt),
+        (ast.Nonlocal, _unsupported_stmt),
         _stmt_visitor_pair(ast.Expr, _visit_expression_statement),
         _stmt_visitor_pair(ast.Pass, _visit_pass),
         _stmt_visitor_pair(ast.Break, _visit_break),
@@ -728,13 +737,13 @@ def _visit_expr_list(ctx: _BuildContext, exprs: list[ast.expr]) -> tuple[nodes.E
 
 
 def _visit_expr(ctx: _BuildContext, node: ast.expr) -> nodes.Expression:
+    node_type = type(node)
     try:
-        handler = _EXPRESSION_HANDLERS[type(node)]
+        handler = _EXPRESSION_HANDLERS[node_type]
     except KeyError:
-        loc = ctx.loc(node)
-        raise CodeError(_UNSUPPORTED_SYNTAX_MSG, loc) from None
-    else:
-        return handler(ctx, node)
+        logger.debug(f"unknown expression node type: {node_type.__name__}")
+        handler = _unsupported_expr_type
+    return handler(ctx, node)
 
 
 def _visit_optional_expr(ctx: _BuildContext, node: ast.expr | None) -> nodes.Expression | None:
@@ -987,30 +996,45 @@ def _expr_visitor_pair[TIn: ast.expr, TOut: nodes.Expression](
     return typ, visitor
 
 
+def _unsupported_expr_type(ctx: _BuildContext, expr: ast.expr) -> typing.Never:
+    loc = ctx.loc(expr)
+    raise CodeError(_UNSUPPORTED_SYNTAX_MSG, loc) from None
+
+
 _EXPRESSION_HANDLERS: typing.Final[
     Mapping[type[ast.expr], Callable[[_BuildContext, ast.expr], nodes.Expression]]
 ] = dict(
     (
-        # supported statements are listed here in the same order as the appear in:
-        # https://docs.python.org/3.12/library/ast.html#abstract-grammar
+        # expressions are listed here in the same order as the appear in:
+        # https://docs.python.org/3/library/ast.html#abstract-grammar
         _expr_visitor_pair(ast.BoolOp, _visit_bool_op),
         _expr_visitor_pair(ast.NamedExpr, _visit_named_expr),
         _expr_visitor_pair(ast.BinOp, _visit_bin_op),
         _expr_visitor_pair(ast.UnaryOp, _visit_unary_op),
+        (ast.Lambda, _unsupported_expr_type),
         _expr_visitor_pair(ast.IfExp, _visit_if_exp),
         _expr_visitor_pair(ast.Dict, _visit_dict_expr),
+        (ast.Set, _unsupported_expr_type),
+        (ast.ListComp, _unsupported_expr_type),
+        (ast.SetComp, _unsupported_expr_type),
+        (ast.DictComp, _unsupported_expr_type),
+        (ast.GeneratorExp, _unsupported_expr_type),
+        (ast.Await, _unsupported_expr_type),
+        (ast.Yield, _unsupported_expr_type),
+        (ast.YieldFrom, _unsupported_expr_type),
         _expr_visitor_pair(ast.Compare, _visit_compare),
         _expr_visitor_pair(ast.Call, _visit_call),
         _expr_visitor_pair(ast.FormattedValue, _visit_formatted_value),
         _expr_visitor_pair(ast.JoinedStr, _visit_joined_str),
         _expr_visitor_pair(ast.Constant, _visit_constant),
-        # <br>
         _expr_visitor_pair(ast.Attribute, _visit_attribute),
         _expr_visitor_pair(ast.Subscript, _visit_subscript),
+        (ast.Starred, _unsupported_expr_type),
         _expr_visitor_pair(ast.Name, _visit_name),
         _expr_visitor_pair(ast.List, _visit_list),
         _expr_visitor_pair(ast.Tuple, _visit_tuple),
-        # <br>
-        # Slice - note this can only appear in Subscript, which we handle directly
+        # !note Slice can only appear in Subscript, which we handle directly
+        # if it starts appearing anywhere else, it's unsupported
+        (ast.Slice, _unsupported_expr_type),
     )
 )
