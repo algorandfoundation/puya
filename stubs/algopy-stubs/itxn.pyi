@@ -61,6 +61,16 @@ _TResult_co = typing.TypeVar(
 )
 
 class _InnerTransaction(typing.Protocol[_TResult_co]):
+    def stage(self, *, begin_group: bool = False) -> None:
+        """Stages inner transaction parameters for submission
+
+        :param begin_group: If True, begins a new inner transaction group with this transaction as the first transaction in the group
+
+        :note:
+          - use [algopy.itxn.submit_staged](#algopy.itxn.submit_staged) to submit all staged inner transaction parameters
+
+        """
+
     def submit(self) -> _TResult_co:
         """Submits inner transaction parameters and returns the resulting inner transaction"""
 
@@ -619,3 +629,10 @@ def submit_txns(
     """Submits a group of up to 16 inner transactions parameters
 
     :returns: A tuple of the resulting inner transactions"""
+
+def submit_staged() -> None:
+    """Submits all staged inner transactions
+
+    :note: `op.GITxn.last_log(n)` (and other methods on the GITxn object) can be used to read fields from the most recently submitted
+    transaction group where `n` is a compile time constant representing the index of the transaction in the group.
+    """
