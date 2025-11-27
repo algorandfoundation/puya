@@ -154,6 +154,11 @@ class ExpressionVisitor[T](ABC):
     ) -> T: ...
 
     @abstractmethod
+    def visit_stage_inner_transactions(
+        self, node: puya.awst.nodes.StageInnerTransactions
+    ) -> T: ...
+
+    @abstractmethod
     def visit_set_inner_transaction_fields(
         self, node: puya.awst.nodes.SetInnerTransactionFields
     ) -> T: ...

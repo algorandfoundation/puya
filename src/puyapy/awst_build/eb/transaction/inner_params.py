@@ -4,9 +4,11 @@ from collections.abc import Sequence
 
 from puya import log
 from puya.awst.nodes import (
+    BoolConstant,
     Copy,
     CreateInnerTransaction,
     Expression,
+    StageInnerTransactions,
     SubmitInnerTransaction,
     UInt64Constant,
     UpdateInnerTransaction,
@@ -66,6 +68,8 @@ class InnerTxnParamsExpressionBuilder(
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "submit":
             return _Submit(self, location)
+        elif name == "stage":
+            return _Stage(self, location)
         elif name == "set":
             return _Set(self, location)
         elif name == "copy":
@@ -96,6 +100,34 @@ class _Submit(_MemberFunction):
         result_typ = pytypes.InnerTransactionResultTypes[self.base.pytype.transaction_type]
         submit_expr = SubmitInnerTransaction(itxns=[self.base.resolve()], source_location=location)
         return InnerTransactionExpressionBuilder(submit_expr, result_typ)
+
+
+class _Stage(_MemberFunction):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        arg = expect.at_most_one_arg_of_type(
+            args,
+            [pytypes.BoolType],
+            location=location,
+        )
+
+        if arg is not None:
+            start_new_group = arg.resolve()
+        else:
+            start_new_group = BoolConstant(source_location=location, value=False)
+
+        stage_expr = StageInnerTransactions(
+            itxns=[self.base.resolve()],
+            start_new_group=start_new_group,
+            source_location=location,
+        )
+        return NoneExpressionBuilder(stage_expr)
 
 
 class _Copy(_MemberFunction):

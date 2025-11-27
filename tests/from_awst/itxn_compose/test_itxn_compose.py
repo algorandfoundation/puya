@@ -10,6 +10,7 @@ from tests import FROM_AWST_DIR
 from tests.from_awst.util import compile_contract_and_clients
 
 
+@pytest.mark.filterwarnings("ignore:replaced by StageInnerTransactions")
 @pytest.mark.localnet
 def test_compile_and_run(
     algod_client: AlgodClient,

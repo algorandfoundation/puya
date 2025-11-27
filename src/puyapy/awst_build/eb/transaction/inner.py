@@ -1,7 +1,13 @@
 import typing
 from collections.abc import Sequence
 
-from puya.awst.nodes import Expression, InnerTransactionField, SubmitInnerTransaction
+from puya.awst import wtypes
+from puya.awst.nodes import (
+    Expression,
+    InnerTransactionField,
+    IntrinsicCall,
+    SubmitInnerTransaction,
+)
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -93,4 +99,26 @@ class SubmitInnerTransactionExpressionBuilder(FunctionBuilder):
         return TupleExpressionBuilder(
             SubmitInnerTransaction(itxns=arg_exprs, source_location=location),
             result_typ,
+        )
+
+
+class SubmitStagedInnerTransactionsExpressionBuilder(FunctionBuilder):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        expect.no_args(args, location)
+        return builder_for_instance(
+            pytypes.NoneType,
+            IntrinsicCall(
+                op_code="itxn_submit",
+                stack_args=[],
+                immediates=[],
+                wtype=wtypes.void_wtype,
+                source_location=location,
+            ),
         )

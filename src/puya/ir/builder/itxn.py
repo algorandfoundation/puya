@@ -16,6 +16,7 @@ from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assign
 from puya.ir.builder.blocks import BlocksBuilder
+from puya.ir.builder.flow_control import process_conditional
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
@@ -320,25 +321,74 @@ class InnerTransactionBuilder:
                 self.block_builder.activate_block(next_field)
         return next_txn
 
-    def handle_set_inner_transaction_fields(
-        self, node: awst_nodes.SetInnerTransactionFields
+    def handle_stage_inner_transactions(
+        self,
+        itxns: Sequence[awst_nodes.Expression],
+        start_new_group: awst_nodes.Expression | bool,
+        source_location: SourceLocation,
     ) -> None:
-        for idx, itxn in enumerate(node.itxns):
-            if node.start_with_begin and idx == 0:
-                self.block_builder.add(
-                    Intrinsic(
-                        op=AVMOp.itxn_begin,
-                        source_location=node.source_location,
-                    )
-                )
+        for idx, itxn in enumerate(itxns):
+            if idx == 0:
+                match start_new_group:
+                    case bool(val) | awst_nodes.BoolConstant(value=val):
+                        if val:
+                            op = AVMOp.itxn_begin
+                        else:
+                            op = AVMOp.itxn_next
+
+                        self.block_builder.add(
+                            Intrinsic(
+                                op=op,
+                                source_location=source_location,
+                            )
+                        )
+                    case awst_nodes.Expression():
+                        self._handle_itxn_begin_next(start_new_group, source_location)
+                    case invalid:
+                        typing.assert_never(invalid)
             else:
                 self.block_builder.add(
                     Intrinsic(
                         op=AVMOp.itxn_next,
-                        source_location=node.source_location,
+                        source_location=source_location,
                     )
                 )
-            self._emit_itxn_fields(itxn, node.source_location)
+
+            self._emit_itxn_fields(itxn, source_location)
+
+    def _handle_itxn_begin_next(
+        self, start_new_group: awst_nodes.Expression, location: SourceLocation
+    ) -> None:
+        if_body = self.context.block_builder.mkblock(location, "itxn_begins")
+        else_body = self.context.block_builder.mkblock(location, "itxn_next")
+        next_block = self.context.block_builder.mkblock(location, "after_itxn_begin_next")
+
+        process_conditional(
+            self.context,
+            start_new_group,
+            true=if_body,
+            false=else_body,
+            loc=location,
+        )
+        self.context.block_builder.activate_block(if_body)
+        self.block_builder.add(
+            Intrinsic(
+                op=AVMOp.itxn_begin,
+                source_location=location,
+            )
+        )
+        self.context.block_builder.goto(next_block)
+
+        self.context.block_builder.activate_block(else_body)
+        self.block_builder.add(
+            Intrinsic(
+                op=AVMOp.itxn_next,
+                source_location=location,
+            )
+        )
+        self.context.block_builder.goto(next_block)
+
+        self.context.block_builder.activate_block(next_block)
 
     def handle_submit_inner_transaction(
         self, submit: awst_nodes.SubmitInnerTransaction
@@ -880,6 +930,12 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
     @typing.override
     def visit_update_inner_transaction(
         self, expr: awst_nodes.UpdateInnerTransaction
+    ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_stage_inner_transactions(
+        self, expr: awst_nodes.StageInnerTransactions
     ) -> list[_SourceAction]:
         return self._empty_actions_from_wtype(expr)
 
