@@ -3477,7 +3477,7 @@ def _get_immutable_array_init_app(
     optimization_level: int,
     account: algokit_utils.Account,
 ) -> ApplicationClient:
-    example = TEST_CASES_DIR / "array" / "immutable-init.py"
+    example = TEST_CASES_DIR / "array" / "immutable_init.py"
     return _get_app_client(example, algod_client, optimization_level, account)
 
 
