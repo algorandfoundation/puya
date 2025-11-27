@@ -432,6 +432,20 @@ export class UpdateInnerTransaction extends Expression {
      return visitor.visitUpdateInnerTransaction(this)
    }
 }
+export class StageInnerTransactions extends Expression {
+  constructor(props: Props<StageInnerTransactions>) {
+    super(props)
+    this.itxns = props.itxns
+    this.startNewGroup = props.startNewGroup
+    this.wtype = props.wtype
+  }
+  readonly itxns: Array<Expression>
+  readonly startNewGroup: Expression
+  readonly wtype: wtypes.WType
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitStageInnerTransactions(this)
+   }
+}
 export class GroupTransactionReference extends Expression {
   constructor(props: Props<GroupTransactionReference>) {
     super(props)
@@ -1539,6 +1553,7 @@ export const concreteNodes = {
   intrinsicCall: IntrinsicCall,
   createInnerTransaction: CreateInnerTransaction,
   updateInnerTransaction: UpdateInnerTransaction,
+  stageInnerTransactions: StageInnerTransactions,
   groupTransactionReference: GroupTransactionReference,
   checkedMaybe: CheckedMaybe,
   tupleExpression: TupleExpression,
@@ -1654,6 +1669,7 @@ export interface ExpressionVisitor<T> {
   visitIntrinsicCall(expression: IntrinsicCall): T
   visitCreateInnerTransaction(expression: CreateInnerTransaction): T
   visitUpdateInnerTransaction(expression: UpdateInnerTransaction): T
+  visitStageInnerTransactions(expression: StageInnerTransactions): T
   visitGroupTransactionReference(expression: GroupTransactionReference): T
   visitCheckedMaybe(expression: CheckedMaybe): T
   visitTupleExpression(expression: TupleExpression): T
