@@ -58,7 +58,6 @@ def compute_dominator_tree(
             block_graph.add_edge(block.id, target.id)
     start = subroutine.body[0]
     idom_ids = nx.immediate_dominators(block_graph, start.id)
-    idom_ids.pop(start.id)
     dom_tree_ids = dict[int, list[int]]()
     blocks_by_id = {b.id: b for b in subroutine.body}
     for block_id, idom_id in idom_ids.items():
