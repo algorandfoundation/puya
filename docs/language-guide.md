@@ -85,4 +85,5 @@ lg-calling-apps
 lg-compile
 lg-unsupported-python-features
 lg-migration-4-5
+lg-migration-5-6
 ```
