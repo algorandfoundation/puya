@@ -1,7 +1,7 @@
-from algopy import Contract, UInt64, log, subroutine
+from algopy import BaseContract, UInt64, log, subroutine
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> UInt64:
         log(42)
         self.echo(UInt64(1), UInt64(2))

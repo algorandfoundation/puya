@@ -22,9 +22,9 @@ If you want to emit ARC-28 events in the logs then there is a [purpose-built fun
 Here's an example contract that uses the log method in various ways:
 
 ```python
-from algopy import BigUInt, Bytes, Contract, log, op
+from algopy import BigUInt, Bytes, BaseContract, log, op
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     def approval_program(self) -> bool:
         log(0)
         log(b"1")
