@@ -15,7 +15,7 @@ from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import attrs_extend, coalesce, unique
-from puyapy.awst_build import pytypes
+from puyapy.awst_build import pytypes, symbols
 from puyapy.code_fixes import FixableCodeError
 from puyapy.models import ConstantValue, ContractFragmentBase
 from puyapy.options import PuyaPyOptions
@@ -31,6 +31,7 @@ class ASTConversionContext:
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
     _contract_fragments: dict[ContractReference, ContractFragmentBase] = attrs.field(factory=dict)
     options: PuyaPyOptions
+    symbol_tables: dict[str, Mapping[str, symbols.Symbol]] = attrs.field(factory=dict, init=False)
 
     @property
     def mypy_options(self) -> mypy.options.Options:
@@ -46,8 +47,13 @@ class ASTConversionContext:
         ), "attempted to add contract fragment twice"
         self._contract_fragments[fragment.id] = fragment
 
-    def for_module(self, module_path: Path) -> "ASTConversionModuleContext":
-        return attrs_extend(ASTConversionModuleContext, self, module_path=module_path)
+    def for_module(self, module_name: str, module_path: Path) -> "ASTConversionModuleContext":
+        syms = dict[str, symbols.Symbol]()
+        assert module_name not in syms, f"module {module_name} already has symbol table"
+        self.symbol_tables[module_name] = syms
+        return attrs_extend(
+            ASTConversionModuleContext, self, module_path=module_path, symbol_table=syms
+        )
 
     def register_pytype(self, typ: pytypes.PyType, *, alias: str | None = None) -> None:
         name = alias or typ.name
@@ -74,6 +80,7 @@ class ASTConversionContext:
 @attrs.frozen(kw_only=True)
 class ASTConversionModuleContext(ASTConversionContext):
     module_path: Path
+    symbol_table: dict[str, symbols.Symbol]
 
     def node_location(
         self,
