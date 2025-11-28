@@ -6,6 +6,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.5.0'></a>
+## v5.5.0 (2025-11-28)
+
+### Added
+
+-   Added `algopy.public` decorator as an alias of `algopy.arc4.abimethod`.
+
+- Added an optional error-message parameter for `algopy.op.err`
+
+-   Added `algopy.FixedBytes` that represents a bytes type with a fixed size.
+
+- Safety checks to ensure explicit user asserts and error conditions are preserved through optimization passes and not inadvertently eliminated or modified.
+
+### Changed
+
+-   `@subroutine` decorator is now optional on private contract methods.
+
+- Improved code generation with bytes of known size.
+
+### Fixed
+
+- Fixed a critical error introduced by networkx 3.6.
+
+### Security
+
+- Add section on ABI type validation
+- Add SECURITY.md
+
 <a id='changelog-v5.4.0'></a>
 ## v5.4.0 (2025-10-27)
 
