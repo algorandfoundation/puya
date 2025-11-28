@@ -164,7 +164,9 @@ class ModuleASTConverter(_BaseModuleASTConverter[StatementResult]):
             # we're inside a TYPE_CHECKING block
             # TODO: what about implicit namespace packages??
             assert self._in_type_checking, f"unable to resolve symtable for {from_import.module}"
-
+        # TODO: how to handle star imports from type checking?
+        # - maybe a first pass that collects __all__ etc?
+        # - maybe make this pass more minimal and just collect TYPE_CHECKING code, etc?
         return []
 
     @typing.override
