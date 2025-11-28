@@ -31,7 +31,7 @@ def _transform_ast(
     for module_name, src in parse_result.ordered_modules.items():
         module_rel_path = make_path_relative_to_cwd(src.path)
         logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
-        module_ctx = ctx.for_module(src.path)
+        module_ctx = ctx.for_module(src.name, src.path)
         if src.fast is None:
             logger.debug(
                 f"skipping transformation of AST for {module_name} due to parsing failures"
