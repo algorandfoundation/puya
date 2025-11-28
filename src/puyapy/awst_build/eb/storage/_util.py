@@ -83,6 +83,11 @@ def slice_box_bytes(
 
 
 def box_length_unchecked(box: BoxValueExpression, location: SourceLocation) -> InstanceBuilder:
+    if isinstance(box.wtype, wtypes.BytesWType) and box.wtype.length is not None:
+        return UInt64ExpressionBuilder(
+            UInt64Constant(value=box.wtype.length, source_location=location)
+        )
+
     box_len_expr = _box_len(box.key, location)
     box_length = TupleItemExpression(
         base=box_len_expr,
