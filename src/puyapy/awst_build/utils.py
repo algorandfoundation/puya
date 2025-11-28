@@ -117,7 +117,7 @@ UNARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any], typing.Any]]] = {
 
 
 @contextlib.contextmanager
-def _log_warnings(location: SourceLocation) -> Iterator[None]:
+def log_warnings(location: SourceLocation) -> Iterator[None]:
     folding_warnings = []
     try:
         with warnings.catch_warnings(record=True, action="always") as folding_warnings:
@@ -136,7 +136,7 @@ def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> C
             location=location,
         )
     try:
-        with _log_warnings(location):
+        with log_warnings(location):
             result = func(expr)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
@@ -183,7 +183,7 @@ def fold_binary_expr(
     if not (func := BINARY_OPS.get(op)):
         raise InternalError(f"Unhandled binary operator: {op}", location)
     try:
-        with _log_warnings(location):
+        with log_warnings(location):
             result = func(lhs, rhs)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
