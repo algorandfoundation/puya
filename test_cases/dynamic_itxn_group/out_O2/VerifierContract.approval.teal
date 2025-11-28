@@ -1,0 +1,51 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    pushbytes ""
+    dup
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x65a9aecc // method "verify()void"
+    txna ApplicationArgs 0
+    match main_verify_route@3
+    err
+
+main_verify_route@3:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    txn GroupIndex
+    bury 1
+    pushint 0
+    bury 2
+
+main_for_header@9:
+    dup2
+    <
+    bz main_after_for@11
+    dig 1
+    dup
+    gtxns TypeEnum
+    pushint 1 // pay
+    ==
+    assert // Txn must be pay
+    pushint 1
+    +
+    bury 2
+    b main_for_header@9
+
+main_after_for@11:
+    pushint 1
+    return
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return

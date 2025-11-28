@@ -169,6 +169,12 @@ class FunctionTraverser(
             value.accept(self)
 
     @typing.override
+    def visit_stage_inner_transactions(self, node: awst_nodes.StageInnerTransactions) -> None:
+        node.start_new_group.accept(self)
+        for expr in node.itxns:
+            expr.accept(self)
+
+    @typing.override
     def visit_set_inner_transaction_fields(
         self, node: awst_nodes.SetInnerTransactionFields
     ) -> None:

@@ -6,6 +6,7 @@ from puyapy.awst_build.eb.transaction.inner import (
     InnerTransactionExpressionBuilder,
     InnerTransactionTypeBuilder,
     SubmitInnerTransactionExpressionBuilder,
+    SubmitStagedInnerTransactionsExpressionBuilder,
 )
 from puyapy.awst_build.eb.transaction.inner_params import (
     InnerTxnParamsExpressionBuilder,
@@ -20,4 +21,5 @@ __all__ = [
     "InnerTxnParamsTypeBuilder",
     "InnerTxnParamsExpressionBuilder",
     "SubmitInnerTransactionExpressionBuilder",
+    "SubmitStagedInnerTransactionsExpressionBuilder",
 ]

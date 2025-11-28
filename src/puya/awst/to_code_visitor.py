@@ -473,6 +473,13 @@ class ToCodeVisitor(
         return f"update_inner_transaction({expr.itxn.accept(self)},{', '.join(fields)})"
 
     @typing.override
+    def visit_stage_inner_transactions(self, node: nodes.StageInnerTransactions) -> str:
+        start_new_group = node.start_new_group.accept(self)
+        itxns = f'{", ".join(itxn.accept(self) for itxn in node.itxns)}'
+
+        return f"stage_itxns=([{itxns}], start_new_group={start_new_group})"
+
+    @typing.override
     def visit_set_inner_transaction_fields(self, node: nodes.SetInnerTransactionFields) -> str:
         begin_or_next = "begin" if node.start_with_begin else "next"
         itxns = f'{", ".join(itxn.accept(self) for itxn in node.itxns)}'
