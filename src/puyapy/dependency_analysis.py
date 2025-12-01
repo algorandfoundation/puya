@@ -47,13 +47,12 @@ def resolve_import_dependencies(
                 continue
             if alias.name.partition(".")[0] == "algopy":
                 continue  # TODO: expose as dependency somehow?
-            path_str = fmc.find_module(
+            path = fmc.find_module(
                 alias.name, alias.source_location, import_base_dir=import_base_dir
             )
-            if path_str is None:
+            if path is None:
                 continue
 
-            path = Path(path_str)
             dependencies.append(
                 Dependency(
                     alias.name,
@@ -86,13 +85,12 @@ def resolve_import_dependencies(
         # an implicit namespace package without an __init__.py, in that case however a from-import
         # behaves differently depending on what has already been imported, which adds significant
         # complexity here - so just error altogether for now.
-        path_str = fmc.find_module(
+        path = fmc.find_module(
             module_id, from_imp.source_location, import_base_dir=import_base_dir
         )
-        if path_str is None:
+        if path is None:
             continue
 
-        path = Path(path_str)
         dependencies.append(
             Dependency(
                 module_id,
