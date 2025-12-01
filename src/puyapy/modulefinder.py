@@ -118,15 +118,14 @@ class FindModuleCache:
         return result
 
     def _find_module(self, module_id: str) -> ModuleSearchResult:
-        pkg, _sep, rest = module_id.partition(".")
-        if pkg in self.package_roots:
-            pkg_root = self.package_roots[pkg]
-            if not rest:
+        pkg, _sep, sub_id = module_id.partition(".")
+        if pkg_root := self.package_roots.get(pkg):
+            if not sub_id:
                 return pkg_root
-            if pkg_root.name != "__init__.py":
-                return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
+            elif pkg_root.name == "__init__.py":
+                return self._find_submodule(pkg_root, sub_id)
             else:
-                return self._find_submodule(pkg_root, rest)
+                return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
         possible_namespace_package = False
         for lib_path in self.package_paths:
             lib_path_entries = lazy_setdefault(self._lib_path_cache, lib_path, self._load_lib_path)
@@ -141,14 +140,14 @@ class FindModuleCache:
                 case path:
                     typing.assert_type(path, Path)
                     assert path.name == "__init__.py", "typed explicit NS package should have init"
-                    return self._find_submodule(path, rest)
+                    return self._find_submodule(path, sub_id)
         if possible_namespace_package:
             return ModuleNotFoundReason.POSSIBLE_NAMESPACE_PACKAGE
         return ModuleNotFoundReason.PACKAGE_NOT_FOUND
 
     @staticmethod
-    def _find_submodule(pkg_root: Path, rest: str) -> ModuleSearchResult:
-        mod_path = pkg_root.parent.joinpath(*rest.split("."))
+    def _find_submodule(pkg_root: Path, sub_id: str) -> ModuleSearchResult:
+        mod_path = pkg_root.parent.joinpath(*sub_id.split("."))
         if mod_path.is_dir():
             mod_init_path = mod_path / "__init__.py"
             if mod_init_path.is_file():
