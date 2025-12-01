@@ -126,52 +126,41 @@ class FindModuleCache:
             if pkg_root.name != "__init__.py":
                 return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
             else:
-                mod_path = pkg_root.parent.joinpath(*rest.split("."))
-                if mod_path.is_dir():
-                    mod_init_path = mod_path / "__init__.py"
-                    if mod_init_path.is_file():
-                        return mod_init_path
-                    else:
-                        return mod_path
-                else:
-                    mod_path = mod_path.with_suffix(".py")
-                    if mod_path.is_file():
-                        return mod_path
-                    else:
-                        return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
+                return self._find_submodule(pkg_root, rest)
         possible_namespace_package = False
         for lib_path in self.package_paths:
             lib_path_entries = lazy_setdefault(self._lib_path_cache, lib_path, self._load_lib_path)
-            match lib_path_entries.get(pkg):
+            reason_or_path = lib_path_entries.get(pkg)
+            match reason_or_path:
                 case None:
                     pass
-                case ModuleNotFoundReason.UNTYPED_PACKAGE:
-                    return ModuleNotFoundReason.UNTYPED_PACKAGE
-                case ModuleNotFoundReason.STANDALONE_MODULE:
-                    return ModuleNotFoundReason.STANDALONE_MODULE
+                case ModuleNotFoundReason.UNTYPED_PACKAGE | ModuleNotFoundReason.STANDALONE_MODULE:
+                    return reason_or_path
                 case ModuleNotFoundReason.POSSIBLE_NAMESPACE_PACKAGE:
                     possible_namespace_package = True
-                    continue
-                case Path() as pkg_root:
-                    assert pkg_root.name == "__init__.py"
-                    mod_path = pkg_root.parent.joinpath(*rest.split("."))
-                    if mod_path.is_dir():
-                        mod_init_path = mod_path / "__init__.py"
-                        if mod_init_path.is_file():
-                            return mod_init_path
-                        else:
-                            return mod_path
-                    else:
-                        mod_path = mod_path.with_suffix(".py")
-                        if mod_path.is_file():
-                            return mod_path
-                        else:
-                            return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
-                case unexpected:
-                    typing.assert_never(unexpected)
+                case path:
+                    typing.assert_type(path, Path)
+                    assert path.name == "__init__.py", "typed explicit NS package should have init"
+                    return self._find_submodule(path, rest)
         if possible_namespace_package:
             return ModuleNotFoundReason.POSSIBLE_NAMESPACE_PACKAGE
         return ModuleNotFoundReason.PACKAGE_NOT_FOUND
+
+    @staticmethod
+    def _find_submodule(pkg_root: Path, rest: str) -> ModuleSearchResult:
+        mod_path = pkg_root.parent.joinpath(*rest.split("."))
+        if mod_path.is_dir():
+            mod_init_path = mod_path / "__init__.py"
+            if mod_init_path.is_file():
+                return mod_init_path
+            else:
+                return mod_path
+        else:
+            mod_path = mod_path.with_suffix(".py")
+            if mod_path.is_file():
+                return mod_path
+            else:
+                return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
 
     @staticmethod
     def _load_lib_path(lib_path: Path) -> Mapping[str, LibPathResult]:
