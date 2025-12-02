@@ -15,13 +15,10 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
-from puyapy.awst_build.eb._utils import cast_to_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
-from puyapy.awst_build.eb.storage._util import box_length_checked, index_box_bytes, slice_box_bytes
 from puyapy.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
-from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
 
 class _BoxKeyExpressionIntermediateExpressionBuilder(FunctionBuilder, abc.ABC):
@@ -79,38 +76,3 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxV
         return ExpressionStatement(
             expr=StateDelete(field=self.resolve(), source_location=location)
         )
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        if name == "bytes":
-            return _ValueBytes(self.resolve(), location)
-        else:
-            return super().member_access(name, location)
-
-
-class _ValueBytes(ValueProxyExpressionBuilder):
-    def __init__(self, expr: BoxValueExpression, location: SourceLocation) -> None:
-        self._typed = expr
-        super().__init__(pytypes.BytesType, cast_to_bytes(expr, location))
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        match name:
-            case "length":
-                return UInt64ExpressionBuilder(box_length_checked(self._typed, location))
-            case _:
-                return super().member_access(name, location)
-
-    @typing.override
-    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        return index_box_bytes(self._typed, index, location)
-
-    @typing.override
-    def slice_index(
-        self,
-        begin_index: InstanceBuilder | None,
-        end_index: InstanceBuilder | None,
-        stride: InstanceBuilder | None,
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        return slice_box_bytes(self._typed, begin_index, end_index, stride, location)
