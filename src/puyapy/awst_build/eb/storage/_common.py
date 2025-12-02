@@ -87,24 +87,6 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder[pytypes.PyType, BoxV
         else:
             return super().member_access(name, location)
 
-    @typing.override
-    def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        if pytypes.BytesType <= self.pytype:
-            return index_box_bytes(self.resolve(), index, location)
-        return super().index(index, location)
-
-    @typing.override
-    def slice_index(
-        self,
-        begin_index: InstanceBuilder | None,
-        end_index: InstanceBuilder | None,
-        stride: InstanceBuilder | None,
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        if pytypes.BytesType <= self.pytype:
-            return slice_box_bytes(self.resolve(), begin_index, end_index, stride, location)
-        return super().slice_index(begin_index, end_index, stride, location)
-
 
 class _ValueBytes(ValueProxyExpressionBuilder):
     def __init__(self, expr: BoxValueExpression, location: SourceLocation) -> None:
