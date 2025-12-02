@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 2 1 8 0 4098 4096 4138
-    bytecblock "dynamic_arr_struct" "box" 0x424f585f43 "dynamic_box" 0x151f7c75 "blob" "box_large" "box_a" "box_d" "b" "too_many_bools" "0" "many_ints" 0x68656c6c6f 0x00023432 "default" "box_ref" 0x0014 0x068101
+    bytecblock "dynamic_arr_struct" "box" 0x424f585f43 "dynamic_box" 0x151f7c75 "blob" "box_large" "box_d" "box_a" "b" "too_many_bools" "many_ints" 0x68656c6c6f "0" 0x00023432 "default" "box_ref" 0x0014 0x068101
     intc_3 // 0
     dupn 3
     pushbytes ""
@@ -143,7 +143,7 @@ main_box_map_test_route@36:
     box_del
     pop
     dup
-    bytec 13 // "hello"
+    bytec 12 // "hello"
     box_put
     box_del
     pop
@@ -176,7 +176,7 @@ main_test_box_ref_route@35:
     box_splice
     bytec 5 // "blob"
     pushint 64
-    bytec 13 // 0x68656c6c6f
+    bytec 12 // 0x68656c6c6f
     box_replace
     bytec 5 // "blob"
     intc_3 // 0
@@ -185,7 +185,7 @@ main_test_box_ref_route@35:
     dig 1
     dig 3
     concat
-    bytec 13 // 0x68656c6c6f
+    bytec 12 // 0x68656c6c6f
     concat
     ==
     assert
@@ -237,30 +237,15 @@ main_arc4_box_route@34:
     return
 
 main_slice_box_route@33:
-    bytec 11 // "0"
+    bytec 13 // "0"
     box_del
     pop
-    bytec 11 // "0"
+    bytec 13 // "0"
     pushbytes 0x54657374696e672074657374696e6720313233
     box_put
-    bytec 11 // "0"
-    box_len
-    pop
-    dup
+    bytec 13 // "0"
     intc_3 // 0
-    dig 2
-    select
     pushint 7
-    dig 2
-    <
-    uncover 2
-    pushint 7
-    uncover 2
-    select
-    dig 1
-    -
-    bytec 11 // "0"
-    cover 2
     box_extract
     pushbytes 0x54657374696e67
     ==
@@ -1612,7 +1597,7 @@ main_create_dynamic_arr_struct_route@15:
     return
 
 main_boxes_exist_route@14:
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_len
     bury 1
     bytec 9 // "b"
@@ -1648,7 +1633,7 @@ main_boxes_exist_route@14:
     return
 
 main_read_boxes_route@13:
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_get
     assert // check Box exists
     btoi
@@ -1717,7 +1702,7 @@ main_indirect_extract_and_replace_route@12:
     return
 
 main_delete_boxes_route@11:
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_del
     pop
     bytec 9 // "b"
@@ -1726,7 +1711,7 @@ main_delete_boxes_route@11:
     bytec_2 // 0x424f585f43
     box_del
     pop
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_get
     swap
     btoi
@@ -1787,7 +1772,7 @@ main_while_top@161:
 main_after_while@166:
     intc_3 // 0
     bury 2
-    bytec 12 // "many_ints"
+    bytec 11 // "many_ints"
     box_len
     bury 1
     assert // check self.many_ints exists
@@ -1803,7 +1788,7 @@ main_for_header@139:
     dup
     intc_2 // 8
     *
-    bytec 12 // "many_ints"
+    bytec 11 // "many_ints"
     swap
     intc_2 // 8
     box_extract
@@ -1843,7 +1828,7 @@ main_set_many_ints_route@9:
     swap
     intc_2 // 8
     *
-    bytec 12 // "many_ints"
+    bytec 11 // "many_ints"
     swap
     uncover 2
     box_replace
@@ -1851,7 +1836,7 @@ main_set_many_ints_route@9:
     return
 
 main_create_many_ints_route@8:
-    bytec 12 // "many_ints"
+    bytec 11 // "many_ints"
     pushint 4104
     box_create
     pop
@@ -1896,7 +1881,7 @@ main_set_boxes_route@6:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     uncover 4
     itob
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     swap
     box_put
     bytec 9 // "b"
@@ -1913,10 +1898,10 @@ main_set_boxes_route@6:
     box_put
     dig 3
     extract 2 0
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     box_del
     pop
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     dig 1
     box_put
     bytec 6 // "box_large"
@@ -1933,17 +1918,17 @@ main_set_boxes_route@6:
     intc 5 // 4096
     pushbytes 0x000000000000002a
     box_replace
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_get
     assert // check self.box_a exists
     btoi
     pushint 3
     +
     itob
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     swap
     box_put
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_len
     pop
     intc_2 // 8
@@ -1962,46 +1947,47 @@ main_set_boxes_route@6:
     dig 3
     ==
     assert
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     box_len
     pop
     dig 2
     len
-    dup2
+    swap
+    dig 1
     ==
     assert
     bytec_2 // 0x424f585f43
     intc_3 // 0
     intc_1 // 1
     box_extract
-    dig 6
+    dig 5
     extract 0 1
     ==
     assert
-    dig 2
+    dig 1
     intc_1 // 1
     -
     bytec_2 // 0x424f585f43
     swap
     intc_1 // 1
     box_extract
-    dig 5
+    dig 4
     intc_1 // 1
     -
-    dig 7
+    dig 6
     swap
     intc_1 // 1
     extract3
     ==
     assert
     intc_1 // 1
-    dig 3
+    dig 2
     <
-    dig 3
+    dig 2
     intc_1 // 1
     uncover 2
     select
-    dig 3
+    dig 2
     swap
     -
     bytec_2 // 0x424f585f43
@@ -2009,61 +1995,65 @@ main_set_boxes_route@6:
     uncover 2
     box_extract
     intc_1 // 1
-    dig 6
-    >=
-    intc_1 // 1
-    dig 7
-    uncover 2
-    select
-    dig 6
-    swap
-    -
-    dig 7
-    intc_3 // 0
-    uncover 2
-    substring3
-    ==
-    assert
-    intc_0 // 2
-    dig 3
-    <
-    uncover 3
-    intc_0 // 2
-    uncover 2
-    select
-    bytec_2 // 0x424f585f43
-    intc_3 // 0
-    uncover 2
-    box_extract
-    intc_0 // 2
     dig 5
     >=
-    intc_0 // 2
-    uncover 6
+    intc_1 // 1
+    dig 6
     uncover 2
     select
-    uncover 5
+    dig 5
+    swap
+    -
+    dig 6
     intc_3 // 0
     uncover 2
     substring3
     ==
     assert
-    bytec 8 // "box_d"
+    intc_0 // 2
+    dig 2
+    <
+    uncover 2
+    intc_0 // 2
+    uncover 2
+    select
+    bytec_2 // 0x424f585f43
+    intc_3 // 0
+    uncover 2
+    box_extract
+    intc_0 // 2
+    dig 4
+    >=
+    intc_0 // 2
+    uncover 5
+    uncover 2
+    select
+    uncover 4
+    intc_3 // 0
+    uncover 2
+    substring3
+    ==
+    assert
+    bytec 7 // "box_d"
     intc_3 // 0
     intc_1 // 1
     box_extract
-    uncover 4
+    uncover 3
     extract 2 1
     ==
     assert
-    dig 1
+    bytec 7 // "box_d"
+    box_get
+    pop
+    len
+    dup
     intc_1 // 1
     -
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     swap
     intc_1 // 1
     box_extract
-    dig 1
+    dig 2
     intc_1 // 1
     -
     dig 4
@@ -2073,27 +2063,27 @@ main_set_boxes_route@6:
     ==
     assert
     intc_1 // 1
-    dig 2
-    <
-    dig 2
+    dig 1
+    >=
     intc_1 // 1
+    dig 2
     uncover 2
     select
-    dig 2
+    dig 1
     swap
     -
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
     intc_1 // 1
-    dig 2
+    dig 3
     >=
     intc_1 // 1
-    dig 3
+    dig 4
     uncover 2
     select
-    dig 2
+    dig 3
     swap
     -
     dig 4
@@ -2103,21 +2093,21 @@ main_set_boxes_route@6:
     ==
     assert
     pushint 5
-    dig 2
-    <
-    dig 2
+    dig 1
+    >=
     pushint 5
+    dig 2
     uncover 2
     select
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
     pushint 5
-    dig 2
+    dig 3
     >=
     pushint 5
-    dig 3
+    dig 4
     uncover 2
     select
     dig 4
@@ -2127,13 +2117,12 @@ main_set_boxes_route@6:
     ==
     assert
     intc_0 // 2
-    dig 2
-    <
-    uncover 2
+    dig 1
+    >=
     intc_0 // 2
-    uncover 2
+    cover 2
     select
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract

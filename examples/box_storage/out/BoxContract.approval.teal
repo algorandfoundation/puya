@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 2 1 8 0 4096 4098 4138
-    bytecblock "dynamic_arr_struct" "box" "dynamic_box" 0x424f585f43 0x151f7c75 "blob" "box_large" "box_a" "box_d" "b" "too_many_bools" "many_ints" "0" 0x00023432 0x68656c6c6f 0x068101 0x0014 "box_ref" "default"
+    bytecblock "dynamic_arr_struct" "box" "dynamic_box" 0x424f585f43 0x151f7c75 "blob" "box_d" "box_large" "box_a" "b" "too_many_bools" "many_ints" 0x00023432 "0" 0x68656c6c6f 0x068101 0x0014 "box_ref" "default"
     // box_storage/contract.py:79
     // class BoxContract(arc4.ARC4Contract):
     txn NumAppArgs
@@ -132,7 +132,7 @@ set_boxes:
     // self.box_a.value = a
     uncover 4
     itob
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     swap
     box_put
     // box_storage/contract.py:97
@@ -155,15 +155,15 @@ set_boxes:
     // self.box_d.value = b.native
     dig 3
     extract 2 0
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     box_del
     pop
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     dig 1
     box_put
     // box_storage/contract.py:100
     // self.box_large.create()
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     pushint 6160
     box_create
     pop
@@ -171,32 +171,32 @@ set_boxes:
     // self.box_large.value.e = UInt64(42)
     pushint 42
     itob
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     intc 4 // 4096
     uncover 2
     box_replace
     // box_storage/contract.py:102
     // self.box_large.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     intc 4 // 4096
     pushbytes 0x000000000000002a
     box_replace
     // box_storage/contract.py:107
     // self.box_a.value += 3
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_get
     assert // check self.box_a exists
     btoi
     pushint 3
     +
     itob
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     swap
     box_put
     // box_storage/contract.py:109-110
     // # test .length
     // assert self.box_a.length == 8
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_len
     pop
     intc_2 // 8
@@ -221,12 +221,13 @@ set_boxes:
     assert
     // box_storage/contract.py:113
     // assert self.box_d.length == b.native.length
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     box_len
     pop
     dig 2
     len
-    dup2
+    swap
+    dig 1
     ==
     assert
     // box_storage/contract.py:115-116
@@ -236,23 +237,23 @@ set_boxes:
     intc_3 // 0
     intc_1 // 1
     box_extract
-    dig 6
+    dig 5
     extract 0 1
     ==
     assert
     // box_storage/contract.py:117
     // assert self.box_c.value.bytes[-1] == c.bytes[-1]
-    dig 2
+    dig 1
     intc_1 // 1
     -
     bytec_3 // 0x424f585f43
     swap
     intc_1 // 1
     box_extract
-    dig 5
+    dig 4
     intc_1 // 1
     -
-    dig 7
+    dig 6
     swap
     intc_1 // 1
     extract3
@@ -261,13 +262,13 @@ set_boxes:
     // box_storage/contract.py:118
     // assert self.box_c.value.bytes[:-1] == c.bytes[:-1]
     intc_1 // 1
-    dig 3
+    dig 2
     <
-    dig 3
+    dig 2
     intc_1 // 1
     uncover 2
     select
-    dig 3
+    dig 2
     swap
     -
     bytec_3 // 0x424f585f43
@@ -275,16 +276,16 @@ set_boxes:
     uncover 2
     box_extract
     intc_1 // 1
-    dig 6
+    dig 5
     >=
     intc_1 // 1
-    dig 7
+    dig 6
     uncover 2
     select
-    dig 6
+    dig 5
     swap
     -
-    dig 7
+    dig 6
     intc_3 // 0
     uncover 2
     substring3
@@ -293,9 +294,9 @@ set_boxes:
     // box_storage/contract.py:119
     // assert self.box_c.value.bytes[:2] == c.bytes[:2]
     intc_0 // 2
-    dig 3
+    dig 2
     <
-    uncover 3
+    uncover 2
     intc_0 // 2
     uncover 2
     select
@@ -304,13 +305,13 @@ set_boxes:
     uncover 2
     box_extract
     intc_0 // 2
-    dig 5
+    dig 4
     >=
     intc_0 // 2
-    uncover 6
+    uncover 5
     uncover 2
     select
-    uncover 5
+    uncover 4
     intc_3 // 0
     uncover 2
     substring3
@@ -319,24 +320,28 @@ set_boxes:
     // box_storage/contract.py:121-122
     // # test .value with Bytes type
     // assert self.box_d.value[0] == b.native[0]
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     intc_3 // 0
     intc_1 // 1
     box_extract
-    uncover 4
+    uncover 3
     extract 2 1
     ==
     assert
     // box_storage/contract.py:123
     // assert self.box_d.value[-1] == b.native[-1]
-    dig 1
+    bytec 6 // "box_d"
+    box_get
+    pop
+    len
+    dup
     intc_1 // 1
     -
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     swap
     intc_1 // 1
     box_extract
-    dig 1
+    dig 2
     intc_1 // 1
     -
     dig 4
@@ -348,27 +353,27 @@ set_boxes:
     // box_storage/contract.py:124
     // assert self.box_d.value[:-1] == b.native[:-1]
     intc_1 // 1
-    dig 2
-    <
-    dig 2
+    dig 1
+    >=
     intc_1 // 1
+    dig 2
     uncover 2
     select
-    dig 2
+    dig 1
     swap
     -
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
     intc_1 // 1
-    dig 2
+    dig 3
     >=
     intc_1 // 1
-    dig 3
+    dig 4
     uncover 2
     select
-    dig 2
+    dig 3
     swap
     -
     dig 4
@@ -380,21 +385,21 @@ set_boxes:
     // box_storage/contract.py:125
     // assert self.box_d.value[:5] == b.native[:5]
     pushint 5
-    dig 2
-    <
-    dig 2
+    dig 1
+    >=
     pushint 5
+    dig 2
     uncover 2
     select
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
     pushint 5
-    dig 2
+    dig 3
     >=
     pushint 5
-    dig 3
+    dig 4
     uncover 2
     select
     dig 4
@@ -406,13 +411,12 @@ set_boxes:
     // box_storage/contract.py:126
     // assert self.box_d.value[: UInt64(2)] == b.native[: UInt64(2)]
     intc_0 // 2
-    dig 2
-    <
-    uncover 2
+    dig 1
+    >=
     intc_0 // 2
-    uncover 2
+    cover 2
     select
-    bytec 8 // "box_d"
+    bytec 6 // "box_d"
     intc_3 // 0
     uncover 2
     box_extract
@@ -431,7 +435,7 @@ set_boxes:
     assert
     // box_storage/contract.py:128
     // assert self.box_large.length == size_of(LargeStruct)
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     box_len
     pop
     pushint 6160
@@ -556,7 +560,7 @@ sum_many_ints_after_for@5:
 delete_boxes:
     // box_storage/contract.py:155
     // del self.box_a.value
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_del
     pop
     // box_storage/contract.py:156
@@ -571,7 +575,7 @@ delete_boxes:
     pop
     // box_storage/contract.py:158
     // assert self.box_a.get(default=UInt64(42)) == 42
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_get
     swap
     btoi
@@ -586,7 +590,7 @@ delete_boxes:
     // assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
     bytec 9 // "b"
     box_get
-    bytec 13 // 0x00023432
+    bytec 12 // 0x00023432
     cover 2
     select
     extract 2 0
@@ -597,10 +601,10 @@ delete_boxes:
     // assert self.box_c.get(default=arc4.String("42")) == "42"
     bytec_3 // 0x424f585f43
     box_get
-    bytec 13 // 0x00023432
+    bytec 12 // 0x00023432
     cover 2
     select
-    bytec 13 // 0x00023432
+    bytec 12 // 0x00023432
     ==
     assert
     // box_storage/contract.py:162
@@ -614,7 +618,7 @@ delete_boxes:
     assert
     // box_storage/contract.py:164
     // del self.box_large.value
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     box_del
     pop
     // box_storage/contract.py:153
@@ -627,7 +631,7 @@ delete_boxes:
 indirect_extract_and_replace:
     // box_storage/contract.py:168
     // large = self.box_large.value.copy()
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     // box_storage/contract.py:168-169
     // large = self.box_large.value.copy()
     // large.e += 1
@@ -642,7 +646,7 @@ indirect_extract_and_replace:
     itob
     // box_storage/contract.py:170
     // self.box_large.value = large.copy()
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     // box_storage/contract.py:168-170
     // large = self.box_large.value.copy()
     // large.e += 1
@@ -660,7 +664,7 @@ indirect_extract_and_replace:
 read_boxes:
     // box_storage/contract.py:175
     // get_box_value_plus_1(self.box_a) - 1,
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     // box_storage/contract.py:476
     // return box.value + 1
     box_get
@@ -685,7 +689,7 @@ read_boxes:
     assert // check self.box_c exists
     // box_storage/contract.py:178
     // self.box_large.value.e,
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     intc 4 // 4096
     intc_2 // 8
     box_extract
@@ -729,7 +733,7 @@ read_boxes:
 boxes_exist:
     // box_storage/contract.py:183
     // return bool(self.box_a), bool(self.box_b), bool(self.box_c), bool(self.box_large)
-    bytec 7 // "box_a"
+    bytec 8 // "box_a"
     box_len
     bury 1
     bytec 9 // "b"
@@ -740,7 +744,7 @@ boxes_exist:
     box_len
     cover 3
     pop
-    bytec 6 // "box_large"
+    bytec 7 // "box_large"
     box_len
     cover 4
     pop
@@ -2552,44 +2556,25 @@ write_dynamic_arr_struct:
 slice_box:
     // box_storage/contract.py:368
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 12 // "0"
+    bytec 13 // "0"
     // box_storage/contract.py:369
     // box_0.value = Bytes(b"Testing testing 123")
     box_del
     pop
     // box_storage/contract.py:368
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 12 // "0"
+    bytec 13 // "0"
     // box_storage/contract.py:369
     // box_0.value = Bytes(b"Testing testing 123")
     pushbytes 0x54657374696e672074657374696e6720313233
     box_put
     // box_storage/contract.py:368
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 12 // "0"
+    bytec 13 // "0"
     // box_storage/contract.py:370
     // assert box_0.value[0:7] == b"Testing"
-    box_len
-    pop
-    dup
     intc_3 // 0
-    dig 2
-    select
     pushint 7
-    dig 2
-    <
-    uncover 2
-    pushint 7
-    uncover 2
-    select
-    dig 1
-    -
-    // box_storage/contract.py:368
-    // box_0 = Box(Bytes, key=String("0"))
-    bytec 12 // "0"
-    // box_storage/contract.py:370
-    // assert box_0.value[0:7] == b"Testing"
-    cover 2
     box_extract
     pushbytes 0x54657374696e67
     ==
