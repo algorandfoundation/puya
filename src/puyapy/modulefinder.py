@@ -37,11 +37,16 @@ _LibPath = Sequence[Path]
 @attrs.frozen(kw_only=True)
 class FindModuleCache:
     package_roots: Mapping[str, Path]
+    "Known packages and their root module (either a standalone module or a pacakge __init__.py)"
     package_paths: _LibPath
+    "List of path entries to search for third party packages"
     _results: dict[str, ModuleSearchResult] = attrs.field(factory=dict, init=False)
     _lib_path_cache: dict[Path, Mapping[str, LibPathResult]] = attrs.field(
         factory=dict, init=False
     )
+
+    def __attrs_post_init__(self) -> None:
+        assert all(p.is_file() and p.suffixes == [".py"] for p in self.package_roots.values())
 
     def find_module(
         self, module_id: str, import_loc: SourceLocation | None, import_base_dir: Path
@@ -85,47 +90,29 @@ class FindModuleCache:
 
     def try_find_module(self, module_id: str, import_base_dir: Path) -> ModuleSearchResult:
         result = lazy_setdefault(self._results, module_id, self._find_module)
-        # TODO: should this resolve first instead?
+        # this is a fallback for previously supported behaviour, where files co-located with
+        # input sources but not part of those packages were importable
         if result is ModuleNotFoundReason.PACKAGE_NOT_FOUND:
-            pkg, *rest = module_id.split(".")
-            maybe_pkg_dir = import_base_dir.joinpath(pkg)
-            if not maybe_pkg_dir.is_dir():
-                standalone_module_path = maybe_pkg_dir.with_suffix(".py")
+            pkg, _sep, sub_id = module_id.partition(".")
+            pkg_init_path = import_base_dir / pkg / "__init__.py"
+            standalone_module_path = (import_base_dir / pkg).with_suffix(".py")
+            pkg_root = None
+            if pkg_init_path.is_file():
                 if standalone_module_path.is_file():
-                    if not rest:
-                        return standalone_module_path
-                    else:
-                        return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
-            else:
-                pkg_dir = maybe_pkg_dir
-                pkg_init_path = pkg_dir / "__init__.py"
-                if not pkg_init_path.is_file():
-                    return ModuleNotFoundReason.POSSIBLE_NAMESPACE_PACKAGE
-                if not rest:
-                    return pkg_init_path
-                sub_path = pkg_dir.joinpath(*rest)
-                if sub_path.is_dir():
-                    init_path = sub_path / "__init__.py"
-                    if init_path.is_file():
-                        return init_path
-                    return sub_path
-                else:
-                    # TODO: warn if shadowed?
-                    py_path = sub_path.with_suffix(".py")
-                    if py_path.is_file():
-                        return py_path
-
+                    logger.error(
+                        f"{standalone_module_path} is shadowed by package {pkg_init_path}"
+                    )
+                pkg_root = pkg_init_path
+            elif standalone_module_path.is_file():
+                pkg_root = standalone_module_path
+            if pkg_root is not None:
+                return self._find_submodule(pkg_root, sub_id)
         return result
 
     def _find_module(self, module_id: str) -> ModuleSearchResult:
         pkg, _sep, sub_id = module_id.partition(".")
         if pkg_root := self.package_roots.get(pkg):
-            if not sub_id:
-                return pkg_root
-            elif pkg_root.name == "__init__.py":
-                return self._find_submodule(pkg_root, sub_id)
-            else:
-                return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
+            return self._find_submodule(pkg_root, sub_id)
         possible_namespace_package = False
         for lib_path in self.package_paths:
             lib_path_entries = lazy_setdefault(self._lib_path_cache, lib_path, self._load_lib_path)
@@ -139,7 +126,6 @@ class FindModuleCache:
                     possible_namespace_package = True
                 case path:
                     typing.assert_type(path, Path)
-                    assert path.name == "__init__.py", "typed explicit NS package should have init"
                     return self._find_submodule(path, sub_id)
         if possible_namespace_package:
             return ModuleNotFoundReason.POSSIBLE_NAMESPACE_PACKAGE
@@ -147,6 +133,11 @@ class FindModuleCache:
 
     @staticmethod
     def _find_submodule(pkg_root: Path, sub_id: str) -> ModuleSearchResult:
+        assert pkg_root.is_file() and pkg_root.suffixes == [".py"]
+        if not sub_id:
+            return pkg_root
+        if pkg_root.name != "__init__.py":
+            return ModuleNotFoundReason.SUBMODULE_NOT_FOUND
         mod_path = pkg_root.parent.joinpath(*sub_id.split("."))
         if mod_path.is_dir():
             mod_init_path = mod_path / "__init__.py"
