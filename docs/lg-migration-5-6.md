@@ -3,6 +3,7 @@
 TODO: flesh this out before merging!
 
 Breaking changes due to "fast parsing" work:
+1. Python code must have lowercase extension ".py". Module init must be lowercase `__init__.py`.
 1. No implicit namespace packages (was previously supported in third party packages)
 1. import cycles that would've failed in Python no longer supported, use deferred imports or TYPE_CHECKING instead
 1. restrictions on statements supported inside TYPE_CHECKING blocks:
