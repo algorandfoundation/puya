@@ -99,11 +99,6 @@ def _fetch_and_decode_from_storage_with_assert(
     return decoded_value
 
 
-class _GetExResult(typing.NamedTuple):
-    encoded_value: ir.Value
-    did_exist: ir.Value
-
-
 def _build_get_ex_op(
     context: IRFunctionBuildContext,
     encoded_avm_type: typing.Literal[AVMType.uint64, AVMType.bytes],
