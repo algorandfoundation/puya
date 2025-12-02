@@ -91,8 +91,8 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(remove_unreachable_blocks),
         SubroutineOptimization.from_function(repeated_expression_elimination),
         SubroutineOptimization.from_function(encode_decode_pair_elimination),
-        SubroutineOptimization.from_function(merge_chained_aggregate_reads),
-        SubroutineOptimization.from_function(replace_aggregate_box_ops),
+        SubroutineOptimization.from_function(merge_chained_aggregate_reads, min_level=0),
+        SubroutineOptimization.from_function(replace_aggregate_box_ops, min_level=0),
         SubroutineOptimization.from_function(minimize_box_exist_asserts),
         SubroutineOptimization.from_function(constant_reads_and_unobserved_writes_elimination),
     ]
