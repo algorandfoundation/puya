@@ -16,6 +16,8 @@ contract BoxContract
     ['dynamic_box']: arc4.dynamic_array<uint64>
     ['dynamic_arr_struct']: examples.box_storage.contract.DynamicArrayInAStruct
     ['too_many_bools']: arc4.static_array<bool, 33000>
+    ['big_fixed_bytes']: bytes[5000]
+    ['big_bytes']: bytes
   }
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -80,6 +82,46 @@ contract BoxContract
   abimethod examples.box_storage.contract.BoxContract.set_many_ints(index: uint64, value: uint64): void
   {
     Box['many_ints'][index]: uint64 = value
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_big_fixed_bytes(): void
+  {
+    box_create('big_fixed_bytes', size_of(bytes[5000]))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.update_big_fixed_bytes(start_index: uint64, value: bytes): void
+  {
+    box_splice('big_fixed_bytes', start_index, len(value), value)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.assert_big_fixed_bytes(index: uint64, value: bytes): void
+  {
+    assert(Box['big_fixed_bytes'][index] == value)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.slice_big_fixed_bytes(start: uint64, end: uint64): bytes
+  {
+    return Box['big_fixed_bytes'][start:end]
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_big_bytes(size: uint64): void
+  {
+    box_create('big_bytes', size)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.update_big_bytes(start_index: uint64, value: bytes): void
+  {
+    box_splice('big_bytes', start_index, len(value), value)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.assert_big_bytes(index: uint64, value: bytes): void
+  {
+    assert(Box['big_bytes'][index] == value)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.slice_big_bytes(start: uint64, end: uint64): bytes
+  {
+    return Box['big_bytes'][start:end]
   }
   
   abimethod examples.box_storage.contract.BoxContract.sum_many_ints(): uint64
