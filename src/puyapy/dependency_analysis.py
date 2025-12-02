@@ -7,12 +7,15 @@ from pathlib import Path
 
 import attrs
 
+from puya import log
 from puya.parse import SourceLocation
 from puyapy import reachability
 from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.visitors.traversers import StatementTraverser
 from puyapy.find_sources import ResolvedSource
 from puyapy.modulefinder import FindModuleCache
+
+logger = log.get_logger(__name__)
 
 _ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
     (
@@ -145,14 +148,20 @@ def _resolve_module_import_dependencies(
 ) -> Iterator[Dependency]:
     for stmt, flags in module_imports:
         for imp in stmt.names:
-            if imp.name in _ALLOWED_STDLIB_STUBS:
+            parts = imp.name.split(".")
+            if "__init__" in parts:
+                logger.error(
+                    "explicitly importing __init__.py is not supported",
+                    location=imp.source_location,
+                )
+            elif imp.name in _ALLOWED_STDLIB_STUBS:
                 yield Dependency(
                     imp.name,
                     path=None,
                     flags=flags | DependencyFlags.STUB,
                     loc=imp.source_location,
                 )
-            elif imp.name.partition(".")[0] == "algopy":
+            elif parts[0] == "algopy":
                 for module_id in _expand_ancestors(imp.name):
                     yield Dependency(
                         module_id,
@@ -164,20 +173,18 @@ def _resolve_module_import_dependencies(
                         ),
                         loc=imp.source_location,
                     )
-            else:
-                path = module_resolver(imp.name, imp.source_location)
-                if path is not None:
-                    yield Dependency(imp.name, path, flags, imp.source_location)
-                    ancestor_flags = flags | DependencyFlags.IMPLICIT
-                    for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
-                        imp.name, path
-                    ):
-                        yield Dependency(
-                            ancestor_module_id,
-                            ancestor_init_path,
-                            ancestor_flags,
-                            imp.source_location,
-                        )
+            elif path := module_resolver(imp.name, imp.source_location):
+                yield Dependency(imp.name, path, flags, imp.source_location)
+                ancestor_flags = flags | DependencyFlags.IMPLICIT
+                for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
+                    imp.name, path
+                ):
+                    yield Dependency(
+                        ancestor_module_id,
+                        ancestor_init_path,
+                        ancestor_flags,
+                        imp.source_location,
+                    )
 
 
 def _resolve_from_imports_dependencies(
@@ -186,57 +193,89 @@ def _resolve_from_imports_dependencies(
 ) -> Iterator[Dependency]:
     for from_imp, flags in from_imports:
         module_id = from_imp.module
-        if module_id in _ALLOWED_STDLIB_STUBS:
+        parts = module_id.split(".")
+        if "__init__" in parts:
+            logger.error(
+                "explicitly importing __init__.py is not supported",
+                location=from_imp.source_location,
+            )
+        elif module_id in _ALLOWED_STDLIB_STUBS:
             yield Dependency(
                 module_id,
                 path=None,
                 flags=flags | DependencyFlags.STUB,
                 loc=from_imp.source_location,
             )
-            continue
-        if module_id.partition(".")[0] == "algopy":
-            continue  # TODO: expose as dependency somehow?
+        elif parts[0] == "algopy":
+            continue  # TODO: expose as dependency
+        elif path := module_resolver(module_id, from_imp.source_location):
+            yield Dependency(module_id, path, flags, from_imp.source_location)
+            # If not resolving to an init file, then a direct dependency is sufficient,
+            # otherwise, we need to consider sub modules.
+            if path.name == "__init__.py":
+                yield from _resolve_from_init_import_submodules(from_imp, path, flags)
 
-        # note: there is a case that this doesn't handle, where module_id points to a directory of
-        # an implicit namespace package without an __init__.py, in that case however a from-import
-        # behaves differently depending on what has already been imported, which adds significant
-        # complexity here - so just error altogether for now.
-        path = module_resolver(module_id, from_imp.source_location)
-        if path is None:
-            continue
+            ancestor_flags = flags | DependencyFlags.IMPLICIT
+            for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
+                module_id, path
+            ):
+                yield Dependency(
+                    ancestor_module_id,
+                    ancestor_init_path,
+                    ancestor_flags,
+                    from_imp.source_location,
+                )
 
-        yield Dependency(module_id, path, flags, from_imp.source_location)
-        # If not resolving to an init file, then all imported symbols must be from that file.
-        # Similarly, when a `from x.y import *` resolves to x/y/__init__.py, all imported symbols
-        # must be from that file.
-        # TODO: not true if __all__ is defined, see:
-        #  https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
-        # also see: https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
-        if path.name == "__init__.py" and from_imp.names is not None:
-            # There are two complications at this point:
-            # The first is that if x/__init__.py defines a variable foo, but there is also a
-            # file x/foo.py, then `from x import foo` will actually refer to the variable.
-            # This is okay, at worst we create spurious dependencies.
-            # The second complication is that symbols in the __init__.py could be modules from
-            # another location, this is okay because as long as there is a dependency to the
-            # __init__.py file then the importer will also depend transitively on that imported
-            # module.
-            mod_dir = path.parent
-            for alias in from_imp.names:
-                maybe_path = mod_dir / alias.name
-                if maybe_path.is_dir():
-                    maybe_path = maybe_path / "__init__.py"
-                else:
-                    maybe_path = maybe_path.with_suffix(".py")
-                if maybe_path.is_file():
-                    submodule_id = ".".join((module_id, alias.name))
-                    yield Dependency(submodule_id, maybe_path, flags, alias.source_location)
 
-        ancestor_flags = flags | DependencyFlags.IMPLICIT
-        for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(module_id, path):
-            yield Dependency(
-                ancestor_module_id, ancestor_init_path, ancestor_flags, from_imp.source_location
-            )
+def _resolve_from_init_import_submodules(
+    from_imp: fast_nodes.FromImport, path: Path, flags: DependencyFlags
+) -> Iterator[Dependency]:
+    # There are two complications at this point:
+    # The first is that if x/__init__.py defines a variable foo, but there is also a
+    # file x/foo.py, then `from x import foo` will actually refer to the variable.
+    # This is okay, at worst we create spurious dependencies.
+    # The second complication is that symbols in the __init__.py could be modules from
+    # another location, this is okay because as long as there is a dependency to the
+    # __init__.py file then the importer will also depend transitively on that imported
+    # module. In other words, any explicit dependencies inside the __init__.py will
+    # work transitively, regardless of depth.
+    # References:
+    # - https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
+    # - https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
+
+    module_id = from_imp.module
+    mod_dir = path.parent
+    if from_imp.names is not None:
+        for alias in from_imp.names:
+            sub_pkg_init_path = mod_dir / alias.name / "__init__.py"
+            standalone_module_path = mod_dir / f"{alias.name}.py"
+            maybe_path = None
+            if sub_pkg_init_path.is_file():
+                if standalone_module_path.is_file():
+                    logger.error(
+                        f"{standalone_module_path} is shadowed by package {sub_pkg_init_path}"
+                    )
+                maybe_path = sub_pkg_init_path
+            elif standalone_module_path.is_file():
+                maybe_path = standalone_module_path
+            if maybe_path is not None:
+                submodule_id = ".".join((module_id, alias.name))
+                yield Dependency(submodule_id, maybe_path, flags, alias.source_location)
+    else:
+        # in the case of a star import, the dependencies are only potential dependencies,
+        # in the case that init module defines an __all__ and the module is listed there
+        flags |= DependencyFlags.POTENTIAL_STAR_IMPORT
+        seen_sub_names = set[str]()
+        for sub_pkg_init_path in sorted(mod_dir.glob("*/__init__.py")):
+            sub_name = sub_pkg_init_path.parent.name
+            seen_sub_names.add(sub_name)
+            submodule_id = ".".join((module_id, sub_name))
+            yield Dependency(submodule_id, sub_pkg_init_path, flags, from_imp.source_location)
+        for sub_mod_path in sorted(mod_dir.glob("*.py")):
+            sub_name = sub_mod_path.stem
+            if sub_mod_path != path and sub_name not in seen_sub_names:
+                submodule_id = ".".join((module_id, sub_name))
+                yield Dependency(submodule_id, sub_mod_path, flags, from_imp.source_location)
 
 
 def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
