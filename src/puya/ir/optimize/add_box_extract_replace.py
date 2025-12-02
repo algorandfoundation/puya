@@ -36,6 +36,7 @@ def replace_aggregate_box_ops(
         aggregates.has_box_write
         or aggregates.extract_values
         or aggregates.intrinsic_reads
+        or aggregates.intrinsic_lens
         or aggregates.has_array_length
     ):
         return False
@@ -55,6 +56,7 @@ class _AggregateCollector(NoOpIRVisitor[None]):
     replace_values: dict[models.Value, models.ReplaceValue] = attrs.field(factory=dict)
     extract_values: dict[models.Value, models.ExtractValue] = attrs.field(factory=dict)
     intrinsic_reads: dict[models.Value, models.Intrinsic] = attrs.field(factory=dict)
+    intrinsic_lens: dict[models.Value, models.Intrinsic] = attrs.field(factory=dict)
     box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
     _target: models.Register | None = None
     has_array_length: bool = False
@@ -97,6 +99,12 @@ class _AggregateCollector(NoOpIRVisitor[None]):
         intrinsic_op = get_box_read_intrinsic_op(intrinsic)
         if intrinsic_op is not None:
             self.intrinsic_reads[intrinsic_op.args[0]] = intrinsic_op
+            return
+
+        intrinsic_len = get_box_len_intrinsic_op(intrinsic)
+        if intrinsic_len is not None:
+            self.intrinsic_lens[intrinsic_len.args[0]] = intrinsic_len
+            return
 
 
 def get_box_read_intrinsic_op(intrinsic: models.Intrinsic) -> models.Intrinsic | None:
@@ -104,6 +112,14 @@ def get_box_read_intrinsic_op(intrinsic: models.Intrinsic) -> models.Intrinsic |
         case models.Intrinsic(op=AVMOp.extract3) | models.Intrinsic(op=AVMOp.substring3):
             return intrinsic
         case models.Intrinsic(op=AVMOp.extract, immediates=[int(), int(l)]) if l > 0:
+            return intrinsic
+        case _:
+            return None
+
+
+def get_box_len_intrinsic_op(intrinsic: models.Intrinsic) -> models.Intrinsic | None:
+    match intrinsic:
+        case models.Intrinsic(op=AVMOp.len_):
             return intrinsic
         case _:
             return None
@@ -193,49 +209,14 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
 
     def visit_intrinsic_op(self, intrinsic_op: models.Intrinsic) -> models.ValueProvider | None:
         intrinsic = get_box_read_intrinsic_op(intrinsic_op)
-        if intrinsic is None:
-            return None
+        if intrinsic is not None:
+            return self._handle_intrinsic_read(intrinsic)
 
-        # find box read
-        try:
-            box_read = self.aggregates.box_reads[intrinsic.args[0]]
-        except KeyError:
-            return None
+        intrinsic = get_box_len_intrinsic_op(intrinsic_op)
+        if intrinsic is not None:
+            return self._handle_intrinsic_len(intrinsic)
 
-        merged_loc = sequential_source_locations_merge(
-            (intrinsic.source_location, box_read.source_location)
-        )
-
-        factory = OpFactory(self, merged_loc)
-
-        match intrinsic:
-            case models.Intrinsic(op=AVMOp.extract3):
-                offset: models.Value | int = intrinsic.args[1]
-                length: models.Value | int = intrinsic.args[2]
-            case models.Intrinsic(op=AVMOp.extract, immediates=[int(o), int(l)]) if l > 0:
-                offset = o
-                length = l
-            case models.Intrinsic(op=AVMOp.substring3):
-                offset = intrinsic.args[1]
-                length = factory.sub(intrinsic.args[2], intrinsic.args[1], "substring3_length")
-            case _:
-                raise InternalError("unexpected intrinsic op", merged_loc)
-
-        box_extract = factory.box_extract(
-            box_read.key,
-            offset,
-            length,
-            ir_type=intrinsic.types[0],
-        )
-
-        self.modified = True
-        logger.debug(
-            f"combined BoxRead `{intrinsic.args[0] !s} = {box_read!s}`\n"
-            f"and Intrinsic `{intrinsic!s}`\n"
-            f"into {box_extract!s}",
-            location=merged_loc,
-        )
-        return box_extract
+        return None
 
     def visit_box_write(self, write: models.BoxWrite) -> models.Op | None:
         # find aggregate
@@ -281,6 +262,77 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             location=merged_loc,
         )
         return new_write
+
+    def _handle_intrinsic_read(self, intrinsic: models.Intrinsic) -> models.ValueProvider | None:
+        # find box read
+        try:
+            box_read = self.aggregates.box_reads[intrinsic.args[0]]
+        except KeyError:
+            return None
+
+        merged_loc = sequential_source_locations_merge(
+            (intrinsic.source_location, box_read.source_location)
+        )
+
+        factory = OpFactory(self, merged_loc)
+
+        match intrinsic:
+            case models.Intrinsic(op=AVMOp.extract3):
+                offset: models.Value | int = intrinsic.args[1]
+                length: models.Value | int = intrinsic.args[2]
+            case models.Intrinsic(op=AVMOp.extract, immediates=[int(o), int(l)]) if l > 0:
+                offset = o
+                length = l
+            case models.Intrinsic(op=AVMOp.substring3):
+                offset = intrinsic.args[1]
+                length = factory.sub(intrinsic.args[2], intrinsic.args[1], "substring3_length")
+            case _:
+                raise InternalError("unexpected intrinsic op", merged_loc)
+
+        box_extract = factory.box_extract(
+            box_read.key,
+            offset,
+            length,
+            ir_type=intrinsic.types[0],
+        )
+
+        self.modified = True
+        logger.debug(
+            f"combined BoxRead `{intrinsic.args[0] !s} = {box_read!s}`\n"
+            f"and Intrinsic `{intrinsic!s}`\n"
+            f"into {box_extract!s}",
+            location=merged_loc,
+        )
+        return box_extract
+
+    def _handle_intrinsic_len(self, intrinsic: models.Intrinsic) -> models.ValueProvider | None:
+        # find box read
+        try:
+            box_read = self.aggregates.box_reads[intrinsic.args[0]]
+        except KeyError:
+            return None
+
+        merged_loc = sequential_source_locations_merge(
+            (intrinsic.source_location, box_read.source_location)
+        )
+
+        get_box_len = models.Intrinsic(
+            op=AVMOp.box_len,
+            args=[box_read.key],
+            types=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
+            source_location=merged_loc,
+        )
+
+        box_len, _ = self.materialise_value_provider(get_box_len, ("box_len", "_"))
+
+        self.modified = True
+        logger.debug(
+            f"combined BoxRead `{intrinsic.args[0] !s} = {box_read!s}`\n"
+            f"and Intrinsic `{intrinsic!s}`\n"
+            f"into {box_len!s}",
+            location=merged_loc,
+        )
+        return box_len
 
 
 def _combine_box_and_aggregate_read(
