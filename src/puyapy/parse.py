@@ -34,11 +34,10 @@ from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
-from puyapy.dependency_analysis import Dependency, DependencyFlags, resolve_import_dependencies
+from puyapy.dependency_analysis import Dependency, DependencyFlags, ImportDependencyResolver
 from puyapy.fast.builder import parse_module
 from puyapy.fast.nodes import Module as FastModule
 from puyapy.find_sources import ResolvedSource, create_source_list
-from puyapy.modulefinder import FindModuleCache
 
 logger = log.get_logger(__name__)
 
@@ -333,10 +332,7 @@ def _find_dependencies(
     package_roots: Mapping[str, Path],
     package_paths: Sequence[Path],
 ) -> dict[str, _ModuleData]:
-    fmc = FindModuleCache(
-        package_paths=package_paths,
-        package_roots=package_roots,
-    )
+    resolver = ImportDependencyResolver(package_roots=package_roots, package_paths=package_paths)
     result_by_id = dict[str, _ModuleData]()
     source_queue = deque(sources)
     queued_id_set = {rs.module for rs in source_queue}
@@ -356,7 +352,7 @@ def _find_dependencies(
         if fast is None:
             dependencies = []
         else:
-            dependencies = resolve_import_dependencies(rs, fast, fmc)
+            dependencies = resolver.resolve_import_dependencies(rs, fast)
             for dep in dependencies:
                 mod_path = dep.path
                 if mod_path is None:
