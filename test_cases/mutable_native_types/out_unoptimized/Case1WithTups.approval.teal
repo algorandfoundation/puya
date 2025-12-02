@@ -405,41 +405,56 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box_block@0
     // mutable_native_types/case1_with_tups.py:48
     // self.tup_bag.value.owner = Txn.sender
     txn Sender
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     pushint 136
-    uncover 2
-    replace3
+    +
     bytec_0 // "tup_bag"
     uncover 1
-    box_put
+    uncover 2
+    box_replace
     // mutable_native_types/case1_with_tups.py:49
     // self.tup_bag.value.app = Global.current_application_id
     global CurrentApplicationID
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
-    uncover 1
     itob
-    uncover 1
+    intc_1 // 0
     pushint 168
-    uncover 2
-    replace3
+    +
     bytec_0 // "tup_bag"
     uncover 1
-    box_put
+    uncover 2
+    box_replace
     // mutable_native_types/case1_with_tups.py:50
     // self.tup_bag.value.bootstrapped = True
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc 5 // 34176
+    intc_0 // 8
+    /
+    intc_1 // 0
+    +
+    intc 5 // 34176
+    intc_0 // 8
+    %
+    cover 1
+    bytec_0 // "tup_bag"
+    dig 1
+    intc_2 // 1
+    box_extract
+    cover 1
+    dig 2
+    intc_0 // 8
+    <
+    assert // index access is out of bounds
+    dig 2
+    intc_0 // 8
+    <
+    assert // index access is out of bounds
+    uncover 1
+    uncover 2
     intc_2 // 1
     setbit
     bytec_0 // "tup_bag"
-    uncover 1
-    box_put
+    uncover 2
+    uncover 2
+    box_replace
     retsub
 
 
@@ -450,12 +465,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups:
 test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups_block@0:
     // mutable_native_types/case1_with_tups.py:54
     // return self.tup_bag.value.count
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     retsub
 
@@ -474,27 +490,26 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup_block@0:
     callsub _check_owner
     // mutable_native_types/case1_with_tups.py:59
     // assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     intc_0 // 8
     <
     assert // too many tups
     // mutable_native_types/case1_with_tups.py:60
     // self.tup_bag.value.items[self.tup_bag.value.count] = tup
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     frame_dig -2
     itob
@@ -504,42 +519,41 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup_block@0:
     frame_dig -1
     itob
     concat
+    intc_1 // 0
+    intc_0 // 8
+    +
     dig 2
     intc_0 // 8
-    intc 4 // 128
-    extract3
+    <
+    assert // index out of bounds
     uncover 2
     intc_3 // 16
     *
-    uncover 2
-    replace3 // on error: index access is out of bounds
-    uncover 1
-    intc_0 // 8
-    uncover 2
-    replace3
+    +
     bytec_0 // "tup_bag"
     uncover 1
-    box_put
+    uncover 2
+    box_replace
     // mutable_native_types/case1_with_tups.py:61
     // self.tup_bag.value.count += 1
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
-    dup
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     intc_2 // 1
     +
     itob
-    uncover 1
     intc_1 // 0
-    uncover 2
-    replace3
+    intc_1 // 0
+    +
     bytec_0 // "tup_bag"
     uncover 1
-    box_put
+    uncover 2
+    box_replace
     retsub
 
 
@@ -554,24 +568,26 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup:
 test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup_block@0:
     // mutable_native_types/case1_with_tups.py:65
     // assert index < self.tup_bag.value.count, "index out of bounds"
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     frame_dig -1
     >
     assert // index out of bounds
     // mutable_native_types/case1_with_tups.py:66
     // return self.tup_bag.value.items[index]
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     intc_0 // 8
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc 4 // 128
-    extract3
+    box_extract
     frame_dig -1
     intc_3 // 16
     *
@@ -604,12 +620,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum_block@0:
     intc_1 // 0
     // mutable_native_types/case1_with_tups.py:71
     // for i in urange(self.tup_bag.value.count):
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     intc_2 // 1
     assert // Step cannot be zero
@@ -631,12 +648,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum_for_body@2:
     frame_dig 2
     // mutable_native_types/case1_with_tups.py:72
     // tup = self.tup_bag.value.items[i]
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     intc_0 // 8
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc 4 // 128
-    extract3
+    box_extract
     uncover 1
     intc_3 // 16
     *
@@ -815,12 +833,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a_block@0:
     callsub _check_owner
     // mutable_native_types/case1_with_tups.py:90
     // for i in urange(self.tup_bag.value.count):
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     intc_2 // 1
     assert // Step cannot be zero
@@ -842,12 +861,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a_for_body@2:
     frame_dig 1
     // mutable_native_types/case1_with_tups.py:91
     // tup = self.tup_bag.value.items[i]
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     intc_0 // 8
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc 4 // 128
-    extract3
+    box_extract
     dig 1
     intc_3 // 16
     *
@@ -859,10 +879,6 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a_for_body@2:
     btoi
     // mutable_native_types/case1_with_tups.py:92
     // self.tup_bag.value.items[i] = tup._replace(a=a)
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
-    cover 1
     frame_dig -1
     itob
     bytec_1 // 0x
@@ -871,22 +887,21 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a_for_body@2:
     uncover 1
     itob
     concat
-    dig 1
+    intc_1 // 0
     intc_0 // 8
-    intc 4 // 128
-    extract3
-    uncover 3
+    +
+    dig 2
+    intc_0 // 8
+    <
+    assert // index out of bounds
+    uncover 2
     intc_3 // 16
     *
-    uncover 2
-    replace3 // on error: index access is out of bounds
-    uncover 1
-    intc_0 // 8
-    uncover 2
-    replace3
+    +
     bytec_0 // "tup_bag"
     uncover 1
-    box_put
+    uncover 2
+    box_replace
     b test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a_for_footer@3
 
 test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a_for_footer@3:
@@ -916,12 +931,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b_block@0:
     callsub _check_owner
     // mutable_native_types/case1_with_tups.py:97
     // for i in urange(self.tup_bag.value.count):
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     intc_2 // 1
     assert // Step cannot be zero
@@ -943,12 +959,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b_for_body@2:
     frame_dig 1
     // mutable_native_types/case1_with_tups.py:98
     // tup = self.tup_bag.value.items[i]
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     intc_0 // 8
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc 4 // 128
-    extract3
+    box_extract
     dig 1
     intc_3 // 16
     *
@@ -960,10 +977,6 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b_for_body@2:
     btoi
     // mutable_native_types/case1_with_tups.py:99
     // self.tup_bag.value.items[i] = tup._replace(b=b)
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
-    cover 1
     itob
     bytec_1 // 0x
     uncover 1
@@ -971,22 +984,21 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b_for_body@2:
     frame_dig -1
     itob
     concat
-    dig 1
+    intc_1 // 0
     intc_0 // 8
-    intc 4 // 128
-    extract3
-    uncover 3
+    +
+    dig 2
+    intc_0 // 8
+    <
+    assert // index out of bounds
+    uncover 2
     intc_3 // 16
     *
-    uncover 2
-    replace3 // on error: index access is out of bounds
-    uncover 1
-    intc_0 // 8
-    uncover 2
-    replace3
+    +
     bytec_0 // "tup_bag"
     uncover 1
-    box_put
+    uncover 2
+    box_replace
     b test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b_for_footer@3
 
 test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b_for_footer@3:
@@ -1013,12 +1025,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups:
 test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups_block@0:
     // mutable_native_types/case1_with_tups.py:103
     // assert self.tup_bag.value.count >= start + 3, "not enough items"
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     frame_dig -1
     pushint 3
@@ -1027,12 +1040,13 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups_block@0
     assert // not enough items
     // mutable_native_types/case1_with_tups.py:104
     // items = self.tup_bag.value.items.copy()
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     intc_0 // 8
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc 4 // 128
-    extract3
+    box_extract
     // mutable_native_types/case1_with_tups.py:108
     // items[start],
     frame_dig -1
@@ -1155,21 +1169,23 @@ test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups_block
     extract 6 2
     // mutable_native_types/case1_with_tups.py:117
     // items = self.tup_bag.value.items.copy()
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     intc_0 // 8
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc 4 // 128
-    extract3
+    box_extract
     // mutable_native_types/case1_with_tups.py:118-119
     // # TODO: improve this once slicing is supported
     // for i in urange(self.tup_bag.value.count):
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc_1 // 0
+    intc_1 // 0
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     intc_2 // 1
     assert // Step cannot be zero
@@ -1262,31 +1278,47 @@ _check_owner:
 _check_owner_block@0:
     // mutable_native_types/case1_with_tups.py:125
     // assert self.tup_bag.value.bootstrapped, "app not bootstrapped"
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
     intc 5 // 34176
+    intc_0 // 8
+    /
+    intc_1 // 0
+    +
+    intc 5 // 34176
+    intc_0 // 8
+    %
+    cover 1
+    bytec_0 // "tup_bag"
+    uncover 1
+    intc_2 // 1
+    box_extract
+    cover 1
+    dup
+    intc_0 // 8
+    <
+    assert // index access is out of bounds
     getbit
     assert // app not bootstrapped
     // mutable_native_types/case1_with_tups.py:126
     // assert self.tup_bag.value.owner == Txn.sender, "sender not authorized"
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     pushint 136
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     pushint 32
-    extract3
+    box_extract
     txn Sender
     ==
     assert // sender not authorized
     // mutable_native_types/case1_with_tups.py:128
     // self.tup_bag.value.app == Global.current_application_id
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
+    intc_1 // 0
     pushint 168
+    +
+    bytec_0 // "tup_bag"
+    uncover 1
     intc_0 // 8
-    extract3
+    box_extract
     btoi
     global CurrentApplicationID
     ==

@@ -569,8 +569,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         (assert maybe_exists%1#0) // check self.payments exists
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 48u)
         let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#0 48u) // on error: index access is out of bounds
-        let array_item%0#0: Encoded(uint8[32],uint64,uint64) = aggregate%encoded_element%0#0
-        let aggregate%extract%0#0: bytes = (extract3 array_item%0#0 40u 8u)
+        let aggregate%extract%0#0: bytes = (extract3 aggregate%encoded_element%0#0 40u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%1#0: uint64 = (+ values%0#0 amt#0)
@@ -603,12 +602,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         let tuple_item%0#0: Encoded(uint64,uint64) = aggregate%extract%0#0
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get box_prefixed_key%0#0)
-        (assert aggregate%box_get%1#0) // check self.box_map entry exists
-        let storage_value%0#0: bytes = aggregate%box_get%0#0
-        let aggregate%updated_data%0#0: bytes = (replace3 storage_value%0#0 0u tuple_item%0#0)
-        let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = aggregate%updated_data%0#0
-        (box_put box_prefixed_key%0#0 updated_tuple%0#0)
+        let box%offset%0#0: uint64 = (+ 0u 0u)
+        (box_replace box_prefixed_key%0#0 box%offset%0#0 tuple_item%0#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> Encoded(uint8[32],uint64,uint64):
@@ -677,20 +672,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
         let aggregate%updated_data%2#0: bytes = (replace3 maybe_value%2#0 0u a#0)
         let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = aggregate%updated_data%2#0
         (app_local_put tmp%0#0 0x6c updated_tuple%2#0)
-        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
-        (assert aggregate%box_get%1#0) // check self.box exists
-        let storage_value%0#0: bytes = aggregate%box_get%0#0
-        let aggregate%updated_data%3#0: bytes = (replace3 storage_value%0#0 0u a#0)
-        let updated_tuple%3#0: Encoded((uint64,uint64),uint8[2048]) = aggregate%updated_data%3#0
-        (box_put "box" updated_tuple%3#0)
+        let box%offset%0#0: uint64 = (+ 0u 0u)
+        (box_replace "box" box%offset%0#0 a#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (box_get box_prefixed_key%0#0)
-        (assert aggregate%box_get%3#0) // check self.box_map entry exists
-        let storage_value%1#0: bytes = aggregate%box_get%2#0
-        let aggregate%updated_data%4#0: bytes = (replace3 storage_value%1#0 0u a#0)
-        let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = aggregate%updated_data%4#0
-        (box_put box_prefixed_key%0#0 updated_tuple%4#0)
+        let box%offset%1#0: uint64 = (+ 0u 0u)
+        (box_replace box_prefixed_key%0#0 box%offset%1#0 a#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> Encoded(uint64,uint64):
