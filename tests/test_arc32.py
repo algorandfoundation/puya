@@ -1707,6 +1707,66 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
     assert sum_many_ints.return_value == (1 + 2 + 256 + 511 + 512)
 
 
+def test_big_fixed_bytes_box(box_client: algokit_utils.ApplicationClient) -> None:
+    big_fixed_bytes_txn = _params_with_boxes("big_fixed_bytes", additional_refs=4)
+    box_client.call("create_big_fixed_bytes", transaction_parameters=big_fixed_bytes_txn)
+    box_client.call(
+        "assert_big_fixed_bytes",
+        index=4999,
+        value=b"\x00",
+        transaction_parameters=big_fixed_bytes_txn,
+    )
+    box_client.call(
+        "update_big_fixed_bytes",
+        start_index=4990,
+        value=b"\x0f" * 10,
+        transaction_parameters=big_fixed_bytes_txn,
+    )
+    box_client.call(
+        "assert_big_fixed_bytes",
+        index=4999,
+        value=b"\x0f",
+        transaction_parameters=big_fixed_bytes_txn,
+    )
+    result = box_client.call(
+        "slice_big_fixed_bytes",
+        start=4990,
+        end=5000,
+        transaction_parameters=big_fixed_bytes_txn,
+    )
+    assert result.return_value == [15] * 10
+
+
+def test_big_bytes_box(box_client: algokit_utils.ApplicationClient) -> None:
+    big_bytes_txn = _params_with_boxes("big_bytes", additional_refs=4)
+    box_client.call("create_big_bytes", transaction_parameters=big_bytes_txn, size=6000)
+    box_client.call(
+        "assert_big_bytes",
+        index=5999,
+        value=b"\x00",
+        transaction_parameters=big_bytes_txn,
+    )
+    box_client.call(
+        "update_big_bytes",
+        start_index=5990,
+        value=b"\x0f" * 10,
+        transaction_parameters=big_bytes_txn,
+    )
+    box_client.call(
+        "assert_big_bytes",
+        index=5999,
+        value=b"\x0f",
+        transaction_parameters=big_bytes_txn,
+    )
+    result = box_client.call(
+        "slice_big_bytes",
+        start=5990,
+        end=6000,
+        transaction_parameters=big_bytes_txn,
+    )
+    assert result.return_value == [15] * 10
+
+
 def test_dynamic_box(box_client: algokit_utils.ApplicationClient) -> None:
     txn_params = _params_with_boxes("dynamic_box", additional_refs=7)
 
