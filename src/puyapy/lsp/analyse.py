@@ -200,12 +200,12 @@ class CodeAnalyser:
         # TODO: how do we discover dependencies before they are opened in the workspace
         path_dependencies = defaultdict[Path, list[Path]](list)
         for module_id, module in modules.items():
-            if module.path.suffix.lower() != ".py":
+            if module.path.suffix != ".py":
                 continue
             non_stub_dependencies = [
                 dep.path
                 for dep_id in sorted(module.dependencies)
-                if (dep := modules.get(dep_id)) is not None and dep.path.suffix.lower() == ".py"
+                if (dep := modules.get(dep_id)) is not None and dep.path.suffix == ".py"
             ]
             if non_stub_dependencies:
                 logger.debug(
