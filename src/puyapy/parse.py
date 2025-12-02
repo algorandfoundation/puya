@@ -16,7 +16,6 @@ from importlib import metadata
 from pathlib import Path
 
 import attrs
-from immutabledict import immutabledict
 from mypy.build import BuildManager, dispatch, sorted_components
 from mypy.errors import Errors
 from mypy.fscache import FileSystemCache
@@ -35,7 +34,7 @@ from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
-from puyapy.dependency_analysis import resolve_import_dependencies
+from puyapy.dependency_analysis import Dependency, DependencyFlags, resolve_import_dependencies
 from puyapy.fast.builder import parse_module
 from puyapy.fast.nodes import Module as FastModule
 from puyapy.find_sources import ResolvedSource, create_source_list
@@ -124,6 +123,7 @@ def parse_python(
             followed=not md.is_source,
         )
         for module, md in module_data.items()
+        if md.path.is_file()
     ]
     mypy_options = _get_mypy_options()
 
@@ -146,12 +146,24 @@ def parse_python(
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
     module_graph = {
-        md.module: [
-            dep_id
-            for dep_id, is_module_level in md.dependencies.items()
-            if is_module_level and dep_id in module_data
-        ]
+        md.module: sorted(
+            {
+                dep.module_id
+                for dep in md.dependencies
+                if not (
+                    dep.flags
+                    & (
+                        DependencyFlags.IMPLICIT
+                        | DependencyFlags.TYPE_CHECKING
+                        | DependencyFlags.DEFERRED
+                        | DependencyFlags.STUB
+                    )
+                )
+                and (dep.path and dep.path.is_file())
+            }
+        )
         for md in module_data.values()
+        if md.path.is_file()
     }
     try:
         module_order = list(graphlib.TopologicalSorter(module_graph).static_order())
@@ -177,7 +189,7 @@ def parse_python(
             lines=lines,
             fast=md.fast,
             discovery_mechanism=discovery_mechanism,
-            dependencies=frozenset(md.dependencies.keys()),
+            dependencies=frozenset(dep.module_id for dep in md.dependencies),
         )
     if module_data:
         raise InternalError(f"parse has leftover modules: {', '.join(module_data.keys())}")
@@ -306,7 +318,7 @@ class _ModuleData:
     module: str
     """Module name (e.g. 'pkg.module')"""
     data: str
-    dependencies: immutabledict[str, bool]
+    dependencies: tuple[Dependency, ...]
     """Dependency set, and whether it's a module-level dependency (vs function scoped)"""
     fast: FastModule | None
     is_source: bool
@@ -331,36 +343,27 @@ def _find_dependencies(
             module_name=rs.module,
             feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
         )
-        module_dep_ids = set[str]()
-        top_level_module_dep_ids = set[str]()
-        if fast is not None:
+        if fast is None:
+            dependencies = []
+        else:
             dependencies = resolve_import_dependencies(rs, fast, fmc)
             for dep in dependencies:
                 mod_path = dep.path
-                module_dep_ids.add(dep.module_id)
-                if dep.is_module_scope and not dep.implicit:
-                    top_level_module_dep_ids.add(dep.module_id)
-                assert mod_path == mod_path.resolve()  # TODO: REMOVE ME
-                # assert mod_path.suffix == ".py", mod_path  # TODO: reinstate me?
-                if mod_path.suffix == ".py" and set_add(queued_id_set, dep.module_id):
+                if mod_path is None:
+                    assert DependencyFlags.STUB in dep.flags
+                elif mod_path.is_file() and set_add(queued_id_set, dep.module_id):
                     dep_rs = ResolvedSource(
                         path=mod_path,
                         module=dep.module_id,
                         base_dir=_infer_base_dir(mod_path, dep.module_id),
                     )
                     source_queue.append(dep_rs)
-            module_dep_ids.discard(rs.module)  # TODO: is this required?
         result_by_id[rs.module] = _ModuleData(
             path=rs.path,
             module=rs.module,
             data=source,
             fast=fast,
-            dependencies=immutabledict(
-                {
-                    dep_name: (dep_name in top_level_module_dep_ids)
-                    for dep_name in sorted(module_dep_ids)
-                }
-            ),
+            dependencies=tuple(d for d in dependencies if d.module_id != rs.module),
             is_source=rs.module in initial_source_ids,
         )
     return result_by_id
