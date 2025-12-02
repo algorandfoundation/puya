@@ -109,12 +109,13 @@ def parse_python(
             fs_cache.stat_or_none(fn)
             fs_cache.read_cache[fn] = data
             fs_cache.hash_cache[fn] = hash_digest(data)
-    typeshed_paths, algopy_sources = _typeshed_paths()
-    fmc = FindModuleCache(
-        package_paths=package_paths,
+
+    module_data = _find_dependencies(
+        sources_by_module_name.values(),
+        fs_cache,
         package_roots=package_roots,
+        package_paths=package_paths,
     )
-    module_data = _find_dependencies(sources_by_module_name.values(), fs_cache, fmc)
     mypy_build_sources = [
         BuildSource(
             path=str(md.path),  # TODO: figure out why omitting this fails in pytest only
@@ -126,7 +127,7 @@ def parse_python(
         if md.path.is_file()
     ]
     mypy_options = _get_mypy_options()
-
+    typeshed_paths, algopy_sources = _typeshed_paths()
     mypy_search_paths = SearchPaths(
         python_path=(),
         package_path=(),
@@ -156,6 +157,7 @@ def parse_python(
                         DependencyFlags.IMPLICIT
                         | DependencyFlags.TYPE_CHECKING
                         | DependencyFlags.DEFERRED
+                        | DependencyFlags.POTENTIAL_STAR_IMPORT
                         | DependencyFlags.STUB
                     )
                 )
@@ -325,8 +327,16 @@ class _ModuleData:
 
 
 def _find_dependencies(
-    sources: Collection[ResolvedSource], fs_cache: FileSystemCache, fmc: FindModuleCache
+    sources: Collection[ResolvedSource],
+    fs_cache: FileSystemCache,
+    *,
+    package_roots: Mapping[str, Path],
+    package_paths: Sequence[Path],
 ) -> dict[str, _ModuleData]:
+    fmc = FindModuleCache(
+        package_paths=package_paths,
+        package_roots=package_roots,
+    )
     result_by_id = dict[str, _ModuleData]()
     source_queue = deque(sources)
     queued_id_set = {rs.module for rs in source_queue}
