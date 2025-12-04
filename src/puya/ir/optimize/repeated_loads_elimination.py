@@ -24,7 +24,6 @@ def constant_reads_and_unobserved_writes_elimination(
         return False
 
     any_modified = False
-    # TODO: consider dominator blocks
     for block in subroutine.body:
         while _StateTrackingVisitor.optimise(block):
             any_modified = True
@@ -169,10 +168,9 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                 # visit in case invalidations need to occur
                 other_source.accept(self)
 
+    @typing.override
     def visit_box_write(self, write: models.BoxWrite) -> None:
-        self._handle_write(
-            write, _StateType.box, key=("rw", write.key), values=(write.value, _const_true())
-        )
+        self._handle_box_put_or_write(write, key=write.key, value=write.value)
 
     @typing.override
     def visit_write_slot(self, write: models.WriteSlot) -> None:
@@ -200,12 +198,11 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
             # BOX
             case AVMOp.box_put:
                 key, value = op.args
-                self._handle_write(
-                    op, _StateType.box, key=("rw", key), values=(value, _const_true())
-                )
+                self._handle_box_put_or_write(op, key=key, value=value)
             case AVMOp.box_create:
                 # box_create never modifies existing boxes or their contents
-                pass
+                key, len_ = op.args
+                self._cache_box_len(key=key, length=len_)
             case AVMOp.box_del | AVMOp.box_splice | AVMOp.box_resize | AVMOp.box_replace:
                 self._invalidate(_StateType.box)
 
@@ -214,6 +211,23 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
         # be conservative and treat any subroutine call as a barrier
         if not callsub.target.pure:
             self._invalidate("all")
+
+    def _handle_box_put_or_write(
+        self, op: models.Intrinsic | models.BoxWrite, *, key: models.Value, value: models.Value
+    ) -> None:
+        self._handle_write(op, _StateType.box, key=("rw", key), values=(value, _const_true()))
+        if isinstance(value, models.Constant):
+            bytes_const = get_bytes_constant(value)
+            if bytes_const is not None:
+                bytes_const_len = models.UInt64Constant(
+                    value=len(bytes_const), source_location=op.source_location
+                )
+                self._cache_box_len(key=key, length=bytes_const_len)
+
+    def _cache_box_len(self, *, key: models.Value, length: models.Value) -> None:
+        len_key = _normalize_key(("len", key))
+        len_result = (length, _const_true())
+        self._read_results[_StateType.box][len_key] = len_result
 
 
 def _normalize_key(keys: tuple[models.Value | _ReadType, ...]) -> _StateKey:
