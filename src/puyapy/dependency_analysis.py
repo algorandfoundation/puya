@@ -9,10 +9,10 @@ import attrs
 
 from puya import log
 from puya.parse import SourceLocation
-from puya.utils import lazy_setdefault
 from puyapy import reachability
 from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.visitors.traversers import StatementTraverser
+from puyapy.package_path import PackageError, PackageResolverCache
 
 logger = log.get_logger(__name__)
 
@@ -25,83 +25,6 @@ _ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
         "typing_extensions",
     )
 )
-
-
-@enum.unique
-class PackageError(enum.Enum):
-    UNTYPED_PACKAGE = enum.auto()
-    STANDALONE_MODULE = enum.auto()
-    POSSIBLE_NAMESPACE_PACKAGE = enum.auto()
-
-
-LibPathResult = Path | PackageError
-
-
-@attrs.frozen
-class PackageResolverCache:
-    """Resolver / cache for packages on sys.path"""
-
-    package_paths: Sequence[Path]
-    "List of path entries to search for third party packages"
-    _entries_cache: dict[Path, Mapping[str, LibPathResult]] = attrs.field(factory=dict, init=False)
-
-    def find_package(self, pkg: str) -> LibPathResult | None:
-        possible_namespace_package = False
-        for lib_path in self.package_paths:
-            lib_path_entries = lazy_setdefault(self._entries_cache, lib_path, self._load_lib_path)
-            reason_or_path = lib_path_entries.get(pkg)
-            match reason_or_path:
-                case None:
-                    pass
-                case PackageError.UNTYPED_PACKAGE | PackageError.STANDALONE_MODULE:
-                    return reason_or_path
-                case PackageError.POSSIBLE_NAMESPACE_PACKAGE:
-                    possible_namespace_package = True
-                case path:
-                    typing.assert_type(path, Path)
-                    return path
-        if possible_namespace_package:
-            return PackageError.POSSIBLE_NAMESPACE_PACKAGE
-        return None
-
-    @staticmethod
-    def _load_lib_path(lib_path: Path) -> Mapping[str, LibPathResult]:
-        # ref: https://peps.python.org/pep-0420/#specification
-        if not lib_path.is_dir():
-            logger.debug(f"package path entry is not a directory: {lib_path}")
-            return {}
-        # sort entries, this will ensure directories come before python files and also
-        # provide a consistent ordering
-        result = dict[str, LibPathResult]()
-        for dir_entry in sorted(lib_path.iterdir(), key=lambda x: x.name):
-            if dir_entry.is_dir():
-                name = dir_entry.name
-                if dir_entry.name.isidentifier():
-                    init_path = dir_entry / "__init__.py"
-                    if not init_path.is_file():
-                        result[name] = PackageError.POSSIBLE_NAMESPACE_PACKAGE
-                    elif not (dir_entry / "py.typed").is_file():
-                        result[name] = PackageError.UNTYPED_PACKAGE
-                    else:
-                        result[name] = init_path
-            # The following files seem to determine what is a valid extension module via
-            # defining _PyImport_DynLoadFiletab:
-            #   - https://github.com/python/cpython/blob/3.12/Python/dynload_shlib.c
-            #   - https://github.com/python/cpython/blob/3.12/Python/dynload_win.c
-            #   - https://github.com/python/cpython/blob/3.12/Python/dynload_hpux.c
-            # If we had easy access to the interpreter we could just use:
-            #   https://docs.python.org/3/library/importlib.html#importlib.machinery.all_suffixes
-            # We can't just use the current interpreter values because even though it should
-            # be the correct platform it might be the wrong Python version.
-            # But excluding HP-UX and cygwin, these extensions together with only looking
-            # at the filename up to the first . should suffice
-            elif dir_entry.is_file() and dir_entry.suffix in (".py", ".pyc", ".so", ".pyd"):
-                name = dir_entry.name.partition(".")[0]
-                if name in result:
-                    logger.debug(f"module '{name}' is shadowed by package on path {lib_path}")
-                else:
-                    result[name] = PackageError.STANDALONE_MODULE
-        return result
 
 
 class DependencyFlags(enum.Flag):
@@ -178,9 +101,9 @@ class _ImportResolver(StatementTraverser):
             )
             return None
         elif module_id in _ALLOWED_STDLIB_STUBS or parts[0] == "algopy":
-            return self._add_dependency(module_id, None, loc, DependencyFlags.STUB)
+            return self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
         elif path := self._find_module(module_id, loc):
-            return self._add_dependency(module_id, path, loc=loc)
+            return self._add_dependency(module_id, path, loc)
         else:
             return None
 
@@ -237,7 +160,7 @@ class _ImportResolver(StatementTraverser):
             if resolved_path is not None:
                 submodule_id = ".".join((module_id, maybe_sub_name))
                 self._add_dependency(
-                    submodule_id, resolved_path, loc, DependencyFlags.POTENTIAL_STAR_IMPORT
+                    submodule_id, resolved_path, loc, extra=DependencyFlags.POTENTIAL_STAR_IMPORT
                 )
 
     def _add_dependency(
@@ -245,11 +168,10 @@ class _ImportResolver(StatementTraverser):
         module_id: str,
         path: Path | None,
         loc: SourceLocation,
-        additional_flags: DependencyFlags = DependencyFlags.NONE,
+        *,
+        extra: DependencyFlags = DependencyFlags.NONE,
     ) -> Dependency:
-        result = Dependency(
-            module_id=module_id, path=path, flags=self._flags | additional_flags, loc=loc
-        )
+        result = Dependency(module_id=module_id, path=path, flags=self._flags | extra, loc=loc)
         self._dependencies.append(result)
         return result
 
@@ -391,22 +313,22 @@ def _create_ancestor_dependencies(
         Dependency(module_id, path, DependencyFlags.NONE, None)
     )
     result = list[Dependency]()
-    for submod_id, submod_imports in sorted(imports_by_name.items(), key=itemgetter(0)):
-        (import_path,) = {imp.path for imp in submod_imports}
+    for import_module_id, imports in sorted(imports_by_name.items(), key=itemgetter(0)):
+        (import_path,) = {imp.path for imp in imports}
         assert import_path is not None, "stub imports should already be excluded"
         for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
-            submod_id, import_path
+            import_module_id, import_path
         ):
             # TODO: can we combine these (flags in particular) logically and simply?
-            for submod_import in submod_imports:
-                result.append(
-                    Dependency(
-                        ancestor_module_id,
-                        ancestor_init_path,
-                        submod_import.flags | DependencyFlags.IMPLICIT,
-                        submod_import.loc,
-                    )
+            result.extend(
+                Dependency(
+                    ancestor_module_id,
+                    ancestor_init_path,
+                    imp.flags | DependencyFlags.IMPLICIT,
+                    imp.loc,
                 )
+                for imp in imports
+            )
     return result
 
 
