@@ -10,6 +10,7 @@ import attrs
 from puya import log
 from puya.parse import SourceLocation
 from puyapy import reachability
+from puyapy._stub_symtables import STUB_SYMTABLES
 from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.visitors.traversers import StatementTraverser
 from puyapy.package_path import PackageError, PackageResolverCache
@@ -17,17 +18,7 @@ from puyapy.package_path import PackageError, PackageResolverCache
 logger = log.get_logger(__name__)
 
 
-_ALLOWED_STUB_PACKAGES: typing.Final = frozenset(
-    (
-        # stdlib
-        "abc",
-        "typing",
-        # technically third party but basically works (for our purposes) as an alias to typing
-        "typing_extensions",
-        # and of course, the main event:
-        "algopy",
-    )
-)
+_ALLOWED_STUB_FILES: typing.Final = frozenset(STUB_SYMTABLES.keys())
 
 
 class DependencyFlags(enum.Flag):
@@ -98,17 +89,19 @@ class _ImportResolver(StatementTraverser):
             self._resolve_module(imp.name, imp.source_location)
 
     def _resolve_module(self, module_id: str, loc: SourceLocation) -> Dependency | None:
-        parts = module_id.split(".")
-        if "__init__" in parts:
+        if "__init__" in module_id.split("."):
             logger.error(
                 "explicitly importing __init__.py is not supported",
                 location=loc,
             )
             return None
-        elif parts[0] in _ALLOWED_STUB_PACKAGES:
+        elif module_id in _ALLOWED_STUB_FILES:
             # just add the package as a dependency, it's informational only at this point,
             # but helps to explicitly indicate `algopy` as a dependency
-            return self._add_dependency(parts[0], None, loc, extra=DependencyFlags.STUB)
+            pkg = module_id.partition(".")[0]
+            if pkg != module_id:
+                self._add_dependency(pkg, None, loc, extra=DependencyFlags.STUB)
+            return self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
         elif path := self._find_module(module_id, loc):
             return self._add_dependency(module_id, path, loc)
         else:
