@@ -7847,6 +7847,8 @@ box_storage/contract.py:161:23 debug: replacing box read with cached value for k
 box_storage/contract.py:228:16 debug: replacing box read with cached value for key: (extract,"dynamic_arr_struct",20u,2u)
 box_storage/contract.py:292:17 debug: replacing box read with cached value for key: (extract,"dynamic_arr_struct",0u,8u)
 box_storage/contract.py:292:51 debug: replacing box read with cached value for key: (extract,"dynamic_arr_struct",10u,8u)
+box_storage/contract.py:370:16 debug: replacing box read with cached value for key: (len,"0")
+box_storage/contract.py:373:16 debug: replacing box read with cached value for key: (len,0x424f585f43)
 box_storage/contract.py:380:16 debug: replacing box read with cached value for key: (rw,0x64)
 box_storage/contract.py:381:16 debug: replacing box read with cached value for key: (rw,0x64)
 box_storage/contract.py:382:16 debug: replacing box read with cached value for key: (rw,0x64)
@@ -7857,6 +7859,7 @@ box_storage/contract.py:395:16 debug: replacing box read with cached value for k
 box_storage/contract.py:420:16 debug: replacing box read with cached value for key: (rw,"blob")
 box_storage/contract.py:425:16 debug: replacing box read with cached value for key: (len,"blob")
 box_storage/contract.py:481:12 debug: replacing box read with cached value for key: (len,"blob")
+box_storage/contract.py:441:16 debug: replacing box read with cached value for key: (len,box_0#0)
 box_storage/contract.py:442:16 debug: replacing box read with cached value for key: (len,box_0#0)
 box_storage/contract.py:442:52 debug: replacing box read with cached value for key: (len,box_0#0)
 box_storage/contract.py:443:16 debug: replacing box read with cached value for key: (len,box_0#0)
@@ -8005,11 +8008,7 @@ debug: Found equivalence set: _%5#0, value%0#1, value%0#3
 debug: selected _%5#0 from equivalence set
 debug: Found equivalence set: maybe_exists%7#0, check%0#1, check%0#3
 debug: selected maybe_exists%7#0 from equivalence set
-debug: Found equivalence set: box%box_len%0#0, box%box_len%1#0, value%0#0, value%1#0
-debug: selected box%box_len%0#0 from equivalence set
-debug: Found equivalence set: box%_%0#0, box%_%1#0, check%0#0, check%1#0
-debug: selected box%_%0#0 from equivalence set
-debug: Copy propagation made 31 modifications
+debug: Copy propagation made 28 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%length%0#0
@@ -8038,10 +8037,14 @@ debug: Removing unused variable aggregate%no_overflow%4#0
 debug: Removing unused variable aggregate%uint16%4#0
 debug: Removing unused variable aggregate%as_bytes%8#0
 debug: Removing unused variable aggregate%len_u16%1#0
+debug: Removing unused variable box%box_len%0#1
+debug: Removing unused variable box%_%0#1
 debug: Removing unused variable aggregate%length%3#0
 debug: Removing unused variable aggregate%as_bytes%9#0
 debug: Removing unused variable aggregate%length_uint16%3#0
 debug: Removing unused variable aggregate%encoded_value%3#0
+debug: Removing unused variable box%box_len%1#1
+debug: Removing unused variable box%_%1#1
 debug: Removing unused variable aggregate%head%9#0
 debug: Removing unused variable aggregate%head%10#0
 debug: Removing unused variable aggregate%head%11#0
@@ -8058,9 +8061,27 @@ debug: Removing unused variable aggregate%bytes_offset%2#0
 debug: Removing unused variable aggregate%box_get%18#0
 debug: Removing unused variable aggregate%box_get%19#0
 debug: Removing unused variable aggregate%bytes_offset%3#0
+debug: Removing unused variable box%box_len%0#0
+debug: Removing unused variable box%_%0#0
+debug: Removing unused variable box%box_len%1#0
+debug: Removing unused variable box%_%1#0
+debug: Removing unused variable value%0#0
+debug: Removing unused variable check%0#0
+debug: Removing unused variable value%1#0
+debug: Removing unused variable check%1#0
 debug: Removing unused variable aggregate%box_get%20#0
 debug: Removing unused variable aggregate%box_get%21#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (>= 0u 19u) to 0u
+debug: Simplified (select 0u 19u 0u) to 0u
+debug: Simplified (>= 7u 19u) to 0u
+debug: Simplified (select 7u 19u 0u) to 7u
+debug: Simplified (- 7u 0u) to 7u
+debug: Simplified (>= 2u 7u) to 0u
+debug: Simplified (select 2u 7u 0u) to 2u
+debug: Simplified (>= 10u 7u) to 1u
+debug: Simplified (select 10u 7u 1u) to 7u
+debug: Simplified (- 7u 2u) to 5u
 debug: Simplified ((extract 0 1) 0x00010203) // on error: index access is out of bounds to 0x00
 debug: Simplified (b== 0x00 0x00) to 1u
 debug: Simplified ((extract 1 1) 0x00010203) // on error: index access is out of bounds to 0x01
@@ -8069,7 +8090,9 @@ debug: Simplified ((extract 2 1) 0x00010203) // on error: index access is out of
 debug: Simplified (b== 0x02 0x02) to 1u
 debug: Simplified ((extract 3 1) 0x00010203) // on error: index access is out of bounds to 0x03
 debug: Simplified (b== 0x03 0x03) to 1u
-debug: Simplified (== box%box_len%0#0 box%box_len%0#0) to 1u
+debug: Simplified (== 6u 6u) to 1u
+debug: Simplified (== 6u 6u) to 1u
+debug: Simplified (== 6u 6u) to 1u
 debug: Simplified (== "hello" "hello") to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8088,7 +8111,6 @@ debug: Replacing redundant declaration let tmp%1#3: bool = (! maybe_exists%0#2) 
 debug: Replacing redundant declaration let tmp%2#3: bool = (! maybe_exists%0#2) with copy of existing registers [Register(source_location=box_storage/contract.py:389:15-26, ir_type=bool, name='tmp%0', version=8)]
 debug: Replacing redundant declaration let tmp%3#4: bool = (! maybe_exists%0#2) with copy of existing registers [Register(source_location=box_storage/contract.py:389:15-26, ir_type=bool, name='tmp%0', version=8)]
 debug: Replacing redundant declaration let tmp%20#0: bool = (== _%5#0 64u) with copy of existing registers [Register(source_location=box_storage/contract.py:425:15-35, ir_type=bool, name='tmp%18', version=0)]
-debug: Replacing redundant declaration let tmp%6#1: bool = (== box%box_len%0#0 6u) with copy of existing registers [Register(source_location=box_storage/contract.py:441:15-69, ir_type=bool, name='tmp%2', version=2)]
 debug: Found equivalence set: box%array_length%0#6, box%array_length%1#3
 debug: selected box%array_length%0#6 from equivalence set
 debug: Found equivalence set: maybe_value_converted%0#0, a#1
@@ -8103,14 +8125,11 @@ debug: Found equivalence set: tmp%0#8, tmp%1#3, tmp%2#3, tmp%3#4
 debug: selected tmp%0#8 from equivalence set
 debug: Found equivalence set: tmp%18#0, tmp%20#0
 debug: selected tmp%18#0 from equivalence set
-debug: Found equivalence set: tmp%2#2, tmp%6#1
-debug: selected tmp%2#2 from equivalence set
-debug: Copy propagation made 11 modifications
+debug: Copy propagation made 10 modifications
 debug: Removing redundant assert of tmp%0#8
 debug: Removing redundant assert of tmp%0#8
 debug: Removing redundant assert of tmp%0#8
 debug: Removing redundant assert of tmp%18#0
-debug: Removing redundant assert of tmp%2#2
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -8124,6 +8143,16 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable is_out_of_bounds%0#0
+debug: Removing unused variable bounded_index%0#0
+debug: Removing unused variable is_out_of_bounds%1#0
+debug: Removing unused variable bounded_index%1#0
+debug: Removing unused variable box%substring3_length%0#0
+debug: Removing unused variable is_out_of_bounds%2#0
+debug: Removing unused variable bounded_index%2#0
+debug: Removing unused variable is_out_of_bounds%3#0
+debug: Removing unused variable bounded_index%3#0
+debug: Removing unused variable box%substring3_length%1#0
 debug: Removing unused variable aggregate%encoded_element%0#0
 debug: Removing unused variable tmp%0#9
 debug: Removing unused variable aggregate%encoded_element%1#0
@@ -8132,7 +8161,9 @@ debug: Removing unused variable aggregate%encoded_element%2#0
 debug: Removing unused variable tmp%2#4
 debug: Removing unused variable aggregate%encoded_element%3#0
 debug: Removing unused variable tmp%3#5
+debug: Removing unused variable tmp%2#2
 debug: Removing unused variable tmp%4#3
+debug: Removing unused variable tmp%6#1
 debug: Removing unused variable tmp%11#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== box%array_length%0#6 box%array_length%0#6) to 1u
@@ -8258,16 +8289,8 @@ debug: Coalescing tmp%10#0 with [tmp%10#5]
 debug: Coalescing box%box_extract%2#1 with [box%box_extract%2#5, box%box_extract%2#4, box%box_extract%2#3, box%box_extract%2#2]
 debug: Coalescing tmp%14#0 with [tmp%14#2, tmp%14#1]
 debug: Coalescing box%box_extract%3#1 with [box%box_extract%3#5, box%box_extract%3#4, box%box_extract%3#3, box%box_extract%3#2]
-debug: Coalescing is_out_of_bounds%0#0 with [is_out_of_bounds%0#1]
-debug: Coalescing bounded_index%0#0 with [bounded_index%0#1]
 debug: Coalescing box%box_extract%4#0 with [box%box_extract%4#4, box%box_extract%4#3, box%box_extract%4#2, box%box_extract%4#1]
-debug: Coalescing is_out_of_bounds%1#0 with [is_out_of_bounds%1#1]
-debug: Coalescing bounded_index%1#0 with [bounded_index%1#1]
-debug: Coalescing is_out_of_bounds%2#0 with [is_out_of_bounds%2#1]
-debug: Coalescing bounded_index%2#0 with [bounded_index%2#1]
 debug: Coalescing box%box_extract%5#0 with [box%box_extract%5#4, box%box_extract%5#3, box%box_extract%5#2, box%box_extract%5#1]
-debug: Coalescing is_out_of_bounds%3#0 with [is_out_of_bounds%3#1]
-debug: Coalescing bounded_index%3#0 with [bounded_index%3#1]
 debug: Coalescing box%box_extract%6#0 with [box%box_extract%6#4, box%box_extract%6#3, box%box_extract%6#2, box%box_extract%6#1, box%box_extract%6#0]
 debug: Coalescing box%box_extract%7#0 with [box%box_extract%7#4, box%box_extract%7#2, box%box_extract%7#1]
 debug: Coalescing box%box_extract%8#0 with [box%box_extract%8#3, box%box_extract%8#2, box%box_extract%8#1]
@@ -8277,7 +8300,6 @@ debug: Coalescing index#0 with [index#5, index#3, index#2, index#1]
 debug: Coalescing tmp%2#1 with [tmp%2#24, tmp%2#23, tmp%2#22, tmp%2#21, tmp%2#17, tmp%2#15, tmp%2#14, tmp%2#13, tmp%2#8, tmp%2#7, tmp%2#6]
 debug: Coalescing box%element_offset%0#0 with [box%element_offset%0#9, box%element_offset%0#8, box%element_offset%0#7, box%element_offset%0#6, box%element_offset%0#5, box%element_offset%0#4, box%element_offset%0#3, box%element_offset%0#2, box%element_offset%0#1]
 debug: Coalescing tmp%1#8 with [tmp%1#26, tmp%1#19, tmp%1#17, tmp%1#25, tmp%1#23, tmp%1#16, tmp%1#14]
-debug: Coalescing tmp%2#2 with [tmp%2#25]
 debug: Coalescing total#0 with [total#13, total#14, total#15, total#8, total#9, total#10, total#11, total#12, total#3, total#4, total#7, total#6, total#5, total#1, total#2]
 debug: Coalescing item_index_internal%0#0 with [item_index_internal%0#9, item_index_internal%0#10, item_index_internal%0#11, item_index_internal%0#6, item_index_internal%0#7, item_index_internal%0#8, item_index_internal%0#3, item_index_internal%0#4, item_index_internal%0#5, item_index_internal%0#1, item_index_internal%0#2]
 debug: Coalescing continue_looping%0#0 with [continue_looping%0#6, continue_looping%0#5, continue_looping%0#4, continue_looping%0#3, continue_looping%0#2, continue_looping%0#1]
@@ -8350,13 +8372,11 @@ debug: Coalescing value#6 with [value#7]
 debug: Coalescing box%element_byte_offset%0#0 with [box%element_byte_offset%0#1]
 debug: Coalescing box%element_bit_offset%0#0 with [box%element_bit_offset%0#1]
 debug: Coalescing box%offset%0#1 with [box%offset%0#2]
-debug: Coalescing box%box_len%0#0 with [box%box_len%0#1]
-debug: Coalescing box%_%0#0 with [box%_%0#1]
 debug: Coalescing tmp%4#4 with [tmp%4#5]
 debug: Coalescing exists#0 with [exists#1]
 debug: Coalescing state_get%0#0 with [state_get%0#1]
 debug: Coalescing key#0 with [key#3, key#2, key#1]
-debug: Coalescing resulted in 839 replacement/s
+debug: Coalescing resulted in 815 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: loc: {i#0=None, value_internal%0#0=value_internal%0#0}
 debug: pred: {i#0=value_internal%0#0}
@@ -8524,22 +8544,22 @@ debug: Inserted main_set_boxes_route@6.ops[111]: 'l-store-copy aggregate%box_get
 debug: Replaced main_set_boxes_route@6.ops[115]: 'v-load aggregate%box_get%0#0' with 'l-load aggregate%box_get%0#0'
 debug: Inserted main_set_boxes_route@6.ops[159]: 'l-store-copy value%2#0 1'
 debug: Replaced main_set_boxes_route@6.ops[163]: 'v-load value%2#0' with 'l-load value%2#0'
-debug: Inserted main_set_boxes_route@6.ops[232]: 'l-store-copy is_out_of_bounds%0#0 0'
-debug: Replaced main_set_boxes_route@6.ops[236]: 'v-load is_out_of_bounds%0#0' with 'l-load is_out_of_bounds%0#0'
-debug: Inserted main_set_boxes_route@6.ops[243]: 'l-store-copy bounded_index%0#0 0'
-debug: Replaced main_set_boxes_route@6.ops[247]: 'v-load bounded_index%0#0' with 'l-load bounded_index%0#0'
-debug: Inserted main_set_boxes_route@6.ops[253]: 'l-store-copy is_out_of_bounds%1#0 0'
-debug: Replaced main_set_boxes_route@6.ops[257]: 'v-load is_out_of_bounds%1#0' with 'l-load is_out_of_bounds%1#0'
-debug: Inserted main_set_boxes_route@6.ops[264]: 'l-store-copy bounded_index%1#0 0'
-debug: Replaced main_set_boxes_route@6.ops[268]: 'v-load bounded_index%1#0' with 'l-load bounded_index%1#0'
-debug: Inserted main_set_boxes_route@6.ops[282]: 'l-store-copy is_out_of_bounds%2#0 0'
-debug: Replaced main_set_boxes_route@6.ops[286]: 'v-load is_out_of_bounds%2#0' with 'l-load is_out_of_bounds%2#0'
-debug: Inserted main_set_boxes_route@6.ops[288]: 'l-store-copy bounded_index%2#0 0'
-debug: Replaced main_set_boxes_route@6.ops[292]: 'v-load bounded_index%2#0' with 'l-load bounded_index%2#0'
-debug: Inserted main_set_boxes_route@6.ops[298]: 'l-store-copy is_out_of_bounds%3#0 0'
-debug: Replaced main_set_boxes_route@6.ops[302]: 'v-load is_out_of_bounds%3#0' with 'l-load is_out_of_bounds%3#0'
-debug: Inserted main_set_boxes_route@6.ops[304]: 'l-store-copy bounded_index%3#0 0'
-debug: Replaced main_set_boxes_route@6.ops[308]: 'v-load bounded_index%3#0' with 'l-load bounded_index%3#0'
+debug: Inserted main_set_boxes_route@6.ops[232]: 'l-store-copy is_out_of_bounds%0#1 0'
+debug: Replaced main_set_boxes_route@6.ops[236]: 'v-load is_out_of_bounds%0#1' with 'l-load is_out_of_bounds%0#1'
+debug: Inserted main_set_boxes_route@6.ops[243]: 'l-store-copy bounded_index%0#1 0'
+debug: Replaced main_set_boxes_route@6.ops[247]: 'v-load bounded_index%0#1' with 'l-load bounded_index%0#1'
+debug: Inserted main_set_boxes_route@6.ops[253]: 'l-store-copy is_out_of_bounds%1#1 0'
+debug: Replaced main_set_boxes_route@6.ops[257]: 'v-load is_out_of_bounds%1#1' with 'l-load is_out_of_bounds%1#1'
+debug: Inserted main_set_boxes_route@6.ops[264]: 'l-store-copy bounded_index%1#1 0'
+debug: Replaced main_set_boxes_route@6.ops[268]: 'v-load bounded_index%1#1' with 'l-load bounded_index%1#1'
+debug: Inserted main_set_boxes_route@6.ops[282]: 'l-store-copy is_out_of_bounds%2#1 0'
+debug: Replaced main_set_boxes_route@6.ops[286]: 'v-load is_out_of_bounds%2#1' with 'l-load is_out_of_bounds%2#1'
+debug: Inserted main_set_boxes_route@6.ops[288]: 'l-store-copy bounded_index%2#1 0'
+debug: Replaced main_set_boxes_route@6.ops[292]: 'v-load bounded_index%2#1' with 'l-load bounded_index%2#1'
+debug: Inserted main_set_boxes_route@6.ops[298]: 'l-store-copy is_out_of_bounds%3#1 0'
+debug: Replaced main_set_boxes_route@6.ops[302]: 'v-load is_out_of_bounds%3#1' with 'l-load is_out_of_bounds%3#1'
+debug: Inserted main_set_boxes_route@6.ops[304]: 'l-store-copy bounded_index%3#1 0'
+debug: Replaced main_set_boxes_route@6.ops[308]: 'v-load bounded_index%3#1' with 'l-load bounded_index%3#1'
 debug: Inserted main_set_boxes_route@6.ops[366]: 'l-store-copy is_out_of_bounds%4#0 0'
 debug: Replaced main_set_boxes_route@6.ops[370]: 'v-load is_out_of_bounds%4#0' with 'l-load is_out_of_bounds%4#0'
 debug: Inserted main_set_boxes_route@6.ops[377]: 'l-store-copy bounded_index%4#0 0'
@@ -8704,8 +8724,8 @@ debug: Inserted main_set_many_ints_route@9.ops[17]: 'l-store-copy index#0 0'
 debug: Replaced main_set_many_ints_route@9.ops[33]: 'v-load index#0' with 'l-load index#0'
 debug: Inserted main_set_many_ints_route@9.ops[23]: 'l-store-copy tmp%2#1 1'
 debug: Replaced main_set_many_ints_route@9.ops[41]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted main_while_top@161.ops[5]: 'l-store-copy tmp%2#2 0'
-debug: Replaced main_while_top@161.ops[7]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
+debug: Inserted main_while_top@161.ops[5]: 'l-store-copy tmp%2#25 0'
+debug: Replaced main_while_top@161.ops[7]: 'v-load tmp%2#25' with 'l-load tmp%2#25'
 debug: Inserted main_while_top@161.ops[1]: 'l-store-copy tmp%1#8 0'
 debug: Replaced main_while_top@161.ops[4]: 'v-load tmp%1#8' with 'l-load tmp%1#8'
 debug: Inserted main_after_while@166.ops[4]: 'l-store-copy aggregate%box_get%3#0 1'
@@ -9846,54 +9866,14 @@ debug: Inserted main_write_dynamic_arr_struct_route@32.ops[17]: 'l-store-copy in
 debug: Replaced main_write_dynamic_arr_struct_route@32.ops[43]: 'v-load index#0' with 'l-load index#0'
 debug: Inserted main_write_dynamic_arr_struct_route@32.ops[23]: 'l-store-copy tmp%2#1 1'
 debug: Replaced main_write_dynamic_arr_struct_route@32.ops[64]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted main_slice_box_route@33.ops[27]: 'l-store-copy bounded_index%1#0 0'
-debug: Replaced main_slice_box_route@33.ops[29]: 'v-load bounded_index%1#0' with 'l-load bounded_index%1#0'
-debug: Inserted main_slice_box_route@33.ops[37]: 'l-store-copy box%box_extract%0#0 0'
-debug: Replaced main_slice_box_route@33.ops[39]: 'v-load box%box_extract%0#0' with 'l-load box%box_extract%0#0'
-debug: Inserted main_slice_box_route@33.ops[42]: 'l-store-copy tmp%1#5 0'
-debug: Replaced main_slice_box_route@33.ops[44]: 'v-load tmp%1#5' with 'l-load tmp%1#5'
-debug: Inserted main_slice_box_route@33.ops[73]: 'l-store-copy bounded_index%3#0 0'
-debug: Replaced main_slice_box_route@33.ops[75]: 'v-load bounded_index%3#0' with 'l-load bounded_index%3#0'
-debug: Inserted main_slice_box_route@33.ops[83]: 'l-store-copy box%box_extract%1#0 0'
-debug: Replaced main_slice_box_route@33.ops[85]: 'v-load box%box_extract%1#0' with 'l-load box%box_extract%1#0'
-debug: Inserted main_slice_box_route@33.ops[88]: 'l-store-copy tmp%4#4 0'
-debug: Replaced main_slice_box_route@33.ops[90]: 'v-load tmp%4#4' with 'l-load tmp%4#4'
-debug: Inserted main_slice_box_route@33.ops[9]: 'l-store-copy box%box_len%0#0 0'
-debug: Replaced main_slice_box_route@33.ops[12]: 'v-load box%box_len%0#0' with 'l-load box%box_len%0#0'
-debug: Inserted main_slice_box_route@33.ops[56]: 'l-store-copy box%box_len%1#1 0'
-debug: Replaced main_slice_box_route@33.ops[59]: 'v-load box%box_len%1#1' with 'l-load box%box_len%1#1'
-debug: Inserted main_slice_box_route@33.ops[14]: 'l-store-copy is_out_of_bounds%0#0 0'
-debug: Replaced main_slice_box_route@33.ops[18]: 'v-load is_out_of_bounds%0#0' with 'l-load is_out_of_bounds%0#0'
-debug: Inserted main_slice_box_route@33.ops[24]: 'l-store-copy is_out_of_bounds%1#0 0'
-debug: Replaced main_slice_box_route@33.ops[28]: 'v-load is_out_of_bounds%1#0' with 'l-load is_out_of_bounds%1#0'
-debug: Inserted main_slice_box_route@33.ops[35]: 'l-store-copy box%substring3_length%0#0 0'
-debug: Replaced main_slice_box_route@33.ops[39]: 'v-load box%substring3_length%0#0' with 'l-load box%substring3_length%0#0'
-debug: Inserted main_slice_box_route@33.ops[64]: 'l-store-copy is_out_of_bounds%2#0 0'
-debug: Replaced main_slice_box_route@33.ops[68]: 'v-load is_out_of_bounds%2#0' with 'l-load is_out_of_bounds%2#0'
-debug: Inserted main_slice_box_route@33.ops[74]: 'l-store-copy is_out_of_bounds%3#0 0'
-debug: Replaced main_slice_box_route@33.ops[78]: 'v-load is_out_of_bounds%3#0' with 'l-load is_out_of_bounds%3#0'
-debug: Inserted main_slice_box_route@33.ops[85]: 'l-store-copy box%substring3_length%1#0 0'
-debug: Replaced main_slice_box_route@33.ops[89]: 'v-load box%substring3_length%1#0' with 'l-load box%substring3_length%1#0'
-debug: Inserted main_slice_box_route@33.ops[13]: 'l-store-copy box%box_len%0#0 1'
-debug: Replaced main_slice_box_route@33.ops[18]: 'v-load box%box_len%0#0' with 'l-load box%box_len%0#0'
-debug: Inserted main_slice_box_route@33.ops[24]: 'l-store-copy box%box_len%0#0 1'
-debug: Replaced main_slice_box_route@33.ops[29]: 'v-load box%box_len%0#0' with 'l-load box%box_len%0#0'
-debug: Inserted main_slice_box_route@33.ops[36]: 'l-store-copy bounded_index%0#0 1'
-debug: Replaced main_slice_box_route@33.ops[41]: 'v-load bounded_index%0#0' with 'l-load bounded_index%0#0'
-debug: Inserted main_slice_box_route@33.ops[66]: 'l-store-copy box%box_len%1#1 1'
-debug: Replaced main_slice_box_route@33.ops[71]: 'v-load box%box_len%1#1' with 'l-load box%box_len%1#1'
-debug: Inserted main_slice_box_route@33.ops[77]: 'l-store-copy box%box_len%1#1 1'
-debug: Replaced main_slice_box_route@33.ops[82]: 'v-load box%box_len%1#1' with 'l-load box%box_len%1#1'
-debug: Inserted main_slice_box_route@33.ops[89]: 'l-store-copy bounded_index%2#0 1'
-debug: Replaced main_slice_box_route@33.ops[94]: 'v-load bounded_index%2#0' with 'l-load bounded_index%2#0'
-debug: Inserted main_slice_box_route@33.ops[19]: 'l-store-copy box%box_len%0#0 2'
-debug: Replaced main_slice_box_route@33.ops[24]: 'v-load box%box_len%0#0' with 'l-load box%box_len%0#0'
-debug: Inserted main_slice_box_route@33.ops[73]: 'l-store-copy box%box_len%1#1 2'
-debug: Replaced main_slice_box_route@33.ops[78]: 'v-load box%box_len%1#1' with 'l-load box%box_len%1#1'
-debug: Inserted main_slice_box_route@33.ops[22]: 'l-store-copy bounded_index%0#0 1'
-debug: Replaced main_slice_box_route@33.ops[37]: 'v-load bounded_index%0#0' with 'l-load bounded_index%0#0'
-debug: Inserted main_slice_box_route@33.ops[77]: 'l-store-copy bounded_index%2#0 1'
-debug: Replaced main_slice_box_route@33.ops[92]: 'v-load bounded_index%2#0' with 'l-load bounded_index%2#0'
+debug: Inserted main_slice_box_route@33.ops[10]: 'l-store-copy box%box_extract%0#0 0'
+debug: Replaced main_slice_box_route@33.ops[12]: 'v-load box%box_extract%0#0' with 'l-load box%box_extract%0#0'
+debug: Inserted main_slice_box_route@33.ops[15]: 'l-store-copy tmp%1#5 0'
+debug: Replaced main_slice_box_route@33.ops[17]: 'v-load tmp%1#5' with 'l-load tmp%1#5'
+debug: Inserted main_slice_box_route@33.ops[29]: 'l-store-copy box%box_extract%1#0 0'
+debug: Replaced main_slice_box_route@33.ops[31]: 'v-load box%box_extract%1#0' with 'l-load box%box_extract%1#0'
+debug: Inserted main_slice_box_route@33.ops[34]: 'l-store-copy tmp%4#4 0'
+debug: Replaced main_slice_box_route@33.ops[36]: 'v-load tmp%4#4' with 'l-load tmp%4#4'
 debug: Inserted main_test_box_ref_route@35.ops[6]: 'l-store-copy tmp%0#8 0'
 debug: Replaced main_test_box_ref_route@35.ops[8]: 'v-load tmp%0#8' with 'l-load tmp%0#8'
 debug: Inserted main_test_box_ref_route@35.ops[13]: 'l-store-copy tmp%4#4 0'
@@ -9948,36 +9928,30 @@ debug: Inserted main_test_box_ref_route@35.ops[49]: 'l-store-copy app_address#0 
 debug: Replaced main_test_box_ref_route@35.ops[107]: 'v-load app_address#0' with 'l-load app_address#0'
 debug: Inserted main_box_map_test_route@36.ops[2]: 'l-store-copy box_0#0 0'
 debug: Replaced main_box_map_test_route@36.ops[4]: 'v-load box_0#0' with 'l-load box_0#0'
-debug: Inserted main_box_map_test_route@36.ops[13]: 'l-store-copy box%box_len%0#0 0'
-debug: Replaced main_box_map_test_route@36.ops[15]: 'v-load box%box_len%0#0' with 'l-load box%box_len%0#0'
-debug: Inserted main_box_map_test_route@36.ops[18]: 'l-store-copy tmp%2#2 0'
-debug: Replaced main_box_map_test_route@36.ops[20]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
-debug: Inserted main_box_map_test_route@36.ops[24]: 'l-store-copy encoded_value%5#0 0'
-debug: Replaced main_box_map_test_route@36.ops[26]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
-debug: Inserted main_box_map_test_route@36.ops[34]: 'l-store-copy state_get%0#0 0'
-debug: Replaced main_box_map_test_route@36.ops[36]: 'v-load state_get%0#0' with 'l-load state_get%0#0'
-debug: Inserted main_box_map_test_route@36.ops[39]: 'l-store-copy tmp%7#1 0'
-debug: Replaced main_box_map_test_route@36.ops[41]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
-debug: Inserted main_box_map_test_route@36.ops[49]: 'l-store-copy tmp%8#0 0'
-debug: Replaced main_box_map_test_route@36.ops[51]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
-debug: Inserted main_box_map_test_route@36.ops[29]: 'l-store-copy maybe_value%0#0 0'
-debug: Replaced main_box_map_test_route@36.ops[32]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
-debug: Inserted main_box_map_test_route@36.ops[46]: 'l-store-copy exists#0 1'
-debug: Replaced main_box_map_test_route@36.ops[49]: 'v-load exists#0' with 'l-load exists#0'
+debug: Inserted main_box_map_test_route@36.ops[12]: 'l-store-copy encoded_value%5#0 0'
+debug: Replaced main_box_map_test_route@36.ops[14]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
+debug: Inserted main_box_map_test_route@36.ops[22]: 'l-store-copy state_get%0#0 0'
+debug: Replaced main_box_map_test_route@36.ops[24]: 'v-load state_get%0#0' with 'l-load state_get%0#0'
+debug: Inserted main_box_map_test_route@36.ops[27]: 'l-store-copy tmp%7#1 0'
+debug: Replaced main_box_map_test_route@36.ops[29]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
+debug: Inserted main_box_map_test_route@36.ops[37]: 'l-store-copy tmp%8#0 0'
+debug: Replaced main_box_map_test_route@36.ops[39]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
+debug: Inserted main_box_map_test_route@36.ops[17]: 'l-store-copy maybe_value%0#0 0'
+debug: Replaced main_box_map_test_route@36.ops[20]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
+debug: Inserted main_box_map_test_route@36.ops[34]: 'l-store-copy exists#0 1'
+debug: Replaced main_box_map_test_route@36.ops[37]: 'v-load exists#0' with 'l-load exists#0'
 debug: Inserted main_box_map_test_route@36.ops[5]: 'l-store-copy box_0#0 0'
 debug: Replaced main_box_map_test_route@36.ops[8]: 'v-load box_0#0' with 'l-load box_0#0'
-debug: Inserted main_box_map_test_route@36.ops[9]: 'l-store-copy box_0#0 0'
-debug: Replaced main_box_map_test_route@36.ops[12]: 'v-load box_0#0' with 'l-load box_0#0'
-debug: Inserted main_box_map_test_route@36.ops[58]: 'l-store-copy encoded_value%5#0 0'
-debug: Replaced main_box_map_test_route@36.ops[61]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
-debug: Inserted main_box_map_test_route@36.ops[62]: 'l-store-copy encoded_value%5#0 0'
-debug: Replaced main_box_map_test_route@36.ops[65]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
-debug: Inserted main_box_map_test_route@36.ops[30]: 'l-store-copy maybe_exists%0#0 1'
-debug: Replaced main_box_map_test_route@36.ops[36]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
-debug: Inserted main_box_map_test_route@36.ops[48]: 'l-store-copy encoded_value%5#0 0'
-debug: Replaced main_box_map_test_route@36.ops[59]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
-debug: Inserted main_box_map_test_route@36.ops[29]: 'l-store-copy encoded_value%5#0 0'
+debug: Inserted main_box_map_test_route@36.ops[45]: 'l-store-copy encoded_value%5#0 0'
 debug: Replaced main_box_map_test_route@36.ops[48]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
+debug: Inserted main_box_map_test_route@36.ops[49]: 'l-store-copy encoded_value%5#0 0'
+debug: Replaced main_box_map_test_route@36.ops[52]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
+debug: Inserted main_box_map_test_route@36.ops[17]: 'l-store-copy maybe_exists%0#0 1'
+debug: Replaced main_box_map_test_route@36.ops[23]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
+debug: Inserted main_box_map_test_route@36.ops[35]: 'l-store-copy encoded_value%5#0 0'
+debug: Replaced main_box_map_test_route@36.ops[46]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
+debug: Inserted main_box_map_test_route@36.ops[16]: 'l-store-copy encoded_value%5#0 0'
+debug: Replaced main_box_map_test_route@36.ops[35]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
 debug: Inserted main_box_map_set_route@37.ops[1]: 'l-store-copy tmp%0#3 0'
 debug: Replaced main_box_map_set_route@37.ops[3]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
 debug: Inserted main_box_map_set_route@37.ops[5]: 'l-store-copy len%0#0 0'
