@@ -3,9 +3,11 @@
 TODO: flesh this out before merging!
 
 Breaking changes due to "fast parsing" work:
-1. Python code must have lowercase extension ".py". Module init must be lowercase `__init__.py`.
-1. Explicitly importing / importing from an `__init__` is unsupported (weird things happen anyway). 
-1. No implicit namespace packages (was previously supported in third party packages)
+1. Python code must have lowercase extension `.py`. Module init must be lowercase `__init__.py`.
+1. Explicitly importing / importing from an `__init__.py` is unsupported (weird things happen anyway). 
+1. No implicit namespace packages (was previously supported in third party packages):
+   1. However, can still omit `__init__.py` in sub-packages of explicit sources
+1. No directory / py-file shadowing, even that which would be supported by Python.
 1. import cycles that would've failed in Python no longer supported, use deferred imports or TYPE_CHECKING instead
 1. restrictions on statements supported inside TYPE_CHECKING blocks:
    1. Only imports, if aliases were being constructed there as well, move them outside and use quotes (may required explicit typing.TypeAlias annotation), other code doesn't make sense?
