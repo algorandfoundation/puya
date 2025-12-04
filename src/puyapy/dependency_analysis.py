@@ -17,12 +17,15 @@ from puyapy.package_path import PackageError, PackageResolverCache
 logger = log.get_logger(__name__)
 
 
-_ALLOWED_STDLIB_STUBS: typing.Final = frozenset(
+_ALLOWED_STUB_PACKAGES: typing.Final = frozenset(
     (
+        # stdlib
         "abc",
         "typing",
-        # not technically stlib, but treated as synonym for typing for our purposes
+        # technically third party but basically works (for our purposes) as an alias to typing
         "typing_extensions",
+        # and of course, the main event:
+        "algopy",
     )
 )
 
@@ -102,8 +105,10 @@ class _ImportResolver(StatementTraverser):
                 location=loc,
             )
             return None
-        elif module_id in _ALLOWED_STDLIB_STUBS or parts[0] == "algopy":
-            return self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
+        elif parts[0] in _ALLOWED_STUB_PACKAGES:
+            # just add the package as a dependency, it's informational only at this point,
+            # but helps to explicitly indicate `algopy` as a dependency
+            return self._add_dependency(parts[0], None, loc, extra=DependencyFlags.STUB)
         elif path := self._find_module(module_id, loc):
             return self._add_dependency(module_id, path, loc)
         else:
