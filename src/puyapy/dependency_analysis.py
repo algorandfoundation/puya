@@ -67,6 +67,8 @@ def resolve_import_dependencies(
         import_base_dir=import_base_dir,
     )
     import_dependencies = resolver.collect(tree)
+    # TODO: these only really needed to get added to the "source-queue", maybe move this up
+    #       a level? Wouldn't need to solve the flags problem noted in the below function then.
     implicit_dependencies = _create_ancestor_dependencies(
         tree.name, tree.path, import_dependencies
     )
