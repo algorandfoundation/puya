@@ -34,7 +34,12 @@ from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
 from puyapy import interpreter_data
-from puyapy.dependency_analysis import Dependency, DependencyFlags, ImportDependencyResolver
+from puyapy.dependency_analysis import (
+    Dependency,
+    DependencyFlags,
+    PackageResolverCache,
+    resolve_import_dependencies,
+)
 from puyapy.fast.builder import parse_module
 from puyapy.fast.nodes import Module as FastModule
 from puyapy.find_sources import ResolvedSource, create_source_list
@@ -93,12 +98,11 @@ def parse_python(
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
-    sources_by_module_name, package_roots = _create_and_check_source_list(
+    sources_by_module_name, source_roots = _create_and_check_source_list(
         paths, excluded_subdir_names=excluded_subdir_names
     )
     sources_by_module_name = dict(sorted(sources_by_module_name.items()))
 
-    package_paths = _resolve_package_paths(package_search_paths)
     fs_cache = FileSystemCache()
     # prime the cache with supplied content overrides, so that mypy reads from our data instead
     if file_contents:
@@ -109,11 +113,13 @@ def parse_python(
             fs_cache.read_cache[fn] = data
             fs_cache.hash_cache[fn] = hash_digest(data)
 
-    module_data = _find_dependencies(
+    package_paths = _resolve_package_paths(package_search_paths)
+    package_cache = PackageResolverCache(package_paths)
+    module_data = _fast_parse_and_resolve_imports(
         sources_by_module_name.values(),
         fs_cache,
-        package_roots=package_roots,
-        package_paths=package_paths,
+        source_roots=source_roots,
+        package_cache=package_cache,
     )
     mypy_build_sources = [
         BuildSource(
@@ -325,14 +331,13 @@ class _ModuleData:
     is_source: bool
 
 
-def _find_dependencies(
+def _fast_parse_and_resolve_imports(
     sources: Collection[ResolvedSource],
     fs_cache: FileSystemCache,
     *,
-    package_roots: Mapping[str, Path],
-    package_paths: Sequence[Path],
+    source_roots: Mapping[str, Path],
+    package_cache: PackageResolverCache,
 ) -> dict[str, _ModuleData]:
-    resolver = ImportDependencyResolver(package_roots=package_roots, package_paths=package_paths)
     result_by_id = dict[str, _ModuleData]()
     source_queue = deque(sources)
     queued_id_set = {rs.module for rs in source_queue}
@@ -352,7 +357,12 @@ def _find_dependencies(
         if fast is None:
             dependencies = []
         else:
-            dependencies = resolver.resolve_import_dependencies(rs, fast)
+            dependencies = resolve_import_dependencies(
+                fast,
+                source_roots=source_roots,
+                package_cache=package_cache,
+                import_base_dir=rs.base_dir or rs.path.parent,
+            )
             for dep in dependencies:
                 mod_path = dep.path
                 if mod_path is None:
