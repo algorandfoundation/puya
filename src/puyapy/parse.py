@@ -3,10 +3,7 @@ import enum
 import functools
 import graphlib
 import os
-import shutil
-import subprocess
 import sys
-import sysconfig
 import typing
 from collections import deque
 from collections.abc import Collection, Mapping, Sequence, Set
@@ -38,16 +35,15 @@ from puya import log
 from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add
-from puyapy import interpreter_data
 from puyapy.dependency_analysis import (
     Dependency,
     DependencyFlags,
-    PackageResolverCache,
     resolve_import_dependencies,
 )
 from puyapy.fast.builder import parse_module
 from puyapy.fast.nodes import Module as FastModule
 from puyapy.find_sources import ResolvedSource, create_source_list
+from puyapy.package_path import PackageResolverCache, resolve_package_paths
 
 logger = log.get_logger(__name__)
 
@@ -118,7 +114,8 @@ def parse_python(
             fs_cache.read_cache[fn] = data
             fs_cache.hash_cache[fn] = hash_digest(data)
 
-    package_paths = _resolve_package_paths(package_search_paths)
+    package_paths = resolve_package_paths(package_search_paths)
+    _check_algopy_version(package_paths)
     package_cache = PackageResolverCache(package_paths)
     module_data = _fast_parse_and_resolve_imports(
         sources_by_module_name.values(),
@@ -275,52 +272,6 @@ def _create_and_check_source_list(
     if errors:
         raise ExceptionGroup("source conflicts", errors)
     return sources_by_module_name, package_roots
-
-
-def _resolve_package_paths(
-    package_search_paths: Sequence[str] | typing.Literal["infer", "current"],
-) -> list[Path]:
-    match package_search_paths:
-        case "current":
-            sys_path = interpreter_data.get_sys_path()
-        case "infer":
-            sys_path = _infer_sys_path()
-        case paths:
-            sys_path = [os.path.abspath(p) for p in paths]  # noqa: PTH100
-    logger.info(f"using python search path: {sys_path}")
-    _check_algopy_version(sys_path)
-    return [Path(p) for p in sys_path]
-
-
-def _infer_sys_path() -> list[str]:
-    # 1) Look for VIRTUAL_ENV as we want the venv puyapy is being run against (i.e. the project).
-    # 2) If no venv is active, then fallback to the python interpreter on the system path.
-    # 3) Failing that, use the current interpreter.
-    # In the future, we might want to make it 1 -> 3 -> error, since searching the system path
-    # for a python executable is just as likely to be incorrect as using the currently running one,
-    # with extra downside that it's less predictable.
-    # To continue to support the current method, we could add a --python-executable=... CLI option.
-    try:
-        venv = os.environ["VIRTUAL_ENV"]
-    except KeyError:
-        logger.debug("no active python virtual env")
-        venv_scripts = None
-    else:
-        logger.debug(f"found active python virtual env: {venv}")
-        venv_paths = sysconfig.get_paths(vars={"base": venv})
-        venv_scripts = venv_paths["scripts"]
-    for python in ("python3", "python"):
-        logger.debug(f"attempting to locate '{python}' in {venv_scripts or 'system path'}")
-        python_exe = shutil.which(python, path=venv_scripts)
-        if python_exe:
-            logger.debug(f"using python search path from interpreter: {python_exe}")
-            return get_sys_path(python_exe)
-    if venv_scripts:
-        raise ConfigurationError(
-            "found an active python virtual env, but could not find an expected python interpreter"
-        )
-    logger.debug("using python search path from current interpreter")
-    return interpreter_data.get_sys_path()
 
 
 @attrs.frozen
@@ -612,37 +563,13 @@ def _typeshed_paths() -> tuple[tuple[Path, ...], Mapping[str, Path]]:
     return (typeshed_dir, mypy_extensions_dir), algopy_sources
 
 
-def get_sys_path(python_executable: str) -> list[str]:
-    # Use subprocess to get the package directory of given Python
-    # executable
-    env = os.environ.copy() | {"PYTHONSAFEPATH": "1"}
-    try:
-        pyinfo_result = subprocess.run(  # noqa: S603
-            [python_executable, interpreter_data.__file__],
-            env=env,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-    except OSError as err:
-        assert err.errno is not None
-        reason = os.strerror(err.errno)
-        raise ConfigurationError(
-            f"invalid python executable '{python_executable}': {reason}"
-        ) from err
-    if pyinfo_result.returncode != 0:
-        if pyinfo_result.stderr:
-            raise ConfigurationError(pyinfo_result.stderr)
-        raise InternalError(f"failed to inspect python environment for {python_executable}")
-    sys_path = pyinfo_result.stdout.splitlines()
-    return sys_path
-
-
 _STUBS_PACKAGE_NAME = "algorand-python"
 
 
-def _check_algopy_version(site_packages: list[str]) -> None:
-    pkgs = metadata.Distribution.discover(name=_STUBS_PACKAGE_NAME, path=site_packages)
+def _check_algopy_version(site_packages: list[Path]) -> None:
+    pkgs = metadata.Distribution.discover(
+        name=_STUBS_PACKAGE_NAME, path=[str(p) for p in site_packages]
+    )
     try:
         (algopy,) = pkgs
     except ValueError:
