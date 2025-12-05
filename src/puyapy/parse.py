@@ -15,7 +15,7 @@ from packaging import version
 from puya import log
 from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import make_path_relative_to_cwd, set_add
+from puya.utils import make_path_relative_to_cwd, set_add, unique
 from puyapy.dependency_analysis import (
     Dependency,
     DependencyFlags,
@@ -99,34 +99,32 @@ def parse_python(
     )
     mypy_options, mypy_modules_by_name = mypy_parse(module_data)
 
-    # order modules by dependency, and also sanity check the contents
-    ordered_modules = {}
+    # order modules by dependency
     module_graph = {
-        md.module: sorted(
-            {
-                dep.module_id
-                for dep in md.dependencies
-                if not (
-                    dep.flags
-                    & (
-                        DependencyFlags.IMPLICIT
-                        | DependencyFlags.TYPE_CHECKING
-                        | DependencyFlags.DEFERRED
-                        | DependencyFlags.POTENTIAL_STAR_IMPORT
-                        | DependencyFlags.STUB
-                    )
+        md.module: unique(
+            dep.module_id
+            for dep in md.dependencies
+            if not (
+                dep.flags
+                & (
+                    DependencyFlags.IMPLICIT
+                    | DependencyFlags.TYPE_CHECKING
+                    | DependencyFlags.DEFERRED
+                    | DependencyFlags.POTENTIAL_STAR_IMPORT
+                    | DependencyFlags.STUB
                 )
-                and (dep.path and dep.path.is_file())
-            }
+            )
+            and (dep.path and dep.path.is_file())
         )
         for md in module_data.values()
-        if md.path.is_file()
     }
     try:
         module_order = list(graphlib.TopologicalSorter(module_graph).static_order())
     except graphlib.CycleError as ex:
         module_cycle: Sequence[str] = ex.args[1]
         raise CodeError(f"cyclical module reference: {' -> '.join(module_cycle)}") from None
+
+    ordered_modules = {}
     for module_name in module_order:
         mypy_module = mypy_modules_by_name[module_name]
         assert (
