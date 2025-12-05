@@ -96,33 +96,26 @@ class _AggregateCollector(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> None:
-        intrinsic_op = get_box_read_intrinsic_op(intrinsic)
-        if intrinsic_op is not None:
-            self.intrinsic_reads[intrinsic_op.args[0]] = intrinsic_op
-            return
-
-        intrinsic_len = get_box_len_intrinsic_op(intrinsic)
-        if intrinsic_len is not None:
-            self.intrinsic_lens[intrinsic_len.args[0]] = intrinsic_len
+        if _is_box_read_intrinsic_op(intrinsic):
+            self.intrinsic_reads[intrinsic.args[0]] = intrinsic
+        elif _is_box_len_intrinsic_op(intrinsic):
+            self.intrinsic_lens[intrinsic.args[0]] = intrinsic
+        else:
             return
 
 
-def get_box_read_intrinsic_op(intrinsic: models.Intrinsic) -> models.Intrinsic | None:
-    match intrinsic:
-        case models.Intrinsic(op=AVMOp.extract3) | models.Intrinsic(op=AVMOp.substring3):
-            return intrinsic
-        case models.Intrinsic(op=AVMOp.extract, immediates=[int(), int(l)]) if l > 0:
-            return intrinsic
+def _is_box_read_intrinsic_op(intrinsic: models.Intrinsic) -> bool:
+    match intrinsic.op, intrinsic.immediates:
+        case (AVMOp.extract3 | AVMOp.substring3, []):
+            return True
+        case (AVMOp.extract, [int(), int(l)]) if l > 0:
+            return True
         case _:
-            return None
+            return False
 
 
-def get_box_len_intrinsic_op(intrinsic: models.Intrinsic) -> models.Intrinsic | None:
-    match intrinsic:
-        case models.Intrinsic(op=AVMOp.len_):
-            return intrinsic
-        case _:
-            return None
+def _is_box_len_intrinsic_op(intrinsic: models.Intrinsic) -> bool:
+    return intrinsic.op is AVMOp.len_
 
 
 @attrs.define
@@ -207,16 +200,13 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         )
         return new_read
 
-    def visit_intrinsic_op(self, intrinsic_op: models.Intrinsic) -> models.ValueProvider | None:
-        intrinsic = get_box_read_intrinsic_op(intrinsic_op)
-        if intrinsic is not None:
+    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> models.ValueProvider | None:
+        if _is_box_read_intrinsic_op(intrinsic):
             return self._handle_intrinsic_read(intrinsic)
-
-        intrinsic = get_box_len_intrinsic_op(intrinsic_op)
-        if intrinsic is not None:
+        elif _is_box_len_intrinsic_op(intrinsic):
             return self._handle_intrinsic_len(intrinsic)
-
-        return None
+        else:
+            return None
 
     def visit_box_write(self, write: models.BoxWrite) -> models.Op | None:
         # find aggregate
