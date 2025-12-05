@@ -275,12 +275,12 @@ def _fast_parse_and_resolve_imports(
 
 @attrs.frozen(init=False)
 class _SourceQueue:
-    _queue_id_set: set[str]
+    _module_paths: dict[str, Path]
     _source_queue: deque[ResolvedSource]
 
     def __init__(self, sources: Collection[ResolvedSource]):
         self.__attrs_init__(
-            queue_id_set={rs.module for rs in sources},
+            module_paths={rs.module: rs.path for rs in sources},
             source_queue=deque(sources),
         )
 
@@ -291,15 +291,27 @@ class _SourceQueue:
         return self._source_queue.popleft()
 
     def enqueue(self, module_id: str, module_path: Path) -> bool:
-        if set_add(self._queue_id_set, module_id) and module_path.is_file():
-            dep_rs = ResolvedSource(
-                path=module_path,
-                module=module_id,
-                base_dir=_infer_base_dir(module_path, module_id),
-            )
-            self._source_queue.append(dep_rs)
-            return True
-        return False
+        try:
+            existing_path = self._module_paths[module_id]
+        except KeyError:
+            pass
+        else:
+            if existing_path != module_path:
+                raise ConfigurationError(
+                    f"module {module_id} discovered at {make_path_relative_to_cwd(module_path)}"
+                    f" already processed at {make_path_relative_to_cwd(existing_path)}"
+                )
+            return False
+        self._module_paths[module_id] = module_path
+        if module_path.is_dir():
+            return False
+        dep_rs = ResolvedSource(
+            path=module_path,
+            module=module_id,
+            base_dir=_infer_base_dir(module_path, module_id),
+        )
+        self._source_queue.append(dep_rs)
+        return True
 
 
 def _infer_base_dir(path: Path, module: str) -> Path:
