@@ -17,7 +17,7 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.context import function_pytype, type_to_pytype
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
-from puyapy.parse import _get_mypy_options
+from puyapy.parse_mypy import _get_mypy_options
 from tests import STUBS_DIR, VCS_ROOT
 
 # the need to use approval / clear_state pages is abstracted away by
