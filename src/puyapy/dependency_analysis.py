@@ -55,16 +55,18 @@ def resolve_import_dependencies(
 ) -> list[Dependency]:
     assert all(p.is_file() and p.suffixes == [".py"] for p in source_roots.values())
     resolver = _ImportResolver(
+        module=tree,
         source_roots=source_roots,
         package_cache=package_cache,
         import_base_dir=import_base_dir,
     )
-    import_dependencies = resolver.collect(tree)
+    import_dependencies = resolver.collect()
     return import_dependencies
 
 
 @attrs.define
 class _ImportResolver(StatementTraverser):
+    module: fast_nodes.Module
     source_roots: Mapping[str, Path]
     "Source packages by their root module (either a standalone module or a pacakge __init__.py)"
     package_cache: PackageResolverCache
@@ -72,9 +74,9 @@ class _ImportResolver(StatementTraverser):
     _flags: DependencyFlags = attrs.field(default=DependencyFlags.NONE, init=False)
     _dependencies: list[Dependency] = attrs.field(factory=list, init=False)
 
-    def collect(self, module: fast_nodes.Module) -> list[Dependency]:
+    def collect(self) -> list[Dependency]:
         self._dependencies.clear()
-        self.visit_module(module)
+        self.visit_module(self.module)
         return self._dependencies.copy()
 
     @typing.override
@@ -104,11 +106,18 @@ class _ImportResolver(StatementTraverser):
     @typing.override
     def visit_from_import(self, from_imp: fast_nodes.FromImport) -> None:
         loc = from_imp.source_location
-        primary = self._resolve_module(from_imp.module, loc)
-        if primary and primary.path and primary.path.name == "__init__.py":
+        primary_path = None
+        if from_imp.module == self.module.name:
+            # avoid creating a potentially spurious self-dependency
+            primary_path = self.module.path
+        else:
+            primary = self._resolve_module(from_imp.module, loc)
+            if primary:
+                primary_path = primary.path
+        if primary_path and primary_path.name == "__init__.py":
             # If not resolving to an init file, then a direct dependency is sufficient,
             # otherwise, we need to consider sub modules.
-            module_dir = primary.path.parent
+            module_dir = primary_path.parent
             if from_imp.names is None:
                 self._resolve_from_init_import_star(from_imp.module, module_dir, loc)
             else:
