@@ -63,7 +63,7 @@ class PackageResolverCache:
         # sort entries, this will ensure directories come before python files and also
         # provide a consistent ordering
         result = dict[str, LibPathResult]()
-        for dir_entry in sorted(lib_path.iterdir(), key=lambda x: x.name):
+        for dir_entry in sorted(lib_path.iterdir()):
             if dir_entry.is_dir():
                 name = dir_entry.name
                 if dir_entry.name.isidentifier():
