@@ -81,7 +81,7 @@ class _ImportResolver(StatementTraverser):
         for imp in stmt.names:
             self._resolve_module(imp.name, imp.source_location)
 
-    def _resolve_module(self, module_id: str, loc: SourceLocation) -> Dependency | None:
+    def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
         if "__init__" in module_id.split("."):
             logger.error(
                 "explicitly importing __init__.py is not supported",
@@ -89,9 +89,12 @@ class _ImportResolver(StatementTraverser):
             )
             return None
         elif module_id in STUB_SYMTABLES:
-            return self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
+            self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
+            return None
         elif path := self._find_module(module_id, loc):
-            return self._add_dependency(module_id, path, loc)
+            if not path.is_dir():
+                self._add_dependency(module_id, path, loc)
+            return path
         else:
             return None
 
@@ -99,10 +102,7 @@ class _ImportResolver(StatementTraverser):
     def visit_from_import(self, from_imp: fast_nodes.FromImport) -> None:
         loc = from_imp.source_location
         if from_imp.module != self.module.name:
-            primary = self._resolve_module(from_imp.module, loc)
-            if not primary:
-                return
-            primary_path = primary.path
+            primary_path = self._resolve_module(from_imp.module, loc)
         else:
             # avoid creating a potentially spurious self-dependency
             primary_path = self.module.path

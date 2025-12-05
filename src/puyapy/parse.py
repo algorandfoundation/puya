@@ -114,7 +114,6 @@ def parse_python(
                     | DependencyFlags.STUB
                 )
             )
-            and (dep.path and dep.path.is_file())
         )
         for md in module_data.values()
     }
@@ -319,9 +318,8 @@ class _SourceQueue:
                     f" already processed at {make_path_relative_to_cwd(existing_path)}"
                 )
             return False
+        assert module_path.is_file(), (module_id, module_path)
         self._module_paths[module_id] = module_path
-        if module_path.is_dir():
-            return False
         dep_rs = ResolvedSource(
             path=module_path,
             module=module_id,
