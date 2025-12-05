@@ -337,8 +337,6 @@ def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str,
     ancestors = list(_expand_ancestors(module_id))
     if path.name == "__init__.py":
         path = path.parent
-    else:
-        ancestors.pop(0)
     for ancestor in ancestors:
         path = path.parent
         init_file = path / "__init__.py"
@@ -350,6 +348,8 @@ def _expand_ancestors(module_id: str) -> Iterator[str]:
     """
     Given a module_id like "a.b.c", will yield in turn: "a.b.c", "a.b", "a"
     """
-    while module_id:
+    while True:
+        module_id = module_id.rpartition(".")[0]
+        if not module_id:
+            break
         yield module_id
-        module_id, *_ = module_id.rpartition(".")

@@ -25,7 +25,7 @@ class ResolvedSource:
     """
 
     def __attrs_post_init__(self) -> None:
-        assert self.path.is_file() and self.path.suffixes == [".py"]
+        assert self.path.is_file() and self.path.suffixes == [".py"], self.path
         if self.base_dir is None and "." in self.module:
             raise InternalError(
                 f'resolved source has qualified module name "{self.module}" but no base_dir'
