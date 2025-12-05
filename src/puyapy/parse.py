@@ -214,63 +214,57 @@ def _create_and_check_source_list(
     build_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
     sources_by_module_name = dict[str, ResolvedSource]()
     sources_by_path = dict[Path, ResolvedSource]()
-    base_dir_by_pkg = dict[str, Path | None]()
     package_roots = dict[str, Path]()
-    errors = list[ConfigurationError]()
+    errors = list[str]()
+    seen_pkg_conflicts = set[frozenset[Path]]()
     for bs in build_sources:
         existing = sources_by_module_name.setdefault(bs.module, bs)
         if existing != bs:
             errors.append(
-                ConfigurationError(
-                    f"duplicate modules named in build sources:"
-                    f" {make_path_relative_to_cwd(bs.path)} has same module name '{bs.module}'"
-                    f" as {make_path_relative_to_cwd(existing.path)}"
-                )
+                f"duplicate modules named in build sources:"
+                f" {make_path_relative_to_cwd(bs.path)} has same module name '{bs.module}'"
+                f" as {make_path_relative_to_cwd(existing.path)}"
             )
+            continue
+        existing = sources_by_path.setdefault(bs.path, bs)
+        if existing != bs:
+            errors.append(
+                f"source path {make_path_relative_to_cwd(bs.path)}"
+                f" was resolved to multiple module names, ensure each path is only"
+                f" specified once or add top-level __init__.py files to mark package roots"
+            )
+            continue
+        pkg = bs.module.partition(".")[0]
+        if bs.base_dir is None:
+            pkg_root = bs.path
+            assert pkg_root.suffixes == [".py"] and pkg_root.stem != "__init__"
         else:
-            existing = sources_by_path.setdefault(bs.path, bs)
-            if existing != bs:
-                errors.append(
-                    ConfigurationError(
-                        f"source path {make_path_relative_to_cwd(bs.path)}"
-                        f" was resolved to multiple module names, ensure each path is only"
-                        f" specified once or add top-level __init__.py files to mark package roots"
-                    )
+            pkg_root = bs.base_dir / pkg / "__init__.py"
+            assert pkg_root.is_file()
+        existing_root = package_roots.setdefault(pkg, pkg_root)
+        if existing_root != pkg_root:
+            if not set_add(seen_pkg_conflicts, frozenset((existing_root, pkg_root))):
+                continue
+            conflict_msg = f"module '{bs.module}' appears to be a"
+            if bs.base_dir is None:
+                conflict_msg += f" standalone module at {make_path_relative_to_cwd(pkg_root)}"
+            else:
+                conflict_msg += f" package rooted at {make_path_relative_to_cwd(bs.base_dir)}"
+            conflict_msg += ", which conflicts with a"
+            existing_is_standalone = existing_root.name != "__init__.py"
+            if existing_is_standalone:
+                conflict_msg += (
+                    f" standalone module of the same name"
+                    f" located at {make_path_relative_to_cwd(existing_root)}"
                 )
             else:
-                pkg = bs.module.partition(".")[0]
-                # TODO: use just package_roots instead of also having base_dir_by_pkg
-                existing_base = base_dir_by_pkg.setdefault(pkg, bs.base_dir)
-                if existing_base == bs.base_dir:
-                    if bs.base_dir is None:
-                        assert bs.path.suffix == ".py" and not bs.path.name.startswith("__init__.")
-                        package_roots[pkg] = bs.path
-                    else:
-                        init_path = bs.base_dir / pkg / "__init__.py"
-                        assert init_path.is_file()
-                        package_roots[pkg] = init_path
-                else:
-                    if existing_base is None:
-                        conflict_msg = (
-                            f"module '{bs.module}' appears to be a package"
-                            f" rooted at {bs.base_dir},"
-                            f" which conflicts with a standalone module '{pkg}'"
-                        )
-                    elif bs.base_dir is None:
-                        conflict_msg = (
-                            f"module '{bs.module}' appears to be a standalone module,"
-                            f" which conflicts with a package of the same name"
-                            f" rooted at {existing_base}"
-                        )
-                    else:
-                        conflict_msg = (
-                            f"module '{bs.module}' appears to be a package"
-                            f" rooted at {bs.base_dir},"
-                            f" which conflicts with existing package root {existing_base}"
-                        )
-                    errors.append(ConfigurationError(conflict_msg))
+                conflict_msg += (
+                    f" package of the same name"
+                    f" rooted at {make_path_relative_to_cwd(existing_root.parent)}"
+                )
+            errors.append(conflict_msg)
     if errors:
-        raise ExceptionGroup("source conflicts", errors)
+        raise ExceptionGroup("source conflicts", [ConfigurationError(msg) for msg in errors])
     return sources_by_module_name, package_roots
 
 
