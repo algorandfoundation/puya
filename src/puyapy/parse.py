@@ -232,12 +232,10 @@ def _fast_parse_and_resolve_imports(
     package_cache: PackageResolverCache,
 ) -> dict[str, _ModuleData]:
     result_by_id = dict[str, _ModuleData]()
-    source_queue = deque(sources)
-    queued_id_set = {rs.module for rs in source_queue}
+    source_queue = _SourceQueue(sources)
     initial_source_ids = {rs.module for rs in sources}
     while source_queue:
-        rs = source_queue.popleft()
-        assert rs.module not in result_by_id
+        rs = source_queue.dequeue()
         try:
             source = file_contents[rs.path]
         except KeyError:
@@ -258,25 +256,50 @@ def _fast_parse_and_resolve_imports(
                 import_base_dir=rs.base_dir or rs.path.parent,
             )
             for dep in dependencies:
-                mod_path = dep.path
-                if mod_path is None:
+                if dep.path is None:
                     assert DependencyFlags.STUB in dep.flags
-                elif mod_path.is_file() and set_add(queued_id_set, dep.module_id):
-                    dep_rs = ResolvedSource(
-                        path=mod_path,
-                        module=dep.module_id,
-                        base_dir=_infer_base_dir(mod_path, dep.module_id),
-                    )
-                    source_queue.append(dep_rs)
+                else:
+                    source_queue.enqueue(dep.module_id, dep.path)
+        assert rs.module not in result_by_id
         result_by_id[rs.module] = _ModuleData(
             path=rs.path,
             module=rs.module,
             data=source,
             fast=fast,
+            # TODO: understand how self dependencies arise...?
             dependencies=tuple(d for d in dependencies if d.module_id != rs.module),
             is_source=rs.module in initial_source_ids,
         )
     return result_by_id
+
+
+@attrs.frozen(init=False)
+class _SourceQueue:
+    _queue_id_set: set[str]
+    _source_queue: deque[ResolvedSource]
+
+    def __init__(self, sources: Collection[ResolvedSource]):
+        self.__attrs_init__(
+            queue_id_set={rs.module for rs in sources},
+            source_queue=deque(sources),
+        )
+
+    def __bool__(self) -> bool:
+        return bool(self._source_queue)
+
+    def dequeue(self) -> ResolvedSource:
+        return self._source_queue.popleft()
+
+    def enqueue(self, module_id: str, module_path: Path) -> bool:
+        if set_add(self._queue_id_set, module_id) and module_path.is_file():
+            dep_rs = ResolvedSource(
+                path=module_path,
+                module=module_id,
+                base_dir=_infer_base_dir(module_path, module_id),
+            )
+            self._source_queue.append(dep_rs)
+            return True
+        return False
 
 
 def _infer_base_dir(path: Path, module: str) -> Path:
