@@ -10,7 +10,6 @@ from importlib import metadata
 from pathlib import Path
 
 import attrs
-from mypy.util import decode_python_encoding, find_python_encoding
 from packaging import version
 
 from puya import log
@@ -244,9 +243,7 @@ def _fast_parse_and_resolve_imports(
         try:
             source = file_contents[rs.path]
         except KeyError:
-            file_bytes = rs.path.read_bytes()
-            _check_encoding(file_bytes, rs.path)
-            source = decode_python_encoding(file_bytes)
+            source = _read_and_decode(rs.path)
         fast = parse_module(
             source=source,
             module_path=rs.path,
@@ -294,24 +291,28 @@ def _infer_base_dir(path: Path, module: str) -> Path:
     return path.parents[parts]
 
 
-def _check_encoding(source: bytes, module_path: Path) -> None:
-    module_rel_path = make_path_relative_to_cwd(module_path)
-    module_loc = SourceLocation(file=module_path, line=1)
+def _read_and_decode(module_path: Path) -> str:
+    # TODO: replace with our own functions
+    from mypy.util import decode_python_encoding, find_python_encoding
+
+    source = module_path.read_bytes()
     # below is based on mypy/util.py:decode_python_encoding
     # check for BOM UTF-8 encoding
-    if source.startswith(b"\xef\xbb\xbf"):
-        return
-    # otherwise look at first two lines and check if PEP-263 coding is present
-    encoding, _ = find_python_encoding(source)
-    # find the codec for this encoding and check it is utf-8
-    codec = codecs.lookup(encoding)
-    if codec.name != "utf-8":
-        logger.warning(
-            "UH OH SPAGHETTI-O's,"
-            " darn tootin' non-utf8(?!) encoded file encountered:"
-            f" {module_rel_path} encoded as {encoding}",
-            location=module_loc,
-        )
+    if not source.startswith(b"\xef\xbb\xbf"):
+        # otherwise look at first two lines and check if PEP-263 coding is present
+        encoding, _ = find_python_encoding(source)
+        # find the codec for this encoding and check it is utf-8
+        codec = codecs.lookup(encoding)
+        if codec.name != "utf-8":
+            module_rel_path = make_path_relative_to_cwd(module_path)
+            module_loc = SourceLocation(file=module_path, line=1)
+            logger.warning(
+                "UH OH SPAGHETTI-O's,"
+                " darn tootin' non-utf8(?!) encoded file encountered:"
+                f" {module_rel_path} encoded as {encoding}",
+                location=module_loc,
+            )
+    return decode_python_encoding(source)
 
 
 _STUBS_PACKAGE_NAME = "algorand-python"
