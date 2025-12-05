@@ -295,7 +295,7 @@ def _infer_base_dir(path: Path, module: str) -> Path:
     # /a/pkg/foo/__init__.py, pkg.foo -> /a/
     # /a/foo.py, foo -> /a/
     parts = module.count(".")
-    if path.stem == "__init__" and path.suffix in (".py", ".pyi"):
+    if path.name == "__init__.py":
         parts += 1
     return path.parents[parts]
 
