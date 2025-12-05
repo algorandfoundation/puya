@@ -99,10 +99,8 @@ def parse_python(
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
-    sources_by_module_name, source_roots = _create_and_check_source_list(
-        paths, excluded_subdir_names=excluded_subdir_names
-    )
-    sources_by_module_name = dict(sorted(sources_by_module_name.items()))
+    resolved_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
+    source_roots = _check_source_list_and_extract_package_roots(resolved_sources)
 
     fs_cache = FileSystemCache()
     # prime the cache with supplied content overrides, so that mypy reads from our data instead
@@ -118,7 +116,7 @@ def parse_python(
     _check_algopy_version(package_paths)
     package_cache = PackageResolverCache(package_paths)
     module_data = _fast_parse_and_resolve_imports(
-        sources_by_module_name.values(),
+        resolved_sources,
         fs_cache,
         source_roots=source_roots,
         package_cache=package_cache,
@@ -145,7 +143,7 @@ def parse_python(
         mypy_build_sources, mypy_options, mypy_search_paths, fs_cache, algopy_sources
     )
 
-    missing_module_names = sources_by_module_name.keys() - sorted_modules.keys()
+    missing_module_names = {rs.module for rs in resolved_sources} - sorted_modules.keys()
     # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
     assert (
         not missing_module_names
@@ -206,50 +204,47 @@ def parse_python(
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
 
 
-def _create_and_check_source_list(
-    paths: Sequence[Path],
-    *,
-    excluded_subdir_names: Sequence[str] | None,
-) -> tuple[Mapping[str, ResolvedSource], Mapping[str, Path]]:
-    build_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
+def _check_source_list_and_extract_package_roots(
+    resolved_sources: Sequence[ResolvedSource],
+) -> Mapping[str, Path]:
     sources_by_module_name = dict[str, ResolvedSource]()
     sources_by_path = dict[Path, ResolvedSource]()
     package_roots = dict[str, Path]()
     errors = list[str]()
     seen_pkg_conflicts = set[frozenset[Path]]()
-    for bs in build_sources:
-        existing = sources_by_module_name.setdefault(bs.module, bs)
-        if existing != bs:
+    for rs in resolved_sources:
+        existing = sources_by_module_name.setdefault(rs.module, rs)
+        if existing != rs:
             errors.append(
                 f"duplicate modules named in build sources:"
-                f" {make_path_relative_to_cwd(bs.path)} has same module name '{bs.module}'"
+                f" {make_path_relative_to_cwd(rs.path)} has same module name '{rs.module}'"
                 f" as {make_path_relative_to_cwd(existing.path)}"
             )
             continue
-        existing = sources_by_path.setdefault(bs.path, bs)
-        if existing != bs:
+        existing = sources_by_path.setdefault(rs.path, rs)
+        if existing != rs:
             errors.append(
-                f"source path {make_path_relative_to_cwd(bs.path)}"
+                f"source path {make_path_relative_to_cwd(rs.path)}"
                 f" was resolved to multiple module names, ensure each path is only"
                 f" specified once or add top-level __init__.py files to mark package roots"
             )
             continue
-        pkg = bs.module.partition(".")[0]
-        if bs.base_dir is None:
-            pkg_root = bs.path
+        pkg = rs.module.partition(".")[0]
+        if rs.base_dir is None:
+            pkg_root = rs.path
             assert pkg_root.suffixes == [".py"] and pkg_root.stem != "__init__"
         else:
-            pkg_root = bs.base_dir / pkg / "__init__.py"
+            pkg_root = rs.base_dir / pkg / "__init__.py"
             assert pkg_root.is_file()
         existing_root = package_roots.setdefault(pkg, pkg_root)
         if existing_root != pkg_root:
             if not set_add(seen_pkg_conflicts, frozenset((existing_root, pkg_root))):
                 continue
-            conflict_msg = f"module '{bs.module}' appears to be a"
-            if bs.base_dir is None:
+            conflict_msg = f"module '{rs.module}' appears to be a"
+            if rs.base_dir is None:
                 conflict_msg += f" standalone module at {make_path_relative_to_cwd(pkg_root)}"
             else:
-                conflict_msg += f" package rooted at {make_path_relative_to_cwd(bs.base_dir)}"
+                conflict_msg += f" package rooted at {make_path_relative_to_cwd(rs.base_dir)}"
             conflict_msg += ", which conflicts with a"
             existing_is_standalone = existing_root.name != "__init__.py"
             if existing_is_standalone:
@@ -265,7 +260,7 @@ def _create_and_check_source_list(
             errors.append(conflict_msg)
     if errors:
         raise ExceptionGroup("source conflicts", [ConfigurationError(msg) for msg in errors])
-    return sources_by_module_name, package_roots
+    return package_roots
 
 
 @attrs.frozen
