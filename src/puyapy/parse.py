@@ -10,10 +10,7 @@ from importlib import metadata
 from pathlib import Path
 
 import attrs
-from mypy.fscache import FileSystemCache
-from mypy.nodes import MypyFile
-from mypy.options import Options as MypyOptions
-from mypy.util import decode_python_encoding, find_python_encoding, hash_digest
+from mypy.util import decode_python_encoding, find_python_encoding
 from packaging import version
 
 from puya import log
@@ -31,6 +28,10 @@ from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.package_path import PackageResolverCache, resolve_package_paths
 from puyapy.parse_mypy import mypy_parse
 
+if typing.TYPE_CHECKING:
+    from mypy.nodes import MypyFile
+    from mypy.options import Options as MypyOptions
+
 logger = log.get_logger(__name__)
 
 # this should contain the lowest version number that this compiler does NOT support
@@ -47,7 +48,7 @@ class SourceDiscoveryMechanism(enum.Enum):
 @attrs.frozen
 class SourceModule:
     name: str
-    mypy_module: MypyFile
+    mypy_module: "MypyFile"
     path: Path
     fast: FastModule | None  # TODO: make this non-optional and handle failures differently
     lines: Sequence[str] | None
@@ -57,7 +58,7 @@ class SourceModule:
 
 @attrs.frozen
 class ParseResult:
-    mypy_options: MypyOptions
+    mypy_options: "MypyOptions"
     ordered_modules: Mapping[str, SourceModule]
     """All discovered modules, topologically sorted by dependencies.
     The sort order is from leaves (nodes without dependencies) to
@@ -88,26 +89,16 @@ def parse_python(
     resolved_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
     source_roots = _check_source_list_and_extract_package_roots(resolved_sources)
 
-    fs_cache = FileSystemCache()
-    # prime the cache with supplied content overrides, so that mypy reads from our data instead
-    if file_contents:
-        for content_path, content in file_contents.items():
-            fn = str(content_path)
-            data = content.encode("utf-8")
-            fs_cache.stat_or_none(fn)
-            fs_cache.read_cache[fn] = data
-            fs_cache.hash_cache[fn] = hash_digest(data)
-
     package_paths = resolve_package_paths(package_search_paths)
     _check_algopy_version(package_paths)
     package_cache = PackageResolverCache(package_paths)
     module_data = _fast_parse_and_resolve_imports(
         resolved_sources,
-        fs_cache,
+        file_contents=file_contents or {},
         source_roots=source_roots,
         package_cache=package_cache,
     )
-    mypy_options, mypy_modules_by_name = mypy_parse(module_data, fs_cache)
+    mypy_options, mypy_modules_by_name = mypy_parse(module_data)
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
@@ -238,8 +229,8 @@ class _ModuleData:
 
 def _fast_parse_and_resolve_imports(
     sources: Collection[ResolvedSource],
-    fs_cache: FileSystemCache,
     *,
+    file_contents: Mapping[Path, str],
     source_roots: Mapping[str, Path],
     package_cache: PackageResolverCache,
 ) -> dict[str, _ModuleData]:
@@ -250,9 +241,12 @@ def _fast_parse_and_resolve_imports(
     while source_queue:
         rs = source_queue.popleft()
         assert rs.module not in result_by_id
-        file_bytes = fs_cache.read(str(rs.path))
-        _check_encoding(file_bytes, rs.path)
-        source = decode_python_encoding(file_bytes)
+        try:
+            source = file_contents[rs.path]
+        except KeyError:
+            file_bytes = rs.path.read_bytes()
+            _check_encoding(file_bytes, rs.path)
+            source = decode_python_encoding(file_bytes)
         fast = parse_module(
             source=source,
             module_path=rs.path,
