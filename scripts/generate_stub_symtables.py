@@ -9,7 +9,7 @@ import mypy.find_sources
 import mypy.nodes
 
 from puya.log import configure_stdio
-from puyapy.parse import _get_mypy_options
+from puyapy.parse_mypy import _get_mypy_options
 
 THIS_PATH = Path(__file__)
 SCRIPTS_DIR = THIS_PATH.parent

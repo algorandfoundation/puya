@@ -12,7 +12,7 @@ import mypy.nodes
 from sphinx.cmd.build import main as sphinx_build
 
 from puya.log import configure_stdio
-from puyapy.parse import _get_mypy_options
+from puyapy.parse_mypy import _get_mypy_options
 
 SCRIPTS_DIR = Path(__file__).parent
 VCS_ROOT = SCRIPTS_DIR.parent
