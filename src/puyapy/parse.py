@@ -258,6 +258,14 @@ def _fast_parse_and_resolve_imports(
             for dep in dependencies:
                 if dep.path is None:
                     assert DependencyFlags.STUB in dep.flags
+                    for ancestor_id in _expand_ancestors(dep.module_id):
+                        # just add all ancestors as direct dependencies, it's informational only
+                        # at this point, but helps to explicitly indicate `algopy` as a dependency
+                        dependencies.append(
+                            Dependency(
+                                ancestor_id, None, dep.flags | DependencyFlags.IMPLICIT, dep.loc
+                            )
+                        )
                 else:
                     source_queue.enqueue(dep.module_id, dep.path)
             if "." in rs.module:
