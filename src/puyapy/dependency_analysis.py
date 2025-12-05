@@ -2,7 +2,6 @@ import contextlib
 import enum
 import typing
 from collections.abc import Iterator, Mapping, Sequence
-from operator import itemgetter
 from pathlib import Path
 
 import attrs
@@ -61,12 +60,7 @@ def resolve_import_dependencies(
         import_base_dir=import_base_dir,
     )
     import_dependencies = resolver.collect(tree)
-    # TODO: these only really needed to get added to the "source-queue", maybe move this up
-    #       a level? Wouldn't need to solve the flags problem noted in the below function then.
-    implicit_dependencies = _create_ancestor_dependencies(
-        tree.name, tree.path, import_dependencies
-    )
-    return import_dependencies + implicit_dependencies
+    return import_dependencies
 
 
 @attrs.define
@@ -299,57 +293,3 @@ def _resolve_module_path(base_path: Path, *, allow_implicit_ns_dir: bool = True)
     elif base_path.is_dir() and allow_implicit_ns_dir:
         return base_path
     return None
-
-
-def _create_ancestor_dependencies(
-    module_id: str, path: Path, import_dependencies: Sequence[Dependency]
-) -> list[Dependency]:
-    imports_by_name = dict[str, list[Dependency]]()
-    for imp_dep in import_dependencies:
-        if imp_dep.path:
-            imports_by_name.setdefault(imp_dep.module_id, []).append(imp_dep)
-    # create a fake entry for self, so we capture it's ancestors
-    imports_by_name.setdefault(module_id, []).append(
-        Dependency(module_id, path, DependencyFlags.NONE, None)
-    )
-    result = list[Dependency]()
-    for import_module_id, imports in sorted(imports_by_name.items(), key=itemgetter(0)):
-        (import_path,) = {imp.path for imp in imports}
-        assert import_path is not None, "stub imports should already be excluded"
-        for ancestor_module_id, ancestor_init_path in _expand_init_dependencies(
-            import_module_id, import_path
-        ):
-            # TODO: can we combine these (flags in particular) logically and simply?
-            result.extend(
-                Dependency(
-                    ancestor_module_id,
-                    ancestor_init_path,
-                    imp.flags | DependencyFlags.IMPLICIT,
-                    imp.loc,
-                )
-                for imp in imports
-            )
-    return result
-
-
-def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
-    """Check that all packages containing id have a __init__ file."""
-    ancestors = list(_expand_ancestors(module_id))
-    if path.name == "__init__.py":
-        path = path.parent
-    for ancestor in ancestors:
-        path = path.parent
-        init_file = path / "__init__.py"
-        if init_file.is_file():
-            yield ancestor, init_file
-
-
-def _expand_ancestors(module_id: str) -> Iterator[str]:
-    """
-    Given a module_id like "a.b.c", will yield in turn: "a.b.c", "a.b", "a"
-    """
-    while True:
-        module_id = module_id.rpartition(".")[0]
-        if not module_id:
-            break
-        yield module_id
