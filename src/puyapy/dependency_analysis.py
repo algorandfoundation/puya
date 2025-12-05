@@ -17,9 +17,6 @@ from puyapy.package_path import PackageError, PackageResolverCache
 logger = log.get_logger(__name__)
 
 
-_ALLOWED_STUB_FILES: typing.Final = frozenset(STUB_SYMTABLES.keys())
-
-
 class DependencyFlags(enum.Flag):
     NONE = 0
     IMPLICIT = enum.auto()
@@ -91,12 +88,7 @@ class _ImportResolver(StatementTraverser):
                 location=loc,
             )
             return None
-        elif module_id in _ALLOWED_STUB_FILES:
-            # just add the package as a dependency, it's informational only at this point,
-            # but helps to explicitly indicate `algopy` as a dependency
-            pkg = module_id.partition(".")[0]
-            if pkg != module_id:
-                self._add_dependency(pkg, None, loc, extra=DependencyFlags.STUB)
+        elif module_id in STUB_SYMTABLES:
             return self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
         elif path := self._find_module(module_id, loc):
             return self._add_dependency(module_id, path, loc)
@@ -106,14 +98,15 @@ class _ImportResolver(StatementTraverser):
     @typing.override
     def visit_from_import(self, from_imp: fast_nodes.FromImport) -> None:
         loc = from_imp.source_location
-        primary_path = None
-        if from_imp.module == self.module.name:
+        if from_imp.module != self.module.name:
+            primary = self._resolve_module(from_imp.module, loc)
+            if not primary:
+                return
+            primary_path = primary.path
+        else:
             # avoid creating a potentially spurious self-dependency
             primary_path = self.module.path
-        else:
-            primary = self._resolve_module(from_imp.module, loc)
-            if primary:
-                primary_path = primary.path
+        # TODO: do we want to expand modules from stubs?
         if primary_path and primary_path.name == "__init__.py":
             # If not resolving to an init file, then a direct dependency is sufficient,
             # otherwise, we need to consider sub modules.
