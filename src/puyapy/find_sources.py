@@ -46,7 +46,7 @@ def create_source_list(
     sources = []
     for path in paths:
         path = path.resolve()
-        if path.suffix == ".py":
+        if path.suffixes == [".py"]:
             sources.append(finder.file_source(path))
         elif not path.is_dir():
             logger.error(f"path is not a directory or a .py file: {path}")
@@ -92,32 +92,25 @@ class _SourceResolver:
 
     def directory_sources(self, src_dir: Path) -> list[ResolvedSource]:
         """Given an absolute directory, recursively find all build sources within."""
-        py_paths = []
-        sub_dirs = []
-        for path in src_dir.iterdir():
-            if path.suffix == ".py":
-                py_paths.append(path)
-            elif path.name.startswith(".") or path.name in self._all_excluded_subdir_names:
-                pass  # skip hidden directories and also excluded ones
-            elif path.is_dir():
-                sub_dirs.append(path)
-
         sources = []
-        src_dir_names = set[str]()
-        for path in sub_dirs:
-            sub_sources = self.directory_sources(path)
-            if sub_sources:
-                src_dir_names.add(path.name)
-                sources.extend(sub_sources)
-
-        for path in py_paths:
-            if path.stem in src_dir_names:
-                logger.warning(
-                    f"python file {make_path_relative_to_cwd(path)}"
-                    f" shadowed by module directory with same name"
-                )
-            else:
-                sources.append(self.file_source(path))
+        dir_names = set[str]()
+        # sort to ensure that directories appear before any python modules they might shadow
+        for path in sorted(src_dir.iterdir()):
+            if path.is_dir():
+                dir_names.add(path.name)
+                if path.name.startswith(".") or path.name in self._all_excluded_subdir_names:
+                    pass  # skip hidden directories and also excluded ones
+                else:
+                    sources.extend(self.directory_sources(path))
+            elif path.suffixes == [".py"]:
+                if path.stem in dir_names:
+                    # TODO: standardise this error here and in dependency_analysis.py
+                    logger.error(
+                        f"python file {make_path_relative_to_cwd(path)}"
+                        f" potentially shadowed by directory with same name"
+                    )
+                else:
+                    sources.append(self.file_source(path))
         return sources
 
     def _find_package_root(self, src_dir: Path) -> tuple[str, Path] | None:
