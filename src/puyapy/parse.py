@@ -4,7 +4,7 @@ import graphlib
 import sys
 import typing
 from collections import deque
-from collections.abc import Collection, Mapping, Sequence, Set
+from collections.abc import Collection, Iterator, Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
 from pathlib import Path
@@ -260,7 +260,17 @@ def _fast_parse_and_resolve_imports(
                     assert DependencyFlags.STUB in dep.flags
                 else:
                     source_queue.enqueue(dep.module_id, dep.path)
-        assert rs.module not in result_by_id
+            if "." in rs.module:
+                ancestor_module_id, ancestor_init_path = next(
+                    _expand_init_dependencies(rs.module, rs.path)
+                )
+                source_queue.enqueue(ancestor_module_id, ancestor_init_path)
+                dependencies.append(
+                    Dependency(  # TODO: might not need this?
+                        ancestor_module_id, ancestor_init_path, DependencyFlags.IMPLICIT, None
+                    )
+                )
+        assert rs.module not in result_by_id, rs.module
         result_by_id[rs.module] = _ModuleData(
             path=rs.path,
             module=rs.module,
@@ -373,3 +383,28 @@ def _check_algopy_version(site_packages: list[Path]) -> None:
                 "Please update your algorand-python package to be in the supported range.",
             ],
         )
+
+
+def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
+    """
+    Generate a sequence of __init__.py files that would be implicitly executed on import,
+    starting at the most nested level first.
+    """
+    if path.name == "__init__.py":
+        path = path.parent
+    for ancestor in _expand_ancestors(module_id):
+        path = path.parent
+        init_file = path / "__init__.py"
+        if init_file.is_file():
+            yield ancestor, init_file
+
+
+def _expand_ancestors(module_id: str) -> Iterator[str]:
+    """
+    Given a module_id like "a.b.c", will yield in turn: "a.b", "a"
+    """
+    while True:
+        module_id = module_id.rpartition(".")[0]
+        if not module_id:
+            break
+        yield module_id
