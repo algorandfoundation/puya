@@ -14,7 +14,7 @@ from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
 from mypy.typestate import reset_global_state, type_state
-from mypy.util import read_py_file
+from mypy.util import hash_digest, read_py_file
 from mypy.version import __version__ as mypy_version
 
 from puya import log
@@ -28,8 +28,17 @@ logger = log.get_logger(__name__)
 
 
 def mypy_parse(
-    module_data: Mapping[str, "_ModuleData"], fs_cache: FileSystemCache
+    module_data: Mapping[str, "_ModuleData"],
 ) -> tuple[MypyOptions, Mapping[str, MypyFile]]:
+    fs_cache = FileSystemCache()
+    # prime the cache with supplied content overrides, so that mypy reads from our data instead
+    for md in module_data.values():
+        fn = str(md.path)
+        data = md.data.encode("utf-8")
+        fs_cache.stat_or_none(fn)
+        fs_cache.read_cache[fn] = data
+        fs_cache.hash_cache[fn] = hash_digest(data)
+
     mypy_build_sources = [
         BuildSource(
             path=str(md.path),  # TODO: figure out why omitting this fails in pytest only
@@ -38,7 +47,6 @@ def mypy_parse(
             followed=not md.is_source,
         )
         for module, md in module_data.items()
-        if md.path.is_file()
     ]
     mypy_options = _get_mypy_options()
     typeshed_paths, algopy_sources = _typeshed_paths()
