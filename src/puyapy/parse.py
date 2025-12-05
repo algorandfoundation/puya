@@ -121,33 +121,7 @@ def parse_python(
         source_roots=source_roots,
         package_cache=package_cache,
     )
-    mypy_build_sources = [
-        BuildSource(
-            path=str(md.path),  # TODO: figure out why omitting this fails in pytest only
-            module=module,
-            text=md.data,
-            followed=not md.is_source,
-        )
-        for module, md in module_data.items()
-        if md.path.is_file()
-    ]
-    mypy_options = _get_mypy_options()
-    typeshed_paths, algopy_sources = _typeshed_paths()
-    mypy_search_paths = SearchPaths(
-        python_path=(),
-        package_path=(),
-        typeshed_path=tuple(map(str, typeshed_paths)),
-        mypy_path=(),
-    )
-    sorted_modules = _mypy_build(
-        mypy_build_sources, mypy_options, mypy_search_paths, fs_cache, algopy_sources
-    )
-
-    missing_module_names = {rs.module for rs in resolved_sources} - sorted_modules.keys()
-    # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
-    assert (
-        not missing_module_names
-    ), f"mypy parse failed, missing modules: {', '.join(missing_module_names)}"
+    mypy_options, mypy_modules_by_name = _mypy_parse(module_data, fs_cache)
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
@@ -178,7 +152,7 @@ def parse_python(
         module_cycle: Sequence[str] = ex.args[1]
         raise CodeError(f"cyclical module reference: {' -> '.join(module_cycle)}") from None
     for module_name in module_order:
-        mypy_module = sorted_modules[module_name]
+        mypy_module = mypy_modules_by_name[module_name]
         assert (
             module_name == mypy_module.fullname
         ), f"mypy module mismatch, expected {module_name}, got {mypy_module.fullname}"
@@ -202,6 +176,38 @@ def parse_python(
         raise InternalError(f"parse has leftover modules: {', '.join(module_data.keys())}")
 
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
+
+
+def _mypy_parse(
+    module_data: Mapping[str, "_ModuleData"], fs_cache: FileSystemCache
+) -> tuple[MypyOptions, Mapping[str, MypyFile]]:
+    mypy_build_sources = [
+        BuildSource(
+            path=str(md.path),  # TODO: figure out why omitting this fails in pytest only
+            module=module,
+            text=md.data,
+            followed=not md.is_source,
+        )
+        for module, md in module_data.items()
+        if md.path.is_file()
+    ]
+    mypy_options = _get_mypy_options()
+    typeshed_paths, algopy_sources = _typeshed_paths()
+    mypy_search_paths = SearchPaths(
+        python_path=(),
+        package_path=(),
+        typeshed_path=tuple(map(str, typeshed_paths)),
+        mypy_path=(),
+    )
+    sorted_modules = _mypy_build(
+        mypy_build_sources, mypy_options, mypy_search_paths, fs_cache, algopy_sources
+    )
+    missing_module_names = {bs.module for bs in mypy_build_sources} - sorted_modules.keys()
+    # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
+    assert (
+        not missing_module_names
+    ), f"mypy parse failed, missing modules: {', '.join(missing_module_names)}"
+    return mypy_options, sorted_modules
 
 
 def _check_source_list_and_extract_package_roots(
