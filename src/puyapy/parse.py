@@ -276,8 +276,7 @@ def _fast_parse_and_resolve_imports(
             module=rs.module,
             data=source,
             fast=fast,
-            # TODO: understand how self dependencies arise...?
-            dependencies=tuple(d for d in dependencies if d.module_id != rs.module),
+            dependencies=tuple(dependencies),
             is_source=rs.module in initial_source_ids,
         )
     return result_by_id
