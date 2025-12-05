@@ -266,16 +266,13 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
 
         factory = OpFactory(self, merged_loc)
 
-        match intrinsic:
-            case models.Intrinsic(op=AVMOp.extract3):
-                offset: models.Value | int = intrinsic.args[1]
-                length: models.Value | int = intrinsic.args[2]
-            case models.Intrinsic(op=AVMOp.extract, immediates=[int(o), int(l)]) if l > 0:
-                offset = o
-                length = l
-            case models.Intrinsic(op=AVMOp.substring3):
-                offset = intrinsic.args[1]
-                length = factory.sub(intrinsic.args[2], intrinsic.args[1], "substring3_length")
+        match (intrinsic.op, intrinsic.args, intrinsic.immediates):
+            case (AVMOp.extract3, [_, offset, length], []):
+                pass
+            case (AVMOp.extract, _, [int(offset), int(length)]) if length > 0:
+                pass
+            case (AVMOp.substring3, [_, offset, end], []):
+                length = factory.sub(end, offset, "substring3_length")
             case _:
                 raise InternalError("unexpected intrinsic op", merged_loc)
 
