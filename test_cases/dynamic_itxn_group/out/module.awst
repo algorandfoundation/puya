@@ -1,37 +1,3 @@
-contract VerifierContract
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.dynamic_itxn_group.verifier.VerifierContract.verify(): void
-  {
-    for i in range(0u, txn<GroupIndex>(), 1u) {
-      txn: group_transaction = group_transaction(index=i, type=any)
-      assert(gtxns<TypeEnum>(txn) == pay, comment="Txn must be pay")
-    }
-  }
-  
-  baremethod test_cases.dynamic_itxn_group.verifier.VerifierContract.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
 contract DynamicITxnGroup
 {
   method_resolution_order: (
@@ -81,6 +47,40 @@ contract DynamicITxnGroup
   }
   
   baremethod test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract VerifierContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.dynamic_itxn_group.verifier.VerifierContract.verify(): void
+  {
+    for i in range(0u, txn<GroupIndex>(), 1u) {
+      txn: group_transaction = group_transaction(index=i, type=any)
+      assert(gtxns<TypeEnum>(txn) == pay, comment="Txn must be pay")
+    }
+  }
+  
+  baremethod test_cases.dynamic_itxn_group.verifier.VerifierContract.__algopy_default_create(): void
   {
   }
   
