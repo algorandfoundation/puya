@@ -22,7 +22,7 @@ class DependencyFlags(enum.Flag):
     IMPLICIT = enum.auto()
     TYPE_CHECKING = enum.auto()
     DEFERRED = enum.auto()
-    POTENTIAL_STAR_IMPORT = enum.auto()
+    MAYBE_SHADOWED_IN_INIT = enum.auto()
     STUB = enum.auto()
 
 
@@ -101,20 +101,35 @@ class _ImportResolver(StatementTraverser):
     @typing.override
     def visit_from_import(self, from_imp: fast_nodes.FromImport) -> None:
         loc = from_imp.source_location
-        if from_imp.module != self.module.name:
-            primary_path = self._resolve_module(from_imp.module, loc)
-        else:
+        if from_imp.module == self.module.name:
             # avoid creating a potentially spurious self-dependency
-            primary_path = self.module.path
-        # TODO: do we want to expand modules from stubs?
-        if primary_path and primary_path.name == "__init__.py":
-            # If not resolving to an init file, then a direct dependency is sufficient,
-            # otherwise, we need to consider sub modules.
-            module_dir = primary_path.parent
-            if from_imp.names is None:
-                self._resolve_from_init_import_star(from_imp.module, module_dir, loc)
-            else:
-                self._resolve_from_init_import_names(from_imp.module, module_dir, from_imp.names)
+            resolved = self.module.path
+        else:
+            maybe_resolved = self._resolve_module(from_imp.module, loc)
+            if maybe_resolved is None:
+                # TODO: do we want to expand modules from stubs?
+                return
+            resolved = maybe_resolved
+        if resolved.is_dir():
+            # in an implicit namespace dir, we don't need to consider __init__ shadowing.
+            # in addition, import * doesn't import all submodules, just binds any
+            # that have already been imported
+            for alias in from_imp.names or ():
+                submodule_id = ".".join((from_imp.module, alias.name))
+                self._resolve_module(submodule_id, alias.source_location)
+        # if not resolving to an init file, then a direct dependency is sufficient,
+        elif resolved.name == "__init__.py":
+            # otherwise, we need to consider submodules.
+            module_dir = resolved.parent
+            # variables defined in the init take precedence over submodules, so we can't
+            # be certain if this is a dependency until we've determined a symbol table.
+            with self._enter_scope(DependencyFlags.MAYBE_SHADOWED_IN_INIT):
+                if from_imp.names is None:
+                    self._resolve_from_init_import_star(from_imp.module, module_dir, loc)
+                else:
+                    self._resolve_from_init_import_names(
+                        from_imp.module, module_dir, from_imp.names
+                    )
 
     def _resolve_from_init_import_names(
         self, module_id: str, module_dir: Path, names: Sequence[fast_nodes.ImportAs]
@@ -137,16 +152,12 @@ class _ImportResolver(StatementTraverser):
             resolved_path = _resolve_module_path(base_path)
             if resolved_path is not None:
                 submodule_id = ".".join((module_id, alias.name))
-                # TODO: __init__.py variable shadowing could mean this is a non-existent
-                #       dependency, which we would catch later under the guise of a change of type,
-                #       but before that it could cause a "false" dependency cycle?
+
                 self._add_dependency(submodule_id, resolved_path, alias.source_location)
 
     def _resolve_from_init_import_star(
         self, module_id: str, module_dir: Path, loc: SourceLocation
     ) -> None:
-        # in the case of a star import, the dependencies are only potential dependencies,
-        # in the case that init module defines an __all__ and the module is listed there
         maybe_sub_names = sorted(
             {p.stem for p in module_dir.iterdir() if (p.is_dir() or p.suffixes == [".py"])}
         )
@@ -155,9 +166,7 @@ class _ImportResolver(StatementTraverser):
             resolved_path = _resolve_module_path(base_path)
             if resolved_path is not None:
                 submodule_id = ".".join((module_id, maybe_sub_name))
-                self._add_dependency(
-                    submodule_id, resolved_path, loc, extra=DependencyFlags.POTENTIAL_STAR_IMPORT
-                )
+                self._add_dependency(submodule_id, resolved_path, loc)
 
     def _add_dependency(
         self,
