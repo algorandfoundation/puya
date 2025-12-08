@@ -1,7 +1,7 @@
 import contextlib
 import enum
 import typing
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 
 import attrs
@@ -100,6 +100,10 @@ class _ImportResolver(StatementTraverser):
 
     @typing.override
     def visit_from_import(self, from_imp: fast_nodes.FromImport) -> None:
+        # references
+        # - https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
+        # - https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
+
         loc = from_imp.source_location
         if from_imp.module == self.module.name:
             # avoid creating a potentially spurious self-dependency
@@ -123,50 +127,26 @@ class _ImportResolver(StatementTraverser):
             module_dir = resolved.parent
             # variables defined in the init take precedence over submodules, so we can't
             # be certain if this is a dependency until we've determined a symbol table.
-            with self._enter_scope(DependencyFlags.MAYBE_SHADOWED_IN_INIT):
-                if from_imp.names is None:
-                    self._resolve_from_init_import_star(from_imp.module, module_dir, loc)
-                else:
-                    self._resolve_from_init_import_names(
-                        from_imp.module, module_dir, from_imp.names
+            if from_imp.names is not None:
+                maybe_sub_names = [(alias.name, alias.source_location) for alias in from_imp.names]
+            else:
+                maybe_sub_names = [
+                    (maybe_sub_name, loc)
+                    for maybe_sub_name in sorted(
+                        {
+                            p.stem
+                            for p in module_dir.iterdir()
+                            if (p.is_dir() or p.suffixes == [".py"])
+                        }
                     )
-
-    def _resolve_from_init_import_names(
-        self, module_id: str, module_dir: Path, names: Sequence[fast_nodes.ImportAs]
-    ) -> None:
-        # There are two complications at this point:
-        # The first is that if x/__init__.py defines a variable foo, but there is also a
-        # file x/foo.py, then `from x import foo` will actually refer to the variable.
-        # This is okay, at worst we create spurious dependencies.
-        # The second complication is that symbols in the __init__.py could be modules from
-        # another location, this is okay because as long as there is a dependency to the
-        # __init__.py file then the importer will also depend transitively on that imported
-        # module. In other words, any explicit dependencies inside the __init__.py will
-        # work transitively, regardless of depth.
-        # References:
-        # - https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
-        # - https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
-
-        for alias in names:
-            base_path = module_dir / alias.name
-            resolved_path = _resolve_module_path(base_path)
-            if resolved_path is not None:
-                submodule_id = ".".join((module_id, alias.name))
-
-                self._add_dependency(submodule_id, resolved_path, alias.source_location)
-
-    def _resolve_from_init_import_star(
-        self, module_id: str, module_dir: Path, loc: SourceLocation
-    ) -> None:
-        maybe_sub_names = sorted(
-            {p.stem for p in module_dir.iterdir() if (p.is_dir() or p.suffixes == [".py"])}
-        )
-        for maybe_sub_name in maybe_sub_names:
-            base_path = module_dir / maybe_sub_name
-            resolved_path = _resolve_module_path(base_path)
-            if resolved_path is not None:
-                submodule_id = ".".join((module_id, maybe_sub_name))
-                self._add_dependency(submodule_id, resolved_path, loc)
+                ]
+            with self._enter_scope(DependencyFlags.MAYBE_SHADOWED_IN_INIT):
+                for maybe_sub_name, loc in maybe_sub_names:
+                    base_path = module_dir / maybe_sub_name
+                    resolved_path = _resolve_module_path(base_path)
+                    if resolved_path is not None:
+                        submodule_id = ".".join((from_imp.module, maybe_sub_name))
+                        self._add_dependency(submodule_id, resolved_path, loc)
 
     def _add_dependency(
         self,
