@@ -110,7 +110,7 @@ def parse_python(
                     DependencyFlags.IMPLICIT
                     | DependencyFlags.TYPE_CHECKING
                     | DependencyFlags.DEFERRED
-                    | DependencyFlags.POTENTIAL_STAR_IMPORT
+                    | DependencyFlags.MAYBE_SHADOWED_IN_INIT
                     | DependencyFlags.STUB
                 )
             )
