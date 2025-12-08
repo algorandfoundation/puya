@@ -193,6 +193,13 @@ class FunctionTraverser(
             itxn_field.array_index.accept(self)
 
     @typing.override
+    def visit_abi_call(self, node: awst_nodes.ABICall) -> None:
+        for arg in node.args:
+            arg.value.accept(self)
+        for expr in node.fields:
+            expr.accept(self)
+
+    @typing.override
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> None:
         for item in expr.items:
             item.accept(self)

@@ -1758,6 +1758,19 @@ class SubroutineCallExpression(Expression):
 
 
 @attrs.frozen
+class ABICall(Expression):
+    """ """
+
+    target: ContractMethodTarget | str
+    args: Sequence[CallArg] = attrs.field(converter=tuple[CallArg, ...])
+    fields: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
+    wtype: wtypes.WInnerTransactionFields
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_abi_call(self)
+
+
+@attrs.frozen
 class PuyaLibData:
     id: str
     params: Mapping[str, WType]
