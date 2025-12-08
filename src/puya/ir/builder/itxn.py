@@ -940,6 +940,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         return self._empty_actions_from_wtype(expr)
 
     @typing.override
+    def visit_abi_call(self, node: awst_nodes.ABICall) -> list[_CopySource | _AssignSubmit | None]:
+        return self._empty_actions_from_wtype(node)
+
+    @typing.override
     def visit_assert_expression(self, expr: awst_nodes.AssertExpression) -> list[_SourceAction]:
         return self._empty_actions_from_wtype(expr)
 

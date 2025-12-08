@@ -661,6 +661,10 @@ class FunctionIRBuilder(
     ) -> TExpression:
         return self._itxn.handle_inner_transaction_field(itxn_field)
 
+    def visit_abi_call(self, _node: awst_nodes.ABICall) -> ir.ValueProvider | None:
+        # TODO: implement ABI call lowering
+        return None
+
     def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> TExpression:
         return ir.MethodConstant(value=expr.value, source_location=expr.source_location)
 
