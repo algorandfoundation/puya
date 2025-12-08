@@ -1219,6 +1219,19 @@ InnerTransactionResultTypes: typing.Final[
 ] = {kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds}
 
 
+ABIApplicationCall = InnerTransactionFieldsetType(
+    name="algopy.itxn.ABIApplicationCall",
+    transaction_type=TransactionType.appl,
+    wtype=wtypes.WInnerTransactionFields(TransactionType.appl),
+)
+
+ABIApplicationCallInnerTransaction = InnerTransactionResultType(
+    name="algopy.itxn.ABIApplicationCallInnerTransaction",
+    transaction_type=TransactionType.appl,
+    wtype=wtypes.WInnerTransaction(TransactionType.appl),
+)
+
+
 @attrs.frozen(kw_only=True, order=False)
 class _CompileTimeType(PyType):
     _wtype_error: str
