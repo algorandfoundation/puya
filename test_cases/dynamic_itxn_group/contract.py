@@ -7,8 +7,8 @@ from algopy import (
     gtxn,
     itxn,
     public,
+    urange,
 )
-from algopy._unsigned_builtins import urange
 from algopy.arc4 import Address, arc4_signature
 
 
