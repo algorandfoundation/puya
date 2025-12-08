@@ -174,6 +174,9 @@ class ExpressionVisitor[T](ABC):
     ) -> T: ...
 
     @abstractmethod
+    def visit_abi_call(self, node: puya.awst.nodes.ABICall) -> T: ...
+
+    @abstractmethod
     def visit_assert_expression(self, statement: puya.awst.nodes.AssertExpression) -> T: ...
 
     @abstractmethod
