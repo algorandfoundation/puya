@@ -1,9 +1,10 @@
 import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
+from typing_extensions import deprecated
+
 import algopy
 from algopy._interfaces import _Validatable
-from typing_extensions import deprecated
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
@@ -597,7 +598,7 @@ class _ABICallProtocolType(typing.Protocol):
         extra_program_pages: algopy.UInt64 | int = ...,
         fee: algopy.UInt64 | int = 0,
         sender: algopy.Account | str = ...,
-        note: algopy.Bytes | bytes | str = ...,
+        note: algopy.Bytes | algopy.String | bytes | str = ...,
         rekey_to: algopy.Account | str = ...,
         reject_version: algopy.UInt64 | int = ...,
     ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
