@@ -46,6 +46,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy.arc4.emit": arc4.EmitBuilder,
     "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
     "algopy.itxn.submit_staged": transaction.SubmitStagedInnerTransactionsExpressionBuilder,
+    "algopy.itxn.abi_call": transaction.ABICallExpressionBuilder,
     "algopy._compiled.compile_contract": compiled.CompileContractFunctionBuilder,
     "algopy._compiled.compile_logicsig": compiled.CompileLogicSigFunctionBuilder,
     "algopy.arc4.arc4_create": arc4.ARC4CreateFunctionBuilder,

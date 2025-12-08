@@ -1761,9 +1761,9 @@ class SubroutineCallExpression(Expression):
 class ABICall(Expression):
     """ """
 
-    target: ContractMethodTarget | str
+    target: "ContractMethod | str"
     args: Sequence[CallArg] = attrs.field(converter=tuple[CallArg, ...])
-    fields: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
+    fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: wtypes.WInnerTransactionFields
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
