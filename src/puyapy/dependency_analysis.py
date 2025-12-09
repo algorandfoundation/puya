@@ -146,7 +146,7 @@ class _ImportResolver(StatementTraverser):
             with self._enter_scope(flags):
                 for maybe_sub_name, loc in maybe_sub_names:
                     base_path = module_dir / maybe_sub_name
-                    resolved_path = _resolve_module_path(base_path)
+                    resolved_path = _resolve_module_path(base_path, allow_implicit_ns_dir=False)
                     if resolved_path is not None:
                         submodule_id = ".".join((from_imp.module, maybe_sub_name))
                         self._add_dependency(submodule_id, resolved_path, loc)
