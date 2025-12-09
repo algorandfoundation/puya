@@ -1396,6 +1396,10 @@ GenericABICallWithReturnType: typing.Final[PyType] = _GenericType(
     name="algopy.arc4._ABICallWithReturnProtocol",
     parameterise=_parameterise_pseudo_generic_function_type,
 )
+GenericITxnABICallWithReturnType: typing.Final[PyType] = _GenericType(
+    name="algopy.itxn._ABICallWithReturnProtocol",
+    parameterise=_parameterise_pseudo_generic_function_type,
+)
 GenericTemplateVarType: typing.Final[PyType] = _GenericType(
     name="algopy._template_variables._TemplateVarMethod",
     parameterise=_parameterise_pseudo_generic_function_type,

@@ -127,7 +127,10 @@ class InnerTransactionBuilder:
         source_location = stmt.source_location
         target = stmt.target
         match value:
-            case awst_nodes.CreateInnerTransaction(fields=fields):
+            case (
+                awst_nodes.CreateInnerTransaction(fields=fields)
+                | awst_nodes.ABICall(fields=fields)
+            ):
                 ((var_name, var_loc),) = _get_assignment_target_local_names(target, 1)
                 self._set_inner_transaction_fields(var_name, fields, var_loc)
                 return True
