@@ -2,6 +2,7 @@ import typing
 from collections.abc import Sequence, Set
 
 from puya import log
+from puya.avm import TransactionType
 from puya.awst.nodes import ABICall, ContractMethod, Expression
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
@@ -13,9 +14,9 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
-from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
+from puyapy.awst_build.eb.transaction.inner_params import InnerTxnParamsExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 
 logger = log.get_logger(__name__)
@@ -63,10 +64,31 @@ class ABICallTypeBuilder(FunctionBuilder):
         )
 
 
-class ABIApplicationCallInnerTransactionExpressionBuilder(InnerTransactionExpressionBuilder):
-    def __init__(self, expr: Expression):
-        super().__init__(expr, pytypes.ABIApplicationCallInnerTransaction)
+class ABIApplicationCallInnerTransactionTypeBuilder(TypeBuilder):
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        raise CodeError(
+            "cannot directly instantiate ABIApplicationCallInnerTransaction; "
+            "use itxn.abi_call(...) instead",
+            location,
+        )
 
+
+# class ABIApplicationCallInnerTransactionExpressionBuilder(InnerTransactionExpressionBuilder):
+#     def __init__(self, expr: Expression):
+#         super().__init__(expr, pytypes.ABIApplicationCallInnerTransaction())
+
+#     @typing.override
+#     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+#         return super().member_access(name, location)
+
+
+class ABIApplicationCallExpressionBuilder(InnerTxnParamsExpressionBuilder):
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         return super().member_access(name, location)
@@ -82,7 +104,11 @@ def _abi_call(
     method, abi_args, kwargs = _get_method_abi_args_and_kwargs(
         args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
     )
-    pytype = pytypes.ABIApplicationCall
+    if return_type_annotation is pytypes.NoneType:
+        pytype = pytypes.InnerTransactionFieldsetTypes[TransactionType.appl]
+    else:
+        pytype = pytypes.ABIApplicationCall(return_type=return_type_annotation)
+
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
@@ -109,17 +135,18 @@ def _abi_call(
     abi_call_args = [
         expect.instance_builder(arg, default=expect.default_raise).resolve() for arg in abi_args
     ]
-    return builder_for_instance(
-        pytype,
-        ABICall(
-            target=target,
-            args=abi_call_args,
-            fields=fields,
-            source_location=location,
-            return_type=return_type_annotation.checked_wtype(location),
-            wtype=pytype.wtype,
-        ),
+    expr = ABICall(
+        target=target,
+        args=abi_call_args,
+        fields=fields,
+        source_location=location,
+        return_type=return_type_annotation.checked_wtype(location),
+        wtype=pytype.wtype,
     )
+    if return_type_annotation is pytypes.NoneType:
+        return builder_for_instance(pytype, expr)
+    else:
+        return ABIApplicationCallExpressionBuilder(pytype, expr)
 
 
 def _get_method_abi_args_and_kwargs(
