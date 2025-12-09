@@ -13,21 +13,6 @@ from test_cases.module_consts.constants3 import *
 T = True and (1 == 1)
 
 
-if typing.TYPE_CHECKING:
-    TruthyType = bool | typing.Literal[0, 1]
-    _T = typing.TypeVar("_T")
-
-    def identity(x: _T) -> _T:
-        return x
-
-elif False:
-    print("HOW DO I GET HERE")
-elif 0 > 1:
-    print("please sir can I have some more consistency")
-else:
-    SNEAKY_CONST = "so sneak"
-
-
 NO = b'"no'
 NOO = b"no'"
 ZERO = ZER0 = 0  # lol

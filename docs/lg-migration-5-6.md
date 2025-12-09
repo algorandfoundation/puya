@@ -12,5 +12,7 @@ Breaking changes due to "fast parsing" work:
 1. restrictions on statements supported inside TYPE_CHECKING blocks:
    1. Only imports, if aliases were being constructed there as well, move them outside and use quotes (may required explicit typing.TypeAlias annotation), other code doesn't make sense?
    1. no star imports - in case of import cycle only? or at all, for consistency?
-1. no code can appear under the condition of `not TYPE_CHECKING`
+1. the *only* accepted use of `TYPE_CHECKING` is as as the sole condition of an `if` statement, 
+   at the module level. No code can appear under the condition of `not TYPE_CHECKING`, or the 
+   else branch, etc.
 1. a `typing.Protocol` could be declared (other than as an `ARC4Client`) but it was ignored and never usable, now it will error.

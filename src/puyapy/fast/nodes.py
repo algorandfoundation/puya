@@ -38,6 +38,7 @@ class ImportAs(Node):
 @attrs.frozen
 class ModuleImport(Statement):
     names: list[ImportAs] = attrs.field(validator=attrs.validators.min_len(1))
+    type_checking_only: bool
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
@@ -51,6 +52,7 @@ class FromImport(Statement):
         validator=attrs.validators.optional(attrs.validators.min_len(1))
     )
     """if None, then import all (ie star import)"""
+    type_checking_only: bool
 
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
