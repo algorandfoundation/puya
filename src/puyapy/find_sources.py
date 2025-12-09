@@ -31,7 +31,9 @@ class ResolvedSource:
                 f'resolved source has qualified module name "{self.module}" but no base_dir'
             )
 
-        if not all(part.isidentifier() for part in self.module.split(".")):
+        parts = self.module.split(".")
+        assert "__init__" not in parts, (self.module, self.path)
+        if not all(part.isidentifier() for part in parts):
             logger.warning(
                 f'python module name is invalid ("{self.module}")',
                 location=SourceLocation(file=self.path, line=1),
