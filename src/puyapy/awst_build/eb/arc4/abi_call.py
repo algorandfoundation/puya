@@ -29,7 +29,7 @@ from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.program_refs import ContractReference
 from puya.utils import StableSet
 from puyapy import models
-from puyapy.awst_build import arc4_utils, constants, pytypes
+from puyapy.awst_build import arc4_utils, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
@@ -40,6 +40,7 @@ from puyapy.awst_build.eb.arc4._utils import (
     implicit_arc4_type_arg_conversion,
     split_arc4_signature,
 )
+from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.compiled import (
     APP_ALLOCATION_FIELDS,
@@ -52,7 +53,6 @@ from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
     NodeBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction import InnerTransactionExpressionBuilder
@@ -102,54 +102,6 @@ _ARC4_UPDATE_TRANSACTION_FIELDS = [
     TxnField.RejectVersion,
 ]
 _COMPILED_KWARG = "compiled"
-
-
-class ARC4ClientTypeBuilder(TypeBuilder):
-    def __init__(
-        self, typ: pytypes.PyType, source_location: SourceLocation, fragment: ContractFragmentBase
-    ):
-        assert pytypes.ARC4ClientBaseType in typ.bases
-        super().__init__(typ, source_location)
-        self.fragment: typing.Final = fragment
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        raise CodeError("ARC4Client subclasses cannot be instantiated", location)
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        method = self.fragment.resolve_method(name)
-        if method is None:
-            return super().member_access(name, location)
-        return ARC4ClientMethodExpressionBuilder(method, location)
-
-
-class ARC4ClientMethodExpressionBuilder(FunctionBuilder):
-    def __init__(
-        self,
-        method: ContractFragmentMethod,
-        location: SourceLocation,
-    ):
-        super().__init__(location)
-        self.method: typing.Final = method
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        raise CodeError(
-            f"can't invoke client methods directly, use {constants.CLS_ARC4_ABI_CALL}", location
-        )
 
 
 class ABICallGenericTypeBuilder(FunctionBuilder):

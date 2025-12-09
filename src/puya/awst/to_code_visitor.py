@@ -517,10 +517,8 @@ class ToCodeVisitor(
             method = node.target
         else:
             method = "::".join((node.target.cref, node.target.member_name))
-        args = ", ".join(
-            [(f"{a.name}=" if a.name else "") + a.value.accept(self) for a in node.args]
-        )
-        fields = ", ".join(field.accept(self) for field in node.fields)
+        args = ", ".join([a.accept(self) for a in node.args])
+        fields = ", ".join(f"{name}={expr.accept(self)}" for name, expr in node.fields.items())
         all_args = ", ".join(filter(None, [args, fields]))
         return f"{method}({all_args})"
 
