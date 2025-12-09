@@ -29,6 +29,9 @@ from puyapy.awst_build.eb import (
 )
 from puyapy.awst_build.eb.interface import CallableBuilder, InstanceBuilder
 from puyapy.awst_build.eb.reference_types import account, application, asset
+from puyapy.awst_build.eb.transaction.abi_call import (
+    ABIApplicationCallInnerTransactionExpressionBuilder,
+)
 
 __all__ = [
     "builder_for_instance",
@@ -46,7 +49,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy.arc4.emit": arc4.EmitBuilder,
     "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
     "algopy.itxn.submit_staged": transaction.SubmitStagedInnerTransactionsExpressionBuilder,
-    "algopy.itxn.abi_call": transaction.ABICallExpressionBuilder,
+    "algopy.itxn.abi_call": transaction.ABICallGenericTypeBuilder,
     "algopy._compiled.compile_contract": compiled.CompileContractFunctionBuilder,
     "algopy._compiled.compile_logicsig": compiled.CompileLogicSigFunctionBuilder,
     "algopy.arc4.arc4_create": arc4.ARC4CreateFunctionBuilder,
@@ -148,6 +151,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     ),
     pytypes.GenericTemplateVarType: template_variables.TemplateVariableExpressionBuilder,
     pytypes.GenericABICallWithReturnType: arc4.ABICallTypeBuilder,
+    pytypes.GenericITxnABICallWithReturnType: transaction.ABICallTypeBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateTypeBuilder,
     pytypes.GenericGlobalStateType: storage.GlobalStateTypeBuilder,
     pytypes.GenericBoxType: storage.BoxTypeBuilder,
@@ -219,12 +223,18 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
         )
         for itxn_fieldset_pytyp in pytypes.InnerTransactionFieldsetTypes.values()
     },
+    pytypes.ABIApplicationCall: functools.partial(
+        transaction.InnerTxnParamsExpressionBuilder, pytypes.ABIApplicationCall
+    ),
     **{
         itxn_result_pytyp: functools.partial(
             transaction.InnerTransactionExpressionBuilder, typ=itxn_result_pytyp
         )
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
     },
+    pytypes.ABIApplicationCallInnerTransaction: (
+        ABIApplicationCallInnerTransactionExpressionBuilder
+    ),
 }
 
 InstanceBuilderFromExpressionAndPyTypeFactory = Callable[

@@ -15,6 +15,7 @@ from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
+from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 
 logger = log.get_logger(__name__)
@@ -31,7 +32,7 @@ _ABI_CALL_TRANSACTION_FIELDS = [
 _FIELD_TO_ITXN_ARGUMENT = {arg.field: arg for arg in PYTHON_ITXN_ARGUMENTS.values()}
 
 
-class ABICallExpressionBuilder(FunctionBuilder):
+class ABICallGenericTypeBuilder(FunctionBuilder):
     @typing.override
     def call(
         self,
@@ -40,47 +41,85 @@ class ABICallExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        method, abi_args, kwargs = _get_method_abi_args_and_kwargs(
-            args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
+        return _abi_call(args, arg_names, location, return_type_annotation=pytypes.NoneType)
+
+
+class ABICallTypeBuilder(FunctionBuilder):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.PseudoGenericFunctionType)
+        self._return_type_annotation = typ.return_type
+        super().__init__(location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        return _abi_call(
+            args, arg_names, location, return_type_annotation=self._return_type_annotation
         )
-        pytype = pytypes.ABIApplicationCall
-        match method:
-            case None:
-                raise CodeError("missing required positional argument 'method'", location)
-            case (
-                ARC4ClientMethodExpressionBuilder(method=fmethod)
-                | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
-            ):
-                target: ContractMethod | str | None = fmethod.implementation
-            case _:
-                target = expect.simple_string_literal(method, default=expect.default_raise)
 
-        if target is None:
-            raise CodeError("ABI method target is not known at compile time", location)
 
-        field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
-        fields: dict[TxnField, Expression] = {}
-        for field, field_node in field_nodes.items():
-            params = _FIELD_TO_ITXN_ARGUMENT[field]
-            if params is None:
-                logger.error("unrecognised keyword argument", location=field_node.source_location)
-            else:
-                fields[field] = params.validate_and_convert(field_node).resolve()
+class ABIApplicationCallInnerTransactionExpressionBuilder(InnerTransactionExpressionBuilder):
+    def __init__(self, expr: Expression):
+        super().__init__(expr, pytypes.ABIApplicationCallInnerTransaction)
 
-        abi_call_args = [
-            expect.instance_builder(arg, default=expect.default_raise).resolve()
-            for arg in abi_args
-        ]
-        return builder_for_instance(
-            pytype,
-            ABICall(
-                target=target,
-                args=abi_call_args,
-                fields=fields,
-                source_location=location,
-                wtype=pytype.wtype,
-            ),
-        )
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        return super().member_access(name, location)
+
+
+def _abi_call(
+    args: Sequence[NodeBuilder],
+    arg_names: list[str | None],
+    location: SourceLocation,
+    *,
+    return_type_annotation: pytypes.PyType,
+) -> InstanceBuilder:
+    method, abi_args, kwargs = _get_method_abi_args_and_kwargs(
+        args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
+    )
+    pytype = pytypes.ABIApplicationCall
+    match method:
+        case None:
+            raise CodeError("missing required positional argument 'method'", location)
+        case (
+            ARC4ClientMethodExpressionBuilder(method=fmethod)
+            | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
+        ):
+            target: ContractMethod | str | None = fmethod.implementation
+        case _:
+            target = expect.simple_string_literal(method, default=expect.default_raise)
+
+    if target is None:
+        raise CodeError("ABI method target is not known at compile time", location)
+
+    field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
+    fields: dict[TxnField, Expression] = {}
+    for field, field_node in field_nodes.items():
+        params = _FIELD_TO_ITXN_ARGUMENT[field]
+        if params is None:
+            logger.error("unrecognised keyword argument", location=field_node.source_location)
+        else:
+            fields[field] = params.validate_and_convert(field_node).resolve()
+
+    abi_call_args = [
+        expect.instance_builder(arg, default=expect.default_raise).resolve() for arg in abi_args
+    ]
+    return builder_for_instance(
+        pytype,
+        ABICall(
+            target=target,
+            args=abi_call_args,
+            fields=fields,
+            source_location=location,
+            return_type=return_type_annotation.checked_wtype(location),
+            wtype=pytype.wtype,
+        ),
+    )
 
 
 def _get_method_abi_args_and_kwargs(

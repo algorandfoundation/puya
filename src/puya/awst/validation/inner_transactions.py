@@ -73,7 +73,7 @@ class InnerTransactionsValidator(AWSTTraverser):
 
     def _check_inner_transaction_fields_assignment(self, value: awst_nodes.Expression) -> None:
         match value:
-            case awst_nodes.CreateInnerTransaction() | awst_nodes.Copy():
+            case awst_nodes.CreateInnerTransaction() | awst_nodes.ABICall() | awst_nodes.Copy():
                 pass  # ok
             case (
                 awst_nodes.VarExpression(wtype=wtype)
@@ -154,7 +154,7 @@ class InnerTransactionUsedInALoopValidator(AWSTTraverser):
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         value = statement.value
         match value:
-            case awst_nodes.CreateInnerTransaction() | awst_nodes.Copy():
+            case awst_nodes.CreateInnerTransaction() | awst_nodes.ABICall() | awst_nodes.Copy():
                 self._check_itxn_params_not_submitted_in_loop(statement.target)
         super().visit_assignment_statement(statement)
 
