@@ -545,5 +545,4 @@ class Module:
     name: str
     path: Path
     docstring: str | None
-    future_flags: tuple[str, ...]
     body: tuple[Statement, ...]
