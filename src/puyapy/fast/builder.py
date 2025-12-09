@@ -9,7 +9,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
-from puya.utils import coalesce, set_add, unique
+from puya.utils import coalesce, set_add
 from puyapy.fast import nodes
 
 logger = log.get_logger(__name__)
@@ -105,37 +105,12 @@ def _convert_module(
     ctx = _BuildContext(module_name=module_name, module_path=module_path)
     ast_body, docstring = _extract_docstring(module)
     body = _visit_stmt_list(ctx, ast_body)
-    # Feature flag imports do technically exist as objects of type _Feature,
-    # but there's no use case for being able to access these from Algorand Python,
-    # so just collect them up as flags.
-    # TODO: we currently don't support __future__ at all so consider if we want to remove this
-    #       handling here and error immediately, allow it to error generally due to unresolved
-    #       import (current behaviour), or handle a non-empty result at a higher level to try
-    #       and keep this pass as "generic" as practical
-    future_flags = list[str]()
-    while body:
-        match body[0]:
-            case nodes.FromImport(module="__future__", names=names) as future_import:
-                body = body[1:]
-                if names is None:
-                    # this is `from __future__ import *` which gives:
-                    # SyntaxError: future feature * is not defined
-                    ctx.invalid_syntax(future_import.source_location)
-                else:
-                    for name in names:
-                        # aliasing is technically allowed, but since we're not allowing access
-                        # doesn't matter anyway
-                        future_flags.append(name.name)
-            case _:
-                break
-
     if ctx.failures:
         return None
     return nodes.Module(
         name=module_name,
         path=module_path,
         docstring=docstring,
-        future_flags=tuple(unique(future_flags)),
         body=tuple(body),
     )
 
