@@ -2,3 +2,69 @@ debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=Fals
 typed_itxn_abi_call_txn/caller.py:30:20 error: unrecognised member of algopy.itxn.ApplicationCallInnerTransaction: result
                                                       asset_id = app_call_txn.result
                                                                  ^~~~~~~~~~~~~~~~~~~
+debug: Traceback (most recent call last):
+  File "<git root>/src/puya/errors.py", line 45, in log_exceptions
+    yield
+  File "<git root>/src/puyapy/awst_build/context.py", line 142, in log_exceptions
+    yield
+  File "<git root>/src/puyapy/awst_build/contract.py", line 168, in build
+    method_fragment.implementation = method_builder(context)
+                                     ~~~~~~~~~~~~~~^^^^^^^^^
+  File "<git root>/src/puyapy/awst_build/contract.py", line 330, in <lambda>
+    lambda ctx: FunctionASTConverter.convert(
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        ctx,
+        ^^^^
+    ...<10 lines>...
+        ),
+        ^^
+    ),
+    ^
+  File "<git root>/src/puyapy/awst_build/subroutine.py", line 704, in convert
+    return cls(
+           ~~~^
+        context=context,
+        ^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        source_location=source_location,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).result
+    ^
+  File "<git root>/src/puyapy/awst_build/subroutine.py", line 639, in __init__
+    translated_body = self.visit_block(func_def.body)
+  File "<git root>/src/puyapy/awst_build/subroutine.py", line 800, in visit_block
+    translated_stmt = stmt.accept(self)
+  File "<git root>/src/puyapy/_vendor/mypy/nodes.py", line 1406, in accept
+    return visitor.visit_assignment_stmt(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "<git root>/src/puyapy/awst_build/subroutine.py", line 876, in visit_assignment_stmt
+    rvalue = require_instance_builder(stmt.rvalue.accept(self))
+                                      ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "<git root>/src/puyapy/_vendor/mypy/nodes.py", line 2028, in accept
+    return visitor.visit_call_expr(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "<git root>/src/puyapy/awst_build/subroutine.py", line 290, in visit_call_expr
+    return callee.call(
+           ~~~~~~~~~~~^
+        args=args,
+        ^^^^^^^^^^
+    ...<2 lines>...
+        location=self._location(call),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<git root>/src/puyapy/awst_build/eb/transaction/abi_call.py", line 62, in call
+    return _abi_call(
+        args, arg_names, location, return_type_annotation=self._return_type_annotation
+    )
+  File "<git root>/src/puyapy/awst_build/eb/transaction/abi_call.py", line 110, in _abi_call
+    pytype = pytypes.ABIApplicationCall(return_type=return_type_annotation)
+  File "<git root>/src/puyapy/awst_build/pytypes.py", line 1225, in __init__
+    self.return_type = return_type
+    ^^^^^^^^^^^^^^^^
+  File "<git root>/.venv/lib/python3.13/site-packages/attr/_make.py", line 549, in _frozen_setattrs
+    raise FrozenInstanceError
+attr.exceptions.FrozenInstanceError
+typed_itxn_abi_call_txn/caller.py:49:6 critical: FrozenInstanceError: 
+                                                    @arc4.abimethod
+                                                    def test_call_with_infer(self, a: Bytes, b: Bytes, app: Application) -> None:

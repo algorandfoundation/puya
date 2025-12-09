@@ -29,9 +29,6 @@ from puyapy.awst_build.eb import (
 )
 from puyapy.awst_build.eb.interface import CallableBuilder, InstanceBuilder
 from puyapy.awst_build.eb.reference_types import account, application, asset
-from puyapy.awst_build.eb.transaction.abi_call import (
-    ABIApplicationCallInnerTransactionExpressionBuilder,
-)
 
 __all__ = [
     "builder_for_instance",
@@ -170,6 +167,9 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayTypeBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayTypeBuilder,
     pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesTypeBuilder,
+    pytypes.GenericABIApplicationCallInnerTransaction: (
+        transaction.ABIApplicationCallInnerTransactionTypeBuilder
+    ),
 }
 
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
@@ -223,18 +223,12 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, Callable[[Expression], InstanceBuilder]]
         )
         for itxn_fieldset_pytyp in pytypes.InnerTransactionFieldsetTypes.values()
     },
-    pytypes.ABIApplicationCall: functools.partial(
-        transaction.InnerTxnParamsExpressionBuilder, pytypes.ABIApplicationCall
-    ),
     **{
         itxn_result_pytyp: functools.partial(
             transaction.InnerTransactionExpressionBuilder, typ=itxn_result_pytyp
         )
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
     },
-    pytypes.ABIApplicationCallInnerTransaction: (
-        ABIApplicationCallInnerTransactionExpressionBuilder
-    ),
 }
 
 InstanceBuilderFromExpressionAndPyTypeFactory = Callable[
