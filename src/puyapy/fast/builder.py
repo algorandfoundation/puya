@@ -155,7 +155,7 @@ def _visit_function_def(ctx: _BuildContext, func_def: ast.FunctionDef) -> nodes.
     type_params = getattr(func_def, "type_params", None)
     if type_params:
         ctx.fail(_NO_TYPE_PARAMS_MSG, loc)
-    decorators = _visit_decorator_list(ctx, func_def.decorator_list)
+    decorators = _convert_decorator_list(ctx, func_def.decorator_list)
     params = _convert_arguments(ctx, func_def.args)
     return_annotation = None
     if func_def.returns is not None:
@@ -173,7 +173,7 @@ def _visit_function_def(ctx: _BuildContext, func_def: ast.FunctionDef) -> nodes.
     )
 
 
-def _visit_decorator_list(
+def _convert_decorator_list(
     ctx: _BuildContext, decorator_list: list[ast.expr]
 ) -> tuple[nodes.Decorator, ...]:
     result = []
@@ -269,7 +269,7 @@ def _visit_class_def(ctx: _BuildContext, class_def: ast.ClassDef) -> nodes.Class
     type_params = getattr(class_def, "type_params", None)
     if type_params:
         ctx.fail(_NO_TYPE_PARAMS_MSG, loc)
-    decorators = _visit_decorator_list(ctx, class_def.decorator_list)
+    decorators = _convert_decorator_list(ctx, class_def.decorator_list)
     bases = _visit_expr_list(ctx, class_def.bases)
     kwargs = _visit_keywords_list(ctx, class_def.keywords)
     ast_body, docstring = _extract_docstring(class_def)
