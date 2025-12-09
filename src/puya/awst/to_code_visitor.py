@@ -520,7 +520,7 @@ class ToCodeVisitor(
         args = ", ".join([a.accept(self) for a in node.args])
         fields = ", ".join(f"{name}={expr.accept(self)}" for name, expr in node.fields.items())
         all_args = ", ".join(filter(None, [args, fields]))
-        return f"{method}({all_args})"
+        return f"{method}({all_args}){node.return_type}"
 
     @typing.override
     def visit_tuple_expression(self, expr: nodes.TupleExpression) -> str:

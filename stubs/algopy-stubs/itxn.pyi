@@ -1,6 +1,7 @@
 import typing
 from collections.abc import Callable
 
+import algopy
 from algopy import (
     Account,
     Application,
@@ -646,29 +647,52 @@ class ABIApplicationCall[T](_InnerTransaction[ABIApplicationCallInnerTransaction
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
 
-@typing.overload
-def abi_call(
-    method: str,
-    /,
-    *args: object,
-    app_id: Application | UInt64 | int = ...,
-    on_completion: OnCompleteAction = ...,
-    fee: UInt64 | int = 0,
-    sender: Account | str = ...,
-    note: Bytes | bytes | str = ...,
-    rekey_to: Account | str = ...,
-    reject_version: UInt64 | int = ...,
-) -> ApplicationCall: ...
-@typing.overload
-def abi_call(  # type: ignore[explicit-any]
-    method: Callable[..., _TABIResult_co],
-    /,
-    *args: object,
-    app_id: Application | UInt64 | int = ...,
-    on_completion: OnCompleteAction = ...,
-    fee: UInt64 | int = 0,
-    sender: Account | str = ...,
-    note: Bytes | bytes | str = ...,
-    rekey_to: Account | str = ...,
-    reject_version: UInt64 | int = ...,
-) -> ABIApplicationCall[_TABIResult_co]: ...
+class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
+    def __call__(
+        self,
+        method: str,
+        /,
+        *args: object,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        fee: algopy.UInt64 | int = 0,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+        reject_version: algopy.UInt64 | int = ...,
+    ) -> ABIApplicationCall[_TABIResult_co]: ...
+
+class _ABICallProtocolType(typing.Protocol):
+    @typing.overload
+    def __call__(
+        self,
+        method: str,
+        /,
+        *args: object,
+        app_id: Application | UInt64 | int = ...,
+        on_completion: OnCompleteAction = ...,
+        fee: UInt64 | int = 0,
+        sender: Account | str = ...,
+        note: Bytes | bytes | str = ...,
+        rekey_to: Account | str = ...,
+        reject_version: UInt64 | int = ...,
+    ) -> ApplicationCall: ...
+    @typing.overload
+    def __call__(  # type: ignore[explicit-any]
+        self,
+        method: Callable[..., _TABIResult_co],
+        /,
+        *args: object,
+        app_id: Application | UInt64 | int = ...,
+        on_completion: OnCompleteAction = ...,
+        fee: UInt64 | int = 0,
+        sender: Account | str = ...,
+        note: Bytes | bytes | str = ...,
+        rekey_to: Account | str = ...,
+        reject_version: UInt64 | int = ...,
+    ) -> ABIApplicationCall[_TABIResult_co]: ...
+    def __getitem__(
+        self, _: type[_TABIResult_co]
+    ) -> _ABICallWithReturnProtocol[_TABIResult_co]: ...
+
+abi_call: _ABICallProtocolType = ...
