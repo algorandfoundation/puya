@@ -1,6 +1,7 @@
 import ast
+import contextlib
 import typing
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from pathlib import Path
 
 import attrs
@@ -19,6 +20,8 @@ _UNSUPPORTED_SYNTAX_MSG = "unsupported Python syntax"
 _INVALID_SYNTAX_MSG = "invalid Python syntax"
 _NO_TYPE_COMMENTS_MSG = "type comments are not supported"
 _NO_TYPE_PARAMS_MSG = "type parameters are not supported"
+
+_TYPING_MODULE_NAMES: typing.Final = ("typing", "typing_extensions")
 
 
 def parse_module(
@@ -51,12 +54,35 @@ def parse_module(
 
 _ASTNodeWithLocation = ast.expr | ast.stmt | ast.pattern | ast.alias | ast.arg | ast.keyword
 
+_NestedScopeKind = typing.Literal["class", "func"]
+_ScopeKind = typing.Literal[_NestedScopeKind, "module"]
+
+
+@attrs.define
+class _Scope:
+    kind: _ScopeKind = attrs.field(on_setattr=attrs.setters.frozen)
+    name: str = attrs.field(on_setattr=attrs.setters.frozen)
+    imported_typing_modules: set[str] = attrs.field(on_setattr=attrs.setters.frozen)
+    is_type_checking_imported: bool
+
 
 @attrs.define
 class _BuildContext:
     module_name: str = attrs.field(on_setattr=attrs.setters.frozen)
     module_path: Path = attrs.field(on_setattr=attrs.setters.frozen)
+    _scope_stack: list[_Scope] = attrs.field(init=False, on_setattr=attrs.setters.frozen)
     _failures: int = attrs.field(default=0, init=False)
+
+    @_scope_stack.default
+    def _initial_scope_stack(self) -> list[_Scope]:
+        return [
+            _Scope(
+                kind="module",
+                name=self.module_name,
+                imported_typing_modules=set(),
+                is_type_checking_imported=False,
+            )
+        ]
 
     @property
     def failures(self) -> int:
@@ -95,6 +121,25 @@ class _BuildContext:
             end_column=node.end_col_offset,
         )
 
+    @property
+    def scope(self) -> _Scope:
+        return self._scope_stack[-1]
+
+    @contextlib.contextmanager
+    def enter_scope(self, kind: _NestedScopeKind, name: str) -> Iterator[None]:
+        current = self.scope
+        nested_scope = _Scope(
+            kind=kind,
+            name=f"{current.name}.{name}",
+            imported_typing_modules=current.imported_typing_modules.copy(),
+            is_type_checking_imported=current.is_type_checking_imported,
+        )
+        self._scope_stack.append(nested_scope)
+        try:
+            yield
+        finally:
+            self._scope_stack.pop()
+
 
 def _convert_module(
     module: ast.Module,
@@ -104,7 +149,19 @@ def _convert_module(
 ) -> nodes.Module | None:
     ctx = _BuildContext(module_name=module_name, module_path=module_path)
     ast_body, docstring = _extract_docstring(module)
-    body = _visit_stmt_list(ctx, ast_body)
+    body = list[nodes.Statement]()
+    for ast_stmt in ast_body:
+        if isinstance(ast_stmt, ast.If) and _is_type_checking(ctx, ast_stmt.test):
+            if ast_stmt.orelse:
+                ctx.fail(
+                    "no code is allowed inside the else branch of an if TYPE_CHECKING block",
+                    ast_stmt.orelse[0],
+                )
+            body.extend(_convert_type_checking_block(ctx, ast_stmt.body))
+        else:
+            stmt = _visit_stmt(ctx, ast_stmt)
+            if stmt is not None:
+                body.append(stmt)
     if ctx.failures:
         return None
     return nodes.Module(
@@ -113,6 +170,37 @@ def _convert_module(
         docstring=docstring,
         body=tuple(body),
     )
+
+
+def _is_type_checking(ctx: _BuildContext, test: ast.expr) -> bool:
+    if ctx.scope.is_type_checking_imported and isinstance(test, ast.Name):
+        return test.id == "TYPE_CHECKING"
+    if isinstance(test, ast.Attribute):
+        return (
+            test.attr == "TYPE_CHECKING"
+            and isinstance(test.value, ast.Name)
+            and test.value.id in ctx.scope.imported_typing_modules
+        )
+    return False
+
+
+def _convert_type_checking_block(
+    ctx: _BuildContext, body: list[ast.stmt]
+) -> list[nodes.Statement]:
+    result = list[nodes.Statement]()
+    for stmt in body:
+        match stmt:
+            case ast.Import():
+                result.append(_convert_import(ctx, stmt, type_checking_only=True))
+            case ast.ImportFrom():
+                result.append(_convert_import_from(ctx, stmt, type_checking_only=True))
+            case _:
+                ctx.fail(
+                    "only import and from-import statements"
+                    " are supported inside a TYPE_CHECKING block",
+                    stmt,
+                )
+    return result
 
 
 def _extract_docstring(
@@ -161,7 +249,8 @@ def _visit_function_def(ctx: _BuildContext, func_def: ast.FunctionDef) -> nodes.
     if func_def.returns is not None:
         return_annotation = _visit_expr(ctx, func_def.returns)
     ast_body, docstring = _extract_docstring(func_def)
-    body = _visit_stmt_list(ctx, ast_body)
+    with ctx.enter_scope("func", func_def.name):
+        body = _visit_stmt_list(ctx, ast_body)
     return nodes.FunctionDef(
         decorators=decorators,
         name=func_def.name,
@@ -273,7 +362,8 @@ def _visit_class_def(ctx: _BuildContext, class_def: ast.ClassDef) -> nodes.Class
     bases = _visit_expr_list(ctx, class_def.bases)
     kwargs = _visit_keywords_list(ctx, class_def.keywords)
     ast_body, docstring = _extract_docstring(class_def)
-    body = _visit_stmt_list(ctx, ast_body)
+    with ctx.enter_scope("class", class_def.name):
+        body = _visit_stmt_list(ctx, ast_body)
     return nodes.ClassDef(
         decorators=decorators,
         name=class_def.name,
@@ -286,9 +376,21 @@ def _visit_class_def(ctx: _BuildContext, class_def: ast.ClassDef) -> nodes.Class
 
 
 def _visit_import(ctx: _BuildContext, node: ast.Import) -> nodes.ModuleImport:
+    result = _convert_import(ctx, node, type_checking_only=False)
+    for import_as in result.names:
+        if import_as.name in _TYPING_MODULE_NAMES:
+            ctx.scope.imported_typing_modules.add(import_as.as_name or import_as.name)
+    return result
+
+
+def _convert_import(
+    ctx: _BuildContext, node: ast.Import, *, type_checking_only: bool
+) -> nodes.ModuleImport:
     names = [_visit_alias(ctx, alias) for alias in node.names]
     loc = ctx.loc(node)
-    return nodes.ModuleImport(names=names, source_location=loc)
+    return nodes.ModuleImport(
+        names=names, type_checking_only=type_checking_only, source_location=loc
+    )
 
 
 def _visit_alias(ctx: _BuildContext, alias: ast.alias) -> nodes.ImportAs:
@@ -301,6 +403,25 @@ def _visit_alias(ctx: _BuildContext, alias: ast.alias) -> nodes.ImportAs:
 
 
 def _visit_import_from(ctx: _BuildContext, node: ast.ImportFrom) -> nodes.FromImport:
+    result = _convert_import_from(ctx, node, type_checking_only=False)
+    if result.module in _TYPING_MODULE_NAMES:
+        if result.names is None:
+            ctx.scope.is_type_checking_imported = True
+        else:
+            for as_name in result.names:
+                if as_name.name == "TYPE_CHECKING":
+                    if as_name.as_name in (None, "TYPE_CHECKING"):
+                        ctx.scope.is_type_checking_imported = True
+                    else:
+                        ctx.fail(
+                            "aliasing TYPE_CHECKING is not supported", as_name.source_location
+                        )
+    return result
+
+
+def _convert_import_from(
+    ctx: _BuildContext, node: ast.ImportFrom, *, type_checking_only: bool
+) -> nodes.FromImport:
     match node.names:
         case [ast.alias("*", None)]:
             names = None
@@ -319,6 +440,7 @@ def _visit_import_from(ctx: _BuildContext, node: ast.ImportFrom) -> nodes.FromIm
     return nodes.FromImport(
         module=module,
         names=names,
+        type_checking_only=type_checking_only,
         source_location=loc,
     )
 
