@@ -8,7 +8,6 @@ import attrs
 
 from puya import log
 from puya.parse import SourceLocation
-from puyapy import reachability
 from puyapy._stub_symtables import STUB_SYMTABLES
 from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.visitors.traversers import StatementTraverser
@@ -78,32 +77,30 @@ class _ImportResolver(StatementTraverser):
         return self._dependencies.copy()
 
     @typing.override
-    def visit_module_import(self, stmt: fast_nodes.ModuleImport) -> None:
-        for imp in stmt.names:
-            self._resolve_module(imp.name, imp.source_location)
+    def visit_function_def(self, func_def: fast_nodes.FunctionDef) -> None:
+        with self._enter_scope(DependencyFlags.DEFERRED):
+            super().visit_function_def(func_def)
 
-    def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
-        if module_id == "__future__":
-            logger.error("future imports are not supported", location=loc)
-            return None
-        elif "__init__" in module_id.split("."):
-            logger.error(
-                "explicitly importing __init__.py is not supported",
-                location=loc,
-            )
-            return None
-        elif module_id in STUB_SYMTABLES:
-            self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
-            return None
-        elif path := self._find_module(module_id, loc):
-            if not path.is_dir():
-                self._add_dependency(module_id, path, loc)
-            return path
+    @typing.override
+    def visit_module_import(self, stmt: fast_nodes.ModuleImport) -> None:
+        if stmt.type_checking_only:
+            flags = DependencyFlags.TYPE_CHECKING
         else:
-            return None
+            flags = DependencyFlags.NONE
+        with self._enter_scope(flags):
+            for imp in stmt.names:
+                self._resolve_module(imp.name, imp.source_location)
 
     @typing.override
     def visit_from_import(self, from_imp: fast_nodes.FromImport) -> None:
+        if from_imp.type_checking_only:
+            flags = DependencyFlags.TYPE_CHECKING
+        else:
+            flags = DependencyFlags.NONE
+        with self._enter_scope(flags):
+            self._process_from_import(from_imp)
+
+    def _process_from_import(self, from_imp: fast_nodes.FromImport) -> None:
         # references
         # - https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
         # - https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
@@ -154,6 +151,26 @@ class _ImportResolver(StatementTraverser):
                         submodule_id = ".".join((from_imp.module, maybe_sub_name))
                         self._add_dependency(submodule_id, resolved_path, loc)
 
+    def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
+        if module_id == "__future__":
+            logger.error("future imports are not supported", location=loc)
+            return None
+        elif "__init__" in module_id.split("."):
+            logger.error(
+                "explicitly importing __init__.py is not supported",
+                location=loc,
+            )
+            return None
+        elif module_id in STUB_SYMTABLES:
+            self._add_dependency(module_id, None, loc, extra=DependencyFlags.STUB)
+            return None
+        elif path := self._find_module(module_id, loc):
+            if not path.is_dir():
+                self._add_dependency(module_id, path, loc)
+            return path
+        else:
+            return None
+
     def _add_dependency(
         self,
         module_id: str,
@@ -165,44 +182,6 @@ class _ImportResolver(StatementTraverser):
         result = Dependency(module_id=module_id, path=path, flags=self._flags | extra, loc=loc)
         self._dependencies.append(result)
         return result
-
-    @typing.override
-    def visit_if(self, if_stmt: fast_nodes.If) -> None:
-        condition = reachability.infer_condition_value(if_stmt.test)
-        match condition:
-            case reachability.TRUTH_VALUE_UNKNOWN:
-                super().visit_if(if_stmt)
-            case reachability.ALWAYS_TRUE:
-                # visit only the "if" branch
-                for stmt in if_stmt.body:
-                    stmt.accept(self)
-            case reachability.ALWAYS_FALSE:
-                # visit only the "else" branch
-                for stmt in if_stmt.else_body or ():
-                    stmt.accept(self)
-            case reachability.TYPE_CHECKING_TRUE:
-                # visit the "if" branch but add TYPE_CHECKING flag
-                with self._enter_scope(DependencyFlags.TYPE_CHECKING):
-                    for stmt in if_stmt.body:
-                        stmt.accept(self)
-                # visit the "else" branch normally
-                for stmt in if_stmt.else_body or ():
-                    stmt.accept(self)
-            case reachability.TYPE_CHECKING_FALSE:
-                # visit the "if" branch normally
-                for stmt in if_stmt.body:
-                    stmt.accept(self)
-                # visit the "else" branch but add TYPE_CHECKING flag
-                with self._enter_scope(DependencyFlags.TYPE_CHECKING):
-                    for stmt in if_stmt.else_body or ():
-                        stmt.accept(self)
-            case unexpected:
-                typing.assert_never(unexpected)
-
-    @typing.override
-    def visit_function_def(self, func_def: fast_nodes.FunctionDef) -> None:
-        with self._enter_scope(DependencyFlags.DEFERRED):
-            super().visit_function_def(func_def)
 
     @contextlib.contextmanager
     def _enter_scope(self, flag: DependencyFlags) -> Iterator[None]:
