@@ -395,6 +395,8 @@ def _convert_import(
 
 def _visit_alias(ctx: _BuildContext, alias: ast.alias) -> nodes.ImportAs:
     loc = ctx.loc(alias)
+    if alias.name == "*":
+        raise InternalError("expected this to raise a SyntaxError", loc)
     return nodes.ImportAs(
         name=alias.name,
         as_name=alias.asname,
@@ -423,7 +425,9 @@ def _convert_import_from(
     ctx: _BuildContext, node: ast.ImportFrom, *, type_checking_only: bool
 ) -> nodes.FromImport:
     match node.names:
-        case [ast.alias("*", None)]:
+        case [ast.alias("*", None) as star]:
+            if ctx.scope.kind != "module":
+                ctx.invalid_syntax(star, "import * only allowed at module level")
             names = None
         case _:
             names = [_visit_alias(ctx, alias) for alias in node.names]
