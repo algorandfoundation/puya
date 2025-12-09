@@ -195,8 +195,8 @@ class FunctionTraverser(
     @typing.override
     def visit_abi_call(self, node: awst_nodes.ABICall) -> None:
         for arg in node.args:
-            arg.value.accept(self)
-        for expr in node.fields:
+            arg.accept(self)
+        for expr in node.fields.values():
             expr.accept(self)
 
     @typing.override

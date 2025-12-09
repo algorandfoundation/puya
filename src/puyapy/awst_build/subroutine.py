@@ -53,7 +53,7 @@ from puyapy.awst_build.base_mypy_visitor import BaseMyPyExpressionVisitor, BaseM
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
-from puyapy.awst_build.eb.arc4 import ARC4ClientTypeBuilder
+from puyapy.awst_build.eb.arc4_client import ARC4ClientTypeBuilder
 from puyapy.awst_build.eb.conditional_literal import ConditionalLiteralBuilder
 from puyapy.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
