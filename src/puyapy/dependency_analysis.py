@@ -23,6 +23,7 @@ class DependencyFlags(enum.Flag):
     TYPE_CHECKING = enum.auto()
     DEFERRED = enum.auto()
     MAYBE_SHADOWED_IN_INIT = enum.auto()
+    STAR_IMPORT = enum.auto()
     STUB = enum.auto()
 
 
@@ -127,9 +128,11 @@ class _ImportResolver(StatementTraverser):
             module_dir = resolved.parent
             # variables defined in the init take precedence over submodules, so we can't
             # be certain if this is a dependency until we've determined a symbol table.
+            flags = DependencyFlags.MAYBE_SHADOWED_IN_INIT
             if from_imp.names is not None:
                 maybe_sub_names = [(alias.name, alias.source_location) for alias in from_imp.names]
             else:
+                flags |= DependencyFlags.STAR_IMPORT
                 maybe_sub_names = [
                     (maybe_sub_name, loc)
                     for maybe_sub_name in sorted(
@@ -140,7 +143,7 @@ class _ImportResolver(StatementTraverser):
                         }
                     )
                 ]
-            with self._enter_scope(DependencyFlags.MAYBE_SHADOWED_IN_INIT):
+            with self._enter_scope(flags):
                 for maybe_sub_name, loc in maybe_sub_names:
                     base_path = module_dir / maybe_sub_name
                     resolved_path = _resolve_module_path(base_path)

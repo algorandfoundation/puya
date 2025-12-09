@@ -111,6 +111,7 @@ def parse_python(
                     | DependencyFlags.TYPE_CHECKING
                     | DependencyFlags.DEFERRED
                     | DependencyFlags.MAYBE_SHADOWED_IN_INIT
+                    | DependencyFlags.STAR_IMPORT
                     | DependencyFlags.STUB
                 )
             )
