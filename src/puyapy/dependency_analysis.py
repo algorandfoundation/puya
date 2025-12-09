@@ -1,7 +1,9 @@
+import ast
 import contextlib
 import enum
+import symtable
 import typing
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Set
 from pathlib import Path
 
 import attrs
@@ -12,6 +14,7 @@ from puyapy._stub_symtables import STUB_SYMTABLES
 from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.visitors.traversers import StatementTraverser
 from puyapy.package_path import PackageError, PackageResolverCache
+from puyapy.read_source import SourceProvider
 
 logger = log.get_logger(__name__)
 
@@ -21,8 +24,6 @@ class DependencyFlags(enum.Flag):
     IMPLICIT = enum.auto()
     TYPE_CHECKING = enum.auto()
     DEFERRED = enum.auto()
-    MAYBE_SHADOWED_IN_INIT = enum.auto()
-    STAR_IMPORT = enum.auto()
     STUB = enum.auto()
 
 
@@ -49,6 +50,7 @@ def resolve_import_dependencies(
     package_cache: PackageResolverCache,
     *,
     import_base_dir: Path,
+    source_provider: SourceProvider,
 ) -> list[Dependency]:
     assert all(p.is_file() and p.suffixes == [".py"] for p in source_roots.values())
     resolver = _ImportResolver(
@@ -56,6 +58,7 @@ def resolve_import_dependencies(
         source_roots=source_roots,
         package_cache=package_cache,
         import_base_dir=import_base_dir,
+        source_provider=source_provider,
     )
     import_dependencies = resolver.collect()
     return import_dependencies
@@ -68,8 +71,10 @@ class _ImportResolver(StatementTraverser):
     "Source packages by their root module (either a standalone module or a pacakge __init__.py)"
     package_cache: PackageResolverCache
     import_base_dir: Path
+    source_provider: SourceProvider
     _flags: DependencyFlags = attrs.field(default=DependencyFlags.NONE, init=False)
     _dependencies: list[Dependency] = attrs.field(factory=list, init=False)
+    _symbol_tables_cache: dict[Path, Set[str] | None] = attrs.field(factory=dict, init=False)
 
     def collect(self) -> list[Dependency]:
         self._dependencies.clear()
@@ -108,13 +113,22 @@ class _ImportResolver(StatementTraverser):
         loc = from_imp.source_location
         if from_imp.module == self.module.name:
             # avoid creating a potentially spurious self-dependency
-            resolved = self.module.path
-        else:
-            maybe_resolved = self._resolve_module(from_imp.module, loc)
-            if maybe_resolved is None:
-                # TODO: do we want to expand modules from stubs?
-                return
-            resolved = maybe_resolved
+            if from_imp.names is None:
+                logger.error("cannot import star from self", location=from_imp.source_location)
+            else:
+                parent_dir = self.module.path.parent
+                for alias in from_imp.names:
+                    base_path = parent_dir / alias.name
+                    resolved_path = _resolve_module_path(base_path, allow_implicit_ns_dir=False)
+                    if resolved_path is not None:
+                        submodule_id = ".".join((from_imp.module, alias.name))
+                        self._add_dependency(submodule_id, resolved_path, loc)
+            return
+        maybe_resolved = self._resolve_module(from_imp.module, loc)
+        if maybe_resolved is None:
+            # TODO: do we want to expand modules from stubs?
+            return
+        resolved = maybe_resolved
         if resolved.is_dir():
             # in an implicit namespace dir, we don't need to consider __init__ shadowing.
             # in addition, import * doesn't import all submodules, just binds any
@@ -124,32 +138,69 @@ class _ImportResolver(StatementTraverser):
                 self._resolve_module(submodule_id, alias.source_location)
         # if not resolving to an init file, then a direct dependency is sufficient,
         elif resolved.name == "__init__.py":
-            # otherwise, we need to consider submodules.
-            module_dir = resolved.parent
             # variables defined in the init take precedence over submodules, so we can't
             # be certain if this is a dependency until we've determined a symbol table.
-            flags = DependencyFlags.MAYBE_SHADOWED_IN_INIT
-            if from_imp.names is not None:
-                maybe_sub_names = [(alias.name, alias.source_location) for alias in from_imp.names]
-            else:
-                flags |= DependencyFlags.STAR_IMPORT
-                maybe_sub_names = [
-                    (maybe_sub_name, loc)
-                    for maybe_sub_name in sorted(
-                        {
-                            p.stem
-                            for p in module_dir.iterdir()
-                            if (p.is_dir() or (p.suffixes == [".py"] and p.stem != "__init__"))
-                        }
-                    )
-                ]
-            with self._enter_scope(flags):
+            module_symbols = self._read_symbol_table(resolved)
+            if module_symbols is not None:
+                if from_imp.names is not None:
+                    maybe_sub_names = [
+                        (alias.name, alias.source_location) for alias in from_imp.names
+                    ]
+                else:
+                    maybe_sub_names = []
+                    if "__all__" in module_symbols:
+                        dunder_all = self._read_dunder_all(resolved)
+                        if dunder_all is None:
+                            logger.error(
+                                f"unable to determine __all__ value for module {from_imp.module}",
+                                location=loc,
+                            )
+                        else:
+                            maybe_sub_names = [
+                                (maybe_sub_name, loc) for maybe_sub_name in dunder_all
+                            ]
+                module_dir = resolved.parent
                 for maybe_sub_name, loc in maybe_sub_names:
-                    base_path = module_dir / maybe_sub_name
-                    resolved_path = _resolve_module_path(base_path, allow_implicit_ns_dir=False)
-                    if resolved_path is not None:
-                        submodule_id = ".".join((from_imp.module, maybe_sub_name))
-                        self._add_dependency(submodule_id, resolved_path, loc)
+                    if maybe_sub_name not in module_symbols:
+                        base_path = module_dir / maybe_sub_name
+                        resolved_path = _resolve_module_path(
+                            base_path, allow_implicit_ns_dir=False
+                        )
+                        if resolved_path is not None:
+                            submodule_id = ".".join((from_imp.module, maybe_sub_name))
+                            self._add_dependency(submodule_id, resolved_path, loc)
+
+    def _read_symbol_table(self, path: Path) -> Set[str] | None:
+        try:
+            return self._symbol_tables_cache[path]
+        except KeyError:
+            pass
+        try:
+            source = self.source_provider.read_source(path)
+            st = symtable.symtable(source, str(path), "exec")
+        except Exception as ex:
+            logger.debug(ex)
+            module_symbols = None
+        else:
+            module_symbols = st.get_identifiers()
+        self._symbol_tables_cache[path] = module_symbols
+        return module_symbols
+
+    def _read_dunder_all(self, path: Path) -> list[str] | None:
+        source = self.source_provider.read_source(path)
+        mod = ast.parse(source, path)
+        dunder_all: list[str] | None = None
+        # TODO: make this more robust, maybe use FAST instead, could cache the result
+        for ast_stmt in mod.body:
+            if isinstance(ast_stmt, ast.Assign):
+                if _is_dunder_all_assignment_target(ast_stmt.targets):
+                    dunder_all = _extract_literal_str_list(ast_stmt.value)
+            elif dunder_all is not None and isinstance(ast_stmt, ast.AugAssign):  # noqa: SIM102
+                if isinstance(ast_stmt.op, ast.Add) and _is_dunder_all_assignment_target(
+                    [ast_stmt.target]
+                ):
+                    dunder_all += _extract_literal_str_list(ast_stmt.value)
+        return dunder_all
 
     def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
         if module_id == "__future__":
@@ -269,3 +320,22 @@ def _resolve_module_path(base_path: Path, *, allow_implicit_ns_dir: bool = True)
     elif base_path.is_dir() and allow_implicit_ns_dir:
         return base_path
     return None
+
+
+def _is_dunder_all_assignment_target(targets: list[ast.expr]) -> bool:
+    match targets:
+        case [ast.Name(id="__all__")]:
+            return True
+        case _:
+            return False
+
+
+def _extract_literal_str_list(value: ast.expr) -> list[str]:
+    result = []
+    match value:
+        case ast.List(elts=elements) | ast.Tuple(elts=elements):
+            for el in elements:
+                match el:
+                    case ast.Constant(value=str(name)):
+                        result.append(name)
+    return result

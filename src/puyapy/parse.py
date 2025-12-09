@@ -1,4 +1,3 @@
-import codecs
 import enum
 import graphlib
 import sys
@@ -14,14 +13,14 @@ from packaging import version
 
 from puya import log
 from puya.errors import CodeError, ConfigurationError, InternalError
-from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, set_add, unique
 from puyapy.dependency_analysis import Dependency, DependencyFlags, resolve_import_dependencies
+from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.builder import parse_module
-from puyapy.fast.nodes import Module as FastModule
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.package_path import PackageResolverCache, resolve_package_paths
 from puyapy.parse_mypy import mypy_parse
+from puyapy.read_source import SourceProvider
 
 if typing.TYPE_CHECKING:
     from mypy.nodes import MypyFile
@@ -45,7 +44,7 @@ class SourceModule:
     name: str
     mypy_module: "MypyFile"
     path: Path
-    fast: FastModule | None  # TODO: make this non-optional and handle failures differently
+    fast: fast_nodes.Module | None  # TODO: make this non-optional and handle failures differently
     lines: Sequence[str] | None
     discovery_mechanism: SourceDiscoveryMechanism
     dependencies: frozenset[str]
@@ -98,19 +97,7 @@ def parse_python(
     # order modules by dependency
     module_graph = {
         md.module: unique(
-            dep.module_id
-            for dep in md.dependencies
-            if not (
-                dep.flags
-                & (
-                    DependencyFlags.IMPLICIT
-                    | DependencyFlags.TYPE_CHECKING
-                    | DependencyFlags.DEFERRED
-                    | DependencyFlags.MAYBE_SHADOWED_IN_INIT
-                    | DependencyFlags.STAR_IMPORT
-                    | DependencyFlags.STUB
-                )
-            )
+            dep.module_id for dep in md.dependencies if dep.flags == DependencyFlags.NONE
         )
         for md in module_data.values()
     }
@@ -216,7 +203,7 @@ class _ModuleData:
     data: str
     dependencies: tuple[Dependency, ...]
     """Dependency set, and whether it's a module-level dependency (vs function scoped)"""
-    fast: FastModule | None
+    fast: fast_nodes.Module | None
     is_source: bool
 
 
@@ -230,12 +217,10 @@ def _fast_parse_and_resolve_imports(
     result_by_id = dict[str, _ModuleData]()
     source_queue = _SourceQueue(sources)
     initial_source_ids = {rs.module for rs in sources}
+    source_provider = SourceProvider(file_contents)
     while source_queue:
         rs = source_queue.dequeue()
-        try:
-            source = file_contents[rs.path]
-        except KeyError:
-            source = _read_and_decode(rs.path)
+        source = source_provider.read_source(rs.path)
         fast = parse_module(
             source=source,
             module_path=rs.path,
@@ -250,6 +235,7 @@ def _fast_parse_and_resolve_imports(
                 source_roots=source_roots,
                 package_cache=package_cache,
                 import_base_dir=rs.base_dir or rs.path.parent,
+                source_provider=source_provider,
             )
             for dep in dependencies:
                 if dep.path is None:
@@ -334,30 +320,6 @@ def _infer_base_dir(path: Path, module: str) -> Path:
     if path.name == "__init__.py":
         parts += 1
     return path.parents[parts]
-
-
-def _read_and_decode(module_path: Path) -> str:
-    # TODO: replace with our own functions
-    from mypy.util import decode_python_encoding, find_python_encoding
-
-    source = module_path.read_bytes()
-    # below is based on mypy/util.py:decode_python_encoding
-    # check for BOM UTF-8 encoding
-    if not source.startswith(b"\xef\xbb\xbf"):
-        # otherwise look at first two lines and check if PEP-263 coding is present
-        encoding, _ = find_python_encoding(source)
-        # find the codec for this encoding and check it is utf-8
-        codec = codecs.lookup(encoding)
-        if codec.name != "utf-8":
-            module_rel_path = make_path_relative_to_cwd(module_path)
-            module_loc = SourceLocation(file=module_path, line=1)
-            logger.warning(
-                "UH OH SPAGHETTI-O's,"
-                " darn tootin' non-utf8(?!) encoded file encountered:"
-                f" {module_rel_path} encoded as {encoding}",
-                location=module_loc,
-            )
-    return decode_python_encoding(source)
 
 
 _STUBS_PACKAGE_NAME = "algorand-python"
