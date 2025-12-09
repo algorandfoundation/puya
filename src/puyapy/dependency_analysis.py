@@ -83,7 +83,10 @@ class _ImportResolver(StatementTraverser):
             self._resolve_module(imp.name, imp.source_location)
 
     def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
-        if "__init__" in module_id.split("."):
+        if module_id == "__future__":
+            logger.error("future imports are not supported", location=loc)
+            return None
+        elif "__init__" in module_id.split("."):
             logger.error(
                 "explicitly importing __init__.py is not supported",
                 location=loc,
@@ -226,7 +229,7 @@ class _ImportResolver(StatementTraverser):
                     return None
                 case PackageError.STANDALONE_MODULE:
                     logger.error(
-                        f'imported module "{module_id}" comes from an standalone module',
+                        f'imported module "{module_id}" comes from a standalone module',
                         location=import_loc,
                     )
                     return None
