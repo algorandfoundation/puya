@@ -139,7 +139,7 @@ class _ImportResolver(StatementTraverser):
                         {
                             p.stem
                             for p in module_dir.iterdir()
-                            if (p.is_dir() or p.suffixes == [".py"])
+                            if (p.is_dir() or (p.suffixes == [".py"] and p.stem != "__init__"))
                         }
                     )
                 ]
