@@ -638,12 +638,11 @@ def submit_staged() -> None:
     transaction group where `n` is a compile time constant representing the index of the transaction in the group.
     """
 
-class ABIApplicationCallInnerTransaction[T](_InnerTransaction[ApplicationCallInnerTransaction]):
+class ABIApplicationCallInnerTransaction[T](ApplicationCallInnerTransaction):
     @property
     def result(self) -> T: ...
 
-class ABIApplicationCall[T](ABIApplicationCallInnerTransaction[T]):
-    pass
+class ABIApplicationCall[T](_InnerTransaction[ABIApplicationCallInnerTransaction[T]]): ...
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
 

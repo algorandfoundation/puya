@@ -1736,7 +1736,7 @@ class ABICall(Expression):
     """ """
 
     target: "ContractMethod | str"
-    args: Sequence[CallArg] = attrs.field(converter=tuple[CallArg, ...])
+    args: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: wtypes.WInnerTransactionFields
 

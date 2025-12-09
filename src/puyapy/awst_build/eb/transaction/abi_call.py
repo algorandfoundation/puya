@@ -11,11 +11,7 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
-from puyapy.awst_build.eb.arc4.abi_call import (
-    ARC4ClientMethodExpressionBuilder,
-    _get_method_abi_args_and_kwargs,
-    _get_python_kwargs,
-)
+from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
@@ -71,11 +67,15 @@ class ABICallExpressionBuilder(FunctionBuilder):
             else:
                 fields[field] = params.validate_and_convert(field_node).resolve()
 
+        abi_call_args = [
+            expect.instance_builder(arg, default=expect.default_raise).resolve()
+            for arg in abi_args
+        ]
         return builder_for_instance(
             pytype,
             ABICall(
                 target=target,
-                args=abi_args,
+                args=abi_call_args,
                 fields=fields,
                 source_location=location,
                 wtype=pytype.wtype,
