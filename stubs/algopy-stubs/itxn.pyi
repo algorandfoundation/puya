@@ -1,7 +1,6 @@
 import typing
 from collections.abc import Callable
 
-import algopy
 from algopy import (
     Account,
     Application,
@@ -653,13 +652,13 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
         method: str,
         /,
         *args: object,
-        app_id: algopy.Application | algopy.UInt64 | int = ...,
-        on_completion: algopy.OnCompleteAction = ...,
-        fee: algopy.UInt64 | int = 0,
-        sender: algopy.Account | str = ...,
-        note: algopy.Bytes | bytes | str = ...,
-        rekey_to: algopy.Account | str = ...,
-        reject_version: algopy.UInt64 | int = ...,
+        app_id: Application | UInt64 | int = ...,
+        on_completion: OnCompleteAction = ...,
+        fee: UInt64 | int = 0,
+        sender: Account | str = ...,
+        note: Bytes | bytes | str = ...,
+        rekey_to: Account | str = ...,
+        reject_version: UInt64 | int = ...,
     ) -> ABIApplicationCall[_TABIResult_co]: ...
 
 class _ABICallProtocolType(typing.Protocol):

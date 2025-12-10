@@ -88,13 +88,6 @@ class _MemberFunction(FunctionBuilder, abc.ABC):
 
 
 class _Submit(_MemberFunction):
-    def __init__(
-        self,
-        base: InnerTxnParamsExpressionBuilder,
-        location: SourceLocation,
-    ) -> None:
-        super().__init__(base, location)
-
     @typing.override
     def call(
         self,
