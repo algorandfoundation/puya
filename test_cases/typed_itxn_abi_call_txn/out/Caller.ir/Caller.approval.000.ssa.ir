@@ -347,9 +347,18 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn(a
         let app_call_txn.NumApprovalProgramPages#0: uint64 = itxn[app_call_txn#0].NumApprovalProgramPages
         let app_call_txn.NumClearStateProgramPages#0: uint64 = itxn[app_call_txn#0].NumClearStateProgramPages
         let app_call_txn.RejectVersion#0: uint64 = itxn[app_call_txn#0].RejectVersion
-        let asset_id#0: uint64 = 0u
-        let tmp%0#0: bool = (!= asset_id#0 0u)
-        (assert tmp%0#0) // expected asset id
+        let tmp%0#0: bytes = ((extract 4 0) app_call_txn.LastLog#0)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 0 4) app_call_txn.LastLog#0)
+        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+        (assert tmp%2#0) // application log value is not the result of an ABI return
+        let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let asset_id#0: uint64 = tmp%3#0
+        let tmp%4#0: bool = (!= asset_id#0 0u)
+        (assert tmp%4#0) // expected asset id
         return 
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:

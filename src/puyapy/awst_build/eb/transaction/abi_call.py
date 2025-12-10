@@ -5,10 +5,10 @@ from puya import log
 from puya.avm import TransactionType
 from puya.awst.nodes import (
     ABICall,
+    ARC4Decode,
     ContractMethod,
     Expression,
     SubmitInnerTransaction,
-    UInt64Constant,
 )
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
@@ -16,8 +16,10 @@ from puya.parse import SourceLocation
 from puya.utils import StableSet
 from puyapy import models
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
+from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
@@ -71,23 +73,6 @@ class ABICallTypeBuilder(FunctionBuilder):
         )
 
 
-class ABIApplicationCallInnerTransactionExpressionBuilder(InnerTransactionExpressionBuilder):
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        if name == "result":
-            assert isinstance(self.pytype, pytypes.ABIApplicationCallInnerTransaction)
-            assert self.pytype.result_type is not None
-            # result_expr = TupleItemExpression(
-            #     base=self.resolve(),
-            #     index=0,
-            #     source_location=location,
-            # )
-            result_expr = UInt64Constant(value=0, source_location=location)
-            return builder_for_instance(self.pytype.result_type, result_expr)
-
-        return super().member_access(name, location)
-
-
 class ABIApplicationCallExpressionBuilder(InnerTxnParamsExpressionBuilder):
     def __init__(self, expr: Expression, pytype: pytypes.PyType):
         assert isinstance(pytype, pytypes.ABIApplicationCall)
@@ -98,6 +83,43 @@ class ABIApplicationCallExpressionBuilder(InnerTxnParamsExpressionBuilder):
         if name == "submit":
             assert isinstance(self.pytype, pytypes.ABIApplicationCall)
             return _Submit(self, location)
+
+        return super().member_access(name, location)
+
+
+class ABIApplicationCallInnerTransactionExpressionBuilder(InnerTransactionExpressionBuilder):
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        if name == "result":
+            assert isinstance(self.pytype, pytypes.ABIApplicationCallInnerTransaction)
+            result_type = self.pytype.result_type
+            assert result_type is not None
+
+            expr = self.single_eval()
+            assert isinstance(expr, InnerTransactionExpressionBuilder)
+
+            def on_error(bad_type: pytypes.PyType, loc_: SourceLocation | None) -> typing.Never:
+                raise CodeError(
+                    f"not an ARC-4 type or native equivalent: {bad_type}",
+                    loc_,
+                )
+
+            arc4_return_type = pytype_to_arc4_pytype(
+                result_type,
+                on_error=on_error,
+                encode_resource_types=True,
+                source_location=location,
+            )
+            last_log = expr.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
+            abi_result = ARC4FromLogBuilder.abi_expr_from_log(arc4_return_type, last_log, location)
+
+            if result_type != arc4_return_type:
+                abi_result = ARC4Decode(
+                    value=abi_result,
+                    wtype=result_type.checked_wtype(location),
+                    source_location=location,
+                )
+            return builder_for_instance(result_type, abi_result)
 
         return super().member_access(name, location)
 
@@ -120,13 +142,19 @@ class _Submit(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         expect.no_args(args, location)
+
         assert isinstance(self.base.pytype, pytypes.ABIApplicationCall)
+        expr = self.base.resolve()
+
         result_type = self.base.pytype.result_type
         result_transaction_type = pytypes.GenericABIApplicationCallInnerTransaction.parameterise(
             [result_type], location
         )
-        submit_expr = SubmitInnerTransaction(itxns=[self.base.resolve()], source_location=location)
-        return builder_for_instance(result_transaction_type, submit_expr)
+
+        return builder_for_instance(
+            result_transaction_type,
+            SubmitInnerTransaction(itxns=[expr], source_location=location),
+        )
 
 
 def _abi_call(
@@ -188,7 +216,7 @@ def _abi_call(
         args=abi_call_args,
         fields=fields,
         source_location=location,
-        return_type=return_type_annotation.checked_wtype(location),
+        result_type=return_type_annotation.checked_wtype(location),
         wtype=pytype.wtype,
     )
     return builder_for_instance(pytype, expr)

@@ -157,7 +157,20 @@ main_test_call_with_txn_route@4:
     itxn_begin
     itxn_field ApplicationID
     itxn_submit
-    intc_0 // 0
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    swap
+    extract 0 4
+    pushbytes 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    btoi
     assert // expected asset id
     intc_3 // 1
     return
