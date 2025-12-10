@@ -1217,45 +1217,70 @@ InnerTransactionResultTypes: typing.Final[
 ] = {kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds}
 
 
+@attrs.frozen(kw_only=True, order=False)
 class ABIApplicationCall(InnerTransactionFieldsetType):
-    def __init__(self, return_type: PyType | None = None):
-        name = f"algopy.itxn.ABIApplicationCall[{return_type}]"
-        transaction_type = TransactionType.appl
-        wtype = wtypes.WInnerTransactionFields(TransactionType.appl)
-        self.return_type = return_type
-        super().__init__(
-            name=name,
-            transaction_type=transaction_type,
-            wtype=wtype,
-        )
+    result_type: PyType = attrs.field(default=NoneType)
+    generic: _GenericType[ABIApplicationCall] = attrs.field()
+    name: str = attrs.field(init=False)
+    transaction_type: TransactionType = attrs.field(default=TransactionType.appl, init=False)
+    wtype: wtypes.WInnerTransactionFields = attrs.field(
+        default=wtypes.WInnerTransactionFields(TransactionType.appl), init=False
+    )
+
+    @name.default
+    def _name_default(self) -> str:
+        return f"algopy.itxn.ABIApplicationCall[{self.result_type}]"
 
 
-class ABIApplicationCallInnerTransaction(InnerTransactionResultType):
-    def __init__(self, return_type: PyType):
-        name = f"algopy.itxn.ABIApplicationCallInnerTransaction[{return_type}]"
-        wtype = wtypes.WInnerTransaction(TransactionType.appl)
-        transaction_type = TransactionType.appl
-        self.return_type = return_type
-        super().__init__(
-            name=name,
-            transaction_type=transaction_type,
-            wtype=wtype,
-        )
-
-
-def _parameterise_abi_application_call_inner_transaction(
-    _self: _GenericType[ABIApplicationCallInnerTransaction],
+def _parameterise_abi_application_call(
+    self: _GenericType[ABIApplicationCall],
     args: _TypeArgs,
     source_location: SourceLocation | None,
-) -> ABIApplicationCallInnerTransaction:
+) -> ABIApplicationCall:
     try:
-        (return_type,) = args
+        (result_type,) = args
     except ValueError:
         raise CodeError(
             f"expected a single type parameter, got {len(args)} parameters", source_location
         ) from None
 
-    return ABIApplicationCallInnerTransaction(return_type=return_type)
+    return ABIApplicationCall(generic=self, result_type=result_type)
+
+
+GenericABIApplicationCall: typing.Final = _GenericType(
+    name="algopy.itxn.ABIApplicationCall",
+    parameterise=_parameterise_abi_application_call,
+)
+
+
+@attrs.frozen(kw_only=True, order=False)
+class ABIApplicationCallInnerTransaction(InnerTransactionResultType):
+    result_type: PyType = attrs.field(default=NoneType)
+    generic: _GenericType[ABIApplicationCallInnerTransaction] = attrs.field()
+    name: str = attrs.field(init=False)
+    transaction_type: TransactionType = attrs.field(default=TransactionType.appl, init=False)
+    wtype: wtypes.WInnerTransaction = attrs.field(
+        default=wtypes.WInnerTransaction(TransactionType.appl), init=False
+    )
+
+    @name.default
+    def _name_default(self) -> str:
+        return f"algopy.itxn.ABIApplicationCallInnerTransaction[{self.result_type}]"
+
+
+def _parameterise_abi_application_call_inner_transaction(
+    self: _GenericType[ABIApplicationCallInnerTransaction],
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
+) -> ABIApplicationCallInnerTransaction:
+    try:
+        (result_type,) = args
+    except ValueError:
+        raise CodeError(
+            f"expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+
+    return ABIApplicationCallInnerTransaction(generic=self, result_type=result_type)
 
 
 GenericABIApplicationCallInnerTransaction: typing.Final = _GenericType(
