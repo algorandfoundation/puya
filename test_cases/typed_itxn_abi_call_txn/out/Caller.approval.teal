@@ -63,9 +63,24 @@ test_call_with_txn:
     itxn_begin
     itxn_field ApplicationID
     itxn_submit
+    itxn LastLog
+    // typed_itxn_abi_call_txn/caller.py:30
+    // asset_id = app_call_txn.result
+    dup
+    extract 4 0
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    swap
+    extract 0 4
+    pushbytes 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    btoi
     // typed_itxn_abi_call_txn/caller.py:31
     // assert asset_id, "expected asset id"
-    intc_0 // 0
     assert // expected asset id
     // typed_itxn_abi_call_txn/caller.py:15
     // @arc4.abimethod
