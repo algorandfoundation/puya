@@ -1,6 +1,6 @@
 from puyapy.awst_build.eb.transaction.abi_call import (
     ABIApplicationCallExpressionBuilder,
-    ABIApplicationCallInnerTransactionTypeBuilder,
+    ABIApplicationCallInnerTransactionExpressionBuilder,
     ABICallGenericTypeBuilder,
     ABICallTypeBuilder,
 )
@@ -30,6 +30,6 @@ __all__ = [
     "SubmitStagedInnerTransactionsExpressionBuilder",
     "ABICallTypeBuilder",
     "ABICallGenericTypeBuilder",
-    "ABIApplicationCallInnerTransactionTypeBuilder",
     "ABIApplicationCallExpressionBuilder",
+    "ABIApplicationCallInnerTransactionExpressionBuilder",
 ]
