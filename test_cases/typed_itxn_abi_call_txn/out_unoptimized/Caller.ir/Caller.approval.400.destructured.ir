@@ -1,0 +1,229 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        goto block@1
+    block@1: // L14
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@2 : block@11
+    block@2: // abi_routing_L14
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@3 : block@9
+    block@3: // call_NoOp_L14
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_call_with_txn(byte[],byte[],uint64)void" => block@4, method "test_call_with_acfg(byte[],byte[],uint64)void" => block@5, method "test_call_with_infer(byte[],byte[],uint64)void" => block@6, method "test_call_with_acfg_no_return(byte[],byte[],uint64)void" => block@7, * => block@8}
+    block@4: // test_call_with_txn_route_L15
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[routing]()
+        goto block@8
+    block@5: // test_call_with_acfg_route_L33
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[routing]()
+        goto block@8
+    block@6: // test_call_with_infer_route_L49
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer[routing]()
+        goto block@8
+    block@7: // test_call_with_acfg_no_return_route_L65
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]()
+        goto block@8
+    block@8: // switch_case_next_L14
+        goto block@10
+    block@9: // create_NoOp_L14
+        goto block@10
+    block@10: // after_if_else_L14
+        goto block@12
+    block@11: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        goto block@14
+    block@14: // L1
+        goto block@15
+    block@15: // after_inlined_test_cases.typed_itxn_abi_call_txn.caller.Caller.__algopy_default_create_L1
+        exit 1u
+    block@12: // after_if_else_L14
+        exit 0u
+    block@13: // after_inlined_test_cases.typed_itxn_abi_call_txn.caller.Caller.__puya_arc4_router___L1
+        let tmp%0#0: bool = undefined
+        return tmp%0#0
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[routing]() -> void:
+    block@0: // L15
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%1#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn(tmp%1#0, tmp%3#0, tmp%5#0)
+        exit 1u
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[routing]() -> void:
+    block@0: // L33
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%1#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg(tmp%1#0, tmp%3#0, tmp%5#0)
+        exit 1u
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer[routing]() -> void:
+    block@0: // L49
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%1#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer(tmp%1#0, tmp%3#0, tmp%5#0)
+        exit 1u
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]() -> void:
+    block@0: // L65
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
+        let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let length%1#0: uint64 = aggregate%array_length%1#0
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%1#0: uint64 = (+ mul%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%1#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return(tmp%1#0, tmp%3#0, tmp%5#0)
+        exit 1u
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: uint64) -> void:
+    block@0: // L15
+        let app_call%%param_ApplicationID_idx_0#0: uint64 = app#0
+        itxn_begin
+        ((itxn_field ApplicationID) app_call%%param_ApplicationID_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L29
+        itxn_submit
+        let tmp%0#0: bool = (!= 0u 0u)
+        (assert tmp%0#0) // expected asset id
+        return 
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:
+    block@0: // L33
+        let app_call%%param_ApplicationID_idx_0#0: uint64 = app#0
+        itxn_begin
+        ((itxn_field ApplicationID) app_call%%param_ApplicationID_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L47
+        itxn_submit
+        return 
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer(a: bytes, b: bytes, app: uint64) -> void:
+    block@0: // L49
+        let app_call%%param_ApplicationID_idx_0#0: uint64 = app#0
+        itxn_begin
+        ((itxn_field ApplicationID) app_call%%param_ApplicationID_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L63
+        itxn_submit
+        return 
+
+subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return(a: bytes, b: bytes, app: uint64) -> void:
+    block@0: // L65
+        let app_call%%param_ApplicationID_idx_0#0: uint64 = app#0
+        itxn_begin
+        ((itxn_field Note) 0x31)
+        ((itxn_field ApplicationID) app_call%%param_ApplicationID_idx_0#0)
+        goto block@1
+    block@1: // next_txn_L75
+        itxn_submit
+        let txn1.Note#0: bytes = (itxn Note)
+        let tmp%0#0: bool = (== txn1.Note#0 0x31)
+        (assert tmp%0#0)
+        let txn1_copy1.Note#0: bytes = txn1.Note#0
+        let tmp%1#0: bool = (== txn1_copy1.Note#0 txn1.Note#0)
+        (assert tmp%1#0)
+        let tmp%2#0: uint64 = (gitxn 0 CreatedAssetID)
+        let asset_id#0: uint64 = tmp%2#0
+        let tmp%3#0: bool = (!= asset_id#0 0u)
+        (assert tmp%3#0) // expected asset to be created
+        return 

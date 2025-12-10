@@ -167,9 +167,6 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayTypeBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayTypeBuilder,
     pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesTypeBuilder,
-    pytypes.GenericABIApplicationCallInnerTransaction: (
-        transaction.ABIApplicationCallInnerTransactionTypeBuilder
-    ),
 }
 
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
@@ -256,6 +253,10 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericGlobalStateType: storage.GlobalStateExpressionBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateExpressionBuilder,
     pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesExpressionBuilder,
+    pytypes.GenericABIApplicationCall: transaction.ABIApplicationCallExpressionBuilder,
+    pytypes.GenericABIApplicationCallInnerTransaction: (
+        transaction.ABIApplicationCallInnerTransactionExpressionBuilder
+    ),
 }
 
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {

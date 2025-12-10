@@ -1,0 +1,424 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 2 8
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // typed_itxn_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@11
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // typed_itxn_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@9
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
+    // typed_itxn_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x0ab53563 // method "test_call_with_txn(byte[],byte[],uint64)void"
+    pushbytes 0xea6a6ade // method "test_call_with_acfg(byte[],byte[],uint64)void"
+    pushbytes 0x2381ff80 // method "test_call_with_infer(byte[],byte[],uint64)void"
+    pushbytes 0x00b50f1c // method "test_call_with_acfg_no_return(byte[],byte[],uint64)void"
+    uncover 4
+    match main_test_call_with_txn_route@4 main_test_call_with_acfg_route@5 main_test_call_with_infer_route@6 main_test_call_with_acfg_no_return_route@7
+    b main_switch_case_next@8
+
+main_switch_case_next@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    b main_after_if_else@12
+
+main_after_if_else@12:
+    // typed_itxn_abi_call_txn/caller.py:14
+    // class Caller(ARC4Contract):
+    err
+
+main_test_call_with_acfg_no_return_route@7:
+    // typed_itxn_abi_call_txn/caller.py:65
+    // @arc4.abimethod
+    callsub test_call_with_acfg_no_return
+    b main_switch_case_next@8
+
+main_test_call_with_infer_route@6:
+    // typed_itxn_abi_call_txn/caller.py:49
+    // @arc4.abimethod
+    callsub test_call_with_infer
+    b main_switch_case_next@8
+
+main_test_call_with_acfg_route@5:
+    // typed_itxn_abi_call_txn/caller.py:33
+    // @arc4.abimethod
+    callsub test_call_with_acfg
+    b main_switch_case_next@8
+
+main_test_call_with_txn_route@4:
+    // typed_itxn_abi_call_txn/caller.py:15
+    // @arc4.abimethod
+    callsub test_call_with_txn
+    b main_switch_case_next@8
+
+main_create_NoOp@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@14
+
+main_block@14:
+    b main_after_inlined_test_cases.typed_itxn_abi_call_txn.caller.Caller.__algopy_default_create@15
+
+main_after_inlined_test_cases.typed_itxn_abi_call_txn.caller.Caller.__algopy_default_create@15:
+    intc_1 // 1
+    return
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[routing]() -> void:
+test_call_with_txn:
+    b test_call_with_txn_block@0
+
+test_call_with_txn_block@0:
+    // typed_itxn_abi_call_txn/caller.py:15
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn
+    intc_1 // 1
+    return
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[routing]() -> void:
+test_call_with_acfg:
+    b test_call_with_acfg_block@0
+
+test_call_with_acfg_block@0:
+    // typed_itxn_abi_call_txn/caller.py:33
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg
+    intc_1 // 1
+    return
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer[routing]() -> void:
+test_call_with_infer:
+    b test_call_with_infer_block@0
+
+test_call_with_infer_block@0:
+    // typed_itxn_abi_call_txn/caller.py:49
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer
+    intc_1 // 1
+    return
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]() -> void:
+test_call_with_acfg_no_return:
+    b test_call_with_acfg_no_return_block@0
+
+test_call_with_acfg_no_return_block@0:
+    // typed_itxn_abi_call_txn/caller.py:65
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return
+    intc_1 // 1
+    return
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn(a: bytes, b: bytes, app: uint64) -> void:
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn:
+    // typed_itxn_abi_call_txn/caller.py:15-16
+    // @arc4.abimethod
+    // def test_call_with_txn(self, a: Bytes, b: Bytes, app: Application) -> None:
+    proto 3 0
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn_block@0
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn_block@0:
+    // typed_itxn_abi_call_txn/caller.py:27
+    // app_id=app,
+    frame_dig -1
+    // typed_itxn_abi_call_txn/caller.py:29
+    // app_call_txn = app_call.submit()
+    itxn_begin
+    itxn_field ApplicationID
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn_next_txn@1
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn_next_txn@1:
+    // typed_itxn_abi_call_txn/caller.py:29
+    // app_call_txn = app_call.submit()
+    itxn_submit
+    // typed_itxn_abi_call_txn/caller.py:30
+    // asset_id = app_call_txn.result
+    intc_0 // 0
+    // typed_itxn_abi_call_txn/caller.py:31
+    // assert asset_id, "expected asset id"
+    intc_0 // 0
+    !=
+    assert // expected asset id
+    retsub
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg(a: bytes, b: bytes, app: uint64) -> void:
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg:
+    // typed_itxn_abi_call_txn/caller.py:33-34
+    // @arc4.abimethod
+    // def test_call_with_acfg(self, a: Bytes, b: Bytes, app: Application) -> None:
+    proto 3 0
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_block@0
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_block@0:
+    // typed_itxn_abi_call_txn/caller.py:45
+    // app_id=app,
+    frame_dig -1
+    // typed_itxn_abi_call_txn/caller.py:47
+    // app_call.submit()
+    itxn_begin
+    itxn_field ApplicationID
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_next_txn@1
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_next_txn@1:
+    // typed_itxn_abi_call_txn/caller.py:47
+    // app_call.submit()
+    itxn_submit
+    retsub
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer(a: bytes, b: bytes, app: uint64) -> void:
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer:
+    // typed_itxn_abi_call_txn/caller.py:49-50
+    // @arc4.abimethod
+    // def test_call_with_infer(self, a: Bytes, b: Bytes, app: Application) -> None:
+    proto 3 0
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer_block@0
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer_block@0:
+    // typed_itxn_abi_call_txn/caller.py:61
+    // app_id=app,
+    frame_dig -1
+    // typed_itxn_abi_call_txn/caller.py:63
+    // app_call.submit()
+    itxn_begin
+    itxn_field ApplicationID
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer_next_txn@1
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer_next_txn@1:
+    // typed_itxn_abi_call_txn/caller.py:63
+    // app_call.submit()
+    itxn_submit
+    retsub
+
+
+// test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return(a: bytes, b: bytes, app: uint64) -> void:
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return:
+    // typed_itxn_abi_call_txn/caller.py:65-66
+    // @arc4.abimethod
+    // def test_call_with_acfg_no_return(self, a: Bytes, b: Bytes, app: Application) -> None:
+    proto 3 0
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return_block@0
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return_block@0:
+    // typed_itxn_abi_call_txn/caller.py:73
+    // TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
+    frame_dig -1
+    // typed_itxn_abi_call_txn/caller.py:75
+    // txn1 = app_call.submit()
+    itxn_begin
+    // typed_itxn_abi_call_txn/caller.py:73
+    // TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
+    pushbytes 0x31
+    itxn_field Note
+    itxn_field ApplicationID
+    b test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return_next_txn@1
+
+test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return_next_txn@1:
+    // typed_itxn_abi_call_txn/caller.py:75
+    // txn1 = app_call.submit()
+    itxn_submit
+    itxn Note
+    // typed_itxn_abi_call_txn/caller.py:76
+    // assert txn1.note == b"1"
+    dup
+    pushbytes 0x31
+    ==
+    assert
+    dup
+    // typed_itxn_abi_call_txn/caller.py:78
+    // assert txn1_copy1.note == txn1.note
+    ==
+    assert
+    // typed_itxn_abi_call_txn/caller.py:79
+    // asset_id = op.GITxn.created_asset_id(0)
+    gitxn 0 CreatedAssetID
+    // typed_itxn_abi_call_txn/caller.py:80
+    // assert asset_id, "expected asset to be created"
+    intc_0 // 0
+    !=
+    assert // expected asset to be created
+    retsub
