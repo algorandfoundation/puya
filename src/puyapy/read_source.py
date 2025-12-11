@@ -24,7 +24,7 @@ class SourceProvider:
         *,
         feature_version: int | tuple[int, int] | None = None,
     ):
-        self._file_contents: typing.Final = {k: v for k, v in file_contents.items()}
+        self._file_contents: typing.Final = dict(file_contents)
         self._feature_version: typing.Final = feature_version
         self._parsed: typing.Final = dict[Path, fast_nodes.Module | None]()
 
