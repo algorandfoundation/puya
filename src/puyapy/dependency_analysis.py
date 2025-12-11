@@ -2,7 +2,7 @@ import ast
 import contextlib
 import enum
 import typing
-from collections.abc import Iterator, Mapping, Set
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 
 import attrs
@@ -73,7 +73,6 @@ class _ImportResolver(StatementTraverser):
     source_provider: SourceProvider
     _flags: DependencyFlags = attrs.field(default=DependencyFlags.NONE, init=False)
     _dependencies: list[Dependency] = attrs.field(factory=list, init=False)
-    _symbol_tables_cache: dict[Path, Set[str] | None] = attrs.field(factory=dict, init=False)
 
     def collect(self) -> list[Dependency]:
         self._dependencies.clear()
@@ -277,7 +276,7 @@ def _resolve_module_path(base_path: Path, *, allow_implicit_ns_dir: bool = True)
                 f"{standalone_module_path} is potentially shadowed by directory {base_path}"
             )
         return standalone_module_path
-    elif base_path.is_dir() and allow_implicit_ns_dir:
+    elif allow_implicit_ns_dir and base_path.is_dir():
         return base_path
     return None
 
