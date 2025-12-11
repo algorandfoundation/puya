@@ -9,11 +9,9 @@ from puyapy.models import ConstantValue
 
 @attrs.frozen(kw_only=True)
 class Symbol(abc.ABC):
-    name: str
-
     @property
     @abc.abstractmethod
-    def definition(self) -> fast_nodes.Node: ...
+    def definition(self) -> fast_nodes.Statement: ...
 
 
 @attrs.frozen(kw_only=True)
@@ -25,6 +23,11 @@ class ResolvedSymbol(Symbol, abc.ABC):
 class ImportedModule(ResolvedSymbol):
     definition: fast_nodes.AnyImport
     type_checking_only: bool
+
+
+@attrs.frozen(kw_only=True)
+class StubReference(ResolvedSymbol):
+    definition: fast_nodes.Statement
 
 
 @attrs.frozen(kw_only=True)
@@ -71,14 +74,8 @@ class TypeAlias(ResolvedSymbol):
 
 
 @attrs.frozen(kw_only=True)
-class DunderAll(ResolvedSymbol):
-    name: str = attrs.field(validator=attrs.validators.in_(("__all__",)))
-    definition: fast_nodes.Assign
-
-
-@attrs.frozen(kw_only=True)
-class DeferredImport(Symbol):
-    definition: fast_nodes.AnyImport
+class DeferredTypeCheckingFromImport(Symbol):
+    definition: fast_nodes.FromImport
 
 
 @attrs.frozen(kw_only=True)

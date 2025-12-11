@@ -2,14 +2,13 @@ import abc
 import ast
 import operator
 import typing
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping
 
 from mypy.types import PROTOCOL_NAMES
 
 from puya import log
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-from puyapy import reachability
 from puyapy.awst_build import symbols
 from puyapy.awst_build.context import ASTConversionContext, ASTConversionModuleContext
 from puyapy.awst_build.utils import log_warnings
@@ -24,13 +23,6 @@ StatementResult: typing.TypeAlias = list[symbols.CodeSymbol]
 
 
 _BUILTIN_INHERITABLE: typing.Final = frozenset(("builtins.object", "abc.ABC", *PROTOCOL_NAMES))
-
-StaticReachability = typing.Literal[
-    reachability.ConditionValue.ALWAYS_TRUE,
-    reachability.ConditionValue.ALWAYS_FALSE,
-    reachability.ConditionValue.TYPE_CHECKING_TRUE,
-    reachability.ConditionValue.TYPE_CHECKING_FALSE,
-]
 
 
 class _BaseModuleASTConverter[T](StatementVisitor[T], abc.ABC):
@@ -108,7 +100,6 @@ class ModuleASTConverter(_BaseModuleASTConverter[StatementResult]):
     def __init__(self, context: ASTConversionModuleContext):
         self.context: typing.Final = context
         self._const_visitor = ModuleConstantExpressionVisitor(context, context.symbol_table)
-        self._in_type_checking: bool = False
         self._imported_modules = set[str]()
 
     @typing.override
@@ -119,23 +110,28 @@ class ModuleASTConverter(_BaseModuleASTConverter[StatementResult]):
     def visit_module_import(self, module_import: fast_nodes.ModuleImport) -> StatementResult:
         # ref: https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
         for imp in module_import.names:
-            if imp.as_name is not None:
-                local_name = imp.as_name
-                qualified_name = imp.name
-            else:
+            if imp.as_name is None:
+                # examples:
+                # import foo
+                #   -> foo imported and bound locally
+                # import foo.bar.baz
+                #   -> foo, foo.bar, and foo.bar.baz imported, foo bound locally
                 root = imp.name.partition(".")[0]
                 local_name = root
                 qualified_name = root
-            if not self._in_type_checking:
-                path = imp.name
-                while path:
-                    self._imported_modules.add(path)
-                    path = path.rpartition(".")[0]
+            else:
+                # example:
+                # import foo.bar.baz as fbb
+                #   -> foo, foo.bar, and foo.bar.baz imported, foo.bar.baz bound as fbb
+                local_name = imp.as_name
+                qualified_name = imp.name
+            if not module_import.type_checking_only:
+                self._imported_modules.update(_expand_all_imports(imp.name))
+            # an import <module> statement can only ever import a module
             sym = symbols.ImportedModule(
-                name=local_name,
                 qualified_name=qualified_name,
                 definition=module_import,
-                type_checking_only=self._in_type_checking,
+                type_checking_only=module_import.type_checking_only,
             )
             try:
                 existing_defn = self.context.symbol_table[local_name]
@@ -149,7 +145,9 @@ class ModuleASTConverter(_BaseModuleASTConverter[StatementResult]):
                     self._unsupported(imp, "import would shadow existing definition")
                 # only replace if the existing symbol was from a TYPE_CHECKING block
                 # and this one isn't
-                insert_symbol = existing_defn.type_checking_only and not self._in_type_checking
+                insert_symbol = (
+                    existing_defn.type_checking_only and not module_import.type_checking_only
+                )
             if insert_symbol:
                 self.context.symbol_table[local_name] = sym
         return []
@@ -158,87 +156,51 @@ class ModuleASTConverter(_BaseModuleASTConverter[StatementResult]):
     def visit_from_import(self, from_import: fast_nodes.FromImport) -> StatementResult:
         # ref: https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
         # also: https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
-        from_symbols = self.context.symbol_tables.get(from_import.module)
-        if from_symbols is None:
-            # we expect there to be no dependency cycles at this point, unless
-            # we're inside a TYPE_CHECKING block
-            # TODO: what about implicit namespace packages??
-            assert self._in_type_checking, f"unable to resolve symtable for {from_import.module}"
-        # TODO: how to handle star imports from type checking?
-        # - maybe a first pass that collects __all__ etc?
-        # - maybe make this pass more minimal and just collect TYPE_CHECKING code, etc?
-        return []
+        raise NotImplementedError
 
     @typing.override
     def visit_function_def(self, func_def: fast_nodes.FunctionDef) -> StatementResult:
-        self._require_not_type_checking(func_def)
         raise NotImplementedError
 
     @typing.override
     def visit_class_def(self, class_def: fast_nodes.ClassDef) -> StatementResult:
-        self._require_not_type_checking(class_def)
         raise NotImplementedError
 
     @typing.override
     def visit_assign(self, assign: fast_nodes.Assign) -> StatementResult:
-        self._require_not_type_checking(assign)
-        raise NotImplementedError
+        match assign.target:
+            case fast_nodes.Name(id="__all__") if isinstance(
+                assign.value, fast_nodes.ListExpr | fast_nodes.TupleExpr
+            ):
+                return []
+            case _:
+                raise NotImplementedError
 
     @typing.override
     def visit_multi_assign(self, multi_assign: fast_nodes.MultiAssign) -> StatementResult:
-        self._require_not_type_checking(multi_assign)
         raise NotImplementedError
 
     @typing.override
     def visit_aug_assign(self, aug_assign: fast_nodes.AugAssign) -> StatementResult:
-        self._require_not_type_checking(aug_assign)
         match aug_assign.target:
-            case fast_nodes.Name(id="__all__"):
-                logger.critical("TODO: handle __all__", location=aug_assign.source_location)
+            case fast_nodes.Name(id="__all__") if isinstance(
+                aug_assign.op, ast.Add
+            ) and isinstance(aug_assign.value, fast_nodes.ListExpr | fast_nodes.TupleExpr):
                 return []
             case _:
                 self._unsupported(aug_assign)
 
     @typing.override
     def visit_if(self, if_stmt: fast_nodes.If) -> StatementResult:
-        self._require_not_type_checking(if_stmt)  # no nesting if/else inside a if TYPE_CHECKING
-        condition = evaluate_compile_time_constant_condition(self._const_visitor, if_stmt.test)
-        result = self._visit_conditional(condition, if_stmt.body)
-        assert condition.negated is not reachability.ConditionValue.UNKNOWN
-        result += self._visit_conditional(condition.negated, if_stmt.else_body)
+        condition = if_stmt.test.accept(self._const_visitor)
+        if condition:
+            branch = if_stmt.body
+        else:
+            branch = if_stmt.else_body or ()
+        result = StatementResult()
+        for stmt in branch:
+            result.extend(stmt.accept(self))
         return result
-
-    def _visit_conditional(
-        self, condition: StaticReachability, body: Sequence[fast_nodes.Statement] | None
-    ) -> StatementResult:
-        match condition:
-            case reachability.ALWAYS_FALSE:
-                return []
-            case reachability.ALWAYS_TRUE:
-                result = StatementResult()
-                for stmt in body or ():
-                    result.extend(stmt.accept(self))
-                return result
-            case reachability.TYPE_CHECKING_TRUE:
-                assert not self._in_type_checking, "unexpected TYPE_CHECKING nesting"
-                self._in_type_checking = True
-                try:
-                    result = StatementResult()
-                    for stmt in body or ():
-                        result.extend(stmt.accept(self))
-                    return result
-                finally:
-                    self._in_type_checking = False
-            case reachability.TYPE_CHECKING_FALSE:
-                if body:
-                    return self._unsupported(
-                        body[0], "code that is conditional on not TYPE_CHECKING is not supported"
-                    )
-                return []
-
-    def _require_not_type_checking(self, stmt: fast_nodes.Statement) -> None:
-        if self._in_type_checking:
-            self._unsupported(stmt, "statement is not supported inside a TYPE_CHECKING block")
 
 
 class ModuleConstantExpressionVisitor(ExpressionVisitor[ConstantValue]):
@@ -277,7 +239,12 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[ConstantValue]):
 
     @typing.override
     def visit_if_exp(self, if_exp: fast_nodes.IfExp) -> ConstantValue:
-        raise NotImplementedError
+        condition = if_exp.accept(self)
+        if condition:
+            branch = if_exp.true
+        else:
+            branch = if_exp.false
+        return branch.accept(self)
 
     @typing.override
     def visit_compare(self, compare: fast_nodes.Compare) -> ConstantValue:
@@ -357,15 +324,10 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[ConstantValue]):
         raise CodeError(msg, node.source_location) from ex
 
 
-def evaluate_compile_time_constant_condition(
-    visitor: ExpressionVisitor[object], expr: fast_nodes.Expression
-) -> StaticReachability:
-    kind = reachability.infer_condition_value(expr)
-    if kind != reachability.TRUTH_VALUE_UNKNOWN:
-        return kind
-    else:
-        result = expr.accept(visitor)
-        return reachability.ALWAYS_TRUE if result else reachability.ALWAYS_FALSE
+def _expand_all_imports(module_id: str) -> Iterator[str]:
+    while module_id:
+        yield module_id
+        module_id = module_id.rpartition(".")[0]
 
 
 UNARY_OPS: typing.Final[Mapping[type[ast.unaryop], Callable[[typing.Any], typing.Any]]] = {
