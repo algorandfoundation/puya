@@ -6,7 +6,7 @@ Contributions of all kinds are welcome. For new features, please open an issue t
 
 [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) are used.
 Not all commits require a convention, but in general a user-facing change should include at least
-one commit with either a `fix:` or `feat:` commit, so that is included in the release notes.
+one commit with either a `fix:` or `feat:` commit, so that the compiler version is bumped correctly.
 Other conventions such as `docs:` or `test:` are not necessarily required but may be helpful to
 see when reviewing.
 
