@@ -107,59 +107,51 @@ class _ImportResolver(StatementTraverser):
         # references
         # - https://docs.python.org/3/tutorial/modules.html#importing-from-a-package
         # - https://docs.python.org/3/reference/simple_stmts.html#the-import-statement
-
-        loc = from_imp.source_location
         if from_imp.module == self.module.name:
             # avoid creating a potentially spurious self-dependency
             if from_imp.names is None:
-                logger.error("cannot import star from self", location=from_imp.source_location)
+                logger.error(
+                    "importing star from self is not supported", location=from_imp.source_location
+                )
             else:
                 parent_dir = self.module.path.parent
-                for alias in from_imp.names:
-                    base_path = parent_dir / alias.name
-                    resolved_path = _resolve_module_path(base_path, allow_implicit_ns_dir=False)
-                    if resolved_path is not None:
-                        submodule_id = ".".join((from_imp.module, alias.name))
-                        self._add_dependency(submodule_id, resolved_path, loc)
-            return
-        maybe_resolved = self._resolve_module(from_imp.module, loc)
-        if maybe_resolved is None:
-            # TODO: do we want to expand modules from stubs?
-            return
-        resolved = maybe_resolved
-        if resolved.is_dir():
-            # in an implicit namespace dir, we don't need to consider __init__ shadowing.
-            # in addition, import * doesn't import all submodules, just binds any
-            # that have already been imported
-            for alias in from_imp.names or ():
-                submodule_id = ".".join((from_imp.module, alias.name))
-                self._resolve_module(submodule_id, alias.source_location)
-        # if not resolving to an init file, then a direct dependency is sufficient,
-        elif resolved.name == "__init__.py":
-            # variables defined in the init take precedence over submodules, so we can't
-            # be certain if this is a dependency until we've determined a symbol table.
-            fast = self.source_provider.parse_source(resolved, from_imp.module)
-            if fast is not None:
-                module_symbols = fast.symbols.get_identifiers()
+                sub_imports = {alias.name: alias.source_location for alias in from_imp.names}
+                self._resolve_submodules(from_imp.module, parent_dir, sub_imports)
+        else:
+            resolved = self._resolve_module(from_imp.module, from_imp.source_location)
+            if not resolved:
+                # TODO: do we want to expand modules from stubs?
+                pass
+            elif resolved.is_dir():
+                # in an implicit namespace dir, we don't need to consider __init__ shadowing.
+                # in addition, import * doesn't import all submodules, just binds any
+                # that have already been imported
                 if from_imp.names is not None:
-                    maybe_sub_names = [
-                        (alias.name, alias.source_location) for alias in from_imp.names
-                    ]
-                elif "__all__" in module_symbols:
-                    dunder_all = _extract_dunder_all(fast, loc)
-                    maybe_sub_names = [(maybe_sub_name, loc) for maybe_sub_name in dunder_all]
-                else:
-                    maybe_sub_names = []
-                module_dir = resolved.parent
-                for maybe_sub_name, loc in maybe_sub_names:
-                    if maybe_sub_name not in module_symbols:
-                        base_path = module_dir / maybe_sub_name
-                        resolved_path = _resolve_module_path(
-                            base_path, allow_implicit_ns_dir=False
-                        )
-                        if resolved_path is not None:
-                            submodule_id = ".".join((from_imp.module, maybe_sub_name))
-                            self._add_dependency(submodule_id, resolved_path, loc)
+                    sub_imports = {alias.name: alias.source_location for alias in from_imp.names}
+                    self._resolve_submodules(from_imp.module, resolved, sub_imports)
+            # if not resolving to an init file, then a direct dependency is sufficient,
+            elif resolved.name == "__init__.py":
+                # variables defined in the init take precedence over submodules, so we can't
+                # be certain if this is a dependency until we've determined a symbol table.
+                fast = self.source_provider.parse_source(resolved, from_imp.module)
+                if fast is not None:
+                    module_symbols = fast.symbols.get_identifiers()
+                    if from_imp.names is not None:
+                        sub_imports = {
+                            alias.name: alias.source_location
+                            for alias in from_imp.names
+                            if alias.name not in module_symbols
+                        }
+                        self._resolve_submodules(from_imp.module, resolved.parent, sub_imports)
+                    elif "__all__" in module_symbols:
+                        stmt_loc = from_imp.source_location
+                        dunder_all = _extract_dunder_all(fast, stmt_loc)
+                        sub_imports = {
+                            maybe_sub_name: stmt_loc
+                            for maybe_sub_name in dunder_all
+                            if maybe_sub_name not in module_symbols
+                        }
+                        self._resolve_submodules(from_imp.module, resolved.parent, sub_imports)
 
     def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
         if module_id == "__future__":
@@ -180,6 +172,23 @@ class _ImportResolver(StatementTraverser):
             return path
         else:
             return None
+
+    def _resolve_submodules(
+        self, parent_id: str, parent_dir: Path, sub_imports: Mapping[str, SourceLocation]
+    ) -> None:
+        for sub_name, loc in sub_imports.items():
+            submodule_id = ".".join((parent_id, sub_name))
+            base_path = parent_dir / sub_name
+            resolved_path = _resolve_module_path(base_path)
+            if resolved_path:
+                if not resolved_path.is_dir():
+                    self._add_dependency(submodule_id, resolved_path, loc)
+            else:
+                logger.error(
+                    f'unable to resolve imported module "{submodule_id}":'
+                    " could not locate submodule",
+                    location=loc,
+                )
 
     def _add_dependency(
         self,
@@ -203,7 +212,7 @@ class _ImportResolver(StatementTraverser):
             self._flags = current_flags
 
     def _find_module(self, module_id: str, import_loc: SourceLocation | None) -> Path | None:
-        pkg, _sep, sub_id = module_id.partition(".")
+        pkg, *rest = module_id.split(".")
         # pkg_result: Path
         if source_root := self.source_roots.get(pkg):
             pkg_root = source_root
@@ -245,21 +254,20 @@ class _ImportResolver(StatementTraverser):
             return None
 
         assert pkg_root.is_file() and pkg_root.suffixes == [".py"]
-        if not sub_id:
+        if not rest:
             return pkg_root
-        if pkg_root.name != "__init__.py":
-            # we require all packages (as opposed to standalone modules), regardless of source,
-            # to have an __init__.py
-            maybe_module_path = None
-        else:
-            base_path = pkg_root.parent.joinpath(*sub_id.split("."))
+        # we require all packages (as opposed to standalone modules), regardless of source,
+        # to have an __init__.py
+        if pkg_root.name == "__init__.py":
+            base_path = pkg_root.parent.joinpath(*rest)
             maybe_module_path = _resolve_module_path(base_path)
-        if maybe_module_path is None:
-            logger.error(
-                f'unable to resolve imported module "{module_id}": could not locate submodule',
-                location=import_loc,
-            )
-        return maybe_module_path
+            if maybe_module_path:
+                return maybe_module_path
+        logger.error(
+            f'unable to resolve imported module "{module_id}": could not locate submodule',
+            location=import_loc,
+        )
+        return None
 
 
 def _resolve_module_path(base_path: Path, *, allow_implicit_ns_dir: bool = True) -> Path | None:
