@@ -1,6 +1,7 @@
 import abc
 import ast
 import enum
+import symtable
 import types
 import typing
 from pathlib import Path
@@ -548,3 +549,4 @@ class Module:
     path: Path
     docstring: str | None
     body: tuple[Statement, ...]
+    symbols: symtable.SymbolTable

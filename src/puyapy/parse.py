@@ -16,7 +16,6 @@ from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.utils import make_path_relative_to_cwd, set_add, unique
 from puyapy.dependency_analysis import Dependency, DependencyFlags, resolve_import_dependencies
 from puyapy.fast import nodes as fast_nodes
-from puyapy.fast.builder import parse_module
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.package_path import PackageResolverCache, resolve_package_paths
 from puyapy.parse_mypy import mypy_parse
@@ -217,15 +216,17 @@ def _fast_parse_and_resolve_imports(
     result_by_id = dict[str, _ModuleData]()
     source_queue = _SourceQueue(sources)
     initial_source_ids = {rs.module for rs in sources}
-    source_provider = SourceProvider(file_contents)
+
+    source_provider = SourceProvider(
+        file_contents,
+        feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
+    )
     while source_queue:
         rs = source_queue.dequeue()
         source = source_provider.read_source(rs.path)
-        fast = parse_module(
-            source=source,
+        fast = source_provider.parse_source(
             module_path=rs.path,
             module_name=rs.module,
-            feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
         )
         if fast is None:
             dependencies = []

@@ -1,4 +1,5 @@
 import codecs
+import typing
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -10,16 +11,40 @@ from mypy.util import (  # TODO: replace with our own functions
 from puya import log
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault, make_path_relative_to_cwd
+from puyapy.fast import nodes as fast_nodes
+from puyapy.fast.builder import parse_module
 
 logger = log.get_logger(__name__)
 
 
 class SourceProvider:
-    def __init__(self, file_contents: Mapping[Path, str]):
-        self._file_contents = {k: v for k, v in file_contents.items()}
+    def __init__(
+        self,
+        file_contents: Mapping[Path, str],
+        *,
+        feature_version: int | tuple[int, int] | None = None,
+    ):
+        self._file_contents: typing.Final = {k: v for k, v in file_contents.items()}
+        self._feature_version: typing.Final = feature_version
+        self._parsed: typing.Final = dict[Path, fast_nodes.Module | None]()
 
-    def read_source(self, path: Path) -> str:
-        return lazy_setdefault(self._file_contents, path, _read_and_decode)
+    def read_source(self, module_path: Path) -> str:
+        return lazy_setdefault(self._file_contents, module_path, _read_and_decode)
+
+    def parse_source(self, module_path: Path, module_name: str) -> fast_nodes.Module | None:
+        try:
+            return self._parsed[module_path]
+        except KeyError:
+            pass
+        source = self.read_source(module_path)
+        result = parse_module(
+            source=source,
+            module_path=module_path,
+            module_name=module_name,
+            feature_version=self._feature_version,
+        )
+        self._parsed[module_path] = result
+        return result
 
 
 def _read_and_decode(module_path: Path) -> str:

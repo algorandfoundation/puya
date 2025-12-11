@@ -1,7 +1,6 @@
 import ast
 import contextlib
 import enum
-import symtable
 import typing
 from collections.abc import Iterator, Mapping, Set
 from pathlib import Path
@@ -140,25 +139,18 @@ class _ImportResolver(StatementTraverser):
         elif resolved.name == "__init__.py":
             # variables defined in the init take precedence over submodules, so we can't
             # be certain if this is a dependency until we've determined a symbol table.
-            module_symbols = self._read_symbol_table(resolved)
-            if module_symbols is not None:
+            fast = self.source_provider.parse_source(resolved, from_imp.module)
+            if fast is not None:
+                module_symbols = fast.symbols.get_identifiers()
                 if from_imp.names is not None:
                     maybe_sub_names = [
                         (alias.name, alias.source_location) for alias in from_imp.names
                     ]
+                elif "__all__" in module_symbols:
+                    dunder_all = _extract_dunder_all(fast, loc)
+                    maybe_sub_names = [(maybe_sub_name, loc) for maybe_sub_name in dunder_all]
                 else:
                     maybe_sub_names = []
-                    if "__all__" in module_symbols:
-                        dunder_all = self._read_dunder_all(resolved)
-                        if dunder_all is None:
-                            logger.error(
-                                f"unable to determine __all__ value for module {from_imp.module}",
-                                location=loc,
-                            )
-                        else:
-                            maybe_sub_names = [
-                                (maybe_sub_name, loc) for maybe_sub_name in dunder_all
-                            ]
                 module_dir = resolved.parent
                 for maybe_sub_name, loc in maybe_sub_names:
                     if maybe_sub_name not in module_symbols:
@@ -169,38 +161,6 @@ class _ImportResolver(StatementTraverser):
                         if resolved_path is not None:
                             submodule_id = ".".join((from_imp.module, maybe_sub_name))
                             self._add_dependency(submodule_id, resolved_path, loc)
-
-    def _read_symbol_table(self, path: Path) -> Set[str] | None:
-        try:
-            return self._symbol_tables_cache[path]
-        except KeyError:
-            pass
-        try:
-            source = self.source_provider.read_source(path)
-            st = symtable.symtable(source, str(path), "exec")
-        except Exception as ex:
-            logger.debug(ex)
-            module_symbols = None
-        else:
-            module_symbols = st.get_identifiers()
-        self._symbol_tables_cache[path] = module_symbols
-        return module_symbols
-
-    def _read_dunder_all(self, path: Path) -> list[str] | None:
-        source = self.source_provider.read_source(path)
-        mod = ast.parse(source, path)
-        dunder_all: list[str] | None = None
-        # TODO: make this more robust, maybe use FAST instead, could cache the result
-        for ast_stmt in mod.body:
-            if isinstance(ast_stmt, ast.Assign):
-                if _is_dunder_all_assignment_target(ast_stmt.targets):
-                    dunder_all = _extract_literal_str_list(ast_stmt.value)
-            elif dunder_all is not None and isinstance(ast_stmt, ast.AugAssign):  # noqa: SIM102
-                if isinstance(ast_stmt.op, ast.Add) and _is_dunder_all_assignment_target(
-                    [ast_stmt.target]
-                ):
-                    dunder_all += _extract_literal_str_list(ast_stmt.value)
-        return dunder_all
 
     def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
         if module_id == "__future__":
@@ -322,20 +282,39 @@ def _resolve_module_path(base_path: Path, *, allow_implicit_ns_dir: bool = True)
     return None
 
 
-def _is_dunder_all_assignment_target(targets: list[ast.expr]) -> bool:
-    match targets:
-        case [ast.Name(id="__all__")]:
+def _extract_dunder_all(mod: fast_nodes.Module, loc: SourceLocation) -> list[str]:
+    dunder_all: list[str] | None = None
+    # TODO: make this more robust
+    for stmt in mod.body:
+        if isinstance(stmt, fast_nodes.Assign):
+            if _is_dunder_all_assignment_target(stmt.target):
+                dunder_all = _extract_literal_str_list(stmt.value)
+        elif dunder_all is not None and isinstance(stmt, fast_nodes.AugAssign):  # noqa: SIM102
+            if isinstance(stmt.op, ast.Add) and _is_dunder_all_assignment_target(stmt.target):
+                dunder_all += _extract_literal_str_list(stmt.value)
+    if dunder_all is None:
+        logger.error(
+            f"unable to determine __all__ value for module {mod.name}",
+            location=loc,
+        )
+        dunder_all = []
+    return dunder_all
+
+
+def _is_dunder_all_assignment_target(target: fast_nodes.Expression) -> bool:
+    match target:
+        case fast_nodes.Name(id="__all__"):
             return True
         case _:
             return False
 
 
-def _extract_literal_str_list(value: ast.expr) -> list[str]:
+def _extract_literal_str_list(value: fast_nodes.Expression) -> list[str]:
     result = []
     match value:
-        case ast.List(elts=elements) | ast.Tuple(elts=elements):
+        case fast_nodes.ListExpr(elements=elements) | fast_nodes.TupleExpr(elements=elements):
             for el in elements:
                 match el:
-                    case ast.Constant(value=str(name)):
+                    case fast_nodes.Constant(value=str(name)):
                         result.append(name)
     return result

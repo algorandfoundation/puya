@@ -1,5 +1,6 @@
 import ast
 import contextlib
+import symtable
 import typing
 from collections.abc import Callable, Iterator, Mapping
 from pathlib import Path
@@ -35,6 +36,7 @@ def parse_module(
         mod = ast.parse(
             source, module_path, "exec", type_comments=True, feature_version=feature_version
         )
+        symbols = symtable.symtable(source, str(module_path), "exec")
     except SyntaxError as e:
         loc = None
         if e.lineno is not None:
@@ -47,8 +49,11 @@ def parse_module(
             )
         logger.error(f"{_INVALID_SYNTAX_MSG}: {e.msg}", location=loc)  # noqa: TRY400
         fast = None
+    except Exception:
+        logger.exception(f"unable to parse {module_path}")
+        fast = None
     else:
-        fast = _convert_module(mod, module_path=module_path, module_name=module_name)
+        fast = _convert_module(mod, symbols, module_path=module_path, module_name=module_name)
     return fast
 
 
@@ -143,6 +148,7 @@ class _BuildContext:
 
 def _convert_module(
     module: ast.Module,
+    symbols: symtable.SymbolTable,
     *,
     module_path: Path,
     module_name: str,
@@ -169,6 +175,7 @@ def _convert_module(
         path=module_path,
         docstring=docstring,
         body=tuple(body),
+        symbols=symbols,
     )
 
 
