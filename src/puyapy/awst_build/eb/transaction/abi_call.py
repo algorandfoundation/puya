@@ -216,8 +216,6 @@ def _abi_call(
         args=abi_call_args,
         fields=fields,
         source_location=location,
-        result_type=return_type_annotation.checked_wtype(location),
-        wtype=pytype.wtype,
     )
     return builder_for_instance(pytype, expr)
 
