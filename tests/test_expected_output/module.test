@@ -281,3 +281,15 @@ from algopy import Contract
 class IForgotToImplementClearState(Contract): ## W: Class implicitly_abstract_warning.IForgotToImplementClearState is implicitly abstract
     def approval_program(self) -> bool:
         return True
+
+
+## case: bytes_backed_not_usable
+from algopy import *
+
+@subroutine
+def in_locals() -> None:
+    y = BytesBacked() ## E: unsupported type reference
+
+@subroutine
+def in_signature(x: BytesBacked) -> None: ## E: algopy.BytesBacked is not usable as a runtime type
+    pass
