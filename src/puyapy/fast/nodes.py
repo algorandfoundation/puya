@@ -550,3 +550,4 @@ class Module:
     docstring: str | None
     body: tuple[Statement, ...]
     symbols: symtable.SymbolTable
+    dunder_all: tuple[str, ...] | None
