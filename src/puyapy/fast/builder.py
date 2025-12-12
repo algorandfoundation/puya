@@ -156,15 +156,43 @@ def _convert_module(
     ctx = _BuildContext(module_name=module_name, module_path=module_path)
     ast_body, docstring = _extract_docstring(module)
     body = list[nodes.Statement]()
+    dunder_all: tuple[str, ...] | None = None
     for ast_stmt in ast_body:
-        if isinstance(ast_stmt, ast.If) and _is_type_checking(ctx, ast_stmt.test):
-            if ast_stmt.orelse:
-                ctx.fail(
-                    "no code is allowed inside the else branch of an if TYPE_CHECKING block",
-                    ast_stmt.orelse[0],
-                )
-            body.extend(_convert_type_checking_block(ctx, ast_stmt.body))
-        else:
+        visit = True
+        match ast_stmt:
+            case ast.If():
+                if _is_type_checking(ctx, ast_stmt.test):
+                    visit = False
+                    if ast_stmt.orelse:
+                        ctx.fail(
+                            "no code is allowed inside the else branch of an if TYPE_CHECKING block",
+                            ast_stmt.orelse[0],
+                        )
+                    body.extend(_convert_type_checking_block(ctx, ast_stmt.body))
+            case ast.Assign(targets=targets, value=value):
+                if len(targets) == 1:
+                    (target,) = targets
+                    if _is_dunder_all_assignment_target(target) and isinstance(
+                        value, ast.List | ast.Tuple
+                    ):
+                        visit = False
+                        dunder_all = _extract_literal_str_list(ctx, value)
+            case ast.AnnAssign(target=target, value=value):
+                if _is_dunder_all_assignment_target(target) and isinstance(
+                    value, ast.List | ast.Tuple
+                ):
+                    visit = False
+                    dunder_all = _extract_literal_str_list(ctx, value)
+            case ast.AugAssign(target=target, op=op, value=value):
+                if (
+                    dunder_all is not None
+                    and isinstance(op, ast.Add)
+                    and _is_dunder_all_assignment_target(target)
+                    and isinstance(value, ast.List | ast.Tuple)
+                ):
+                    visit = False
+                    dunder_all += _extract_literal_str_list(ctx, value)
+        if visit:
             stmt = _visit_stmt(ctx, ast_stmt)
             if stmt is not None:
                 body.append(stmt)
@@ -176,6 +204,7 @@ def _convert_module(
         docstring=docstring,
         body=tuple(body),
         symbols=symbols,
+        dunder_all=dunder_all,
     )
 
 
@@ -208,6 +237,25 @@ def _convert_type_checking_block(
                     stmt,
                 )
     return result
+
+
+def _is_dunder_all_assignment_target(target: ast.expr) -> bool:
+    match target:
+        case ast.Name(id="__all__"):
+            return True
+        case _:
+            return False
+
+
+def _extract_literal_str_list(ctx: _BuildContext, seq: ast.List | ast.Tuple) -> tuple[str, ...]:
+    result = []
+    for el in seq.elts:
+        match el:
+            case ast.Constant(value=str(name)):
+                result.append(name)
+            case _:
+                ctx.fail("only string literals are supported in __all__", el)
+    return tuple(result)
 
 
 def _extract_docstring(
