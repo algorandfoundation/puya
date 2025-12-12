@@ -228,9 +228,18 @@ subroutine log_group:
         gtxns LastLog                                                                   awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                             awst_tmp%0#0
-        extract 4 0                                                                     tmp%4#0
+        extract 0 4                                                                     tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                                  tmp%4#0
+        byte 0x151f7c75                                                                 tmp%4#0,0x151f7c75
+        ==                                                                              tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                  tmp%5#0
+        assert // application log value is not the result of an ABI return
+        v-load awst_tmp%0#0                                                             awst_tmp%0#0
+        extract 4 0                                                                     tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                  tmp%6#0
         len                                                                             len%0#0
         v-store len%0#0
         v-load len%0#0                                                                  len%0#0
@@ -239,15 +248,6 @@ subroutine log_group:
         v-store eq%0#0
         v-load eq%0#0                                                                   eq%0#0
         assert // invalid number of bytes for arc4.uint64
-        v-load awst_tmp%0#0                                                             awst_tmp%0#0
-        extract 0 4                                                                     tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                  tmp%5#0
-        byte 0x151f7c75                                                                 tmp%5#0,0x151f7c75
-        ==                                                                              tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                                  tmp%6#0
-        assert // application log value is not the result of an ABI return
         // group_side_effects/contract.py:30
         // == (app_call.group_index + 1) * Global.group_size
         v-load app_call#0                                                               app_call#0
@@ -269,8 +269,8 @@ subroutine log_group:
         v-load tmp%10#0                                                                 tmp%10#0
         itob                                                                            tmp%11#0
         v-store tmp%11#0
-        v-load tmp%4#0                                                                  tmp%4#0
-        v-load tmp%11#0                                                                 tmp%4#0,tmp%11#0
+        v-load tmp%6#0                                                                  tmp%6#0
+        v-load tmp%11#0                                                                 tmp%6#0,tmp%11#0
         b==                                                                             tmp%12#0
         v-store tmp%12#0
         // group_side_effects/contract.py:28-31

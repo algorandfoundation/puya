@@ -25,8 +25,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%0#1) // expected asset created
         let tmp%2#0: uint64 = ((gtxns GroupIndex) asset_create#0)
         let tmp%3#3: uint64 = (gaids tmp%2#0)
-        let tmp%5#3: bool = (== tmp%3#3 tmp%0#1)
-        (assert tmp%5#3) // expected correct asset id
+        let tmp%5#1: bool = (== tmp%3#3 tmp%0#1)
+        (assert tmp%5#1) // expected correct asset id
         let tmp%6#2: uint64 = ((gtxns CreatedApplicationID) app_create#0)
         (assert tmp%6#2) // expected app created
         let tmp%8#1: uint64 = ((gtxns GroupIndex) app_create#0)
@@ -36,8 +36,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#1)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%6#2)
         let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
-        let tmp%5#1: bytes = (concat 0x151f7c75 aggregate%head%1#0)
-        (log tmp%5#1)
+        let tmp%5#2: bytes = (concat 0x151f7c75 aggregate%head%1#0)
+        (log tmp%5#2)
         exit 1u
     block@5: // log_group_route_L22
         let tmp%0#1: uint64 = (txn GroupIndex)
@@ -52,19 +52,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%3#0: bool = (== tmp%2#0 1u)
         (assert tmp%3#0) // expected logs
         let awst_tmp%0#0: bytes = ((gtxns LastLog) app_call#0)
-        let tmp%4#1: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%4#1)
+        let tmp%4#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%5#1: bool = (== tmp%4#1 0x151f7c75)
+        (assert tmp%5#1) // application log value is not the result of an ABI return
+        let tmp%6#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%6#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let tmp%5#1: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%6#1: bool = (== tmp%5#1 0x151f7c75)
-        (assert tmp%6#1) // application log value is not the result of an ABI return
         let tmp%7#0: uint64 = ((gtxns GroupIndex) app_call#0)
         let tmp%8#1: uint64 = (+ tmp%7#0 1u)
         let tmp%9#0: uint64 = (global GroupSize)
         let tmp%10#1: uint64 = (* tmp%8#1 tmp%9#0)
         let tmp%11#1: biguint = (itob tmp%10#1)
-        let tmp%12#0: bool = (b== tmp%4#1 tmp%11#1)
+        let tmp%12#0: bool = (b== tmp%6#0 tmp%11#1)
         (assert tmp%12#0)
         exit 1u
     block@8: // after_if_else_L4
