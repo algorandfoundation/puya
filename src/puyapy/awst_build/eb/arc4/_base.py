@@ -8,9 +8,10 @@ import typing_extensions
 from puya import log
 from puya.awst.nodes import (
     ARC4FromBytes,
+    AssertExpression,
     BytesConstant,
     BytesEncoding,
-    CheckedMaybe,
+    CommaExpression,
     ConvertArray,
     Expression,
     IndexExpression,
@@ -85,12 +86,12 @@ class ARC4FromLogBuilder(FunctionBuilder):
             op=BuilderComparisonOp.eq,
             source_location=location,
         )
-        return CheckedMaybe.from_tuple_items(
-            expr=arc4_value,
-            check=arc4_prefix_is_valid.resolve(),
+        assert_expr = AssertExpression(
+            condition=arc4_prefix_is_valid.resolve(),
+            error_message="application log value is not the result of an ABI return",
             source_location=location,
-            comment="application log value is not the result of an ABI return",
         )
+        return CommaExpression(expressions=[assert_expr, arc4_value], source_location=location)
 
     @typing.override
     def call(
