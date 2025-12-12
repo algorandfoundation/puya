@@ -615,7 +615,7 @@ class ARC4FromBytes(Expression):
     """
 
     value: Expression
-    wtype: wtypes.ARC4Type
+    wtype: wtypes.WType
     validate: bool
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

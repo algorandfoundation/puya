@@ -6,7 +6,6 @@ from collections.abc import Callable, Sequence
 import typing_extensions
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4FromBytes,
     BytesConstant,
@@ -68,11 +67,10 @@ class ARC4FromLogBuilder(FunctionBuilder):
         location: SourceLocation,
     ) -> Expression:
         tmp_value = value.single_eval().resolve()
-        arc4_wtype = typ.checked_wtype(location)
-        assert isinstance(arc4_wtype, wtypes.ARC4Type), "expected ARC4 wtype"
+        wtype = typ.checked_wtype(location)
         arc4_value = ARC4FromBytes(
             value=intrinsic_factory.extract(tmp_value, start=4, loc=location),
-            wtype=arc4_wtype,
+            wtype=wtype,
             validate=PuyaPyOptions.get().validate_abi_return,
             source_location=location,
         )

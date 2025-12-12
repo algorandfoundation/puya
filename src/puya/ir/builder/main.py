@@ -38,7 +38,7 @@ from puya.ir.builder.encoding_validation import validate_encoding
 from puya.ir.context import IRBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
-from puya.ir.types_ import wtype_to_ir_type
+from puya.ir.types_ import wtype_to_encoded_ir_type, wtype_to_ir_type
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ir.ValueProvider | None
@@ -160,21 +160,29 @@ class FunctionIRBuilder(
     def visit_arc4_from_bytes(self, expr: awst_nodes.ARC4FromBytes) -> TExpression:
         loc = expr.source_location
         factory = OpFactory(self.context, loc)
-        ir_type = wtype_to_ir_type(expr.wtype, loc)
-        if ir_type.maybe_avm_type != AVMType.bytes:
-            raise CodeError("expected bytes backed value", expr.value.source_location)
-        assert isinstance(ir_type, types.EncodedType), "expected EncodedType fom ARC4 Type"
+        encoded_ir_type = wtype_to_encoded_ir_type(expr.wtype, loc)
+
         value = self.visit_and_materialise_single(expr.value)
+        if value.ir_type.maybe_avm_type != AVMType.bytes:
+            raise CodeError("expected bytes backed value", expr.value.source_location)
+
         if expr.validate:
             validate_encoding(
                 self.context,
                 value,
-                ir_type,
+                encoded_ir_type,
                 error_message=f"invalid number of bytes for {expr.wtype}",
                 loc=loc,
             )
-        # return value as required type
-        return factory.as_ir_type(value, ir_type)
+        encoded_value = factory.as_ir_type(value, encoded_ir_type)
+
+        ir_type = wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
+        return ir.DecodeBytes.maybe(
+            value=encoded_value,
+            encoding=encoded_ir_type.encoding,
+            ir_type=ir_type,
+            source_location=loc,
+        )
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
         loc = size_of.source_location
@@ -526,14 +534,27 @@ class FunctionIRBuilder(
         )
 
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> TExpression:
-        value, check = self.visit_and_materialise(expr.expr, ("value", "check"))
+        *values, check = self.visit_and_materialise(expr.expr, ("value", "check"))
         assert_value(
             self.context,
             check,
             error_message=expr.comment,
             source_location=expr.source_location,
         )
-        return value
+        if len(values) == 1:
+            return values[0]
+
+        assert isinstance(expr.expr.wtype, wtypes.WTuple)
+        value_wtype = expr.expr.wtype.types[0]
+        assert isinstance(value_wtype, wtypes.WTuple)
+
+        return ir.ValueTuple(
+            values=values,
+            ir_type=types.wtype_to_ir_type(
+                value_wtype, expr.expr.source_location, allow_tuple=True
+            ),
+            source_location=expr.expr.source_location,
+        )
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
         ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)

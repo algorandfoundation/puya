@@ -749,7 +749,7 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
     @typing.override
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> list[_SourceAction]:
         # return the expr without the maybe portion
-        return expr.expr.accept(self)[:1]
+        return expr.expr.accept(self)[:-1]
 
     @typing.override
     def visit_tuple_item_expression(
