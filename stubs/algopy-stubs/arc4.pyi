@@ -3,8 +3,8 @@ import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
 import algopy
+import algopy._primitives
 from algopy._interfaces import _Validatable
-from algopy._primitives import _BytesConvertible
 from typing_extensions import deprecated
 
 _P = typing.ParamSpec("_P")
@@ -107,7 +107,7 @@ def baremethod(
 def arc4_signature(signature: str | Callable[_P, _R], /) -> algopy.Bytes:
     """Returns the ARC-4 encoded method selector for the specified signature or abi method"""
 
-class _ABIEncoded(_BytesConvertible, _Validatable, abc.ABC):
+class _ABIEncoded(algopy._primitives._BytesConvertible, _Validatable, abc.ABC):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """
