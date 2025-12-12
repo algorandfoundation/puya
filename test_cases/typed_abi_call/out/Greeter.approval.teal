@@ -1027,13 +1027,14 @@ test_native_string:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for string
     dup
+    extract 6 0
+    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    extract 6 0
     // typed_abi_call/typed_c2c.py:148
     // assert result1 == "echo: s"
     dup
@@ -1069,13 +1070,14 @@ test_native_string:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for string
     dup
+    extract 6 0
+    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    extract 6 0
     // typed_abi_call/typed_c2c.py:151
     // assert result2 == result1
     dig 1
@@ -1110,13 +1112,14 @@ test_native_string:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for string
     dup
+    extract 6 0
+    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    extract 6 0
     // typed_abi_call/typed_c2c.py:154
     // assert result3 == result1
     ==
@@ -1163,13 +1166,14 @@ test_native_bytes:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for bytes
     dup
+    extract 6 0
+    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    extract 6 0
     // typed_abi_call/typed_c2c.py:159
     // assert result1 == b"echo: b"
     dup
@@ -1205,13 +1209,14 @@ test_native_bytes:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for bytes
     dup
+    extract 6 0
+    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    extract 6 0
     // typed_abi_call/typed_c2c.py:162
     // assert result2 == result1
     dig 1
@@ -1250,13 +1255,14 @@ test_native_bytes:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for bytes
     dup
+    extract 6 0
+    swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    extract 6 0
     // typed_abi_call/typed_c2c.py:167
     // assert result3 == result1
     ==
@@ -1299,13 +1305,13 @@ test_native_uint64:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for uint64
+    btoi
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    btoi
     // typed_abi_call/typed_c2c.py:172
     // assert result1 == 2
     dup
@@ -1334,13 +1340,13 @@ test_native_uint64:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for uint64
+    btoi
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    btoi
     // typed_abi_call/typed_c2c.py:175
     // assert result2 == result1
     dig 1
@@ -1367,13 +1373,13 @@ test_native_uint64:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for uint64
+    btoi
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    btoi
     // typed_abi_call/typed_c2c.py:178
     // assert result3 == result1
     ==
@@ -1416,7 +1422,7 @@ test_native_biguint:
     len
     pushint 64
     ==
-    assert // invalid number of bytes for arc4.uint512
+    assert // invalid number of bytes for biguint
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1449,7 +1455,7 @@ test_native_biguint:
     len
     pushint 64
     ==
-    assert // invalid number of bytes for arc4.uint512
+    assert // invalid number of bytes for biguint
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1481,7 +1487,7 @@ test_native_biguint:
     len
     pushint 64
     ==
-    assert // invalid number of bytes for arc4.uint512
+    assert // invalid number of bytes for biguint
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -1938,12 +1944,7 @@ test_native_tuple:
     +
     uncover 4
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
     cover 3
     substring3
     extract 2 0
@@ -1952,8 +1953,13 @@ test_native_tuple:
     dig 2
     intc_3 // 8
     extract_uint64
-    uncover 3
+    dig 3
     extract 16 64
+    uncover 4
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:245
     // assert result1.native[0].native == result_native[0]
     uncover 6
@@ -2078,12 +2084,7 @@ test_native_tuple_method_ref:
     +
     uncover 4
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
     cover 3
     substring3
     extract 2 0
@@ -2092,8 +2093,13 @@ test_native_tuple_method_ref:
     dig 2
     intc_3 // 8
     extract_uint64
-    uncover 3
+    dig 3
     extract 16 64
+    uncover 4
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:262
     // assert s == "echo: s1"
     dig 3
@@ -2215,12 +2221,7 @@ test_native_tuple_method_ref:
     +
     uncover 4
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
     cover 3
     substring3
     extract 2 0
@@ -2229,8 +2230,13 @@ test_native_tuple_method_ref:
     dig 2
     intc_3 // 8
     extract_uint64
-    uncover 3
+    dig 3
     extract 16 64
+    uncover 4
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:276
     // assert result_2 == result, "expected native arguments to give the same result"
     uncover 3
@@ -2335,12 +2341,7 @@ test_native_tuple_method_ref:
     +
     uncover 4
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
     cover 3
     substring3
     extract 2 0
@@ -2349,8 +2350,13 @@ test_native_tuple_method_ref:
     dig 2
     intc_3 // 8
     extract_uint64
-    uncover 3
+    dig 3
     extract 16 64
+    uncover 4
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:287
     // assert result_3 == result, "expected arc4 arguments to give the same result"
     uncover 3
@@ -2455,12 +2461,7 @@ test_native_tuple_method_ref:
     +
     uncover 4
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    dig 4
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
     cover 3
     substring3
     extract 2 0
@@ -2469,8 +2470,13 @@ test_native_tuple_method_ref:
     dig 2
     intc_3 // 8
     extract_uint64
-    uncover 3
+    dig 3
     extract 16 64
+    uncover 4
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:298
     // assert result_native == result
     uncover 3
@@ -2618,12 +2624,7 @@ test_nested_tuples:
     +
     uncover 5
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    uncover 5
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
     cover 4
     cover 4
     substring3
@@ -2651,6 +2652,11 @@ test_nested_tuples:
     extract 8 8
     uncover 4
     extract 2 0
+    uncover 5
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:309
     // assert s1 == "echo: s1"
     uncover 4
@@ -2792,12 +2798,7 @@ test_nested_tuples:
     +
     uncover 5
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    uncover 5
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
     cover 4
     cover 4
     substring3
@@ -2825,6 +2826,11 @@ test_nested_tuples:
     extract 8 8
     uncover 4
     extract 2 0
+    uncover 5
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:322
     // assert s1 == "echo: s1"
     uncover 4
@@ -2984,12 +2990,7 @@ test_nested_tuples:
     +
     uncover 5
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>
-    uncover 5
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
     cover 4
     cover 4
     substring3
@@ -3017,6 +3018,11 @@ test_nested_tuples:
     extract 8 8
     uncover 4
     extract 2 0
+    uncover 5
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:340
     // assert s1 == "echo: s1b"
     uncover 4
@@ -3082,13 +3088,13 @@ test_no_args:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for uint64
+    btoi
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    btoi
     // typed_abi_call/typed_c2c.py:349
     // assert result == 42
     pushint 42
@@ -3141,7 +3147,7 @@ test_no_args:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for uint64
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -3220,14 +3226,14 @@ test_named_tuples:
     len
     pushint 1
     ==
-    assert // invalid number of bytes for arc4.bool
+    assert // invalid number of bytes for bool
+    intc_0 // 0
+    getbit
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    intc_0 // 0
-    getbit
     // typed_abi_call/typed_c2c.py:364
     // assert result
     assert
@@ -3269,14 +3275,14 @@ test_named_tuples:
     len
     pushint 1
     ==
-    assert // invalid number of bytes for arc4.bool
+    assert // invalid number of bytes for bool
+    intc_0 // 0
+    getbit
     swap
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    intc_0 // 0
-    getbit
     // typed_abi_call/typed_c2c.py:371
     // assert not result
     !
@@ -3465,20 +3471,20 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.static_array<arc4.uint8, 32>>
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<asset,application,account>
     dup
     pushint 4
     extract_uint64
     dig 1
     pushint 12
     extract_uint64
-    uncover 2
+    dig 2
     extract 20 32
+    uncover 3
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:392
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
@@ -3527,20 +3533,20 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.static_array<arc4.uint8, 32>>
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<asset,application,account>
     dup
     pushint 4
     extract_uint64
     dig 1
     pushint 12
     extract_uint64
-    uncover 2
+    dig 2
     extract 20 32
+    uncover 3
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:397
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
@@ -3593,20 +3599,20 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.static_array<arc4.uint8, 32>>
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<asset,application,account>
     dup
     pushint 4
     extract_uint64
     dig 1
     pushint 12
     extract_uint64
-    uncover 2
+    dig 2
     extract 20 32
+    uncover 3
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:402
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
@@ -3647,20 +3653,20 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.static_array<arc4.uint8, 32>>
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<asset,application,account>
     dup
     pushint 4
     extract_uint64
     dig 1
     pushint 12
     extract_uint64
-    uncover 2
+    dig 2
     extract 20 32
+    uncover 3
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:407
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
@@ -3725,20 +3731,20 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.static_array<arc4.uint8, 32>>
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<asset,application,account>
     dup
     pushint 4
     extract_uint64
     dig 1
     pushint 12
     extract_uint64
-    uncover 2
+    dig 2
     extract 20 32
+    uncover 3
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:416
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
@@ -3782,20 +3788,20 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.static_array<arc4.uint8, 32>>
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
+    assert // invalid number of bytes for tuple<asset,application,account>
     dup
     pushint 4
     extract_uint64
     dig 1
     pushint 12
     extract_uint64
-    uncover 2
+    dig 2
     extract 20 32
+    uncover 3
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     // typed_abi_call/typed_c2c.py:425
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
