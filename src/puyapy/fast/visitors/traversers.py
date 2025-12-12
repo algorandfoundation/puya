@@ -1,7 +1,102 @@
 import typing
 
 from puyapy.fast import nodes
-from puyapy.fast.visitors import StatementVisitor
+from puyapy.fast.visitors import ExpressionVisitor, StatementVisitor
+
+
+class ExpressionTraverser(ExpressionVisitor[None]):
+    @typing.override
+    def visit_constant(self, constant: nodes.Constant) -> None:
+        pass
+
+    @typing.override
+    def visit_name(self, name: nodes.Name) -> None:
+        pass
+
+    @typing.override
+    def visit_attribute(self, attribute: nodes.Attribute) -> None:
+        attribute.base.accept(self)
+
+    @typing.override
+    def visit_subscript(self, subscript: nodes.Subscript) -> None:
+        subscript.base.accept(self)
+        for index in subscript.indexes:
+            if isinstance(index, nodes.Slice):
+                if index.lower is not None:
+                    index.lower.accept(self)
+                if index.upper is not None:
+                    index.upper.accept(self)
+                if index.step is not None:
+                    index.step.accept(self)
+            else:
+                index.accept(self)
+
+    @typing.override
+    def visit_bool_op(self, bool_op: nodes.BoolOp) -> None:
+        for value in bool_op.values:
+            value.accept(self)
+
+    @typing.override
+    def visit_named_expr(self, named_expr: nodes.NamedExpr) -> None:
+        named_expr.target.accept(self)
+        named_expr.value.accept(self)
+
+    @typing.override
+    def visit_bin_op(self, bin_op: nodes.BinOp) -> None:
+        bin_op.left.accept(self)
+        bin_op.right.accept(self)
+
+    @typing.override
+    def visit_unary_op(self, unary_op: nodes.UnaryOp) -> None:
+        unary_op.operand.accept(self)
+
+    @typing.override
+    def visit_if_exp(self, if_exp: nodes.IfExp) -> None:
+        if_exp.test.accept(self)
+        if_exp.true.accept(self)
+        if_exp.false.accept(self)
+
+    @typing.override
+    def visit_compare(self, compare: nodes.Compare) -> None:
+        compare.left.accept(self)
+        for comparator in compare.comparators:
+            comparator.accept(self)
+
+    @typing.override
+    def visit_call(self, call: nodes.Call) -> None:
+        call.func.accept(self)
+        for arg in call.args:
+            arg.accept(self)
+        for kwarg in call.kwargs.values():
+            kwarg.accept(self)
+
+    @typing.override
+    def visit_formatted_value(self, formatted_value: nodes.FormattedValue) -> None:
+        formatted_value.value.accept(self)
+        if formatted_value.format_spec is not None:
+            formatted_value.format_spec.accept(self)
+
+    @typing.override
+    def visit_joined_str(self, joined_str: nodes.JoinedStr) -> None:
+        for value in joined_str.values:
+            value.accept(self)
+
+    @typing.override
+    def visit_tuple_expr(self, tuple_expr: nodes.TupleExpr) -> None:
+        for element in tuple_expr.elements:
+            element.accept(self)
+
+    @typing.override
+    def visit_list_expr(self, list_expr: nodes.ListExpr) -> None:
+        for element in list_expr.elements:
+            element.accept(self)
+
+    @typing.override
+    def visit_dict_expr(self, dict_expr: nodes.DictExpr) -> None:
+        for key, value in dict_expr.pairs:
+            if key is not None:
+                key.accept(self)
+            value.accept(self)
 
 
 class StatementTraverser(StatementVisitor[None]):
