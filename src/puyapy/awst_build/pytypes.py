@@ -37,9 +37,9 @@ class PyType(abc.ABC):
     """The canonical fully qualified type name"""
     generic: PyType | None = None
     """The generic type that this type was parameterised from, if any."""
-    bases: tuple[PyType, ...] = attrs.field(default=(), converter=tuple["PyType", ...])
+    bases: tuple[PyType, ...] = attrs.field(default=())
     """Direct base classes. probably excluding the implicit builtins.object?"""
-    mro: tuple[PyType, ...] = attrs.field(default=(), converter=tuple["PyType", ...])
+    mro: tuple[PyType, ...] = attrs.field(default=())
     """All base cases, in Method Resolution Order"""
 
     @bases.validator
@@ -464,6 +464,26 @@ class ContractType(PyType):
         return ErrorMessage(f"{self} is only usable as a type and cannot be instantiated")
 
 
+@attrs.frozen(kw_only=True, order=False)
+class _CompileTimeType(PyType):
+    _wtype_error: str
+
+    @typing.override
+    @property
+    def wtype(self) -> ErrorMessage:
+        msg = self._wtype_error.format(self=self)
+        return ErrorMessage(msg)
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
+
+
+BytesBackedType: typing.Final[PyType] = _CompileTimeType(
+    name="algopy._primitives.BytesBacked",
+    wtype_error="{self} is not usable as a runtime type",
+)
+
+
 ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.object"))
 
 
@@ -509,8 +529,8 @@ class StructType(RuntimeType):
             source_location=source_location,
         )
         self.__attrs_init__(
-            bases=[base],
-            mro=[base],
+            bases=(base, BytesBackedType),
+            mro=(base, BytesBackedType),
             name=name,
             desc=desc,
             wtype=wtype,
@@ -524,6 +544,17 @@ class StructType(RuntimeType):
 @attrs.frozen(order=False)
 class _SimpleType(RuntimeType):
     wtype: wtypes.WType
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
+
+
+@typing.final
+@attrs.frozen(order=False)
+class _SimpleBytesBackedType(RuntimeType):
+    wtype: wtypes.WType
+    bases: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
@@ -553,15 +584,15 @@ BytesLiteralType: typing.Final = _register_builtin(LiteralOnlyType(bytes))
 BoolType: typing.Final[RuntimeType] = _SimpleType(
     name="builtins.bool",
     wtype=wtypes.bool_wtype,
-    bases=[IntLiteralType],
-    mro=[IntLiteralType],
+    bases=(IntLiteralType,),
+    mro=(IntLiteralType,),
 )
 
 UInt64Type: typing.Final[RuntimeType] = _SimpleType(
     name="algopy._primitives.UInt64",
     wtype=wtypes.uint64_wtype,
 )
-BigUIntType: typing.Final[RuntimeType] = _SimpleType(
+BigUIntType: typing.Final[RuntimeType] = _SimpleBytesBackedType(
     name="algopy._primitives.BigUInt",
     wtype=wtypes.biguint_wtype,
 )
@@ -577,6 +608,8 @@ class FixedBytesType(RuntimeType):
     length: int = attrs.field(validator=attrs.validators.ge(0))
     name: str = attrs.field(init=False)
     wtype: wtypes.BytesWType = attrs.field(init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
 
     @generic.default
     def _generic(self) -> _GenericType[FixedBytesType]:
@@ -613,11 +646,11 @@ GenericFixedBytesType: typing.Final = _GenericType(
     parameterise=_parameterise_fixed_bytes,
 )
 
-StringType: typing.Final[RuntimeType] = _SimpleType(
+StringType: typing.Final[RuntimeType] = _SimpleBytesBackedType(
     name="algopy._primitives.String",
     wtype=wtypes.string_wtype,
 )
-AccountType: typing.Final[RuntimeType] = _SimpleType(
+AccountType: typing.Final[RuntimeType] = _SimpleBytesBackedType(
     name="algopy._reference.Account",
     wtype=wtypes.account_wtype,
 )
@@ -636,8 +669,8 @@ class UInt64EnumType(RuntimeType):
     def __init__(self, name: str):
         self.__attrs_init__(
             name=name,
-            bases=[UInt64Type],
-            mro=[UInt64Type],
+            bases=(UInt64Type,),
+            mro=(UInt64Type,),
         )
         _register_builtin(self)
 
@@ -656,11 +689,11 @@ OpUpFeeSourceType: typing.Final = UInt64EnumType(
     name="algopy._util.OpUpFeeSource",
 )
 
-ARC4StringType: typing.Final[RuntimeType] = _SimpleType(
+ARC4StringType: typing.Final[RuntimeType] = _SimpleBytesBackedType(
     name="algopy.arc4.String",
     wtype=wtypes.arc4_string_alias,
 )
-ARC4BoolType: typing.Final[RuntimeType] = _SimpleType(
+ARC4BoolType: typing.Final[RuntimeType] = _SimpleBytesBackedType(
     name="algopy.arc4.Bool",
     wtype=wtypes.arc4_bool_wtype,
 )
@@ -671,6 +704,8 @@ class ARC4UIntNType(RuntimeType):
     bits: int
     wtype: wtypes.ARC4UIntN
     native_type: RuntimeType
+    bases: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,))
+    mro: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,))
 
 
 def _require_int_literal(
@@ -746,8 +781,8 @@ ARC4ByteType: typing.Final = _register_builtin(
         name="algopy.arc4.Byte",
         wtype=wtypes.arc4_byte_alias,
         bits=8,
-        bases=[ARC4UIntN_Aliases[8]],
-        mro=[ARC4UIntN_Aliases[8]],
+        bases=(ARC4UIntN_Aliases[8], BytesBackedType),
+        mro=(ARC4UIntN_Aliases[8], BytesBackedType),
         native_type=UInt64Type,
     )
 )
@@ -759,6 +794,8 @@ class ARC4UFixedNxMType(RuntimeType):
     bits: int
     precision: int
     wtype: wtypes.WType
+    bases: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
 
 
 def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> _Parameterise:
@@ -821,8 +858,8 @@ GenericARC4TupleType: typing.Final = _GenericType(
 class ARC4TupleType(TupleLikeType, RuntimeType):
     generic: _GenericType = attrs.field(default=GenericARC4TupleType, init=False)
     name: str = attrs.field(init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
-    mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
+    bases: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
+    mro: tuple[PyType, ...] = attrs.field(default=(BytesBackedType,), init=False)
     wtype: wtypes.ARC4Tuple
 
     @name.default
@@ -876,7 +913,7 @@ class VariadicTupleType(SequenceType):
 
 
 def _make_array_parameterise(
-    typ: type[wtypes.ReferenceArray | wtypes.ARC4DynamicArray],
+    typ: type[wtypes.ReferenceArray | wtypes.ARC4DynamicArray], *, bytes_backed: bool
 ) -> _Parameterise[ArrayType]:
     def parameterise(
         self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
@@ -895,6 +932,8 @@ def _make_array_parameterise(
             size=None,
             items=arg,
             wtype=typ(element_type=items_wtype, source_location=source_location),
+            bases=(BytesBackedType,) if bytes_backed else (),
+            mro=(BytesBackedType,) if bytes_backed else (),
             items_wtype=items_wtype,
             source_location=source_location,
         )
@@ -904,16 +943,16 @@ def _make_array_parameterise(
 
 GenericReferenceArrayType: typing.Final = _GenericType[ArrayType](
     name="algopy._native.ReferenceArray",
-    parameterise=_make_array_parameterise(wtypes.ReferenceArray),
+    parameterise=_make_array_parameterise(wtypes.ReferenceArray, bytes_backed=False),
 )
 
 GenericArrayType: typing.Final = _GenericType[ArrayType](
     name="algopy._native.Array",
-    parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
+    parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray, bytes_backed=True),
 )
 GenericARC4DynamicArrayType: typing.Final = _GenericType[ArrayType](
     name="algopy.arc4.DynamicArray",
-    parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
+    parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray, bytes_backed=True),
 )
 
 
@@ -928,7 +967,7 @@ def _imm_array_parameterise(
         ) from None
     name = f"{self.name}[{arg.name}]"
     items_wtype = arg.checked_wtype(source_location)
-    bases = (GenericARC4DynamicArrayType.parameterise(args, source_location),)
+    bases = (GenericARC4DynamicArrayType.parameterise(args, source_location), BytesBackedType)
     return ArrayType(
         bases=bases,
         mro=bases,
@@ -955,8 +994,8 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
         size=None,
         items=ARC4ByteType,
         items_wtype=ARC4ByteType.wtype,
-        bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
-        mro=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
+        bases=(GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None),),
+        mro=(GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None),),
         source_location=None,
     )
 )
@@ -982,8 +1021,8 @@ def _make_arc4_static_array_backed_parameterise(*, immutable: bool) -> _Paramete
         items_wtype = items.checked_wtype(source_location)
         return ArrayType(
             generic=self,
-            mro=(),
-            bases=(),
+            mro=(BytesBackedType,),
+            bases=(BytesBackedType,),
             name=name,
             size=size,
             items=items,
@@ -1020,18 +1059,20 @@ ARC4AddressType: typing.Final = _register_builtin(
         generic=None,
         items=ARC4ByteType,
         items_wtype=ARC4ByteType.wtype,
-        bases=[
+        bases=(
             GenericARC4StaticArrayType.parameterise(
                 [ARC4ByteType, TypingLiteralType(value=32, source_location=None)],
                 source_location=None,
-            )
-        ],
-        mro=[
+            ),
+            BytesBackedType,
+        ),
+        mro=(
             GenericARC4StaticArrayType.parameterise(
                 [ARC4ByteType, TypingLiteralType(value=32, source_location=None)],
                 source_location=None,
-            )
-        ],
+            ),
+            BytesBackedType,
+        ),
         source_location=None,
     )
 )
@@ -1419,8 +1460,8 @@ LogicSigType: typing.Final[PyType] = _CompileTimeType(
 ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
 ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
     name=constants.ARC4_CONTRACT_BASE,
-    bases=[ContractBaseType],
-    mro=[ContractBaseType],
+    bases=(ContractBaseType,),
+    mro=(ContractBaseType,),
 )
 ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
 ARC4StructBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.Struct")

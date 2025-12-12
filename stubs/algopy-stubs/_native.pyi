@@ -3,14 +3,13 @@ from collections.abc import Iterable, Iterator, Reversible
 
 import algopy
 from algopy._interfaces import _Validatable
+from algopy._primitives import BytesBacked
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
 class ImmutableFixedArray(
-    typing.Generic[_TArrayItem, _TArrayLength],
-    Reversible[_TArrayItem],
-    _Validatable,
+    typing.Generic[_TArrayItem, _TArrayLength], Reversible[_TArrayItem], BytesBacked, _Validatable
 ):
     """An immutable fixed length Array of the specified type and length"""
 
@@ -39,9 +38,7 @@ class ImmutableFixedArray(
         """Create a copy of this array"""
 
 class FixedArray(
-    typing.Generic[_TArrayItem, _TArrayLength],
-    Reversible[_TArrayItem],
-    _Validatable,
+    typing.Generic[_TArrayItem, _TArrayLength], Reversible[_TArrayItem], BytesBacked, _Validatable
 ):
     """A fixed length Array of the specified type and length"""
 
@@ -75,10 +72,7 @@ class FixedArray(
     def freeze(self) -> ImmutableFixedArray[_TArrayItem, _TArrayLength]:
         """Returns an immutable copy of this array"""
 
-class ImmutableArray(
-    Reversible[_TArrayItem],
-    _Validatable,
-):
+class ImmutableArray(Reversible[_TArrayItem], BytesBacked, _Validatable):
     """
     An immutable array that supports fixed and dynamically sized immutable elements.
     Modifications are done by returning a new copy of the array with the modifications applied.
@@ -179,11 +173,7 @@ class ReferenceArray(Reversible[_TArrayItem]):
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
 
-class Array(
-    typing.Generic[_TArrayItem],
-    Reversible[_TArrayItem],
-    _Validatable,
-):
+class Array(typing.Generic[_TArrayItem], Reversible[_TArrayItem], BytesBacked, _Validatable):
     """A dynamically sized Array of the specified type"""
 
     @typing.overload
@@ -228,7 +218,7 @@ class Array(
         """Returns `True` if not an empty array"""
 
 @typing.dataclass_transform()
-class Struct(_Validatable):
+class Struct(BytesBacked, _Validatable):
     """Base class for Struct types"""
 
     def __init_subclass__(

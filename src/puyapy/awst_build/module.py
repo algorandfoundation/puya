@@ -240,27 +240,27 @@ class ModuleASTConverter(
             )
             return []
 
-        direct_base_types = [
+        direct_base_types = tuple(
             self.context.require_ptype(ti.fullname, cdef_loc)
             for ti in info.direct_base_classes()
             if ti.fullname not in _BUILTIN_INHERITABLE
-        ]
+        )
         mro_names = [ti.fullname for ti in info.mro[1:]]
         for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
             # note that since these struct bases aren't protocols, any subclasses
             # cannot be protocols
             if struct_base.name in mro_names:
-                if direct_base_types != [struct_base]:
+                if direct_base_types != (struct_base,):
                     self._error(
                         f"{struct_base} classes must only inherit directly from {struct_base}",
                         cdef_loc,
                     )
                 return _process_struct(self.context, struct_base, cdef)
-        mro_types = [
+        mro_types = tuple(
             self.context.require_ptype(mro_name, cdef_loc)
             for mro_name in mro_names
             if mro_name not in _BUILTIN_INHERITABLE
-        ]
+        )
         if pytypes.ContractBaseType.name in mro_names:
             module_name = cdef.info.module_name
             class_name = cdef.name
