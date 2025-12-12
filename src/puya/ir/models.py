@@ -110,13 +110,6 @@ class Value(ValueProvider, abc.ABC):
         return self
 
 
-def _is_uint64_type(_op: Context, _attribute: object, value: Value) -> None:
-    if value.ir_type != PrimitiveIRType.uint64:
-        raise InternalError(
-            f"expected uint64 type, received: {value.ir_type}", value.source_location
-        )
-
-
 def _is_slot_type(_op: Context, _attribute: object, value: Value) -> None:
     (typ,) = value.types
     if not isinstance(typ, SlotType):
