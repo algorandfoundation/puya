@@ -88,15 +88,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%3#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
+        (assert tmp%4#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let length%0#0: uint64 = array_len(result#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%4#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
-        (assert tmp%5#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -129,15 +129,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let length%0#0: uint64 = array_len(result#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%3#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
-        (assert tmp%4#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -170,15 +170,15 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[ro
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let length%0#0: uint64 = array_len(result#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%3#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
-        (assert tmp%4#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -207,13 +207,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+        (assert tmp%2#0) // application log value is not the result of an ABI return
         let result#0: Encoded(uint64) = ((extract 4 0) txn.LastLog#0)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
-        (assert tmp%3#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -247,16 +247,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%3#0)
+        let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
+        (assert tmp%4#0) // application log value is not the result of an ABI return
+        let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%5#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%3#0)
+        let len%0#0: uint64 = (len tmp%5#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for string
-        let result#0: string = decode_bytes<string>(tmp%3#0)
-        let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
-        (assert tmp%6#0) // application log value is not the result of an ABI return
+        let result#0: string = decode_bytes<string>(tmp%5#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) hello_app#0)
@@ -288,16 +288,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%2#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%4#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%2#0)
+        let len%0#0: uint64 = (len tmp%4#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for string
-        let result#0: string = decode_bytes<string>(tmp%2#0)
-        let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
-        (assert tmp%5#0) // application log value is not the result of an ABI return
+        let result#0: string = decode_bytes<string>(tmp%4#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) hello_app#0)
@@ -329,16 +329,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%2#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%4#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%2#0)
+        let len%0#0: uint64 = (len tmp%4#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for string
-        let result#0: string = decode_bytes<string>(tmp%2#0)
-        let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
-        (assert tmp%5#0) // application log value is not the result of an ABI return
+        let result#0: string = decode_bytes<string>(tmp%4#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) hello_app#0)
@@ -366,14 +366,14 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large[routin
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%1#0)
+        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
+        (assert tmp%2#0) // application log value is not the result of an ABI return
+        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%3#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for uint64
-        let result#0: uint64 = decode_bytes<uint64>(tmp%1#0)
-        let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
-        (assert tmp%4#0) // application log value is not the result of an ABI return
+        let result#0: uint64 = decode_bytes<uint64>(tmp%3#0)
         let tmp%5#0: bool = (== result#0 4096u)
         (assert tmp%5#0)
         itxn_begin
@@ -426,16 +426,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%7#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%7#0)
+        let tmp%7#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%8#0: bool = (== tmp%7#0 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let tmp%9#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%9#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%7#0)
+        let len%0#0: uint64 = (len tmp%9#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for string
-        let result#0: string = decode_bytes<string>(tmp%7#0)
-        let tmp%9#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%10#0: bool = (== tmp%9#0 0x151f7c75)
-        (assert tmp%10#0) // application log value is not the result of an ABI return
+        let result#0: string = decode_bytes<string>(tmp%9#0)
         let tmp%11#0: bool = (== result#0 "hey there")
         (assert tmp%11#0)
         itxn_begin
@@ -471,16 +471,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%2#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%4#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%2#0)
+        let len%0#0: uint64 = (len tmp%4#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for string
-        let result#0: string = decode_bytes<string>(tmp%2#0)
-        let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
-        (assert tmp%5#0) // application log value is not the result of an ABI return
+        let result#0: string = decode_bytes<string>(tmp%4#0)
         let tmp%6#0: bool = (== result#0 "hi there")
         (assert tmp%6#0)
         itxn_begin
@@ -499,16 +499,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let tmp%8#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let length%1#0: uint64 = array_len(tmp%8#0)
+        let tmp%8#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
+        (assert tmp%9#0) // application log value is not the result of an ABI return
+        let tmp%10#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let length%1#0: uint64 = array_len(tmp%10#0)
         let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%8#0)
+        let len%1#0: uint64 = (len tmp%10#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for string
-        let result#1: string = decode_bytes<string>(tmp%8#0)
-        let tmp%10#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%11#0: bool = (== tmp%10#0 0x151f7c75)
-        (assert tmp%11#0) // application log value is not the result of an ABI return
+        let result#1: string = decode_bytes<string>(tmp%10#0)
         let tmp%12#0: bool = (== result#1 "hi there")
         (assert tmp%12#0)
         itxn_begin
@@ -540,16 +540,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%2#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%4#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%2#0)
+        let len%0#0: uint64 = (len tmp%4#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for bytes
-        let result#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let tmp%4#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
-        (assert tmp%5#0) // application log value is not the result of an ABI return
+        let result#0: bytes = decode_bytes<bytes>(tmp%4#0)
         let tmp%9#0: bool = (== result#0 NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDRTKMQ)
         (assert tmp%9#0)
         itxn_begin
@@ -583,16 +583,16 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%3#0)
+        let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
+        (assert tmp%4#0) // application log value is not the result of an ABI return
+        let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%5#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%3#0)
+        let len%0#0: uint64 = (len tmp%5#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for string
-        let result#0: string = decode_bytes<string>(tmp%3#0)
-        let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
-        (assert tmp%6#0) // application log value is not the result of an ABI return
+        let result#0: string = decode_bytes<string>(tmp%5#0)
         let tmp%7#0: bool = (== result#0 "hey there")
         (assert tmp%7#0)
         itxn_begin

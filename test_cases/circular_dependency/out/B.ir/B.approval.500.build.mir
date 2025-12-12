@@ -111,17 +111,26 @@ subroutine pong:
         itxn LastLog                                                         awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                  awst_tmp%0#0
-        extract 4 0                                                          tmp%0#0
+        extract 0 4                                                          tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                       tmp%0#0
-        int 0                                                                tmp%0#0,0
+        byte 0x151f7c75                                                      tmp%0#0,0x151f7c75
+        ==                                                                   tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                       tmp%1#1
+        assert // application log value is not the result of an ABI return
+        v-load awst_tmp%0#0                                                  awst_tmp%0#0
+        extract 4 0                                                          tmp%2#1
+        v-store tmp%2#1
+        v-load tmp%2#1                                                       tmp%2#1
+        int 0                                                                tmp%2#1,0
         extract_uint16 // on error: invalid array length header              aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                    aggregate%array_length%0#0
         int 2                                                                aggregate%array_length%0#0,2
         +                                                                    add%0#0
         v-store add%0#0
-        v-load tmp%0#0                                                       tmp%0#0
+        v-load tmp%2#1                                                       tmp%2#1
         len                                                                  len%0#0
         v-store len%0#0
         v-load len%0#0                                                       len%0#0
@@ -130,19 +139,10 @@ subroutine pong:
         v-store eq%0#0
         v-load eq%0#0                                                        eq%0#0
         assert // invalid number of bytes for string
-        v-load awst_tmp%0#0                                                  awst_tmp%0#0
-        extract 0 4                                                          tmp%2#1
-        v-store tmp%2#1
-        v-load tmp%2#1                                                       tmp%2#1
-        byte 0x151f7c75                                                      tmp%2#1,0x151f7c75
-        ==                                                                   tmp%3#1
-        v-store tmp%3#1
-        v-load tmp%3#1                                                       tmp%3#1
-        assert // application log value is not the result of an ABI return
         // circular_dependency/b.py:11
         // @arc4.abimethod
         byte 0x151f7c75                                                      0x151f7c75
-        v-load tmp%0#0                                                       0x151f7c75,tmp%0#0
+        v-load tmp%2#1                                                       0x151f7c75,tmp%2#1
         concat                                                               tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                       tmp%4#0
@@ -185,9 +185,18 @@ subroutine create_a:
         itxn LastLog                                                         awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                  awst_tmp%0#0
-        extract 4 0                                                          tmp%0#0
+        extract 0 4                                                          tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                       tmp%0#0
+        byte 0x151f7c75                                                      tmp%0#0,0x151f7c75
+        ==                                                                   tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                       tmp%1#1
+        assert // application log value is not the result of an ABI return
+        v-load awst_tmp%0#0                                                  awst_tmp%0#0
+        extract 4 0                                                          tmp%2#1
+        v-store tmp%2#1
+        v-load tmp%2#1                                                       tmp%2#1
         len                                                                  len%0#0
         v-store len%0#0
         v-load len%0#0                                                       len%0#0
@@ -196,19 +205,10 @@ subroutine create_a:
         v-store eq%0#0
         v-load eq%0#0                                                        eq%0#0
         assert // invalid number of bytes for application
-        v-load awst_tmp%0#0                                                  awst_tmp%0#0
-        extract 0 4                                                          tmp%2#1
-        v-store tmp%2#1
-        v-load tmp%2#1                                                       tmp%2#1
-        byte 0x151f7c75                                                      tmp%2#1,0x151f7c75
-        ==                                                                   tmp%3#1
-        v-store tmp%3#1
-        v-load tmp%3#1                                                       tmp%3#1
-        assert // application log value is not the result of an ABI return
         // circular_dependency/b.py:16
         // @arc4.abimethod
         byte 0x151f7c75                                                      0x151f7c75
-        v-load tmp%0#0                                                       0x151f7c75,tmp%0#0
+        v-load tmp%2#1                                                       0x151f7c75,tmp%2#1
         concat                                                               tmp%4#0
         v-store tmp%4#0
         v-load tmp%4#0                                                       tmp%4#0
