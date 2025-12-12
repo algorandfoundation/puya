@@ -6,6 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from puya.log import configure_stdio
+from scripts.script_utils import VCS_ROOT
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puyapy" / "_vendor"))
 
@@ -19,8 +20,6 @@ from sphinx.cmd.build import main as sphinx_build
 
 from puyapy.parse import _get_mypy_options
 
-SCRIPTS_DIR = Path(__file__).parent
-VCS_ROOT = SCRIPTS_DIR.parent
 SRC_DIR = VCS_ROOT / "src"
 DOCS_DIR = VCS_ROOT / "docs"
 STUBS_DIR = VCS_ROOT / "stubs" / "algopy-stubs"
