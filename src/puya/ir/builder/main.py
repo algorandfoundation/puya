@@ -534,27 +534,14 @@ class FunctionIRBuilder(
         )
 
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> TExpression:
-        *values, check = self.visit_and_materialise(expr.expr, ("value", "check"))
+        value, check = self.visit_and_materialise(expr.expr, ("value", "check"))
         assert_value(
             self.context,
             check,
             error_message=expr.comment,
             source_location=expr.source_location,
         )
-        if len(values) == 1:
-            return values[0]
-
-        assert isinstance(expr.expr.wtype, wtypes.WTuple)
-        value_wtype = expr.expr.wtype.types[0]
-        assert isinstance(value_wtype, wtypes.WTuple)
-
-        return ir.ValueTuple(
-            values=values,
-            ir_type=types.wtype_to_ir_type(
-                value_wtype, expr.expr.source_location, allow_tuple=True
-            ),
-            source_location=expr.expr.source_location,
-        )
+        return value
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
         ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)
