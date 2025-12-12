@@ -253,7 +253,6 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "DynamicBytes": SymbolData(fullname="algopy.arc4.DynamicBytes", module_public=True),
         "_TTuple": SymbolData(fullname="algopy.arc4._TTuple", module_public=True),
         "Tuple": SymbolData(fullname="algopy.arc4.Tuple", module_public=True),
-        "_StructMeta": SymbolData(fullname="algopy.arc4._StructMeta", module_public=True),
         "Struct": SymbolData(fullname="algopy.arc4.Struct", module_public=True),
         "ARC4Client": SymbolData(fullname="algopy.arc4.ARC4Client", module_public=True),
         "_TABIResult_co": SymbolData(fullname="algopy.arc4._TABIResult_co", module_public=True),
