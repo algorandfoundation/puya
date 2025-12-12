@@ -17,7 +17,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
+from puyapy.awst_build.eb._bytes_backed import BytesConvertibleTypeBuilder
 from puyapy.awst_build.eb._utils import compare_expr_bytes
 from puyapy.awst_build.eb.arc4.static_array import StaticArrayExpressionBuilder
 from puyapy.awst_build.eb.interface import (
@@ -31,7 +31,7 @@ from puyapy.awst_build.eb.reference_types.account import AccountExpressionBuilde
 logger = log.get_logger(__name__)
 
 
-class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
+class AddressTypeBuilder(BytesConvertibleTypeBuilder[pytypes.ArrayType]):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4AddressType, location)
 
