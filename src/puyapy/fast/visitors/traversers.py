@@ -233,3 +233,140 @@ class MatchPatternTraverser(MatchPatternVisitor[None]):
     def visit_match_or(self, match_or: nodes.MatchOr) -> None:
         for pattern in match_or.patterns:
             pattern.accept(self)
+
+
+class NodeTraverser(ExpressionTraverser, StatementTraverser, MatchPatternTraverser):
+    def visit_decorator(self, decorator: nodes.Decorator) -> None:
+        if decorator.args is not None:
+            for arg in decorator.args:
+                arg.accept(self)
+        if decorator.kwargs is not None:
+            for kwarg in decorator.kwargs.values():
+                kwarg.accept(self)
+
+    def visit_parameter(self, param: nodes.Parameter) -> None:
+        if param.annotation is not None:
+            param.annotation.accept(self)
+        if param.default is not None:
+            param.default.accept(self)
+
+    def visit_match_case(self, case: nodes.MatchCase) -> None:
+        case.pattern.accept(self)
+        if case.guard is not None:
+            case.guard.accept(self)
+        for stmt in case.body:
+            stmt.accept(self)
+
+    @typing.override
+    def visit_function_def(self, func_def: nodes.FunctionDef) -> None:
+        for decorator in func_def.decorators:
+            self.visit_decorator(decorator)
+        for param in func_def.params:
+            self.visit_parameter(param)
+        if func_def.return_annotation is not None:
+            func_def.return_annotation.accept(self)
+        for stmt in func_def.body:
+            stmt.accept(self)
+
+    @typing.override
+    def visit_class_def(self, class_def: nodes.ClassDef) -> None:
+        for decorator in class_def.decorators:
+            self.visit_decorator(decorator)
+        for base in class_def.bases:
+            base.accept(self)
+        for kwarg in class_def.kwargs.values():
+            kwarg.accept(self)
+        for stmt in class_def.body:
+            stmt.accept(self)
+
+    @typing.override
+    def visit_expression_statement(self, stmt: nodes.ExpressionStatement) -> None:
+        stmt.expr.accept(self)
+
+    @typing.override
+    def visit_return(self, ret: nodes.Return) -> None:
+        if ret.value is not None:
+            ret.value.accept(self)
+
+    @typing.override
+    def visit_delete(self, delete: nodes.Delete) -> None:
+        for target in delete.targets:
+            target.accept(self)
+
+    @typing.override
+    def visit_assign(self, assign: nodes.Assign) -> None:
+        assign.target.accept(self)
+        assign.value.accept(self)
+        if assign.annotation is not None:
+            assign.annotation.accept(self)
+
+    @typing.override
+    def visit_multi_assign(self, multi_assign: nodes.MultiAssign) -> None:
+        for target in multi_assign.targets:
+            target.accept(self)
+        multi_assign.value.accept(self)
+
+    @typing.override
+    def visit_aug_assign(self, aug_assign: nodes.AugAssign) -> None:
+        aug_assign.target.accept(self)
+        aug_assign.value.accept(self)
+
+    @typing.override
+    def visit_annotation(self, annotation: nodes.AnnotationStatement) -> None:
+        annotation.target.accept(self)
+        annotation.annotation.accept(self)
+
+    @typing.override
+    def visit_for(self, for_stmt: nodes.For) -> None:
+        for_stmt.target.accept(self)
+        for_stmt.iterable.accept(self)
+        for stmt in for_stmt.body:
+            stmt.accept(self)
+        for stmt in for_stmt.else_body or ():
+            stmt.accept(self)
+
+    @typing.override
+    def visit_while(self, while_stmt: nodes.While) -> None:
+        while_stmt.test.accept(self)
+        for stmt in while_stmt.body:
+            stmt.accept(self)
+        for stmt in while_stmt.else_body or ():
+            stmt.accept(self)
+
+    @typing.override
+    def visit_if(self, if_stmt: nodes.If) -> None:
+        if_stmt.test.accept(self)
+        for stmt in if_stmt.body:
+            stmt.accept(self)
+        for stmt in if_stmt.else_body or ():
+            stmt.accept(self)
+
+    @typing.override
+    def visit_assert(self, assert_stmt: nodes.Assert) -> None:
+        assert_stmt.test.accept(self)
+        if assert_stmt.msg is not None:
+            assert_stmt.msg.accept(self)
+
+    @typing.override
+    def visit_match(self, match_stmt: nodes.Match) -> None:
+        match_stmt.subject.accept(self)
+        for case in match_stmt.cases:
+            self.visit_match_case(case)
+
+    @typing.override
+    def visit_match_value(self, match_value: nodes.MatchValue) -> None:
+        match_value.value.accept(self)
+
+    @typing.override
+    def visit_match_mapping(self, match_mapping: nodes.MatchMapping) -> None:
+        for key, pattern in match_mapping.kwd_patterns.items():
+            key.accept(self)
+            pattern.accept(self)
+
+    @typing.override
+    def visit_match_class(self, match_class: nodes.MatchClass) -> None:
+        match_class.cls.accept(self)
+        for pattern in match_class.patterns:
+            pattern.accept(self)
+        for pattern in match_class.kwd_patterns.values():
+            pattern.accept(self)
