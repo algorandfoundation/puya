@@ -1,7 +1,7 @@
 import typing
 
 from puyapy.fast import nodes
-from puyapy.fast.visitors import ExpressionVisitor, StatementVisitor
+from puyapy.fast.visitors import ExpressionVisitor, MatchPatternVisitor, StatementVisitor
 
 
 class ExpressionTraverser(ExpressionVisitor[None]):
@@ -192,3 +192,44 @@ class StatementTraverser(StatementVisitor[None]):
     @typing.override
     def visit_continue(self, continue_stmt: nodes.Continue) -> None:
         pass
+
+
+class MatchPatternTraverser(MatchPatternVisitor[None]):
+    @typing.override
+    def visit_match_value(self, match_value: nodes.MatchValue) -> None:
+        pass
+
+    @typing.override
+    def visit_match_sequence(self, match_sequence: nodes.MatchSequence) -> None:
+        for pattern in match_sequence.patterns:
+            pattern.accept(self)
+
+    @typing.override
+    def visit_match_singleton(self, match_singleton: nodes.MatchSingleton) -> None:
+        pass
+
+    @typing.override
+    def visit_match_star(self, match_star: nodes.MatchStar) -> None:
+        pass
+
+    @typing.override
+    def visit_match_mapping(self, match_mapping: nodes.MatchMapping) -> None:
+        for pattern in match_mapping.kwd_patterns.values():
+            pattern.accept(self)
+
+    @typing.override
+    def visit_match_class(self, match_class: nodes.MatchClass) -> None:
+        for pattern in match_class.patterns:
+            pattern.accept(self)
+        for pattern in match_class.kwd_patterns.values():
+            pattern.accept(self)
+
+    @typing.override
+    def visit_match_as(self, match_as: nodes.MatchAs) -> None:
+        if match_as.pattern is not None:
+            match_as.pattern.accept(self)
+
+    @typing.override
+    def visit_match_or(self, match_or: nodes.MatchOr) -> None:
+        for pattern in match_or.patterns:
+            pattern.accept(self)
