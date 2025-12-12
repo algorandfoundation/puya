@@ -7,6 +7,7 @@ from algopy import (
     Asset,
     BigUInt,
     Bytes,
+    BytesBacked,
     OnCompleteAction,
     TransactionType,
     UInt64,
@@ -99,7 +100,7 @@ def balance(a: Account | UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`balance`](https://dev.algorand.co/reference/algorand-teal/opcodes/#balance)
     """
 
-def base64_decode(e: Base64, a: Bytes | bytes, /) -> Bytes:
+def base64_decode(e: Base64, a: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     decode A which was base64-encoded using _encoding_ E. Fail if A is not base64 encoded with encoding E
     *Warning*: Usage should be restricted to very rare use cases. In almost all cases, smart contracts should directly handle non-encoded byte-strings.	This opcode should only be used in cases where base64 is the only available option, e.g. interoperability with a third-party that only signs base64 strings.
@@ -125,7 +126,7 @@ def bsqrt(a: BigUInt | int, /) -> BigUInt:
     Native TEAL opcode: [`bsqrt`](https://dev.algorand.co/reference/algorand-teal/opcodes/#bsqrt)
     """
 
-def btoi(a: Bytes | bytes, /) -> UInt64:
+def btoi(a: Bytes | BytesBacked | bytes, /) -> UInt64:
     """
     converts big-endian byte array A to uint64. Fails if len(A) > 8. Padded by leading 0s if len(A) < 8.
     `btoi` fails if the input is longer than 8 bytes.
@@ -140,7 +141,7 @@ def bzero(a: UInt64 | int, /) -> Bytes:
     Native TEAL opcode: [`bzero`](https://dev.algorand.co/reference/algorand-teal/opcodes/#bzero)
     """
 
-def concat(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+def concat(a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     join A and B
     `concat` fails if the result would be greater than 4096 bytes.
@@ -166,7 +167,7 @@ def divw(a: UInt64 | int, b: UInt64 | int, c: UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`divw`](https://dev.algorand.co/reference/algorand-teal/opcodes/#divw)
     """
 
-def ecdsa_pk_decompress(v: ECDSA, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
+def ecdsa_pk_decompress(v: ECDSA, a: Bytes | BytesBacked | bytes, /) -> tuple[Bytes, Bytes]:
     """
     decompress pubkey A into components X, Y
     The 33 byte public key in a compressed form to be decompressed into X and Y (top) components. All values are big-endian encoded.
@@ -176,7 +177,12 @@ def ecdsa_pk_decompress(v: ECDSA, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
     """
 
 def ecdsa_pk_recover(
-    v: ECDSA, a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, d: Bytes | bytes, /
+    v: ECDSA,
+    a: Bytes | BytesBacked | bytes,
+    b: UInt64 | int,
+    c: Bytes | BytesBacked | bytes,
+    d: Bytes | BytesBacked | bytes,
+    /,
 ) -> tuple[Bytes, Bytes]:
     """
     for (data A, recovery id B, signature C, D) recover a public key
@@ -188,11 +194,11 @@ def ecdsa_pk_recover(
 
 def ecdsa_verify(
     v: ECDSA,
-    a: Bytes | bytes,
-    b: Bytes | bytes,
-    c: Bytes | bytes,
-    d: Bytes | bytes,
-    e: Bytes | bytes,
+    a: Bytes | BytesBacked | bytes,
+    b: Bytes | BytesBacked | bytes,
+    c: Bytes | BytesBacked | bytes,
+    d: Bytes | BytesBacked | bytes,
+    e: Bytes | BytesBacked | bytes,
     /,
 ) -> bool:
     """
@@ -203,7 +209,12 @@ def ecdsa_verify(
     Native TEAL opcode: [`ecdsa_verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ecdsa_verify)
     """
 
-def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
+def ed25519verify(
+    a: Bytes | BytesBacked | bytes,
+    b: Bytes | BytesBacked | bytes,
+    c: Bytes | BytesBacked | bytes,
+    /,
+) -> bool:
     """
     for (data A, signature B, pubkey C) verify the signature of ("ProgData" || program_hash || data) against the pubkey => {0 or 1}
     The 32 byte public key is the last element on the stack, preceded by the 64 byte signature at the second-to-last element on the stack, preceded by the data which was signed at the third-to-last element on the stack.
@@ -211,7 +222,12 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bo
     Native TEAL opcode: [`ed25519verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ed25519verify)
     """
 
-def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
+def ed25519verify_bare(
+    a: Bytes | BytesBacked | bytes,
+    b: Bytes | BytesBacked | bytes,
+    c: Bytes | BytesBacked | bytes,
+    /,
+) -> bool:
     """
     for (data A, signature B, pubkey C) verify the signature of the data against the pubkey => {0 or 1}
 
@@ -248,7 +264,7 @@ def expw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
     Native TEAL opcode: [`expw`](https://dev.algorand.co/reference/algorand-teal/opcodes/#expw)
     """
 
-def extract(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
+def extract(a: Bytes | BytesBacked | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
     A range of bytes from A starting at B up to but not including B+C. If B+C is larger than the array length, the program fails
     `extract3` can be called using `extract` with no immediates.
@@ -256,28 +272,33 @@ def extract(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     Native TEAL opcode: [`extract`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract), [`extract3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract3)
     """
 
-def extract_uint16(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
+def extract_uint16(a: Bytes | BytesBacked | bytes, b: UInt64 | int, /) -> UInt64:
     """
     A uint16 formed from a range of big-endian bytes from A starting at B up to but not including B+2. If B+2 is larger than the array length, the program fails
 
     Native TEAL opcode: [`extract_uint16`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract_uint16)
     """
 
-def extract_uint32(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
+def extract_uint32(a: Bytes | BytesBacked | bytes, b: UInt64 | int, /) -> UInt64:
     """
     A uint32 formed from a range of big-endian bytes from A starting at B up to but not including B+4. If B+4 is larger than the array length, the program fails
 
     Native TEAL opcode: [`extract_uint32`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract_uint32)
     """
 
-def extract_uint64(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
+def extract_uint64(a: Bytes | BytesBacked | bytes, b: UInt64 | int, /) -> UInt64:
     """
     A uint64 formed from a range of big-endian bytes from A starting at B up to but not including B+8. If B+8 is larger than the array length, the program fails
 
     Native TEAL opcode: [`extract_uint64`](https://dev.algorand.co/reference/algorand-teal/opcodes/#extract_uint64)
     """
 
-def falcon_verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
+def falcon_verify(
+    a: Bytes | BytesBacked | bytes,
+    b: Bytes | BytesBacked | bytes,
+    c: Bytes | BytesBacked | bytes,
+    /,
+) -> bool:
     """
     for (data A, compressed-format signature B, pubkey C) verify the signature of data against the pubkey => {0 or 1}
     Min AVM version: 12
@@ -301,7 +322,7 @@ def getbit(a: Bytes | UInt64 | bytes | int, b: UInt64 | int, /) -> bool:
     Native TEAL opcode: [`getbit`](https://dev.algorand.co/reference/algorand-teal/opcodes/#getbit)
     """
 
-def getbyte(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
+def getbyte(a: Bytes | BytesBacked | bytes, b: UInt64 | int, /) -> UInt64:
     """
     Bth byte of A, as an integer. If B is greater than or equal to the array length, the program fails
 
@@ -329,14 +350,14 @@ def itob(a: UInt64 | int, /) -> Bytes:
     Native TEAL opcode: [`itob`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itob)
     """
 
-def keccak256(a: Bytes | bytes, /) -> Bytes:
+def keccak256(a: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     Keccak256 hash of value A, yields [32]byte
 
     Native TEAL opcode: [`keccak256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#keccak256)
     """
 
-def mimc(c: MiMCConfigurations, a: Bytes | bytes, /) -> Bytes:
+def mimc(c: MiMCConfigurations, a: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     MiMC hash of scalars A, using curve and parameters specified by configuration C
     A is a list of concatenated 32 byte big-endian unsigned integer scalars.  Fail if A's length is not a multiple of 32 or any element exceeds the curve modulus.
@@ -371,7 +392,9 @@ def online_stake() -> UInt64:
     Native TEAL opcode: [`online_stake`](https://dev.algorand.co/reference/algorand-teal/opcodes/#online_stake)
     """
 
-def replace(a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, /) -> Bytes:
+def replace(
+    a: Bytes | BytesBacked | bytes, b: UInt64 | int, c: Bytes | BytesBacked | bytes, /
+) -> Bytes:
     """
     Copy of A with the bytes starting at B replaced by the bytes of C. Fails if B+len(C) exceeds len(A)
     `replace3` can be called using `replace` with no immediates.
@@ -379,7 +402,9 @@ def replace(a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, /) -> Bytes:
     Native TEAL opcode: [`replace2`](https://dev.algorand.co/reference/algorand-teal/opcodes/#replace2), [`replace3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#replace3)
     """
 
-def select_bytes(a: Bytes | bytes, b: Bytes | bytes, c: bool | UInt64 | int, /) -> Bytes:
+def select_bytes(
+    a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, c: bool | UInt64 | int, /
+) -> Bytes:
     """
     selects one of two values based on top-of-stack: B if C != 0, else A
 
@@ -393,7 +418,7 @@ def select_uint64(a: UInt64 | int, b: UInt64 | int, c: bool | UInt64 | int, /) -
     Native TEAL opcode: [`select`](https://dev.algorand.co/reference/algorand-teal/opcodes/#select)
     """
 
-def setbit_bytes(a: Bytes | bytes, b: UInt64 | int, c: bool, /) -> Bytes:
+def setbit_bytes(a: Bytes | BytesBacked | bytes, b: UInt64 | int, c: bool, /) -> Bytes:
     """
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     When A is a uint64, index 0 is the least significant bit. Setting bit 3 to 1 on the integer 0 yields 8, or 2^3. When A is a byte array, index 0 is the leftmost bit of the leftmost byte. Setting bits 0 through 11 to 1 in a 4-byte-array of 0s yields the byte array 0xfff00000. Setting bit 3 to 1 on the 1-byte-array 0x00 yields the byte array 0x10.
@@ -409,28 +434,28 @@ def setbit_uint64(a: UInt64 | int, b: UInt64 | int, c: bool, /) -> UInt64:
     Native TEAL opcode: [`setbit`](https://dev.algorand.co/reference/algorand-teal/opcodes/#setbit)
     """
 
-def setbyte(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
+def setbyte(a: Bytes | BytesBacked | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
     Copy of A with the Bth byte set to small integer (between 0..255) C. If B is greater than or equal to the array length, the program fails
 
     Native TEAL opcode: [`setbyte`](https://dev.algorand.co/reference/algorand-teal/opcodes/#setbyte)
     """
 
-def sha256(a: Bytes | bytes, /) -> Bytes:
+def sha256(a: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     SHA256 hash of value A, yields [32]byte
 
     Native TEAL opcode: [`sha256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sha256)
     """
 
-def sha3_256(a: Bytes | bytes, /) -> Bytes:
+def sha3_256(a: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     SHA3_256 hash of value A, yields [32]byte
 
     Native TEAL opcode: [`sha3_256`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sha3_256)
     """
 
-def sha512_256(a: Bytes | bytes, /) -> Bytes:
+def sha512_256(a: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     SHA512_256 hash of value A, yields [32]byte
 
@@ -458,14 +483,14 @@ def sqrt(a: UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`sqrt`](https://dev.algorand.co/reference/algorand-teal/opcodes/#sqrt)
     """
 
-def substring(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
+def substring(a: Bytes | BytesBacked | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
     A range of bytes from A starting at B up to but not including C. If C < B, or either is larger than the array length, the program fails
 
     Native TEAL opcode: [`substring`](https://dev.algorand.co/reference/algorand-teal/opcodes/#substring), [`substring3`](https://dev.algorand.co/reference/algorand-teal/opcodes/#substring3)
     """
 
-def sumhash512(a: Bytes | bytes, /) -> Bytes:
+def sumhash512(a: Bytes | BytesBacked | bytes, /) -> Bytes:
     """
     sumhash512 of value A, yields [64]byte
     Min AVM version: 13
@@ -474,7 +499,11 @@ def sumhash512(a: Bytes | bytes, /) -> Bytes:
     """
 
 def vrf_verify(
-    s: VrfVerify, a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /
+    s: VrfVerify,
+    a: Bytes | BytesBacked | bytes,
+    b: Bytes | BytesBacked | bytes,
+    c: Bytes | BytesBacked | bytes,
+    /,
 ) -> tuple[Bytes, bool]:
     """
     Verify the proof B of message A against pubkey C. Returns vrf output and verification flag.
@@ -1080,7 +1109,7 @@ class Box:
         """
 
     @staticmethod
-    def put(a: Bytes | bytes, b: Bytes | bytes, /) -> None:
+    def put(a: Bytes | bytes, b: Bytes | BytesBacked | bytes, /) -> None:
         """
         replaces the contents of box A with byte-array B. Fails if A exists and len(B) != len(box A). Creates A if it does not exist
         For boxes that exceed 4,096 bytes, consider `box_create`, `box_extract`, and `box_replace`
@@ -1089,7 +1118,7 @@ class Box:
         """
 
     @staticmethod
-    def replace(a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, /) -> None:
+    def replace(a: Bytes | bytes, b: UInt64 | int, c: Bytes | BytesBacked | bytes, /) -> None:
         """
         write byte-array C into box A, starting at offset B. Fail if A does not exist, or the byte range is outside A's size.
 
@@ -1105,7 +1134,9 @@ class Box:
         """
 
     @staticmethod
-    def splice(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, d: Bytes | bytes, /) -> None:
+    def splice(
+        a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, d: Bytes | BytesBacked | bytes, /
+    ) -> None:
         """
         set box A to contain its previous bytes up to index B, followed by D, followed by the original bytes of A that began at index B+C.
         Boxes are of constant length. If C < len(D), then len(D)-C bytes will be removed from the end. If C > len(D), zero bytes will be appended to the end to reach the box length.
@@ -1119,7 +1150,7 @@ class EllipticCurve:
     Native TEAL ops: [`ec_add`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_add), [`ec_map_to`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_map_to), [`ec_multi_scalar_mul`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_multi_scalar_mul), [`ec_pairing_check`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_pairing_check), [`ec_scalar_mul`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_scalar_mul), [`ec_subgroup_check`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_subgroup_check)
     """
     @staticmethod
-    def add(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def add(g: EC, a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /) -> Bytes:
         """
         for curve points A and B, return the curve point A + B
         A and B are curve points in affine representation: field element X concatenated with field element Y. Field element `Z` is encoded as follows.
@@ -1138,7 +1169,7 @@ class EllipticCurve:
         """
 
     @staticmethod
-    def map_to(g: EC, a: Bytes | bytes, /) -> Bytes:
+    def map_to(g: EC, a: Bytes | BytesBacked | bytes, /) -> Bytes:
         """
         maps field element A to group G
         BN254 points are mapped by the SVDW map. BLS12-381 points are mapped by the SSWU map.
@@ -1149,7 +1180,9 @@ class EllipticCurve:
         """
 
     @staticmethod
-    def scalar_mul_multi(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def scalar_mul_multi(
+        g: EC, a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /
+    ) -> Bytes:
         """
         for curve points A and scalars B, return curve point B0A0 + B1A1 + B2A2 + ... + BnAn
         A is a list of concatenated points, encoded and checked as described in `ec_add`. B is a list of concatenated scalars which, unlike ec_scalar_mul, must all be exactly 32 bytes long.
@@ -1160,7 +1193,9 @@ class EllipticCurve:
         """
 
     @staticmethod
-    def pairing_check(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> bool:
+    def pairing_check(
+        g: EC, a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /
+    ) -> bool:
         """
         1 if the product of the pairing of each point in A with its respective point in B is equal to the identity element of the target group Gt, else 0
         A and B are concatenated points, encoded and checked as described in `ec_add`. A contains points of the group G, B contains points of the associated group (G2 if G is G1, and vice versa). Fails if A and B have a different number of points, or if any point is not in its described group or outside the main prime-order subgroup - a stronger condition than other opcodes. AVM values are limited to 4096 bytes, so `ec_pairing_check` is limited by the size of the points in the groups being operated upon.
@@ -1170,7 +1205,9 @@ class EllipticCurve:
         """
 
     @staticmethod
-    def scalar_mul(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def scalar_mul(
+        g: EC, a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /
+    ) -> Bytes:
         """
         for curve point A and scalar B, return the curve point BA, the point A multiplied by the scalar B.
         A is a curve point encoded and checked as described in `ec_add`. Scalar B is interpreted as a big-endian unsigned integer. Fails if B exceeds 32 bytes.
@@ -1180,7 +1217,7 @@ class EllipticCurve:
         """
 
     @staticmethod
-    def subgroup_check(g: EC, a: Bytes | bytes, /) -> bool:
+    def subgroup_check(g: EC, a: Bytes | BytesBacked | bytes, /) -> bool:
         """
         1 if A is in the main prime-order subgroup of G (including the point at infinity) else 0. Program fails if A is not in G at all.
         :param EC g: curve index
@@ -3109,9 +3146,9 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_note(a: Bytes | bytes, /) -> None:
+    def set_note(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: Any data up to 1024 bytes
+        :param Bytes | BytesBacked | bytes a: Any data up to 1024 bytes
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3141,17 +3178,17 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_vote_pk(a: Bytes | bytes, /) -> None:
+    def set_vote_pk(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: 32 byte address
+        :param Bytes | BytesBacked | bytes a: 32 byte address
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
 
     @staticmethod
-    def set_selection_pk(a: Bytes | bytes, /) -> None:
+    def set_selection_pk(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: 32 byte address
+        :param Bytes | BytesBacked | bytes a: 32 byte address
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3181,9 +3218,9 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_type(a: Bytes | bytes, /) -> None:
+    def set_type(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: Transaction type as bytes
+        :param Bytes | BytesBacked | bytes a: Transaction type as bytes
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3253,9 +3290,9 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_application_args(a: Bytes | bytes, /) -> None:
+    def set_application_args(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: Arguments passed to the application in the ApplicationCall transaction
+        :param Bytes | BytesBacked | bytes a: Arguments passed to the application in the ApplicationCall transaction
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3269,17 +3306,17 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_approval_program(a: Bytes | bytes, /) -> None:
+    def set_approval_program(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: Approval program
+        :param Bytes | BytesBacked | bytes a: Approval program
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
 
     @staticmethod
-    def set_clear_state_program(a: Bytes | bytes, /) -> None:
+    def set_clear_state_program(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: Clear state program
+        :param Bytes | BytesBacked | bytes a: Clear state program
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3325,33 +3362,33 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_config_asset_unit_name(a: Bytes | bytes, /) -> None:
+    def set_config_asset_unit_name(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: Unit name of the asset
+        :param Bytes | BytesBacked | bytes a: Unit name of the asset
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
 
     @staticmethod
-    def set_config_asset_name(a: Bytes | bytes, /) -> None:
+    def set_config_asset_name(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: The asset name
+        :param Bytes | BytesBacked | bytes a: The asset name
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
 
     @staticmethod
-    def set_config_asset_url(a: Bytes | bytes, /) -> None:
+    def set_config_asset_url(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: URL
+        :param Bytes | BytesBacked | bytes a: URL
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
 
     @staticmethod
-    def set_config_asset_metadata_hash(a: Bytes | bytes, /) -> None:
+    def set_config_asset_metadata_hash(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: 32 byte commitment to unspecified asset metadata
+        :param Bytes | BytesBacked | bytes a: 32 byte commitment to unspecified asset metadata
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3477,25 +3514,25 @@ class ITxnCreate:
         """
 
     @staticmethod
-    def set_state_proof_pk(a: Bytes | bytes, /) -> None:
+    def set_state_proof_pk(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: State proof public key
+        :param Bytes | BytesBacked | bytes a: State proof public key
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
 
     @staticmethod
-    def set_approval_program_pages(a: Bytes | bytes, /) -> None:
+    def set_approval_program_pages(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: Approval Program as an array of pages
+        :param Bytes | BytesBacked | bytes a: Approval Program as an array of pages
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
 
     @staticmethod
-    def set_clear_state_program_pages(a: Bytes | bytes, /) -> None:
+    def set_clear_state_program_pages(a: Bytes | BytesBacked | bytes, /) -> None:
         """
-        :param Bytes | bytes a: ClearState Program as an array of pages
+        :param Bytes | BytesBacked | bytes a: ClearState Program as an array of pages
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
         """
@@ -3515,21 +3552,21 @@ class JsonRef:
     Native TEAL op: [`json_ref`](https://dev.algorand.co/reference/algorand-teal/opcodes/#json_ref)
     """
     @staticmethod
-    def json_string(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def json_string(a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /) -> Bytes:
         """
 
         Native TEAL opcode: [`json_ref`](https://dev.algorand.co/reference/algorand-teal/opcodes/#json_ref)
         """
 
     @staticmethod
-    def json_uint64(a: Bytes | bytes, b: Bytes | bytes, /) -> UInt64:
+    def json_uint64(a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /) -> UInt64:
         """
 
         Native TEAL opcode: [`json_ref`](https://dev.algorand.co/reference/algorand-teal/opcodes/#json_ref)
         """
 
     @staticmethod
-    def json_object(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def json_object(a: Bytes | BytesBacked | bytes, b: Bytes | BytesBacked | bytes, /) -> Bytes:
         """
 
         Native TEAL opcode: [`json_ref`](https://dev.algorand.co/reference/algorand-teal/opcodes/#json_ref)
