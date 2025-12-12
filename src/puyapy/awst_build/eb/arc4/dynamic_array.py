@@ -13,7 +13,7 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
-from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
+from puyapy.awst_build.eb._bytes_backed import BytesConvertibleTypeBuilder
 from puyapy.awst_build.eb._utils import dummy_statement, dummy_value
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -51,7 +51,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         )
 
 
-class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
+class DynamicArrayTypeBuilder(BytesConvertibleTypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericARC4DynamicArrayType
