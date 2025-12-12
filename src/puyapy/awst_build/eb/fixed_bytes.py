@@ -36,7 +36,7 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
-    BytesBackedTypeBuilder,
+    BytesConvertibleTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import (
     compare_bytes,
@@ -110,7 +110,7 @@ class FixedBytesGenericTypeBuilder(GenericTypeBuilder):
                 return super().member_access(name, location)
 
 
-class FixedBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.FixedBytesType]):
+class FixedBytesTypeBuilder(BytesConvertibleTypeBuilder[pytypes.FixedBytesType]):
     """Handles parameterized FixedBytes types like FixedBytes[Literal[32]]."""
 
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
