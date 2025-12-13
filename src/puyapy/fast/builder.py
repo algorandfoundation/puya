@@ -64,30 +64,13 @@ _ScopeKind = typing.Literal[_NestedScopeKind, "module"]
 
 
 @attrs.define
-class _Scope:
-    kind: _ScopeKind = attrs.field(on_setattr=attrs.setters.frozen)
-    name: str = attrs.field(on_setattr=attrs.setters.frozen)
-    imported_typing_modules: set[str] = attrs.field(on_setattr=attrs.setters.frozen)
-    is_type_checking_imported: bool
-
-
-@attrs.define
 class _BuildContext:
     module_name: str = attrs.field(on_setattr=attrs.setters.frozen)
     module_path: Path = attrs.field(on_setattr=attrs.setters.frozen)
-    _scope_stack: list[_Scope] = attrs.field(init=False, on_setattr=attrs.setters.frozen)
+    _scope_stack: list[_NestedScopeKind] = attrs.field(
+        factory=list, init=False, on_setattr=attrs.setters.frozen
+    )
     _failures: int = attrs.field(default=0, init=False)
-
-    @_scope_stack.default
-    def _initial_scope_stack(self) -> list[_Scope]:
-        return [
-            _Scope(
-                kind="module",
-                name=self.module_name,
-                imported_typing_modules=set(),
-                is_type_checking_imported=False,
-            )
-        ]
 
     @property
     def failures(self) -> int:
@@ -127,19 +110,14 @@ class _BuildContext:
         )
 
     @property
-    def scope(self) -> _Scope:
-        return self._scope_stack[-1]
+    def scope_kind(self) -> _ScopeKind:
+        if self._scope_stack:
+            return self._scope_stack[-1]
+        return "module"
 
     @contextlib.contextmanager
-    def enter_scope(self, kind: _NestedScopeKind, name: str) -> Iterator[None]:
-        current = self.scope
-        nested_scope = _Scope(
-            kind=kind,
-            name=f"{current.name}.{name}",
-            imported_typing_modules=current.imported_typing_modules.copy(),
-            is_type_checking_imported=current.is_type_checking_imported,
-        )
-        self._scope_stack.append(nested_scope)
+    def enter_scope(self, kind: _NestedScopeKind) -> Iterator[None]:
+        self._scope_stack.append(kind)
         try:
             yield
         finally:
@@ -156,30 +134,14 @@ def _convert_module(
     ctx = _BuildContext(module_name=module_name, module_path=module_path)
     ast_body, docstring = _extract_docstring(module)
     body = list[nodes.Statement]()
-    dunder_all: tuple[str, ...] | None = None
+    dat = _DunderAllTracker(ctx)
+    tct = _TypeCheckingTracker(ctx)
     for ast_stmt in ast_body:
-        visit = True
-        match ast_stmt:
-            case ast.If() if _is_type_checking(ctx, ast_stmt.test):
-                visit = False
-                if ast_stmt.orelse:
-                    ctx.fail(
-                        "no code is allowed inside the else branch of an if TYPE_CHECKING block",
-                        ast_stmt.orelse[0],
-                    )
-                body.extend(_convert_type_checking_block(ctx, ast_stmt.body))
-            case (
-                ast.Assign(targets=[target], value=value)
-                | ast.AnnAssign(target=target, value=ast.expr() as value)
-            ) if _is_dunder_all_assignment_target(target):
-                visit = False
-                dunder_all = _extract_literal_str_list(ctx, value)
-            case ast.AugAssign(target=target, op=ast.Add(), value=value) if (
-                dunder_all is not None and _is_dunder_all_assignment_target(target)
-            ):
-                visit = False
-                dunder_all += _extract_literal_str_list(ctx, value)
-        if visit:
+        if (tc_block := tct.maybe_handle_ast(ast_stmt)) is not None:
+            body.extend(tc_block)
+        elif (da_block := dat.maybe_handle_ast(ast_stmt)) is not None:
+            body.extend(da_block)
+        else:
             stmt = _visit_stmt(ctx, ast_stmt)
             if stmt is not None:
                 body.append(stmt)
@@ -191,61 +153,118 @@ def _convert_module(
         docstring=docstring,
         body=tuple(body),
         symbols=symbols,
-        dunder_all=dunder_all,
+        dunder_all=dat.result,
     )
 
 
-def _is_type_checking(ctx: _BuildContext, test: ast.expr) -> bool:
-    if ctx.scope.is_type_checking_imported and isinstance(test, ast.Name):
-        return test.id == "TYPE_CHECKING"
-    if isinstance(test, ast.Attribute):
-        return (
-            test.attr == "TYPE_CHECKING"
-            and isinstance(test.value, ast.Name)
-            and test.value.id in ctx.scope.imported_typing_modules
-        )
-    return False
+@attrs.define
+class _TypeCheckingTracker:
+    _ctx: _BuildContext = attrs.field(on_setattr=attrs.setters.frozen)
+    _imported_typing_modules: set[str] = attrs.field(
+        factory=set, init=False, on_setattr=attrs.setters.frozen
+    )
+    _is_type_checking_imported: bool = False
 
-
-def _convert_type_checking_block(
-    ctx: _BuildContext, body: list[ast.stmt]
-) -> list[nodes.Statement]:
-    result = list[nodes.Statement]()
-    for stmt in body:
-        match stmt:
+    def maybe_handle_ast(self, ast_stmt: ast.stmt) -> list[nodes.Statement] | None:
+        match ast_stmt:
+            case ast.If() if self._is_type_checking(ast_stmt.test):
+                if ast_stmt.orelse:
+                    self._ctx.fail(
+                        "no code is allowed inside the else branch of an if TYPE_CHECKING block",
+                        ast_stmt.orelse[0],
+                    )
+                return self._convert_type_checking_block(ast_stmt.body)
             case ast.Import():
-                result.append(_convert_import(ctx, stmt, type_checking_only=True))
-            case ast.ImportFrom():
-                result.append(_convert_import_from(ctx, stmt, type_checking_only=True))
-            case _:
-                ctx.fail(
-                    "only import and from-import statements"
-                    " are supported inside a TYPE_CHECKING block",
-                    stmt,
-                )
-    return result
+                for import_as in ast_stmt.names:
+                    if import_as.name in _TYPING_MODULE_NAMES:
+                        self._imported_typing_modules.add(import_as.asname or import_as.name)
+            case ast.ImportFrom(module=str(module), level=0) if module in _TYPING_MODULE_NAMES:
+                if ast_stmt.names[0].name == "*":
+                    self._is_type_checking_imported = True
+                else:
+                    for as_name in ast_stmt.names:
+                        if as_name.name == "TYPE_CHECKING":
+                            if as_name.asname in (None, "TYPE_CHECKING"):
+                                self._is_type_checking_imported = True
+                            else:
+                                self._ctx.fail("aliasing TYPE_CHECKING is not supported", as_name)
+        return None
 
+    def _is_type_checking(self, test: ast.expr) -> bool:
+        if self._is_type_checking_imported and isinstance(test, ast.Name):
+            return test.id == "TYPE_CHECKING"
+        if isinstance(test, ast.Attribute):
+            return (
+                test.attr == "TYPE_CHECKING"
+                and isinstance(test.value, ast.Name)
+                and test.value.id in self._imported_typing_modules
+            )
+        return False
 
-def _is_dunder_all_assignment_target(target: ast.expr) -> bool:
-    match target:
-        case ast.Name(id="__all__"):
-            return True
-        case _:
-            return False
-
-
-def _extract_literal_str_list(ctx: _BuildContext, seq: ast.expr) -> tuple[str, ...]:
-    result = []
-    if not isinstance(seq, ast.List | ast.Tuple):
-        ctx.fail("expected list literal or tuple literal", seq)
-    else:
-        for el in seq.elts:
-            match el:
-                case ast.Constant(value=str(name)):
-                    result.append(name)
+    def _convert_type_checking_block(self, body: list[ast.stmt]) -> list[nodes.Statement]:
+        result = list[nodes.Statement]()
+        for stmt in body:
+            match stmt:
+                case ast.Import():
+                    result.append(_convert_import(self._ctx, stmt, type_checking_only=True))
+                case ast.ImportFrom():
+                    result.append(_convert_import_from(self._ctx, stmt, type_checking_only=True))
                 case _:
-                    ctx.fail("expected a string literal", el)
-    return tuple(result)
+                    self._ctx.fail(
+                        "only import and from-import statements"
+                        " are supported inside a TYPE_CHECKING block",
+                        stmt,
+                    )
+        return result
+
+
+@attrs.define
+class _DunderAllTracker:
+    _ctx: _BuildContext = attrs.field(on_setattr=attrs.setters.frozen)
+    _result: list[str] | None = None
+
+    def maybe_handle_ast(self, ast_stmt: ast.stmt) -> list[nodes.Statement] | None:
+        match ast_stmt:
+            case (
+                ast.Assign(targets=[target], value=value)
+                | ast.AnnAssign(target=target, value=ast.expr() as value)
+            ) if self._is_dunder_all_assignment_target(target):
+                self._result = self._extract_literal_str_list(self._ctx, value)
+                return []
+            case ast.AugAssign(target=target, op=ast.Add(), value=value) if (
+                self._result is not None and self._is_dunder_all_assignment_target(target)
+            ):
+                self._result += self._extract_literal_str_list(self._ctx, value)
+                return []
+        return None
+
+    @property
+    def result(self) -> tuple[str, ...] | None:
+        if self._result is None:
+            return None
+        return tuple(self._result)
+
+    @staticmethod
+    def _is_dunder_all_assignment_target(target: ast.expr) -> bool:
+        match target:
+            case ast.Name(id="__all__"):
+                return True
+            case _:
+                return False
+
+    @staticmethod
+    def _extract_literal_str_list(ctx: _BuildContext, seq: ast.expr) -> list[str]:
+        result = []
+        if not isinstance(seq, ast.List | ast.Tuple):
+            ctx.fail("expected list literal or tuple literal", seq)
+        else:
+            for el in seq.elts:
+                match el:
+                    case ast.Constant(value=str(name)):
+                        result.append(name)
+                    case _:
+                        ctx.fail("expected a string literal", el)
+        return result
 
 
 def _extract_docstring(
@@ -294,7 +313,7 @@ def _visit_function_def(ctx: _BuildContext, func_def: ast.FunctionDef) -> nodes.
     if func_def.returns is not None:
         return_annotation = _visit_expr(ctx, func_def.returns)
     ast_body, docstring = _extract_docstring(func_def)
-    with ctx.enter_scope("func", func_def.name):
+    with ctx.enter_scope("func"):
         body = _visit_stmt_list(ctx, ast_body)
     return nodes.FunctionDef(
         decorators=decorators,
@@ -407,7 +426,7 @@ def _visit_class_def(ctx: _BuildContext, class_def: ast.ClassDef) -> nodes.Class
     bases = _visit_expr_list(ctx, class_def.bases)
     kwargs = _visit_keywords_list(ctx, class_def.keywords)
     ast_body, docstring = _extract_docstring(class_def)
-    with ctx.enter_scope("class", class_def.name):
+    with ctx.enter_scope("class"):
         body = _visit_stmt_list(ctx, ast_body)
     return nodes.ClassDef(
         decorators=decorators,
@@ -422,9 +441,6 @@ def _visit_class_def(ctx: _BuildContext, class_def: ast.ClassDef) -> nodes.Class
 
 def _visit_import(ctx: _BuildContext, node: ast.Import) -> nodes.ModuleImport:
     result = _convert_import(ctx, node, type_checking_only=False)
-    for import_as in result.names:
-        if import_as.name in _TYPING_MODULE_NAMES:
-            ctx.scope.imported_typing_modules.add(import_as.as_name or import_as.name)
     return result
 
 
@@ -453,18 +469,6 @@ def _convert_alias(ctx: _BuildContext, alias: ast.alias) -> nodes.ImportAs:
 
 def _visit_import_from(ctx: _BuildContext, node: ast.ImportFrom) -> nodes.FromImport:
     result = _convert_import_from(ctx, node, type_checking_only=False)
-    if result.module in _TYPING_MODULE_NAMES:
-        if result.names is None:
-            ctx.scope.is_type_checking_imported = True
-        else:
-            for as_name in result.names:
-                if as_name.name == "TYPE_CHECKING":
-                    if as_name.as_name in (None, "TYPE_CHECKING"):
-                        ctx.scope.is_type_checking_imported = True
-                    else:
-                        ctx.fail(
-                            "aliasing TYPE_CHECKING is not supported", as_name.source_location
-                        )
     return result
 
 
@@ -473,7 +477,7 @@ def _convert_import_from(
 ) -> nodes.FromImport:
     match node.names:
         case [ast.alias("*", None) as star]:
-            if ctx.scope.kind != "module":
+            if ctx.scope_kind != "module":
                 ctx.invalid_syntax(star, "import * only allowed at module level")
             names = None
         case _:
