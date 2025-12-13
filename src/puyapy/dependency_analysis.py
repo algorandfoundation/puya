@@ -1,4 +1,3 @@
-import ast
 import contextlib
 import enum
 import typing
@@ -143,12 +142,11 @@ class _ImportResolver(StatementTraverser):
                             if alias.name not in module_symbols
                         }
                         self._resolve_submodules(from_imp.module, resolved.parent, sub_imports)
-                    elif "__all__" in module_symbols:
+                    elif fast.dunder_all is not None:
                         stmt_loc = from_imp.source_location
-                        dunder_all = _extract_dunder_all(fast, stmt_loc)
                         sub_imports = {
                             maybe_sub_name: stmt_loc
-                            for maybe_sub_name in dunder_all
+                            for maybe_sub_name in fast.dunder_all
                             if maybe_sub_name not in module_symbols
                         }
                         self._resolve_submodules(from_imp.module, resolved.parent, sub_imports)
@@ -287,41 +285,3 @@ def _resolve_module_path(base_path: Path, *, allow_implicit_ns_dir: bool = True)
     elif allow_implicit_ns_dir and base_path.is_dir():
         return base_path
     return None
-
-
-def _extract_dunder_all(mod: fast_nodes.Module, loc: SourceLocation) -> list[str]:
-    dunder_all: list[str] | None = None
-    # TODO: make this more robust
-    for stmt in mod.body:
-        if isinstance(stmt, fast_nodes.Assign):
-            if _is_dunder_all_assignment_target(stmt.target):
-                dunder_all = _extract_literal_str_list(stmt.value)
-        elif dunder_all is not None and isinstance(stmt, fast_nodes.AugAssign):  # noqa: SIM102
-            if isinstance(stmt.op, ast.Add) and _is_dunder_all_assignment_target(stmt.target):
-                dunder_all += _extract_literal_str_list(stmt.value)
-    if dunder_all is None:
-        logger.error(
-            f"unable to determine __all__ value for module {mod.name}",
-            location=loc,
-        )
-        dunder_all = []
-    return dunder_all
-
-
-def _is_dunder_all_assignment_target(target: fast_nodes.Expression) -> bool:
-    match target:
-        case fast_nodes.Name(id="__all__"):
-            return True
-        case _:
-            return False
-
-
-def _extract_literal_str_list(value: fast_nodes.Expression) -> list[str]:
-    result = []
-    match value:
-        case fast_nodes.ListExpr(elements=elements) | fast_nodes.TupleExpr(elements=elements):
-            for el in elements:
-                match el:
-                    case fast_nodes.Constant(value=str(name)):
-                        result.append(name)
-    return result
