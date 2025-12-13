@@ -1,8 +1,7 @@
 import ast
 import contextlib
-import symtable
 import typing
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from pathlib import Path
 
 import attrs
@@ -13,6 +12,7 @@ from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
 from puya.utils import coalesce, set_add
 from puyapy.fast import nodes
+from puyapy.fast.visitors.traversers import StatementTraverser
 
 logger = log.get_logger(__name__)
 
@@ -36,7 +36,6 @@ def parse_module(
         mod = ast.parse(
             source, module_path, "exec", type_comments=True, feature_version=feature_version
         )
-        symbols = symtable.symtable(source, str(module_path), "exec")
     except SyntaxError as e:
         loc = None
         if e.lineno is not None:
@@ -53,7 +52,7 @@ def parse_module(
         logger.exception(f"unable to parse {module_path}")
         fast = None
     else:
-        fast = _convert_module(mod, symbols, module_path=module_path, module_name=module_name)
+        fast = _convert_module(mod, module_path=module_path, module_name=module_name)
     return fast
 
 
@@ -126,7 +125,6 @@ class _BuildContext:
 
 def _convert_module(
     module: ast.Module,
-    symbols: symtable.SymbolTable,
     *,
     module_path: Path,
     module_name: str,
@@ -147,13 +145,14 @@ def _convert_module(
                 body.append(stmt)
     if ctx.failures:
         return None
+    symbols = _ModuleSymbolCollector.collect(ctx, body)
     return nodes.Module(
         name=module_name,
         path=module_path,
         docstring=docstring,
         body=tuple(body),
-        symbols=symbols,
         dunder_all=dat.result,
+        symbols=symbols,
     )
 
 
@@ -265,6 +264,19 @@ class _DunderAllTracker:
                     case _:
                         ctx.fail("expected a string literal", el)
         return result
+
+
+@attrs.define
+class _ModuleSymbolCollector(StatementTraverser):
+    _ctx: _BuildContext = attrs.field(on_setattr=attrs.setters.frozen)
+    _is_top_level: bool = attrs.field(default=True, init=False)
+    _symbols: dict[str, nodes.ModuleSymbol] = attrs.field(factory=dict, init=False)
+
+    @classmethod
+    def collect(
+        cls, ctx: _BuildContext, body: Sequence[nodes.Statement]
+    ) -> Mapping[str, nodes.ModuleSymbol]:
+        raise NotImplementedError
 
 
 def _extract_docstring(

@@ -134,22 +134,28 @@ class _ImportResolver(StatementTraverser):
                 # be certain if this is a dependency until we've determined a symbol table.
                 fast = self.source_provider.parse_source(resolved, from_imp.module)
                 if fast is not None:
-                    module_symbols = fast.symbols.get_identifiers()
+                    maybe_sub_imports = dict[str, SourceLocation]()
                     if from_imp.names is not None:
-                        sub_imports = {
-                            alias.name: alias.source_location
-                            for alias in from_imp.names
-                            if alias.name not in module_symbols
+                        maybe_sub_imports = {
+                            alias.name: alias.source_location for alias in from_imp.names
                         }
-                        self._resolve_submodules(from_imp.module, resolved.parent, sub_imports)
                     elif fast.dunder_all is not None:
-                        stmt_loc = from_imp.source_location
-                        sub_imports = {
-                            maybe_sub_name: stmt_loc
+                        maybe_sub_imports = {
+                            maybe_sub_name: from_imp.source_location
                             for maybe_sub_name in fast.dunder_all
-                            if maybe_sub_name not in module_symbols
                         }
-                        self._resolve_submodules(from_imp.module, resolved.parent, sub_imports)
+                    sub_imports = dict[str, SourceLocation]()
+                    for name, loc in maybe_sub_imports.items():
+                        sym = fast.symbols.get(name)
+                        if sym is None:
+                            sub_imports[name] = loc
+                        elif sym.conditional:
+                            logger.error(
+                                f"cannot import symbol '{name}'"
+                                " that might be conditionally defined",
+                                location=loc,
+                            )
+                    self._resolve_submodules(from_imp.module, resolved.parent, sub_imports)
 
     def _resolve_module(self, module_id: str, loc: SourceLocation) -> Path | None:
         if module_id == "__future__":

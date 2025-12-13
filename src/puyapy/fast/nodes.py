@@ -1,9 +1,9 @@
 import abc
 import ast
 import enum
-import symtable
 import types
 import typing
+from collections.abc import Mapping
 from pathlib import Path
 
 import attrs
@@ -543,11 +543,25 @@ class DictExpr(Expression):
         return visitor.visit_dict_expr(self)
 
 
+@attrs.frozen(kw_only=True)
+class ImportedSymbol:
+    target: str
+    conditional: typing.Literal[False] = attrs.field(default=False, init=False)
+
+
+@attrs.frozen(kw_only=True)
+class DefinedSymbol:
+    conditional: bool
+
+
+type ModuleSymbol = ImportedSymbol | DefinedSymbol
+
+
 @attrs.frozen
 class Module:
     name: str
     path: Path
     docstring: str | None
     body: tuple[Statement, ...]
-    symbols: symtable.SymbolTable
+    symbols: Mapping[str, ModuleSymbol]
     dunder_all: tuple[str, ...] | None
