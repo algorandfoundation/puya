@@ -431,14 +431,14 @@ def _visit_import(ctx: _BuildContext, node: ast.Import) -> nodes.ModuleImport:
 def _convert_import(
     ctx: _BuildContext, node: ast.Import, *, type_checking_only: bool
 ) -> nodes.ModuleImport:
-    names = [_visit_alias(ctx, alias) for alias in node.names]
+    names = [_convert_alias(ctx, alias) for alias in node.names]
     loc = ctx.loc(node)
     return nodes.ModuleImport(
         names=names, type_checking_only=type_checking_only, source_location=loc
     )
 
 
-def _visit_alias(ctx: _BuildContext, alias: ast.alias) -> nodes.ImportAs:
+def _convert_alias(ctx: _BuildContext, alias: ast.alias) -> nodes.ImportAs:
     loc = ctx.loc(alias)
     if alias.name == "*":
         raise InternalError("expected this to raise a SyntaxError", loc)
@@ -475,7 +475,7 @@ def _convert_import_from(
                 ctx.invalid_syntax(star, "import * only allowed at module level")
             names = None
         case _:
-            names = [_visit_alias(ctx, alias) for alias in node.names]
+            names = [_convert_alias(ctx, alias) for alias in node.names]
     loc = ctx.loc(node)
     module_is_init = ctx.module_path.stem == "__init__"
     module = _correct_relative_import(
