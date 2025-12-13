@@ -442,6 +442,8 @@ def _convert_alias(ctx: _BuildContext, alias: ast.alias) -> nodes.ImportAs:
     loc = ctx.loc(alias)
     if alias.name == "*":
         raise InternalError("expected this to raise a SyntaxError", loc)
+    if alias.name == "__all__" or alias.asname == "__all__":
+        ctx.fail("importing __all__ is not supported", loc)
     return nodes.ImportAs(
         name=alias.name,
         as_name=alias.asname,
