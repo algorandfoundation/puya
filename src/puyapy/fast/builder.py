@@ -254,7 +254,7 @@ def _extract_literal_str_list(ctx: _BuildContext, seq: ast.List | ast.Tuple) -> 
             case ast.Constant(value=str(name)):
                 result.append(name)
             case _:
-                ctx.fail("only string literals are supported in __all__", el)
+                ctx.fail("expected a string literal", el)
     return tuple(result)
 
 
@@ -918,8 +918,17 @@ def _visit_constant(ctx: _BuildContext, constant: ast.Constant) -> nodes.Constan
 
 def _visit_name(ctx: _BuildContext, name: ast.Name) -> nodes.Name:
     loc = ctx.loc(name)
+    identifier = name.id
+    if identifier.startswith("__") and identifier.endswith("__"):
+        dunder_name = identifier.strip("_")
+        if dunder_name == "all":
+            # supported usages are handled at the module statement level
+            ctx.fail("unsupported usage of __all__", loc)
+        elif dunder_name != "init":
+            # not strictly necessary, but may help language server analysis to fail fast
+            ctx.fail("unsupported reserved name", loc)
     return nodes.Name(
-        id=name.id,
+        id=identifier,
         ctx=name.ctx,
         source_location=loc,
     )
