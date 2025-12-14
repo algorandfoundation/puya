@@ -1,3 +1,4 @@
+import contextlib
 import enum
 import graphlib
 import sys
@@ -16,6 +17,7 @@ from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.utils import make_path_relative_to_cwd, set_add, unique
 from puyapy.dependency_analysis import Dependency, DependencyFlags, resolve_import_dependencies
 from puyapy.fast import nodes as fast_nodes
+from puyapy.fast.visitors.traversers import StatementTraverser
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.package_path import PackageResolverCache, resolve_package_paths
 from puyapy.parse_mypy import mypy_parse
@@ -221,6 +223,7 @@ def _fast_parse_and_resolve_imports(
         file_contents,
         feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
     )
+    checker = _ConditionalImportChecker()
     while source_queue:
         rs = source_queue.dequeue()
         source = source_provider.read_source(rs.path)
@@ -231,6 +234,7 @@ def _fast_parse_and_resolve_imports(
         if fast is None:
             dependencies = []
         else:
+            checker.visit_module(fast)
             dependencies = resolve_import_dependencies(
                 fast,
                 source_roots=source_roots,
@@ -321,6 +325,71 @@ def _infer_base_dir(path: Path, module: str) -> Path:
     if path.name == "__init__.py":
         parts += 1
     return path.parents[parts]
+
+
+@attrs.define
+class _ConditionalImportChecker(StatementTraverser):
+    _is_top_level: bool = attrs.field(default=True, init=False)
+
+    @contextlib.contextmanager
+    def _enter_block(self, *, top_level: bool) -> Iterator[None]:
+        was_top_level = self._is_top_level
+        self._is_top_level = top_level
+        try:
+            yield
+        finally:
+            self._is_top_level = was_top_level
+
+    @typing.override
+    def visit_module_import(self, node: fast_nodes.ModuleImport) -> None:
+        self._require_top_level(node)
+
+    @typing.override
+    def visit_from_import(self, from_import: fast_nodes.FromImport) -> None:
+        self._require_top_level(from_import)
+
+    def _require_top_level(self, stmt: fast_nodes.AnyImport) -> None:
+        if not self._is_top_level:
+            logger.error(
+                "import statements cannot be nested inside control structures,"
+                " except for TYPE_CHECKING conditions which are allowed at the module level",
+                location=stmt.source_location,
+            )
+
+    @typing.override
+    def visit_module(self, module: fast_nodes.Module) -> None:
+        with self._enter_block(top_level=True):
+            super().visit_module(module)
+
+    @typing.override
+    def visit_function_def(self, node: fast_nodes.FunctionDef) -> None:
+        with self._enter_block(top_level=True):
+            super().visit_function_def(node)
+
+    @typing.override
+    def visit_class_def(self, node: fast_nodes.ClassDef) -> None:
+        with self._enter_block(top_level=True):
+            super().visit_class_def(node)
+
+    @typing.override
+    def visit_for(self, node: fast_nodes.For) -> None:
+        with self._enter_block(top_level=False):
+            super().visit_for(node)
+
+    @typing.override
+    def visit_while(self, node: fast_nodes.While) -> None:
+        with self._enter_block(top_level=False):
+            super().visit_while(node)
+
+    @typing.override
+    def visit_if(self, node: fast_nodes.If) -> None:
+        with self._enter_block(top_level=False):
+            super().visit_if(node)
+
+    @typing.override
+    def visit_match(self, node: fast_nodes.Match) -> None:
+        with self._enter_block(top_level=False):
+            super().visit_match(node)
 
 
 _STUBS_PACKAGE_NAME = "algorand-python"
