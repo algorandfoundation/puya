@@ -229,15 +229,16 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
         symbol_name: str,
         loc: SourceLocation,
     ) -> symbols.Symbol:
-        mod_syms = self.context.symbol_tables[from_import.module]
-        try:
-            return mod_syms[symbol_name]
-        except KeyError:
-            pass
         qualified_name = ".".join((from_import.module, symbol_name))
-        if symbol_name in mod_fast.symbols.get_identifiers():
-            raise CodeError(f"could not resolve symbol {qualified_name}", loc)
-        self._imported_modules.add(qualified_name)
+        if mod_fast.path != self.context.module_path:
+            mod_syms = self.context.symbol_tables[from_import.module]
+            try:
+                return mod_syms[symbol_name]
+            except KeyError:
+                pass
+            if symbol_name in mod_fast.symbols.get_identifiers():
+                raise CodeError(f"could not resolve symbol {qualified_name}", loc)
+            self._imported_modules.add(qualified_name)
         return symbols.ImportedModule(
             qualified_name=qualified_name,
             definition=from_import,
