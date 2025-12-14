@@ -22,12 +22,11 @@ class ResolvedSymbol(Symbol, abc.ABC):
 @attrs.frozen(kw_only=True)
 class ImportedModule(ResolvedSymbol):
     definition: fast_nodes.AnyImport
-    type_checking_only: bool
 
 
 @attrs.frozen(kw_only=True)
 class StubReference(ResolvedSymbol):
-    definition: fast_nodes.Statement
+    definition: fast_nodes.AnyImport
 
 
 @attrs.frozen(kw_only=True)

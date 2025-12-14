@@ -19,7 +19,7 @@ from puyapy.awst_build import pytypes, symbols
 from puyapy.code_fixes import FixableCodeError
 from puyapy.models import ConstantValue, ContractFragmentBase
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import ParseResult
+from puyapy.parse import ParseResult, SourceModule
 
 logger = log.get_logger(__name__)
 
@@ -31,11 +31,15 @@ class ASTConversionContext:
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
     _contract_fragments: dict[ContractReference, ContractFragmentBase] = attrs.field(factory=dict)
     options: PuyaPyOptions
-    symbol_tables: dict[str, Mapping[str, symbols.Symbol]] = attrs.field(factory=dict, init=False)
+    symbol_tables: dict[str, Mapping[str, symbols.Symbol]] = attrs.field(factory=dict)
 
     @property
     def mypy_options(self) -> mypy.options.Options:
         return self._parse_result.mypy_options
+
+    @property
+    def modules(self) -> Mapping[str, SourceModule]:
+        return self._parse_result.ordered_modules
 
     @property
     def contract_fragments(self) -> Mapping[ContractReference, ContractFragmentBase]:
