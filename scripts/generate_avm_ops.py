@@ -18,9 +18,9 @@ from puya.ir.avm_ops_models import (
 from puya.ir.types_ import IRType, PrimitiveIRType, SizedBytesType, UnionType
 from puya.utils import normalise_path_to_str
 from scripts import transform_lang_spec as langspec
+from scripts.script_utils import VCS_ROOT
 
 logger = log.get_logger(__name__)
-VCS_ROOT = Path(__file__).parent.parent
 
 SUPPORTED_IMMEDIATE_KINDS = (langspec.ImmediateKind.uint8, langspec.ImmediateKind.arg_enum)
 STACK_TYPE_TO_IR_TYPE: Mapping[langspec.StackType, IRType] = {

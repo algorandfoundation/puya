@@ -4,10 +4,10 @@
 import subprocess
 import sys
 import tomllib
-from pathlib import Path
 
-_VCS_ROOT = Path(__file__).parent.parent
-_STUBS_ROOT = _VCS_ROOT / "stubs"
+from scripts.script_utils import VCS_ROOT
+
+_STUBS_ROOT = VCS_ROOT / "stubs"
 _STUBS_PYPROJECT = _STUBS_ROOT / "pyproject.toml"
 _ALGOPY_STUBS_PATH = _STUBS_ROOT / "algopy-stubs"
 
@@ -40,7 +40,7 @@ def main() -> int:
     print(f"Previous version: {previous_version}")
 
     changed_files = [
-        _VCS_ROOT / p
+        VCS_ROOT / p
         for p in check_cmd("git", "diff", "--name-only", f"{last_release}...HEAD").splitlines()
     ]
     changed_stubs = [
