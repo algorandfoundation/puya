@@ -78,8 +78,8 @@ def parse_python(
     package_search_paths: Sequence[str] | typing.Literal["infer", "current"] = "current",
     file_contents: Mapping[Path, str] | None = None,
     excluded_subdir_names: Sequence[str] | None = None,
-) -> ParseResult:
-    """Generate the ASTs from the build sources, and all imported modules (recursively)"""
+) -> Mapping[str, "_ModuleData"]:
+    """Generate FAST from the build sources, and all imported modules (recursively)"""
 
     resolved_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
     source_roots = _check_source_list_and_extract_package_roots(resolved_sources)
@@ -93,6 +93,11 @@ def parse_python(
         source_roots=source_roots,
         package_cache=package_cache,
     )
+    return module_data
+
+
+def fast_to_awst(module_data: Mapping[str, "_ModuleData"]) -> ParseResult:
+    module_data = dict(module_data)
     mypy_options, mypy_modules_by_name = mypy_parse(module_data)
 
     # order modules by dependency
@@ -116,7 +121,7 @@ def parse_python(
         ), f"mypy module mismatch, expected {module_name}, got {mypy_module.fullname}"
         md = module_data.pop(module_name)
         assert mypy_module.fullname == md.module, "mypy and fast module name mismatch"
-        lines = md.data.splitlines()
+        lines = md.text.splitlines()
         if md.is_source:
             discovery_mechanism = SourceDiscoveryMechanism.explicit
         else:
@@ -201,10 +206,10 @@ class _ModuleData:
     """File where it's found (e.g. '/home/user/pkg/module.py')"""
     module: str
     """Module name (e.g. 'pkg.module')"""
-    data: str
+    text: str
     dependencies: tuple[Dependency, ...]
     """Dependency set, and whether it's a module-level dependency (vs function scoped)"""
-    fast: fast_nodes.Module | None
+    fast: fast_nodes.Module
     is_source: bool
 
 
@@ -232,44 +237,43 @@ def _fast_parse_and_resolve_imports(
             module_name=rs.module,
         )
         if fast is None:
-            dependencies = []
-        else:
-            checker.visit_module(fast)
-            dependencies = resolve_import_dependencies(
-                fast,
-                source_roots=source_roots,
-                package_cache=package_cache,
-                import_base_dir=rs.base_dir or rs.path.parent,
-                source_provider=source_provider,
-            )
-            for dep in dependencies:
-                if dep.path is None:
-                    assert DependencyFlags.STUB in dep.flags
-                    for ancestor_id in _expand_ancestors(dep.module_id):
-                        # just add all ancestors as direct dependencies, it's informational only
-                        # at this point, but helps to explicitly indicate `algopy` as a dependency
-                        dependencies.append(
-                            Dependency(
-                                ancestor_id, None, dep.flags | DependencyFlags.IMPLICIT, dep.loc
-                            )
+            continue
+        checker.visit_module(fast)
+        dependencies = resolve_import_dependencies(
+            fast,
+            source_roots=source_roots,
+            package_cache=package_cache,
+            import_base_dir=rs.base_dir or rs.path.parent,
+            source_provider=source_provider,
+        )
+        for dep in dependencies:
+            if dep.path is None:
+                assert DependencyFlags.STUB in dep.flags
+                for ancestor_id in _expand_ancestors(dep.module_id):
+                    # just add all ancestors as direct dependencies, it's informational only
+                    # at this point, but helps to explicitly indicate `algopy` as a dependency
+                    dependencies.append(
+                        Dependency(
+                            ancestor_id, None, dep.flags | DependencyFlags.IMPLICIT, dep.loc
                         )
-                else:
-                    source_queue.enqueue(dep.module_id, dep.path)
-            if "." in rs.module:
-                ancestor_module_id, ancestor_init_path = next(
-                    _expand_init_dependencies(rs.module, rs.path)
-                )
-                source_queue.enqueue(ancestor_module_id, ancestor_init_path)
-                dependencies.append(
-                    Dependency(  # TODO: might not need this?
-                        ancestor_module_id, ancestor_init_path, DependencyFlags.IMPLICIT, None
                     )
+            else:
+                source_queue.enqueue(dep.module_id, dep.path)
+        if "." in rs.module:
+            ancestor_module_id, ancestor_init_path = next(
+                _expand_init_dependencies(rs.module, rs.path)
+            )
+            source_queue.enqueue(ancestor_module_id, ancestor_init_path)
+            dependencies.append(
+                Dependency(  # TODO: might not need this?
+                    ancestor_module_id, ancestor_init_path, DependencyFlags.IMPLICIT, None
                 )
+            )
         assert rs.module not in result_by_id, rs.module
         result_by_id[rs.module] = _ModuleData(
             path=rs.path,
             module=rs.module,
-            data=source,
+            text=source,
             fast=fast,
             dependencies=tuple(dependencies),
             is_source=rs.module in initial_source_ids,

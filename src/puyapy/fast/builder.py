@@ -130,7 +130,7 @@ def _convert_module(
     *,
     module_path: Path,
     module_name: str,
-) -> nodes.Module | None:
+) -> nodes.Module:
     ctx = _BuildContext(module_name=module_name, module_path=module_path)
     ast_body, docstring = _extract_docstring(module)
     body = list[nodes.Statement]()
@@ -145,8 +145,6 @@ def _convert_module(
             stmt = _visit_stmt(ctx, ast_stmt)
             if stmt is not None:
                 body.append(stmt)
-    if ctx.failures:
-        return None
     return nodes.Module(
         name=module_name,
         path=module_path,

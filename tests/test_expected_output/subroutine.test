@@ -14,14 +14,16 @@ def test() -> UInt64:
 from algopy import UInt64, subroutine
 
 @subroutine
-def test(*args: UInt64) -> UInt64: ## E: unsupported Python syntax: variadic arguments are not supported in user functions
+def test(*args: UInt64) -> UInt64: ## E: unsupported Python syntax: variadic arguments are not supported in user functions \
+                                   ## E: variadic functions are not supported
     return UInt64(1)
 
 ## case: no_kwargs
 from algopy import UInt64, subroutine
 
 @subroutine
-def test(**kwargs: UInt64) -> UInt64: ## E: unsupported Python syntax: variadic arguments are not supported in user functions
+def test(**kwargs: UInt64) -> UInt64: ## E: unsupported Python syntax: variadic arguments are not supported in user functions \
+                                      ## E: variadic functions are not supported
     return UInt64(1)
 
 ## case: no_defaults
@@ -292,7 +294,8 @@ __all__ = ["test"]
 
 @subroutine
 def test() -> None:
-    my_all = __all__ ## E: unsupported usage of __all__
+    my_all = __all__ ## E: unsupported usage of __all__ \
+                     ## E: __all__ cannot be referenced inside functions
 
 ## case: true_name_ok
 from algopy import subroutine
