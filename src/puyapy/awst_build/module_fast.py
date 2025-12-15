@@ -258,7 +258,6 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
 
     @typing.override
     def visit_assign(self, assign: fast_nodes.Assign) -> StatementResult:
-        # raise NotImplementedError
         match assign.target:
             case fast_nodes.Name(id=target):
                 pass
@@ -273,6 +272,10 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
 
     @typing.override
     def visit_multi_assign(self, multi_assign: fast_nodes.MultiAssign) -> StatementResult:
+        # multi-assignments cannot be annotated, and cannot be implicit type-aliases (can't
+        # find a spec for the latter other than it's mypy's behaviour)
+        # therefore they must be simple constant expressions
+        value = multi_assign.value.accept(self._const_visitor)
         for lvalue in multi_assign.targets:
             match lvalue:
                 case fast_nodes.Name(id=target):
@@ -282,11 +285,12 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
                         "only straight-forward assignment targets supported at module level",
                         unsupported.source_location,
                     )
-            # TODO!!!
             self.context.symbol_table[target] = symbols.Const(
-                qualified_name="", definition=multi_assign, value=0
+                qualified_name=".".join((self.context.module_name, target)),
+                definition=multi_assign,
+                value=value,
             )
-        raise NotImplementedError
+        return []
 
     @typing.override
     def visit_aug_assign(self, aug_assign: fast_nodes.AugAssign) -> typing.Never:
