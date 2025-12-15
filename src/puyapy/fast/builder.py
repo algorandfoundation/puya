@@ -302,6 +302,8 @@ def _visit_stmt(ctx: _BuildContext, node: ast.stmt) -> nodes.Statement | None:
 
 def _visit_function_def(ctx: _BuildContext, func_def: ast.FunctionDef) -> nodes.FunctionDef:
     loc = ctx.loc(func_def)
+    if ctx.scope_kind == "func":
+        ctx.fail("nested functions are not supported", loc)
     if func_def.type_comment is not None:
         ctx.fail(_NO_TYPE_COMMENTS_MSG, loc)
     type_params = getattr(func_def, "type_params", None)
@@ -419,6 +421,8 @@ def _make_parameter(
 
 def _visit_class_def(ctx: _BuildContext, class_def: ast.ClassDef) -> nodes.ClassDef:
     loc = ctx.loc(class_def)
+    if ctx.scope_kind != "module":
+        ctx.fail("nested classes are not supported", loc)
     type_params = getattr(class_def, "type_params", None)
     if type_params:
         ctx.fail(_NO_TYPE_PARAMS_MSG, loc)
