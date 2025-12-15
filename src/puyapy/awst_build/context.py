@@ -56,7 +56,11 @@ class ASTConversionContext:
         assert module_name not in syms, f"module {module_name} already has symbol table"
         self.symbol_tables[module_name] = syms
         return attrs_extend(
-            ASTConversionModuleContext, self, module_path=module_path, symbol_table=syms
+            ASTConversionModuleContext,
+            self,
+            module_name=module_name,
+            module_path=module_path,
+            symbol_table=syms,
         )
 
     def register_pytype(self, typ: pytypes.PyType, *, alias: str | None = None) -> None:
@@ -83,6 +87,7 @@ class ASTConversionContext:
 
 @attrs.frozen(kw_only=True)
 class ASTConversionModuleContext(ASTConversionContext):
+    module_name: str
     module_path: Path
     symbol_table: dict[str, symbols.Symbol]
 
