@@ -23,5 +23,8 @@ at the module level. No code can appear under the condition of `not TYPE_CHECKIN
 else branch, etc.
 1. Only imports may appear inside the `if TYPE_CHECKING` block, if aliases were being constructed there as well, move them outside and use quotes (may required explicit typing.TypeAlias annotation), other code doesn't make sense?
 
+## Annotations
+1. Module level constants / type aliases can only be annotated 
+
 ## Misc
 1. A `typing.Protocol` could be declared (other than as an `ARC4Client`) but it was ignored and never usable, now it will error.
