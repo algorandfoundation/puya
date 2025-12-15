@@ -1,0 +1,40 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    bz main___algopy_default_create@10
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xf59e3cc4 0x06c5e6a4 0x21c803c0 // method "test()bool", method "some_method()uint64", method "test_reference_types()void"
+    txna ApplicationArgs 0
+    match main_test_route@4 main_some_method_route@5 main_test_reference_types_route@6
+    err
+
+main_test_reference_types_route@6:
+    pushint 1
+    return
+
+main_some_method_route@5:
+    pushbytes 0x151f7c75000000000000007b
+    log
+    pushint 1
+    return
+
+main_test_route@4:
+    pushbytes 0x151f7c7580
+    log
+    pushint 1
+    return
+
+main___algopy_default_create@10:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return

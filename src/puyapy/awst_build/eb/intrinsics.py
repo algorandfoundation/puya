@@ -2,7 +2,13 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.awst.nodes import AssertExpression, IntrinsicCall, MethodConstant
+from puya.awst.nodes import (
+    AssertExpression,
+    IntrinsicCall,
+    MethodConstant,
+    MethodSignature,
+    MethodSignatureString,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
@@ -11,7 +17,6 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb._utils import dummy_value
-from puyapy.awst_build.eb.arc4._utils import ARC4Signature
 from puyapy.awst_build.eb.arc4.abi_call import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
@@ -51,13 +56,14 @@ class Arc4SignatureBuilder(FunctionBuilder):
                     return dummy_value(pytypes.BytesType, location)
 
                 abi_method_data = fmethod.metadata
-                signature = ARC4Signature(
-                    method_name=abi_method_data.config.name,
-                    arg_types=abi_method_data.arc4_argument_types,
-                    return_type=abi_method_data.arc4_return_type,
-                    source_location=location,
+                method_signature = MethodSignature(
+                    name=abi_method_data.config.name,
+                    arg_types=[t.checked_wtype(location) for t in abi_method_data.argument_types],
+                    return_type=abi_method_data.return_type.checked_wtype(location),
+                    resource_encoding=abi_method_data.config.resource_encoding,
+                    source_location=args[0].source_location,
                 )
-                str_value = signature.method_selector
+                expr = MethodConstant(value=method_signature, source_location=location)
             case _:
                 arg = expect.exactly_one_arg(args, location, default=expect.default_none)
                 if arg is None:
@@ -65,13 +71,12 @@ class Arc4SignatureBuilder(FunctionBuilder):
                 str_value = expect.simple_string_literal(
                     arg, default=expect.default_fixed_value("")
                 )
+                method_signature_str = MethodSignatureString(
+                    value=str_value, source_location=args[0].source_location
+                )
+                expr = MethodConstant(value=method_signature_str, source_location=location)
 
-        return BytesExpressionBuilder(
-            MethodConstant(
-                value=str_value,
-                source_location=location,
-            )
-        )
+        return BytesExpressionBuilder(expr=expr)
 
 
 class IntrinsicEnumTypeBuilder(TypeBuilder[pytypes.IntrinsicEnumType]):

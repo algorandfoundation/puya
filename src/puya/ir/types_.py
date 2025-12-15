@@ -12,6 +12,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import BytesEncoding
+from puya.awst.visitors import WTypeVisitor
 from puya.errors import CodeError, InternalError
 from puya.ir.encodings import Encoding, wtype_to_encoding
 from puya.parse import SourceLocation
@@ -453,3 +454,116 @@ def ir_type_to_ir_types(ir_type: IRType | TupleIRType) -> list[IRType]:
         return [ir_type for typ in ir_type.elements for ir_type in ir_type_to_ir_types(typ)]
     else:
         return [ir_type]
+
+
+def wtype_to_abi_name(
+    wtype: wtypes.WType | None,
+    loc: SourceLocation | None = None,
+    resource_encoding: typing.Literal["index", "value"] = "value",
+) -> str:
+    """
+    Convert a WType to its ABI name representation
+    """
+    if wtype is None:
+        return "void"
+
+    visitor = _WTypeToABIName(loc, resource_encoding)
+    return wtype.accept(visitor)
+
+
+class _WTypeToABIName(WTypeVisitor[str]):
+    def __init__(
+        self,
+        loc: SourceLocation | None,
+        resource_encoding: typing.Literal["index", "value"] = "value",
+    ) -> None:
+        self.loc = loc
+        self.resource_encoding = resource_encoding
+
+    def visit_basic_type(self, wtype: wtypes.WType) -> str:
+        if wtype == wtypes.biguint_wtype:
+            return "uint512"
+        elif wtype == wtypes.uint64_wtype:
+            return "uint64"
+        elif wtype == wtypes.bool_wtype:
+            return "bool"
+        elif wtype == wtypes.account_wtype:
+            if self.resource_encoding == "index":
+                return "account"
+            else:
+                return "address"
+        elif wtype == wtypes.application_wtype:
+            if self.resource_encoding == "index":
+                return "application"
+            else:
+                return "uint64"
+        elif wtype == wtypes.asset_wtype:
+            if self.resource_encoding == "index":
+                return "asset"
+            else:
+                return "uint64"
+        elif wtype == wtypes.string_wtype:
+            return "string"
+        elif wtype == wtypes.void_wtype:
+            return "void"
+
+        self._unencodable(wtype)
+
+    def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> str:
+        if wtype == wtypes.arc4_bool_wtype:
+            return "bool"
+        self._unencodable(wtype)
+
+    def visit_arc4_uint(self, wtype: wtypes.ARC4UIntN) -> str:
+        return f"uint{wtype.n}"
+
+    def visit_arc4_ufixed(self, wtype: wtypes.ARC4UFixedNxM) -> str:
+        return f"ufixed{wtype.n}x{wtype.m}"
+
+    def visit_bytes_type(self, wtype: wtypes.BytesWType) -> str:
+        if wtype.length is None:
+            return "byte[]"
+        else:
+            return f"byte[{wtype.length}]"
+
+    def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> str:
+        element = wtype.element_type.accept(self)
+        return f"{element}[]"
+
+    def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> str:
+        if wtype.arc4_alias == wtypes.arc4_string_alias.arc4_alias:
+            return "string"
+        return f"{self._visit_in_aggregate(wtype.element_type)}[]"
+
+    def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> str:
+        return f"{self._visit_in_aggregate(wtype.element_type)}[{wtype.array_size}]"
+
+    def visit_tuple_type(self, wtype: wtypes.WTuple) -> str:
+        return f"({','.join(self._visit_in_aggregate(t) for t in wtype.types)})"
+
+    def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> str:
+        return f"({','.join(self._visit_in_aggregate(t) for t in wtype.types)})"
+
+    def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> str:
+        return f"({','.join(self._visit_in_aggregate(t) for t in wtype.types)})"
+
+    def _visit_in_aggregate(self, wtype: wtypes.WType) -> str:
+        return wtype.accept(self)
+
+    def visit_enumeration_type(self, wtype: wtypes.WEnumeration) -> str:
+        self._unencodable(wtype)
+
+    def visit_group_transaction_type(self, wtype: wtypes.WGroupTransaction) -> str:
+        if wtype.transaction_type is not None:
+            return wtype.transaction_type.name
+        else:
+            return "txn"
+
+    def visit_inner_transaction_type(self, wtype: wtypes.WInnerTransaction) -> str:
+        self._unencodable(wtype)
+
+    def visit_inner_transaction_fields_type(self, wtype: wtypes.WInnerTransactionFields) -> str:
+        self._unencodable(wtype)
+
+    def _unencodable(self, wtype: wtypes.WType) -> typing.Never:
+        raise CodeError(f"unencodable type: {wtype}", self.loc)

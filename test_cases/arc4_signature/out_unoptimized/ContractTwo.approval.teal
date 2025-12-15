@@ -1,0 +1,302 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0 2 6
+    bytecblock 0x06c5e6a4
+    b main_block@0
+
+main_block@0:
+    b main_block@1
+
+main_block@1:
+    // arc4_signature/contract.py:26
+    // class ContractTwo(ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    !=
+    bz main___algopy_default_create@11
+    b main_abi_routing@2
+
+main_abi_routing@2:
+    // arc4_signature/contract.py:26
+    // class ContractTwo(ARC4Contract):
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    bz main_create_NoOp@9
+    b main_call_NoOp@3
+
+main_call_NoOp@3:
+    // arc4_signature/contract.py:26
+    // class ContractTwo(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x5124353e // method "renamed_some_method()void"
+    pushbytes 0xf59e3cc4 // method "test()bool"
+    pushbytes 0x754a42cb // method "reference_types_index(pay,asset,account,application,appl)void"
+    pushbytes 0x249ceaf2 // method "reference_types_value(pay,uint64,address,uint64,appl)void"
+    uncover 4
+    match main_renamed_some_method_route@4 main_test_route@5 main_reference_types_index_route@6 main_reference_types_value_route@7
+    b main_switch_case_next@8
+
+main_switch_case_next@8:
+    b main_after_if_else@10
+
+main_after_if_else@10:
+    b main_after_if_else@12
+
+main_after_if_else@12:
+    // arc4_signature/contract.py:26
+    // class ContractTwo(ARC4Contract):
+    err
+
+main_reference_types_value_route@7:
+    // arc4_signature/contract.py:46
+    // @abimethod(resource_encoding="value")
+    callsub reference_types_value
+    b main_switch_case_next@8
+
+main_reference_types_index_route@6:
+    // arc4_signature/contract.py:35
+    // @abimethod(resource_encoding="index")
+    callsub reference_types_index
+    b main_switch_case_next@8
+
+main_test_route@5:
+    // arc4_signature/contract.py:31
+    // @abimethod
+    callsub test
+    b main_switch_case_next@8
+
+main_renamed_some_method_route@4:
+    // arc4_signature/contract.py:27
+    // @abimethod(name="renamed_some_method")
+    callsub some_method
+    b main_switch_case_next@8
+
+main_create_NoOp@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    txn ApplicationID
+    intc_1 // 0
+    ==
+    &&
+    assert
+    b main_block@14
+
+main_block@14:
+    b main_after_inlined_test_cases.arc4_signature.contract.ContractTwo.__algopy_default_create@15
+
+main_after_inlined_test_cases.arc4_signature.contract.ContractTwo.__algopy_default_create@15:
+    intc_0 // 1
+    return
+
+
+// test_cases.arc4_signature.contract.ContractTwo.some_method[routing]() -> void:
+some_method:
+    b some_method_block@0
+
+some_method_block@0:
+    // arc4_signature/contract.py:27
+    // @abimethod(name="renamed_some_method")
+    callsub test_cases.arc4_signature.contract.ContractTwo.some_method
+    intc_0 // 1
+    return
+
+
+// test_cases.arc4_signature.contract.ContractTwo.test[routing]() -> void:
+test:
+    b test_block@0
+
+test_block@0:
+    // arc4_signature/contract.py:31
+    // @abimethod
+    callsub test_cases.arc4_signature.contract.ContractTwo.test
+    pushbytes 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// test_cases.arc4_signature.contract.ContractTwo.reference_types_index[routing]() -> void:
+reference_types_index:
+    b reference_types_index_block@0
+
+reference_types_index_block@0:
+    // arc4_signature/contract.py:35
+    // @abimethod(resource_encoding="index")
+    txn GroupIndex
+    intc_2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    txnas Applications
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // appl
+    ==
+    assert // transaction type is appl
+    uncover 4
+    uncover 4
+    uncover 4
+    uncover 4
+    uncover 4
+    callsub test_cases.arc4_signature.contract.ContractTwo.reference_types_index
+    intc_0 // 1
+    return
+
+
+// test_cases.arc4_signature.contract.ContractTwo.reference_types_value[routing]() -> void:
+reference_types_value:
+    b reference_types_value_block@0
+
+reference_types_value_block@0:
+    // arc4_signature/contract.py:46
+    // @abimethod(resource_encoding="value")
+    txn GroupIndex
+    intc_2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // appl
+    ==
+    assert // transaction type is appl
+    uncover 4
+    uncover 4
+    uncover 4
+    uncover 4
+    uncover 4
+    callsub test_cases.arc4_signature.contract.ContractTwo.reference_types_value
+    intc_0 // 1
+    return
+
+
+// test_cases.arc4_signature.contract.ContractTwo.some_method() -> void:
+test_cases.arc4_signature.contract.ContractTwo.some_method:
+    b test_cases.arc4_signature.contract.ContractTwo.some_method_block@0
+
+test_cases.arc4_signature.contract.ContractTwo.some_method_block@0:
+    retsub
+
+
+// test_cases.arc4_signature.contract.ContractTwo.test() -> uint64:
+test_cases.arc4_signature.contract.ContractTwo.test:
+    b test_cases.arc4_signature.contract.ContractTwo.test_block@0
+
+test_cases.arc4_signature.contract.ContractTwo.test_block@0:
+    // arc4_signature/contract.py:33
+    // return arc4_signature(ContractOne.some_method) == arc4_signature("some_method()uint64")
+    bytec_0 // method "some_method()uint64"
+    bytec_0 // method "some_method()uint64"
+    ==
+    retsub
+
+
+// test_cases.arc4_signature.contract.ContractTwo.reference_types_index(pay: uint64, asset: uint64, account: bytes, app: uint64, app_txn: uint64) -> void:
+test_cases.arc4_signature.contract.ContractTwo.reference_types_index:
+    // arc4_signature/contract.py:35-43
+    // @abimethod(resource_encoding="index")
+    // def reference_types_index(
+    //     self,
+    //     pay: gtxn.PaymentTransaction,
+    //     asset: Asset,
+    //     account: Account,
+    //     app: Application,
+    //     app_txn: gtxn.ApplicationCallTransaction,
+    // ) -> None:
+    proto 5 0
+    b test_cases.arc4_signature.contract.ContractTwo.reference_types_index_block@0
+
+test_cases.arc4_signature.contract.ContractTwo.reference_types_index_block@0:
+    retsub
+
+
+// test_cases.arc4_signature.contract.ContractTwo.reference_types_value(pay: uint64, asset: uint64, account: bytes, app: uint64, app_txn: uint64) -> void:
+test_cases.arc4_signature.contract.ContractTwo.reference_types_value:
+    // arc4_signature/contract.py:46-54
+    // @abimethod(resource_encoding="value")
+    // def reference_types_value(
+    //     self,
+    //     pay: gtxn.PaymentTransaction,
+    //     asset: Asset,
+    //     account: Account,
+    //     app: Application,
+    //     app_txn: gtxn.ApplicationCallTransaction,
+    // ) -> None:
+    proto 5 0
+    b test_cases.arc4_signature.contract.ContractTwo.reference_types_value_block@0
+
+test_cases.arc4_signature.contract.ContractTwo.reference_types_value_block@0:
+    retsub

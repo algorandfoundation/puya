@@ -1,0 +1,153 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        goto block@1
+    block@1: // L26
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@2 : block@11
+    block@2: // abi_routing_L26
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@3 : block@9
+    block@3: // call_NoOp_L26
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "renamed_some_method()void" => block@4, method "test()bool" => block@5, method "reference_types_index(pay,asset,account,application,appl)void" => block@6, method "reference_types_value(pay,uint64,address,uint64,appl)void" => block@7, * => block@8}
+    block@4: // renamed_some_method_route_L27
+        test_cases.arc4_signature.contract.ContractTwo.some_method[routing]()
+        goto block@8
+    block@5: // test_route_L31
+        test_cases.arc4_signature.contract.ContractTwo.test[routing]()
+        goto block@8
+    block@6: // reference_types_index_route_L35
+        test_cases.arc4_signature.contract.ContractTwo.reference_types_index[routing]()
+        goto block@8
+    block@7: // reference_types_value_route_L46
+        test_cases.arc4_signature.contract.ContractTwo.reference_types_value[routing]()
+        goto block@8
+    block@8: // switch_case_next_L26
+        goto block@10
+    block@9: // create_NoOp_L26
+        goto block@10
+    block@10: // after_if_else_L26
+        goto block@12
+    block@11: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        goto block@14
+    block@14: // L1
+        goto block@15
+    block@15: // after_inlined_test_cases.arc4_signature.contract.ContractTwo.__algopy_default_create_L1
+        exit 1u
+    block@12: // after_if_else_L26
+        exit 0u
+    block@13: // after_inlined_test_cases.arc4_signature.contract.ContractTwo.__puya_arc4_router___L1
+        let tmp%0#0: bool = undefined
+        return tmp%0#0
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.some_method[routing]() -> void:
+    block@0: // L27
+        test_cases.arc4_signature.contract.ContractTwo.some_method()
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.test[routing]() -> void:
+    block@0: // L31
+        let tmp%0#0: bool = test_cases.arc4_signature.contract.ContractTwo.test()
+        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%0#0)
+        let aggregate%as_Encoded(bool8)%0#0: Encoded(bool8) = aggregate%encoded_bool%0#0
+        let tmp%1#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.reference_types_index[routing]() -> void:
+    block@0: // L35
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 2u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = tmp%1#0
+        let tmp%2#0: uint64 = (btoi as_Encoded(uint8)%0#0)
+        let tmp%3#0: uint64 = ((txnas Assets) tmp%2#0)
+        let tmp%4#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%4#0)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint8
+        let as_Encoded(uint8)%1#0: Encoded(uint8) = tmp%4#0
+        let tmp%5#0: uint64 = (btoi as_Encoded(uint8)%1#0)
+        let tmp%6#0: account = ((txnas Accounts) tmp%5#0)
+        let tmp%7#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%7#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint8
+        let as_Encoded(uint8)%2#0: Encoded(uint8) = tmp%7#0
+        let tmp%8#0: uint64 = (btoi as_Encoded(uint8)%2#0)
+        let tmp%9#0: uint64 = ((txnas Applications) tmp%8#0)
+        let tmp%10#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%10#0 1u)
+        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
+        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
+        (assert gtxn_type_matches%1#0) // transaction type is appl
+        test_cases.arc4_signature.contract.ContractTwo.reference_types_index(gtxn_idx%0#0, tmp%3#0, tmp%6#0, tmp%9#0, gtxn_idx%1#0)
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.reference_types_value[routing]() -> void:
+    block@0: // L46
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%0#0 2u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%1#0
+        let tmp%2#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 32u)
+        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%3#0
+        let tmp%4#0: account = as_Encoded(uint8[32])%0#0
+        let tmp%5#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%5#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%5#0
+        let tmp%6#0: uint64 = (btoi as_Encoded(uint64)%1#0)
+        let tmp%7#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%7#0 1u)
+        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
+        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
+        (assert gtxn_type_matches%1#0) // transaction type is appl
+        test_cases.arc4_signature.contract.ContractTwo.reference_types_value(gtxn_idx%0#0, tmp%2#0, tmp%4#0, tmp%6#0, gtxn_idx%1#0)
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.some_method() -> void:
+    block@0: // L27
+        return 
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.test() -> bool:
+    block@0: // L31
+        let tmp%0#0: bool = (== method "some_method()uint64" method "some_method()uint64")
+        return tmp%0#0
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.reference_types_index(pay: uint64, asset: uint64, account: account, app: uint64, app_txn: uint64) -> void:
+    block@0: // L35
+        return 
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.reference_types_value(pay: uint64, asset: uint64, account: account, app: uint64, app_txn: uint64) -> void:
+    block@0: // L46
+        return 

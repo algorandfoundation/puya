@@ -1,0 +1,84 @@
+contract ContractOne
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractOne.test(): bool
+  {
+    return Method(signature="renamed_some_method()void", resource_encoding="value") == Method("renamed_some_method()void")
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractOne.some_method(): uint64
+  {
+    return 123u
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractOne.test_reference_types(): void
+  {
+    assert(Method(signature="reference_types_index(group_transaction_pay,asset,account,application,group_transaction_appl)void", resource_encoding="index") == Method("reference_types_index(pay,asset,account,application,appl)void"))
+    assert(Method(signature="reference_types_value(group_transaction_pay,asset,account,application,group_transaction_appl)void", resource_encoding="value") == Method("reference_types_value(pay,uint64,address,uint64,appl)void"))
+  }
+  
+  baremethod test_cases.arc4_signature.contract.ContractOne.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ContractTwo
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod[name_override=renamed_some_method] test_cases.arc4_signature.contract.ContractTwo.some_method(): void
+  {
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractTwo.test(): bool
+  {
+    return Method(signature="some_method()uint64", resource_encoding="value") == Method("some_method()uint64")
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractTwo.reference_types_index(pay: group_transaction_pay, asset: asset, account: account, app: application, app_txn: group_transaction_appl): void
+  {
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractTwo.reference_types_value(pay: group_transaction_pay, asset: asset, account: account, app: application, app_txn: group_transaction_appl): void
+  {
+  }
+  
+  baremethod test_cases.arc4_signature.contract.ContractTwo.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}

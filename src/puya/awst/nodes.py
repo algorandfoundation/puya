@@ -1,6 +1,7 @@
 import abc
 import decimal
 import enum
+import re
 import typing
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence, Set
@@ -542,6 +543,31 @@ class TemplateVar(Expression):
         return visitor.visit_template_var(self)
 
 
+@attrs.frozen
+class MethodSignatureString(Node):
+    value: str
+
+
+_VALID_ARC4_METHOD_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
+
+
+@attrs.frozen
+class MethodSignature(Node):
+    name: str = attrs.field()
+    arg_types: Sequence[wtypes.WType] = attrs.field(converter=tuple[wtypes.WType, ...])
+    return_type: wtypes.WType
+    resource_encoding: typing.Literal["index", "value"] = "value"
+
+    @name.validator
+    def _name_validator(self, _attr: object, value: str) -> None:
+        if not self.is_valid_method_name(value):
+            raise CodeError(f"method name '{value}' does not conform to ARC-4 spec")
+
+    @classmethod
+    def is_valid_method_name(cls, name: str) -> bool:
+        return _VALID_ARC4_METHOD_NAME_PATTERN.match(name) is not None
+
+
 @attrs.frozen(kw_only=True)
 class MethodConstant(Expression):
     """
@@ -554,7 +580,7 @@ class MethodConstant(Expression):
         default=wtypes.bytes_wtype,
         validator=attrs.validators.in_([wtypes.bytes_wtype, wtypes.BytesWType(length=4)]),
     )
-    value: str
+    value: MethodSignature | MethodSignatureString
     """An ARC4 method signature. eg. my_method(int,string)bytes"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

@@ -22,6 +22,7 @@ def test_compile_and_run(
     clients = compile_contract_and_clients(
         algod_client=algod_client,
         account=account,
+        # TODO: recompile itxn compose contract
         awst_path=FROM_AWST_DIR / "itxn_compose" / "module.awst.json",
         compilation_set={
             "tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo": out_dir,

@@ -17,6 +17,7 @@ from puya.awst.nodes import (
     Expression,
     IntegerConstant,
     MethodConstant,
+    MethodSignatureString,
     SubmitInnerTransaction,
     TupleExpression,
     TupleItemExpression,
@@ -504,10 +505,11 @@ def _method_selector_and_arc4_args(
             f" got {num_args}",
             signature.source_location,
         )
+    method_signature = MethodSignatureString(
+        value=signature.method_selector, source_location=location
+    )
     result: list[InstanceBuilder] = [
-        BytesExpressionBuilder(
-            MethodConstant(value=signature.method_selector, source_location=location)
-        )
+        BytesExpressionBuilder(MethodConstant(value=method_signature, source_location=location))
     ]
     for arg_in, target_type in zip(abi_args, signature.arg_types, strict=True):
         if not isinstance(target_type, pytypes.GroupTransactionType):

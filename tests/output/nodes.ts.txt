@@ -236,6 +236,26 @@ export class TemplateVar extends Expression {
      return visitor.visitTemplateVar(this)
    }
 }
+export class MethodSignatureString extends Node {
+  constructor(props: Props<MethodSignatureString>) {
+    super(props)
+    this.value = props.value
+  }
+  readonly value: string
+}
+export class MethodSignature extends Node {
+  constructor(props: Props<MethodSignature>) {
+    super(props)
+    this.name = props.name
+    this.argTypes = props.argTypes
+    this.returnType = props.returnType
+    this.resourceEncoding = props.resourceEncoding
+  }
+  readonly name: string
+  readonly argTypes: Array<wtypes.WType>
+  readonly returnType: wtypes.WType
+  readonly resourceEncoding: 'index' | 'value'
+}
 export class MethodConstant extends Expression {
   constructor(props: Props<MethodConstant>) {
     super(props)
@@ -243,7 +263,7 @@ export class MethodConstant extends Expression {
     this.value = props.value
   }
   readonly wtype: wtypes.WType
-  readonly value: string
+  readonly value: MethodSignature | MethodSignatureString
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitMethodConstant(this)
    }
@@ -1538,6 +1558,8 @@ export const concreteNodes = {
   stringConstant: StringConstant,
   voidConstant: VoidConstant,
   templateVar: TemplateVar,
+  methodSignatureString: MethodSignatureString,
+  methodSignature: MethodSignature,
   methodConstant: MethodConstant,
   addressConstant: AddressConstant,
   aRC4Encode: ARC4Encode,

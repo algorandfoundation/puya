@@ -30,9 +30,10 @@ _ANALYSE_DIR = VCS_ROOT / "tests" / "analyse"
 _HELLO_WORLD_PATH = EXAMPLES_DIR / "hello_world_arc4"
 _EXPECTED_ANALYSE_OUTPUT = {
     _HELLO_WORLD_PATH: [],
-    _ANALYSE_DIR / "reti.awst.json.zip": [
-        "warning: Variable tokenPayoutRatio potentially used before assignment",
-    ],
+    # TODO: re-compile reti contract
+    # _ANALYSE_DIR / "reti.awst.json.zip": [
+    #     "warning: Variable tokenPayoutRatio potentially used before assignment",
+    # ],
     _ANALYSE_DIR / "valid_awst_with_error": [
         "contract.py:7:38 error: cannot encode algopy.Bytes"
         " to algopy.arc4.UIntN[typing.Literal[64]]",

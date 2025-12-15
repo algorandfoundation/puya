@@ -1,0 +1,101 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 2 8 6
+    txn NumAppArgs
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x5124353e 0xf59e3cc4 0x754a42cb 0x249ceaf2 // method "renamed_some_method()void", method "test()bool", method "reference_types_index(pay,asset,account,application,appl)void", method "reference_types_value(pay,uint64,address,uint64,appl)void"
+    txna ApplicationArgs 0
+    match main_renamed_some_method_route@4 main_test_route@5 main_reference_types_index_route@6 main_reference_types_value_route@7
+    err
+
+main_reference_types_value_route@7:
+    txn GroupIndex
+    intc_1 // 2
+    -
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txn GroupIndex
+    intc_0 // 1
+    -
+    gtxns TypeEnum
+    intc_3 // appl
+    ==
+    assert // transaction type is appl
+    intc_0 // 1
+    return
+
+main_reference_types_index_route@6:
+    txn GroupIndex
+    intc_1 // 2
+    -
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 2
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 3
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txn GroupIndex
+    intc_0 // 1
+    -
+    gtxns TypeEnum
+    intc_3 // appl
+    ==
+    assert // transaction type is appl
+    intc_0 // 1
+    return
+
+main_test_route@5:
+    pushbytes 0x151f7c7580
+    log
+    intc_0 // 1
+    return
+
+main_renamed_some_method_route@4:
+    intc_0 // 1
+    return
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
