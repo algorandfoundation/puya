@@ -606,6 +606,7 @@ def _visit_annotated_assign(
 def _visit_augmented_assign(ctx: _BuildContext, aug_assign: ast.AugAssign) -> nodes.AugAssign:
     loc = ctx.loc(aug_assign)
     target: nodes.Name | nodes.Attribute | nodes.Subscript
+    op = _convert_operator(aug_assign.op, loc)
     match aug_assign.target:
         case ast.Name() as name_expr:
             target = _visit_name(ctx, name_expr)
@@ -618,7 +619,7 @@ def _visit_augmented_assign(ctx: _BuildContext, aug_assign: ast.AugAssign) -> no
     value = _visit_expr(ctx, aug_assign.value)
     return nodes.AugAssign(
         target=target,
-        op=aug_assign.op,
+        op=op,
         value=value,
         source_location=loc,
     )
@@ -927,7 +928,7 @@ def _visit_name(ctx: _BuildContext, name: ast.Name) -> nodes.Name:
             ctx.fail("unsupported reserved name", loc)
     return nodes.Name(
         id=identifier,
-        ctx=name.ctx,
+        ctx=_convert_ctx(name.ctx, loc),
         source_location=loc,
     )
 
@@ -938,7 +939,7 @@ def _visit_attribute(ctx: _BuildContext, attribute: ast.Attribute) -> nodes.Attr
     return nodes.Attribute(
         base=base,
         attr=attribute.attr,
-        ctx=attribute.ctx,
+        ctx=_convert_ctx(attribute.ctx, loc),
         source_location=loc,
     )
 
@@ -963,7 +964,7 @@ def _visit_subscript(ctx: _BuildContext, subscript: ast.Subscript) -> nodes.Subs
     return nodes.Subscript(
         base=base,
         indexes=tuple(indexes),
-        ctx=subscript.ctx,
+        ctx=_convert_ctx(subscript.ctx, loc),
         source_location=loc,
     )
 
@@ -985,7 +986,7 @@ def _visit_bool_op(ctx: _BuildContext, bool_op: ast.BoolOp) -> nodes.BoolOp:
     loc = ctx.loc(bool_op)
     values = _visit_expr_list(ctx, bool_op.values)
     return nodes.BoolOp(
-        op=bool_op.op,
+        op=_convert_bool_op(bool_op.op, loc),
         values=values,
         source_location=loc,
     )
@@ -1008,7 +1009,7 @@ def _visit_bin_op(ctx: _BuildContext, bin_op: ast.BinOp) -> nodes.BinOp:
     right = _visit_expr(ctx, bin_op.right)
     return nodes.BinOp(
         left=left,
-        op=bin_op.op,
+        op=_convert_operator(bin_op.op, loc),
         right=right,
         source_location=loc,
     )
@@ -1018,7 +1019,7 @@ def _visit_unary_op(ctx: _BuildContext, unary_op: ast.UnaryOp) -> nodes.UnaryOp:
     loc = ctx.loc(unary_op)
     operand = _visit_expr(ctx, unary_op.operand)
     return nodes.UnaryOp(
-        op=unary_op.op,
+        op=_convert_unary_op(unary_op.op, loc),
         operand=operand,
         source_location=loc,
     )
@@ -1043,7 +1044,7 @@ def _visit_compare(ctx: _BuildContext, compare: ast.Compare) -> nodes.Compare:
     comparators = _visit_expr_list(ctx, compare.comparators)
     return nodes.Compare(
         left=left,
-        ops=tuple(compare.ops),
+        ops=tuple(_convert_cmp_op(op, loc) for op in compare.ops),
         comparators=comparators,
         source_location=loc,
     )
@@ -1132,7 +1133,7 @@ def _visit_list(ctx: _BuildContext, ast_list: ast.List) -> nodes.ListExpr:
     elements = _visit_expr_list(ctx, ast_list.elts)
     return nodes.ListExpr(
         elements=elements,
-        ctx=ast_list.ctx,
+        ctx=_convert_ctx(ast_list.ctx, loc),
         source_location=loc,
     )
 
@@ -1142,7 +1143,7 @@ def _visit_tuple(ctx: _BuildContext, ast_tuple: ast.Tuple) -> nodes.TupleExpr:
     elements = _visit_expr_list(ctx, ast_tuple.elts)
     return nodes.TupleExpr(
         elements=elements,
-        ctx=ast_tuple.ctx,
+        ctx=_convert_ctx(ast_tuple.ctx, loc),
         source_location=loc,
     )
 
@@ -1201,3 +1202,83 @@ _EXPRESSION_HANDLERS: typing.Final[
         (ast.Slice, _unsupported_expr_type),
     )
 )
+
+
+def _convert_ctx(ctx: ast.expr_context, loc: SourceLocation) -> nodes.ValueContext:
+    match ctx:
+        case ast.Load():
+            return "load"
+        case ast.Store():
+            return "store"
+        case ast.Del():
+            return "del"
+        case _:
+            raise InternalError(f"unknown context: {type(ctx).__name__}", loc)
+
+
+def _convert_bool_op(op: ast.boolop, loc: SourceLocation) -> nodes.BoolOperator:
+    match op:
+        case ast.And():
+            return "and"
+        case ast.Or():
+            return "or"
+        case _:
+            raise InternalError(f"unknown bool operator: {type(op).__name__}", loc)
+
+
+_AST_UNARY_OPERATORS: typing.Final[Mapping[type[ast.unaryop], nodes.UnaryOperator]] = {
+    ast.Invert: "~",
+    ast.Not: "not",
+    ast.UAdd: "+",
+    ast.USub: "-",
+}
+
+_AST_BINARY_OPERATORS: typing.Final[Mapping[type[ast.operator], nodes.BinaryOperator]] = {
+    ast.Add: "+",
+    ast.Sub: "-",
+    ast.Mult: "*",
+    ast.MatMult: "@",
+    ast.Div: "/",
+    ast.Mod: "%",
+    ast.Pow: "**",
+    ast.LShift: "<<",
+    ast.RShift: ">>",
+    ast.BitOr: "|",
+    ast.BitXor: "^",
+    ast.BitAnd: "&",
+    ast.FloorDiv: "//",
+}
+
+_AST_COMPARISON_OPERATORS: typing.Final[Mapping[type[ast.cmpop], nodes.ComparisonOperator]] = {
+    ast.Eq: "==",
+    ast.NotEq: "!=",
+    ast.Lt: "<",
+    ast.LtE: "<=",
+    ast.Gt: ">",
+    ast.GtE: ">=",
+    ast.Is: "is",
+    ast.IsNot: "is not",
+    ast.In: "in",
+    ast.NotIn: "not in",
+}
+
+
+def _convert_operator(op: ast.operator, loc: SourceLocation) -> nodes.BinaryOperator:
+    try:
+        return _AST_BINARY_OPERATORS[type(op)]
+    except KeyError:
+        raise InternalError(f"unknown operator: {type(op).__name__}", loc) from None
+
+
+def _convert_unary_op(op: ast.unaryop, loc: SourceLocation) -> nodes.UnaryOperator:
+    try:
+        return _AST_UNARY_OPERATORS[type(op)]
+    except KeyError:
+        raise InternalError(f"unknown unary operator: {type(op).__name__}", loc) from None
+
+
+def _convert_cmp_op(op: ast.cmpop, loc: SourceLocation) -> nodes.ComparisonOperator:
+    try:
+        return _AST_COMPARISON_OPERATORS[type(op)]
+    except KeyError:
+        raise InternalError(f"unknown comparison operator: {type(op).__name__}", loc) from None
