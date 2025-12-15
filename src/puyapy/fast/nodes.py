@@ -1,5 +1,4 @@
 import abc
-import ast
 import enum
 import symtable
 import types
@@ -11,6 +10,20 @@ from immutabledict import immutabledict
 
 from puya.parse import SourceLocation
 from puyapy.fast.visitors import ExpressionVisitor, MatchPatternVisitor, StatementVisitor
+
+type ConstantValue = None | str | bytes | bool | int | float | complex | types.EllipsisType
+
+type ValueContext = typing.Literal["load", "store", "del"]
+type BinaryOperator = typing.Literal[
+    "+", "-", "*", "@", "/", "%", "**", "<<", ">>", "|", "^", "&", "//"
+]
+type ComparisonOperator = typing.Literal[
+    "==", "!=", "<", "<=", ">", ">=", "is", "is not", "in", "not in"
+]
+type BoolOperator = typing.Literal["and", "or"]
+type UnaryOperator = typing.Literal["~", "not", "+", "-"]
+
+type AnyImport = ModuleImport | FromImport
 
 
 @attrs.frozen
@@ -58,9 +71,6 @@ class FromImport(Statement):
     @typing.override
     def accept[T](self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_from_import(self)
-
-
-AnyImport = ModuleImport | FromImport
 
 
 class PassBy(enum.Flag):
@@ -125,11 +135,6 @@ class ExpressionStatement(Statement):
         return visitor.visit_expression_statement(self)
 
 
-ConstantValue: typing.TypeAlias = (
-    None | str | bytes | bool | int | float | complex | types.EllipsisType
-)
-
-
 @attrs.frozen
 class Constant(Expression):
     value: ConstantValue
@@ -142,7 +147,7 @@ class Constant(Expression):
 @attrs.frozen
 class Name(Expression):
     id: str
-    ctx: ast.expr_context
+    ctx: ValueContext
 
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
@@ -153,7 +158,7 @@ class Name(Expression):
 class Attribute(Expression):
     base: Expression
     attr: str
-    ctx: ast.expr_context
+    ctx: ValueContext
 
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
@@ -171,7 +176,7 @@ class Slice(Node):
 class Subscript(Expression):
     base: Expression
     indexes: tuple[Expression | Slice, ...] = attrs.field(validator=attrs.validators.min_len(1))
-    ctx: ast.expr_context
+    ctx: ValueContext
 
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
@@ -233,7 +238,7 @@ class AugAssign(Statement):
     """
 
     target: Name | Attribute | Subscript
-    op: ast.operator
+    op: BinaryOperator
     value: Expression
 
     @typing.override
@@ -422,7 +427,7 @@ class Match(Statement):
 
 @attrs.frozen
 class BoolOp(Expression):
-    op: ast.boolop
+    op: BoolOperator
     values: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(2))
 
     @typing.override
@@ -443,7 +448,7 @@ class NamedExpr(Expression):
 @attrs.frozen
 class BinOp(Expression):
     left: Expression
-    op: ast.operator
+    op: BinaryOperator
     right: Expression
 
     @typing.override
@@ -453,7 +458,7 @@ class BinOp(Expression):
 
 @attrs.frozen
 class UnaryOp(Expression):
-    op: ast.unaryop  # TODO: type union here and elsewhere for similar types in this file?
+    op: UnaryOperator
     operand: Expression
 
     @typing.override
@@ -475,7 +480,7 @@ class IfExp(Expression):
 @attrs.frozen
 class Compare(Expression):
     left: Expression
-    ops: tuple[ast.cmpop, ...] = attrs.field(validator=attrs.validators.min_len(1))
+    ops: tuple[ComparisonOperator, ...] = attrs.field(validator=attrs.validators.min_len(1))
     comparators: tuple[Expression, ...] = attrs.field(validator=attrs.validators.min_len(1))
 
     @typing.override
@@ -517,7 +522,7 @@ class JoinedStr(Expression):
 @attrs.frozen
 class TupleExpr(Expression):
     elements: tuple[Expression, ...]
-    ctx: ast.expr_context
+    ctx: ValueContext
 
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:
@@ -527,7 +532,7 @@ class TupleExpr(Expression):
 @attrs.frozen
 class ListExpr(Expression):
     elements: tuple[Expression, ...]
-    ctx: ast.expr_context
+    ctx: ValueContext
 
     @typing.override
     def accept[T](self, visitor: ExpressionVisitor[T]) -> T:

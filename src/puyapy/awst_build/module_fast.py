@@ -456,7 +456,7 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
     @typing.override
     def visit_unary_op(self, unary_op: fast_nodes.UnaryOp) -> fast_nodes.ConstantValue:
         value = unary_op.operand.accept(self)
-        result = fold_unary_expr(unary_op.source_location, type(unary_op.op), value)
+        result = fold_unary_expr(unary_op.source_location, unary_op.op, value)
         return _checked_constant_result(result, unary_op.source_location)
 
     @typing.override
@@ -552,18 +552,20 @@ def _checked_constant_result(result: object, loc: SourceLocation) -> fast_nodes.
     return result
 
 
-UNARY_OPS: typing.Final[Mapping[type[ast.unaryop], Callable[[typing.Any], typing.Any]]] = {
-    ast.Invert: operator.inv,
-    ast.Not: operator.not_,
-    ast.UAdd: operator.pos,
-    ast.USub: operator.neg,
+UNARY_OPS: typing.Final[Mapping[fast_nodes.UnaryOperator, Callable[[typing.Any], typing.Any]]] = {
+    "~": operator.inv,
+    "not": operator.not_,
+    "+": operator.pos,
+    "-": operator.neg,
 }
 
 
-def fold_unary_expr(location: SourceLocation, op: type[ast.unaryop], expr: object) -> object:
+def fold_unary_expr(
+    location: SourceLocation, op: fast_nodes.UnaryOperator, expr: object
+) -> object:
     if not (func := UNARY_OPS.get(op)):
         raise InternalError(f"Unhandled unary operator: {op}", location)
-    if op is ast.Invert and isinstance(expr, int):
+    if op == "~" and isinstance(expr, int):
         logger.warning(
             "due to Python ints being signed, bitwise inversion yield a negative number",
             location=location,
