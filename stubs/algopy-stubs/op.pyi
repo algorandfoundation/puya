@@ -111,7 +111,7 @@ def base64_decode(e: Base64, a: Bytes | BytesBacked | bytes, /) -> Bytes:
     Native TEAL opcode: [`base64_decode`](https://dev.algorand.co/reference/algorand-teal/opcodes/#base64_decode)
     """
 
-def bitlen(a: Bytes | UInt64 | bytes | int, /) -> UInt64:
+def bitlen(a: Bytes | UInt64 | BytesBacked | bytes | int, /) -> UInt64:
     """
     The highest set bit in A. If A is a byte-array, it is interpreted as a big-endian unsigned integer. bitlen of 0 is 0, bitlen of 8 is 4
     bitlen interprets arrays as big-endian integers, unlike setbit/getbit
@@ -314,7 +314,7 @@ def gaid(a: UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`gaid`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gaid), [`gaids`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gaids)
     """
 
-def getbit(a: Bytes | UInt64 | bytes | int, b: UInt64 | int, /) -> bool:
+def getbit(a: Bytes | UInt64 | BytesBacked | bytes | int, b: UInt64 | int, /) -> bool:
     """
     Bth bit of (byte-array or integer) A. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     see explanation of bit ordering in setbit
@@ -694,7 +694,7 @@ class AppGlobal:
         """
 
     @staticmethod
-    def put(a: Bytes | bytes, b: Bytes | UInt64 | bytes | int, /) -> None:
+    def put(a: Bytes | bytes, b: Bytes | UInt64 | BytesBacked | bytes | int, /) -> None:
         """
         write B to key A in the global state of the current application
 
@@ -759,7 +759,10 @@ class AppLocal:
 
     @staticmethod
     def put(
-        a: Account | UInt64 | int, b: Bytes | bytes, c: Bytes | UInt64 | bytes | int, /
+        a: Account | UInt64 | int,
+        b: Bytes | bytes,
+        c: Bytes | UInt64 | BytesBacked | bytes | int,
+        /,
     ) -> None:
         """
         write C to key B in account A's local state of the current application
@@ -3594,7 +3597,7 @@ class Scratch:
         """
 
     @staticmethod
-    def store(a: UInt64 | int, b: Bytes | UInt64 | bytes | int, /) -> None:
+    def store(a: UInt64 | int, b: Bytes | UInt64 | BytesBacked | bytes | int, /) -> None:
         """
         store B to the Ath scratch space
 
