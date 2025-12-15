@@ -1,5 +1,6 @@
 import abc
 import ast
+import functools
 import operator
 import typing
 from collections.abc import Callable, Iterator, Mapping
@@ -268,6 +269,12 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
                 )
         match assign.annotation:
             case None:
+                # if no annotation, then for our purposes, implicit type-alias detection is simple,
+                # we can check for Attribute, Name, or a Subscript thereof, and if the reference
+                # resolves to a type (which will be available as a predecessor, and can't be
+                # quoted (at least not the root reference expression) without an explicit TypeAlias
+                # annotation), then it must be a type alias, otherwise it must be a constant
+                # expression
                 pass
             case fast_nodes.Constant(value=str()):
                 raise CodeError(
@@ -430,7 +437,17 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
 
     @typing.override
     def visit_bool_op(self, bool_op: fast_nodes.BoolOp) -> fast_nodes.ConstantValue:
-        raise NotImplementedError
+        values = [operand.accept(self) for operand in bool_op.values]
+        func: Callable[[fast_nodes.ConstantValue, fast_nodes.ConstantValue], object]
+        match bool_op.op:
+            case ast.And():
+                func = lambda a, b: a and b  # noqa: E731
+            case ast.Or():
+                func = lambda a, b: a or b  # noqa: E731
+            case _:
+                raise CodeError("unsupported boolean operator", bool_op.source_location)
+        result = functools.reduce(func, values)
+        return _checked_constant_result(result, bool_op.source_location)
 
     @typing.override
     def visit_bin_op(self, bin_op: fast_nodes.BinOp) -> fast_nodes.ConstantValue:
@@ -440,11 +457,7 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
     def visit_unary_op(self, unary_op: fast_nodes.UnaryOp) -> fast_nodes.ConstantValue:
         value = unary_op.operand.accept(self)
         result = fold_unary_expr(unary_op.source_location, type(unary_op.op), value)
-        if not isinstance(result, fast_nodes.ConstantValue):
-            raise CodeError(
-                f"unsupported result type of {type(result).__name__}", unary_op.source_location
-            )
-        return result
+        return _checked_constant_result(result, unary_op.source_location)
 
     @typing.override
     def visit_if_exp(self, if_exp: fast_nodes.IfExp) -> fast_nodes.ConstantValue:
@@ -531,6 +544,12 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
         ex: Exception | None = None,
     ) -> typing.Never:
         raise CodeError(msg, node.source_location) from ex
+
+
+def _checked_constant_result(result: object, loc: SourceLocation) -> fast_nodes.ConstantValue:
+    if not isinstance(result, ConstantValue):
+        raise CodeError("unsupported result type", loc)
+    return result
 
 
 UNARY_OPS: typing.Final[Mapping[type[ast.unaryop], Callable[[typing.Any], typing.Any]]] = {
