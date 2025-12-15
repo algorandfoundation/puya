@@ -100,7 +100,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "bitlen",
-                args=[(pytypes.BytesType, pytypes.UInt64Type)],
+                args=[(pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -369,7 +369,10 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "getbit",
-                args=[(pytypes.BytesType, pytypes.UInt64Type), (pytypes.UInt64Type,)],
+                args=[
+                    (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
+                    (pytypes.UInt64Type,),
+                ],
             ),
         ],
     ),
@@ -941,7 +944,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_put",
-                    args=[(pytypes.BytesType,), (pytypes.BytesType, pytypes.UInt64Type)],
+                    args=[
+                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1016,7 +1022,7 @@ NAMESPACE_CLASSES: typing.Final[
                     args=[
                         (pytypes.AccountType, pytypes.UInt64Type),
                         (pytypes.BytesType,),
-                        (pytypes.BytesType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
                     ],
                 ),
             ],
@@ -5087,7 +5093,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "stores",
-                    args=[(pytypes.UInt64Type,), (pytypes.BytesType, pytypes.UInt64Type)],
+                    args=[
+                        (pytypes.UInt64Type,),
+                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
