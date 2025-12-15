@@ -4,7 +4,6 @@ import attrs
 
 from puyapy.awst_build import pytypes
 from puyapy.fast import nodes as fast_nodes
-from puyapy.models import ConstantValue
 
 
 @attrs.frozen(kw_only=True)
@@ -32,7 +31,7 @@ class StubReference(ResolvedSymbol):
 @attrs.frozen(kw_only=True)
 class Const(ResolvedSymbol):
     definition: fast_nodes.Assign | fast_nodes.MultiAssign
-    value: ConstantValue
+    value: fast_nodes.ConstantValue
 
 
 @attrs.frozen(kw_only=True)

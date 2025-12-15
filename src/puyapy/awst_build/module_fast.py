@@ -10,7 +10,7 @@ from puya import log
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puyapy._stub_symtables import STUB_SYMTABLES
-from puyapy.awst_build import symbols
+from puyapy.awst_build import pytypes, symbols
 from puyapy.awst_build.context import ASTConversionContext, ASTConversionModuleContext
 from puyapy.awst_build.utils import log_warnings
 from puyapy.fast import nodes as fast_nodes
@@ -266,6 +266,26 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
                     "only straight-forward assignment targets supported at module level",
                     unsupported.source_location,
                 )
+        match assign.annotation:
+            case None:
+                pass
+            case fast_nodes.Constant(value=str()):
+                raise CodeError(
+                    "quoted type-annotations are not supported on module level assignments",
+                    assign.source_location,
+                )
+            case fast_nodes.Attribute(base=fast_nodes.Name(id=module), attr="TypeAlias") if (
+                isinstance(
+                    module_sym := self.context.symbol_table.get(module), symbols.ImportedModule
+                )
+            ) and module_sym.qualified_name in ("typing", "typing_extensions"):
+                match assign.value:
+                    case fast_nodes.Constant(value=str()):
+                        self.context.symbol_table[target] = symbols.DeferredTypeAlias(
+                            definition=assign
+                        )
+                    case fast_nodes.Subscript():
+                        pass
         # TODO!!!
         self.context.symbol_table[target] = symbols.DeferredTypeAlias(definition=assign)
         return []
@@ -315,6 +335,76 @@ def _expand_all_imports(module_id: str) -> Iterator[str]:
     while module_id:
         yield module_id
         module_id = module_id.rpartition(".")[0]
+
+
+class _AnnotationNotReadyError(Exception):
+    pass
+
+
+class AnnotationEvaluator(ExpressionVisitor[pytypes.PyType]):
+    @typing.override
+    def visit_constant(self, constant: fast_nodes.Constant) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_name(self, name: fast_nodes.Name) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_attribute(self, attribute: fast_nodes.Attribute) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_subscript(self, subscript: fast_nodes.Subscript) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_bool_op(self, bool_op: fast_nodes.BoolOp) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_named_expr(self, named_expr: fast_nodes.NamedExpr) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_bin_op(self, bin_op: fast_nodes.BinOp) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_unary_op(self, unary_op: fast_nodes.UnaryOp) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_if_exp(self, if_exp: fast_nodes.IfExp) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_compare(self, compare: fast_nodes.Compare) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_call(self, call: fast_nodes.Call) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_formatted_value(self, formatted_value: fast_nodes.FormattedValue) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_joined_str(self, joined_str: fast_nodes.JoinedStr) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_tuple_expr(self, tuple_expr: fast_nodes.TupleExpr) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_list_expr(self, list_expr: fast_nodes.ListExpr) -> pytypes.PyType:
+        raise NotImplementedError
+
+    @typing.override
+    def visit_dict_expr(self, dict_expr: fast_nodes.DictExpr) -> pytypes.PyType:
+        raise CodeError("")
 
 
 class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue]):
