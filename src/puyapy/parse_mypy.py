@@ -35,7 +35,7 @@ def mypy_parse(
     # prime the cache with supplied content overrides, so that mypy reads from our data instead
     for md in module_data.values():
         fn = str(md.path)
-        data = md.data.encode("utf-8")
+        data = md.text.encode("utf-8")
         fs_cache.stat_or_none(fn)
         fs_cache.read_cache[fn] = data
         fs_cache.hash_cache[fn] = hash_digest(data)
@@ -44,7 +44,7 @@ def mypy_parse(
         BuildSource(
             path=str(md.path),  # TODO: figure out why omitting this fails in pytest only
             module=module,
-            text=md.data,
+            text=md.text,
             followed=not md.is_source,
         )
         for module, md in module_data.items()

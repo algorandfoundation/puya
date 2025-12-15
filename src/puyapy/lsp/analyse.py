@@ -21,7 +21,7 @@ from puya.utils import StableSet, coalesce, get_cwd, set_cwd
 from puyapy import code_fixes
 from puyapy.awst_build.main import transform_ast
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import SourceModule, parse_python
+from puyapy.parse import SourceModule, fast_to_awst, parse_python
 
 logger = get_logger(__name__)
 
@@ -87,11 +87,12 @@ class CodeAnalyser:
         )
         try:
             with logging_context() as parse_ctx:
-                parse_result = parse_python(
+                module_data = parse_python(
                     puyapy_options.paths,
                     package_search_paths=self._package_search_paths,
                     file_contents=self._get_file_contents(),
                 )
+                parse_result = fast_to_awst(module_data)
         except Exception as ex:
             # TODO: how should we recover if mypy has critical errors
             logger.debug(f"error during parsing: {ex}")
