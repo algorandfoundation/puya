@@ -70,7 +70,7 @@ contract Caller
     txn: inner_transaction_fields_acfg = create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetUnitName='TST', ConfigAssetName='TEST', ConfigAssetTotal=1u)
     app_call: inner_transaction_fields_appl = test_cases.typed_itxn_abi_call_txn.txn_contract.TxnContract::call_with_txn(a, txn, b, TxnField.ApplicationID=app)
     app_call_txn: inner_transaction_appl = submit_txn(app_call)
-    asset_id: uint64 = arc4_decode(checked_maybe((arc4_validate(extract<4, 0>(SINGLE_EVAL(id=0, source=app_call_txn.LastLog)), arc4.uint64), extract<0, 4>(SINGLE_EVAL(id=0)) == hex<"151F7C75">)), uint64)
+    asset_id: uint64 = arc4_decode((assert(extract<0, 4>(SINGLE_EVAL(id=0, source=app_call_txn.LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=0)), arc4.uint64))[-1], uint64)
     assert(asset_id != 0u, comment="expected asset id")
   }
   
