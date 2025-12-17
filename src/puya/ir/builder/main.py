@@ -658,7 +658,7 @@ class FunctionIRBuilder(
                 ir_type=result_ir_type,
                 source_location=submit.source_location,
             )
-        (result_value,) = result
+        (*_, result_value) = result
         return result_value
 
     def visit_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
@@ -669,9 +669,14 @@ class FunctionIRBuilder(
     ) -> TExpression:
         return self._itxn.handle_inner_transaction_field(itxn_field)
 
-    def visit_abi_call(self, _node: awst_nodes.ABICall) -> TExpression:
-        # TODO: implement ABI call lowering
-        pass
+    def visit_abi_call(self, node: awst_nodes.ABICall) -> None:
+        # for semantic compatibility, this is an error, since we don't evaluate the args
+        # here (there would be no point, if we hit this node on its own and not as part
+        # of a stage, a submit or an assigment, it does nothing)
+        logger.error(
+            "statement has no effect, did you forget to stage or submit?",
+            location=node.source_location,
+        )
 
     def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> TExpression:
         if isinstance(expr.value, awst_nodes.MethodSignatureString):
