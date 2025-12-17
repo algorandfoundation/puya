@@ -5,9 +5,9 @@ from puya import log
 from puya.avm import TransactionType
 from puya.awst.nodes import (
     ABICall,
-    ARC4Decode,
-    ContractMethod,
     Expression,
+    MethodSignature,
+    MethodSignatureString,
     SubmitInnerTransaction,
 )
 from puya.awst.txn_fields import TxnField
@@ -16,9 +16,9 @@ from puya.parse import SourceLocation
 from puya.utils import StableSet
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
+from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -93,32 +93,17 @@ class ABIApplicationCallInnerTransactionExpressionBuilder(InnerTransactionExpres
         if name == "result":
             assert isinstance(self.pytype, pytypes.ABIApplicationCallInnerTransaction)
             result_type = self.pytype.result_type
-            assert result_type is not None
+
+            if result_type == pytypes.NoneType:
+                logger.error("ABI call with 'None' result type has no result", location=location)
+                return dummy_value(pytypes.NoneType, location)
 
             expr = self.single_eval()
             assert isinstance(expr, InnerTransactionExpressionBuilder)
 
-            def on_error(bad_type: pytypes.PyType, loc_: SourceLocation | None) -> typing.Never:
-                raise CodeError(
-                    f"not an ARC-4 type or native equivalent: {bad_type}",
-                    loc_,
-                )
-
-            arc4_return_type = pytype_to_arc4_pytype(
-                result_type,
-                on_error=on_error,
-                encode_resource_types=True,
-                source_location=location,
-            )
             last_log = expr.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
-            abi_result = ARC4FromLogBuilder.abi_expr_from_log(arc4_return_type, last_log, location)
+            abi_result = ARC4FromLogBuilder.abi_expr_from_log(result_type, last_log, location)
 
-            if result_type != arc4_return_type:
-                abi_result = ARC4Decode(
-                    value=abi_result,
-                    wtype=result_type.checked_wtype(location),
-                    source_location=location,
-                )
             return builder_for_instance(result_type, abi_result)
 
         return super().member_access(name, location)
@@ -175,12 +160,34 @@ def _abi_call(
             ARC4ClientMethodExpressionBuilder(method=fmethod)
             | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
         ):
-            target: ContractMethod | str | None = fmethod.implementation
-        case _:
-            target = expect.simple_string_literal(method, default=expect.default_raise)
+            if fmethod.metadata is None:
+                raise CodeError("method is not an ARC-4 method", location=location)
 
-    if target is None:
-        raise CodeError("ABI method target is not known at compile time", location)
+            abi_method_data = fmethod.metadata
+            if isinstance(abi_method_data, models.ARC4ABIMethodData):
+                name = abi_method_data.config.name
+                arg_types = abi_method_data.argument_types
+                return_type = abi_method_data.return_type
+                resource_encoding = abi_method_data.config.resource_encoding
+
+            else:
+                name = fmethod.member_name
+                arg_types = []
+                return_type = pytypes.NoneType
+                resource_encoding = "value"
+
+            target: MethodSignatureString | MethodSignature = MethodSignature(
+                name=name,
+                arg_types=[t.checked_wtype(location) for t in arg_types],
+                return_type=return_type.checked_wtype(location),
+                resource_encoding=resource_encoding,
+                source_location=args[0].source_location,
+            )
+        case _:
+            method_str = expect.simple_string_literal(method, default=expect.default_raise)
+            target = MethodSignatureString(
+                value=method_str, source_location=method.source_location
+            )
 
     field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
     fields: dict[TxnField, Expression] = {}
@@ -196,15 +203,7 @@ def _abi_call(
     ]
 
     if return_type_annotation is None:
-        if (
-            isinstance(method, ARC4ClientMethodExpressionBuilder)
-            and isinstance(method.method.metadata, models.ARC4ABIMethodData)
-            or isinstance(method, BaseClassSubroutineInvokerExpressionBuilder)
-            and isinstance(method.method.metadata, models.ARC4ABIMethodData)
-        ):
-            return_type_annotation = method.method.metadata.return_type
-        else:
-            return_type_annotation = pytypes.NoneType
+        return_type_annotation = return_type or pytypes.NoneType
 
     if return_type_annotation is pytypes.NoneType:
         pytype = pytypes.InnerTransactionFieldsetTypes[TransactionType.appl]

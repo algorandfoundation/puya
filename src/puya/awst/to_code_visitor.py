@@ -379,15 +379,19 @@ class ToCodeVisitor(
     def visit_void_constant(self, expr: nodes.VoidConstant) -> str:
         return "void"
 
+    def _method_signature(self, method: nodes.MethodSignature) -> str:
+        name = method.name
+        args = ",".join(t.name for t in method.arg_types or [])
+        return_ = method.return_type.name
+        signature = f"{name}({args}){return_}"
+        return signature
+
     @typing.override
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
         if isinstance(expr.value, nodes.MethodSignatureString):
             return f'Method("{expr.value.value}")'
 
-        name = expr.value.name
-        args = ",".join(t.name for t in expr.value.arg_types or [])
-        return_ = expr.value.return_type.name
-        signature = f"{name}({args}){return_}"
+        signature = self._method_signature(expr.value)
 
         return (
             f'Method(signature="{signature}", '
@@ -513,14 +517,13 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_abi_call(self, node: nodes.ABICall) -> str:
-        if isinstance(node.target, str):
-            method = node.target
+        if isinstance(node.target, nodes.MethodSignatureString):
+            method = node.target.value
         else:
-            method = "::".join((node.target.cref, node.target.member_name))
+            method = self._method_signature(node.target)
         args = ", ".join([a.accept(self) for a in node.args])
         fields = ", ".join(f"{name}={expr.accept(self)}" for name, expr in node.fields.items())
-        all_args = ", ".join(filter(None, [args, fields]))
-        return f"{method}({all_args})"
+        return f"abi_call(target='{method}', args={args}, fields={fields})"
 
     @typing.override
     def visit_tuple_expression(self, expr: nodes.TupleExpression) -> str:
