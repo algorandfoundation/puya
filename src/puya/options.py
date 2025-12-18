@@ -29,6 +29,7 @@ class PuyaOptions:
     output_op_statistics: bool = False
     debug_level: int = 1
     optimization_level: int = 1
+    treat_warnings_as_errors: bool = False
     target_avm_version: int = MAINNET_AVM_VERSION
     cli_template_definitions: Mapping[str, int | bytes] = attrs.field(factory=dict)
     template_vars_prefix: str = "TMPL_"

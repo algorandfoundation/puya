@@ -68,6 +68,9 @@ def puyapy(
     optimization_level: Annotated[
         Literal[0, 1, 2], cyclopts.Parameter(alias="-O", group=_compilation_group)
     ] = 1,
+    treat_warnings_as_errors: Annotated[
+        bool, cyclopts.Parameter(alias="-Werror", group=_compilation_group)
+    ] = False,
     target_avm_version: Annotated[  # type: ignore[valid-type]
         Literal[*SUPPORTED_AVM_VERSIONS],
         cyclopts.Parameter(group=_compilation_group),
@@ -127,6 +130,7 @@ def puyapy(
         output_op_statistics: Output statistics about ops used for each program compiled
                 optimization_level: Set optimization level of output TEAL / AVM bytecode
         optimization_level: Set optimization level of output TEAL / AVM bytecode
+        treat_warnings_as_errors: Treat all compiler warnings as errors
         debug_level: Output debug information level, 0 = none,
                      1 = debug, 2 = reserved for future use
         target_avm_version: Target AVM version
@@ -175,6 +179,7 @@ def puyapy(
         output_client=output_client,
         debug_level=debug_level,
         optimization_level=optimization_level,
+        treat_warnings_as_errors=treat_warnings_as_errors,
         target_avm_version=target_avm_version,
         resource_encoding=resource_encoding,
         locals_coalescing_strategy=locals_coalescing_strategy,
