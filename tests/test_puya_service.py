@@ -94,6 +94,30 @@ async def test_compile_hello_world(client: JsonRPCClient, tmp_path: Path) -> Non
     ], "compile contained errors"
 
 
+async def test_compile_warn_as_err(client: JsonRPCClient, tmp_path: Path) -> None:
+    path = _ANALYSE_DIR / "reti.awst.json.zip"
+    awst = _create_analyse_params(path).awst
+    compile_params = CompileParams(
+        awst=awst,
+        options=PuyaOptionsWithCompilationSet(
+            compilation_set={
+                node.id: tmp_path for node in awst if isinstance(node, awst_nodes.Contract)
+            },
+            output_teal=True,
+            treat_warnings_as_errors=True,
+        ),
+        base_path=path,
+    )
+
+    response = await client.protocol.send_request_async("compile", compile_params)
+    assert isinstance(response, CompileResult)
+
+    logs = [log_to_str(log, path) for log in response.logs]
+    assert logs == [
+        "error: Variable tokenPayoutRatio potentially used before assignment",
+    ], "warning not reported as error"
+
+
 @pytest_asyncio.fixture(loop_scope="module", scope="module")
 async def client() -> AsyncGenerator[JsonRPCClient]:
     client = await _start_client("serve", "--log-level=info")
