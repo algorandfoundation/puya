@@ -51,7 +51,8 @@ def run_puya(args: list[str | Path], *, check: bool = True) -> subprocess.Comple
         [
             puya,
             *map(str, args),
-        ]
+        ],
+        check=check,
     )
 
 
@@ -113,6 +114,14 @@ def test_run_non_existent() -> None:
 
 def test_run_single_file() -> None:
     run_puyapy([TEST_CASES_DIR / Path("simple") / "contract.py"])
+
+
+def test_run_puyapy_treat_warnings_as_errors() -> None:
+    # flag on and no warnings should pass
+    _ = run_puyapy([TEST_CASES_DIR / Path("simple") / "contract.py", "--treat-warnings-as-errors"])
+    # flag on and warnings should fail
+    result_warn = run_puyapy([NO_INIT_DIR, "--treat-warnings-as-errors"], check=False)
+    assert result_warn.returncode == 1
 
 
 def test_run_single_file_with_other_references(tmpdir: Path) -> None:
@@ -184,6 +193,15 @@ def hello_world_awst_json() -> Iterable[Path]:
         yield awst_json
 
 
+@pytest.fixture(scope="session")
+def boolean_bin_ops_awst_json() -> Iterable[Path]:
+    path = TEST_CASES_DIR / "boolean_binary_ops" / "contract.py"
+    with TemporaryDirectory() as tmp_dir:
+        run_puyapy(["--output-awst-json", "--out-dir", tmp_dir, path])
+        awst_json = Path(tmp_dir) / "module.awst.json"
+        yield awst_json
+
+
 _OUTPUT_OPTIONS = [
     field.name
     for field in attrs.fields(PuyaOptionsWithCompilationSet)
@@ -217,16 +235,16 @@ def test_puya_treat_warnings_as_errors(
 ) -> None:
     with TemporaryDirectory() as tmp_dir_:
         tmp_dir = Path(tmp_dir_)
-        assert hello_world_awst_json.exists()
-        assert boolean_bin_ops_awst_json.exists(), "expected awst json files to exist"
+        assert hello_world_awst_json.exists(), "expected awst json file to exist"
+        assert boolean_bin_ops_awst_json.exists(), "expected awst json file to exist"
         options_no_warn_json = tmp_dir / "options_no_warn.json"
         options_warn_json = tmp_dir / "options_warn.json"
         out_dir = tmp_dir / "nested" / "out"
+
         options_no_warn = PuyaOptionsWithCompilationSet(
             treat_warnings_as_errors=True,
             compilation_set={"examples.hello_world_arc4.contract.HelloWorldContract": out_dir},
         )
-
         options_warn = PuyaOptionsWithCompilationSet(
             treat_warnings_as_errors=True,
             compilation_set={"test_cases.boolean_binary_ops.contract.BooleanBinaryOps": out_dir},
@@ -244,5 +262,6 @@ def test_puya_treat_warnings_as_errors(
         )
 
         assert result_no_warn.returncode == 0
-        assert result_warn.returncode == 1, "treat warnings as errors should fail compilation when"
-        "there are warnings"
+        assert (
+            result_warn.returncode == 1
+        ), "treat warnings as errors should fail compilation when there are warnings"
