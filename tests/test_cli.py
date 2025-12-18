@@ -44,7 +44,7 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
     )
 
 
-def run_puya(args: list[str | Path]) -> subprocess.CompletedProcess[str]:
+def run_puya(args: list[str | Path], *, check: bool = True) -> subprocess.CompletedProcess[str]:
     puya = shutil.which("puya")
     assert puya is not None, "puya not found"
     return _run(
@@ -210,3 +210,39 @@ def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
             ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"]
         )
         assert out_dir.exists(), "out dir should exist"
+
+
+def test_puya_treat_warnings_as_errors(
+    hello_world_awst_json: Path, boolean_bin_ops_awst_json: Path
+) -> None:
+    with TemporaryDirectory() as tmp_dir_:
+        tmp_dir = Path(tmp_dir_)
+        assert hello_world_awst_json.exists()
+        assert boolean_bin_ops_awst_json.exists(), "expected awst json files to exist"
+        options_no_warn_json = tmp_dir / "options_no_warn.json"
+        options_warn_json = tmp_dir / "options_warn.json"
+        out_dir = tmp_dir / "nested" / "out"
+        options_no_warn = PuyaOptionsWithCompilationSet(
+            treat_warnings_as_errors=True,
+            compilation_set={"examples.hello_world_arc4.contract.HelloWorldContract": out_dir},
+        )
+
+        options_warn = PuyaOptionsWithCompilationSet(
+            treat_warnings_as_errors=True,
+            compilation_set={"test_cases.boolean_binary_ops.contract.BooleanBinaryOps": out_dir},
+        )
+        converter = make_converter()
+
+        options_no_warn_json.write_text(converter.dumps(options_no_warn), encoding="utf8")
+        options_warn_json.write_text(converter.dumps(options_warn), encoding="utf8")
+
+        result_no_warn = run_puya(
+            ["--awst", hello_world_awst_json, "--options", options_no_warn_json]
+        )
+        result_warn = run_puya(
+            ["--awst", boolean_bin_ops_awst_json, "--options", options_warn_json], check=False
+        )
+
+        assert result_no_warn.returncode == 0
+        assert result_warn.returncode == 1, "treat warnings as errors should fail compilation when"
+        "there are warnings"
