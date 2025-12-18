@@ -32,6 +32,8 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
         log_ctx.sources_by_path = sources_by_path
         awst = serialize.awst_from_json(awst_json)
         options = json_converter.loads(options_json, PuyaOptionsWithCompilationSet)
+        # if the relevant flag is set, start treating warnings as errors
+        log_ctx.treat_warnings_as_errors = options.treat_warnings_as_errors
         compilation_set = match_compilation_set(options.compilation_set, awst)
         awst_to_teal(log_ctx, options, compilation_set, sources_by_path, awst)
     # note: needs to be outside the with block
