@@ -530,7 +530,10 @@ def _create_abi_switch(
     for method, method_wrapper in cases:
         abi_loc = method.config_location
         method_const = awst_nodes.MethodConstant(
-            source_location=router_location, value=method.signature
+            value=awst_nodes.MethodSignatureString(
+                value=method.signature, source_location=router_location
+            ),
+            source_location=router_location,
         )
         stmts = list[awst_nodes.Statement]()
         if check_oca_and_create:

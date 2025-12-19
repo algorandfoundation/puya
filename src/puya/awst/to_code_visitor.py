@@ -381,7 +381,17 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
-        return f'Method("{expr.value}")'
+        if isinstance(expr.value, nodes.MethodSignatureString):
+            return f'Method("{expr.value.value}")'
+
+        name = expr.value.name
+        args = ",".join(t.name for t in expr.value.arg_types or [])
+        return_ = expr.value.return_type.name
+
+        return (
+            f'Method(name="{name}",args=({args}),result={return_},'
+            f'resource_encoding="{expr.value.resource_encoding}")'
+        )
 
     @typing.override
     def visit_address_constant(self, expr: nodes.AddressConstant) -> str:
