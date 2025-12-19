@@ -10,7 +10,7 @@ from puyapy.fast import nodes as fast_nodes
 class Symbol(abc.ABC):
     @property
     @abc.abstractmethod
-    def definition(self) -> fast_nodes.Statement: ...
+    def definition(self) -> fast_nodes.Statement | None: ...
 
 
 @attrs.frozen(kw_only=True)
@@ -20,12 +20,12 @@ class ResolvedSymbol(Symbol, abc.ABC):
 
 @attrs.frozen(kw_only=True)
 class ImportedModule(ResolvedSymbol):
-    definition: fast_nodes.AnyImport
+    definition: fast_nodes.AnyImport | None
 
 
 @attrs.frozen(kw_only=True)
 class StubReference(ResolvedSymbol):
-    definition: fast_nodes.AnyImport
+    definition: fast_nodes.AnyImport | None
 
 
 @attrs.frozen(kw_only=True)
