@@ -292,3 +292,32 @@ class IForgotToImplementClearState(Contract): ## W: Class implicitly_abstract_wa
 ## case: no_module_level_forward_declarations
 
 FOO: int ## E: !!! Placeholder expression node encountered, should be handled at a higher level
+
+
+
+## case: no_conditional_import_shadowing_stub
+from algopy import itxn
+
+if False or True:
+    itxn = 2 ## E: !!! assignment to module const - expected fullname of no_conditional_import_shadowing_stub.itxn, but mypy had algopy.itxn
+
+
+## case: no_conditional_import_shadowing
+ ## E: attempted to import  pkg2.one
+## path: pkg2/one.py
+ONE = 1 ## E: attempted to import  pkg2.one
+
+## path: pkg2/__init__.py
+ ## E: attempted to import  pkg2.one
+
+MAYBE = True
+
+if MAYBE:
+    one = 2
+
+## path: contract.py
+from pkg2 import one ## E: attempted to import  pkg2.one
+from pkg2.one import ONE
+
+if one == 2:
+    pass
