@@ -1,5 +1,4 @@
 import enum
-import graphlib
 import sys
 import typing
 from collections import deque
@@ -12,7 +11,7 @@ import attrs
 from packaging import version
 
 from puya import log
-from puya.errors import CodeError, ConfigurationError, InternalError
+from puya.errors import ConfigurationError, InternalError
 from puya.utils import make_path_relative_to_cwd, set_add, unique
 from puyapy._stub_symtables import STUB_SYMTABLES
 from puyapy.fast import nodes as fast_nodes
@@ -97,24 +96,28 @@ def parse_python(
 
 def fast_to_awst(module_data: Mapping[str, "_ModuleData"]) -> ParseResult:
     module_data = dict(module_data)
-    mypy_options, mypy_modules_by_name = mypy_parse(module_data)
+    mypy_options, sorted_mypy_modules = mypy_parse(module_data)
 
-    module_graph = _build_hard_dependency_graph(module_data)
-
-    # order modules by dependency
-    try:
-        module_order = list(graphlib.TopologicalSorter(module_graph).static_order())
-    except graphlib.CycleError as ex:
-        module_cycle: Sequence[str] = ex.args[1]
-        raise CodeError(f"cyclical module reference: {' -> '.join(module_cycle)}") from None
+    # module_graph = _build_hard_dependency_graph(module_data)
+    #
+    # # order modules by dependency
+    # try:
+    #     module_order = list(graphlib.TopologicalSorter(module_graph).static_order())
+    # except graphlib.CycleError as ex:
+    #     module_cycle: Sequence[str] = ex.args[1]
+    #     raise CodeError(f"cyclical module reference: {' -> '.join(module_cycle)}") from None
 
     ordered_modules = {}
-    for module_name in module_order:
-        mypy_module = mypy_modules_by_name[module_name]
+    for module_name, mypy_module_state in sorted_mypy_modules.items():
+        mypy_module = mypy_module_state.tree
+        assert mypy_module is not None
         assert (
             module_name == mypy_module.fullname
         ), f"mypy module mismatch, expected {module_name}, got {mypy_module.fullname}"
-        md = module_data.pop(module_name)
+        try:
+            md = module_data.pop(module_name)
+        except KeyError:
+            continue
         assert mypy_module.fullname == md.module, "mypy and fast module name mismatch"
         lines = md.text.splitlines()
         if md.is_source:
@@ -128,7 +131,7 @@ def fast_to_awst(module_data: Mapping[str, "_ModuleData"]) -> ParseResult:
             lines=lines,
             fast=md.fast,
             discovery_mechanism=discovery_mechanism,
-            dependencies=frozenset(module_graph[md.module]),
+            dependencies=frozenset(mypy_module_state.dependencies_set),
         )
     if module_data:
         raise InternalError(f"parse has leftover modules: {', '.join(module_data.keys())}")

@@ -6,11 +6,15 @@ import typing
 from collections.abc import Mapping
 from pathlib import Path
 
-from mypy.build import BuildManager, dispatch, sorted_components
+from mypy.build import (
+    BuildManager,
+    State as MypyState,
+    dispatch,
+    sorted_components,
+)
 from mypy.errors import Errors
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
-from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
 from mypy.types import instance_cache
@@ -30,7 +34,7 @@ logger = log.get_logger(__name__)
 
 def mypy_parse(
     module_data: Mapping[str, "_ModuleData"],
-) -> tuple[MypyOptions, Mapping[str, MypyFile]]:
+) -> tuple[MypyOptions, Mapping[str, MypyState]]:
     fs_cache = FileSystemCache()
     # prime the cache with supplied content overrides, so that mypy reads from our data instead
     for md in module_data.values():
@@ -120,7 +124,7 @@ def _mypy_build(
     search_paths: SearchPaths,
     fscache: FileSystemCache,
     algopy_sources: Mapping[str, Path],
-) -> dict[str, MypyFile]:
+) -> dict[str, MypyState]:
     """
     Our own implementation of mypy.build.build which handles errors via logging,
     and uses our computed search paths.
@@ -172,11 +176,7 @@ def _mypy_build(
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=options)
     sccs = sorted_components(graph)
-    return {
-        module_name: manager.modules[module_name]
-        for scc in sccs
-        for module_name in sorted(scc.mod_ids)
-    }
+    return {module_name: graph[module_name] for scc in sccs for module_name in sorted(scc.mod_ids)}
 
 
 def _log_mypy_message(message: log.Log | None, related_lines: list[str]) -> None:
