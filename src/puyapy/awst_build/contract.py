@@ -6,7 +6,6 @@ from collections.abc import Callable, Iterator, Sequence, Set
 import attrs
 import mypy.nodes
 import mypy.types
-import mypy.visitor
 
 from puya import log
 from puya.avm import OnCompletionAction
@@ -96,7 +95,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         #       we can still keep trying to convert other functions to produce more valid errors)
         for stmt in stmts:
             with context.log_exceptions(fallback_location=stmt):
-                stmt.accept(self)
+                self.visit_statement(stmt)
 
         if (
             self.fragment.is_arc4
@@ -396,9 +395,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> None:
         self._unsupported_stmt("match", stmt)
-
-    def visit_type_alias_stmt(self, stmt: mypy.nodes.TypeAliasStmt) -> None:
-        self._unsupported_stmt("type", stmt)
 
 
 class _UserContractBase(ContractFragmentBase, abc.ABC):

@@ -4,7 +4,6 @@ from collections.abc import Callable, Set
 import attrs
 import mypy.nodes
 import mypy.types
-import mypy.visitor
 
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
@@ -37,6 +36,10 @@ from puyapy.models import ConstantValue, ContractClassOptions
 logger = log.get_logger(__name__)
 
 
+class _ConstantExpressionVisitor(typing.Protocol):
+    def visit_expression(self, expr: mypy.nodes.Expression) -> ConstantValue: ...
+
+
 DeferredRootNode: typing.TypeAlias = Callable[[ASTConversionModuleContext], RootNode | None]
 
 StatementResult: typing.TypeAlias = list[DeferredRootNode]
@@ -66,7 +69,7 @@ class ModuleASTConverter(
         self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
         for node in module.defs:
             with self.context.log_exceptions(fallback_location=node):
-                items = node.accept(self)
+                items = self.visit_statement(node)
                 self._pre_parse_result.append((node, items))
 
     def convert(self) -> AWST:
@@ -149,13 +152,13 @@ class ModuleASTConverter(
             arg = arg_data.expr
             match arg_data.name:
                 case "name":
-                    name_const = arg.accept(self)
+                    name_const = self.visit_expression(arg)
                     if isinstance(name_const, str):
                         name_override = name_const
                     else:
                         self.context.error("expected a str", arg)
                 case "avm_version":
-                    version_const = arg.accept(self)
+                    version_const = self.visit_expression(arg)
                     if isinstance(version_const, int):
                         avm_version = version_const
                     else:
@@ -299,11 +302,11 @@ class ModuleASTConverter(
     def visit_if_stmt(self, stmt: mypy.nodes.IfStmt) -> StatementResult:
         for expr, block in zip(stmt.expr, stmt.body, strict=True):
             if self._evaluate_compile_time_constant_condition(expr):
-                return block.accept(self)
+                return self.visit_block(block)
         # if we didn't return, we end up here, which means the user code
         # should evaluate to the else body (if present)
         if stmt.else_body:
-            return stmt.else_body.accept(self)
+            return self.visit_block(stmt.else_body)
         else:
             return []
 
@@ -350,7 +353,7 @@ class ModuleASTConverter(
         if any(lvalue.is_special_form for lvalue in lvalues):
             logger.error("unsupported type-form", location=stmt_loc)
 
-        constant_value = stmt.rvalue.accept(self)
+        constant_value = self.visit_expression(stmt.rvalue)
         for lvalue in lvalues:
             self.context.constants[lvalue.fullname] = constant_value
 
@@ -401,7 +404,7 @@ class ModuleASTConverter(
     def visit_block(self, block: mypy.nodes.Block) -> StatementResult:
         result = StatementResult()
         for stmt in block.body:
-            items = stmt.accept(self)
+            items = self.visit_statement(stmt)
             result.extend(items)
         return result
 
@@ -430,24 +433,22 @@ class ModuleASTConverter(
         return value
 
     def visit_unary_expr(self, expr: mypy.nodes.UnaryExpr) -> ConstantValue:
-        value = expr.expr.accept(self)
+        value = self.visit_expression(expr.expr)
         return fold_unary_expr(self._location(expr), expr.op, value)
 
     def visit_op_expr(self, expr: mypy.nodes.OpExpr) -> ConstantValue:
-        left_value = expr.left.accept(self)
-        right_value = expr.right.accept(self)
+        left_value = self.visit_expression(expr.left)
+        right_value = self.visit_expression(expr.right)
         return fold_binary_expr(self._location(expr), expr.op, left_value, right_value)
 
     def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> ConstantValue:
         match (expr.operators, expr.operands):
             case ([op], [expr_left, expr_right]):
-                lhs = expr_left.accept(self)
-                rhs = expr_right.accept(self)
+                lhs = self.visit_expression(expr_left)
+                rhs = self.visit_expression(expr_right)
                 return fold_binary_expr(self._location(expr), op, lhs, rhs)
             case _:
-                self._unsupported(
-                    expr, details="chained comparisons not supported at module level"
-                )
+                self._unsupported(expr, "chained comparisons not supported at module level")
 
     def visit_int_expr(self, expr: mypy.nodes.IntExpr) -> ConstantValue:
         return expr.value
@@ -469,9 +470,7 @@ class ModuleASTConverter(
             try:
                 return self.context.constants[expr.fullname]
             except KeyError as ex:
-                self._unsupported(
-                    expr, details="could not resolve external module constant", ex=ex
-                )
+                self._unsupported(expr, "could not resolve external module constant", ex=ex)
         else:
             self._unsupported(expr)
 
@@ -486,7 +485,7 @@ class ModuleASTConverter(
                 callee=mypy.nodes.MemberExpr(expr=mypy.nodes.StrExpr(value=joiner), name="join"),
                 args=[mypy.nodes.ListExpr() as args_list],
             ):
-                args = [arg.accept(self) for arg in args_list.items]
+                args = [self.visit_expression(arg) for arg in args_list.items]
                 assert all(isinstance(x, str) for x in args)
                 result = joiner.join(map(str, args))
                 return result
@@ -495,7 +494,7 @@ class ModuleASTConverter(
                     expr=mypy.nodes.StrExpr(value=format_str), name="format"
                 )
             ):
-                args = [arg.accept(self) for arg in expr.args]
+                args = [self.visit_expression(arg) for arg in expr.args]
                 return format_str.format(*args)
             case mypy.nodes.CallExpr(
                 callee=mypy.nodes.MemberExpr(
@@ -516,9 +515,9 @@ class ModuleASTConverter(
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> ConstantValue:
         if self._evaluate_compile_time_constant_condition(expr.cond):
-            return expr.if_expr.accept(self)
+            return self.visit_expression(expr.if_expr)
         else:
-            return expr.else_expr.accept(self)
+            return self.visit_expression(expr.else_expr)
 
     def _evaluate_compile_time_constant_condition(self, expr: mypy.nodes.Expression) -> bool:
         from mypy import reachability
@@ -526,12 +525,10 @@ class ModuleASTConverter(
         kind = reachability.infer_condition_value(expr, self.context.mypy_options)
         if kind == reachability.TRUTH_VALUE_UNKNOWN:
             try:
-                result = expr.accept(self)
+                result = self.visit_expression(expr)
             except UnsupportedASTError as ex:
                 self._unsupported(
-                    expr,
-                    details="only constant valued conditions supported at module level",
-                    ex=ex,
+                    expr, "only constant valued conditions supported at module level", ex=ex
                 )
             kind = reachability.ALWAYS_TRUE if result else reachability.ALWAYS_FALSE
         if kind in (reachability.ALWAYS_TRUE, reachability.MYPY_FALSE):
@@ -546,10 +543,10 @@ class ModuleASTConverter(
     def _unsupported(
         self,
         node: mypy.nodes.Node,
-        details: str = "not supported at module level",
+        msg: str = "unsupported statement type at module level",
         ex: Exception | None = None,
     ) -> typing.Never:
-        raise UnsupportedASTError(node, self._location(node), details=details) from ex
+        raise UnsupportedASTError(msg, self._location(node)) from ex
 
     # Unsupported Statements
 
@@ -581,9 +578,6 @@ class ModuleASTConverter(
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> StatementResult:
         return self._unsupported(stmt)
 
-    def visit_type_alias_stmt(self, stmt: mypy.nodes.TypeAliasStmt) -> StatementResult:
-        return self._unsupported(stmt)
-
     # the remaining statements (below) are invalid at the module lexical scope,
     # mypy should have caught these errors already
     def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> StatementResult:
@@ -597,34 +591,19 @@ class ModuleASTConverter(
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ConstantValue:
         return self._unsupported(expr)
 
-    def visit_ellipsis(self, expr: mypy.nodes.EllipsisExpr) -> ConstantValue:
-        return self._unsupported(expr)
-
     def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> ConstantValue:
-        return self._unsupported(expr)
-
-    def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> ConstantValue:
         return self._unsupported(expr)
 
     def visit_tuple_expr(self, expr: mypy.nodes.TupleExpr) -> ConstantValue:
         return self._unsupported(expr)
 
-    def visit_list_comprehension(self, expr: mypy.nodes.ListComprehension) -> ConstantValue:
-        return self._unsupported(expr)
-
-    def visit_slice_expr(self, expr: mypy.nodes.SliceExpr) -> ConstantValue:
-        return self._unsupported(expr)
-
     def visit_assignment_expr(self, o: mypy.nodes.AssignmentExpr) -> ConstantValue:
         return self._unsupported(o)
-
-    def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> ConstantValue:
-        return self._unsupported(expr)
 
 
 def _process_contract_class_options(
     context: ASTConversionModuleContext,
-    expr_visitor: mypy.visitor.ExpressionVisitor[ConstantValue],
+    expr_visitor: _ConstantExpressionVisitor,
     cdef: mypy.nodes.ClassDef,
 ) -> ContractClassOptions:
     name_override: str | None = None
@@ -635,7 +614,7 @@ def _process_contract_class_options(
         with context.log_exceptions(kw_expr):
             match kw_name:
                 case "name":
-                    name_value = kw_expr.accept(expr_visitor)
+                    name_value = expr_visitor.visit_expression(kw_expr)
                     if isinstance(name_value, str):
                         name_override = name_value
                     else:
@@ -666,14 +645,14 @@ def _process_contract_class_options(
                             if arg_name is None:
                                 context.error("unexpected positional argument", arg)
                             else:
-                                arg_value = arg.accept(expr_visitor)
+                                arg_value = expr_visitor.visit_expression(arg)
                                 if not isinstance(arg_value, int):
                                     context.error("unexpected argument type", arg)
                                 else:
                                     arg_map[arg_name] = arg_value
                         state_totals = StateTotals(**arg_map)
                 case "avm_version":
-                    version_value = kw_expr.accept(expr_visitor)
+                    version_value = expr_visitor.visit_expression(kw_expr)
                     if isinstance(version_value, int):
                         avm_version = version_value
                     else:
@@ -766,11 +745,11 @@ def _process_named_tuple(
 
 def _map_scratch_space_reservation(
     context: ASTConversionModuleContext,
-    expr_visitor: mypy.visitor.ExpressionVisitor[ConstantValue],
+    expr_visitor: _ConstantExpressionVisitor,
     expr: mypy.nodes.Expression,
 ) -> list[int]:
     def get_int_arg(arg_expr: mypy.nodes.Expression, *, error_msg: str) -> int:
-        const_value = arg_expr.accept(expr_visitor)
+        const_value = expr_visitor.visit_expression(arg_expr)
         if isinstance(const_value, int):
             return const_value
         raise CodeError(error_msg, context.node_location(arg_expr))

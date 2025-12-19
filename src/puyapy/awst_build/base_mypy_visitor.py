@@ -3,7 +3,6 @@ import typing
 
 import mypy.checker
 import mypy.nodes
-import mypy.visitor
 
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -35,31 +34,122 @@ class _BaseMyPyVisitor:
                 self._location(location) if isinstance(location, mypy.nodes.Context) else location,
             )
 
-    def _unsupported_node(self, node: mypy.nodes.Context, details: str) -> typing.Never:
-        raise UnsupportedASTError(node, self._location(node), details=details)
+    def _unsupported_node(self, node: mypy.nodes.Context, msg: str) -> typing.Never:
+        raise UnsupportedASTError(msg, self._location(node))
 
 
 class BaseMyPyStatementVisitor[_TStatement](
     _BaseMyPyVisitor,
-    mypy.visitor.StatementVisitor[_TStatement],
     abc.ABC,
 ):
+    def visit_statement(self, stmt: mypy.nodes.Statement) -> _TStatement:
+        """Dispatch to the appropriate visit method based on statement type."""
+        match stmt:
+            case mypy.nodes.AssignmentStmt():
+                return self.visit_assignment_stmt(stmt)
+            case mypy.nodes.OperatorAssignmentStmt():
+                return self.visit_operator_assignment_stmt(stmt)
+            case mypy.nodes.IfStmt():
+                return self.visit_if_stmt(stmt)
+            case mypy.nodes.ForStmt():
+                return self.visit_for_stmt(stmt)
+            case mypy.nodes.WhileStmt():
+                return self.visit_while_stmt(stmt)
+            case mypy.nodes.Block():
+                return self.visit_block(stmt)
+            case mypy.nodes.ExpressionStmt():
+                return self.visit_expression_stmt(stmt)
+            case mypy.nodes.ReturnStmt():
+                return self.visit_return_stmt(stmt)
+            case mypy.nodes.AssertStmt():
+                return self.visit_assert_stmt(stmt)
+            case mypy.nodes.FuncDef():
+                return self.visit_func_def(stmt)
+            case mypy.nodes.OverloadedFuncDef():
+                return self.visit_overloaded_func_def(stmt)
+            case mypy.nodes.ClassDef():
+                return self.visit_class_def(stmt)
+            case mypy.nodes.Decorator():
+                return self.visit_decorator(stmt)
+            case mypy.nodes.BreakStmt():
+                return self.visit_break_stmt(stmt)
+            case mypy.nodes.ContinueStmt():
+                return self.visit_continue_stmt(stmt)
+            case mypy.nodes.DelStmt():
+                return self.visit_del_stmt(stmt)
+            case mypy.nodes.MatchStmt():
+                return self.visit_match_stmt(stmt)
+
+        stmt_type = type(stmt)
+        if stmt_type in (
+            mypy.nodes.Import,
+            mypy.nodes.ImportFrom,
+            mypy.nodes.ImportAll,
+            mypy.nodes.PassStmt,
+        ):
+            return self.empty_statement(stmt)
+
+        if stmt_type in (
+            mypy.nodes.WithStmt,
+            mypy.nodes.GlobalDecl,
+            mypy.nodes.NonlocalDecl,
+            mypy.nodes.RaiseStmt,
+            mypy.nodes.TryStmt,
+            mypy.nodes.TypeAliasStmt,
+        ):
+            self._unsupported_node(stmt, "unsupported statement")
+
+        raise InternalError(
+            f"unsupported statement type: {stmt_type.__name__}",
+            self._location(stmt),
+        )
+
+    # ~~~ abstract methods that subclasses must implement ~~~ #
+    @abc.abstractmethod
+    def visit_block(self, o: mypy.nodes.Block) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_assignment_stmt(self, o: mypy.nodes.AssignmentStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_operator_assignment_stmt(
+        self, o: mypy.nodes.OperatorAssignmentStmt
+    ) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_if_stmt(self, o: mypy.nodes.IfStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_while_stmt(self, o: mypy.nodes.WhileStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_for_stmt(self, o: mypy.nodes.ForStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_return_stmt(self, o: mypy.nodes.ReturnStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_assert_stmt(self, o: mypy.nodes.AssertStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_del_stmt(self, o: mypy.nodes.DelStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_break_stmt(self, o: mypy.nodes.BreakStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_continue_stmt(self, o: mypy.nodes.ContinueStmt) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_class_def(self, o: mypy.nodes.ClassDef) -> _TStatement: ...
+
+    @abc.abstractmethod
+    def visit_match_stmt(self, o: mypy.nodes.MatchStmt) -> _TStatement: ...
+
     # ~~~ things we can just ignore ~~~ #
-    @typing.override
-    def visit_pass_stmt(self, o: mypy.nodes.PassStmt) -> _TStatement:
-        return self.empty_statement(o)
-
-    @typing.override
-    def visit_import(self, o: mypy.nodes.Import) -> _TStatement:
-        return self.empty_statement(o)
-
-    @typing.override
-    def visit_import_from(self, o: mypy.nodes.ImportFrom) -> _TStatement:
-        return self.empty_statement(o)
-
-    @typing.override
-    def visit_import_all(self, o: mypy.nodes.ImportAll) -> _TStatement:
-        return self.empty_statement(o)
 
     @abc.abstractmethod
     def empty_statement(self, stmt: mypy.nodes.Statement) -> _TStatement: ...
@@ -85,7 +175,6 @@ class BaseMyPyStatementVisitor[_TStatement](
                 )
 
     @typing.final
-    @typing.override
     def visit_func_def(self, fdef: mypy.nodes.FuncDef) -> _TStatement:
         self._precondition(
             not fdef.is_decorated,
@@ -96,7 +185,6 @@ class BaseMyPyStatementVisitor[_TStatement](
         return self._do_function(fdef, decorator=None)
 
     @typing.final
-    @typing.override
     def visit_decorator(self, dec: mypy.nodes.Decorator) -> _TStatement:
         self.check_fatal_decorators(dec.decorators)
         if mypy.checker.is_property(dec):
@@ -104,7 +192,6 @@ class BaseMyPyStatementVisitor[_TStatement](
         return self._do_function(dec.func, dec)
 
     @typing.final
-    @typing.override
     def visit_overloaded_func_def(self, o: mypy.nodes.OverloadedFuncDef) -> _TStatement:
         # This could either be a @typing.overload, in which case o.impl will contain
         # the actual function, or it could be a @property with a setter and/or a deleter,
@@ -117,7 +204,7 @@ class BaseMyPyStatementVisitor[_TStatement](
                 "and may not function exactly as intended",
                 o,
             )
-            return o.impl.accept(self)
+            return self.visit_statement(o.impl)
         else:
             # typing.overload sequences should always have an implementation,
             # unless they're in a stub file - but we don't process those,
@@ -150,166 +237,151 @@ class BaseMyPyStatementVisitor[_TStatement](
         decorator: mypy.nodes.Decorator | None,
     ) -> _TStatement: ...
 
-    # ~~~ unsupported scope modifiers ~~~ #
-    @typing.override
-    def visit_global_decl(self, stmt: mypy.nodes.GlobalDecl) -> typing.Never:
-        self._unsupported_node(stmt, "global variables must be immutable")
-
-    # TODO: do we reject nonlocal here too? are nested functions in/out?
-    @typing.override
-    def visit_nonlocal_decl(self, o: mypy.nodes.NonlocalDecl) -> typing.Never:
-        self._unsupported_node(o, "nested functions are not supported")
-
-    # ~~~ raising and handling exceptions unsupported ~~~ #
-    @typing.override
-    def visit_raise_stmt(self, stmt: mypy.nodes.RaiseStmt) -> typing.Never:
-        self._unsupported_node(stmt, "exception raising and exception handling not supported")
-
-    @typing.override
-    def visit_try_stmt(self, stmt: mypy.nodes.TryStmt) -> typing.Never:
-        self._unsupported_node(stmt, "exception raising and exception handling not supported")
-
-    @typing.override
-    def visit_with_stmt(self, stmt: mypy.nodes.WithStmt) -> typing.Never:
-        self._unsupported_node(
-            stmt,
-            "context managers are redundant due to a lack of exception support",
-        )
-
 
 class BaseMyPyExpressionVisitor[_TExpression](
     _BaseMyPyVisitor,
-    mypy.visitor.ExpressionVisitor[_TExpression],
     abc.ABC,
 ):
-    # ~~~ things that we support but shouldn't encounter via visitation ~~~ #
-    @typing.override
-    def visit_star_expr(self, expr: mypy.nodes.StarExpr) -> _TExpression:
-        # star expression examples (non-exhaustive):
-        #  head, *tail = my_list
-        #  my_func(first, *rest)
-        #  [prepend, *existing]
+    def visit_expression(self, expr: mypy.nodes.Expression) -> _TExpression:
+        """Dispatch to the appropriate visit method based on expression type."""
+        match expr:
+            case mypy.nodes.IntExpr():
+                return self.visit_int_expr(expr)
+            case mypy.nodes.StrExpr():
+                return self.visit_str_expr(expr)
+            case mypy.nodes.BytesExpr():
+                return self.visit_bytes_expr(expr)
+            case mypy.nodes.NameExpr():
+                return self.visit_name_expr(expr)
+            case mypy.nodes.MemberExpr():
+                return self.visit_member_expr(expr)
+            case mypy.nodes.CallExpr():
+                return self.visit_call_expr(expr)
+            case mypy.nodes.OpExpr():
+                return self.visit_op_expr(expr)
+            case mypy.nodes.ComparisonExpr():
+                return self.visit_comparison_expr(expr)
+            case mypy.nodes.SuperExpr():
+                return self.visit_super_expr(expr)
+            case mypy.nodes.UnaryExpr():
+                return self.visit_unary_expr(expr)
+            case mypy.nodes.AssignmentExpr():
+                return self.visit_assignment_expr(expr)
+            case mypy.nodes.DictExpr():
+                return self.visit_dict_expr(expr)
+            case mypy.nodes.TupleExpr():
+                return self.visit_tuple_expr(expr)
+            case mypy.nodes.IndexExpr():
+                return self.visit_index_expr(expr)
+            case mypy.nodes.ConditionalExpr():
+                return self.visit_conditional_expr(expr)
+            case mypy.nodes.ListExpr():
+                self._unsupported_node(expr, "unsupported usage of list literal")
+            case mypy.nodes.EllipsisExpr():
+                self._unsupported_node(expr, "unsupported usage of ...")
+            case mypy.nodes.LambdaExpr():
+                self._unsupported_node(expr, "lambda functions are not supported")
+            case mypy.nodes.SliceExpr():
+                self._unsupported_node(expr, "slices are not supported outside of indexing")
+            case mypy.nodes.FloatExpr():
+                self._unsupported_node(expr, "floating point math is not supported")
+            case mypy.nodes.ComplexExpr():
+                self._unsupported_node(expr, "complex math is not supported")
+            case mypy.nodes.SetExpr():
+                self._unsupported_node(expr, "sets are not supported")
+            case (
+                mypy.nodes.ListComprehension()
+                | mypy.nodes.DictionaryComprehension()
+                | mypy.nodes.SetComprehension()
+            ):
+                self._unsupported_node(expr, "comprehensions are not supported")
+            case mypy.nodes.YieldExpr() | mypy.nodes.YieldFromExpr() | mypy.nodes.GeneratorExpr():
+                self._unsupported_node(expr, "generator functions are not supported")
+            case mypy.nodes.AwaitExpr():
+                self._unsupported_node(expr, "async/await is not supported")
+            case mypy.nodes.StarExpr():
+                # star expression examples (non-exhaustive):
+                #  head, *tail = my_list
+                #  my_func(first, *rest)
+                #  [prepend, *existing]
+                raise InternalError(
+                    "star expressions should be handled at a higher level", self._location(expr)
+                )
+            case mypy.nodes.TempNode():
+                # "dummy node"
+                raise InternalError(
+                    "placeholder expression node encountered, should be handled at a higher level",
+                    self._location(expr),
+                )
+
+        expr_type = type(expr)
+        if expr_type in (
+            mypy.nodes.CastExpr,
+            mypy.nodes.AssertTypeExpr,
+            mypy.nodes.RevealExpr,
+            mypy.nodes.TypeApplication,
+            mypy.nodes.TypeVarExpr,
+            mypy.nodes.ParamSpecExpr,
+            mypy.nodes.TypeVarTupleExpr,
+            mypy.nodes.TypeAliasExpr,
+            mypy.nodes.NamedTupleExpr,
+            mypy.nodes.EnumCallExpr,
+            mypy.nodes.TypedDictExpr,
+            mypy.nodes.NewTypeExpr,
+            mypy.nodes.PromoteExpr,
+        ):
+            raise InternalError(
+                f"can't compile analysis-only expression of type {expr_type.__name__}",
+                self._location(expr),
+            )
+
         raise InternalError(
-            "star expressions should be handled at a higher level", self._location(expr)
-        )
-
-    @typing.override
-    def visit_dictionary_comprehension(
-        self, expr: mypy.nodes.DictionaryComprehension
-    ) -> typing.Never:
-        self._unsupported_node(expr, "dictionaries are not supported")
-
-    @typing.override
-    def visit_set_expr(self, expr: mypy.nodes.SetExpr) -> typing.Never:
-        self._unsupported_node(expr, "sets are not supported")
-
-    @typing.override
-    def visit_set_comprehension(self, expr: mypy.nodes.SetComprehension) -> typing.Never:
-        self._unsupported_node(expr, "sets are not supported")
-
-    # ~~~ math we don't support (yet?) ~~~ #
-    @typing.override
-    def visit_float_expr(self, expr: mypy.nodes.FloatExpr) -> typing.Never:
-        self._unsupported_node(expr, "floating point math is not supported")
-
-    @typing.override
-    def visit_complex_expr(self, expr: mypy.nodes.ComplexExpr) -> typing.Never:
-        self._unsupported_node(expr, "complex math is not supported")
-
-    # ~~~ generator functions unsupported ~~~ #
-    @typing.override
-    def visit_generator_expr(self, expr: mypy.nodes.GeneratorExpr) -> typing.Never:
-        self._unsupported_node(expr, "generator functions are not supported")
-
-    @typing.override
-    def visit_yield_expr(self, expr: mypy.nodes.YieldExpr) -> typing.Never:
-        self._unsupported_node(expr, "generator functions are not supported")
-
-    @typing.override
-    def visit_yield_from_expr(self, o: mypy.nodes.YieldFromExpr) -> typing.Never:
-        self._unsupported_node(o, "generator functions are not supported")
-
-    # ~~~ async/await functions unsupported ~~~ #
-    @typing.override
-    def visit_await_expr(self, o: mypy.nodes.AwaitExpr) -> typing.Never:
-        self._unsupported_node(o, "async/await is not supported")
-
-    # ~~~ analysis-only expressions, should never show up ~~~ #
-    @typing.override
-    def visit_temp_node(self, expr: mypy.nodes.TempNode) -> _TExpression:
-        # "dummy node"
-        raise InternalError(
-            "Placeholder expression node encountered, should be handled at a higher level",
+            f"unsupported expression type: {expr_type.__name__}",
             self._location(expr),
         )
 
-    def __analysis_only(self, expr: mypy.nodes.Expression) -> typing.Never:
-        raise InternalError(
-            f"Can't compile analysis-only expression of type {type(expr).__name__}",
-            self._location(expr),
-        )
+    # ~~~ abstract methods that subclasses must implement ~~~ #
+    @abc.abstractmethod
+    def visit_int_expr(self, o: mypy.nodes.IntExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_cast_expr(self, expr: mypy.nodes.CastExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_str_expr(self, o: mypy.nodes.StrExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_assert_type_expr(self, expr: mypy.nodes.AssertTypeExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_bytes_expr(self, o: mypy.nodes.BytesExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_enum_call_expr(self, expr: mypy.nodes.EnumCallExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_name_expr(self, o: mypy.nodes.NameExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit__promote_expr(self, expr: mypy.nodes.PromoteExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_member_expr(self, o: mypy.nodes.MemberExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_namedtuple_expr(self, expr: mypy.nodes.NamedTupleExpr) -> _TExpression:
-        # NOTE: only appears as (ClassDef|CallExpr).analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_call_expr(self, o: mypy.nodes.CallExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_newtype_expr(self, expr: mypy.nodes.NewTypeExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_op_expr(self, o: mypy.nodes.OpExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_type_alias_expr(self, expr: mypy.nodes.TypeAliasExpr) -> _TExpression:
-        # NOTE: only appears as (IndexExpr|CallExpr|OpExpr).analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_comparison_expr(self, o: mypy.nodes.ComparisonExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_type_application(self, expr: mypy.nodes.TypeApplication) -> _TExpression:
-        # NOTE: only appears as IndexExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_unary_expr(self, o: mypy.nodes.UnaryExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_type_var_expr(self, expr: mypy.nodes.TypeVarExpr) -> _TExpression:
-        # NOTE: appears as CallExpr.analyzed OR as SymbolTableNode.node
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_index_expr(self, o: mypy.nodes.IndexExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_paramspec_expr(self, expr: mypy.nodes.ParamSpecExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_conditional_expr(self, o: mypy.nodes.ConditionalExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_type_var_tuple_expr(self, expr: mypy.nodes.TypeVarTupleExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_tuple_expr(self, o: mypy.nodes.TupleExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_typeddict_expr(self, expr: mypy.nodes.TypedDictExpr) -> _TExpression:
-        # NOTE: only appears as (ClassDef|CallExpr).analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> _TExpression: ...
 
-    @typing.override
-    def visit_reveal_expr(self, expr: mypy.nodes.RevealExpr) -> _TExpression:
-        # NOTE: only appears as CallExpr.analyzed
-        return self.__analysis_only(expr)
+    @abc.abstractmethod
+    def visit_super_expr(self, o: mypy.nodes.SuperExpr) -> _TExpression: ...
+
+    @abc.abstractmethod
+    def visit_assignment_expr(self, o: mypy.nodes.AssignmentExpr) -> _TExpression: ...
