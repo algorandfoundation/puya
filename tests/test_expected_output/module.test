@@ -27,7 +27,8 @@ BYTES_LITERAL = b"some bytes"
 FORMATTED_STR = f"{STR_LITERAL} {LITERAL}"
 MULTIPLIED_STR = "a" * 64
 
-NOT_A_LITERAL = UInt64(1) ## E: Unsupported construct CallExpr: not supported at module level
+NOT_A_LITERAL = UInt64(1) ## E: Unsupported construct CallExpr: not supported at module level \
+                          ## E: unsupported expression at module level
 
 ## case: no_typed_dict
 from algopy import UInt64
@@ -73,7 +74,9 @@ __all__ = ["FOO"]
 
 ## case: list_not_allowed
 
-FOO = [1] ## E: Unsupported construct ListExpr: not supported at module level
+FOO = [1] ## E: Unsupported construct ListExpr: not supported at module level \
+          ## E: unsupported result type \
+          ## W: only immutable data is supported at the module level, treating list as tuple
 
 ## case: type_alias_allowed
 import typing
@@ -109,7 +112,8 @@ assert True ## E: Unsupported construct AssertStmt: not supported at module leve
 
 ## case: tuple_not_supported
 
-TUPLE = 1, 2 ## E: Unsupported construct TupleExpr: not supported at module level
+TUPLE = 1, 2 ## E: Unsupported construct TupleExpr: not supported at module level \
+             ## E: unsupported result type
 
 ## case: lambda_not_supported
 
@@ -118,7 +122,9 @@ LAMBDA = lambda: 1 ## E: Unsupported construct LambdaExpr: not supported at modu
 
 ## case: slice_not_supported
 
-SLICE = [1, 2][:] ## E: Unsupported construct IndexExpr: not supported at module level
+SLICE = [1, 2][:] ## E: Unsupported construct IndexExpr: not supported at module level \
+                  ## E: unsupported result type \
+                  ## W: only immutable data is supported at the module level, treating list as tuple
 
 ## case: comprehension_not_supported
 
@@ -127,7 +133,8 @@ COMPREHENSION = [f for f in [1, 2]] ## E: Unsupported construct ListComprehensio
 
 ## case: index_not_supported
 
-INDEXED = [1,2,3][0] ## E: Unsupported construct IndexExpr: not supported at module level
+INDEXED = [1,2,3][0] ## E: Unsupported construct IndexExpr: not supported at module level \
+                     ## W: only immutable data is supported at the module level, treating list as tuple
 
 ## case: match_not_supported
 ONE = 1
@@ -160,7 +167,7 @@ TWO = 2
 from one import ONE
 import pkg
 
-THREE = ONE + pkg.two.TWO
+THREE = ONE + pkg.two.TWO ## W: module pkg.two has not been imported
 
 ## case: imported_contract_test
 ## path: my_contract.py
@@ -311,7 +318,8 @@ FOO: int ## E: !!! Placeholder expression node encountered, should be handled at
 
 ## case: builtins_call
 
-x = (1, 2) ## E: Unsupported construct TupleExpr: not supported at module level
+x = (1, 2) ## E: Unsupported construct TupleExpr: not supported at module level \
+           ## E: unsupported result type
 
 B = bytes.fromhex('00') ## E: Unsupported construct CallExpr: not supported at module level
 
@@ -324,12 +332,12 @@ if False or True:
 
 
 ## case: no_conditional_import_shadowing
- ## E: attempted to import  pkg2.one
+
 ## path: pkg2/one.py
-ONE = 1 ## E: attempted to import  pkg2.one
+ONE = 1
 
 ## path: pkg2/__init__.py
- ## E: attempted to import  pkg2.one
+
 
 MAYBE = True
 
@@ -337,7 +345,7 @@ if MAYBE:
     one = 2
 
 ## path: contract.py
-from pkg2 import one ## E: attempted to import  pkg2.one
+from pkg2 import one
 from pkg2.one import ONE
 
 if one == 2:
