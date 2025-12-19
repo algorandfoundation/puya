@@ -1,3 +1,49 @@
+contract Counter
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  globals {
+    ['counter']: uint64
+  }
+  
+  subroutine test_cases.match.counter.Counter.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    switch (txn<OnCompletion>()) {
+      case NoOp: {
+        match_case_L11:
+        this::increment_counter()
+        return true
+      }
+      case _: {
+        return false
+      }
+    }
+  }
+  
+  subroutine test_cases.match.counter.Counter.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.match.counter.Counter.__init__(): void
+  {
+    GlobalState['counter']: uint64 = 0u
+  }
+  
+  subroutine test_cases.match.counter.Counter.increment_counter(): void
+  {
+    GlobalState['counter'] += 1u
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract MyContract
 {
   method_resolution_order: (
@@ -133,52 +179,6 @@ contract MyContract
         log(hello)
       }
     }
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract Counter
-{
-  method_resolution_order: (
-    algopy._contract.Contract,
-  )
-  globals {
-    ['counter']: uint64
-  }
-  
-  subroutine test_cases.match.counter.Counter.approval_program(): bool
-  {
-    if (!(txn<ApplicationID>())) {
-      this::__init__()
-    }
-    switch (txn<OnCompletion>()) {
-      case NoOp: {
-        match_case_L11:
-        this::increment_counter()
-        return true
-      }
-      case _: {
-        return false
-      }
-    }
-  }
-  
-  subroutine test_cases.match.counter.Counter.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine test_cases.match.counter.Counter.__init__(): void
-  {
-    GlobalState['counter']: uint64 = 0u
-  }
-  
-  subroutine test_cases.match.counter.Counter.increment_counter(): void
-  {
-    GlobalState['counter'] += 1u
   }
   
   subroutine algopy._contract.Contract.__init__(): void
