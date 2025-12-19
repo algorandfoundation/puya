@@ -279,7 +279,7 @@ def snake_case(s: str) -> str:
 
 
 def require_callable_type(
-    node: mypy.nodes.FuncBase | mypy.nodes.Decorator, location: SourceLocation
+    node: mypy.nodes.FuncBase, location: SourceLocation
 ) -> mypy.types.CallableType:
     if isinstance(node, mypy.nodes.Decorator):
         typ = node.var.type

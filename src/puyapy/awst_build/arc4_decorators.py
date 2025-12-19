@@ -1,7 +1,6 @@
 import typing
 
 import mypy.nodes
-import mypy.visitor
 from immutabledict import immutabledict
 
 from puya import log
@@ -220,22 +219,38 @@ def _parse_decorator_arg(
     context: ASTConversionModuleContext, name: str, value: mypy.nodes.Expression
 ) -> object:
     visitor = _ARC4DecoratorArgEvaluator(context, name)
-    return value.accept(visitor)
+    return visitor.visit_expression(value)
 
 
-class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
+class _ARC4DecoratorArgEvaluator:
     def __init__(self, context: ASTConversionModuleContext, arg_name: str):
         self.context = context
         self.arg_name = arg_name
 
-    def __getattribute__(self, name: str) -> object:
-        attr = super().__getattribute__(name)
-        if name.startswith("visit_") and not attr.__module__.startswith("puyapy."):
-            return self._not_supported
-        return attr
-
     def _not_supported(self, o: mypy.nodes.Context) -> typing.Never:
         raise CodeError("unexpected argument type", self.context.node_location(o))
+
+    def visit_expression(self, expr: mypy.nodes.Expression) -> object:
+        """Dispatch to the appropriate visit method based on expression type."""
+        match expr:
+            case mypy.nodes.CallExpr():
+                return self.visit_call_expr(expr)
+            case mypy.nodes.StrExpr():
+                return self.visit_str_expr(expr)
+            case mypy.nodes.NameExpr():
+                return self.visit_name_expr(expr)
+            case mypy.nodes.MemberExpr():
+                return self.visit_member_expr(expr)
+            case mypy.nodes.UnaryExpr():
+                return self.visit_unary_expr(expr)
+            case mypy.nodes.ListExpr():
+                return self.visit_list_expr(expr)
+            case mypy.nodes.TupleExpr():
+                return self.visit_tuple_expr(expr)
+            case mypy.nodes.DictExpr():
+                return self.visit_dict_expr(expr)
+            case _:
+                return self._not_supported(expr)
 
     def _resolve_constant_reference(self, expr: mypy.nodes.RefExpr) -> object:
         try:
@@ -245,15 +260,12 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
                 f"unresolved module constant: {expr.fullname}", self.context.node_location(expr)
             ) from None
 
-    @typing.override
     def visit_call_expr(self, o: mypy.nodes.CallExpr) -> Expression:
         return _parse_expression(self.context, o)
 
-    @typing.override
     def visit_str_expr(self, o: mypy.nodes.StrExpr) -> str:
         return o.value
 
-    @typing.override
     def visit_name_expr(self, o: mypy.nodes.NameExpr) -> object:
         if self.arg_name in (_READONLY, _VALIDATE_ENCODING):
             if o.fullname == "builtins.True":
@@ -267,7 +279,6 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
                 return _parse_expression(self.context, o)
         return self._resolve_constant_reference(o)
 
-    @typing.override
     def visit_member_expr(self, o: mypy.nodes.MemberExpr) -> object:
         if self.arg_name == _ALLOWED_ACTIONS and isinstance(o.expr, mypy.nodes.RefExpr):
             unaliased_base_fullname = get_unaliased_fullname(o.expr)
@@ -284,40 +295,39 @@ class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
 
         return self._resolve_constant_reference(o)
 
-    @typing.override
     def visit_unary_expr(self, o: mypy.nodes.UnaryExpr) -> object:
         if self.arg_name == _READONLY:
-            operand = o.expr.accept(self)
+            operand = self.visit_expression(o.expr)
             if o.op == "not":
                 return not operand
         elif self.arg_name == _CLIENT_DEFAULTS:
             return _parse_expression(self.context, o)
         self._not_supported(o)
 
-    @typing.override
     def visit_list_expr(self, o: mypy.nodes.ListExpr) -> object:
         if self.arg_name == _ALLOWED_ACTIONS:
-            return [item.accept(self) for item in o.items]
+            return [self.visit_expression(item) for item in o.items]
         self._not_supported(o)
 
-    @typing.override
     def visit_tuple_expr(self, o: mypy.nodes.TupleExpr) -> object:
         if self.arg_name == _ALLOWED_ACTIONS:
-            return tuple(item.accept(self) for item in o.items)
+            return tuple(self.visit_expression(item) for item in o.items)
         elif self.arg_name == _CLIENT_DEFAULTS:
             return _parse_expression(self.context, o)
         self._not_supported(o)
 
-    @typing.override
     def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
-        return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
+        return {
+            self.visit_expression(key) if key else None: self.visit_expression(value)
+            for key, value in o.items
+        }
 
 
 def _parse_expression(
     context: ASTConversionModuleContext, node: mypy.nodes.Expression
 ) -> Expression:
     converter = _ConstantExpressionASTConverter(context)
-    node_builder = node.accept(converter)
+    node_builder = converter.visit_expression(node)
     instance_builder = require_instance_builder(node_builder)
     return instance_builder.resolve()
 
