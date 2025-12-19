@@ -1,9 +1,8 @@
 import abc
-import ast
 import functools
 import operator
 import typing
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Set
 
 from mypy.types import PROTOCOL_NAMES
 
@@ -16,7 +15,6 @@ from puyapy.awst_build.context import ASTConversionContext, ASTConversionModuleC
 from puyapy.awst_build.utils import log_warnings
 from puyapy.fast import nodes as fast_nodes
 from puyapy.fast.visitors import ExpressionVisitor, StatementVisitor
-from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -101,8 +99,14 @@ class _BaseModuleASTConverter[T](StatementVisitor[T], abc.ABC):
 class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
     def __init__(self, context: ASTConversionModuleContext, module: fast_nodes.Module):
         self.context: typing.Final = context
-        self._const_visitor = ModuleConstantExpressionVisitor(context, context.symbol_table)
         self._imported_modules = set[str]()
+        self._const_visitor = ModuleConstantExpressionVisitor(
+            context, context.symbol_table, self._imported_modules
+        )
+        for builtin_name in ("tuple", "bool", "int", "str", "bytes", "dict", "list"):
+            self.context.symbol_table[builtin_name] = symbols.StubReference(
+                qualified_name="builtins.tuple", definition=None
+            )
         for stmt in module.body:
             with self.context.log_exceptions(fallback_location=stmt.source_location):
                 try:  # noqa: SIM105
@@ -161,6 +165,7 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
         if from_import.type_checking_only:
             # raise NotImplementedError("TODO: support TYPE_CHECKING from-imports")
             return []
+
         self._imported_modules.update(_expand_all_imports(from_import.module))
         if from_import.module in STUB_SYMTABLES:
             stub_syms = STUB_SYMTABLES[from_import.module]
@@ -199,29 +204,38 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
                         self.context.symbol_table[sym_name] = sym
         else:
             mod_data = self.context.modules.get(from_import.module)
-
             if mod_data is None:
                 raise NotImplementedError("TODO: support implict NS imports")
-            else:  # noqa: RET506
-                # TODO: assert mod_data.fast is not None
-                if mod_data.fast is None:
-                    return []
-                if from_import.names is not None:
-                    for alias in from_import.names:
-                        sym = self._resolve_from_import(
-                            mod_data.fast, from_import, alias.name, alias.source_location
-                        )
-                        # TODO: prevent re-def
-                        self.context.symbol_table[alias.as_name or alias.name] = sym
+            if from_import.names is not None:
+                for alias in from_import.names:
+                    sym = self._resolve_from_import(
+                        mod_data.fast, from_import, alias.name, alias.source_location
+                    )
+                    # TODO: prevent re-def
+                    self.context.symbol_table[alias.as_name or alias.name] = sym
+            else:
+                assert mod_data.fast.path != self.context.module_path, "import * from self"
+                if mod_data.fast.dunder_all is not None:
+                    import_names = mod_data.fast.dunder_all
                 else:
-                    # TODO: rebind previously imported modules
-                    for sym_name in mod_data.fast.dunder_all or ():
-                        sym = self._resolve_from_import(
-                            mod_data.fast, from_import, sym_name, from_import.source_location
-                        )
-                        # TODO: prevent re-def
-                        self.context.symbol_table[sym_name] = sym
+                    import_names = tuple(
+                        name
+                        for name in self.context.symbol_tables[from_import.module]
+                        if name[0] != "_"
+                    )
+                # TODO: rebind previously imported modules
+                for sym_name in import_names:
+                    sym = self._resolve_from_import(
+                        mod_data.fast, from_import, sym_name, from_import.source_location
+                    )
+                    # TODO: prevent re-def
+                    self.context.symbol_table[sym_name] = sym
         return []
+
+    def _handle_module_import(self, module_id: str) -> None:
+        self._imported_modules.update(_expand_all_imports(module_id))
+        # self.context.modules[module_id].dependencies
+        raise NotImplementedError
 
     def _resolve_from_import(
         self,
@@ -241,7 +255,7 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
                 symbol_name in mod_fast.symbols.get_identifiers()
                 and qualified_name in self.context.modules
             ):
-                raise CodeError(f"attempted to import  {qualified_name}", loc)
+                raise CodeError(f"attempted to import {qualified_name}", loc)
             self._imported_modules.add(qualified_name)
         return symbols.ImportedModule(
             qualified_name=qualified_name,
@@ -270,34 +284,51 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
                     "only straight-forward assignment targets supported at module level",
                     unsupported.source_location,
                 )
-        match assign.annotation:
-            case None:
-                # if no annotation, then for our purposes, implicit type-alias detection is simple,
-                # we can check for Attribute, Name, or a Subscript thereof, and if the reference
-                # resolves to a type (which will be available as a predecessor, and can't be
-                # quoted (at least not the root reference expression) without an explicit TypeAlias
-                # annotation), then it must be a type alias, otherwise it must be a constant
-                # expression
-                pass
-            case fast_nodes.Constant(value=str()):
-                raise CodeError(
-                    "quoted type-annotations are not supported on module level assignments",
-                    assign.source_location,
-                )
-            case fast_nodes.Attribute(base=fast_nodes.Name(id=module), attr="TypeAlias") if (
-                isinstance(
-                    module_sym := self.context.symbol_table.get(module), symbols.ImportedModule
-                )
-            ) and module_sym.qualified_name in ("typing", "typing_extensions"):
-                match assign.value:
-                    case fast_nodes.Constant(value=str()):
-                        self.context.symbol_table[target] = symbols.DeferredTypeAlias(
-                            definition=assign
-                        )
-                    case fast_nodes.Subscript():
-                        pass
-        # TODO!!!
-        self.context.symbol_table[target] = symbols.DeferredTypeAlias(definition=assign)
+        match assign.value:
+            case fast_nodes.Name(id=source) if (
+                source_sym := self.context.symbol_table.get(source)
+            ) and not isinstance(source_sym, symbols.Const):
+                self.context.symbol_table[target] = symbols.DeferredTypeAlias(definition=assign)
+                return []
+        try:
+            value = self._visit_const_expr(assign.value)
+        except SymbolIsNotAConstantError:
+            # TODO: !!!
+            self.context.symbol_table[target] = symbols.DeferredTypeAlias(definition=assign)
+        else:
+            self.context.symbol_table[target] = symbols.Const(
+                qualified_name=".".join((self.context.module_name, target)),
+                definition=assign,
+                value=value,
+            )
+        # match assign.annotation:
+        #     case None:
+        #         # if no annotation, then for our purposes, implicit type-alias detection is simple,
+        #         # we can check for Attribute, Name, or a Subscript thereof, and if the reference
+        #         # resolves to a type (which will be available as a predecessor, and can't be
+        #         # quoted (at least not the root reference expression) without an explicit TypeAlias
+        #         # annotation), then it must be a type alias, otherwise it must be a constant
+        #         # expression
+        #         pass
+        #     case fast_nodes.Constant(value=str()):
+        #         raise CodeError(
+        #             "quoted type-annotations are not supported on module level assignments",
+        #             assign.source_location,
+        #         )
+        #     case fast_nodes.Attribute(base=fast_nodes.Name(id=module), attr="TypeAlias") if (
+        #         isinstance(
+        #             module_sym := self.context.symbol_table.get(module), symbols.ImportedModule
+        #         )
+        #     ) and module_sym.qualified_name in ("typing", "typing_extensions"):
+        #         match assign.value:
+        #             case fast_nodes.Constant(value=str()):
+        #                 self.context.symbol_table[target] = symbols.DeferredTypeAlias(
+        #                     definition=assign
+        #                 )
+        #             case fast_nodes.Subscript():
+        #                 pass
+        # # TODO!!!
+        # self.context.symbol_table[target] = symbols.DeferredTypeAlias(definition=assign)
         return []
 
     @typing.override
@@ -305,7 +336,7 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
         # multi-assignments cannot be annotated, and cannot be implicit type-aliases (can't
         # find a spec for the latter other than it's mypy's behaviour)
         # therefore they must be simple constant expressions
-        value = multi_assign.value.accept(self._const_visitor)
+        value = self._visit_const_expr(multi_assign.value)
         for lvalue in multi_assign.targets:
             match lvalue:
                 case fast_nodes.Name(id=target):
@@ -330,7 +361,7 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
 
     @typing.override
     def visit_if(self, if_stmt: fast_nodes.If) -> StatementResult:
-        condition = if_stmt.test.accept(self._const_visitor)
+        condition = self._visit_const_expr(if_stmt.test)
         if condition:
             branch = if_stmt.body
         else:
@@ -338,6 +369,12 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
         result = StatementResult()
         for stmt in branch:
             result.extend(stmt.accept(self))
+        return result
+
+    def _visit_const_expr(self, expr: fast_nodes.Expression) -> fast_nodes.ConstantValue:
+        result = expr.accept(self._const_visitor)
+        if not isinstance(result, fast_nodes.ConstantValue):
+            raise CodeError("unsupported result type", expr.source_location)
         return result
 
 
@@ -417,10 +454,20 @@ class AnnotationEvaluator(ExpressionVisitor[pytypes.PyType]):
         raise CodeError("")
 
 
-class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue]):
-    def __init__(self, ctx: ASTConversionContext, symbol_table: Mapping[str, symbols.Symbol]):
+class SymbolIsNotAConstantError(CodeError):
+    pass
+
+
+class ModuleConstantExpressionVisitor(ExpressionVisitor[object]):
+    def __init__(
+        self,
+        ctx: ASTConversionContext,
+        symbol_table: Mapping[str, symbols.Symbol],
+        imported_modules: Set[str],
+    ):
         self.ctx: typing.Final = ctx
         self.symbols: typing.Final = symbol_table
+        self.imported_modules: typing.Final = imported_modules
 
     @typing.override
     def visit_constant(self, constant: fast_nodes.Constant) -> fast_nodes.ConstantValue:
@@ -428,43 +475,102 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
 
     @typing.override
     def visit_name(self, name: fast_nodes.Name) -> fast_nodes.ConstantValue:
-        raise NotImplementedError
+        try:
+            sym = self.symbols[name.id]
+        except KeyError:
+            raise CodeError("unable to resolve symbol", name.source_location) from None
+        if not isinstance(sym, symbols.Const):
+            raise SymbolIsNotAConstantError("expected a module constant", name.source_location)
+        return sym.value
 
     @typing.override
     def visit_attribute(self, attribute: fast_nodes.Attribute) -> fast_nodes.ConstantValue:
-        raise NotImplementedError
+        submodules = list[str]()
+        base = attribute.base
+        while isinstance(base, fast_nodes.Attribute):
+            submodules.append(base.attr)
+            base = base.base
+        if not isinstance(base, fast_nodes.Name):
+            raise CodeError("unsupported expression syntax at this location", base.source_location)
+        try:
+            mod_sym = self.symbols[base.id]
+        except KeyError:
+            raise CodeError("unable to resolve module", base.source_location) from None
+        if not isinstance(mod_sym, symbols.ImportedModule):
+            raise CodeError("expected a module reference", base.source_location)
+        module_fullname = ".".join((mod_sym.qualified_name, *reversed(submodules)))
+        if module_fullname not in self.imported_modules:
+            raise CodeError(
+                f"module {module_fullname} has not been imported", attribute.base.source_location
+            )
+        module_symtable = self.ctx.symbol_tables[module_fullname]
+        try:
+            var_sym = module_symtable[attribute.attr]
+        except KeyError:
+            raise CodeError("unable to resolve attribute", attribute.source_location) from None
+        if not isinstance(var_sym, symbols.Const):
+            raise SymbolIsNotAConstantError(
+                "expected a module constant", attribute.source_location
+            )
+        return var_sym.value
 
     @typing.override
-    def visit_subscript(self, subscript: fast_nodes.Subscript) -> fast_nodes.ConstantValue:
-        raise NotImplementedError
+    def visit_subscript(self, subscript: fast_nodes.Subscript) -> object:
+        base = subscript.base.accept(self)
+        indexes = list[object]()
+        for index_expr in subscript.indexes:
+            if not isinstance(index_expr, fast_nodes.Slice):
+                index = index_expr.accept(self)
+            else:
+                lower = self._visit_optional(index_expr.lower)
+                upper = self._visit_optional(index_expr.upper)
+                step = self._visit_optional(index_expr.step)
+                index = slice(lower, upper, step)
+            indexes.append(index)
+        try:
+            (indexer,) = indexes
+        except ValueError:
+            indexer = tuple(indexes)
+        try:
+            return base[indexer]  # type: ignore[index]
+        except Exception as ex:
+            raise CodeError(str(ex), subscript.source_location) from ex
+
+    def _visit_optional(self, expr: fast_nodes.Expression | None) -> object:
+        if expr is None:
+            return None
+        return expr.accept(self)
 
     @typing.override
-    def visit_bool_op(self, bool_op: fast_nodes.BoolOp) -> fast_nodes.ConstantValue:
+    def visit_bool_op(self, bool_op: fast_nodes.BoolOp) -> object:
         values = [operand.accept(self) for operand in bool_op.values]
-        func: Callable[[fast_nodes.ConstantValue, fast_nodes.ConstantValue], object]
+        func: Callable[[object, object], object]
         match bool_op.op:
-            case ast.And():
+            case "and":
                 func = lambda a, b: a and b  # noqa: E731
-            case ast.Or():
+            case "or":
                 func = lambda a, b: a or b  # noqa: E731
             case _:
                 raise CodeError("unsupported boolean operator", bool_op.source_location)
         result = functools.reduce(func, values)
-        return _checked_constant_result(result, bool_op.source_location)
+        return result
 
     @typing.override
-    def visit_bin_op(self, bin_op: fast_nodes.BinOp) -> fast_nodes.ConstantValue:
-        raise NotImplementedError
+    def visit_bin_op(self, bin_op: fast_nodes.BinOp) -> object:
+        left = bin_op.left.accept(self)
+        right = bin_op.right.accept(self)
+        result = fold_binary_expr(bin_op.source_location, bin_op.op, left, right)
+        return result
 
     @typing.override
-    def visit_unary_op(self, unary_op: fast_nodes.UnaryOp) -> fast_nodes.ConstantValue:
+    def visit_unary_op(self, unary_op: fast_nodes.UnaryOp) -> object:
         value = unary_op.operand.accept(self)
         result = fold_unary_expr(unary_op.source_location, unary_op.op, value)
-        return _checked_constant_result(result, unary_op.source_location)
+        return result
 
     @typing.override
-    def visit_if_exp(self, if_exp: fast_nodes.IfExp) -> fast_nodes.ConstantValue:
-        condition = if_exp.accept(self)
+    def visit_if_exp(self, if_exp: fast_nodes.IfExp) -> object:
+        condition = if_exp.test.accept(self)
         if condition:
             branch = if_exp.true
         else:
@@ -472,34 +578,31 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
         return branch.accept(self)
 
     @typing.override
-    def visit_compare(self, compare: fast_nodes.Compare) -> fast_nodes.ConstantValue:
-        raise NotImplementedError
+    def visit_compare(self, compare: fast_nodes.Compare) -> object:
+        result = compare.left.accept(self)
+        for op, operand in zip(compare.ops, compare.comparators, strict=True):
+            left = result
+            right = operand.accept(self)
+            result = fold_cmp_expr(compare.source_location, op, left, right)
+            if not result:
+                break
+        return result
 
     @typing.override
-    def visit_call(self, call: fast_nodes.Call) -> fast_nodes.ConstantValue:
+    def visit_call(self, call: fast_nodes.Call) -> object:
         match call.func:
-            case fast_nodes.Attribute(base=fast_nodes.Constant(value=base), attr=func_name):
-                args = [self._visit_call_arg(arg) for arg in call.args]
-                kwargs = {name: self._visit_call_arg(arg) for name, arg in call.kwargs.items()}
+            case fast_nodes.Attribute(base=base_expr, attr=func_name):
+                base = base_expr.accept(self)
+                args = [arg.accept(self) for arg in call.args]
+                kwargs = {name: arg.accept(self) for name, arg in call.kwargs.items()}
                 try:
                     func = getattr(base, func_name)
                     result = func(*args, **kwargs)
                 except Exception as ex:
                     raise CodeError(str(ex), call.source_location) from ex
                 else:
-                    if not isinstance(result, ConstantValue):
-                        raise CodeError("unsupported result type", call.source_location)
                     return result
         return self._unsupported(call)
-
-    def _visit_call_arg(self, expr: fast_nodes.Expression) -> object:
-        match expr:
-            case fast_nodes.ListExpr(elements=items):
-                return [item.accept(self) for item in items]
-            case fast_nodes.TupleExpr(elements=items):
-                return tuple(item.accept(self) for item in items)
-            case _:
-                return expr.accept(self)
 
     @typing.override
     def visit_formatted_value(self, formatted_value: fast_nodes.FormattedValue) -> str:
@@ -525,16 +628,31 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
         )
 
     @typing.override
-    def visit_tuple_expr(self, tuple_expr: fast_nodes.TupleExpr) -> typing.Never:
-        self._unsupported(tuple_expr)
+    def visit_tuple_expr(self, tuple_expr: fast_nodes.TupleExpr) -> tuple[object, ...]:
+        return tuple(el.accept(self) for el in tuple_expr.elements)
 
     @typing.override
-    def visit_list_expr(self, list_expr: fast_nodes.ListExpr) -> typing.Never:
-        self._unsupported(list_expr)
+    def visit_list_expr(self, list_expr: fast_nodes.ListExpr) -> tuple[object, ...]:
+        logger.warning(
+            "only immutable data is supported at the module level, treating list as tuple",
+            location=list_expr.source_location,
+        )
+        return tuple(el.accept(self) for el in list_expr.elements)
 
     @typing.override
     def visit_dict_expr(self, dict_expr: fast_nodes.DictExpr) -> typing.Never:
         self._unsupported(dict_expr)
+        # result = dict[object, object]()
+        # for k, v in dict_expr.pairs:
+        #     value = v.accept(self)
+        #     if k is not None:
+        #         result[k.accept(self)] = value
+        #     else:
+        #         try:
+        #             result.update(value)  # type: ignore[call-overload]
+        #         except Exception as ex:
+        #             raise CodeError(str(ex), v.source_location) from ex
+        # return result
 
     @typing.override
     def visit_named_expr(self, named_expr: fast_nodes.NamedExpr) -> typing.Never:
@@ -549,12 +667,6 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[fast_nodes.ConstantValue
         raise CodeError(msg, node.source_location) from ex
 
 
-def _checked_constant_result(result: object, loc: SourceLocation) -> fast_nodes.ConstantValue:
-    if not isinstance(result, ConstantValue):
-        raise CodeError("unsupported result type", loc)
-    return result
-
-
 UNARY_OPS: typing.Final[Mapping[fast_nodes.UnaryOperator, Callable[[typing.Any], typing.Any]]] = {
     "~": operator.inv,
     "not": operator.not_,
@@ -567,7 +679,7 @@ def fold_unary_expr(
     location: SourceLocation, op: fast_nodes.UnaryOperator, expr: object
 ) -> object:
     if not (func := UNARY_OPS.get(op)):
-        raise InternalError(f"Unhandled unary operator: {op}", location)
+        raise InternalError(f"unhandled unary operator: {op}", location)
     if op == "~" and isinstance(expr, int):
         logger.warning(
             "due to Python ints being signed, bitwise inversion yield a negative number",
@@ -576,6 +688,75 @@ def fold_unary_expr(
     try:
         with log_warnings(location):
             result = func(expr)
+    except Exception as ex:
+        raise CodeError(str(ex), location) from ex
+    return result
+
+
+BINARY_OPS: typing.Final[
+    Mapping[fast_nodes.BinaryOperator, Callable[[typing.Any, typing.Any], typing.Any]]
+] = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+    "@": operator.matmul,
+    "/": operator.truediv,
+    "%": operator.mod,
+    "**": operator.pow,
+    "<<": operator.lshift,
+    ">>": operator.rshift,
+    "|": operator.or_,
+    "^": operator.xor,
+    "&": operator.and_,
+    "//": operator.floordiv,
+}
+
+
+def fold_binary_expr(
+    location: SourceLocation,
+    op: fast_nodes.BinaryOperator,
+    lhs: object,
+    rhs: object,
+) -> object:
+    if not (func := BINARY_OPS.get(op)):
+        raise InternalError(f"unhandled binary operator: {op}", location)
+    try:
+        with log_warnings(location):
+            result = func(lhs, rhs)
+    except Exception as ex:
+        raise CodeError(str(ex), location) from ex
+    return result
+
+
+COMPARISON_OPS: typing.Final[
+    Mapping[fast_nodes.ComparisonOperator, Callable[[typing.Any, typing.Any], bool]]
+] = {
+    ">": operator.gt,
+    "<": operator.lt,
+    "==": operator.eq,
+    ">=": operator.ge,
+    "<=": operator.le,
+    "!=": operator.ne,
+    "is": operator.is_,
+    "is not": operator.is_not,
+    "in": lambda a, b: a in b,
+    "not in": lambda a, b: a not in b,
+    # "and": lambda a, b: a and b,
+    # "or": lambda a, b: a or b,
+}
+
+
+def fold_cmp_expr(
+    location: SourceLocation,
+    op: fast_nodes.ComparisonOperator,
+    lhs: object,
+    rhs: object,
+) -> object:
+    if not (func := COMPARISON_OPS.get(op)):
+        raise InternalError(f"unhandled binary operator: {op}", location)
+    try:
+        with log_warnings(location):
+            result = func(lhs, rhs)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
     return result
