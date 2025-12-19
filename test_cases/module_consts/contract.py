@@ -48,6 +48,7 @@ SHOULD_BE_0 = EXT_ONE if False else EXT_ZERO
 STAR1 = USE_CONSTANTS2
 STAR2 = USED_CONSTANTS3
 # STAR3: str = USED_UNLISTED_CONSTANT3  # type: ignore[name-defined]
+FOOOOOO = constants4.constants3.constants2.USE_CONSTANTS2
 FOOOO = constants4.constants3.USED_CONSTANTS3
 
 JOINED = ", ".join(["1", ZEROS])
