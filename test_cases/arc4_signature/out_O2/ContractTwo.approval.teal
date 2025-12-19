@@ -1,0 +1,165 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0 2 8
+    txn NumAppArgs
+    bz main___algopy_default_create@12
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x5124353e 0xf59e3cc4 0x754a42cb 0x249ceaf2 0xe32d1468 // method "renamed_some_method()void", method "test()bool", method "reference_types_index(pay,asset,account,application,appl)void", method "reference_types_value(pay,uint64,address,uint64,appl)void", method "test_tuple((uint64,ufixed64x10,uint64[3],uint32[],bool,address,byte[16]))(uint64,ufixed64x10,uint64[3],uint32[],bool,address,byte[16])"
+    txna ApplicationArgs 0
+    match main_renamed_some_method_route@4 main_test_route@5 main_reference_types_index_route@6 main_reference_types_value_route@7 main_test_tuple_route@8
+    err
+
+main_test_tuple_route@8:
+    txna ApplicationArgs 1
+    dup
+    len
+    dig 1
+    pushint 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 91
+    ==
+    assert // invalid tail pointer at index 3 of (uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16])
+    dig 2
+    swap
+    dig 2
+    substring3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 4
+    *
+    pushint 93
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.ufixed64x10,arc4.static_array<arc4.uint64, 3>,arc4.dynamic_array<arc4.uint32>,arc4.bool,arc4.static_array<arc4.uint8, 32>,arc4.static_array<arc4.uint8, 16>>
+    dig 1
+    extract 0 8
+    dig 2
+    extract 8 8
+    dig 3
+    extract 16 24
+    dig 4
+    pushint 336
+    getbit
+    pushbytes 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    dig 5
+    extract 43 32
+    uncover 6
+    extract 75 16
+    uncover 5
+    uncover 5
+    concat
+    uncover 4
+    concat
+    pushbytes 0x005b
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_reference_types_value_route@7:
+    txn GroupIndex
+    intc_2 // 2
+    -
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txn GroupIndex
+    intc_0 // 1
+    -
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    intc_0 // 1
+    return
+
+main_reference_types_index_route@6:
+    txn GroupIndex
+    intc_2 // 2
+    -
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 2
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 3
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txn GroupIndex
+    intc_0 // 1
+    -
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    intc_0 // 1
+    return
+
+main_test_route@5:
+    pushbytes 0x151f7c7580
+    log
+    intc_0 // 1
+    return
+
+main_renamed_some_method_route@4:
+    intc_0 // 1
+    return
+
+main___algopy_default_create@12:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return

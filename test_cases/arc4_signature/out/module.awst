@@ -1,0 +1,90 @@
+contract ContractOne
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractOne.test(): void
+  {
+    assert(Method(name="renamed_some_method",args=(),result=void,resource_encoding="value") == Method("renamed_some_method()void"))
+    assert(Method(name="test_tuple",args=(tuple<uint64,arc4.ufixed64x10,arc4.static_array<asset, 3>,arc4.dynamic_array<arc4.uint32>,arc4.bool,arc4.static_array<arc4.uint8, 32>,bytes[16]>),result=tuple<uint64,arc4.ufixed64x10,arc4.static_array<asset, 3>,arc4.dynamic_array<arc4.uint32>,arc4.bool,arc4.static_array<arc4.uint8, 32>,bytes[16]>,resource_encoding="index") == Method("test_tuple((uint64,ufixed64x10,asset[3],uint32[],bool,address,byte[16]))(uint64,ufixed64x10,uint64[3],uint32[],bool,address,byte[16])"))
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractOne.some_method(): uint64
+  {
+    return 123u
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractOne.test_reference_types(): void
+  {
+    assert(Method(name="reference_types_index",args=(group_transaction_pay,asset,account,application,group_transaction_appl),result=void,resource_encoding="index") == Method("reference_types_index(pay,asset,account,application,appl)void"))
+    assert(Method(name="reference_types_value",args=(group_transaction_pay,asset,account,application,group_transaction_appl),result=void,resource_encoding="value") == Method("reference_types_value(pay,uint64,address,uint64,appl)void"))
+  }
+  
+  baremethod test_cases.arc4_signature.contract.ContractOne.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ContractTwo
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod[name_override=renamed_some_method] test_cases.arc4_signature.contract.ContractTwo.some_method(): void
+  {
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractTwo.test(): bool
+  {
+    return Method(name="some_method",args=(),result=uint64,resource_encoding="value") == Method("some_method()uint64")
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractTwo.reference_types_index(pay: group_transaction_pay, asset: asset, account: account, app: application, app_txn: group_transaction_appl): void
+  {
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractTwo.reference_types_value(pay: group_transaction_pay, asset: asset, account: account, app: application, app_txn: group_transaction_appl): void
+  {
+  }
+  
+  abimethod test_cases.arc4_signature.contract.ContractTwo.test_tuple(val: tuple<uint64,arc4.ufixed64x10,arc4.static_array<asset, 3>,arc4.dynamic_array<arc4.uint32>,arc4.bool,arc4.static_array<arc4.uint8, 32>,bytes[16]>): tuple<uint64,arc4.ufixed64x10,arc4.static_array<asset, 3>,arc4.dynamic_array<arc4.uint32>,arc4.bool,arc4.static_array<arc4.uint8, 32>,bytes[16]>
+  {
+    return val
+  }
+  
+  baremethod test_cases.arc4_signature.contract.ContractTwo.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
