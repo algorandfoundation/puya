@@ -485,10 +485,10 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[object]):
 
     @typing.override
     def visit_attribute(self, attribute: fast_nodes.Attribute) -> fast_nodes.ConstantValue:
-        submodules = list[str]()
+        sub_attrs = list[fast_nodes.Attribute]()
         base = attribute.base
         while isinstance(base, fast_nodes.Attribute):
-            submodules.append(base.attr)
+            sub_attrs.append(base)
             base = base.base
         if not isinstance(base, fast_nodes.Name):
             raise CodeError("unsupported expression syntax at this location", base.source_location)
@@ -498,7 +498,24 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[object]):
             raise CodeError("unable to resolve module", base.source_location) from None
         if not isinstance(mod_sym, symbols.ImportedModule):
             raise CodeError("expected a module reference", base.source_location)
-        module_fullname = ".".join((mod_sym.qualified_name, *reversed(submodules)))
+
+        module_fullname = mod_sym.qualified_name
+        while sub_attrs:
+            try:
+                module_symtable = self.ctx.symbol_tables[module_fullname]
+            except KeyError:
+                raise CodeError(
+                    "unable to resolve module", attribute.base.source_location
+                ) from None
+            mod_access = sub_attrs.pop()
+            if mod_access.attr not in module_symtable:
+                module_fullname = ".".join((module_fullname, mod_access.attr))
+            else:
+                sub_mod_sym = module_symtable[mod_access.attr]
+                if not isinstance(sub_mod_sym, symbols.ImportedModule):
+                    raise CodeError("expected a module reference", mod_access.source_location)
+                module_fullname = sub_mod_sym.qualified_name
+
         if module_fullname not in self.imported_modules:
             # TODO: error! need to get imports-of-imports working first though
             logger.warning(
