@@ -237,8 +237,11 @@ class ModuleFASTConverter(_BaseModuleASTConverter[StatementResult]):
                 return mod_syms[symbol_name]
             except KeyError:
                 pass
-            if symbol_name in mod_fast.symbols.get_identifiers():
-                raise CodeError(f"could not resolve symbol {qualified_name}", loc)
+            if (
+                symbol_name in mod_fast.symbols.get_identifiers()
+                and qualified_name in self.context.modules
+            ):
+                raise CodeError(f"attempted to import  {qualified_name}", loc)
             self._imported_modules.add(qualified_name)
         return symbols.ImportedModule(
             qualified_name=qualified_name,
