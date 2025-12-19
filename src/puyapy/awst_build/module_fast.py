@@ -500,8 +500,10 @@ class ModuleConstantExpressionVisitor(ExpressionVisitor[object]):
             raise CodeError("expected a module reference", base.source_location)
         module_fullname = ".".join((mod_sym.qualified_name, *reversed(submodules)))
         if module_fullname not in self.imported_modules:
-            raise CodeError(
-                f"module {module_fullname} has not been imported", attribute.base.source_location
+            # TODO: error! need to get imports-of-imports working first though
+            logger.warning(
+                f"module {module_fullname} has not been imported",
+                location=attribute.base.source_location,
             )
         module_symtable = self.ctx.symbol_tables[module_fullname]
         try:

@@ -5,12 +5,18 @@ import typing
 from collections.abc import Mapping
 from pathlib import Path
 
-from mypy.build import BuildManager, load_graph, order_ascc, process_stale_scc, sorted_components
+from mypy.build import (
+    BuildManager,
+    State as MypyState,
+    load_graph,
+    order_ascc,
+    process_stale_scc,
+    sorted_components,
+)
 from mypy.error_formatter import ErrorFormatter
 from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
-from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
 from mypy.typestate import reset_global_state, type_state
@@ -29,7 +35,7 @@ logger = log.get_logger(__name__)
 
 def mypy_parse(
     module_data: Mapping[str, "_ModuleData"],
-) -> tuple[MypyOptions, Mapping[str, MypyFile]]:
+) -> tuple[MypyOptions, Mapping[str, MypyState]]:
     fs_cache = FileSystemCache()
     # prime the cache with supplied content overrides, so that mypy reads from our data instead
     for md in module_data.values():
@@ -119,7 +125,7 @@ def _mypy_build(
     search_paths: SearchPaths,
     fscache: FileSystemCache,
     algopy_sources: Mapping[str, Path],
-) -> dict[str, MypyFile]:
+) -> dict[str, MypyState]:
     """Simple wrapper around mypy.build.build
 
     Makes it so that check errors and parse errors are handled the same (ie with an exception)
@@ -191,7 +197,7 @@ def _mypy_build(
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=options)
-    return {module_name: manager.modules[module_name] for module_name in sorted_modules}
+    return {module_name: graph[module_name] for module_name in sorted_modules}
 
 
 class _LogReporter(ErrorFormatter):
