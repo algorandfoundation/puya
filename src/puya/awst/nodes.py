@@ -542,6 +542,19 @@ class TemplateVar(Expression):
         return visitor.visit_template_var(self)
 
 
+@attrs.frozen
+class MethodSignatureString(Node):
+    value: str
+
+
+@attrs.frozen
+class MethodSignature(Node):
+    name: str = attrs.field()
+    arg_types: Sequence[wtypes.WType] = attrs.field(converter=tuple[wtypes.WType, ...])
+    return_type: wtypes.WType
+    resource_encoding: typing.Literal["index", "value"] = "value"
+
+
 @attrs.frozen(kw_only=True)
 class MethodConstant(Expression):
     """
@@ -554,7 +567,7 @@ class MethodConstant(Expression):
         default=wtypes.bytes_wtype,
         validator=attrs.validators.in_([wtypes.bytes_wtype, wtypes.BytesWType(length=4)]),
     )
-    value: str
+    value: MethodSignature | MethodSignatureString
     """An ARC4 method signature. eg. my_method(int,string)bytes"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
