@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable, Set
+from collections.abc import Callable, Mapping, Set
 
 import attrs
 import mypy.nodes
@@ -7,6 +7,7 @@ import mypy.types
 import mypy.visitor
 
 import puyapy.fast.nodes
+import puyapy.fast.visitors.traversers
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals
@@ -55,6 +56,37 @@ _BUILTIN_INHERITABLE: typing.Final = frozenset(
 )
 
 
+@attrs.frozen
+class _FastFinder(puyapy.fast.visitors.traversers.StatementTraverser):
+    _result: dict[tuple[str, int], puyapy.fast.nodes.FunctionDef | puyapy.fast.nodes.ClassDef] = (
+        attrs.field(factory=dict, init=False)
+    )
+
+    @classmethod
+    def build(
+        cls, module: puyapy.fast.nodes.Module
+    ) -> Mapping[tuple[str, int], puyapy.fast.nodes.FunctionDef | puyapy.fast.nodes.ClassDef]:
+        finder = _FastFinder()
+        finder.visit_module(module)
+        return finder._result  # noqa: SLF001
+
+    @typing.override
+    def visit_function_def(self, func_def: puyapy.fast.nodes.FunctionDef) -> None:
+        maybe_existing = self._result.setdefault(
+            (func_def.name, func_def.source_location.line), func_def
+        )
+        if maybe_existing is not func_def:
+            raise InternalError("duplicate definition??", func_def.source_location)
+
+    @typing.override
+    def visit_class_def(self, class_def: puyapy.fast.nodes.ClassDef) -> None:
+        maybe_existing = self._result.setdefault(
+            (class_def.name, class_def.source_location.line), class_def
+        )
+        if maybe_existing is not class_def:
+            raise InternalError("duplicate definition??", class_def.source_location)
+
+
 class ModuleASTConverter(
     BaseMyPyStatementVisitor[StatementResult], BaseMyPyExpressionVisitor[ConstantValue]
 ):
@@ -71,6 +103,7 @@ class ModuleASTConverter(
         self.module_name: typing.Final = tree.name
         assert tree.name == module.fullname
         self._pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
+        self._fast_lookup: typing.Final = _FastFinder.build(tree)
         for node in module.defs:
             with self.context.log_exceptions(fallback_location=node):
                 items = node.accept(self)
@@ -102,6 +135,8 @@ class ModuleASTConverter(
         dec_by_fullname = get_decorators_by_fullname(self.context, decorator) if decorator else {}
         source_location = self._location(decorator or func_def)
         logicsig_dec = dec_by_fullname.pop(constants.LOGICSIG_DECORATOR, None)
+        fast_func_def = self._fast_lookup.get((func_def.name, func_def.line))
+        assert fast_func_def, func_def.fullname
         if logicsig_dec:
             for dec in dec_by_fullname.values():
                 logger.error("unsupported logicsig decorator", location=dec.loc)
@@ -193,6 +228,8 @@ class ModuleASTConverter(
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)
         cdef_loc = self._location(cdef)
+        fast_cdef = self._fast_lookup.get((cdef.name, cdef.line))
+        assert fast_cdef, cdef.fullname
         match cdef.analyzed:
             case None:
                 pass

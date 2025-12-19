@@ -6,7 +6,6 @@ from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.module import ModuleASTConverter
-from puyapy.awst_build.module_fast import ModuleFASTConverter
 from puyapy.options import PuyaPyOptions, set_puyapy_options
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
 from puyapy.validation.main import validate_awst
@@ -34,7 +33,7 @@ def _transform_ast(
         logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
         module_ctx = ctx.for_module(src.name, src.path)
         user_modules.append((src, ModuleASTConverter(module_ctx, src.mypy_module, src.fast)))
-        _ = ModuleFASTConverter(module_ctx, src.fast)
+        # _ = ModuleFASTConverter(module_ctx, src.fast)
 
     compilation_set = list[ContractReference | LogicSigReference]()
     awst = list[RootNode]()
