@@ -11,7 +11,7 @@ from immutabledict import immutabledict
 from puya.parse import SourceLocation
 from puyapy.fast.visitors import ExpressionVisitor, MatchPatternVisitor, StatementVisitor
 
-type ConstantValue = None | str | bytes | bool | int | float | complex | types.EllipsisType
+ConstantValue = None | str | bytes | bool | int | float | complex | types.EllipsisType
 
 type ValueContext = typing.Literal["load", "store", "del"]
 type BinaryOperator = typing.Literal[
