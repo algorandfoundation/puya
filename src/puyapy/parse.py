@@ -1,4 +1,3 @@
-import contextlib
 import enum
 import graphlib
 import sys
@@ -15,9 +14,9 @@ from packaging import version
 from puya import log
 from puya.errors import CodeError, ConfigurationError, InternalError
 from puya.utils import make_path_relative_to_cwd, set_add, unique
-from puyapy.dependency_analysis import Dependency, DependencyFlags, resolve_import_dependencies
+from puyapy._stub_symtables import STUB_SYMTABLES
 from puyapy.fast import nodes as fast_nodes
-from puyapy.fast.visitors.traversers import StatementTraverser
+from puyapy.find_imports import ImportResolver
 from puyapy.find_sources import ResolvedSource, create_source_list
 from puyapy.package_path import PackageResolverCache, resolve_package_paths
 from puyapy.parse_mypy import mypy_parse
@@ -100,13 +99,9 @@ def fast_to_awst(module_data: Mapping[str, "_ModuleData"]) -> ParseResult:
     module_data = dict(module_data)
     mypy_options, mypy_modules_by_name = mypy_parse(module_data)
 
+    module_graph = _build_hard_dependency_graph(module_data)
+
     # order modules by dependency
-    module_graph = {
-        md.module: unique(
-            dep.module_id for dep in md.dependencies if dep.flags == DependencyFlags.NONE
-        )
-        for md in module_data.values()
-    }
     try:
         module_order = list(graphlib.TopologicalSorter(module_graph).static_order())
     except graphlib.CycleError as ex:
@@ -133,12 +128,51 @@ def fast_to_awst(module_data: Mapping[str, "_ModuleData"]) -> ParseResult:
             lines=lines,
             fast=md.fast,
             discovery_mechanism=discovery_mechanism,
-            dependencies=frozenset(dep.module_id for dep in md.dependencies),
+            dependencies=frozenset(module_graph[md.module]),
         )
     if module_data:
         raise InternalError(f"parse has leftover modules: {', '.join(module_data.keys())}")
 
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
+
+
+def _build_hard_dependency_graph(module_data: Mapping[str, "_ModuleData"]) -> dict[str, list[str]]:
+    edges = dict[str, list[str]]()
+    for module_id, md in module_data.items():
+        deps = list[str]()
+        for stmt in md.fast.body:
+            if isinstance(stmt, fast_nodes.ModuleImport):
+                if not stmt.type_checking_only:
+                    for alias in stmt.names:
+                        if alias.name in module_data:  # otherwise should be dir
+                            deps.append(alias.name)
+            elif isinstance(stmt, fast_nodes.FromImport):  # noqa: SIM102
+                if not (stmt.type_checking_only or stmt.module in STUB_SYMTABLES):
+                    from_md = module_data.get(stmt.module)
+                    if (
+                        # otherwise should be dir
+                        from_md is not None
+                        # check for self-reference
+                        and stmt.module != module_id
+                    ):
+                        deps.append(stmt.module)
+                    if from_md is None:
+                        if stmt.names is not None:
+                            for alias in stmt.names:
+                                deps.append(".".join((stmt.module, alias.name)))
+                    elif from_md.path.name == "__init__.py":
+                        if stmt.names is None:
+                            for maybe_sub_name in from_md.fast.dunder_all or ():
+                                maybe_sub_id = ".".join((stmt.module, maybe_sub_name))
+                                if maybe_sub_id in module_data:
+                                    deps.append(maybe_sub_id)
+                        else:
+                            for alias in stmt.names:
+                                maybe_sub_id = ".".join((stmt.module, alias.name))
+                                if maybe_sub_id in module_data:
+                                    deps.append(maybe_sub_id)
+        edges[module_id] = unique(deps)
+    return edges
 
 
 def _check_source_list_and_extract_package_roots(
@@ -207,8 +241,6 @@ class _ModuleData:
     module: str
     """Module name (e.g. 'pkg.module')"""
     text: str
-    dependencies: tuple[Dependency, ...]
-    """Dependency set, and whether it's a module-level dependency (vs function scoped)"""
     fast: fast_nodes.Module
     is_source: bool
 
@@ -228,7 +260,6 @@ def _fast_parse_and_resolve_imports(
         file_contents,
         feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
     )
-    checker = _ConditionalImportChecker()
     while source_queue:
         rs = source_queue.dequeue()
         source = source_provider.read_source(rs.path)
@@ -238,44 +269,24 @@ def _fast_parse_and_resolve_imports(
         )
         if fast is None:
             continue
-        checker.visit_module(fast)
-        dependencies = resolve_import_dependencies(
+        ancestor = next(_resolve_ancestors(rs), None)
+        if ancestor is not None:
+            source_queue.enqueue(ancestor)
+        imported = ImportResolver.collect(
             fast,
             source_roots=source_roots,
             package_cache=package_cache,
             import_base_dir=rs.base_dir or rs.path.parent,
             source_provider=source_provider,
         )
-        for dep in dependencies:
-            if dep.path is None:
-                assert DependencyFlags.STUB in dep.flags
-                for ancestor_id in _expand_ancestors(dep.module_id):
-                    # just add all ancestors as direct dependencies, it's informational only
-                    # at this point, but helps to explicitly indicate `algopy` as a dependency
-                    dependencies.append(
-                        Dependency(
-                            ancestor_id, None, dep.flags | DependencyFlags.IMPLICIT, dep.loc
-                        )
-                    )
-            else:
-                source_queue.enqueue(dep.module_id, dep.path)
-        if "." in rs.module:
-            ancestor_module_id, ancestor_init_path = next(
-                _expand_init_dependencies(rs.module, rs.path)
-            )
-            source_queue.enqueue(ancestor_module_id, ancestor_init_path)
-            dependencies.append(
-                Dependency(  # TODO: might not need this?
-                    ancestor_module_id, ancestor_init_path, DependencyFlags.IMPLICIT, None
-                )
-            )
+        for imp_rs in imported:
+            source_queue.enqueue(imp_rs)
         assert rs.module not in result_by_id, rs.module
         result_by_id[rs.module] = _ModuleData(
             path=rs.path,
             module=rs.module,
             text=source,
             fast=fast,
-            dependencies=tuple(dependencies),
             is_source=rs.module in initial_source_ids,
         )
     return result_by_id
@@ -298,102 +309,21 @@ class _SourceQueue:
     def dequeue(self) -> ResolvedSource:
         return self._source_queue.popleft()
 
-    def enqueue(self, module_id: str, module_path: Path) -> bool:
+    def enqueue(self, rs: ResolvedSource) -> bool:
         try:
-            existing_path = self._module_paths[module_id]
+            existing_path = self._module_paths[rs.module]
         except KeyError:
             pass
         else:
-            if existing_path != module_path:
+            if existing_path != rs.path:
                 raise ConfigurationError(
-                    f"module {module_id} discovered at {make_path_relative_to_cwd(module_path)}"
+                    f"module {rs.module} discovered at {make_path_relative_to_cwd(rs.path)}"
                     f" already processed at {make_path_relative_to_cwd(existing_path)}"
                 )
             return False
-        assert module_path.is_file(), (module_id, module_path)
-        self._module_paths[module_id] = module_path
-        dep_rs = ResolvedSource(
-            path=module_path,
-            module=module_id,
-            base_dir=_infer_base_dir(module_path, module_id),
-        )
-        self._source_queue.append(dep_rs)
+        self._module_paths[rs.module] = rs.path
+        self._source_queue.append(rs)
         return True
-
-
-def _infer_base_dir(path: Path, module: str) -> Path:
-    # /a/pkg/foo.py, pkg.foo -> /a/
-    # /a/pkg/foo/__init__.py, pkg.foo -> /a/
-    # /a/foo.py, foo -> /a/
-    parts = module.count(".")
-    if path.name == "__init__.py":
-        parts += 1
-    return path.parents[parts]
-
-
-@attrs.define
-class _ConditionalImportChecker(StatementTraverser):
-    _is_top_level: bool = attrs.field(default=True, init=False)
-
-    @contextlib.contextmanager
-    def _enter_block(self, *, top_level: bool) -> Iterator[None]:
-        was_top_level = self._is_top_level
-        self._is_top_level = top_level
-        try:
-            yield
-        finally:
-            self._is_top_level = was_top_level
-
-    @typing.override
-    def visit_module_import(self, node: fast_nodes.ModuleImport) -> None:
-        self._require_top_level(node)
-
-    @typing.override
-    def visit_from_import(self, from_import: fast_nodes.FromImport) -> None:
-        self._require_top_level(from_import)
-
-    def _require_top_level(self, stmt: fast_nodes.AnyImport) -> None:
-        if not self._is_top_level:
-            logger.error(
-                "import statements cannot be nested inside control structures,"
-                " except for TYPE_CHECKING conditions which are allowed at the module level",
-                location=stmt.source_location,
-            )
-
-    @typing.override
-    def visit_module(self, module: fast_nodes.Module) -> None:
-        with self._enter_block(top_level=True):
-            super().visit_module(module)
-
-    @typing.override
-    def visit_function_def(self, node: fast_nodes.FunctionDef) -> None:
-        with self._enter_block(top_level=True):
-            super().visit_function_def(node)
-
-    @typing.override
-    def visit_class_def(self, node: fast_nodes.ClassDef) -> None:
-        with self._enter_block(top_level=True):
-            super().visit_class_def(node)
-
-    @typing.override
-    def visit_for(self, node: fast_nodes.For) -> None:
-        with self._enter_block(top_level=False):
-            super().visit_for(node)
-
-    @typing.override
-    def visit_while(self, node: fast_nodes.While) -> None:
-        with self._enter_block(top_level=False):
-            super().visit_while(node)
-
-    @typing.override
-    def visit_if(self, node: fast_nodes.If) -> None:
-        with self._enter_block(top_level=False):
-            super().visit_if(node)
-
-    @typing.override
-    def visit_match(self, node: fast_nodes.Match) -> None:
-        with self._enter_block(top_level=False):
-            super().visit_match(node)
 
 
 _STUBS_PACKAGE_NAME = "algorand-python"
@@ -423,21 +353,23 @@ def _check_algopy_version(site_packages: list[Path]) -> None:
         )
 
 
-def _expand_init_dependencies(module_id: str, path: Path) -> Iterator[tuple[str, Path]]:
+def _resolve_ancestors(rs: ResolvedSource) -> Iterator[ResolvedSource]:
     """
     Generate a sequence of __init__.py files that would be implicitly executed on import,
     starting at the most nested level first.
     """
+    path = rs.path
+    module_id = rs.module
     if path.name == "__init__.py":
         path = path.parent
-    for ancestor in _expand_ancestors(module_id):
+    for ancestor in _expand_ancestors_ids(module_id):
         path = path.parent
         init_file = path / "__init__.py"
         if init_file.is_file():
-            yield ancestor, init_file
+            yield ResolvedSource(path=init_file, module=ancestor, base_dir=rs.base_dir)
 
 
-def _expand_ancestors(module_id: str) -> Iterator[str]:
+def _expand_ancestors_ids(module_id: str) -> Iterator[str]:
     """
     Given a module_id like "a.b.c", will yield in turn: "a.b", "a"
     """
