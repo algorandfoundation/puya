@@ -144,7 +144,7 @@ def _build_hard_dependency_graph(module_data: Mapping[str, "_ModuleData"]) -> di
             if isinstance(stmt, fast_nodes.ModuleImport):
                 if not stmt.type_checking_only:
                     for alias in stmt.names:
-                        if alias.name in module_data:  # otherwise should be dir
+                        if alias.name in module_data:  # otherwise should be dir or stub
                             deps.append(alias.name)
             elif isinstance(stmt, fast_nodes.FromImport):  # noqa: SIM102
                 if not (stmt.type_checking_only or stmt.module in STUB_SYMTABLES):
@@ -159,7 +159,9 @@ def _build_hard_dependency_graph(module_data: Mapping[str, "_ModuleData"]) -> di
                     if from_md is None:
                         if stmt.names is not None:
                             for alias in stmt.names:
-                                deps.append(".".join((stmt.module, alias.name)))
+                                sub_id = ".".join((stmt.module, alias.name))
+                                if sub_id in module_data:
+                                    deps.append(sub_id)
                     elif from_md.path.name == "__init__.py":
                         if stmt.names is None:
                             for maybe_sub_name in from_md.fast.dunder_all or ():
