@@ -85,12 +85,12 @@ def parse_python(
 
     package_paths = resolve_package_paths(package_search_paths)
     _check_algopy_version(package_paths)
-    package_cache = PackageResolverCache(package_paths)
+
     module_data = _fast_parse_and_resolve_imports(
         resolved_sources,
         file_contents=file_contents or {},
         source_roots=source_roots,
-        package_cache=package_cache,
+        package_paths=package_paths,
     )
     return module_data
 
@@ -252,16 +252,17 @@ def _fast_parse_and_resolve_imports(
     *,
     file_contents: Mapping[Path, str],
     source_roots: Mapping[str, Path],
-    package_cache: PackageResolverCache,
+    package_paths: Sequence[Path],
 ) -> dict[str, _ModuleData]:
-    result_by_id = dict[str, _ModuleData]()
+    package_cache = PackageResolverCache(package_paths)
     source_queue = _SourceQueue(sources)
     initial_source_ids = {rs.module for rs in sources}
-
     source_provider = SourceProvider(
         file_contents,
         feature_version=sys.version_info[:2],  # TODO: get this from target interpreter
     )
+
+    result_by_id = dict[str, _ModuleData]()
     while source_queue:
         rs = source_queue.dequeue()
         source = source_provider.read_source(rs.path)
