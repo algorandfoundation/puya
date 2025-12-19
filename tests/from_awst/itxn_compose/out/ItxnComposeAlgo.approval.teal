@@ -69,17 +69,45 @@ distribute:
     gtxns Amount
     swap
     /
-    dup
-    cover 2
     dig 1
     extract 2 0
     cover 2
     swap
     extract 2 32
+    intc_1 // 1
+    itob
+    uncover 2
+    itob
+    concat
+    pushbytes 0x0020
+    uncover 2
+    concat
+    swap
+    pushbytes 0x0012
+    concat
+    swap
+    concat
     itxn_begin
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    uncover 2
+    dup
+    pushint 8
+    extract_uint64
+    dup
+    cover 2
+    cover 3
+    dup
+    pushint 16
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
     itxn_field Receiver
     itxn_field Amount
-    intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -87,22 +115,22 @@ distribute:
 
 distribute_for_header@2:
     dup
-    dig 5
+    dig 6
     <
     bz distribute_after_for@5
     dupn 2
     intc_3 // 32
     *
-    dig 3
+    dig 5
     swap
     intc_3 // 32
     extract3 // on error: index access is out of bounds
     itxn_next
-    dig 4
-    itxn_field Amount
-    intc_1 // 1
-    itxn_field TypeEnum
     itxn_field Receiver
+    dig 2
+    itxn_field Amount
+    dig 3
+    itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     intc_1 // 1
@@ -112,11 +140,11 @@ distribute_for_header@2:
 
 distribute_after_for@5:
     itxn_next
+    dig 4
+    itxn_field ApplicationID
     pushbytes 0x65a9aecc // method "verify()void"
     itxn_field ApplicationArgs
-    dig 3
-    itxn_field ApplicationID
-    intc_2 // appl
+    intc_2 // 6
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -150,7 +178,7 @@ conditionalBegin:
     itxn_field GlobalNumByteSlice
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGeCAgQkN408BKDoGHI2GgCOAgAuACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEAJIlrjYaAI4BABMAMRmBBBIxGBBDMRmBBRIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD)
+    pushbytes base64(CyAEAAIBBCYDCGdyZWV0aW5nASAEFR98dTEYQAAEKIAAZ4ICBCQ3jTwEoOgYcjYaAI4CADUALTEZFEQxGEEAFoICBNCiggAEUYC6IDYaAI4CADUAWwCABACSJa42GgCOAQASADEZJRIxGBBDMRmBBRIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUQpUExQSRUWVwYCTFAqTFCwJEM2GgFJFUsBIllJJRJESwJLAUsDUiJZgQYISwMjWUlLAhJESwRLAUsFUkkiWSMITwMITwQSRCIoZUQpUE4ETgRSVwIAUExXAgBQSRUWVwYCTFAqTFCwJEM=)
     itxn_field ApprovalProgramPages
     intc_0 // 0
     itxn_field OnCompletion

@@ -1,0 +1,144 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@12
+    block@2: // abi_routing_L41
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "renamed_some_method()void" => block@4, method "test()bool" => block@5, method "reference_types_index(pay,asset,account,application,appl)void" => block@6, method "reference_types_value(pay,uint64,address,uint64,appl)void" => block@7, method "test_tuple((uint64,ufixed64x10,uint64[3],uint32[],bool,address,byte[16]))(uint64,ufixed64x10,uint64[3],uint32[],bool,address,byte[16])" => block@8, * => block@11}
+    block@4: // renamed_some_method_route_L42
+        exit 1u
+    block@5: // test_route_L46
+        test_cases.arc4_signature.contract.ContractTwo.test[routing]()
+        goto block@11
+    block@6: // reference_types_index_route_L50
+        test_cases.arc4_signature.contract.ContractTwo.reference_types_index[routing]()
+        goto block@11
+    block@7: // reference_types_value_route_L61
+        test_cases.arc4_signature.contract.ContractTwo.reference_types_value[routing]()
+        goto block@11
+    block@8: // test_tuple_route_L72
+        test_cases.arc4_signature.contract.ContractTwo.test_tuple[routing]()
+        goto block@11
+    block@11: // after_if_else_L41
+        fail
+    block@12: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.test[routing]() -> void:
+    block@0: // L46
+        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u 1u)
+        let aggregate%as_Encoded(bool8)%0#0: Encoded(bool8) = aggregate%encoded_bool%0#0
+        let tmp%1#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.reference_types_index[routing]() -> void:
+    block@0: // L50
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let pay#0: uint64 = (- tmp%0#0 2u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) pay#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        let tmp%4#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%4#0)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint8
+        let tmp%7#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%7#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint8
+        let tmp%10#0: uint64 = (txn GroupIndex)
+        let app_txn#0: uint64 = (- tmp%10#0 1u)
+        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) app_txn#0)
+        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
+        (assert gtxn_type_matches%1#0) // transaction type is appl
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.reference_types_value[routing]() -> void:
+    block@0: // L61
+        let tmp%0#0: uint64 = (txn GroupIndex)
+        let pay#0: uint64 = (- tmp%0#0 2u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) pay#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let tmp%1#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%1#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let tmp%3#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%3#0)
+        let eq%1#0: bool = (== len%1#0 32u)
+        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        let tmp%5#0: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%5#0)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let tmp%7#0: uint64 = (txn GroupIndex)
+        let app_txn#0: uint64 = (- tmp%7#0 1u)
+        let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) app_txn#0)
+        let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
+        (assert gtxn_type_matches%1#0) // transaction type is appl
+        exit 1u
+
+subroutine test_cases.arc4_signature.contract.ContractTwo.test_tuple[routing]() -> void:
+    block@0: // L72
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len tmp%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 40u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 91u)
+        (assert eq%0#0) // invalid tail pointer at index 3 of (uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16])
+        let substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 4u)
+        let add%1#0: uint64 = (+ mul%0#0 93u)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.ufixed64x10,arc4.static_array<arc4.uint64, 3>,arc4.dynamic_array<arc4.uint32>,arc4.bool,arc4.static_array<arc4.uint8, 32>,arc4.static_array<arc4.uint8, 16>>
+        let aggregate%extract%0#0: bytes = (extract3 tmp%0#0 0u 8u)
+        let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let aggregate%extract%1#0: bytes = (extract3 tmp%0#0 8u 8u)
+        let aggregate%extract%2#0: bytes = (extract3 tmp%0#0 16u 24u)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 40u)
+        let aggregate%len%0#0: uint64 = (len tmp%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 tmp%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let aggregate%get_bit%0#0: bool = (getbit tmp%0#0 336u)
+        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u aggregate%get_bit%0#0)
+        let aggregate%extract%3#0: bytes = (extract3 tmp%0#0 43u 32u)
+        let aggregate%extract%4#0: bytes = (extract3 tmp%0#0 75u 16u)
+        let (val.0#0: uint64, val.1#0: Encoded(uint64), val.2#0: Encoded(uint64[3]), val.3#0: Encoded(len+uint32[]), val.4#0: Encoded(bool8), val.5#0: Encoded(uint8[32]), val.6#0: bytes[16]) = (aggregate%item0%0#0, aggregate%extract%1#0, aggregate%extract%2#0, aggregate%substring3%0#0, aggregate%encoded_bool%0#0, aggregate%extract%3#0, aggregate%extract%4#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob val.0#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
+        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 val.1#0)
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 val.2#0)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 91u)
+        let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%0#0)
+        let aggregate%data_length%0#0: uint64 = (len val.3#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 91u aggregate%data_length%0#0)
+        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 val.4#0)
+        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 val.5#0)
+        let aggregate%as_Encoded(uint8[16])%0#0: Encoded(uint8[16]) = val.6#0
+        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%as_Encoded(uint8[16])%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%6#0 val.3#0)
+        let aggregate%as_Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16])%0#0: Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16]) = aggregate%concat%0#0
+        let tmp%15#0: Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16]) = aggregate%as_Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16])%0#0
+        let tmp%16#0: bytes = (concat 0x151f7c75 tmp%15#0)
+        (log tmp%16#0)
+        exit 1u
