@@ -85,6 +85,7 @@ from puyapy.awst_build.utils import (
     maybe_resolve_literal,
     require_callable_type,
 )
+from puyapy.fast import nodes as fast_nodes
 from puyapy.models import ContractFragmentBase
 
 logger = log.get_logger(__name__)
@@ -567,7 +568,7 @@ class FunctionASTConverter(
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        func_def: mypy.nodes.FuncDef,
+        func_def: fast_nodes.FunctionDef,
         contract_method_info: ContractMethodInfo | None,
         source_location: SourceLocation,
         *,

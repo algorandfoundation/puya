@@ -24,6 +24,7 @@ from puyapy.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puyapy.awst_build.utils import get_decorators_by_fullname, get_subroutine_decorator_inline_arg
+from puyapy.fast import nodes as fast_nodes
 from puyapy.models import (
     ARC4BareMethodData,
     ARC4MethodData,
@@ -49,7 +50,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        class_def: mypy.nodes.ClassDef,
+        class_def: fast_nodes.ClassDef,
         class_options: ContractClassOptions,
         typ: pytypes.ContractType,
     ):

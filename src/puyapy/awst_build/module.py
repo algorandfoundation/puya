@@ -144,7 +144,7 @@ class ModuleASTConverter(
 
             def deferred(ctx: ASTConversionModuleContext) -> RootNode:
                 program = FunctionASTConverter.convert(
-                    ctx, func_def, source_location, inline=False
+                    ctx, fast_func_def, source_location, inline=False
                 )
                 ctx.register_pytype(pytypes.LogicSigType, alias=func_def.fullname)
                 return LogicSignature(
@@ -179,7 +179,11 @@ class ModuleASTConverter(
 
         return [
             lambda ctx: FunctionASTConverter.convert(
-                ctx, func_def, source_location, inline=inline, pure=internal_pure_dec is not None
+                ctx,
+                fast_func_def,
+                source_location,
+                inline=inline,
+                pure=internal_pure_dec is not None,
             )
         ]
 
@@ -309,13 +313,13 @@ class ModuleASTConverter(
             self.context.register_pytype(contract_type)
 
             class_options = _process_contract_class_options(self.context, self, cdef)
-            converter = ContractASTConverter(self.context, cdef, class_options, contract_type)
+            converter = ContractASTConverter(self.context, fast_cdef, class_options, contract_type)
             return [converter.build]
 
         if info.is_protocol:
             self.context.register_pytype(static_type)
             if pytypes.ARC4ClientBaseType in direct_base_types:
-                ARC4ClientASTVisitor.visit(self.context, cdef)
+                ARC4ClientASTVisitor.visit(self.context, fast_cdef)
             else:
                 logger.debug(
                     f"Skipping further processing of protocol class {cdef.fullname}",
