@@ -1,93 +1,3 @@
-contract FixedBytesABI
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes(checker: application, val: bytes): void
-  {
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(val, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
-  }
-  
-  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual(checker: application, val: bytes): void
-  {
-    fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
-  }
-  
-  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router(checker: application, val: bytes): void
-  {
-    fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("router_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
-  }
-  
-  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding(checker: application): void
-  {
-    fb: bytes[11] = hex<"68656C6C6F20776F726C64">
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("i_am_a_dynamic_personality(byte[])void"), arc4_encode(fb, arc4.dynamic_array<arc4.uint8>)), ApplicationID=checker))
-  }
-  
-  baremethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-contract CheckABIApp
-{
-  method_resolution_order: (
-    algopy.arc4.ARC4Contract,
-    algopy._contract.Contract,
-  )
-  
-  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
-  {
-    return arc4_router()
-  }
-  
-  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate(value: bytes[11]): void
-  {
-    assert(len(reinterpret_cast<bytes>(value)) == 11u, comment="callee method check failed")
-  }
-  
-  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate(value: bytes[11]): void
-  {
-    assert(len(reinterpret_cast<bytes>(value)) == 11u, comment="callee method check failed")
-  }
-  
-  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality(value: arc4.dynamic_array<arc4.uint8>): void
-  {
-    assert(arc4_decode(value, bytes) == hex<"68656C6C6F20776F726C64">)
-  }
-  
-  baremethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create(): void
-  {
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
 contract FixedBytesOps
 {
   method_resolution_order: (
@@ -530,4 +440,94 @@ subroutine test_contains_literal_bytes(x: bytes[4]): void
 {
   assert(_puya_lib.bytes_.is_substring(hex<"CD12">, reinterpret_cast<bytes>(x)))
   assert(!(_puya_lib.bytes_.is_substring(hex<"CD12">, reinterpret_cast<bytes>(x))) == false)
+}
+
+contract FixedBytesABI
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes(checker: application, val: bytes): void
+  {
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(val, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual(checker: application, val: bytes): void
+  {
+    fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router(checker: application, val: bytes): void
+  {
+    fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("router_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding(checker: application): void
+  {
+    fb: bytes[11] = hex<"68656C6C6F20776F726C64">
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("i_am_a_dynamic_personality(byte[])void"), arc4_encode(fb, arc4.dynamic_array<arc4.uint8>)), ApplicationID=checker))
+  }
+  
+  baremethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract CheckABIApp
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate(value: bytes[11]): void
+  {
+    assert(len(reinterpret_cast<bytes>(value)) == 11u, comment="callee method check failed")
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate(value: bytes[11]): void
+  {
+    assert(len(reinterpret_cast<bytes>(value)) == 11u, comment="callee method check failed")
+  }
+  
+  abimethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality(value: arc4.dynamic_array<arc4.uint8>): void
+  {
+    assert(arc4_decode(value, bytes) == hex<"68656C6C6F20776F726C64">)
+  }
+  
+  baremethod test_cases.fixed_bytes_ops.abi_values.CheckABIApp.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
