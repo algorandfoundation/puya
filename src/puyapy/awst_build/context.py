@@ -15,6 +15,7 @@ from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import attrs_extend, coalesce, unique
+from puyapy._stub_symtables import STUB_SYMTABLES
 from puyapy.awst_build import pytypes, symbols
 from puyapy.code_fixes import FixableCodeError
 from puyapy.models import ConstantValue, ContractFragmentBase
@@ -24,6 +25,22 @@ from puyapy.parse import ParseResult, SourceModule
 logger = log.get_logger(__name__)
 
 
+# class IModuleAnalysis(abc.ABC):
+#     @property
+#     @abc.abstractmethod
+#     def symbol_table(self) -> Mapping[str, symbols.Symbol]: ...
+#
+#     @property
+#     @abc.abstractmethod
+#     def imported_modules(self) -> Set[str]: ...
+#
+#
+# @attrs.frozen
+# class ModuleAnalysis(IModuleAnalysis):
+#     symbol_table: dict[str, symbols.Symbol] = attrs.field(factory=dict)
+#     imported_modules: set[str] = attrs.field(factory=set)
+
+
 @attrs.frozen(kw_only=True)
 class ASTConversionContext:
     _parse_result: ParseResult
@@ -31,7 +48,38 @@ class ASTConversionContext:
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
     _contract_fragments: dict[ContractReference, ContractFragmentBase] = attrs.field(factory=dict)
     options: PuyaPyOptions
-    symbol_tables: dict[str, Mapping[str, symbols.Symbol]] = attrs.field(factory=dict)
+    # analyzed: dict[str, IModuleAnalysis] = attrs.field()
+    symbol_tables: dict[str, Mapping[str, symbols.Symbol]] = attrs.field()
+
+    @symbol_tables.default
+    def _symbol_tables(self) -> dict[str, dict[str, symbols.Symbol]]:
+        result = dict[str, dict[str, symbols.Symbol]]()
+        for mod, data in STUB_SYMTABLES.items():
+            result[mod] = {
+                key: (
+                    symbols.StubReference(qualified_name=info.fullname, definition=None)
+                    if info.fullname not in STUB_SYMTABLES
+                    else symbols.ImportedModule(qualified_name=info.fullname, definition=None)
+                )
+                for key, info in data.items()
+            }
+        return result
+
+    # @analyzed.default
+    # def _analyzed_stubs(self) -> dict[str, IModuleAnalysis]:
+    #     result = dict[str, IModuleAnalysis]()
+    #     for mod, data in STUB_SYMTABLES.items():
+    #         st: dict[str, symbols.Symbol] = {
+    #             key: (
+    #                 symbols.StubReference(qualified_name=info.fullname, definition=None)
+    #                 if info.fullname not in STUB_SYMTABLES
+    #                 else symbols.ImportedModule(qualified_name=info.fullname, definition=None)
+    #             )
+    #             for key, info in data.items()
+    #         }
+    #         result[mod] = ModuleAnalysis(symbol_table=st, imported_modules=...)
+    #
+    #     return result
 
     @property
     def mypy_options(self) -> mypy.options.Options:
