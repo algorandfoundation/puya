@@ -172,16 +172,7 @@ def get_arc4_abimethod_data(
 def _get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
 ) -> tuple[pytypes.FuncType, dict[str, pytypes.PyType]]:
-    if func_def.type is None:
-        raise CodeError("typing error", location)
-    func_type = context.type_to_pytype(
-        func_def.type, source_location=context.node_location(func_def, module_src=func_def.info)
-    )
-    if not isinstance(func_type, pytypes.FuncType):
-        raise InternalError(
-            f"unexpected type result for ABI function definition type: {type(func_type).__name__}",
-            location,
-        )
+    func_type = context.function_pytype(func_def)
 
     def require_arg_name(arg: pytypes.FuncArg) -> str:
         if arg.name is None:

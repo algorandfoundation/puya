@@ -82,7 +82,6 @@ from puyapy.awst_build.utils import (
     get_decorators_by_fullname,
     get_unaliased_fullname,
     maybe_resolve_literal,
-    require_callable_type,
 )
 from puyapy.models import ContractFragmentBase
 
@@ -155,10 +154,7 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
                     "unqualified name found in call to function",
                     expr_loc,
                 )
-                mypy_func_type = require_callable_type(dec.func, expr_loc)
-                func_type = self.context.type_to_pytype(mypy_func_type, source_location=expr_loc)
-                if not isinstance(func_type, pytypes.FuncType):
-                    raise CodeError("decorated function has non-function type", expr_loc)
+                func_type = self.context.function_pytype(dec.func)
                 return SubroutineInvokerExpressionBuilder(
                     target=SubroutineID(expr.fullname),
                     func_type=func_type,
@@ -591,7 +587,7 @@ class FunctionASTConverter(
         # check & convert the arguments
         mypy_args = func_def.arguments
         mypy_arg_types = type_info.arg_types
-        if type_info.def_extras.get("first_arg"):
+        if contract_method_info is not None:
             # function is a method
             if not mypy_args:
                 logger.error("method declaration is missing 'self' argument", location=func_loc)

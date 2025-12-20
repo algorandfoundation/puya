@@ -685,9 +685,13 @@ def _build_symbols_and_state(
             # we don't support any decorators that would change signature
             node = node.func
         pytyp = None
-        if isinstance(node, mypy.nodes.Var | mypy.nodes.FuncDef) and node.type:
-            with contextlib.suppress(CodeError):
-                pytyp = context.type_to_pytype(node.type, source_location=node_loc)
+        with contextlib.suppress(CodeError):
+            if isinstance(node, mypy.nodes.Var):
+                if node.type:
+                    pytyp = context.type_to_pytype(node.type, source_location=node_loc)
+            elif isinstance(node, mypy.nodes.FuncDef):  # noqa: SIM102
+                if node.type:
+                    pytyp = context.function_pytype(node)
 
         fragment.symbols[name] = pytyp
         if pytyp and not isinstance(pytyp, pytypes.FuncType):
