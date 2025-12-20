@@ -10,7 +10,7 @@ import pytest
 from puya.awst.txn_fields import TxnField
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.context import type_to_pytype
+from puyapy.awst_build.context import function_pytype, type_to_pytype
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
 from tests import EXAMPLES_DIR, VCS_ROOT
@@ -137,11 +137,7 @@ def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
         for member in ("__init__", "set"):
             func_def = type_info.names[member].node
             assert isinstance(func_def, mypy.nodes.FuncDef)
-            assert func_def.type is not None
-            func_type = type_to_pytype(
-                builtins_registry, func_def.type, source_location=_FAKE_SOURCE_LOCATION
-            )
-            assert isinstance(func_type, pytypes.FuncType)
+            func_type = function_pytype(builtins_registry, func_def, _FAKE_SOURCE_LOCATION)
             for arg in func_type.args:
                 assert arg.name is not None
                 if arg.name == "self":

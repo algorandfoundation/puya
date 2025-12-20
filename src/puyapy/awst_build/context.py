@@ -149,6 +149,10 @@ class ASTConversionModuleContext(ASTConversionContext):
                         edits=code_error.edits,
                     )
 
+    def function_pytype(self, func_def: mypy.nodes.FuncDef) -> pytypes.FuncType:
+        loc = self.node_location(func_def, module_src=func_def.info)
+        return function_pytype(self._pytypes, func_def, loc)
+
     def type_to_pytype(
         self,
         mypy_type: mypy.types.Type,
@@ -164,6 +168,36 @@ class ASTConversionModuleContext(ASTConversionContext):
         )
 
 
+def function_pytype(
+    registry: Mapping[str, pytypes.PyType], func_def: mypy.nodes.FuncDef, loc: SourceLocation
+) -> pytypes.FuncType:
+    maybe_overloaded = func_def.type
+    if not isinstance(maybe_overloaded, mypy.types.FunctionLike):
+        raise CodeError("typing error", loc)
+    try:
+        (func_type,) = maybe_overloaded.items
+    except ValueError:
+        raise CodeError("references to overloaded functions are not supported", loc) from None
+    if func_type.bound():
+        raise CodeError("function type has bound arguments", loc)
+    # assert isinstance(func_type, mypy.types.CallableType), "expected non-overloaded type"
+    ret_pytype = type_to_pytype(registry, func_type.ret_type, source_location=loc)
+    func_args = []
+    for at, name, kind in zip(
+        func_type.arg_types, func_type.arg_names, func_type.arg_kinds, strict=True
+    ):
+        arg_pytype = type_to_pytype(registry, at, source_location=loc, in_func_sig=True)
+        func_args.append(pytypes.FuncArg(type=arg_pytype, kind=kind, name=name))
+    # is the function a method but not a static method? if so, drop the first (implicit) argument
+    if func_def.info and not func_def.is_static:
+        _self_arg, *func_args = func_args
+    return pytypes.FuncType(
+        name=func_def.fullname,
+        args=func_args,
+        ret_type=ret_pytype,
+    )
+
+
 def type_to_pytype(
     registry: Mapping[str, pytypes.PyType],
     mypy_type: mypy.types.Type,
@@ -172,11 +206,7 @@ def type_to_pytype(
     in_type_args: bool = False,
     in_func_sig: bool = False,
 ) -> pytypes.PyType:
-    loc = (
-        source_location
-        if mypy_type.line is None or mypy_type.line < 1
-        else _source_location_from_mypy(source_location.file, mypy_type)
-    )
+    loc = source_location
     proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
     if isinstance(mypy_type, mypy.types.TypeAliasType):
         proper_type_or_alias = mypy_type
@@ -271,34 +301,7 @@ def type_to_pytype(
                 cls_typ = recurse(ret_type)
                 return pytypes.TypeType(cls_typ)
             else:
-                if not isinstance(func_like, mypy.types.CallableType):  # vs Overloaded
-                    raise CodeError("references to overloaded functions are not supported", loc)
-                ret_pytype = recurse(func_like.ret_type)
-                func_args = []
-                for at, name, kind in zip(
-                    func_like.arg_types, func_like.arg_names, func_like.arg_kinds, strict=True
-                ):
-                    arg_pytype = type_to_pytype(
-                        registry,
-                        at,
-                        source_location=loc,
-                        in_type_args=in_type_args,
-                        in_func_sig=True,
-                    )
-                    func_args.append(pytypes.FuncArg(type=arg_pytype, kind=kind, name=name))
-                if func_like.bound():
-                    logger.error("function type has bound arguments", location=loc)
-                if func_like.definition is not None:
-                    name = func_like.definition.fullname
-                else:
-                    name = repr(func_like)
-                if func_like.def_extras.get("first_arg"):
-                    _self_arg, *func_args = func_args
-                return pytypes.FuncType(
-                    name=name,
-                    args=func_args,
-                    ret_type=ret_pytype,
-                )
+                raise CodeError("callable type is not supported here", loc)
         case _:
             raise CodeError(f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc)
 

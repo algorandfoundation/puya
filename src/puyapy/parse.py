@@ -15,13 +15,14 @@ from operator import itemgetter
 from pathlib import Path
 
 import attrs
-from mypy.build import BuildManager, Graph, load_graph, process_graph, sorted_components
+from mypy.build import BuildManager, Graph, dispatch, sorted_components
 from mypy.errors import Errors
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
 from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
+from mypy.types import instance_cache
 from mypy.typestate import reset_global_state, type_state
 from mypy.util import find_python_encoding, hash_digest, read_py_file
 from mypy.version import __version__ as mypy_version
@@ -130,8 +131,8 @@ def parse_python(
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
-    for scc_module_names in sorted_components(graph):
-        for module_name in sorted(scc_module_names):
+    for scc in sorted_components(graph):
+        for module_name in sorted(scc.mod_ids):
             module = manager.modules[module_name]
             state = graph[module_name]
             assert (
@@ -322,12 +323,14 @@ def _mypy_build(
     search_paths: SearchPaths,
     fscache: FileSystemCache,
 ) -> tuple[BuildManager, Graph]:
-    """Simple wrapper around mypy.build.build
-
-    Makes it so that check errors and parse errors are handled the same (ie with an exception)
+    """
+    Our own implementation of mypy.build.build which handles errors via logging,
+    and uses our computed search paths.
     """
 
     all_messages = list[str]()
+
+    instance_cache.reset()
 
     def flush_errors(
         _filename: str | None,
@@ -342,11 +345,10 @@ def _mypy_build(
     plugin = DefaultPlugin(options)
 
     # Construct a build manager object to hold state during the build.
-    #
-    # Ignore current directory prefix in error messages.
     manager = BuildManager(
         data_dir=os.devnull,
         search_paths=search_paths,
+        # Ignore current directory prefix in error messages.
         ignore_prefix=os.getcwd(),  # noqa: PTH109
         source_set=source_set,
         reports=None,
@@ -362,11 +364,9 @@ def _mypy_build(
     )
 
     reset_global_state()
-    try:
-        graph = load_graph(sources, manager)
-        process_graph(graph, manager)
-    finally:
-        _log_mypy_messages(all_messages)
+    graph = dispatch(sources, manager, sys.stdout)
+    _log_mypy_messages(all_messages)
+    if not options.fine_grained_incremental:
         type_state.reset_all_subtype_caches()
     return manager, graph
 

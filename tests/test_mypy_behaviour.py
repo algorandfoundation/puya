@@ -841,6 +841,10 @@ def test_global_types() -> None:
         assert isinstance(arg_name_expr.node, mypy.nodes.Var)
         if isinstance(arg_name_expr.node.type, mypy.types.LiteralType):
             inst_type = arg_name_expr.node.type.fallback
+        elif isinstance(arg_name_expr.node.type, mypy.types.UnionType) and isinstance(
+            (first_union_member := arg_name_expr.node.type.items[0]), mypy.types.LiteralType
+        ):
+            inst_type = first_union_member.fallback
         else:
             assert isinstance(arg_name_expr.node.type, mypy.types.Instance)
             inst_type = arg_name_expr.node.type
