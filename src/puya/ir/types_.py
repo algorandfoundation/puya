@@ -469,27 +469,22 @@ def wtype_to_abi_name(
     return wtype.accept(visitor)
 
 
-_BASIC_TYPES_MAP: dict[wtypes.WType, str] = {
+_RESOURCE_INDEX_TO_VALUE = {
+    wtypes.account_wtype: wtypes.arc4_address_alias,
+    wtypes.application_wtype: wtypes.uint64_wtype,
+    wtypes.asset_wtype: wtypes.uint64_wtype,
+}
+_BASIC_TYPES_TO_ABI_NAME = {
+    wtypes.account_wtype: "account",
+    wtypes.application_wtype: "application",
+    wtypes.asset_wtype: "asset",
     wtypes.biguint_wtype: "uint512",
     wtypes.bool_wtype: "bool",
     wtypes.uint64_wtype: "uint64",
     wtypes.string_wtype: "string",
+    # address is not a basic type, but appears if account is mapped to a value type
+    wtypes.arc4_address_alias: "address",
     wtypes.void_wtype: "void",
-}
-
-_BASIC_TYPES_TO_ABI_NAME_MAP = {
-    "index": {
-        wtypes.account_wtype: "account",
-        wtypes.application_wtype: "application",
-        wtypes.asset_wtype: "asset",
-    }
-    | _BASIC_TYPES_MAP,
-    "value": {
-        wtypes.account_wtype: "address",
-        wtypes.application_wtype: "uint64",
-        wtypes.asset_wtype: "uint64",
-    }
-    | _BASIC_TYPES_MAP,
 }
 
 
@@ -503,12 +498,13 @@ class _WTypeToABIName(WTypeVisitor[str]):
         self.resource_encoding = resource_encoding
 
     def visit_basic_type(self, wtype: wtypes.WType) -> str:
-        type_map = _BASIC_TYPES_TO_ABI_NAME_MAP[self.resource_encoding]
+        if self.resource_encoding == "value":
+            wtype = _RESOURCE_INDEX_TO_VALUE.get(wtype, wtype)
 
-        if wtype in type_map:
-            return type_map[wtype]
-
-        self._unencodable(wtype)
+        try:
+            return _BASIC_TYPES_TO_ABI_NAME[wtype]
+        except KeyError:
+            self._unencodable(wtype)
 
     def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> str:
         if wtype == wtypes.arc4_bool_wtype:
