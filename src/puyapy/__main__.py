@@ -155,18 +155,21 @@ def puyapy(
         log_level: Minimum level to log to console
     """
     configure_logging(min_log_level=log_level)
+
+    _log_deprecated = logger.error if treat_warnings_as_errors else logger.warning
     if validate_abi_dynamic_severity is not None:
-        logger.warning(
+        _log_deprecated(
             "the --validate-abi-dynamic-severity option is deprecated,"
             " it has no effect and will be removed in a future version"
         )
     if validate_abi_values is not None:
-        logger.warning(
+        _log_deprecated(
             "the --validate_abi_values option is deprecated and will be removed in a future"
             " version. It overrides --validate-abi-args and --validate-from-log options"
         )
         validate_abi_args = validate_abi_values
         validate_abi_return = validate_abi_values
+
     options = PuyaPyOptions(
         paths=paths,
         out_dir=out_dir,
