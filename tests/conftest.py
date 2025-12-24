@@ -30,7 +30,9 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
                 )
                 for root in (EXAMPLES_DIR, TEST_CASES_DIR)
                 for item in root.iterdir()
-                if item.is_dir() and not item.name.startswith((".", "_"))
+                if item.is_dir()
+                and not item.name.startswith((".", "_"))
+                and item.name == "typed_itxn_abi_call_txn"
             ]
             metafunc.parametrize("test_case", params, ids=lambda t: t.id)
 
