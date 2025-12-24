@@ -57,6 +57,7 @@ class Log:
 class LoggingContext:
     _logs: list[Log] = attrs.field(factory=list)
     sources_by_path: Mapping[Path, Sequence[str] | None] | None = None
+    treat_warnings_as_errors: bool = False
     _errors: int = 0
     _criticals: int = 0
 
@@ -262,7 +263,7 @@ def figure_out_exc_info(v: object) -> structlog.typing.ExcInfo | None:
         result = sys.exc_info()
         if result == (None, None, None):
             return None
-        return typing.cast(structlog.typing.ExcInfo, result)
+        return typing.cast("structlog.typing.ExcInfo", result)
 
     return None
 
@@ -416,6 +417,9 @@ class _Logger:
         **kwargs: typing.Any,
     ) -> None:
         log_ctx = _current_ctx.get(None)
+        # promote warnings to errors if relevant flag is set in ctx
+        if log_ctx and log_ctx.treat_warnings_as_errors and level == LogLevel.warning:
+            level = LogLevel.error
         if (
             level >= LogLevel.error
             and location
@@ -463,8 +467,8 @@ def get_logger(name: str, **initial_values: typing.Any) -> _Logger:
 
 
 @contextlib.contextmanager
-def logging_context() -> Iterator[LoggingContext]:
-    ctx = LoggingContext()
+def logging_context(*, treat_warnings_as_errors: bool = False) -> Iterator[LoggingContext]:
+    ctx = LoggingContext(treat_warnings_as_errors=treat_warnings_as_errors)
     restore = _current_ctx.set(ctx)
     try:
         yield ctx

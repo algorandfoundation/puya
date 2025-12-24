@@ -68,6 +68,9 @@ def puyapy(
     optimization_level: Annotated[
         Literal[0, 1, 2], cyclopts.Parameter(alias="-O", group=_compilation_group)
     ] = 1,
+    treat_warnings_as_errors: Annotated[
+        bool, cyclopts.Parameter(alias="-Werror", group=_compilation_group)
+    ] = False,
     target_avm_version: Annotated[  # type: ignore[valid-type]
         Literal[*SUPPORTED_AVM_VERSIONS],
         cyclopts.Parameter(group=_compilation_group),
@@ -127,6 +130,7 @@ def puyapy(
         output_op_statistics: Output statistics about ops used for each program compiled
                 optimization_level: Set optimization level of output TEAL / AVM bytecode
         optimization_level: Set optimization level of output TEAL / AVM bytecode
+        treat_warnings_as_errors: Treat all compiler warnings as errors
         debug_level: Output debug information level, 0 = none,
                      1 = debug, 2 = reserved for future use
         target_avm_version: Target AVM version
@@ -151,18 +155,21 @@ def puyapy(
         log_level: Minimum level to log to console
     """
     configure_logging(min_log_level=log_level)
+
+    _log_deprecated = logger.error if treat_warnings_as_errors else logger.warning
     if validate_abi_dynamic_severity is not None:
-        logger.warning(
+        _log_deprecated(
             "the --validate-abi-dynamic-severity option is deprecated,"
             " it has no effect and will be removed in a future version"
         )
     if validate_abi_values is not None:
-        logger.warning(
+        _log_deprecated(
             "the --validate_abi_values option is deprecated and will be removed in a future"
             " version. It overrides --validate-abi-args and --validate-from-log options"
         )
         validate_abi_args = validate_abi_values
         validate_abi_return = validate_abi_values
+
     options = PuyaPyOptions(
         paths=paths,
         out_dir=out_dir,
@@ -175,6 +182,7 @@ def puyapy(
         output_client=output_client,
         debug_level=debug_level,
         optimization_level=optimization_level,
+        treat_warnings_as_errors=treat_warnings_as_errors,
         target_avm_version=target_avm_version,
         resource_encoding=resource_encoding,
         locals_coalescing_strategy=locals_coalescing_strategy,

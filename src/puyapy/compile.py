@@ -25,7 +25,12 @@ logger = log.get_logger(__name__)
 
 def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
     """Drive the actual core compilation step."""
-    with log.logging_context() as log_ctx, log_exceptions():
+    with (
+        log.logging_context(
+            treat_warnings_as_errors=puyapy_options.treat_warnings_as_errors
+        ) as log_ctx,
+        log_exceptions(),
+    ):
         logger.info(f"using puyapy version {version('puyapy')}")
         logger.debug(puyapy_options)
         try:

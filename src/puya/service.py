@@ -119,7 +119,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
         # and all results are returned with absolute paths
         dummy_path = Path.cwd()
         with (
-            logging_context() as log_ctx,
+            logging_context(treat_warnings_as_errors=False) as log_ctx,
             contextlib.suppress(PuyaExitError),
             log_exceptions(),
             pushd(dummy_path),
@@ -153,6 +153,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
             log_exceptions(),
         ):
             request = converter.structure(params, CompileParams)
+            log_ctx.treat_warnings_as_errors = request.options.treat_warnings_as_errors
 
             log_level = request.log_level
             with pushd(request.base_path):

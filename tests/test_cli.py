@@ -44,14 +44,15 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
     )
 
 
-def run_puya(args: list[str | Path]) -> subprocess.CompletedProcess[str]:
+def run_puya(args: list[str | Path], *, check: bool = True) -> subprocess.CompletedProcess[str]:
     puya = shutil.which("puya")
     assert puya is not None, "puya not found"
     return _run(
         [
             puya,
             *map(str, args),
-        ]
+        ],
+        check=check,
     )
 
 
@@ -113,6 +114,14 @@ def test_run_non_existent() -> None:
 
 def test_run_single_file() -> None:
     run_puyapy([TEST_CASES_DIR / Path("simple") / "contract.py"])
+
+
+def test_run_puyapy_treat_warnings_as_errors() -> None:
+    # flag on and no warnings should pass
+    _ = run_puyapy([TEST_CASES_DIR / Path("simple") / "contract.py", "--treat-warnings-as-errors"])
+    # flag on and warnings should fail
+    result_warn = run_puyapy([NO_INIT_DIR, "--treat-warnings-as-errors"], check=False)
+    assert result_warn.returncode == 1
 
 
 def test_run_single_file_with_other_references(tmpdir: Path) -> None:
@@ -184,6 +193,15 @@ def hello_world_awst_json() -> Iterable[Path]:
         yield awst_json
 
 
+@pytest.fixture(scope="session")
+def boolean_bin_ops_awst_json() -> Iterable[Path]:
+    path = TEST_CASES_DIR / "boolean_binary_ops" / "contract.py"
+    with TemporaryDirectory() as tmp_dir:
+        run_puyapy(["--output-awst-json", "--out-dir", tmp_dir, path])
+        awst_json = Path(tmp_dir) / "module.awst.json"
+        yield awst_json
+
+
 _OUTPUT_OPTIONS = [
     field.name
     for field in attrs.fields(PuyaOptionsWithCompilationSet)
@@ -210,3 +228,40 @@ def test_puya_output(hello_world_awst_json: Path, output_option: str) -> None:
             ["--awst", hello_world_awst_json, "--options", options_json, "--log-level", "debug"]
         )
         assert out_dir.exists(), "out dir should exist"
+
+
+def test_puya_treat_warnings_as_errors(
+    hello_world_awst_json: Path, boolean_bin_ops_awst_json: Path
+) -> None:
+    with TemporaryDirectory() as tmp_dir_:
+        tmp_dir = Path(tmp_dir_)
+        assert hello_world_awst_json.exists(), "expected awst json file to exist"
+        assert boolean_bin_ops_awst_json.exists(), "expected awst json file to exist"
+        options_no_warn_json = tmp_dir / "options_no_warn.json"
+        options_warn_json = tmp_dir / "options_warn.json"
+        out_dir = tmp_dir / "nested" / "out"
+
+        options_no_warn = PuyaOptionsWithCompilationSet(
+            treat_warnings_as_errors=True,
+            compilation_set={"examples.hello_world_arc4.contract.HelloWorldContract": out_dir},
+        )
+        options_warn = PuyaOptionsWithCompilationSet(
+            treat_warnings_as_errors=True,
+            compilation_set={"test_cases.boolean_binary_ops.contract.BooleanBinaryOps": out_dir},
+        )
+        converter = make_converter()
+
+        options_no_warn_json.write_text(converter.dumps(options_no_warn), encoding="utf8")
+        options_warn_json.write_text(converter.dumps(options_warn), encoding="utf8")
+
+        result_no_warn = run_puya(
+            ["--awst", hello_world_awst_json, "--options", options_no_warn_json]
+        )
+        result_warn = run_puya(
+            ["--awst", boolean_bin_ops_awst_json, "--options", options_warn_json], check=False
+        )
+
+        assert result_no_warn.returncode == 0
+        assert (
+            result_warn.returncode == 1
+        ), "treat warnings as errors should fail compilation when there are warnings"
