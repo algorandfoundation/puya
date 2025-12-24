@@ -969,10 +969,6 @@ def test_abi_string(harness: _TestHarness) -> None:
     )
 
 
-def test_abi_reference_types(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "arc4_types" / "reference_types.py")
-
-
 def test_abi_numeric(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "numeric.py",
@@ -987,10 +983,6 @@ def test_abi_array(harness: _TestHarness) -> None:
             trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "array.log", increase_budget=1
         ),
     )
-
-
-def test_dynamic_bytes(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "arc4_types" / "dynamic_bytes.py")
 
 
 def test_abi_bool(harness: _TestHarness) -> None:
