@@ -2,14 +2,14 @@ import argparse
 import base64
 from pathlib import Path
 
-from algosdk.v2client.algod import AlgodClient
+from algokit_utils import AlgorandClient
 
 
 def main(path: list[Path]) -> None:
-    algod_client = AlgodClient(algod_token="a" * 64, algod_address="http://localhost:4001")
+    localnet = AlgorandClient.default_localnet()
     for p in path:
-        response = algod_client.compile(p.read_text("utf8"))
-        compiled: str = response["result"]
+        response = localnet.client.algod.teal_compile(body=p.read_bytes())
+        compiled = response.result
         compiled_bytes = base64.b64decode(compiled)
         p.with_suffix(".teal.bin").write_bytes(compiled_bytes)
 
