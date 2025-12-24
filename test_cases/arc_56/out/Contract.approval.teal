@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
+    bytecblock 0x TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     // arc_56/contract.py:53
     // class Contract(ARC4Contract):
     txn NumAppArgs
@@ -199,7 +199,7 @@ struct_return:
     uncover 2
     ==
     assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
-    bytec_1 // 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
@@ -323,16 +323,16 @@ conditional_emit_after_if_else@3:
 template_value:
     // arc_56/contract.py:128
     // TemplateVar[arc4.UInt8]("ARC4_UINT8"),
-    bytec_2 // TMPL_ARC4_UINT8
+    bytec_1 // TMPL_ARC4_UINT8
     // arc_56/contract.py:127
     // TemplateVar[String]("AVM_STRING"),
-    bytec_3 // TMPL_AVM_STRING
+    bytec_2 // TMPL_AVM_STRING
     // arc_56/contract.py:126
     // TemplateVar[UInt64]("AVM_UINT64"),
     intc 4 // TMPL_AVM_UINT64
     // arc_56/contract.py:125
     // TemplateVar[SharedStruct]("STRUCT"),
-    bytec 4 // TMPL_STRUCT
+    bytec_3 // TMPL_STRUCT
     // arc_56/contract.py:122
     // @arc4.abimethod()
     dup
@@ -341,9 +341,6 @@ template_value:
     +
     uncover 2
     itob
-    pushbytes 0x000d
-    swap
-    concat
     dig 3
     len
     itob
@@ -353,16 +350,15 @@ template_value:
     uncover 2
     itob
     extract 6 2
+    uncover 3
     uncover 2
-    swap
     concat
     uncover 3
-    concat
-    uncover 2
-    concat
     swap
     concat
-    bytec_1 // 0x151f7c75
+    concat
+    concat
+    pushbytes 0x151f7c75000d
     swap
     concat
     log

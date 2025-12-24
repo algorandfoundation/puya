@@ -1763,8 +1763,8 @@ debug: Found equivalence set: aggregate%encoded_value%2#0, aggregate%as_Encoded(
 debug: selected aggregate%encoded_value%2#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%3#0, aggregate%as_Encoded(len+uint8[])%3#0
 debug: selected aggregate%encoded_value%3#0 from equivalence set
-debug: Found equivalence set: aggregate%concat%3#0, aggregate%as_Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[]))%0#0, tmp%6#0
-debug: selected aggregate%concat%3#0 from equivalence set
+debug: Found equivalence set: aggregate%concat%7#0, aggregate%as_Encoded((len+uint8[]),(len+uint8[]),(len+uint8[]),(len+uint8[]))%0#0, tmp%6#0
+debug: selected aggregate%concat%7#0 from equivalence set
 debug: Copy propagation made 10 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -1774,13 +1774,14 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (len tmp%0#1) to 32u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0020
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0008
-debug: Simplified (concat 0x 0x0008) to 0x0008
 debug: Simplified (len tmp%1#1) to 32u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0020
 debug: Simplified (len tmp%2#1) to 32u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0020
 debug: Simplified (len tmp%3#1) to 32u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0020
+debug: Simplified (concat aggregate%encoded_value%3#0 0x) to aggregate%encoded_value%3#0
+debug: Simplified (concat 0x151f7c75 aggregate%concat%7#0) to (concat 0x151f7c750008 aggregate%concat%6#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1793,6 +1794,8 @@ debug: Replacing redundant declaration let aggregate%as_bytes%4#0: bytes[8] = (i
 debug: Replacing redundant declaration let aggregate%as_bytes%6#0: bytes[8] = (itob 32u) with copy of existing registers [Register(source_location=intrinsics/optimizations.py:21:5-21, ir_type=bytes[8], name='aggregate%as_bytes%0', version=0)]
 debug: Found equivalence set: aggregate%as_bytes%0#0, aggregate%as_bytes%2#0, aggregate%as_bytes%4#0, aggregate%as_bytes%6#0
 debug: selected aggregate%as_bytes%0#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_value%3#0, aggregate%concat%0#0
+debug: selected aggregate%encoded_value%3#0 from equivalence set
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1932,13 +1935,13 @@ debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
 debug: Removing unused variable aggregate%as_bytes%1#0
 debug: Removing unused variable aggregate%offset_as_uint16%0#0
-debug: Removing unused variable aggregate%head%0#0
 debug: Removing unused variable aggregate%length%1#0
 debug: Removing unused variable aggregate%length_uint16%1#0
 debug: Removing unused variable aggregate%length%2#0
 debug: Removing unused variable aggregate%length_uint16%2#0
 debug: Removing unused variable aggregate%length%3#0
 debug: Removing unused variable aggregate%length_uint16%3#0
+debug: Removing unused variable aggregate%concat%7#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2236,34 +2239,30 @@ debug: Inserted all_block@0.ops[42]: 'l-store-copy aggregate%encoded_value%0#0 0
 debug: Replaced all_block@0.ops[44]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
 debug: Inserted all_block@0.ops[57]: 'l-store-copy aggregate%as_bytes%3#0 0'
 debug: Replaced all_block@0.ops[59]: 'v-load aggregate%as_bytes%3#0' with 'l-load aggregate%as_bytes%3#0'
-debug: Inserted all_block@0.ops[79]: 'l-store-copy aggregate%as_bytes%5#0 0'
-debug: Replaced all_block@0.ops[81]: 'v-load aggregate%as_bytes%5#0' with 'l-load aggregate%as_bytes%5#0'
-debug: Inserted all_block@0.ops[101]: 'l-store-copy aggregate%as_bytes%7#0 0'
-debug: Replaced all_block@0.ops[103]: 'v-load aggregate%as_bytes%7#0' with 'l-load aggregate%as_bytes%7#0'
-debug: Inserted all_block@0.ops[109]: 'l-store-copy aggregate%head%3#0 0'
-debug: Replaced all_block@0.ops[111]: 'v-load aggregate%head%3#0' with 'l-load aggregate%head%3#0'
-debug: Inserted all_block@0.ops[114]: 'l-store-copy aggregate%concat%0#0 0'
-debug: Replaced all_block@0.ops[116]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
-debug: Inserted all_block@0.ops[119]: 'l-store-copy aggregate%concat%1#0 0'
-debug: Replaced all_block@0.ops[121]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
-debug: Inserted all_block@0.ops[124]: 'l-store-copy aggregate%concat%2#0 0'
-debug: Replaced all_block@0.ops[126]: 'v-load aggregate%concat%2#0' with 'l-load aggregate%concat%2#0'
-debug: Inserted all_block@0.ops[133]: 'l-store-copy tmp%7#0 0'
-debug: Replaced all_block@0.ops[135]: 'v-load tmp%7#0' with 'l-load tmp%7#0'
+debug: Inserted all_block@0.ops[75]: 'l-store-copy aggregate%as_bytes%5#0 0'
+debug: Replaced all_block@0.ops[77]: 'v-load aggregate%as_bytes%5#0' with 'l-load aggregate%as_bytes%5#0'
+debug: Inserted all_block@0.ops[93]: 'l-store-copy aggregate%as_bytes%7#0 0'
+debug: Replaced all_block@0.ops[95]: 'v-load aggregate%as_bytes%7#0' with 'l-load aggregate%as_bytes%7#0'
+debug: Inserted all_block@0.ops[125]: 'l-store-copy tmp%7#0 0'
+debug: Replaced all_block@0.ops[127]: 'v-load tmp%7#0' with 'l-load tmp%7#0'
 debug: Inserted all_block@0.ops[46]: 'l-store-copy aggregate%data_length%0#0 0'
 debug: Replaced all_block@0.ops[49]: 'v-load aggregate%data_length%0#0' with 'l-load aggregate%data_length%0#0'
-debug: Inserted all_block@0.ops[62]: 'l-store-copy aggregate%offset_as_uint16%1#0 0'
-debug: Replaced all_block@0.ops[65]: 'v-load aggregate%offset_as_uint16%1#0' with 'l-load aggregate%offset_as_uint16%1#0'
-debug: Inserted all_block@0.ops[70]: 'l-store-copy aggregate%data_length%1#0 0'
-debug: Replaced all_block@0.ops[73]: 'v-load aggregate%data_length%1#0' with 'l-load aggregate%data_length%1#0'
-debug: Inserted all_block@0.ops[86]: 'l-store-copy aggregate%offset_as_uint16%2#0 0'
-debug: Replaced all_block@0.ops[89]: 'v-load aggregate%offset_as_uint16%2#0' with 'l-load aggregate%offset_as_uint16%2#0'
-debug: Inserted all_block@0.ops[94]: 'l-store-copy aggregate%data_length%2#0 0'
-debug: Replaced all_block@0.ops[97]: 'v-load aggregate%data_length%2#0' with 'l-load aggregate%data_length%2#0'
-debug: Inserted all_block@0.ops[110]: 'l-store-copy aggregate%offset_as_uint16%3#0 0'
-debug: Replaced all_block@0.ops[113]: 'v-load aggregate%offset_as_uint16%3#0' with 'l-load aggregate%offset_as_uint16%3#0'
-debug: Inserted all_block@0.ops[135]: 'l-store-copy aggregate%concat%3#0 0'
-debug: Replaced all_block@0.ops[138]: 'v-load aggregate%concat%3#0' with 'l-load aggregate%concat%3#0'
+debug: Inserted all_block@0.ops[65]: 'l-store-copy aggregate%data_length%1#0 0'
+debug: Replaced all_block@0.ops[68]: 'v-load aggregate%data_length%1#0' with 'l-load aggregate%data_length%1#0'
+debug: Inserted all_block@0.ops[84]: 'l-store-copy aggregate%data_length%2#0 0'
+debug: Replaced all_block@0.ops[87]: 'v-load aggregate%data_length%2#0' with 'l-load aggregate%data_length%2#0'
+debug: Inserted all_block@0.ops[104]: 'l-store-copy aggregate%concat%1#0 0'
+debug: Replaced all_block@0.ops[107]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
+debug: Inserted all_block@0.ops[109]: 'l-store-copy aggregate%concat%2#0 0'
+debug: Replaced all_block@0.ops[112]: 'v-load aggregate%concat%2#0' with 'l-load aggregate%concat%2#0'
+debug: Inserted all_block@0.ops[114]: 'l-store-copy aggregate%concat%3#0 0'
+debug: Replaced all_block@0.ops[117]: 'v-load aggregate%concat%3#0' with 'l-load aggregate%concat%3#0'
+debug: Inserted all_block@0.ops[119]: 'l-store-copy aggregate%concat%4#0 0'
+debug: Replaced all_block@0.ops[122]: 'v-load aggregate%concat%4#0' with 'l-load aggregate%concat%4#0'
+debug: Inserted all_block@0.ops[124]: 'l-store-copy aggregate%concat%5#0 0'
+debug: Replaced all_block@0.ops[127]: 'v-load aggregate%concat%5#0' with 'l-load aggregate%concat%5#0'
+debug: Inserted all_block@0.ops[129]: 'l-store-copy aggregate%concat%6#0 0'
+debug: Replaced all_block@0.ops[132]: 'v-load aggregate%concat%6#0' with 'l-load aggregate%concat%6#0'
 debug: Inserted all_block@0.ops[28]: 'l-store-copy value_to_hash#0 0'
 debug: Replaced all_block@0.ops[31]: 'v-load value_to_hash#0' with 'l-load value_to_hash#0'
 debug: Inserted all_block@0.ops[32]: 'l-store-copy value_to_hash#0 0'
@@ -2274,42 +2273,44 @@ debug: Inserted all_block@0.ops[11]: 'l-store-copy add%0#0 0'
 debug: Replaced all_block@0.ops[18]: 'v-load add%0#0' with 'l-load add%0#0'
 debug: Inserted all_block@0.ops[55]: 'l-store-copy aggregate%current_tail_offset%0#0 0'
 debug: Replaced all_block@0.ops[61]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
-debug: Inserted all_block@0.ops[80]: 'l-store-copy aggregate%current_tail_offset%1#0 0'
-debug: Replaced all_block@0.ops[86]: 'v-load aggregate%current_tail_offset%1#0' with 'l-load aggregate%current_tail_offset%1#0'
-debug: Inserted all_block@0.ops[105]: 'l-store-copy aggregate%current_tail_offset%2#0 0'
-debug: Replaced all_block@0.ops[111]: 'v-load aggregate%current_tail_offset%2#0' with 'l-load aggregate%current_tail_offset%2#0'
+debug: Inserted all_block@0.ops[75]: 'l-store-copy aggregate%current_tail_offset%1#0 0'
+debug: Replaced all_block@0.ops[81]: 'v-load aggregate%current_tail_offset%1#0' with 'l-load aggregate%current_tail_offset%1#0'
+debug: Inserted all_block@0.ops[95]: 'l-store-copy aggregate%current_tail_offset%2#0 0'
+debug: Replaced all_block@0.ops[101]: 'v-load aggregate%current_tail_offset%2#0' with 'l-load aggregate%current_tail_offset%2#0'
+debug: Inserted all_block@0.ops[60]: 'l-store-copy aggregate%encoded_value%1#0 1'
+debug: Replaced all_block@0.ops[69]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
+debug: Inserted all_block@0.ops[81]: 'l-store-copy aggregate%encoded_value%2#0 1'
+debug: Replaced all_block@0.ops[90]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
 debug: Inserted all_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
 debug: Replaced all_block@0.ops[14]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted all_block@0.ops[103]: 'l-store-copy aggregate%encoded_value%3#0 1'
+debug: Replaced all_block@0.ops[113]: 'v-load aggregate%encoded_value%3#0' with 'l-load aggregate%encoded_value%3#0'
 debug: Inserted all_block@0.ops[15]: 'l-store-copy tmp%0#0 1'
 debug: Replaced all_block@0.ops[26]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted all_block@0.ops[65]: 'l-store-copy aggregate%current_tail_offset%0#0 1'
+debug: Replaced all_block@0.ops[76]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
+debug: Inserted all_block@0.ops[87]: 'l-store-copy aggregate%current_tail_offset%1#0 1'
+debug: Replaced all_block@0.ops[98]: 'v-load aggregate%current_tail_offset%1#0' with 'l-load aggregate%current_tail_offset%1#0'
 debug: Inserted all_block@0.ops[33]: 'l-store-copy tmp%0#0 1'
 debug: Replaced all_block@0.ops[47]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted all_block@0.ops[63]: 'l-store-copy aggregate%encoded_value%1#0 1'
-debug: Replaced all_block@0.ops[77]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
-debug: Inserted all_block@0.ops[89]: 'l-store-copy aggregate%encoded_value%2#0 1'
-debug: Replaced all_block@0.ops[103]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
-debug: Inserted all_block@0.ops[66]: 'l-store-copy aggregate%current_tail_offset%0#0 1'
-debug: Replaced all_block@0.ops[82]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
-debug: Inserted all_block@0.ops[93]: 'l-store-copy aggregate%current_tail_offset%1#0 1'
-debug: Replaced all_block@0.ops[109]: 'v-load aggregate%current_tail_offset%1#0' with 'l-load aggregate%current_tail_offset%1#0'
-debug: Inserted all_block@0.ops[77]: 'l-store-copy aggregate%head%1#0 2'
-debug: Replaced all_block@0.ops[102]: 'v-load aggregate%head%1#0' with 'l-load aggregate%head%1#0'
-debug: Inserted all_block@0.ops[105]: 'l-store-copy aggregate%head%2#0 2'
-debug: Replaced all_block@0.ops[128]: 'v-load aggregate%head%2#0' with 'l-load aggregate%head%2#0'
+debug: Inserted all_block@0.ops[115]: 'l-store-copy aggregate%offset_as_uint16%3#0 1'
+debug: Replaced all_block@0.ops[132]: 'v-load aggregate%offset_as_uint16%3#0' with 'l-load aggregate%offset_as_uint16%3#0'
+debug: Inserted all_block@0.ops[96]: 'l-store-copy aggregate%encoded_value%2#0 1'
+debug: Replaced all_block@0.ops[118]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
 debug: Inserted all_block@0.ops[38]: 'l-store-copy tmp%1#1 2'
 debug: Replaced all_block@0.ops[62]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted all_block@0.ops[120]: 'l-store-copy aggregate%encoded_value%3#0 2'
-debug: Replaced all_block@0.ops[151]: 'v-load aggregate%encoded_value%3#0' with 'l-load aggregate%encoded_value%3#0'
-debug: Inserted all_block@0.ops[109]: 'l-store-copy aggregate%encoded_value%2#0 2'
-debug: Replaced all_block@0.ops[147]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
 debug: Inserted all_block@0.ops[43]: 'l-store-copy tmp%2#1 3'
-debug: Replaced all_block@0.ops[91]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted all_block@0.ops[82]: 'l-store-copy aggregate%encoded_value%1#0 3'
-debug: Replaced all_block@0.ops[144]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
+debug: Replaced all_block@0.ops[85]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted all_block@0.ops[96]: 'l-store-copy aggregate%offset_as_uint16%2#0 2'
+debug: Replaced all_block@0.ops[141]: 'v-load aggregate%offset_as_uint16%2#0' with 'l-load aggregate%offset_as_uint16%2#0'
+debug: Inserted all_block@0.ops[76]: 'l-store-copy aggregate%encoded_value%1#0 2'
+debug: Replaced all_block@0.ops[127]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
 debug: Inserted all_block@0.ops[47]: 'l-store-copy tmp%3#1 3'
-debug: Replaced all_block@0.ops[122]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
+debug: Replaced all_block@0.ops[111]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
+debug: Inserted all_block@0.ops[75]: 'l-store-copy aggregate%offset_as_uint16%1#0 4'
+debug: Replaced all_block@0.ops[149]: 'v-load aggregate%offset_as_uint16%1#0' with 'l-load aggregate%offset_as_uint16%1#0'
 debug: Inserted all_block@0.ops[55]: 'l-store-copy aggregate%encoded_value%0#0 3'
-debug: Replaced all_block@0.ops[141]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
+debug: Replaced all_block@0.ops[135]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
 debug: Found 2 edge set/s for algopy.arc4.ARC4Contract.approval_program
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program() -> uint64:
 intrinsics/optimizations.py:21:6 debug: optimizing TEAL subroutine ops test_cases.intrinsics.optimizations.Optimizations.all[routing]() -> void:

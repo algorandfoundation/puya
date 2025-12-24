@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 1 0 5 512
-    bytecblock 0x 0x0000000000000000 0x0000000000000004
+    intcblock 8 1 0 5
+    bytecblock 0x 0x0000000000000000 0x0000000000000004 0x0000000000000003 0x000000000000000100000000000000020000000000000003
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
     intc_2 // 0
@@ -381,10 +381,8 @@ main_for_header@50:
 
 main_test_array_assignment_maximum_cursage_route@11:
     callsub _puya_lib.mem.new_slot
-    pushint 3
-    itob
-    dig 1
-    swap
+    dup
+    bytec_3 // 0x0000000000000003
     stores
     dup
     callsub append_length_and_return
@@ -419,10 +417,8 @@ main_test_array_assignment_maximum_cursage_route@11:
 
 main_test_array_evaluation_order_route@10:
     callsub _puya_lib.mem.new_slot
-    pushint 3
-    itob
-    dig 1
-    swap
+    dup
+    bytec_3 // 0x0000000000000003
     stores
     dup
     callsub append_length_and_return
@@ -559,8 +555,7 @@ main_for_header@59:
 main_after_for@61:
     dig 18
     dup
-    intc_3 // 5
-    itob
+    pushbytes 0x0000000000000005
     concat // on error: max array length exceeded
     dup
     len
@@ -652,7 +647,7 @@ main_test_array_too_long_route@8:
 
 main_for_header@64:
     dig 8
-    intc 4 // 512
+    pushint 512
     <
     bz main_after_for@66
     dig 19
@@ -673,11 +668,10 @@ main_after_for@66:
     len
     intc_0 // 8
     /
-    intc 4 // 512
+    pushint 512
     ==
     assert // array is expected length
-    intc 4 // 512
-    itob
+    pushbytes 0x0000000000000200
     concat // on error: max array length exceeded
     pop
     intc_1 // 1
@@ -693,15 +687,8 @@ main_test_array_multiple_append_route@6:
     callsub add_x
     dup
     loads
-    intc_1 // 1
-    itob
-    concat // on error: max array length exceeded
-    pushint 2
-    itob
-    concat // on error: max array length exceeded
-    pushint 3
-    itob
-    concat // on error: max array length exceeded
+    bytec 4 // 0x000000000000000100000000000000020000000000000003
+    concat
     swap
     dig 1
     stores
@@ -724,7 +711,7 @@ main_test_array_extend_route@5:
     callsub add_x
     dup
     loads
-    pushbytes 0x000000000000000100000000000000020000000000000003
+    bytec 4 // 0x000000000000000100000000000000020000000000000003
     concat // on error: max array length exceeded
     swap
     dig 1
@@ -742,10 +729,8 @@ main_test_array_route@4:
     callsub _puya_lib.mem.new_slot
     dup
     bury 12
-    pushint 42
-    itob
-    dig 1
-    swap
+    dup
+    pushbytes 0x000000000000002a
     stores
     dup
     intc_3 // 5
@@ -831,8 +816,7 @@ main_after_for@70:
     intc_1 // 1
     ==
     assert
-    pushint 43
-    itob
+    pushbytes 0x000000000000002b
     concat // on error: max array length exceeded
     dup2
     stores
@@ -882,8 +866,7 @@ main_after_for@70:
     pushint 9
     ==
     assert
-    pushint 44
-    itob
+    pushbytes 0x000000000000002c
     concat // on error: max array length exceeded
     dup
     len
@@ -903,12 +886,8 @@ main_after_for@70:
     pushint 44
     ==
     assert
-    pushint 99
-    itob
-    concat // on error: max array length exceeded
-    pushint 100
-    itob
-    concat // on error: max array length exceeded
+    pushbytes 0x00000000000000630000000000000064
+    concat
     dup
     intc_2 // 0
     extract_uint64

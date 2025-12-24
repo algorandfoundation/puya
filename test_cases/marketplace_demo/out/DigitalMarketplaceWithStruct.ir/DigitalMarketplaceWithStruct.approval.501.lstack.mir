@@ -318,13 +318,13 @@ subroutine first_deposit:
         gtxns XferAsset                                                                               xfer#0,unitary_price#0,nonce#0,tmp%9#0,tmp%10#0
         l-load tmp%10#0 0                                                                             xfer#0,unitary_price#0,nonce#0,tmp%9#0,tmp%10#0
         itob                                                                                          xfer#0,unitary_price#0,nonce#0,tmp%9#0,aggregate%val_as_bytes%0#0
-        l-load tmp%9#0 1                                                                              xfer#0,unitary_price#0,nonce#0,aggregate%val_as_bytes%0#0,tmp%9#0
-        l-load aggregate%val_as_bytes%0#0 1                                                           xfer#0,unitary_price#0,nonce#0,tmp%9#0,aggregate%val_as_bytes%0#0
-        concat                                                                                        xfer#0,unitary_price#0,nonce#0,aggregate%head%1#0
-        l-load nonce#0 1                                                                              xfer#0,unitary_price#0,aggregate%head%1#0,nonce#0
-        itob                                                                                          xfer#0,unitary_price#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   xfer#0,unitary_price#0,aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           xfer#0,unitary_price#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load nonce#0 2                                                                              xfer#0,unitary_price#0,tmp%9#0,aggregate%val_as_bytes%0#0,nonce#0
+        itob                                                                                          xfer#0,unitary_price#0,tmp%9#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           xfer#0,unitary_price#0,tmp%9#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           xfer#0,unitary_price#0,tmp%9#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        xfer#0,unitary_price#0,tmp%9#0,aggregate%concat%1#0
+        l-load tmp%9#0 1                                                                              xfer#0,unitary_price#0,aggregate%concat%1#0,tmp%9#0
+        l-load aggregate%concat%1#0 1                                                                 xfer#0,unitary_price#0,tmp%9#0,aggregate%concat%1#0
         concat                                                                                        xfer#0,unitary_price#0,key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:106
         // assert key not in self.listings
@@ -365,9 +365,6 @@ subroutine first_deposit:
         gtxns AssetAmount                                                                             unitary_price#0,box_prefixed_key%0#0,tmp%19#0
         l-load-copy tmp%19#0 0                                                                        unitary_price#0,box_prefixed_key%0#0,tmp%19#0,tmp%19#0 (copy)
         assert                                                                                        unitary_price#0,box_prefixed_key%0#0,tmp%19#0
-        // marketplace_demo/marketplace_with_mutable_struct.py:115
-        // bidder=Account(),
-        global ZeroAddress                                                                            unitary_price#0,box_prefixed_key%0#0,tmp%19#0,tmp%22#0
         // marketplace_demo/marketplace_with_mutable_struct.py:112-118
         // self.listings[key] = ListingValue(
         //     deposited=xfer.asset_amount,
@@ -376,36 +373,18 @@ subroutine first_deposit:
         //     bid=UInt64(),
         //     bidUnitaryPrice=UInt64(),
         // )
-        l-load tmp%19#0 1                                                                             unitary_price#0,box_prefixed_key%0#0,tmp%22#0,tmp%19#0
-        itob                                                                                          unitary_price#0,box_prefixed_key%0#0,tmp%22#0,aggregate%val_as_bytes%2#0
-        l-load unitary_price#0 3                                                                      box_prefixed_key%0#0,tmp%22#0,aggregate%val_as_bytes%2#0,unitary_price#0
-        itob                                                                                          box_prefixed_key%0#0,tmp%22#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        l-load aggregate%val_as_bytes%2#0 1                                                           box_prefixed_key%0#0,tmp%22#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%3#0 1                                                           box_prefixed_key%0#0,tmp%22#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        concat                                                                                        box_prefixed_key%0#0,tmp%22#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   box_prefixed_key%0#0,tmp%22#0,aggregate%head%4#0
-        l-load tmp%22#0 1                                                                             box_prefixed_key%0#0,aggregate%head%4#0,tmp%22#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%head%5#0
-        // marketplace_demo/marketplace_with_mutable_struct.py:116
-        // bid=UInt64(),
-        int 0                                                                                         box_prefixed_key%0#0,aggregate%head%5#0,0
-        // marketplace_demo/marketplace_with_mutable_struct.py:112-118
-        // self.listings[key] = ListingValue(
-        //     deposited=xfer.asset_amount,
-        //     unitaryPrice=unitary_price,
-        //     bidder=Account(),
-        //     bid=UInt64(),
-        //     bidUnitaryPrice=UInt64(),
-        // )
-        itob                                                                                          box_prefixed_key%0#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
-        l-load aggregate%head%5#0 1                                                                   box_prefixed_key%0#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0
-        l-load-copy aggregate%val_as_bytes%4#0 1                                                      box_prefixed_key%0#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0 (copy)
-        concat                                                                                        box_prefixed_key%0#0,aggregate%val_as_bytes%4#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                   box_prefixed_key%0#0,aggregate%val_as_bytes%4#0,aggregate%head%6#0
-        l-load aggregate%val_as_bytes%4#0 1                                                           box_prefixed_key%0#0,aggregate%head%6#0,aggregate%val_as_bytes%4#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%head%7#0
-        l-load box_prefixed_key%0#0 1                                                                 aggregate%head%7#0,box_prefixed_key%0#0
-        l-load aggregate%head%7#0 1                                                                   box_prefixed_key%0#0,aggregate%head%7#0
+        l-load tmp%19#0 0                                                                             unitary_price#0,box_prefixed_key%0#0,tmp%19#0
+        itob                                                                                          unitary_price#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0
+        l-load unitary_price#0 2                                                                      box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,unitary_price#0
+        itob                                                                                          box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%val_as_bytes%3#0 0                                                           box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        byte AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        concat                                                                                        box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           box_prefixed_key%0#0,aggregate%concat%6#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%concat%6#0 1                                                                 box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%concat%7#0
+        l-load box_prefixed_key%0#0 1                                                                 aggregate%concat%7#0,box_prefixed_key%0#0
+        l-load aggregate%concat%7#0 1                                                                 box_prefixed_key%0#0,aggregate%concat%7#0
         box_put
         // marketplace_demo/marketplace_with_mutable_struct.py:93
         // @arc4.abimethod(name="firstDeposit")
@@ -446,13 +425,13 @@ subroutine deposit:
         gtxns XferAsset                                                                               xfer#0,nonce#0,tmp%0#1,tmp%1#1
         l-load tmp%1#1 0                                                                              xfer#0,nonce#0,tmp%0#1,tmp%1#1
         itob                                                                                          xfer#0,nonce#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        l-load tmp%0#1 1                                                                              xfer#0,nonce#0,aggregate%val_as_bytes%0#0,tmp%0#1
-        l-load aggregate%val_as_bytes%0#0 1                                                           xfer#0,nonce#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        concat                                                                                        xfer#0,nonce#0,aggregate%head%1#0
-        l-load nonce#0 1                                                                              xfer#0,aggregate%head%1#0,nonce#0
-        itob                                                                                          xfer#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   xfer#0,aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           xfer#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load nonce#0 2                                                                              xfer#0,tmp%0#1,aggregate%val_as_bytes%0#0,nonce#0
+        itob                                                                                          xfer#0,tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           xfer#0,tmp%0#1,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           xfer#0,tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        xfer#0,tmp%0#1,aggregate%concat%1#0
+        l-load tmp%0#1 1                                                                              xfer#0,aggregate%concat%1#0,tmp%0#1
+        l-load aggregate%concat%1#0 1                                                                 xfer#0,tmp%0#1,aggregate%concat%1#0
         concat                                                                                        xfer#0,key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:124
         // assert xfer.sender == Txn.sender
@@ -523,20 +502,20 @@ subroutine deposit:
         // )
         l-load tmp%12#0 0                                                                             box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%12#0
         itob                                                                                          box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%2#0 0                                                           box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%extract%3#0 1                                                                box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%val_as_bytes%2#0,aggregate%extract%3#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%head%4#0
-        l-load aggregate%extract%2#0 1                                                                box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%head%4#0,aggregate%extract%2#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%head%5#0
-        l-load aggregate%head%5#0 0                                                                   box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%head%5#0
-        l-load aggregate%extract%0#0 2                                                                box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%head%5#0,aggregate%extract%0#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                   box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%head%6#0
-        l-load aggregate%extract%1#0 1                                                                box_prefixed_key%0#0,aggregate%head%6#0,aggregate%extract%1#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%head%7#0
-        l-load box_prefixed_key%0#0 1                                                                 aggregate%head%7#0,box_prefixed_key%0#0
-        l-load aggregate%head%7#0 1                                                                   box_prefixed_key%0#0,aggregate%head%7#0
+        l-load aggregate%extract%0#0 4                                                                box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%extract%0#0
+        l-load aggregate%extract%1#0 4                                                                box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%extract%0#0,aggregate%extract%1#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%concat%4#0
+        l-load aggregate%extract%2#0 3                                                                box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%concat%4#0,aggregate%extract%2#0
+        l-load aggregate%concat%4#0 1                                                                 box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%extract%2#0,aggregate%concat%4#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%concat%5#0
+        l-load aggregate%extract%3#0 2                                                                box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%5#0,aggregate%extract%3#0
+        l-load aggregate%concat%5#0 1                                                                 box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%extract%3#0,aggregate%concat%5#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           box_prefixed_key%0#0,aggregate%concat%6#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%concat%6#0 1                                                                 box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%concat%7#0
+        l-load box_prefixed_key%0#0 1                                                                 aggregate%concat%7#0,box_prefixed_key%0#0
+        l-load aggregate%concat%7#0 1                                                                 box_prefixed_key%0#0,aggregate%concat%7#0
         box_put
         // marketplace_demo/marketplace_with_mutable_struct.py:120
         // @arc4.abimethod
@@ -584,13 +563,13 @@ subroutine set_price:
         txn Sender                                                                                    asset#0,nonce#0,unitary_price#0,tmp%0#1
         l-load asset#0 3                                                                              nonce#0,unitary_price#0,tmp%0#1,asset#0
         itob                                                                                          nonce#0,unitary_price#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        l-load tmp%0#1 1                                                                              nonce#0,unitary_price#0,aggregate%val_as_bytes%0#0,tmp%0#1
-        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,unitary_price#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        concat                                                                                        nonce#0,unitary_price#0,aggregate%head%1#0
-        l-load nonce#0 2                                                                              unitary_price#0,aggregate%head%1#0,nonce#0
-        itob                                                                                          unitary_price#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   unitary_price#0,aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           unitary_price#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load nonce#0 3                                                                              unitary_price#0,tmp%0#1,aggregate%val_as_bytes%0#0,nonce#0
+        itob                                                                                          unitary_price#0,tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           unitary_price#0,tmp%0#1,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           unitary_price#0,tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        unitary_price#0,tmp%0#1,aggregate%concat%1#0
+        l-load tmp%0#1 1                                                                              unitary_price#0,aggregate%concat%1#0,tmp%0#1
+        l-load aggregate%concat%1#0 1                                                                 unitary_price#0,tmp%0#1,aggregate%concat%1#0
         concat                                                                                        unitary_price#0,key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:141
         // existing = self.listings[key].copy()
@@ -627,20 +606,20 @@ subroutine set_price:
         // )
         l-load unitary_price#0 5                                                                      box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,unitary_price#0
         itob                                                                                          box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0
-        l-load aggregate%extract%3#0 1                                                                box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%val_as_bytes%3#0,aggregate%extract%3#0
-        l-load aggregate%val_as_bytes%3#0 1                                                           box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%head%4#0
-        l-load aggregate%extract%2#0 1                                                                box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%head%4#0,aggregate%extract%2#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%head%5#0
-        l-load aggregate%head%5#0 0                                                                   box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%head%5#0
-        l-load aggregate%extract%0#0 2                                                                box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%head%5#0,aggregate%extract%0#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                   box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%head%6#0
-        l-load aggregate%extract%1#0 1                                                                box_prefixed_key%0#0,aggregate%head%6#0,aggregate%extract%1#0
-        concat                                                                                        box_prefixed_key%0#0,aggregate%head%7#0
-        l-load box_prefixed_key%0#0 1                                                                 aggregate%head%7#0,box_prefixed_key%0#0
-        l-load aggregate%head%7#0 1                                                                   box_prefixed_key%0#0,aggregate%head%7#0
+        l-load aggregate%extract%0#0 4                                                                box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%extract%0#0
+        l-load aggregate%extract%1#0 4                                                                box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%extract%0#0,aggregate%extract%1#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%concat%4#0
+        l-load aggregate%extract%2#0 3                                                                box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%concat%4#0,aggregate%extract%2#0
+        l-load aggregate%concat%4#0 1                                                                 box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%extract%2#0,aggregate%concat%4#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%concat%5#0
+        l-load aggregate%val_as_bytes%3#0 1                                                           box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%concat%5#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%concat%5#0 1                                                                 box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%concat%5#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%concat%6#0
+        l-load aggregate%extract%3#0 1                                                                box_prefixed_key%0#0,aggregate%concat%6#0,aggregate%extract%3#0
+        l-load aggregate%concat%6#0 1                                                                 box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%concat%6#0
+        concat                                                                                        box_prefixed_key%0#0,aggregate%concat%7#0
+        l-load box_prefixed_key%0#0 1                                                                 aggregate%concat%7#0,box_prefixed_key%0#0
+        l-load aggregate%concat%7#0 1                                                                 box_prefixed_key%0#0,aggregate%concat%7#0
         box_put
         // marketplace_demo/marketplace_with_mutable_struct.py:137
         // @arc4.abimethod(name="setPrice")
@@ -706,13 +685,13 @@ subroutine buy:
         // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
         l-load-copy asset#0 3                                                                         owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,asset#0 (copy)
         itob                                                                                          owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0
-        l-load-copy owner#0 5                                                                         owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0,owner#0 (copy)
-        l-load aggregate%val_as_bytes%0#0 1                                                           owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,owner#0 (copy),aggregate%val_as_bytes%0#0
-        concat                                                                                        owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%head%1#0
-        l-load nonce#0 3                                                                              owner#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,nonce#0
-        itob                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   owner#0,asset#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           owner#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load nonce#0 3                                                                              owner#0,asset#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0,nonce#0
+        itob                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           owner#0,asset#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           owner#0,asset#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,aggregate%concat%1#0
+        l-load-copy owner#0 4                                                                         owner#0,asset#0,buy_pay#0,quantity#0,aggregate%concat%1#0,owner#0 (copy)
+        l-load aggregate%concat%1#0 1                                                                 owner#0,asset#0,buy_pay#0,quantity#0,owner#0 (copy),aggregate%concat%1#0
         concat                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:161
         // listing = self.listings[key].copy()
@@ -821,20 +800,20 @@ subroutine buy:
         itob                                                                                          asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0
         l-load price#0 4                                                                              asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,price#0
         itob                                                                                          asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        l-load aggregate%val_as_bytes%2#0 1                                                           asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%3#0 1                                                           asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%head%4#0
-        l-load aggregate%extract%3#0 1                                                                asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%head%4#0,aggregate%extract%3#0
-        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%head%5#0
-        l-load aggregate%head%5#0 0                                                                   asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%head%5#0
-        l-load aggregate%extract%1#0 2                                                                asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%head%5#0,aggregate%extract%1#0
-        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%head%6#0
-        l-load aggregate%head%6#0 0                                                                   asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%head%6#0
-        l-load aggregate%extract%2#0 1                                                                asset#0,quantity#0,box_prefixed_key%0#0,aggregate%head%6#0,aggregate%extract%2#0
-        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%head%7#0
-        l-load box_prefixed_key%0#0 1                                                                 asset#0,quantity#0,aggregate%head%7#0,box_prefixed_key%0#0
-        l-load aggregate%head%7#0 1                                                                   asset#0,quantity#0,box_prefixed_key%0#0,aggregate%head%7#0
+        l-load aggregate%extract%1#0 4                                                                asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%extract%1#0
+        l-load aggregate%extract%2#0 4                                                                asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%extract%1#0,aggregate%extract%2#0
+        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%extract%3#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%concat%4#0
+        l-load aggregate%extract%3#0 3                                                                asset#0,quantity#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%concat%4#0,aggregate%extract%3#0
+        l-load aggregate%concat%4#0 1                                                                 asset#0,quantity#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%extract%3#0,aggregate%concat%4#0
+        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%concat%5#0
+        l-load aggregate%val_as_bytes%3#0 1                                                           asset#0,quantity#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%5#0,aggregate%val_as_bytes%3#0
+        l-load aggregate%concat%5#0 1                                                                 asset#0,quantity#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%concat%5#0
+        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           asset#0,quantity#0,box_prefixed_key%0#0,aggregate%concat%6#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%concat%6#0 1                                                                 asset#0,quantity#0,box_prefixed_key%0#0,aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        concat                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,aggregate%concat%7#0
+        l-load box_prefixed_key%0#0 1                                                                 asset#0,quantity#0,aggregate%concat%7#0,box_prefixed_key%0#0
+        l-load aggregate%concat%7#0 1                                                                 asset#0,quantity#0,box_prefixed_key%0#0,aggregate%concat%7#0
         box_put                                                                                       asset#0,quantity#0
         // marketplace_demo/marketplace_with_mutable_struct.py:177-179
         // itxn.AssetTransfer(
@@ -899,13 +878,13 @@ subroutine withdraw:
         txn Sender                                                                                    asset#0,nonce#0,tmp%0#1
         l-load asset#0 2                                                                              nonce#0,tmp%0#1,asset#0
         itob                                                                                          nonce#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        l-load tmp%0#1 1                                                                              nonce#0,aggregate%val_as_bytes%0#0,tmp%0#1
-        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        concat                                                                                        nonce#0,aggregate%head%1#0
-        l-load nonce#0 1                                                                              aggregate%head%1#0,nonce#0
-        itob                                                                                          aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load nonce#0 2                                                                              tmp%0#1,aggregate%val_as_bytes%0#0,nonce#0
+        itob                                                                                          tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           tmp%0#1,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        tmp%0#1,aggregate%concat%1#0
+        l-load tmp%0#1 1                                                                              aggregate%concat%1#0,tmp%0#1
+        l-load aggregate%concat%1#0 1                                                                 tmp%0#1,aggregate%concat%1#0
         concat                                                                                        key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:185
         // listing = self.listings[key].copy()
@@ -1143,13 +1122,13 @@ subroutine bid:
         // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
         l-load asset#0 1                                                                              owner#0,nonce#0,asset#0
         itob                                                                                          owner#0,nonce#0,aggregate%val_as_bytes%0#0
-        l-load owner#0 2                                                                              nonce#0,aggregate%val_as_bytes%0#0,owner#0
-        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,owner#0,aggregate%val_as_bytes%0#0
-        concat                                                                                        nonce#0,aggregate%head%1#0
-        l-load nonce#0 1                                                                              aggregate%head%1#0,nonce#0
-        itob                                                                                          aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load nonce#0 1                                                                              owner#0,aggregate%val_as_bytes%0#0,nonce#0
+        itob                                                                                          owner#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           owner#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           owner#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        owner#0,aggregate%concat%1#0
+        l-load owner#0 1                                                                              aggregate%concat%1#0,owner#0
+        l-load aggregate%concat%1#0 1                                                                 owner#0,aggregate%concat%1#0
         concat                                                                                        key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:212
         // listing = self.listings[key].copy()
@@ -1330,24 +1309,24 @@ subroutine bid:
         //     bid=quantity,
         //     bidUnitaryPrice=unitary_price,
         // )
-        l-load aggregate%extract%3#0 2                                                                unitary_price#0,quantity#0,aggregate%extract%4#0,tmp%14#0,aggregate%extract%3#0
-        l-load aggregate%extract%4#0 2                                                                unitary_price#0,quantity#0,tmp%14#0,aggregate%extract%3#0,aggregate%extract%4#0
-        concat                                                                                        unitary_price#0,quantity#0,tmp%14#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   unitary_price#0,quantity#0,tmp%14#0,aggregate%head%4#0
-        l-load tmp%14#0 1                                                                             unitary_price#0,quantity#0,aggregate%head%4#0,tmp%14#0
-        concat                                                                                        unitary_price#0,quantity#0,aggregate%head%5#0
-        l-load quantity#0 1                                                                           unitary_price#0,aggregate%head%5#0,quantity#0
-        itob                                                                                          unitary_price#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
-        l-load aggregate%head%5#0 1                                                                   unitary_price#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0
-        l-load aggregate%val_as_bytes%4#0 1                                                           unitary_price#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
-        concat                                                                                        unitary_price#0,aggregate%head%6#0
-        l-load unitary_price#0 1                                                                      aggregate%head%6#0,unitary_price#0
-        itob                                                                                          aggregate%head%6#0,aggregate%val_as_bytes%5#0
-        l-load aggregate%head%6#0 1                                                                   aggregate%val_as_bytes%5#0,aggregate%head%6#0
-        l-load aggregate%val_as_bytes%5#0 1                                                           aggregate%head%6#0,aggregate%val_as_bytes%5#0
-        concat                                                                                        aggregate%head%7#0
-        v-load box_prefixed_key%0#0                                                                   aggregate%head%7#0,box_prefixed_key%0#0
-        l-load aggregate%head%7#0 1                                                                   box_prefixed_key%0#0,aggregate%head%7#0
+        l-load quantity#0 3                                                                           unitary_price#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,quantity#0
+        itob                                                                                          unitary_price#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,aggregate%val_as_bytes%4#0
+        l-load unitary_price#0 4                                                                      aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,aggregate%val_as_bytes%4#0,unitary_price#0
+        itob                                                                                          aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
+        l-load aggregate%val_as_bytes%4#0 1                                                           aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,aggregate%val_as_bytes%5#0,aggregate%val_as_bytes%4#0
+        l-load aggregate%val_as_bytes%5#0 1                                                           aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
+        concat                                                                                        aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,aggregate%concat%4#0
+        l-load tmp%14#0 1                                                                             aggregate%extract%3#0,aggregate%extract%4#0,aggregate%concat%4#0,tmp%14#0
+        l-load aggregate%concat%4#0 1                                                                 aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0,aggregate%concat%4#0
+        concat                                                                                        aggregate%extract%3#0,aggregate%extract%4#0,aggregate%concat%5#0
+        l-load aggregate%extract%4#0 1                                                                aggregate%extract%3#0,aggregate%concat%5#0,aggregate%extract%4#0
+        l-load aggregate%concat%5#0 1                                                                 aggregate%extract%3#0,aggregate%extract%4#0,aggregate%concat%5#0
+        concat                                                                                        aggregate%extract%3#0,aggregate%concat%6#0
+        l-load aggregate%extract%3#0 1                                                                aggregate%concat%6#0,aggregate%extract%3#0
+        l-load aggregate%concat%6#0 1                                                                 aggregate%extract%3#0,aggregate%concat%6#0
+        concat                                                                                        aggregate%concat%7#0
+        v-load box_prefixed_key%0#0                                                                   aggregate%concat%7#0,box_prefixed_key%0#0
+        l-load aggregate%concat%7#0 1                                                                 box_prefixed_key%0#0,aggregate%concat%7#0
         box_put
         // marketplace_demo/marketplace_with_mutable_struct.py:200
         // @arc4.abimethod
@@ -1387,13 +1366,13 @@ subroutine accept_bid:
         txn Sender                                                                                    asset#0,nonce#0,tmp%0#1
         l-load asset#0 2                                                                              nonce#0,tmp%0#1,asset#0
         itob                                                                                          nonce#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        l-load tmp%0#1 1                                                                              nonce#0,aggregate%val_as_bytes%0#0,tmp%0#1
-        l-load aggregate%val_as_bytes%0#0 1                                                           nonce#0,tmp%0#1,aggregate%val_as_bytes%0#0
-        concat                                                                                        nonce#0,aggregate%head%1#0
-        l-load nonce#0 1                                                                              aggregate%head%1#0,nonce#0
-        itob                                                                                          aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load nonce#0 2                                                                              tmp%0#1,aggregate%val_as_bytes%0#0,nonce#0
+        itob                                                                                          tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           tmp%0#1,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           tmp%0#1,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        tmp%0#1,aggregate%concat%1#0
+        l-load tmp%0#1 1                                                                              aggregate%concat%1#0,tmp%0#1
+        l-load aggregate%concat%1#0 1                                                                 tmp%0#1,aggregate%concat%1#0
         concat                                                                                        key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:240
         // listing = self.listings[key].copy()
@@ -1551,24 +1530,24 @@ subroutine accept_bid:
         // )
         l-load tmp%6#0 1                                                                              price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%7#0,tmp%6#0
         itob                                                                                          price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%7#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%2#0 0                                                           price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%7#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%extract%4#0 2                                                                price#0,aggregate%extract%0#0,tmp%7#0,aggregate%val_as_bytes%2#0,aggregate%extract%4#0
-        concat                                                                                        price#0,aggregate%extract%0#0,tmp%7#0,aggregate%head%4#0
-        l-load aggregate%head%4#0 0                                                                   price#0,aggregate%extract%0#0,tmp%7#0,aggregate%head%4#0
-        l-load aggregate%extract%0#0 2                                                                price#0,tmp%7#0,aggregate%head%4#0,aggregate%extract%0#0
-        concat                                                                                        price#0,tmp%7#0,aggregate%head%5#0
-        l-load tmp%7#0 1                                                                              price#0,aggregate%head%5#0,tmp%7#0
-        itob                                                                                          price#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
-        l-load aggregate%head%5#0 1                                                                   price#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0
-        l-load aggregate%val_as_bytes%4#0 1                                                           price#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
-        concat                                                                                        price#0,aggregate%head%6#0
-        l-load price#0 1                                                                              aggregate%head%6#0,price#0
-        itob                                                                                          aggregate%head%6#0,aggregate%val_as_bytes%5#0
-        l-load aggregate%head%6#0 1                                                                   aggregate%val_as_bytes%5#0,aggregate%head%6#0
-        l-load aggregate%val_as_bytes%5#0 1                                                           aggregate%head%6#0,aggregate%val_as_bytes%5#0
-        concat                                                                                        aggregate%head%7#0
-        v-load box_prefixed_key%0#0                                                                   aggregate%head%7#0,box_prefixed_key%0#0
-        l-load aggregate%head%7#0 1                                                                   box_prefixed_key%0#0,aggregate%head%7#0
+        l-load tmp%7#0 1                                                                              price#0,aggregate%extract%0#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,tmp%7#0
+        itob                                                                                          price#0,aggregate%extract%0#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%4#0
+        l-load price#0 4                                                                              aggregate%extract%0#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%4#0,price#0
+        itob                                                                                          aggregate%extract%0#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
+        l-load aggregate%val_as_bytes%4#0 1                                                           aggregate%extract%0#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%5#0,aggregate%val_as_bytes%4#0
+        l-load aggregate%val_as_bytes%5#0 1                                                           aggregate%extract%0#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
+        concat                                                                                        aggregate%extract%0#0,aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%concat%4#0
+        l-load aggregate%extract%0#0 3                                                                aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%concat%4#0,aggregate%extract%0#0
+        l-load aggregate%concat%4#0 1                                                                 aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%extract%0#0,aggregate%concat%4#0
+        concat                                                                                        aggregate%extract%4#0,aggregate%val_as_bytes%2#0,aggregate%concat%5#0
+        l-load aggregate%extract%4#0 2                                                                aggregate%val_as_bytes%2#0,aggregate%concat%5#0,aggregate%extract%4#0
+        l-load aggregate%concat%5#0 1                                                                 aggregate%val_as_bytes%2#0,aggregate%extract%4#0,aggregate%concat%5#0
+        concat                                                                                        aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        l-load aggregate%val_as_bytes%2#0 1                                                           aggregate%concat%6#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%concat%6#0 1                                                                 aggregate%val_as_bytes%2#0,aggregate%concat%6#0
+        concat                                                                                        aggregate%concat%7#0
+        v-load box_prefixed_key%0#0                                                                   aggregate%concat%7#0,box_prefixed_key%0#0
+        l-load aggregate%concat%7#0 1                                                                 box_prefixed_key%0#0,aggregate%concat%7#0
         box_put
         // marketplace_demo/marketplace_with_mutable_struct.py:236
         // @arc4.abimethod(name="acceptBid")

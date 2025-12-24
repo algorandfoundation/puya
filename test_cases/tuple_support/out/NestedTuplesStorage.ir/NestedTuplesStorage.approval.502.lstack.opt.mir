@@ -29,17 +29,13 @@ subroutine main:
         assert // check self.tup exists                                                    maybe_value%1#0
         l-load maybe_value%1#0 0                                                           maybe_value%1#0
         extract 2 8                                                                        aggregate%extract%1#0
-        byte 0x000a                                                                        aggregate%extract%1#0,0x000a
-        l-load aggregate%extract%1#0 1                                                     0x000a,aggregate%extract%1#0
-        concat                                                                             aggregate%head%6#0
-        // tuple_support/tuple_storage.py:17
-        // arr=arc4.DynamicArray(arc4.UInt64(0)),
-        byte 0x00010000000000000000                                                        aggregate%head%6#0,0x00010000000000000000
-        // tuple_support/tuple_storage.py:21
-        // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        concat                                                                             aggregate%concat%2#0
-        byte "tup"                                                                         aggregate%concat%2#0,"tup"
-        l-load aggregate%concat%2#0 1                                                      "tup",aggregate%concat%2#0
+        byte 0x00010000000000000000                                                        aggregate%extract%1#0,0x00010000000000000000
+        concat                                                                             aggregate%concat%9#0
+        byte 0x000a                                                                        aggregate%concat%9#0,0x000a
+        l-load aggregate%concat%9#0 1                                                      0x000a,aggregate%concat%9#0
+        concat                                                                             aggregate%concat%10#0
+        byte "tup"                                                                         aggregate%concat%10#0,"tup"
+        l-load aggregate%concat%10#0 1                                                     "tup",aggregate%concat%10#0
         app_global_put
         b main_after_if_else@2
 
@@ -140,22 +136,22 @@ subroutine bootstrap:
         assert // check self.tup exists                                                    maybe_value%0#0
         l-load maybe_value%0#0 0                                                           maybe_value%0#0
         extract 2 8                                                                        aggregate%extract%0#0
-        byte 0x000a                                                                        aggregate%extract%0#0,0x000a
-        l-load aggregate%extract%0#0 1                                                     0x000a,aggregate%extract%0#0
-        concat                                                                             aggregate%head%2#0
-        byte 0x00010000000000000000                                                        aggregate%head%2#0,0x00010000000000000000
-        concat                                                                             aggregate%concat%0#0
-        byte "box"                                                                         aggregate%concat%0#0,"box"
-        box_del                                                                            aggregate%concat%0#0,{box_del}
-        pop 1                                                                              aggregate%concat%0#0
-        byte "box"                                                                         aggregate%concat%0#0,"box"
-        l-load-copy aggregate%concat%0#0 1                                                 aggregate%concat%0#0,"box",aggregate%concat%0#0 (copy)
-        box_put                                                                            aggregate%concat%0#0
+        byte 0x00010000000000000000                                                        aggregate%extract%0#0,0x00010000000000000000
+        concat                                                                             aggregate%concat%3#0
+        byte 0x000a                                                                        aggregate%concat%3#0,0x000a
+        l-load aggregate%concat%3#0 1                                                      0x000a,aggregate%concat%3#0
+        concat                                                                             aggregate%concat%4#0
+        byte "box"                                                                         aggregate%concat%4#0,"box"
+        box_del                                                                            aggregate%concat%4#0,{box_del}
+        pop 1                                                                              aggregate%concat%4#0
+        byte "box"                                                                         aggregate%concat%4#0,"box"
+        l-load-copy aggregate%concat%4#0 1                                                 aggregate%concat%4#0,"box",aggregate%concat%4#0 (copy)
+        box_put                                                                            aggregate%concat%4#0
         // tuple_support/tuple_storage.py:26
         // self.loc[Txn.sender] = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        txn Sender                                                                         aggregate%concat%0#0,tmp%0#0
-        byte "loc"                                                                         aggregate%concat%0#0,tmp%0#0,"loc"
-        l-load aggregate%concat%0#0 2                                                      tmp%0#0,"loc",aggregate%concat%0#0
+        txn Sender                                                                         aggregate%concat%4#0,tmp%0#0
+        byte "loc"                                                                         aggregate%concat%4#0,tmp%0#0,"loc"
+        l-load aggregate%concat%4#0 2                                                      tmp%0#0,"loc",aggregate%concat%4#0
         app_local_put
         // tuple_support/tuple_storage.py:23
         // @arc4.abimethod(allow_actions=["OptIn"])
@@ -204,13 +200,14 @@ subroutine mutate_tuple:
         l-load concat%0#0 1                                                                aggregate%extract%0#0,as_u16_bytes%0#0,concat%0#0
         l-load as_u16_bytes%0#0 1                                                          aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                         aggregate%extract%0#0,replace%0#0
-        byte 0x000a                                                                        aggregate%extract%0#0,replace%0#0,0x000a
-        l-load aggregate%extract%0#0 2                                                     replace%0#0,0x000a,aggregate%extract%0#0
-        concat                                                                             replace%0#0,aggregate%head%2#0
-        l-load replace%0#0 1                                                               aggregate%head%2#0,replace%0#0
-        concat                                                                             aggregate%concat%0#0
-        byte "tup"                                                                         aggregate%concat%0#0,"tup"
-        l-load aggregate%concat%0#0 1                                                      "tup",aggregate%concat%0#0
+        l-load aggregate%extract%0#0 1                                                     replace%0#0,aggregate%extract%0#0
+        l-load replace%0#0 1                                                               aggregate%extract%0#0,replace%0#0
+        concat                                                                             aggregate%concat%2#0
+        byte 0x000a                                                                        aggregate%concat%2#0,0x000a
+        l-load aggregate%concat%2#0 1                                                      0x000a,aggregate%concat%2#0
+        concat                                                                             aggregate%concat%3#0
+        byte "tup"                                                                         aggregate%concat%3#0,"tup"
+        l-load aggregate%concat%3#0 1                                                      "tup",aggregate%concat%3#0
         app_global_put
         // tuple_support/tuple_storage.py:28
         // @arc4.abimethod()
@@ -258,16 +255,17 @@ subroutine mutate_box:
         l-load concat%0#0 1                                                                aggregate%extract%0#0,as_u16_bytes%0#0,concat%0#0
         l-load as_u16_bytes%0#0 1                                                          aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                         aggregate%extract%0#0,replace%0#0
-        byte 0x000a                                                                        aggregate%extract%0#0,replace%0#0,0x000a
-        l-load aggregate%extract%0#0 2                                                     replace%0#0,0x000a,aggregate%extract%0#0
-        concat                                                                             replace%0#0,aggregate%head%2#0
-        l-load replace%0#0 1                                                               aggregate%head%2#0,replace%0#0
-        concat                                                                             aggregate%concat%0#0
-        byte "box"                                                                         aggregate%concat%0#0,"box"
-        box_del                                                                            aggregate%concat%0#0,{box_del}
-        pop 1                                                                              aggregate%concat%0#0
-        byte "box"                                                                         aggregate%concat%0#0,"box"
-        l-load aggregate%concat%0#0 1                                                      "box",aggregate%concat%0#0
+        l-load aggregate%extract%0#0 1                                                     replace%0#0,aggregate%extract%0#0
+        l-load replace%0#0 1                                                               aggregate%extract%0#0,replace%0#0
+        concat                                                                             aggregate%concat%2#0
+        byte 0x000a                                                                        aggregate%concat%2#0,0x000a
+        l-load aggregate%concat%2#0 1                                                      0x000a,aggregate%concat%2#0
+        concat                                                                             aggregate%concat%3#0
+        byte "box"                                                                         aggregate%concat%3#0,"box"
+        box_del                                                                            aggregate%concat%3#0,{box_del}
+        pop 1                                                                              aggregate%concat%3#0
+        byte "box"                                                                         aggregate%concat%3#0,"box"
+        l-load aggregate%concat%3#0 1                                                      "box",aggregate%concat%3#0
         box_put
         // tuple_support/tuple_storage.py:32
         // @arc4.abimethod()
@@ -316,13 +314,14 @@ subroutine mutate_global:
         l-load concat%0#0 1                                                                aggregate%extract%0#0,as_u16_bytes%0#0,concat%0#0
         l-load as_u16_bytes%0#0 1                                                          aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                         aggregate%extract%0#0,replace%0#0
-        byte 0x000a                                                                        aggregate%extract%0#0,replace%0#0,0x000a
-        l-load aggregate%extract%0#0 2                                                     replace%0#0,0x000a,aggregate%extract%0#0
-        concat                                                                             replace%0#0,aggregate%head%2#0
-        l-load replace%0#0 1                                                               aggregate%head%2#0,replace%0#0
-        concat                                                                             aggregate%concat%0#0
-        byte "glob"                                                                        aggregate%concat%0#0,"glob"
-        l-load aggregate%concat%0#0 1                                                      "glob",aggregate%concat%0#0
+        l-load aggregate%extract%0#0 1                                                     replace%0#0,aggregate%extract%0#0
+        l-load replace%0#0 1                                                               aggregate%extract%0#0,replace%0#0
+        concat                                                                             aggregate%concat%2#0
+        byte 0x000a                                                                        aggregate%concat%2#0,0x000a
+        l-load aggregate%concat%2#0 1                                                      0x000a,aggregate%concat%2#0
+        concat                                                                             aggregate%concat%3#0
+        byte "glob"                                                                        aggregate%concat%3#0,"glob"
+        l-load aggregate%concat%3#0 1                                                      "glob",aggregate%concat%3#0
         app_global_put
         // tuple_support/tuple_storage.py:36
         // @arc4.abimethod()
@@ -373,14 +372,15 @@ subroutine mutate_local:
         l-load concat%0#0 1                                                                tmp%0#1,aggregate%extract%0#0,as_u16_bytes%0#0,concat%0#0
         l-load as_u16_bytes%0#0 1                                                          tmp%0#1,aggregate%extract%0#0,concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                         tmp%0#1,aggregate%extract%0#0,replace%0#0
-        byte 0x000a                                                                        tmp%0#1,aggregate%extract%0#0,replace%0#0,0x000a
-        l-load aggregate%extract%0#0 2                                                     tmp%0#1,replace%0#0,0x000a,aggregate%extract%0#0
-        concat                                                                             tmp%0#1,replace%0#0,aggregate%head%2#0
-        l-load replace%0#0 1                                                               tmp%0#1,aggregate%head%2#0,replace%0#0
-        concat                                                                             tmp%0#1,aggregate%concat%0#0
-        l-load tmp%0#1 1                                                                   aggregate%concat%0#0,tmp%0#1
-        byte "loc"                                                                         aggregate%concat%0#0,tmp%0#1,"loc"
-        l-load aggregate%concat%0#0 2                                                      tmp%0#1,"loc",aggregate%concat%0#0
+        l-load aggregate%extract%0#0 1                                                     tmp%0#1,replace%0#0,aggregate%extract%0#0
+        l-load replace%0#0 1                                                               tmp%0#1,aggregate%extract%0#0,replace%0#0
+        concat                                                                             tmp%0#1,aggregate%concat%2#0
+        byte 0x000a                                                                        tmp%0#1,aggregate%concat%2#0,0x000a
+        l-load aggregate%concat%2#0 1                                                      tmp%0#1,0x000a,aggregate%concat%2#0
+        concat                                                                             tmp%0#1,aggregate%concat%3#0
+        l-load tmp%0#1 1                                                                   aggregate%concat%3#0,tmp%0#1
+        byte "loc"                                                                         aggregate%concat%3#0,tmp%0#1,"loc"
+        l-load aggregate%concat%3#0 2                                                      tmp%0#1,"loc",aggregate%concat%3#0
         app_local_put
         // tuple_support/tuple_storage.py:40
         // @arc4.abimethod()

@@ -21,8 +21,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%1#5: uint64 = (extract_uint64 aggregate%array_trimmed%1#0 aggregate%bytes_offset%1#0)
         let tmp%13#1: bool = (== values%1#5 4u)
         (assert tmp%13#1)
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 43u)
-        let concat%1#0: bytes = (concat arr#0 aggregate%val_as_bytes%1#0) // on error: max array length exceeded
+        let concat%1#0: bytes = (concat arr#0 0x000000000000002b) // on error: max array length exceeded
         let add%1#0: uint64 = (+ aggregate%array_length%3#0 1u)
         let as_bytes%1#0: bytes[8] = (itob add%1#0)
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
@@ -70,8 +69,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%5#4: uint64 = (extract_uint64 aggregate%array_trimmed%5#0 aggregate%bytes_offset%5#0)
         let tmp%32#0: bool = (== values%5#4 9u)
         (assert tmp%32#0)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 44u)
-        let concat%2#0: bytes = (concat arr#0 aggregate%val_as_bytes%2#0) // on error: max array length exceeded
+        let concat%2#0: bytes = (concat arr#0 0x000000000000002c) // on error: max array length exceeded
         let add%2#1: uint64 = (+ aggregate%array_length%9#0 1u)
         let as_bytes%2#0: bytes[8] = (itob add%2#1)
         let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
@@ -281,8 +279,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%3#1: uint64 = (+ i#0 2u)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%2#0)
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%3#1)
-        let aggregate%head%9#0: bytes = (concat aggregate%val_as_bytes%4#0 aggregate%val_as_bytes%5#0)
-        let concat%0#0: bytes = (concat arr#0 aggregate%head%9#0) // on error: max array length exceeded
+        let aggregate%concat%13#0: bytes = (concat aggregate%val_as_bytes%4#0 aggregate%val_as_bytes%5#0)
+        let concat%0#0: bytes = (concat arr#0 aggregate%concat%13#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#1: bytes[8] = (itob add%0#0)
@@ -351,8 +349,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%6#0: bytes[8] = (itob i#0)
         let aggregate%encoded_bool%1#0: bytes[1] = (setbit 0x00 0u tmp%3#0)
         let aggregate%set_bit%0#0: bytes[1] = (setbit aggregate%encoded_bool%1#0 1u tmp%6#1)
-        let aggregate%head%12#0: bytes = (concat aggregate%val_as_bytes%6#0 aggregate%set_bit%0#0)
-        let concat%0#0: bytes = (concat arr#0 aggregate%head%12#0) // on error: max array length exceeded
+        let aggregate%concat%17#0: bytes = (concat aggregate%val_as_bytes%6#0 aggregate%set_bit%0#0)
+        let concat%0#0: bytes = (concat arr#0 aggregate%concat%17#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#1: bytes[8] = (itob add%0#0)
@@ -393,10 +391,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%3#3)
-        let aggregate%head%15#0: bytes = (concat aggregate%val_as_bytes%7#0 0x000a)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%15#0 aggregate%encoded_value%0#0)
-        let aggregate%concat%1#0: bytes = (concat 0x0002 aggregate%concat%0#0)
-        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%1#0)
+        let aggregate%concat%21#0: bytes = (concat 0x000a aggregate%encoded_value%0#0)
+        let aggregate%concat%22#0: bytes = (concat aggregate%val_as_bytes%7#0 aggregate%concat%21#0)
+        let aggregate%concat%24#0: bytes = (concat 0x0002 aggregate%concat%22#0)
+        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%24#0)
         let i#0: uint64 = tmp%2#0
         goto block@140
     block@142: // after_for_L217
@@ -492,10 +490,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%10#0: bytes[8] = (itob aggregate%length%1#0)
         let aggregate%length_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%10#0)
         let aggregate%encoded_value%1#0: bytes = (concat aggregate%length_uint16%1#0 tmp%3#14)
-        let aggregate%head%18#0: bytes = (concat aggregate%val_as_bytes%8#0 0x000a)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%18#0 aggregate%encoded_value%1#0)
-        let aggregate%concat%3#0: bytes = (concat 0x0002 aggregate%concat%2#0)
-        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%3#0)
+        let aggregate%concat%27#0: bytes = (concat 0x000a aggregate%encoded_value%1#0)
+        let aggregate%concat%28#0: bytes = (concat aggregate%val_as_bytes%8#0 aggregate%concat%27#0)
+        let aggregate%concat%30#0: bytes = (concat 0x0002 aggregate%concat%28#0)
+        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%30#0)
         let i#0: uint64 = tmp%2#0
         goto block@132
     block@134: // after_for_L236
@@ -653,8 +651,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@121: // after_for_L265
         let extract_uint16%1#0: uint64 = (extract_uint16 arr#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
-        let aggregate%concat%5#0: bytes = (concat 0x0002 extra_arr#0)
-        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%0#0, 1u, aggregate%concat%5#0)
+        let aggregate%concat%36#0: bytes = (concat 0x0002 extra_arr#0)
+        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%0#0, 1u, aggregate%concat%36#0)
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
         goto block@117
@@ -736,10 +734,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%set_bit%5#0: bytes[1] = (setbit aggregate%set_bit%4#0 4u tmp%16#0)
         let aggregate%set_bit%6#0: bytes[1] = (setbit aggregate%set_bit%5#0 5u tmp%17#1)
         let aggregate%set_bit%7#0: bytes[1] = (setbit aggregate%set_bit%6#0 6u tmp%18#0)
-        let aggregate%head%27#0: bytes = (concat aggregate%val_as_bytes%11#0 aggregate%set_bit%7#0)
         let aggregate%val_as_bytes%12#0: bytes[8] = (itob tmp%11#1)
-        let aggregate%head%28#0: bytes = (concat aggregate%head%27#0 aggregate%val_as_bytes%12#0)
-        let concat%1#0: bytes = (concat arr7#0 aggregate%head%28#0) // on error: max array length exceeded
+        let aggregate%concat%46#0: bytes = (concat aggregate%set_bit%7#0 aggregate%val_as_bytes%12#0)
+        let aggregate%concat%47#0: bytes = (concat aggregate%val_as_bytes%11#0 aggregate%concat%46#0)
+        let concat%1#0: bytes = (concat arr7#0 aggregate%concat%47#0) // on error: max array length exceeded
         let extract_uint16%1#0: uint64 = (extract_uint16 arr7#0 0u)
         let add%1#0: uint64 = (+ extract_uint16%1#0 1u)
         let as_bytes%1#0: bytes[8] = (itob add%1#0)
@@ -747,9 +745,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arr7#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
         let tmp%28#0: bool = (== i#0 7u)
         let aggregate%set_bit%14#0: bytes[1] = (setbit aggregate%set_bit%7#0 7u tmp%28#0)
-        let aggregate%head%31#0: bytes = (concat aggregate%val_as_bytes%11#0 aggregate%set_bit%14#0)
-        let aggregate%head%32#0: bytes = (concat aggregate%head%31#0 aggregate%val_as_bytes%12#0)
-        let concat%2#0: bytes = (concat arr8#0 aggregate%head%32#0) // on error: max array length exceeded
+        let aggregate%concat%50#0: bytes = (concat aggregate%set_bit%14#0 aggregate%val_as_bytes%12#0)
+        let aggregate%concat%51#0: bytes = (concat aggregate%val_as_bytes%11#0 aggregate%concat%50#0)
+        let concat%2#0: bytes = (concat arr8#0 aggregate%concat%51#0) // on error: max array length exceeded
         let extract_uint16%2#0: uint64 = (extract_uint16 arr8#0 0u)
         let add%2#1: uint64 = (+ extract_uint16%2#0 1u)
         let as_bytes%2#0: bytes[8] = (itob add%2#1)
@@ -757,9 +755,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arr8#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
         let tmp%39#0: bool = (== i#0 8u)
         let aggregate%encoded_bool%6#0: bytes[1] = (setbit 0x00 0u tmp%39#0)
-        let aggregate%head%36#0: bytes = (concat aggregate%head%31#0 aggregate%encoded_bool%6#0)
-        let aggregate%head%37#0: bytes = (concat aggregate%head%36#0 aggregate%val_as_bytes%12#0)
-        let concat%3#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr9#0 aggregate%head%37#0) // on error: max array length exceeded
+        let aggregate%concat%54#0: bytes = (concat aggregate%encoded_bool%6#0 aggregate%val_as_bytes%12#0)
+        let aggregate%concat%55#0: bytes = (concat aggregate%set_bit%14#0 aggregate%concat%54#0)
+        let aggregate%concat%56#0: bytes = (concat aggregate%val_as_bytes%11#0 aggregate%concat%55#0)
+        let concat%3#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr9#0 aggregate%concat%56#0) // on error: max array length exceeded
         let extract_uint16%3#0: uint64 = (extract_uint16 arr9#0 0u)
         let add%3#0: uint64 = (+ extract_uint16%3#0 1u)
         let as_bytes%3#0: bytes[8] = (itob add%3#0)
@@ -929,12 +928,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@106: // after_for_L361
         let aggregate%val_as_bytes%17#0: bytes[8] = (itob sum1#0)
         let aggregate%val_as_bytes%18#0: bytes[8] = (itob sum2#0)
-        let aggregate%head%40#0: bytes = (concat aggregate%val_as_bytes%17#0 aggregate%val_as_bytes%18#0)
         let aggregate%val_as_bytes%19#0: bytes[8] = (itob sum3#0)
-        let aggregate%head%41#0: bytes = (concat aggregate%head%40#0 aggregate%val_as_bytes%19#0)
         let aggregate%val_as_bytes%20#0: bytes[8] = (itob sum4#0)
-        let aggregate%head%42#0: bytes = (concat aggregate%head%41#0 aggregate%val_as_bytes%20#0)
-        let tmp%9#2: bytes = (concat 0x151f7c75 aggregate%head%42#0)
+        let aggregate%concat%59#0: bytes = (concat aggregate%val_as_bytes%19#0 aggregate%val_as_bytes%20#0)
+        let aggregate%concat%60#0: bytes = (concat aggregate%val_as_bytes%18#0 aggregate%concat%59#0)
+        let aggregate%concat%61#0: bytes = (concat aggregate%val_as_bytes%17#0 aggregate%concat%60#0)
+        let tmp%9#2: bytes = (concat 0x151f7c75 aggregate%concat%61#0)
         (log tmp%9#2)
         exit 1u
     block@16: // test_uint64_return_route_L368
@@ -1007,8 +1006,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%26#0: bytes[8] = (itob i#0)
         let aggregate%encoded_bool%10#0: bytes[1] = (setbit 0x00 0u tmp%1#10)
         let aggregate%set_bit%27#0: bytes[1] = (setbit aggregate%encoded_bool%10#0 1u tmp%3#0)
-        let aggregate%head%53#0: bytes = (concat aggregate%val_as_bytes%26#0 aggregate%set_bit%27#0)
-        let concat%0#0: bytes = (concat arr#0 aggregate%head%53#0) // on error: max array length exceeded
+        let aggregate%concat%75#0: bytes = (concat aggregate%val_as_bytes%26#0 aggregate%set_bit%27#0)
+        let concat%0#0: bytes = (concat arr#0 aggregate%concat%75#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#1: bytes[8] = (itob add%0#0)
@@ -1039,10 +1038,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%28#0: bytes[8] = (itob aggregate%length%3#0)
         let aggregate%length_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%28#0)
         let aggregate%encoded_value%3#0: bytes = (concat aggregate%length_uint16%3#0 tmp%0#15)
-        let aggregate%head%59#0: bytes = (concat aggregate%val_as_bytes%28#0 0x000a)
-        let aggregate%concat%8#0: bytes = (concat aggregate%head%59#0 aggregate%encoded_value%3#0)
-        let aggregate%concat%9#0: bytes = (concat 0x0002 aggregate%concat%8#0)
-        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%9#0)
+        let aggregate%concat%84#0: bytes = (concat 0x000a aggregate%encoded_value%3#0)
+        let aggregate%concat%85#0: bytes = (concat aggregate%val_as_bytes%28#0 aggregate%concat%84#0)
+        let aggregate%concat%87#0: bytes = (concat 0x0002 aggregate%concat%85#0)
+        let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%87#0)
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
         goto block@66
@@ -1076,8 +1075,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%29#0: bytes[8] = (itob i#0)
         let aggregate%encoded_bool%11#0: bytes[1] = (setbit 0x00 0u tmp%1#10)
         let aggregate%set_bit%28#0: bytes[1] = (setbit aggregate%encoded_bool%11#0 1u tmp%3#0)
-        let aggregate%head%62#0: bytes = (concat aggregate%val_as_bytes%29#0 aggregate%set_bit%28#0)
-        let concat%1#0: bytes = (concat slot_contents%1#0 aggregate%head%62#0) // on error: max array length exceeded
+        let aggregate%concat%89#0: bytes = (concat aggregate%val_as_bytes%29#0 aggregate%set_bit%28#0)
+        let concat%1#0: bytes = (concat slot_contents%1#0 aggregate%concat%89#0) // on error: max array length exceeded
         store(local.0, concat%1#0)
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
@@ -1114,8 +1113,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
         let arg.0#0: bytes = ((extract 0 8) tmp%0#6)
         let arg.1#0: bytes = ((extract 8 8) tmp%0#6)
-        let aggregate%head%69#0: bytes = (concat arg.0#0 arg.1#0)
-        let concat%0#0: bytes = (concat 0x000200000000000000010000000000000002 aggregate%head%69#0) // on error: max array length exceeded
+        let aggregate%concat%98#0: bytes = (concat arg.0#0 arg.1#0)
+        let concat%0#0: bytes = (concat 0x000200000000000000010000000000000002 aggregate%concat%98#0) // on error: max array length exceeded
         let result#0: bytes = ((replace2 0) concat%0#0 0x0004)
         let tmp%4#2: bytes = (concat 0x151f7c75 result#0)
         (log tmp%4#2)
@@ -1260,8 +1259,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%30#0: bytes[8] = (itob tmp%2#0)
         let aggregate%val_as_bytes%31#0: bytes[8] = (itob tmp%4#0)
         let struct12#0: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%30#0 aggregate%val_as_bytes%31#0)
-        let aggregate%head%77#0: bytes = (concat struct12#0 struct12#0)
-        let arr2#0: bytes = (concat aggregate%head%77#0 struct12#0)
+        let aggregate%concat%112#0: bytes = (concat struct12#0 struct12#0)
+        let arr2#0: bytes = (concat struct12#0 aggregate%concat%112#0)
         let tmp%6#1: bool = (!= arr1#0 arr2#0)
         (assert tmp%6#1) // expected arrays to be different
         let value_internal%0#0: uint64 = 0u

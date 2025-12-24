@@ -180,7 +180,6 @@ my_dyn_struct_arc4_block@0:
     frame_dig -1
     itob
     txn Sender
-    cover 1
     txn Sender
     dup
     len
@@ -192,16 +191,14 @@ my_dyn_struct_arc4_block@0:
     // return MyDynStructARC4(
     //     arc4.UInt64(value), arc4.Address(Txn.sender), arc4.DynamicBytes(Txn.sender.bytes)
     // )
-    bytec_0 // 0x
-    uncover 2
-    concat
-    uncover 2
-    concat
     pushint 42
     itob
     extract 6 2
-    concat
     uncover 1
+    bytec_0 // 0x
+    concat
+    concat
+    concat
     concat
     retsub
 
@@ -1146,22 +1143,24 @@ test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding_nex
     txn NumAppArgs
     intc_2 // 1
     +
-    cover 1
     txn NumAppArgs
     intc_3 // 2
     +
-    cover 2
     pushint 3
     itob
     extract 6 2
+    cover 3
+    uncover 2
+    itob
+    cover 2
     uncover 1
     itob
+    uncover 1
+    itob
+    bytec_0 // 0x
     concat
-    uncover 1
-    itob
     concat
-    uncover 1
-    itob
+    concat
     concat
     // arc4_conversions/contract.py:108
     // b"\x00\x03" + op.bzero(7) + b"\x01" + op.bzero(7) + b"\x02" + op.bzero(7) + b"\x03"
@@ -1228,22 +1227,24 @@ test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding_nex
     txn NumAppArgs
     intc_2 // 1
     +
-    cover 1
     txn NumAppArgs
     intc_3 // 2
     +
-    cover 2
     pushint 3
     itob
     extract 6 2
+    cover 3
+    uncover 2
+    itob
+    cover 2
     uncover 1
     itob
+    uncover 1
+    itob
+    bytec_0 // 0x
     concat
-    uncover 1
-    itob
     concat
-    uncover 1
-    itob
+    concat
     concat
     // arc4_conversions/contract.py:114
     // expected_bytes,
@@ -1299,20 +1300,19 @@ test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding_nex
     txn NumAppArgs
     intc_2 // 1
     +
-    cover 1
     txn NumAppArgs
     intc_3 // 2
     +
+    uncover 2
+    itob
     cover 2
+    uncover 1
+    itob
+    uncover 1
     itob
     bytec_0 // 0x
-    uncover 1
     concat
-    uncover 1
-    itob
     concat
-    uncover 1
-    itob
     concat
     // arc4_conversions/contract.py:120
     // expected_bytes[2:],
@@ -1450,28 +1450,27 @@ test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding_nex
     pushint 3
     itob
     extract 6 2
-    cover 1
+    cover 6
     itob
+    uncover 1
     bytec_0 // 0x
-    uncover 1
-    concat
-    uncover 2
     concat
     concat
-    uncover 1
+    cover 3
     itob
-    bytec_0 // 0x
     uncover 1
-    concat
-    uncover 2
+    bytec_0 // 0x
     concat
     concat
     uncover 1
     itob
+    uncover 3
     bytec_0 // 0x
-    uncover 1
     concat
-    uncover 2
+    concat
+    bytec_0 // 0x
+    concat
+    concat
     concat
     concat
     // arc4_conversions/contract.py:133
@@ -1604,28 +1603,24 @@ test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding_nex
     cover 5
     cover 4
     itob
+    uncover 1
     bytec_0 // 0x
-    uncover 1
     concat
-    uncover 1
     concat
-    bytec_0 // 0x
-    uncover 1
-    concat
-    uncover 1
+    cover 4
     itob
-    bytec_0 // 0x
     uncover 1
-    concat
-    uncover 2
+    bytec_0 // 0x
     concat
     concat
     uncover 1
     itob
-    bytec_0 // 0x
-    uncover 1
-    concat
     uncover 2
+    bytec_0 // 0x
+    concat
+    concat
+    bytec_0 // 0x
+    concat
     concat
     concat
     // arc4_conversions/contract.py:144
@@ -1770,45 +1765,36 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     pushint 3
     itob
     extract 6 2
-    cover 3
+    cover 9
     itob
-    bytec_0 // 0x
-    uncover 1
-    concat
-    uncover 1
-    concat
-    dig 1
+    cover 2
+    cover 1
+    dup
     len
     itob
     extract 6 2
-    uncover 2
+    uncover 1
     concat
     pushint 42
     itob
     extract 6 2
-    uncover 2
     uncover 1
+    bytec_0 // 0x
     concat
-    uncover 1
+    concat
+    concat
     concat
     intc_1 // 6
     itob
     extract 6 2
-    uncover 2
-    uncover 1
-    concat
-    cover 1
+    cover 7
     dup
     len
     intc_1 // 6
     +
-    uncover 3
+    uncover 2
     itob
-    bytec_0 // 0x
-    uncover 1
-    concat
-    uncover 4
-    concat
+    uncover 3
     dig 4
     len
     itob
@@ -1818,17 +1804,15 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     pushint 42
     itob
     extract 6 2
-    uncover 2
     uncover 1
+    bytec_0 // 0x
     concat
-    uncover 1
+    concat
+    concat
     concat
     dig 1
     itob
     extract 6 2
-    uncover 4
-    uncover 1
-    concat
     cover 2
     dup
     len
@@ -1836,36 +1820,37 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     +
     uncover 4
     itob
-    bytec_0 // 0x
-    uncover 1
-    concat
     uncover 5
-    concat
-    dig 5
+    dig 6
     len
     itob
     extract 6 2
-    uncover 6
+    uncover 7
     concat
     pushint 42
     itob
     extract 6 2
-    uncover 2
     uncover 1
+    bytec_0 // 0x
     concat
-    uncover 1
+    concat
+    concat
     concat
     uncover 1
     itob
     extract 6 2
-    uncover 3
-    uncover 1
-    concat
-    uncover 3
+    cover 1
+    bytec_0 // 0x
     concat
     uncover 2
-    concat
     uncover 1
+    concat
+    uncover 3
+    uncover 1
+    concat
+    concat
+    concat
+    concat
     concat
     // arc4_conversions/contract.py:158
     // my_dyn_struct_arc4(UInt64(1)),
@@ -1890,32 +1875,36 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     pushint 3
     itob
     extract 6 2
+    cover 3
     intc_1 // 6
     itob
     extract 6 2
-    concat
-    dig 1
+    cover 3
+    dup
     len
     intc_1 // 6
     +
     dup
     itob
     extract 6 2
-    uncover 2
-    uncover 1
-    concat
-    cover 1
+    cover 2
     dig 3
     len
     +
     itob
     extract 6 2
+    uncover 4
+    bytec_0 // 0x
     concat
+    uncover 4
     uncover 1
     concat
+    uncover 2
     uncover 1
     concat
-    uncover 1
+    concat
+    concat
+    concat
     concat
     // arc4_conversions/contract.py:162
     // arc4.abi_call(CheckApp.check_dyn_array_dyn_struct, arr, expected_bytes, app_id=app)
@@ -1966,31 +1955,31 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     intc_1 // 6
     itob
     extract 6 2
-    bytec_0 // 0x
-    uncover 1
-    concat
-    dig 1
+    cover 3
+    dup
     len
     intc_1 // 6
     +
     dup
     itob
     extract 6 2
-    uncover 2
-    uncover 1
-    concat
-    cover 1
+    cover 2
     dig 3
     len
     +
     itob
     extract 6 2
+    uncover 4
+    bytec_0 // 0x
     concat
+    uncover 4
     uncover 1
     concat
+    uncover 2
     uncover 1
     concat
-    uncover 1
+    concat
+    concat
     concat
     // arc4_conversions/contract.py:169-174
     // arc4.abi_call(
@@ -2017,43 +2006,34 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     cover 7
     cover 6
     itob
-    bytec_0 // 0x
-    uncover 1
-    concat
-    uncover 1
-    concat
-    dig 1
+    cover 2
+    cover 1
+    dup
     len
     itob
     extract 6 2
-    uncover 2
+    uncover 1
     concat
     pushint 42
     itob
     extract 6 2
-    uncover 2
     uncover 1
+    bytec_0 // 0x
     concat
-    uncover 1
+    concat
+    concat
     concat
     intc_1 // 6
     itob
     extract 6 2
-    bytec_0 // 0x
-    uncover 1
-    concat
-    cover 1
+    cover 7
     dup
     len
     intc_1 // 6
     +
-    uncover 3
+    uncover 2
     itob
-    bytec_0 // 0x
-    uncover 1
-    concat
-    uncover 4
-    concat
+    uncover 3
     dig 4
     len
     itob
@@ -2063,17 +2043,15 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     pushint 42
     itob
     extract 6 2
-    uncover 2
     uncover 1
+    bytec_0 // 0x
     concat
-    uncover 1
+    concat
+    concat
     concat
     dig 1
     itob
     extract 6 2
-    uncover 4
-    uncover 1
-    concat
     cover 2
     dup
     len
@@ -2081,36 +2059,36 @@ test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding_ne
     +
     uncover 4
     itob
-    bytec_0 // 0x
-    uncover 1
-    concat
     uncover 5
-    concat
-    dig 5
+    dig 6
     len
     itob
     extract 6 2
-    uncover 6
+    uncover 7
     concat
     pushint 42
     itob
     extract 6 2
-    uncover 2
     uncover 1
+    bytec_0 // 0x
     concat
-    uncover 1
+    concat
+    concat
     concat
     uncover 1
     itob
     extract 6 2
-    uncover 3
-    uncover 1
-    concat
-    uncover 3
+    cover 1
+    bytec_0 // 0x
     concat
     uncover 2
-    concat
     uncover 1
+    concat
+    uncover 3
+    uncover 1
+    concat
+    concat
+    concat
     concat
     // arc4_conversions/contract.py:172
     // expected_bytes,

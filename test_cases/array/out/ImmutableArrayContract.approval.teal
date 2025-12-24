@@ -562,10 +562,8 @@ test_uint64_array:
     assert
     // array/immutable.py:107
     // arr = arr.append(UInt64(43))
-    pushint 43
-    itob
-    uncover 2
     swap
+    pushbytes 0x000000000000002b
     concat // on error: max array length exceeded
     swap
     intc_1 // 1
@@ -685,10 +683,8 @@ test_uint64_array_after_for@4:
     assert
     // array/immutable.py:120
     // arr = arr.append(UInt64(44))
-    pushint 44
-    itob
-    uncover 2
     swap
+    pushbytes 0x000000000000002c
     concat // on error: max array length exceeded
     swap
     intc_1 // 1
@@ -1468,10 +1464,9 @@ test_dynamic_sized_tuple_array_for_header@2:
     extract 6 2
     uncover 4
     concat
-    swap
     bytec 6 // 0x000a
-    concat
     swap
+    concat
     concat
     bytec 4 // 0x0002
     swap
@@ -1718,10 +1713,9 @@ test_dynamic_sized_named_tuple_array_for_header@2:
     extract 6 2
     uncover 4
     concat
-    swap
     bytec 6 // 0x000a
-    concat
     swap
+    concat
     concat
     bytec 4 // 0x0002
     swap
@@ -2359,12 +2353,12 @@ test_bit_packed_tuples_for_header@2:
     pushint 6
     uncover 3
     setbit
+    dig 2
+    itob
     dup2
     concat
     dig 3
-    itob
     swap
-    dig 1
     concat
     dig 9
     dup
@@ -2403,13 +2397,13 @@ test_bit_packed_tuples_for_header@2:
     pushint 7
     uncover 2
     setbit
-    uncover 2
-    swap
-    concat
     dup
     dig 2
     concat
-    dig 7
+    dig 3
+    swap
+    concat
+    dig 8
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -2421,10 +2415,10 @@ test_bit_packed_tuples_for_header@2:
     itob
     extract 6 2
     replace2 0
-    bury 7
+    bury 8
     // array/immutable.py:328
     // i=i == 8,
-    uncover 3
+    uncover 4
     intc_3 // 8
     ==
     // array/immutable.py:316-330
@@ -2447,8 +2441,9 @@ test_bit_packed_tuples_for_header@2:
     intc_0 // 0
     uncover 2
     setbit
+    uncover 2
     concat
-    swap
+    concat
     concat
     dig 3
     dup
@@ -2863,12 +2858,12 @@ sum_uints_and_lengths_and_trues_after_for@27:
     itob
     dig 15
     itob
-    concat
-    dig 14
+    dig 15
+    itob
+    dig 15
     itob
     concat
-    dig 13
-    itob
+    concat
     concat
     bytec_1 // 0x151f7c75
     swap
@@ -3116,10 +3111,9 @@ test_dynamic_tuple_return_for_header@2:
     extract 6 2
     uncover 4
     concat
-    swap
     bytec 6 // 0x000a
-    concat
     swap
+    concat
     concat
     bytec 4 // 0x0002
     swap
@@ -3676,7 +3670,6 @@ test_imm_fixed_arr:
     dup
     dig 1
     concat
-    swap
     concat
     dup
     cover 2

@@ -54,8 +54,8 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let tmp%3#0: uint64 = (+ tmp%2#0 2u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%3#0)
+        let aggregate%concat%0#0: bytes = aggregate%val_as_bytes%1#0
         let fixed_struct#0: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
@@ -85,8 +85,8 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         let tmp%11#0: uint64 = (txn NumAppArgs)
         let tmp%12#0: uint64 = (+ tmp%11#0 3u)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%10#0)
-        let aggregate%head%2#0: bytes = aggregate%val_as_bytes%2#0
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%12#0)
+        let aggregate%concat%2#0: bytes = aggregate%val_as_bytes%3#0
         let fixed_struct#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
@@ -135,14 +135,14 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let tmp%3#0: uint64 = (+ tmp%2#0 2u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%3#0)
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
+        let aggregate%concat%0#0: bytes = aggregate%val_as_bytes%1#0
+        let aggregate%concat%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         let tmp%5#0: uint64 = (txn NumAppArgs)
         let tmp%6#0: uint64 = (+ tmp%5#0 3u)
-        let aggregate%head%2#0: bytes = aggregate%head%1#0
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%6#0)
-        let nested_struct#0: Encoded((uint64,uint64),uint64) = (concat aggregate%head%1#0 aggregate%val_as_bytes%2#0)
+        let aggregate%concat%2#0: bytes = aggregate%val_as_bytes%2#0
+        let nested_struct#0: Encoded((uint64,uint64),uint64) = (concat aggregate%concat%1#0 aggregate%val_as_bytes%2#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "nested_struct_arg(((uint64,uint64),uint64))void")
@@ -171,14 +171,14 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         let tmp%14#0: uint64 = (txn NumAppArgs)
         let tmp%15#0: uint64 = (+ tmp%14#0 3u)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%13#0)
-        let aggregate%head%4#0: bytes = aggregate%val_as_bytes%3#0
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%15#0)
-        let aggregate%head%5#0: bytes = (concat aggregate%val_as_bytes%3#0 aggregate%val_as_bytes%4#0)
+        let aggregate%concat%4#0: bytes = aggregate%val_as_bytes%4#0
+        let aggregate%concat%5#0: bytes = (concat aggregate%val_as_bytes%3#0 aggregate%val_as_bytes%4#0)
         let tmp%17#0: uint64 = (txn NumAppArgs)
         let tmp%18#0: uint64 = (+ tmp%17#0 4u)
-        let aggregate%head%6#0: bytes = aggregate%head%5#0
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%18#0)
-        let nested_struct#1: Encoded((uint64,uint64),uint64) = (concat aggregate%head%5#0 aggregate%val_as_bytes%5#0)
+        let aggregate%concat%6#0: bytes = aggregate%val_as_bytes%5#0
+        let nested_struct#1: Encoded((uint64,uint64),uint64) = (concat aggregate%concat%5#0 aggregate%val_as_bytes%5#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "nested_struct_arg(((uint64,uint64),uint64))void")
@@ -237,17 +237,15 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let tmp%11#0: bytes = (itob tmp%10#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#0: bytes = 0x0001
-        let aggregate%head%2#0: bytes = (concat 0x0001 fixed_struct#0)
+        let aggregate%concat%3#0: bytes = (concat 0x0001 fixed_struct#0)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%6#0)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%8#0)
-        let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
         let aggregate%length%0#0: uint64 = 8u
         let aggregate%as_bytes%1#0: bytes[8] = (itob 8u)
         let aggregate%length_uint16%0#0: bytes = 0x0008
         let aggregate%encoded_value%0#0: bytes = (concat 0x0008 tmp%11#0)
         let aggregate%as_bytes%2#0: bytes[8] = (itob 22u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0016
-        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 0x0016)
         let aggregate%data_length%0#0: uint64 = (len aggregate%encoded_value%0#0)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 22u aggregate%data_length%0#0)
         let aggregate%length%1#0: uint64 = 5u
@@ -256,15 +254,17 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let aggregate%encoded_value%1#0: bytes = 0x000548656c6c6f
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
-        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%offset_as_uint16%1#0)
         let aggregate%data_length%1#0: uint64 = 7u
         let aggregate%current_tail_offset%1#0: uint64 = (+ aggregate%current_tail_offset%0#0 7u)
         let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%5#0)
-        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%offset_as_uint16%2#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%7#0 aggregate%encoded_value%0#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 0x000548656c6c6f)
-        let dynamic_struct#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (concat aggregate%concat%1#0 aggregate%head%2#0)
+        let aggregate%concat%5#0: bytes = (concat 0x000548656c6c6f aggregate%concat%3#0)
+        let aggregate%concat%6#0: bytes = (concat aggregate%encoded_value%0#0 aggregate%concat%5#0)
+        let aggregate%concat%7#0: bytes = (concat aggregate%offset_as_uint16%2#0 aggregate%concat%6#0)
+        let aggregate%concat%8#0: bytes = (concat aggregate%offset_as_uint16%1#0 aggregate%concat%7#0)
+        let aggregate%concat%9#0: bytes = (concat 0x0016 aggregate%concat%8#0)
+        let aggregate%concat%10#0: bytes = (concat aggregate%val_as_bytes%3#0 aggregate%concat%9#0)
+        let dynamic_struct#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (concat aggregate%val_as_bytes%2#0 aggregate%concat%10#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void")
@@ -318,12 +318,10 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let tmp%23#0: bytes = (itob tmp%22#0)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%18#0)
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%20#0)
-        let aggregate%head%9#0: bytes = (concat aggregate%val_as_bytes%4#0 aggregate%val_as_bytes%5#0)
         let aggregate%length%2#0: uint64 = 8u
         let aggregate%length_uint16%2#0: bytes = 0x0008
         let aggregate%encoded_value%2#0: bytes = (concat 0x0008 tmp%23#0)
         let aggregate%offset_as_uint16%3#0: bytes = 0x0016
-        let aggregate%head%10#0: bytes = (concat aggregate%head%9#0 0x0016)
         let aggregate%data_length%3#0: uint64 = (len aggregate%encoded_value%2#0)
         let aggregate%current_tail_offset%3#0: uint64 = (+ 22u aggregate%data_length%3#0)
         let aggregate%length%3#0: uint64 = 5u
@@ -331,15 +329,16 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let aggregate%encoded_value%3#0: bytes = 0x000548656c6c6f
         let aggregate%as_bytes%9#0: bytes[8] = (itob aggregate%current_tail_offset%3#0)
         let aggregate%offset_as_uint16%4#0: bytes = ((extract 6 2) aggregate%as_bytes%9#0)
-        let aggregate%head%11#0: bytes = (concat aggregate%head%10#0 aggregate%offset_as_uint16%4#0)
         let aggregate%data_length%4#0: uint64 = 7u
         let aggregate%current_tail_offset%4#0: uint64 = (+ aggregate%current_tail_offset%3#0 7u)
         let aggregate%as_bytes%10#0: bytes[8] = (itob aggregate%current_tail_offset%4#0)
         let aggregate%offset_as_uint16%5#0: bytes = ((extract 6 2) aggregate%as_bytes%10#0)
-        let aggregate%head%12#0: bytes = (concat aggregate%head%11#0 aggregate%offset_as_uint16%5#0)
-        let aggregate%concat%3#0: bytes = (concat aggregate%head%12#0 aggregate%encoded_value%2#0)
-        let aggregate%concat%4#0: bytes = (concat aggregate%concat%3#0 0x000548656c6c6f)
-        let dynamic_struct#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (concat aggregate%concat%4#0 aggregate%head%2#0)
+        let aggregate%concat%14#0: bytes = (concat aggregate%encoded_value%2#0 aggregate%concat%5#0)
+        let aggregate%concat%15#0: bytes = (concat aggregate%offset_as_uint16%5#0 aggregate%concat%14#0)
+        let aggregate%concat%16#0: bytes = (concat aggregate%offset_as_uint16%4#0 aggregate%concat%15#0)
+        let aggregate%concat%17#0: bytes = (concat 0x0016 aggregate%concat%16#0)
+        let aggregate%concat%18#0: bytes = (concat aggregate%val_as_bytes%5#0 aggregate%concat%17#0)
+        let dynamic_struct#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (concat aggregate%val_as_bytes%4#0 aggregate%concat%18#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void")
@@ -408,12 +407,12 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let tmp%3#0: uint64 = (+ tmp%2#0 2u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%3#0)
+        let aggregate%concat%0#0: bytes = aggregate%val_as_bytes%1#0
         let fixed_struct#0: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
-        let aggregate%head%2#0: bytes = fixed_struct#0
-        let aggregate%head%3#0: bytes = (concat fixed_struct#0 fixed_struct#0)
-        let fixed_arr#0: Encoded((uint64,uint64)[3]) = (concat aggregate%head%3#0 fixed_struct#0)
+        let aggregate%concat%2#0: bytes = fixed_struct#0
+        let aggregate%concat%3#0: bytes = (concat fixed_struct#0 fixed_struct#0)
+        let fixed_arr#0: Encoded((uint64,uint64)[3]) = (concat fixed_struct#0 aggregate%concat%3#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "fixed_arr_arg((uint64,uint64)[3])void")
@@ -442,12 +441,12 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let tmp%11#0: uint64 = (txn NumAppArgs)
         let tmp%12#0: uint64 = (+ tmp%11#0 3u)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%10#0)
-        let aggregate%head%5#0: bytes = aggregate%val_as_bytes%2#0
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%12#0)
+        let aggregate%concat%5#0: bytes = aggregate%val_as_bytes%3#0
         let fixed_struct#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
-        let aggregate%head%7#0: bytes = fixed_struct#1
-        let aggregate%head%8#0: bytes = (concat fixed_struct#1 fixed_struct#1)
-        let fixed_arr#1: Encoded((uint64,uint64)[3]) = (concat aggregate%head%8#0 fixed_struct#1)
+        let aggregate%concat%7#0: bytes = fixed_struct#1
+        let aggregate%concat%8#0: bytes = (concat fixed_struct#1 fixed_struct#1)
+        let fixed_arr#1: Encoded((uint64,uint64)[3]) = (concat fixed_struct#1 aggregate%concat%8#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "fixed_arr_arg((uint64,uint64)[3])void")
@@ -499,9 +498,9 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         let fixed_struct#0: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%0#0: bytes = 0x0003
-        let aggregate%head%2#0: bytes = (concat 0x0003 fixed_struct#0)
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 fixed_struct#0)
-        let native_arr#0: Encoded(len+(uint64,uint64)[]) = (concat aggregate%head%3#0 fixed_struct#0)
+        let aggregate%concat%3#0: bytes = (concat fixed_struct#0 fixed_struct#0)
+        let aggregate%concat%4#0: bytes = (concat fixed_struct#0 aggregate%concat%3#0)
+        let native_arr#0: Encoded(len+(uint64,uint64)[]) = (concat 0x0003 aggregate%concat%4#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "native_arr_arg((uint64,uint64)[])void")
@@ -536,9 +535,9 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%12#0)
         let fixed_struct#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
         let aggregate%len_u16%1#0: bytes = 0x0003
-        let aggregate%head%7#0: bytes = (concat 0x0003 fixed_struct#1)
-        let aggregate%head%8#0: bytes = (concat aggregate%head%7#0 fixed_struct#1)
-        let native_arr#1: Encoded(len+(uint64,uint64)[]) = (concat aggregate%head%8#0 fixed_struct#1)
+        let aggregate%concat%9#0: bytes = (concat fixed_struct#1 fixed_struct#1)
+        let aggregate%concat%10#0: bytes = (concat fixed_struct#1 aggregate%concat%9#0)
+        let native_arr#1: Encoded(len+(uint64,uint64)[]) = (concat 0x0003 aggregate%concat%10#0)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "native_arr_arg((uint64,uint64)[])void")
@@ -601,14 +600,13 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing
         ((itxn_field Fee) 0u)
         itxn_submit
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
+        let aggregate%len_u16%0#0: bytes = 0x0000
         let native_arr#0: Encoded(len+(uint64,uint64)[]) = 0x0000
-        let aggregate%head%1#0: bytes = 0x00000000000000000000000000000000
         let aggregate%length%0#0: uint64 = 0u
         let aggregate%length_uint16%0#0: bytes = 0x0000
         let aggregate%encoded_value%0#0: bytes = 0x0000
         let aggregate%as_bytes%2#0: bytes[8] = (itob 22u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0016
-        let aggregate%head%2#0: bytes = 0x000000000000000000000000000000000016
         let aggregate%data_length%0#0: uint64 = 2u
         let aggregate%current_tail_offset%0#0: uint64 = 24u
         let aggregate%length%1#0: uint64 = 0u
@@ -616,14 +614,17 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing
         let aggregate%encoded_value%1#0: bytes = 0x0000
         let aggregate%as_bytes%4#0: bytes[8] = (itob 24u)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0018
-        let aggregate%head%3#0: bytes = 0x0000000000000000000000000000000000160018
         let aggregate%data_length%1#0: uint64 = 2u
         let aggregate%current_tail_offset%1#0: uint64 = 26u
         let aggregate%as_bytes%5#0: bytes[8] = (itob 26u)
         let aggregate%offset_as_uint16%2#0: bytes = 0x001a
-        let aggregate%head%4#0: bytes = 0x0000000000000000000000000000000000160018001a
-        let aggregate%concat%0#0: bytes = 0x0000000000000000000000000000000000160018001a0000
-        let aggregate%concat%1#0: bytes = 0x0000000000000000000000000000000000160018001a00000000
+        let aggregate%concat%1#0: bytes = 0x0000
+        let aggregate%concat%2#0: bytes = 0x00000000
+        let aggregate%concat%3#0: bytes = 0x000000000000
+        let aggregate%concat%4#0: bytes = 0x001a000000000000
+        let aggregate%concat%5#0: bytes = 0x0018001a000000000000
+        let aggregate%concat%6#0: bytes = 0x00160018001a000000000000
+        let aggregate%concat%7#0: bytes = 0x000000000000000000160018001a000000000000
         let dynamic_struct#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = 0x0000000000000000000000000000000000160018001a000000000000
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)

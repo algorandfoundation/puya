@@ -5,32 +5,33 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@1: // call __init___L1
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#0: bytes = 0x0001
-        let aggregate%head%0#0: bytes = 0x00010000000000000000
+        let aggregate%concat%0#0: bytes = 0x0000000000000000
+        let aggregate%concat%1#0: bytes = 0x00010000000000000000
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = 0x000a
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 0u)
-        let aggregate%head%2#0: bytes = 0x000a0000000000000000
-        let aggregate%concat%0#0: bytes = 0x000a000000000000000000010000000000000000
+        let aggregate%concat%2#0: bytes = 0x00010000000000000000
+        let aggregate%concat%3#0: bytes = 0x000000000000000000010000000000000000
+        let aggregate%concat%4#0: bytes = 0x000a000000000000000000010000000000000000
         (app_global_put "tup" 0x000a000000000000000000010000000000000000)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (0x000a000000000000000000010000000000000000, 1u)
         (assert maybe_exists%0#0) // check self.tup exists
         let aggregate%extract%0#0: bytes = ((extract 2 8) maybe_value%0#0)
         let aggregate%item1%0#0: uint64 = (extract_uint64 maybe_value%0#0 2u)
         let aggregate%offset_as_uint16%1#0: bytes = 0x000a
-        let aggregate%head%3#0: bytes = 0x000a
-        let aggregate%head%4#0: bytes = (concat 0x000a aggregate%extract%0#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%4#0 0x00010000000000000000)
-        (app_global_put "glob" aggregate%concat%1#0)
+        let aggregate%concat%5#0: bytes = 0x00010000000000000000
+        let aggregate%concat%6#0: bytes = (concat aggregate%extract%0#0 0x00010000000000000000)
+        let aggregate%concat%7#0: bytes = (concat 0x000a aggregate%concat%6#0)
+        (app_global_put "glob" aggregate%concat%7#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let aggregate%extract%1#0: bytes = ((extract 2 8) maybe_value%1#0)
         let aggregate%item1%1#0: uint64 = (extract_uint64 maybe_value%1#0 2u)
         let aggregate%offset_as_uint16%2#0: bytes = 0x000a
-        let aggregate%head%5#0: bytes = 0x000a
-        let aggregate%head%6#0: bytes = (concat 0x000a aggregate%extract%1#0)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%6#0 0x00010000000000000000)
-        (app_global_put "tup" aggregate%concat%2#0)
+        let aggregate%concat%8#0: bytes = 0x00010000000000000000
+        let aggregate%concat%9#0: bytes = (concat aggregate%extract%1#0 0x00010000000000000000)
+        let aggregate%concat%10#0: bytes = (concat 0x000a aggregate%concat%9#0)
+        (app_global_put "tup" aggregate%concat%10#0)
         goto block@2
     block@2: // after_if_else_L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
@@ -81,28 +82,29 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[
     block@0: // L23
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#0: bytes = 0x0001
-        let aggregate%head%0#0: bytes = 0x00010000000000000000
+        let aggregate%concat%0#0: bytes = 0x0000000000000000
+        let aggregate%concat%1#0: bytes = 0x00010000000000000000
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let aggregate%extract%0#0: bytes = ((extract 2 8) maybe_value%0#0)
         let aggregate%item1%0#0: uint64 = (extract_uint64 maybe_value%0#0 2u)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = 0x000a
-        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%extract%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 0x00010000000000000000)
+        let aggregate%concat%2#0: bytes = 0x00010000000000000000
+        let aggregate%concat%3#0: bytes = (concat aggregate%extract%0#0 0x00010000000000000000)
+        let aggregate%concat%4#0: bytes = (concat 0x000a aggregate%concat%3#0)
         (box_del "box")
-        (box_put "box" aggregate%concat%0#0)
+        (box_put "box" aggregate%concat%4#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.tup exists
         let aggregate%extract%1#0: bytes = ((extract 2 8) maybe_value%1#0)
         let aggregate%item1%1#0: uint64 = (extract_uint64 maybe_value%1#0 2u)
         let tmp%0#0: account = (txn Sender)
         let aggregate%offset_as_uint16%1#0: bytes = 0x000a
-        let aggregate%head%3#0: bytes = 0x000a
-        let aggregate%head%4#0: bytes = (concat 0x000a aggregate%extract%1#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%4#0 0x00010000000000000000)
-        (app_local_put tmp%0#0 "loc" aggregate%concat%1#0)
+        let aggregate%concat%5#0: bytes = 0x00010000000000000000
+        let aggregate%concat%6#0: bytes = (concat aggregate%extract%1#0 0x00010000000000000000)
+        let aggregate%concat%7#0: bytes = (concat 0x000a aggregate%concat%6#0)
+        (app_local_put tmp%0#0 "loc" aggregate%concat%7#0)
         exit 1u
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple[routing]() -> void:
@@ -126,10 +128,9 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tup
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = 0x000a
-        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%extract%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
-        (app_global_put "tup" aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%extract%0#0 replace%0#0)
+        let aggregate%concat%3#0: bytes = (concat 0x000a aggregate%concat%2#0)
+        (app_global_put "tup" aggregate%concat%3#0)
         exit 1u
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box[routing]() -> void:
@@ -153,11 +154,10 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = 0x000a
-        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%extract%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%extract%0#0 replace%0#0)
+        let aggregate%concat%3#0: bytes = (concat 0x000a aggregate%concat%2#0)
         (box_del "box")
-        (box_put "box" aggregate%concat%0#0)
+        (box_put "box" aggregate%concat%3#0)
         exit 1u
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global[routing]() -> void:
@@ -181,10 +181,9 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_glo
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = 0x000a
-        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%extract%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
-        (app_global_put "glob" aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%extract%0#0 replace%0#0)
+        let aggregate%concat%3#0: bytes = (concat 0x000a aggregate%concat%2#0)
+        (app_global_put "glob" aggregate%concat%3#0)
         exit 1u
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local[routing]() -> void:
@@ -209,8 +208,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_loc
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x000a
-        let aggregate%head%1#0: bytes = 0x000a
-        let aggregate%head%2#0: bytes = (concat 0x000a aggregate%extract%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
-        (app_local_put tmp%0#1 "loc" aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%extract%0#0 replace%0#0)
+        let aggregate%concat%3#0: bytes = (concat 0x000a aggregate%concat%2#0)
+        (app_local_put tmp%0#1 "loc" aggregate%concat%3#0)
         exit 1u

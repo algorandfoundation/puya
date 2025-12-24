@@ -4,7 +4,7 @@
 // test_cases.literals.folding.LiteralFolding.approval_program() -> uint64:
 main:
     intcblock 1 0 8 98
-    bytecblock "a" "b" 0x0000000000000061 0x0000000000000063
+    bytecblock "a" "b" 0x0000000000000063 0x0000000000000061
     b main_block@0
 
 main_block@0:
@@ -304,12 +304,14 @@ tuples_block@0:
     assert
     // literals/folding.py:88
     // arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
+    bytec_2 // 0x0000000000000063
     pushbytes 0x
-    bytec_2 // 0x0000000000000061
     concat
     pushbytes 0x0000000000000062
+    uncover 1
     concat
-    bytec_3 // 0x0000000000000063
+    bytec_3 // 0x0000000000000061
+    uncover 1
     concat
     intc_1 // 0
     intc_2 // 8
@@ -320,7 +322,7 @@ tuples_block@0:
     extract3 // on error: index access is out of bounds
     // literals/folding.py:87
     // assert (97, UInt64(98), 99) == tuple(
-    bytec_2 // 0x0000000000000061
+    bytec_3 // 0x0000000000000061
     // literals/folding.py:87-89
     // assert (97, UInt64(98), 99) == tuple(
     //     arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))
@@ -358,7 +360,7 @@ tuples_block@0:
     extract3 // on error: index access is out of bounds
     // literals/folding.py:87
     // assert (97, UInt64(98), 99) == tuple(
-    bytec_3 // 0x0000000000000063
+    bytec_2 // 0x0000000000000063
     // literals/folding.py:87-89
     // assert (97, UInt64(98), 99) == tuple(
     //     arc4.StaticArray(arc4.UInt64(97), arc4.UInt64(98), arc4.UInt64(99))

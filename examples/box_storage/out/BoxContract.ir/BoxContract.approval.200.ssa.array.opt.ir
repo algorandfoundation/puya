@@ -536,24 +536,24 @@ subroutine examples.box_storage.contract.BoxContract.read_boxes[routing]() -> vo
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "box_large" 4096u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#1)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         let aggregate%length%0#0: uint64 = (len tmp%2#1)
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%2#1)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 20u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0014
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 0x0014)
         let aggregate%data_length%0#0: uint64 = (len aggregate%encoded_value%0#0)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 20u aggregate%data_length%0#0)
         let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
-        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%offset_as_uint16%1#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob values%0#0)
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%1#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 aggregate%encoded_value%0#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%box_get%4#0)
-        let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
+        let aggregate%concat%0#0: bytes = aggregate%box_get%4#0
+        let aggregate%concat%1#0: bytes = (concat aggregate%encoded_value%0#0 aggregate%box_get%4#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%val_as_bytes%1#0 aggregate%concat%1#0)
+        let aggregate%concat%3#0: bytes = (concat aggregate%offset_as_uint16%1#0 aggregate%concat%2#0)
+        let aggregate%concat%4#0: bytes = (concat 0x0014 aggregate%concat%3#0)
+        let aggregate%concat%5#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%concat%4#0)
+        let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%concat%5#0)
         (log tmp%5#0)
         exit 1u
 
@@ -567,7 +567,7 @@ subroutine examples.box_storage.contract.BoxContract.boxes_exist[routing]() -> v
         let aggregate%set_bit%0#0: bytes[1] = (setbit aggregate%encoded_bool%0#0 1u maybe_exists%1#0)
         let aggregate%set_bit%1#0: bytes[1] = (setbit aggregate%set_bit%0#0 2u maybe_exists%2#0)
         let aggregate%set_bit%2#0: bytes[1] = (setbit aggregate%set_bit%1#0 3u maybe_exists%3#0)
-        let aggregate%head%0#0: bytes = aggregate%set_bit%2#0
+        let aggregate%concat%0#0: bytes = aggregate%set_bit%2#0
         let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%set_bit%2#0)
         (log tmp%5#0)
         exit 1u
@@ -577,24 +577,25 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_arr_struct[r
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = 0x0000
+        let aggregate%concat%0#0: bytes = 0x0000
         let tmp%1#0: uint64 = (txn NumAppArgs)
         let tmp%2#0: uint64 = (* tmp%1#0 2u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         let aggregate%as_bytes%1#0: bytes[8] = (itob 20u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0014
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 0x0014)
         let aggregate%data_length%0#0: uint64 = 2u
         let aggregate%current_tail_offset%0#0: uint64 = 22u
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
-        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%1#0)
         let aggregate%as_bytes%2#0: bytes[8] = (itob 22u)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0016
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 0x0016)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 0x00160000)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%2#0 0x001600000000)
+        let aggregate%concat%1#0: bytes = 0x0000
+        let aggregate%concat%2#0: bytes = 0x00000000
+        let aggregate%concat%3#0: bytes = 0x001600000000
+        let aggregate%concat%4#0: bytes = (concat aggregate%val_as_bytes%1#0 0x001600000000)
+        let aggregate%concat%5#0: bytes = (concat 0x0014 aggregate%concat%4#0)
+        let aggregate%concat%6#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%concat%5#0)
         (box_del "dynamic_arr_struct")
-        (box_put "dynamic_arr_struct" aggregate%concat%1#0)
+        (box_put "dynamic_arr_struct" aggregate%concat%6#0)
         exit 1u
 
 subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct[routing]() -> void:
@@ -1120,6 +1121,7 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_box[routing]
     block@0: // L352
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = 0x0000
+        let aggregate%concat%0#0: bytes = 0x0000
         (box_del "dynamic_box")
         (box_put "dynamic_box" 0x0000)
         exit 1u
@@ -1286,10 +1288,10 @@ subroutine examples.box_storage.contract.BoxContract.slice_box[routing]() -> voi
 
 subroutine examples.box_storage.contract.BoxContract.arc4_box[routing]() -> void:
     block@0: // L410
-        let aggregate%head%0#0: bytes = 0x00
-        let aggregate%head%1#0: bytes = 0x0001
-        let aggregate%head%2#0: bytes = 0x000102
-        let aggregate%head%3#0: bytes = 0x00010203
+        let aggregate%concat%0#0: bytes = 0x03
+        let aggregate%concat%1#0: bytes = 0x0203
+        let aggregate%concat%2#0: bytes = 0x010203
+        let aggregate%concat%3#0: bytes = 0x00010203
         (box_put 0x64 0x00010203)
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (0x00010203, 1u)
         let aggregate%bytes_offset%0#0: uint64 = 0u

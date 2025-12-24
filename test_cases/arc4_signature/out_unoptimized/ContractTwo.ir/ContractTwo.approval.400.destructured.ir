@@ -176,18 +176,18 @@ subroutine test_cases.arc4_signature.contract.ContractTwo.test_tuple[routing]() 
         let (tmp%8#0: uint64, tmp%9#0: Encoded(uint64), tmp%10#0: Encoded(uint64[3]), tmp%11#0: Encoded(len+uint32[]), tmp%12#0: Encoded(bool8), tmp%13#0: Encoded(uint8[32]), tmp%14#0: bytes[16]) = test_cases.arc4_signature.contract.ContractTwo.test_tuple(tmp%1#0, tmp%2#0, tmp%3#0, tmp%4#0, tmp%5#0, tmp%6#0, tmp%7#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%8#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
-        let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 tmp%9#0)
-        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 tmp%10#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 91u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%0#0)
-        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 tmp%12#0)
-        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 tmp%13#0)
         let aggregate%as_Encoded(uint8[16])%0#0: Encoded(uint8[16]) = tmp%14#0
-        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%as_Encoded(uint8[16])%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%6#0 tmp%11#0)
-        let aggregate%as_Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16])%0#0: Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16]) = aggregate%concat%0#0
+        let aggregate%concat%0#0: bytes = (concat tmp%11#0 0x)
+        let aggregate%concat%1#0: bytes = (concat aggregate%as_Encoded(uint8[16])%0#0 aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat tmp%13#0 aggregate%concat%1#0)
+        let aggregate%concat%3#0: bytes = (concat tmp%12#0 aggregate%concat%2#0)
+        let aggregate%concat%4#0: bytes = (concat aggregate%offset_as_uint16%0#0 aggregate%concat%3#0)
+        let aggregate%concat%5#0: bytes = (concat tmp%10#0 aggregate%concat%4#0)
+        let aggregate%concat%6#0: bytes = (concat tmp%9#0 aggregate%concat%5#0)
+        let aggregate%concat%7#0: bytes = (concat aggregate%as_Encoded(uint64)%0#0 aggregate%concat%6#0)
+        let aggregate%as_Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16])%0#0: Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16]) = aggregate%concat%7#0
         let tmp%15#0: Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16]) = aggregate%as_Encoded(uint64,uint64,uint64[3],(len+uint32[]),bool1,uint8[32],uint8[16])%0#0
         let tmp%16#0: bytes = (concat 0x151f7c75 tmp%15#0)
         (log tmp%16#0)

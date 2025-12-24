@@ -996,17 +996,19 @@ subroutine get_preconditions:
         //     has_already_voted=arc4.UInt64(self.already_voted()),
         //     current_time=arc4.UInt64(Global.latest_timestamp),
         // )
-        l-load aggregate%val_as_bytes%0#0 3                                                       aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 3                                                       aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                                    aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%2#0 2                                                       aggregate%val_as_bytes%3#0,aggregate%head%1#0,aggregate%val_as_bytes%2#0
-        concat                                                                                    aggregate%val_as_bytes%3#0,aggregate%head%2#0
-        l-load aggregate%val_as_bytes%3#0 1                                                       aggregate%head%2#0,aggregate%val_as_bytes%3#0
-        concat                                                                                    aggregate%head%3#0
+        l-load aggregate%val_as_bytes%2#0 1                                                       aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%val_as_bytes%3#0 1                                                       aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
+        concat                                                                                    aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%concat%1#0
+        l-load aggregate%val_as_bytes%1#0 1                                                       aggregate%val_as_bytes%0#0,aggregate%concat%1#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%concat%1#0 1                                                             aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%concat%1#0
+        concat                                                                                    aggregate%val_as_bytes%0#0,aggregate%concat%2#0
+        l-load aggregate%val_as_bytes%0#0 1                                                       aggregate%concat%2#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%concat%2#0 1                                                             aggregate%val_as_bytes%0#0,aggregate%concat%2#0
+        concat                                                                                    aggregate%concat%3#0
         // voting/voting.py:160
         // @arc4.abimethod(readonly=True)
-        byte 0x151f7c75                                                                           aggregate%head%3#0,0x151f7c75
-        l-load aggregate%head%3#0 1                                                               0x151f7c75,aggregate%head%3#0
+        byte 0x151f7c75                                                                           aggregate%concat%3#0,0x151f7c75
+        l-load aggregate%concat%3#0 1                                                             0x151f7c75,aggregate%concat%3#0
         concat                                                                                    tmp%3#0
         log
         int 1                                                                                     1

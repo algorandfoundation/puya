@@ -167,13 +167,12 @@ class _NativeTupleCodec(_ARC4Codec):
         factory = OpFactory(context, loc)
         header_size_bits = tuple_encoding.get_head_bit_offset(None)
         header_size = bits_to_bytes(header_size_bits)
+        to_encode: list[ir.Value] = []
         if isinstance(encoding, encodings.ArrayEncoding) and encoding.length_header:
-            head: ir.Value = factory.as_u16_bytes(num_tuple_elements, "len_u16")
-        else:
-            head = factory.constant(b"")
+            to_encode.append(factory.as_u16_bytes(num_tuple_elements, "len_u16"))
 
         current_tail_offset = factory.constant(header_size)
-        tail_parts = []
+        tail_parts: list[ir.Value] = []
 
         # special handling to bitpack consecutive bools, this will bit pack both native bools
         # and ARC-4 bools
@@ -193,7 +192,7 @@ class _NativeTupleCodec(_ARC4Codec):
                         if bit_value.atype == AVMType.bytes:
                             bit_value = factory.get_bit(bit_value, 0)
                         building = factory.set_bit(value=building, index=index, bit=bit_value)
-                    head = factory.concat(head, building, "head")
+                    to_encode.append(building)
             else:
                 for _, element_ir_type, element_values in group:
                     encoded_element_vp = _try_encode_to_bytes(
@@ -205,14 +204,12 @@ class _NativeTupleCodec(_ARC4Codec):
                         encoded_element_vp, "encoded_sub_item"
                     )
                     if element_encoding.is_fixed:
-                        # head value is element
-                        head = factory.concat(head, encoded_element, "head")
+                        # value is element
+                        to_encode.append(encoded_element)
                     else:
-                        # head value is tail offset
-                        head = factory.concat(
-                            head,
+                        # value is tail offset
+                        to_encode.append(
                             factory.as_u16_bytes(current_tail_offset, "offset_as_uint16"),
-                            "head",
                         )
                         # append value to tail
                         tail_parts.append(encoded_element)
@@ -223,9 +220,10 @@ class _NativeTupleCodec(_ARC4Codec):
                             "current_tail_offset",
                         )
 
-        encoded = head
-        for tail_part in tail_parts:
-            encoded = factory.concat(encoded, tail_part)
+        to_encode += tail_parts
+        encoded = factory.constant(b"")
+        for part in reversed(to_encode):
+            encoded = factory.concat(part, encoded)
         return factory.as_ir_type(encoded, types.EncodedType(encoding))
 
     @typing.override

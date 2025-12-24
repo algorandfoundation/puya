@@ -7,37 +7,36 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#2: uint64 = (txn NumAppArgs)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#2)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%1#2)
-        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         let tmp%3#1: uint64 = (txn NumAppArgs)
         let tmp%4#1: uint64 = (+ tmp%3#1 1u)
         let tmp%5#1: uint64 = (txn NumAppArgs)
         let tmp%6#1: uint64 = (+ tmp%5#1 1u)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%4#1)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%6#1)
-        let aggregate%head%3#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
+        let aggregate%concat%3#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
         let tmp%8#1: uint64 = (txn NumAppArgs)
         let tmp%9#1: uint64 = (+ tmp%8#1 1u)
         let tmp%10#1: uint64 = (txn NumAppArgs)
         let tmp%11#1: uint64 = (+ tmp%10#1 1u)
-        let aggregate%head%5#0: bytes = (concat aggregate%head%1#0 aggregate%head%3#0)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%9#1)
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%11#1)
-        let aggregate%head%7#0: bytes = (concat aggregate%val_as_bytes%4#0 aggregate%val_as_bytes%5#0)
-        let aggregate%head%8#0: bytes = (concat aggregate%head%5#0 aggregate%head%7#0)
-        (app_global_put "nested" aggregate%head%8#0)
+        let aggregate%concat%5#0: bytes = (concat aggregate%val_as_bytes%4#0 aggregate%val_as_bytes%5#0)
+        let aggregate%concat%7#0: bytes = (concat aggregate%concat%3#0 aggregate%concat%5#0)
+        let aggregate%concat%8#0: bytes = (concat aggregate%concat%1#0 aggregate%concat%7#0)
+        (app_global_put "nested" aggregate%concat%8#0)
         let tmp%13#0: uint64 = (txn NumAppArgs)
         let tmp%14#0: uint64 = (txn NumAppArgs)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = 0x0000
+        let aggregate%concat%9#0: bytes = 0x0000
         let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%13#0)
         let aggregate%val_as_bytes%7#0: bytes[8] = (itob tmp%14#0)
-        let aggregate%head%10#0: bytes = (concat aggregate%val_as_bytes%6#0 aggregate%val_as_bytes%7#0)
         let aggregate%length%0#0: uint64 = 0u
         let aggregate%length_uint16%0#0: bytes = 0x0000
         let aggregate%encoded_value%0#0: bytes = 0x0000
         let aggregate%as_bytes%2#0: bytes[8] = (itob 22u)
         let aggregate%offset_as_uint16%0#0: bytes = 0x0016
-        let aggregate%head%11#0: bytes = (concat aggregate%head%10#0 0x0016)
         let aggregate%data_length%0#0: uint64 = 2u
         let aggregate%current_tail_offset%0#0: uint64 = 24u
         let aggregate%length%1#0: uint64 = 0u
@@ -45,16 +44,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_value%1#0: bytes = 0x0000
         let aggregate%as_bytes%4#0: bytes[8] = (itob 24u)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0018
-        let aggregate%head%12#0: bytes = (concat aggregate%head%10#0 0x00160018)
         let aggregate%data_length%1#0: uint64 = 2u
         let aggregate%current_tail_offset%1#0: uint64 = 26u
         let aggregate%as_bytes%5#0: bytes[8] = (itob 26u)
         let aggregate%offset_as_uint16%2#0: bytes = 0x001a
-        let aggregate%head%13#0: bytes = (concat aggregate%head%10#0 0x00160018001a)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%10#0 0x00160018001a0000)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%10#0 0x00160018001a00000000)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%10#0 0x00160018001a000000000000)
-        (app_global_put "dyn" aggregate%concat%2#0)
+        let aggregate%concat%10#0: bytes = 0x0000
+        let aggregate%concat%11#0: bytes = 0x00000000
+        let aggregate%concat%12#0: bytes = 0x000000000000
+        let aggregate%concat%13#0: bytes = 0x001a000000000000
+        let aggregate%concat%14#0: bytes = 0x0018001a000000000000
+        let aggregate%concat%15#0: bytes = 0x00160018001a000000000000
+        let aggregate%concat%16#0: bytes = (concat aggregate%val_as_bytes%7#0 0x00160018001a000000000000)
+        let aggregate%concat%17#0: bytes = (concat aggregate%val_as_bytes%6#0 aggregate%concat%16#0)
+        (app_global_put "dyn" aggregate%concat%17#0)
         (app_global_put "num_payments" 0u)
         let tmp%16#0: Encoded((uint8[32],uint64,uint64)[2]) = (bzero 96u)
         (app_global_put "payments" tmp%16#0)
@@ -171,10 +173,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[ro
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 2u)
         let aggregate%write_offset%2#0: uint64 = 16u
         let arr_3#3: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000002
-        let aggregate%head%1#0: bytes = 0x00000000000000000000000000000001
+        let aggregate%concat%0#0: bytes = 0x0000000000000002
+        let aggregate%concat%1#0: bytes = 0x00000000000000010000000000000002
         let arr_3_from_tuple#0: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000002
         let tmp%1#0: bool = 1u
-        let aggregate%head%4#0: bytes = 0x00000000000000010000000000000001
+        let aggregate%concat%3#0: bytes = 0x0000000000000001
+        let aggregate%concat%4#0: bytes = 0x00000000000000010000000000000001
         let arr_3_from_full#0: Encoded(uint64[3]) = 0x000000000000000100000000000000010000000000000001
         let aggregate%bytes_offset%3#0: uint64 = 0u
         let aggregate%encoded_element%3#0: bytes = 0x0000000000000001
@@ -190,26 +194,29 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[ro
         let tmp%4#0: bool = 1u
         let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%0#0: bytes = 0x0003
-        let aggregate%head%6#0: bytes = 0x00030000000000000000
-        let aggregate%head%7#0: bytes = 0x000300000000000000000000000000000001
+        let aggregate%concat%6#0: bytes = 0x0000000000000002
+        let aggregate%concat%7#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%concat%8#0: bytes = 0x000000000000000000000000000000010000000000000002
         let dynamic_arr#0: Encoded(len+uint64[]) = 0x0003000000000000000000000000000000010000000000000002
         let aggregate%array_length%0#0: uint64 = 3u
         let eq%0#0: bool = 1u
         let converted_array%0#0: bytes = 0x000000000000000000000000000000010000000000000002
         let tmp%7#0: bool = 1u
-        let aggregate%head%10#0: bytes = 0x00000000000000000000000000000001
-        let aggregate%head%11#0: bytes = 0x000000000000000000000000000000010000000000000002
+        let aggregate%concat%10#0: bytes = 0x0000000000000002
+        let aggregate%concat%11#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%concat%12#0: bytes = 0x000000000000000000000000000000010000000000000002
         let aggregate%extract%0#0: bytes = 0x0000000000000000
         let values%3#0: uint64 = 0u
         let aggregate%extract%1#0: bytes = 0x0000000000000001
         let values%4#0: uint64 = 1u
         let aggregate%extract%2#0: bytes = 0x0000000000000002
         let values%5#0: uint64 = 2u
-        let aggregate%head%13#0: bytes = 0x00000000000000000000000000000001
-        let aggregate%head%14#0: bytes = 0x000000000000000000000000000000010000000000000002
+        let aggregate%concat%13#0: bytes = 0x0000000000000002
+        let aggregate%concat%14#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%concat%15#0: bytes = 0x000000000000000000000000000000010000000000000002
         let tmp%8#0: bool = 1u
-        let aggregate%head%15#0: bytes = 0x0000000000000000
-        let aggregate%head%16#0: bytes = 0x00000000000000000000000000000001
+        let aggregate%concat%16#0: bytes = 0x0000000000000002
+        let aggregate%concat%17#0: bytes = 0x00000000000000010000000000000002
         let static_array#0: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000002
         let tmp%10#0: bool = 1u
         exit 1u
@@ -293,11 +300,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage[rout
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routing]() -> void:
     block@0: // L149
         let tmp%0#1: account = (txn Sender)
-        let aggregate%head%0#0: bytes = tmp%0#1
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1234u)
-        let aggregate%head%1#0: bytes = (concat tmp%0#1 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 567u)
-        let a#0: Encoded(uint8[32],uint64,uint64) = (concat aggregate%head%1#0 aggregate%val_as_bytes%1#0)
+        let aggregate%concat%0#0: bytes = 0x0000000000000237
+        let aggregate%concat%1#0: bytes = 0x00000000000004d20000000000000237
+        let a#0: Encoded(uint8[32],uint64,uint64) = (concat tmp%0#1 0x00000000000004d20000000000000237)
         let foo#0: account = ((extract 0 32) a#0)
         let aggregate%extract%1#0: bytes = ((extract 32 8) a#0)
         let bar#0: uint64 = (extract_uint64 a#0 32u)
@@ -467,6 +474,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let tmp%24#0: bool = (== arr2#1 arr7#0)
         (assert tmp%24#0) // expected arrays to be the same
         let aggregate%as_bytes%1#0: bytes[8] = (itob 0u)
+        let aggregate%len_u16%1#0: bytes = 0x0000
         let arr8#0: Encoded(len+(uint64,uint64)[]) = 0x0000
         let concat%2#0: Encoded(len+(uint64,uint64)[]) = (concat 0x0000 aggregate%array_trimmed%0#0) // on error: max array length exceeded
         let extract_to_end%2#0: bytes = ((extract 2 0) concat%2#0)
@@ -555,9 +563,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[r
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
-        let aggregate%head%1#0: bytes = 0x00000000000000010000000000000002
+        let aggregate%concat%0#0: bytes = 0x0000000000000002
+        let aggregate%concat%1#0: bytes = 0x00000000000000010000000000000002
         switch arg#0 {0x00000000000000010000000000000002 => block@2, * => block@3}
     block@2: // switch_case_0_L265
         let test_cases.mutable_native_types.contract.Contract.test_match_struct%0#0: bool = 1u
