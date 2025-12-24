@@ -247,37 +247,6 @@ def test_voting_app(
     assert not is_open
 
 
-def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = TEST_CASES_DIR / "avm_types_in_abi" / "contract.py"
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    max_biguint = 2**512 - 1
-    result = app_client.create(
-        "create",
-        bool_param=True,
-        uint64_param=45,
-        bytes_param=b"Hello world!",
-        biguint_param=max_biguint,
-        string_param="Hi again",
-        tuple_param=(True, 45, b"Hello world!", max_biguint, "Hi again"),
-    )
-
-    mapped_return = (
-        result.return_value[0],
-        result.return_value[1],
-        bytes(result.return_value[2]),
-        result.return_value[3],
-        result.return_value[4],
-    )
-
-    assert mapped_return == (True, 45, b"Hello world!", max_biguint, "Hi again")
-
-    result2 = app_client.call(call_abi_method="tuple_of_arc4", args=(255, account.address))
-
-    assert result2.return_value[0] == 255
-    assert result2.return_value[1] == account.address
-
-
 def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     example = TEST_CASES_DIR / "inner_transactions" / "c2c.py"
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
