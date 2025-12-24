@@ -1,9 +1,8 @@
+import base64
 from collections.abc import Mapping
 
-import algosdk.error
+import algokit_utils as au
 import pytest
-from algokit_utils import Program
-from algosdk.v2client.algod import AlgodClient
 
 from puya.compilation_artifacts import CompiledContract, CompiledLogicSig, CompiledProgram
 from puya.context import CompileContext
@@ -15,15 +14,15 @@ from puya.ussemble.main import assemble_program
 from puyapy.options import PuyaPyOptions
 from tests.utils import (
     PuyaTestCase,
-    compile_src_from_options,
     load_template_vars,
 )
+from tests.utils.compile import compile_src_from_options
 
 
 @pytest.mark.parametrize("optimization_level", [0, 1, 2])
 @pytest.mark.localnet
 def test_assemble_matches_algod(
-    algod_client: AlgodClient, test_case: PuyaTestCase, optimization_level: int
+    algod_client: au.AlgodClient, test_case: PuyaTestCase, optimization_level: int
 ) -> None:
     prefix, template_vars = load_template_vars(test_case.template_vars_path)
     options = PuyaPyOptions(
@@ -52,7 +51,7 @@ def test_assemble_matches_algod(
 
 def assemble_and_compare_program(
     options: PuyaOptions,
-    algod_client: AlgodClient,
+    algod_client: au.AlgodClient,
     compiled_program: CompiledProgram,
     name: str,
 ) -> None:
@@ -63,8 +62,8 @@ def assemble_and_compare_program(
         _replace_template_variables(line, template_values)
         for line in compiled_program.teal_src.splitlines()
     )
-    algod_program_ = Program(teal_src, algod_client)
-    algod_program = algod_program_.raw_binary
+    algod_program_64 = algod_client.teal_compile(teal_src.encode("utf-8")).result
+    algod_program = base64.b64decode(algod_program_64)
 
     expected = algod_program.hex()
     actual = puya_program.hex()
@@ -72,11 +71,11 @@ def assemble_and_compare_program(
         # attempt to decompile both to compare, but revert to byte code if puya can't
         # even be disassembled
         try:
-            puya_dis = algod_client.disassemble(puya_program)["result"]
-        except algosdk.error.AlgodHTTPError:
+            puya_dis = algod_client.teal_disassemble(puya_program).result
+        except au.UnexpectedStatusError:
             pass
         else:
-            expected = algod_client.disassemble(algod_program)["result"]
+            expected = algod_client.teal_disassemble(algod_program).result
             actual = puya_dis
     assert actual == expected, f"{name} bytecode does not match algod bytecode"
 
