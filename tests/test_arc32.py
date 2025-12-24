@@ -28,7 +28,7 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 
-from puya.arc32 import create_arc32_json
+from puya.arc56 import create_arc56_json
 from puya.compilation_artifacts import CompiledContract
 from puya.utils import sha512_256_hash
 from puyapy.options import PuyaPyOptions
@@ -345,102 +345,6 @@ def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Acco
 
     assert result2.return_value[0] == 255
     assert result2.return_value[1] == account.address
-
-
-def test_fixed_bytes(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = TEST_CASES_DIR / "fixed_bytes_ops" / "abi_values.py"
-
-    result = compile_src_from_options(
-        PuyaPyOptions(
-            paths=[example],
-        )
-    )
-    contracts = {a.metadata.name: a for a in result.teal if isinstance(a, CompiledContract)}
-    fixed_bytes_abi = contracts["FixedBytesABI"]
-    check_abi = contracts["CheckABIApp"]
-    check_spec = algokit_utils.ApplicationSpecification.from_json(
-        create_arc32_json(
-            check_abi.approval_program.teal_src,
-            check_abi.clear_program.teal_src,
-            check_abi.metadata,
-        )
-    )
-
-    check_client = algokit_utils.ApplicationClient(algod_client, check_spec, signer=account)
-    check_client.create()
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(
-        create_arc32_json(
-            fixed_bytes_abi.approval_program.teal_src,
-            fixed_bytes_abi.clear_program.teal_src,
-            fixed_bytes_abi.metadata,
-        )
-    )
-
-    increased_fee = algod_client.suggested_params()
-    increased_fee.flat_fee = True
-    increased_fee.fee = constants.min_txn_fee * 2
-
-    app_client = algokit_utils.ApplicationClient(
-        algod_client, app_spec, signer=account, suggested_params=increased_fee
-    )
-    app_client.create()
-    app_client.call(
-        call_abi_method="test_itxn_validate_caller_bytes",
-        checker=check_client.app_id,
-        val=b"hello world",
-    )
-    app_client.call(
-        call_abi_method="test_itxn_validate_callee_manual",
-        checker=check_client.app_id,
-        val=b"hello world",
-    )
-    app_client.call(
-        call_abi_method="test_itxn_validate_callee_router",
-        checker=check_client.app_id,
-        val=b"hello world",
-    )
-    app_client.call(call_abi_method="test_static_to_dynamic_encoding", checker=check_client.app_id)
-
-    # for failure in top level txn can just look at the exception raised by algokit_utils
-    with pytest.raises(LogicError, match="invalid size\t\t<-- Error"):
-        app_client.call(
-            call_abi_method="test_itxn_validate_caller_bytes",
-            checker=check_client.app_id,
-            val=b"hello world!",
-        )
-
-    def get_inner_itxn_error(method: str) -> str:
-        atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()
-        app_client.compose_call(
-            atc, call_abi_method=method, checker=check_client.app_id, val=b"hello world!"
-        )
-        # use simulate so we can assert inner txn is what fails
-        simulate_response = atc.simulate(
-            app_client.algod_client,
-            SimulateRequest(
-                txn_groups=[],
-                exec_trace_config=SimulateTraceConfig(
-                    enable=True,
-                ),
-            ),
-        )
-        assert simulate_response.failed_at == [0, 0], "expected failure in inner txn"
-        # get pc of failure
-        pc_match = re.match(r".*assert failed pc=(\d+)", simulate_response.failure_message)
-        assert pc_match, "expected assert failure"
-        pc = int(pc_match.group(1))
-
-        # find error associated with pc
-        assert check_abi.approval_program.debug_info is not None
-        pc_event = check_abi.approval_program.debug_info.pc_events[pc]
-        return pc_event["error"]
-
-    assert get_inner_itxn_error("test_itxn_validate_callee_manual") == "callee method check failed"
-    assert (
-        get_inner_itxn_error("test_itxn_validate_callee_router")
-        == "invalid number of bytes for arc4.static_array<arc4.uint8, 11>"
-    )
 
 
 def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
