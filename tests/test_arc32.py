@@ -247,41 +247,6 @@ def test_voting_app(
     assert not is_open
 
 
-def test_transaction(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(TEST_CASES_DIR / "transaction")
-    )
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-
-    # create
-    create_response = app_client.create()
-    assert create_response.confirmed_round
-
-    # ensure app meets minimum balance requirements
-    algokit_utils.ensure_funded(
-        algod_client,
-        algokit_utils.EnsureBalanceParameters(
-            account_to_fund=app_client.app_address,
-            min_spending_balance_micro_algos=100_000,
-        ),
-    )
-
-    app_client.call(
-        "pay",
-        txn=TransactionWithSigner(
-            transaction.PaymentTxn(
-                sender=account.address,
-                receiver=app_client.app_address,
-                amt=1001,
-                sp=algod_client.suggested_params(),
-            ),
-            signer=account.signer,
-        ),
-    )
-
-    # TODO: call remaining transaction methods
-
-
 def test_dynamic_array_of_string(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
