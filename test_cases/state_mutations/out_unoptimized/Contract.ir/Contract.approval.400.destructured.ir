@@ -197,12 +197,12 @@ subroutine test_cases.state_mutations.contract.get_struct() -> Encoded(uint64,(l
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "baz")
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
-        let aggregate%head%0#0: bytes = (concat 0x 0x0000000000000001)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%offset_as_uint16%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 tmp%0#0)
-        let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%0#0
+        let aggregate%concat%0#0: bytes = (concat tmp%0#0 0x)
+        let aggregate%concat%1#0: bytes = (concat aggregate%offset_as_uint16%0#0 aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat 0x0000000000000001 aggregate%concat%1#0)
+        let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%2#0
         let tmp%1#0: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
         return tmp%1#0
 
@@ -231,24 +231,28 @@ subroutine test_cases.state_mutations.contract.Contract.opt_in() -> void:
     block@0: // L29
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%len_u16%0#0
+        let aggregate%concat%0#0: bytes = (concat aggregate%len_u16%0#0 0x)
+        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%concat%0#0
         let encoded_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%0#0
         (app_global_put "glob" encoded_array%0#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
-        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%len_u16%1#0
+        let aggregate%concat%1#0: bytes = (concat aggregate%len_u16%1#0 0x)
+        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%concat%1#0
         let encoded_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%1#0
         (box_del "box")
         (box_put "box" encoded_array%1#0)
         let aggregate%as_bytes%2#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
-        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%len_u16%2#0
+        let aggregate%concat%2#0: bytes = (concat aggregate%len_u16%2#0 0x)
+        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%concat%2#0
         let encoded_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%2#0
         let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "loc" encoded_array%2#0)
         let aggregate%as_bytes%3#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
-        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%len_u16%3#0
+        let aggregate%concat%3#0: bytes = (concat aggregate%len_u16%3#0 0x)
+        let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%concat%3#0
         let encoded_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%3#0
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
@@ -267,9 +271,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let extract_to_end%0#0: bytes = (substring3 maybe_value%0#0 2u total_length%0#0)
         let aggregate%as_bytes%0#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
-        let aggregate%head%0#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%0#0 struct#0)
-        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%0#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%0#0
+        let aggregate%concat%0#0: bytes = (concat struct#0 0x)
+        let aggregate%concat%1#0: bytes = (concat aggregate%offset_as_uint16%0#0 aggregate%concat%0#0)
+        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%0#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%1#0
         let tmp%1#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%as_Encoded((uint64,(len+utf8[]))[])%0#0
         let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%1#0)
         (app_global_put "glob" as_Encoded(len+(uint64,(len+utf8[]))[])%0#0)
@@ -281,9 +285,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let extract_to_end%1#0: bytes = (substring3 maybe_value%1#0 2u total_length%1#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
-        let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%1#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%1#0 struct#0)
-        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%1#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%1#0
+        let aggregate%concat%2#0: bytes = (concat struct#0 0x)
+        let aggregate%concat%3#0: bytes = (concat aggregate%offset_as_uint16%1#0 aggregate%concat%2#0)
+        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%1#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%3#0
         let tmp%3#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%as_Encoded((uint64,(len+utf8[]))[])%1#0
         let as_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%3#0)
         (app_local_put tmp%2#0 "loc" as_Encoded(len+(uint64,(len+utf8[]))[])%1#0)
@@ -298,9 +302,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let extract_to_end%2#0: bytes = box%box_extract%0#0
         let aggregate%as_bytes%2#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
-        let aggregate%head%2#0: bytes = (concat 0x aggregate%offset_as_uint16%2#0)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%2#0 struct#0)
-        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%2#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%2#0
+        let aggregate%concat%4#0: bytes = (concat struct#0 0x)
+        let aggregate%concat%5#0: bytes = (concat aggregate%offset_as_uint16%2#0 aggregate%concat%4#0)
+        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%2#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%5#0
         let tmp%4#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%as_Encoded((uint64,(len+utf8[]))[])%2#0
         let as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, tmp%4#0)
         (box_del "box")
@@ -318,9 +322,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let extract_to_end%3#0: bytes = box%box_extract%1#0
         let aggregate%as_bytes%3#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
-        let aggregate%head%3#0: bytes = (concat 0x aggregate%offset_as_uint16%3#0)
-        let aggregate%concat%3#0: bytes = (concat aggregate%head%3#0 struct#0)
-        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%3#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%3#0
+        let aggregate%concat%6#0: bytes = (concat struct#0 0x)
+        let aggregate%concat%7#0: bytes = (concat aggregate%offset_as_uint16%3#0 aggregate%concat%6#0)
+        let aggregate%as_Encoded((uint64,(len+utf8[]))[])%3#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%concat%7#0
         let tmp%5#0: Encoded((uint64,(len+utf8[]))[]) = aggregate%as_Encoded((uint64,(len+utf8[]))[])%3#0
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%5#0)
         (box_del box_prefixed_key%0#0)

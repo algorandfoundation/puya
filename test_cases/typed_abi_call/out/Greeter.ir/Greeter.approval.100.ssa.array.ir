@@ -522,19 +522,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args[routing]
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#0)
         itxn_begin
-        let aggregate%head%0#0: bytes = (concat 0x 0xde)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 0xad)
-        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 0xbe)
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 0xef)
-        let aggregate%as_Encoded(uint8,uint8,uint8,uint8)%0#0: Encoded(uint8,uint8,uint8,uint8) = aggregate%head%3#0
+        let aggregate%concat%0#0: bytes = (concat 0xef 0x)
+        let aggregate%concat%1#0: bytes = (concat 0xbe aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat 0xad aggregate%concat%1#0)
+        let aggregate%concat%3#0: bytes = (concat 0xde aggregate%concat%2#0)
+        let aggregate%as_Encoded(uint8,uint8,uint8,uint8)%0#0: Encoded(uint8,uint8,uint8,uint8) = aggregate%concat%3#0
         let tmp%0#1: Encoded(uint8,uint8,uint8,uint8) = aggregate%as_Encoded(uint8,uint8,uint8,uint8)%0#0
-        let aggregate%head%4#0: bytes = (concat 0x 0x0f)
-        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 0x10)
-        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 0x11)
-        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 0x12)
-        let aggregate%head%8#0: bytes = (concat aggregate%head%7#0 tmp%0#1)
-        let aggregate%head%9#0: bytes = (concat aggregate%head%8#0 0x14)
-        let aggregate%as_Encoded(uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)%0#0: Encoded(uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) = aggregate%head%9#0
+        let aggregate%concat%4#0: bytes = (concat 0x14 0x)
+        let aggregate%concat%5#0: bytes = (concat tmp%0#1 aggregate%concat%4#0)
+        let aggregate%concat%6#0: bytes = (concat 0x12 aggregate%concat%5#0)
+        let aggregate%concat%7#0: bytes = (concat 0x11 aggregate%concat%6#0)
+        let aggregate%concat%8#0: bytes = (concat 0x10 aggregate%concat%7#0)
+        let aggregate%concat%9#0: bytes = (concat 0x0f aggregate%concat%8#0)
+        let aggregate%as_Encoded(uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)%0#0: Encoded(uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) = aggregate%concat%9#0
         let tmp%1#1: Encoded(uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8) = aggregate%as_Encoded(uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)%0#0
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]")
@@ -1475,39 +1475,39 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let tmp%2#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#0
         let aggregate%as_bytes%3#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
-        let aggregate%head%0#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
         let aggregate%data_length%0#0: uint64 = (len tmp%0#1)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 4u aggregate%data_length%0#0)
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%offset_as_uint16%1#0)
         let aggregate%data_length%1#0: uint64 = (len tmp%1#1)
         let aggregate%current_tail_offset%1#0: uint64 = (+ aggregate%current_tail_offset%0#0 aggregate%data_length%1#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 tmp%0#1)
-        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 tmp%1#1)
-        let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%1#0
+        let aggregate%concat%0#0: bytes = (concat tmp%1#1 0x)
+        let aggregate%concat%1#0: bytes = (concat tmp%0#1 aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%offset_as_uint16%1#0 aggregate%concat%1#0)
+        let aggregate%concat%3#0: bytes = (concat aggregate%offset_as_uint16%0#0 aggregate%concat%2#0)
+        let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%3#0
         let aggregate%as_bytes%5#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%5#0)
-        let aggregate%head%2#0: bytes = (concat 0x aggregate%offset_as_uint16%2#0)
         let aggregate%data_length%2#0: uint64 = (len aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0)
         let aggregate%current_tail_offset%2#0: uint64 = (+ 4u aggregate%data_length%2#0)
-        let aggregate%head%3#0: bytes = (concat 0x 0x0000000000000001)
-        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 0x0000000000000002)
         let aggregate%as_bytes%6#0: bytes[8] = (itob 18u)
         let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)
-        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%offset_as_uint16%3#0)
         let aggregate%data_length%3#0: uint64 = (len tmp%2#0)
         let aggregate%current_tail_offset%3#0: uint64 = (+ 18u aggregate%data_length%3#0)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%5#0 tmp%2#0)
-        let aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%0#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%concat%2#0
+        let aggregate%concat%4#0: bytes = (concat tmp%2#0 0x)
+        let aggregate%concat%5#0: bytes = (concat aggregate%offset_as_uint16%3#0 aggregate%concat%4#0)
+        let aggregate%concat%6#0: bytes = (concat 0x0000000000000002 aggregate%concat%5#0)
+        let aggregate%concat%7#0: bytes = (concat 0x0000000000000001 aggregate%concat%6#0)
+        let aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%0#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%concat%7#0
         let aggregate%as_bytes%7#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%4#0: bytes = ((extract 6 2) aggregate%as_bytes%7#0)
-        let aggregate%head%6#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%4#0)
         let aggregate%data_length%4#0: uint64 = (len aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%0#0)
         let aggregate%current_tail_offset%4#0: uint64 = (+ aggregate%current_tail_offset%2#0 aggregate%data_length%4#0)
-        let aggregate%concat%3#0: bytes = (concat aggregate%head%6#0 aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0)
-        let aggregate%concat%4#0: bytes = (concat aggregate%concat%3#0 aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%0#0)
-        let aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%0#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%concat%4#0
+        let aggregate%concat%8#0: bytes = (concat aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%0#0 0x)
+        let aggregate%concat%9#0: bytes = (concat aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0 aggregate%concat%8#0)
+        let aggregate%concat%10#0: bytes = (concat aggregate%offset_as_uint16%4#0 aggregate%concat%9#0)
+        let aggregate%concat%11#0: bytes = (concat aggregate%offset_as_uint16%2#0 aggregate%concat%10#0)
+        let aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%0#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%concat%11#0
         let tmp%3#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%0#0
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
@@ -1602,26 +1602,23 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let aggregate%as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = aggregate%encoded_value%4#0
         let aggregate%as_bytes%10#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%5#0: bytes = ((extract 6 2) aggregate%as_bytes%10#0)
-        let aggregate%head%7#0: bytes = (concat 0x aggregate%offset_as_uint16%5#0)
         let aggregate%data_length%5#0: uint64 = (len aggregate%as_Encoded(len+utf8[])%3#0)
         let aggregate%current_tail_offset%5#0: uint64 = (+ 4u aggregate%data_length%5#0)
         let aggregate%as_bytes%11#0: bytes[8] = (itob aggregate%current_tail_offset%5#0)
         let aggregate%offset_as_uint16%6#0: bytes = ((extract 6 2) aggregate%as_bytes%11#0)
-        let aggregate%head%8#0: bytes = (concat aggregate%head%7#0 aggregate%offset_as_uint16%6#0)
         let aggregate%data_length%6#0: uint64 = (len tmp%1#1)
         let aggregate%current_tail_offset%6#0: uint64 = (+ aggregate%current_tail_offset%5#0 aggregate%data_length%6#0)
-        let aggregate%concat%5#0: bytes = (concat aggregate%head%8#0 aggregate%as_Encoded(len+utf8[])%3#0)
-        let aggregate%concat%6#0: bytes = (concat aggregate%concat%5#0 tmp%1#1)
-        let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%1#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%6#0
+        let aggregate%concat%12#0: bytes = (concat tmp%1#1 0x)
+        let aggregate%concat%13#0: bytes = (concat aggregate%as_Encoded(len+utf8[])%3#0 aggregate%concat%12#0)
+        let aggregate%concat%14#0: bytes = (concat aggregate%offset_as_uint16%6#0 aggregate%concat%13#0)
+        let aggregate%concat%15#0: bytes = (concat aggregate%offset_as_uint16%5#0 aggregate%concat%14#0)
+        let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%1#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%15#0
         let aggregate%as_bytes%12#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%7#0: bytes = ((extract 6 2) aggregate%as_bytes%12#0)
-        let aggregate%head%9#0: bytes = (concat 0x aggregate%offset_as_uint16%7#0)
         let aggregate%data_length%7#0: uint64 = (len aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%1#0)
         let aggregate%current_tail_offset%7#0: uint64 = (+ 4u aggregate%data_length%7#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
-        let aggregate%head%10#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
-        let aggregate%head%11#0: bytes = (concat aggregate%head%10#0 0x0000000000000002)
         let aggregate%length%5#0: uint64 = (len 0x33)
         let aggregate%as_bytes%13#0: bytes[8] = (itob aggregate%length%5#0)
         let aggregate%length_uint16%5#0: bytes = ((extract 6 2) aggregate%as_bytes%13#0)
@@ -1629,19 +1626,22 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let aggregate%as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = aggregate%encoded_value%5#0
         let aggregate%as_bytes%14#0: bytes[8] = (itob 18u)
         let aggregate%offset_as_uint16%8#0: bytes = ((extract 6 2) aggregate%as_bytes%14#0)
-        let aggregate%head%12#0: bytes = (concat aggregate%head%11#0 aggregate%offset_as_uint16%8#0)
         let aggregate%data_length%8#0: uint64 = (len aggregate%as_Encoded(len+uint8[])%1#0)
         let aggregate%current_tail_offset%8#0: uint64 = (+ 18u aggregate%data_length%8#0)
-        let aggregate%concat%7#0: bytes = (concat aggregate%head%12#0 aggregate%as_Encoded(len+uint8[])%1#0)
-        let aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%1#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%concat%7#0
+        let aggregate%concat%16#0: bytes = (concat aggregate%as_Encoded(len+uint8[])%1#0 0x)
+        let aggregate%concat%17#0: bytes = (concat aggregate%offset_as_uint16%8#0 aggregate%concat%16#0)
+        let aggregate%concat%18#0: bytes = (concat 0x0000000000000002 aggregate%concat%17#0)
+        let aggregate%concat%19#0: bytes = (concat aggregate%as_Encoded(uint64)%0#0 aggregate%concat%18#0)
+        let aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%1#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%concat%19#0
         let aggregate%as_bytes%15#0: bytes[8] = (itob aggregate%current_tail_offset%7#0)
         let aggregate%offset_as_uint16%9#0: bytes = ((extract 6 2) aggregate%as_bytes%15#0)
-        let aggregate%head%13#0: bytes = (concat aggregate%head%9#0 aggregate%offset_as_uint16%9#0)
         let aggregate%data_length%9#0: uint64 = (len aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%1#0)
         let aggregate%current_tail_offset%9#0: uint64 = (+ aggregate%current_tail_offset%7#0 aggregate%data_length%9#0)
-        let aggregate%concat%8#0: bytes = (concat aggregate%head%13#0 aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%1#0)
-        let aggregate%concat%9#0: bytes = (concat aggregate%concat%8#0 aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%1#0)
-        let aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%1#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%concat%9#0
+        let aggregate%concat%20#0: bytes = (concat aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%1#0 0x)
+        let aggregate%concat%21#0: bytes = (concat aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%1#0 aggregate%concat%20#0)
+        let aggregate%concat%22#0: bytes = (concat aggregate%offset_as_uint16%9#0 aggregate%concat%21#0)
+        let aggregate%concat%23#0: bytes = (concat aggregate%offset_as_uint16%7#0 aggregate%concat%22#0)
+        let aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%1#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%concat%23#0
         let tmp%19#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%1#0
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
@@ -1737,17 +1737,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let tmp%35#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%5#0
         let aggregate%as_bytes%18#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%10#0: bytes = ((extract 6 2) aggregate%as_bytes%18#0)
-        let aggregate%head%14#0: bytes = (concat 0x aggregate%offset_as_uint16%10#0)
         let aggregate%data_length%10#0: uint64 = (len tmp%34#0)
         let aggregate%current_tail_offset%10#0: uint64 = (+ 4u aggregate%data_length%10#0)
         let aggregate%as_bytes%19#0: bytes[8] = (itob aggregate%current_tail_offset%10#0)
         let aggregate%offset_as_uint16%11#0: bytes = ((extract 6 2) aggregate%as_bytes%19#0)
-        let aggregate%head%15#0: bytes = (concat aggregate%head%14#0 aggregate%offset_as_uint16%11#0)
         let aggregate%data_length%11#0: uint64 = (len tmp%35#0)
         let aggregate%current_tail_offset%11#0: uint64 = (+ aggregate%current_tail_offset%10#0 aggregate%data_length%11#0)
-        let aggregate%concat%10#0: bytes = (concat aggregate%head%15#0 tmp%34#0)
-        let aggregate%concat%11#0: bytes = (concat aggregate%concat%10#0 tmp%35#0)
-        let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%2#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%11#0
+        let aggregate%concat%24#0: bytes = (concat tmp%35#0 0x)
+        let aggregate%concat%25#0: bytes = (concat tmp%34#0 aggregate%concat%24#0)
+        let aggregate%concat%26#0: bytes = (concat aggregate%offset_as_uint16%11#0 aggregate%concat%25#0)
+        let aggregate%concat%27#0: bytes = (concat aggregate%offset_as_uint16%10#0 aggregate%concat%26#0)
+        let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%2#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%27#0
         let tmp%36#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%2#0
         let aggregate%length%8#0: uint64 = (len 0x3362)
         let aggregate%as_bytes%20#0: bytes[8] = (itob aggregate%length%8#0)
@@ -1755,29 +1755,29 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let aggregate%encoded_value%8#0: bytes = (concat aggregate%length_uint16%8#0 0x3362)
         let aggregate%as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = aggregate%encoded_value%8#0
         let tmp%37#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%2#0
-        let aggregate%head%16#0: bytes = (concat 0x 0x000000000000000b)
-        let aggregate%head%17#0: bytes = (concat aggregate%head%16#0 0x0000000000000015)
         let aggregate%as_bytes%21#0: bytes[8] = (itob 18u)
         let aggregate%offset_as_uint16%12#0: bytes = ((extract 6 2) aggregate%as_bytes%21#0)
-        let aggregate%head%18#0: bytes = (concat aggregate%head%17#0 aggregate%offset_as_uint16%12#0)
         let aggregate%data_length%12#0: uint64 = (len tmp%37#0)
         let aggregate%current_tail_offset%12#0: uint64 = (+ 18u aggregate%data_length%12#0)
-        let aggregate%concat%12#0: bytes = (concat aggregate%head%18#0 tmp%37#0)
-        let aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%2#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%concat%12#0
+        let aggregate%concat%28#0: bytes = (concat tmp%37#0 0x)
+        let aggregate%concat%29#0: bytes = (concat aggregate%offset_as_uint16%12#0 aggregate%concat%28#0)
+        let aggregate%concat%30#0: bytes = (concat 0x0000000000000015 aggregate%concat%29#0)
+        let aggregate%concat%31#0: bytes = (concat 0x000000000000000b aggregate%concat%30#0)
+        let aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%2#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%concat%31#0
         let tmp%38#0: Encoded(uint64,uint64,(len+uint8[])) = aggregate%as_Encoded(uint64,uint64,(len+uint8[]))%2#0
         let aggregate%as_bytes%22#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%13#0: bytes = ((extract 6 2) aggregate%as_bytes%22#0)
-        let aggregate%head%19#0: bytes = (concat 0x aggregate%offset_as_uint16%13#0)
         let aggregate%data_length%13#0: uint64 = (len tmp%36#0)
         let aggregate%current_tail_offset%13#0: uint64 = (+ 4u aggregate%data_length%13#0)
         let aggregate%as_bytes%23#0: bytes[8] = (itob aggregate%current_tail_offset%13#0)
         let aggregate%offset_as_uint16%14#0: bytes = ((extract 6 2) aggregate%as_bytes%23#0)
-        let aggregate%head%20#0: bytes = (concat aggregate%head%19#0 aggregate%offset_as_uint16%14#0)
         let aggregate%data_length%14#0: uint64 = (len tmp%38#0)
         let aggregate%current_tail_offset%14#0: uint64 = (+ aggregate%current_tail_offset%13#0 aggregate%data_length%14#0)
-        let aggregate%concat%13#0: bytes = (concat aggregate%head%20#0 tmp%36#0)
-        let aggregate%concat%14#0: bytes = (concat aggregate%concat%13#0 tmp%38#0)
-        let aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%2#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%concat%14#0
+        let aggregate%concat%32#0: bytes = (concat tmp%38#0 0x)
+        let aggregate%concat%33#0: bytes = (concat tmp%36#0 aggregate%concat%32#0)
+        let aggregate%concat%34#0: bytes = (concat aggregate%offset_as_uint16%14#0 aggregate%concat%33#0)
+        let aggregate%concat%35#0: bytes = (concat aggregate%offset_as_uint16%13#0 aggregate%concat%34#0)
+        let aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%2#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%concat%35#0
         let tmp%39#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%2#0
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
@@ -1942,7 +1942,6 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples[routing
         itxn_begin
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
-        let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
         let aggregate%length%0#0: uint64 = (len "log 1")
         let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
@@ -1950,15 +1949,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples[routing
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%offset_as_uint16%0#0)
         let aggregate%data_length%0#0: uint64 = (len aggregate%as_Encoded(len+utf8[])%0#0)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(len+utf8[])%0#0)
-        let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%0#0
+        let aggregate%concat%0#0: bytes = (concat aggregate%as_Encoded(len+utf8[])%0#0 0x)
+        let aggregate%concat%1#0: bytes = (concat aggregate%offset_as_uint16%0#0 aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%as_Encoded(uint64)%0#0 aggregate%concat%1#0)
+        let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%2#0
         let tmp%0#1: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 1u)
         let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
-        let aggregate%head%2#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%1#0)
         let aggregate%length%1#0: uint64 = (len "log 1")
         let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%length%1#0)
         let aggregate%length_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
@@ -1966,11 +1965,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples[routing
         let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = aggregate%encoded_value%1#0
         let aggregate%as_bytes%3#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%1#0)
         let aggregate%data_length%1#0: uint64 = (len aggregate%as_Encoded(len+utf8[])%1#0)
         let aggregate%current_tail_offset%1#0: uint64 = (+ 10u aggregate%data_length%1#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%3#0 aggregate%as_Encoded(len+utf8[])%1#0)
-        let aggregate%as_Encoded(uint64,(len+utf8[]))%1#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%1#0
+        let aggregate%concat%3#0: bytes = (concat aggregate%as_Encoded(len+utf8[])%1#0 0x)
+        let aggregate%concat%4#0: bytes = (concat aggregate%offset_as_uint16%1#0 aggregate%concat%3#0)
+        let aggregate%concat%5#0: bytes = (concat aggregate%as_Encoded(uint64)%1#0 aggregate%concat%4#0)
+        let aggregate%as_Encoded(uint64,(len+utf8[]))%1#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%5#0
         let tmp%1#1: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%1#0
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "logs_are_equal((uint64,string),(uint64,string))bool")
@@ -1993,7 +1993,6 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples[routing
         itxn_begin
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 2u)
         let aggregate%as_Encoded(uint64)%2#0: Encoded(uint64) = aggregate%val_as_bytes%2#0
-        let aggregate%head%4#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%2#0)
         let aggregate%length%2#0: uint64 = (len "log 2")
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%length%2#0)
         let aggregate%length_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
@@ -2001,11 +2000,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples[routing
         let aggregate%as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = aggregate%encoded_value%2#0
         let aggregate%as_bytes%5#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%5#0)
-        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%offset_as_uint16%2#0)
         let aggregate%data_length%2#0: uint64 = (len aggregate%as_Encoded(len+utf8[])%2#0)
         let aggregate%current_tail_offset%2#0: uint64 = (+ 10u aggregate%data_length%2#0)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%5#0 aggregate%as_Encoded(len+utf8[])%2#0)
-        let aggregate%as_Encoded(uint64,(len+utf8[]))%2#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%2#0
+        let aggregate%concat%6#0: bytes = (concat aggregate%as_Encoded(len+utf8[])%2#0 0x)
+        let aggregate%concat%7#0: bytes = (concat aggregate%offset_as_uint16%2#0 aggregate%concat%6#0)
+        let aggregate%concat%8#0: bytes = (concat aggregate%as_Encoded(uint64)%2#0 aggregate%concat%7#0)
+        let aggregate%as_Encoded(uint64,(len+utf8[]))%2#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%8#0
         let tmp%6#0: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%2#0
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "logs_are_equal((uint64,string),(uint64,string))bool")
@@ -2041,14 +2041,14 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct[routing]
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "log 1")
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let tmp%0#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
-        let aggregate%head%0#0: bytes = (concat 0x 0x0000000000000001)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
-        let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%offset_as_uint16%0#0)
         let aggregate%data_length%0#0: uint64 = (len tmp%0#1)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 tmp%0#1)
-        let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%0#0
+        let aggregate%concat%0#0: bytes = (concat tmp%0#1 0x)
+        let aggregate%concat%1#0: bytes = (concat aggregate%offset_as_uint16%0#0 aggregate%concat%0#0)
+        let aggregate%concat%2#0: bytes = (concat 0x0000000000000001 aggregate%concat%1#0)
+        let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%2#0
         let log#0: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
         itxn_begin
         ((itxn_field ApplicationID) app#0)

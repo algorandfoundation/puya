@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 8 0 2
-    bytecblock 0x151f7c75 0x6563686f3a20 0x00066563686f3a20 0x01 0x0004
+    bytecblock 0x151f7c75 0x6563686f3a20 0x00066563686f3a20 0x01
     // typed_abi_call/logger.py:31
     // class Logger(ARC4Contract):
     txn NumAppArgs
@@ -484,8 +484,8 @@ echo_resource_by_index:
     itob
     uncover 2
     itob
+    uncover 2
     concat
-    swap
     concat
     bytec_0 // 0x151f7c75
     swap
@@ -557,8 +557,8 @@ echo_resource_by_value:
     itob
     uncover 2
     itob
+    uncover 2
     concat
-    swap
     concat
     bytec_0 // 0x151f7c75
     swap
@@ -642,27 +642,24 @@ echo_native_tuple:
     swap
     itob
     extract 6 2
-    pushbytes 0x004c
-    swap
-    concat
     uncover 4
     itob
-    concat
-    dig 3
+    dig 4
     len
     pushint 64
     <=
     assert // overflow
     pushint 64
     bzero
-    uncover 4
+    uncover 5
     b|
+    uncover 4
+    uncover 4
     concat
-    uncover 2
     concat
-    swap
     concat
-    bytec_0 // 0x151f7c75
+    concat
+    pushbytes 0x151f7c75004c
     swap
     concat
     log
@@ -834,12 +831,12 @@ echo_nested_tuple:
     +
     itob
     extract 6 2
-    bytec 4 // 0x0004
     swap
+    uncover 5
     concat
+    concat
+    pushbytes 0x0004
     swap
-    concat
-    uncover 4
     concat
     dup
     len
@@ -847,30 +844,26 @@ echo_nested_tuple:
     +
     uncover 4
     itob
-    uncover 4
-    concat
     dig 3
     len
     itob
     extract 6 2
     uncover 4
     concat
-    swap
     pushbytes 0x0012
-    concat
     swap
+    concat
+    uncover 4
+    swap
+    concat
     concat
     swap
     itob
     extract 6 2
-    bytec 4 // 0x0004
-    swap
+    cover 2
     concat
-    uncover 2
     concat
-    swap
-    concat
-    bytec_0 // 0x151f7c75
+    pushbytes 0x151f7c750004
     swap
     concat
     log
@@ -996,16 +989,10 @@ return_args_after_14th:
     extract 8 1
     // typed_abi_call/logger.py:158
     // last_arg = arc4.Tuple((a15, a16, a17, a18, a19, a20))
-    uncover 5
-    uncover 5
     concat
-    uncover 4
     concat
-    uncover 3
     concat
-    uncover 2
     concat
-    swap
     concat
     // typed_abi_call/logger.py:159
     // assert Txn.application_args(15) == last_arg.bytes

@@ -200,9 +200,9 @@ first_deposit:
     dig 3
     gtxns XferAsset
     itob
-    concat
-    swap
+    uncover 2
     itob
+    concat
     concat
     // marketplace_demo/marketplace_with_immutable_struct.py:106
     // assert key not in self.listings
@@ -234,27 +234,6 @@ first_deposit:
     gtxns AssetAmount
     dup
     assert
-    // marketplace_demo/marketplace_with_immutable_struct.py:115
-    // bidder=Account(),
-    global ZeroAddress
-    // marketplace_demo/marketplace_with_immutable_struct.py:112-118
-    // self.listings[key] = ListingValue(
-    //     deposited=xfer.asset_amount,
-    //     unitaryPrice=unitary_price,
-    //     bidder=Account(),
-    //     bid=UInt64(),
-    //     bidUnitaryPrice=UInt64(),
-    // )
-    swap
-    itob
-    uncover 3
-    itob
-    concat
-    swap
-    concat
-    // marketplace_demo/marketplace_with_immutable_struct.py:116
-    // bid=UInt64(),
-    intc_2 // 0
     // marketplace_demo/marketplace_with_immutable_struct.py:112-118
     // self.listings[key] = ListingValue(
     //     deposited=xfer.asset_amount,
@@ -264,10 +243,10 @@ first_deposit:
     //     bidUnitaryPrice=UInt64(),
     // )
     itob
-    swap
-    dig 1
+    uncover 2
+    itob
+    pushbytes base32(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     concat
-    swap
     concat
     box_put
     // marketplace_demo/marketplace_with_immutable_struct.py:93
@@ -301,9 +280,9 @@ deposit:
     dig 2
     gtxns XferAsset
     itob
-    concat
-    swap
+    uncover 2
     itob
+    concat
     concat
     // marketplace_demo/marketplace_with_immutable_struct.py:124
     // assert xfer.sender == Txn.sender
@@ -365,13 +344,15 @@ deposit:
     //     deposited=existing.deposited + xfer.asset_amount,
     // )
     itob
-    swap
+    uncover 4
+    uncover 4
     concat
+    uncover 3
     swap
     concat
     uncover 2
-    concat
     swap
+    concat
     concat
     box_put
     // marketplace_demo/marketplace_with_immutable_struct.py:120
@@ -410,9 +391,9 @@ set_price:
     txn Sender
     uncover 3
     itob
-    concat
-    uncover 2
+    uncover 3
     itob
+    concat
     concat
     // marketplace_demo/marketplace_with_immutable_struct.py:141
     // existing = self.listings[key]
@@ -448,12 +429,13 @@ set_price:
     // )
     uncover 5
     itob
+    uncover 4
+    uncover 4
     concat
+    uncover 3
     swap
     concat
-    uncover 2
     concat
-    swap
     concat
     box_put
     // marketplace_demo/marketplace_with_immutable_struct.py:137
@@ -505,11 +487,11 @@ buy:
     // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
     dig 3
     itob
-    dig 5
-    swap
-    concat
     uncover 3
     itob
+    concat
+    dig 4
+    swap
     concat
     // marketplace_demo/marketplace_with_immutable_struct.py:161
     // listing = self.listings[key]
@@ -598,12 +580,13 @@ buy:
     itob
     uncover 4
     itob
+    uncover 4
+    uncover 4
     concat
+    uncover 3
     swap
     concat
-    uncover 2
     concat
-    swap
     concat
     box_put
     // marketplace_demo/marketplace_with_immutable_struct.py:177-179
@@ -658,9 +641,9 @@ withdraw:
     txn Sender
     uncover 2
     itob
-    concat
-    swap
+    uncover 2
     itob
+    concat
     concat
     // marketplace_demo/marketplace_with_immutable_struct.py:185
     // listing = self.listings[key]
@@ -855,11 +838,9 @@ bid:
     // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
     swap
     itob
-    uncover 2
-    swap
-    concat
     swap
     itob
+    concat
     concat
     // marketplace_demo/marketplace_with_immutable_struct.py:212
     // listing = self.listings[key]
@@ -1000,15 +981,13 @@ bid_after_if_else@4:
     //     bid=quantity,
     //     bidUnitaryPrice=unitary_price,
     // )
-    cover 2
-    concat
-    swap
-    concat
-    swap
+    uncover 3
+    itob
+    uncover 4
     itob
     concat
-    swap
-    itob
+    concat
+    concat
     concat
     dig 3
     swap
@@ -1043,9 +1022,9 @@ accept_bid:
     txn Sender
     uncover 2
     itob
-    concat
-    swap
+    uncover 2
     itob
+    concat
     concat
     // marketplace_demo/marketplace_with_immutable_struct.py:240
     // listing = self.listings[key]
@@ -1176,15 +1155,17 @@ accept_bid_ternary_merge@4:
     // )
     swap
     itob
-    uncover 2
-    concat
-    uncover 2
-    concat
     swap
     itob
-    concat
-    swap
+    uncover 4
     itob
+    concat
+    uncover 3
+    swap
+    concat
+    uncover 2
+    swap
+    concat
     concat
     dig 5
     swap
