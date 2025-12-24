@@ -15,7 +15,7 @@ from algopy import (
     uenumerate,
     zero_bytes,
 )
-from algopy.op import Txn
+from algopy.op import Txn, sha256
 
 
 class FixedBytesOps(Contract):
@@ -587,6 +587,8 @@ def test_passing_fixed_bytes() -> None:
 
     assert bool_to_bytes(True) == FixedBytes(b"yay")
     assert bool_to_bytes(False) == FixedBytes(Bytes(b"nay"))
+
+    assert sha256(FixedBytes(b"yay"))
 
 
 @subroutine

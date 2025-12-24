@@ -1973,19 +1973,27 @@ test_passing_fixed_bytes_block@0:
     bytec 14 // 0x6e6179
     ==
     assert
+    // fixed_bytes_ops/contract.py:591
+    // assert sha256(FixedBytes(b"yay"))
+    bytec 11 // 0x796179
+    sha256
+    len
+    intc_2 // 0
+    !=
+    assert
     retsub
 
 
 // test_cases.fixed_bytes_ops.contract.bool_to_bytes(x: uint64) -> bytes:
 bool_to_bytes:
-    // fixed_bytes_ops/contract.py:592-593
+    // fixed_bytes_ops/contract.py:594-595
     // @subroutine
     // def bool_to_bytes(x: bool) -> FixedBytes[typing.Literal[3]]:
     proto 1 1
     b bool_to_bytes_block@0
 
 bool_to_bytes_block@0:
-    // fixed_bytes_ops/contract.py:594
+    // fixed_bytes_ops/contract.py:596
     // return FixedBytes[typing.Literal[3]](b"yay" if x else b"nay")
     bytec 14 // 0x6e6179
     bytec 11 // 0x796179
@@ -1996,14 +2004,14 @@ bool_to_bytes_block@0:
 
 // test_cases.fixed_bytes_ops.contract.bytes_to_bool(x: bytes) -> uint64:
 bytes_to_bool:
-    // fixed_bytes_ops/contract.py:597-598
+    // fixed_bytes_ops/contract.py:599-600
     // @subroutine
     // def bytes_to_bool(x: FixedBytes[typing.Literal[3]]) -> bool:
     proto 1 1
     b bytes_to_bool_block@0
 
 bytes_to_bool_block@0:
-    // fixed_bytes_ops/contract.py:599
+    // fixed_bytes_ops/contract.py:601
     // return x == FixedBytes[typing.Literal[3]](b"yay")
     frame_dig -1
     bytec 11 // 0x796179
@@ -2013,7 +2021,7 @@ bytes_to_bool_block@0:
 
 // test_cases.fixed_bytes_ops.contract.test_contains_fixed_bytes(x: bytes, y: bytes) -> void:
 test_contains_fixed_bytes:
-    // fixed_bytes_ops/contract.py:602-605
+    // fixed_bytes_ops/contract.py:604-607
     // @subroutine
     // def test_contains_fixed_bytes(
     //     x: FixedBytes[typing.Literal[4]], y: FixedBytes[typing.Literal[2]]
@@ -2022,26 +2030,26 @@ test_contains_fixed_bytes:
     b test_contains_fixed_bytes_block@0
 
 test_contains_fixed_bytes_block@0:
-    // fixed_bytes_ops/contract.py:606
+    // fixed_bytes_ops/contract.py:608
     // assert x in x  # noqa: PLR0124
     frame_dig -2
     frame_dig -2
     callsub is_substring
     assert
-    // fixed_bytes_ops/contract.py:607
+    // fixed_bytes_ops/contract.py:609
     // assert y in x
     frame_dig -1
     frame_dig -2
     callsub is_substring
     assert
-    // fixed_bytes_ops/contract.py:608
+    // fixed_bytes_ops/contract.py:610
     // assert x not in y
     frame_dig -2
     frame_dig -1
     callsub is_substring
     !
     assert
-    // fixed_bytes_ops/contract.py:610
+    // fixed_bytes_ops/contract.py:612
     // assert (x not in x) == False  # noqa: E712, PLR0124
     frame_dig -2
     frame_dig -2
@@ -2050,7 +2058,7 @@ test_contains_fixed_bytes_block@0:
     intc_2 // 0
     ==
     assert
-    // fixed_bytes_ops/contract.py:611
+    // fixed_bytes_ops/contract.py:613
     // assert (y not in x) == False  # noqa: E712
     frame_dig -1
     frame_dig -2
@@ -2059,7 +2067,7 @@ test_contains_fixed_bytes_block@0:
     intc_2 // 0
     ==
     assert
-    // fixed_bytes_ops/contract.py:612
+    // fixed_bytes_ops/contract.py:614
     // assert (x in y) == False  # noqa: E712
     frame_dig -2
     frame_dig -1
@@ -2072,27 +2080,27 @@ test_contains_fixed_bytes_block@0:
 
 // test_cases.fixed_bytes_ops.contract.test_contains_bytes(x: bytes, y: bytes) -> void:
 test_contains_bytes:
-    // fixed_bytes_ops/contract.py:615-616
+    // fixed_bytes_ops/contract.py:617-618
     // @subroutine
     // def test_contains_bytes(x: FixedBytes[typing.Literal[4]], y: Bytes) -> None:
     proto 2 0
     b test_contains_bytes_block@0
 
 test_contains_bytes_block@0:
-    // fixed_bytes_ops/contract.py:617
+    // fixed_bytes_ops/contract.py:619
     // assert y in x
     frame_dig -1
     frame_dig -2
     callsub is_substring
     assert
-    // fixed_bytes_ops/contract.py:618
+    // fixed_bytes_ops/contract.py:620
     // assert x not in y
     frame_dig -2
     frame_dig -1
     callsub is_substring
     !
     assert
-    // fixed_bytes_ops/contract.py:620
+    // fixed_bytes_ops/contract.py:622
     // assert (y not in x) == False  # noqa: E712
     frame_dig -1
     frame_dig -2
@@ -2101,7 +2109,7 @@ test_contains_bytes_block@0:
     intc_2 // 0
     ==
     assert
-    // fixed_bytes_ops/contract.py:621
+    // fixed_bytes_ops/contract.py:623
     // assert (x in y) == False  # noqa: E712
     frame_dig -2
     frame_dig -1
@@ -2114,20 +2122,20 @@ test_contains_bytes_block@0:
 
 // test_cases.fixed_bytes_ops.contract.test_contains_literal_bytes(x: bytes) -> void:
 test_contains_literal_bytes:
-    // fixed_bytes_ops/contract.py:624-625
+    // fixed_bytes_ops/contract.py:626-627
     // @subroutine
     // def test_contains_literal_bytes(x: FixedBytes[typing.Literal[4]]) -> None:
     proto 1 0
     b test_contains_literal_bytes_block@0
 
 test_contains_literal_bytes_block@0:
-    // fixed_bytes_ops/contract.py:626
+    // fixed_bytes_ops/contract.py:628
     // assert b"\xcd\x12" in x
     bytec 8 // 0xcd12
     frame_dig -1
     callsub is_substring
     assert
-    // fixed_bytes_ops/contract.py:628
+    // fixed_bytes_ops/contract.py:630
     // assert (b"\xcd\x12" not in x) == False  # noqa: E712
     bytec 8 // 0xcd12
     frame_dig -1
