@@ -33,12 +33,17 @@ from puya.ir.builder import (
     sequence,
     storage,
 )
-from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_implicit_return_out
+from puya.ir.builder._utils import (
+    assign,
+    get_implicit_return_is_original,
+    get_implicit_return_out,
+    method_signature_to_abi_signature,
+)
 from puya.ir.builder.encoding_validation import validate_encoding
 from puya.ir.context import IRBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
-from puya.ir.types_ import wtype_to_abi_name, wtype_to_encoded_ir_type, wtype_to_ir_type
+from puya.ir.types_ import wtype_to_encoded_ir_type, wtype_to_ir_type
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ir.ValueProvider | None
@@ -682,22 +687,9 @@ class FunctionIRBuilder(
         if isinstance(expr.value, awst_nodes.MethodSignatureString):
             signature = expr.value.value
         else:
-            name = expr.value.name
-            arg_abi_names = [
-                wtype_to_abi_name(
-                    t,
-                    resource_encoding=expr.value.resource_encoding,
-                    source_location=expr.value.source_location,
-                )
-                for t in expr.value.arg_types or []
-            ]
-            args = ",".join(arg_abi_names)
-            return_ = wtype_to_abi_name(
-                expr.value.return_type, source_location=expr.source_location
-            )
-            signature = f"{name}({args}){return_}"
+            signature = method_signature_to_abi_signature(expr.value)
 
-        return ir.MethodConstant(expr.source_location, value=signature)
+        return ir.MethodConstant(value=signature, source_location=expr.source_location)
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
         items = list[ir.Value]()

@@ -13,8 +13,9 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.visitors import ExpressionVisitor
 from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError, InternalError
+from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assign
+from puya.ir.builder._utils import assign, method_signature_to_abi_signature
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.builder.flow_control import process_conditional
 from puya.ir.context import IRFunctionBuildContext
@@ -38,6 +39,7 @@ from puya.ir.types_ import (
     get_wtype_arity,
     ir_type_to_ir_types,
     sum_wtypes_arity,
+    wtype_to_abi_name,
     wtype_to_ir_type,
     wtype_to_ir_types,
 )
@@ -132,6 +134,11 @@ class InnerTransactionBuilder:
                 | awst_nodes.ABICall(fields=fields)
             ):
                 ((var_name, var_loc),) = _get_assignment_target_local_names(target, 1)
+                self._set_inner_transaction_fields(var_name, fields, var_loc)
+                return True
+            case awst_nodes.ABICall(fields=fields):
+                ((var_name, var_loc),) = _get_assignment_target_local_names(target, 1)
+                fields = {**fields, **self._map_abi_call_to_txn_fields(value)}
                 self._set_inner_transaction_fields(var_name, fields, var_loc)
                 return True
             case awst_nodes.Copy(
@@ -649,6 +656,40 @@ class InnerTransactionBuilder:
                     params.source_location,
                 )
         return var_name
+
+    def _map_abi_call_to_txn_fields(
+        self, call: awst_nodes.ABICall
+    ) -> Mapping[txn_fields.TxnField, awst_nodes.Expression]:
+        field_map: dict[txn_fields.TxnField, awst_nodes.Expression] = {}
+
+        if isinstance(call.target, awst_nodes.MethodSignature):
+            _abi_signature = method_signature_to_abi_signature(call.target)
+        else:
+            parts = [call.target.value]
+            if "(" not in call.target.value:
+                arg_abi_names = [
+                    wtype_to_abi_name(arg.wtype, source_location=arg.source_location)
+                    for arg in call.args
+                ]
+                parts.append(f"({','.join(arg_abi_names)})")
+
+            if "(" not in call.target.value or call.target.value.endswith(")"):
+                result_type = wtypes.void_wtype
+                if isinstance(call.wtype, wtypes.WABICallInnerTransactionFields):
+                    result_type = call.wtype.result_type
+
+                parts.append(wtype_to_abi_name(result_type, source_location=call.source_location))
+
+            _abi_signature = "".join(parts)
+
+        _app_args = [ir.MethodConstant(value=_abi_signature, source_location=call.source_location)]
+
+        # map to arc4 types
+        # handle resource types
+        # handle other txns
+        # return
+
+        return field_map
 
 
 def _get_assignment_target_local_names(

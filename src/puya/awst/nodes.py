@@ -12,7 +12,7 @@ from typing_extensions import deprecated
 
 from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
-from puya.avm import AVMType, OnCompletionAction, TransactionType
+from puya.avm import AVMType, OnCompletionAction
 from puya.awst import wtypes
 from puya.awst.txn_fields import TxnField
 from puya.awst.visitors import (
@@ -1751,11 +1751,7 @@ class ABICall(Expression):
     target: MethodSignature | MethodSignatureString
     args: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
-    wtype: wtypes.WInnerTransactionFields = attrs.field(init=False)
-
-    @wtype.default
-    def _wtype(self) -> wtypes.WInnerTransactionFields:
-        return wtypes.WInnerTransactionFields(TransactionType.appl)
+    wtype: wtypes.WInnerTransactionFields = attrs.field()
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_abi_call(self)

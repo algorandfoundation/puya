@@ -11,6 +11,7 @@ from puya.awst.nodes import (
     SubmitInnerTransaction,
 )
 from puya.awst.txn_fields import TxnField
+from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import StableSet
@@ -210,10 +211,14 @@ def _abi_call(
     else:
         pytype = pytypes.GenericABIApplicationCall.parameterise([return_type_annotation], location)
 
+    abi_call_wtype = pytype.checked_wtype(location)
+    assert isinstance(abi_call_wtype, WInnerTransactionFields)
+
     expr = ABICall(
         target=target,
         args=abi_call_args,
         fields=fields,
+        wtype=abi_call_wtype,
         source_location=location,
     )
     return builder_for_instance(pytype, expr)

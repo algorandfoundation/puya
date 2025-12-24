@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+from puya.awst import nodes as awst_nodes
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import (
     TMP_VAR_INDICATOR,
@@ -12,7 +13,7 @@ from puya.ir.models import (
 )
 from puya.ir.op_utils import assign_targets, convert_constants, mktemp
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import IRType, TupleIRType, ir_type_to_ir_types
+from puya.ir.types_ import IRType, TupleIRType, ir_type_to_ir_types, wtype_to_abi_name
 from puya.parse import SourceLocation
 
 
@@ -111,3 +112,19 @@ def invoke_puya_lib_subroutine(
         args=[convert_constants(arg, source_location) for arg in args],
         source_location=source_location,
     )
+
+
+def method_signature_to_abi_signature(value: awst_nodes.MethodSignature) -> str:
+    name = value.name
+    arg_abi_names = [
+        wtype_to_abi_name(
+            t,
+            resource_encoding=value.resource_encoding,
+            source_location=value.source_location,
+        )
+        for t in value.arg_types or []
+    ]
+    args = ",".join(arg_abi_names)
+    return_ = wtype_to_abi_name(value.return_type, source_location=value.source_location)
+    signature = f"{name}({args}){return_}"
+    return signature
