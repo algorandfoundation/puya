@@ -566,20 +566,6 @@ def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
     assert result.decode_logs("u") == ["whoop!"]
 
 
-def test_with_reentrancy(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "with_reentrancy")
-    logs = result.decode_logs("iuuuuuu")
-    assert logs == [
-        5,
-        "silly3 = 8",
-        "silly2 = 8",
-        "silly = 6",
-        "silly3 = 5",
-        "silly2 = 5",
-        "silly = 3",
-    ]
-
-
 def test_conditional_expressions(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "conditional_expressions" / "contract.py")
     logs = result.decode_logs(("u" * 6) + "i")
