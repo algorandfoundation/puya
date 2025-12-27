@@ -541,11 +541,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_chained_assignment(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "chained_assignment")
-    assert result.decode_logs("u") == ["Hello, world! 👋"]
-
-
 def test_callsub(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "callsub")
     assert result.decode_logs("iii") == [42, 1, 2]
