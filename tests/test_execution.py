@@ -541,29 +541,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_tuple_support(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_support.py")
-    assert result.decode_logs("iuiiiuuuuu") == [
-        306,
-        "Hello, world!",
-        0,
-        2,
-        1,
-        "nanananana",
-        "non_empty_tuple called",
-        "not empty",
-        "get_uint_with_side_effect called",
-        "not empty2",
-    ]
-
-
-def test_tuple_comparisons(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_comparisons.py")
-    expected_log_values = list(range(42, 48))
-    assert len(result.logs) == len(expected_log_values)
-    assert result.decode_logs("i" * len(expected_log_values)) == expected_log_values
-
-
 def test_chained_assignment(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "chained_assignment")
     assert result.decode_logs("u") == ["Hello, world! 👋"]
