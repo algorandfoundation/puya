@@ -1,8 +1,7 @@
 import shutil
 from pathlib import Path
 
-import algokit_utils
-from algosdk.v2client.algod import AlgodClient
+import algokit_utils as au
 
 from puya import log
 from puya.awst import (
@@ -34,7 +33,7 @@ def compile_contract(
     with log.logging_context() as log_ctx, log_exceptions():
         awst = serialize.awst_from_json(awst_json)
         options = PuyaOptions(
-            output_arc32=True,
+            output_arc56=True,
             output_teal=True,
             output_destructured_ir=True,
         )
@@ -63,23 +62,31 @@ def compile_contract_and_clients(
     *,
     awst_path: Path,
     compilation_set: dict[str, Path],
-    algod_client: AlgodClient,
-    account: algokit_utils.Account,
-) -> dict[str, algokit_utils.ApplicationClient]:
+    algorand: au.AlgorandClient,
+    account: au.AddressWithSigners,
+) -> dict[str, au.AppFactory]:
     compile_contract(awst_path=awst_path, compilation_set=compilation_set)
     return {
-        contract_id: _make_client(
-            algod_client=algod_client, account=account, out_dir=out_dir, contract_id=contract_id
+        contract_id: _make_app_factory(
+            algorand=algorand, account=account, out_dir=out_dir, contract_id=contract_id
         )
         for contract_id, out_dir in compilation_set.items()
     }
 
 
-def _make_client(
-    *, algod_client: AlgodClient, account: algokit_utils.Account, out_dir: Path, contract_id: str
-) -> algokit_utils.ApplicationClient:
+def _make_app_factory(
+    *, algorand: au.AlgorandClient, account: au.AddressWithSigners, out_dir: Path, contract_id: str
+) -> au.AppFactory:
     contract_name = contract_id.split("::")[-1]
-    app_spec_json = (out_dir / f"{contract_name}.arc32.json").read_text("utf8")
+    app_spec_json = (out_dir / f"{contract_name}.arc56.json").read_text("utf8")
 
-    app_spec = algokit_utils.ApplicationSpecification.from_json(app_spec_json)
-    return algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_spec = au.Arc56Contract.from_json(app_spec_json)
+    factory = au.AppFactory(
+        au.AppFactoryParams(
+            algorand=algorand,
+            app_spec=app_spec,
+            default_sender=account.addr,
+            default_signer=account.signer,
+        )
+    )
+    return factory
