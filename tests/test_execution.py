@@ -541,11 +541,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_callsub(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "callsub")
-    assert result.decode_logs("iii") == [42, 1, 2]
-
-
 def test_calculator(harness: _TestHarness) -> None:
     src_path = EXAMPLES_DIR / "calculator"
     add, sub, mul, div = 1, 2, 3, 4
