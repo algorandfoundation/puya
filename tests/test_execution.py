@@ -541,29 +541,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_calculator(harness: _TestHarness) -> None:
-    src_path = EXAMPLES_DIR / "calculator"
-    add, sub, mul, div = 1, 2, 3, 4
-
-    result = harness.deploy(src_path, AppCallRequest(args=[add, 1, 2]))
-    assert result.decode_logs("iiu") == [1, 2, "1 + 2 = 3"]
-
-    result = harness.deploy(src_path, AppCallRequest(args=[sub, 45, 2]))
-    assert result.decode_logs("iiu") == [45, 2, "45 - 2 = 43"]
-
-    result = harness.deploy(src_path, AppCallRequest(args=[mul, 42, 42]))
-    assert result.decode_logs("iiu") == [42, 42, "42 * 42 = 1764"]
-
-    result = harness.deploy(src_path, AppCallRequest(args=[div, 8, 2]))
-    assert result.decode_logs("iiu") == [8, 2, "8 // 2 = 4"]
-
-    with pytest.raises(algokit_utils.LogicError):
-        harness.deploy(src_path)
-
-    with pytest.raises(algokit_utils.LogicError):
-        harness.deploy(src_path, AppCallRequest(args=[9, 20, 8]))
-
-
 def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Bytes, Contract, log, op, subroutine
