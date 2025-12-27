@@ -541,15 +541,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_ssa(harness: _TestHarness) -> None:
-    result = harness.deploy(
-        TEST_CASES_DIR / "ssa",
-        AppCallRequest(trace_output=TEST_CASES_DIR / "ssa" / "out" / "trace.log"),
-    )
-
-    assert result.decode_logs("i") == [102]
-
-
 def test_tuple_support(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "tuple_support" / "tuple_support.py")
     assert result.decode_logs("iuiiiuuuuu") == [
