@@ -1,8 +1,7 @@
 from pathlib import Path
 
-import algokit_utils
+import algokit_utils as au
 import pytest
-from algosdk.v2client.algod import AlgodClient
 
 from tests import FROM_AWST_DIR
 from tests.from_awst.util import compile_contract_and_clients
@@ -10,26 +9,31 @@ from tests.from_awst.util import compile_contract_and_clients
 
 @pytest.mark.localnet
 def test_compile_and_run(
-    algod_client: AlgodClient,
-    account: algokit_utils.Account,
+    localnet: au.AlgorandClient,
+    account: au.AddressWithSigners,
 ) -> None:
     test_dir = Path(__file__).parent
     out_dir = test_dir / "out"
 
     clients = compile_contract_and_clients(
-        algod_client=algod_client,
+        algorand=localnet,
         account=account,
         awst_path=FROM_AWST_DIR / "static_bytes" / "module.awst.json",
         compilation_set={"tests/approvals/static-bytes.algo.ts::StaticBytesAlgo": out_dir},
     )
 
-    app_client = clients["tests/approvals/static-bytes.algo.ts::StaticBytesAlgo"]
+    app_client_factory = clients["tests/approvals/static-bytes.algo.ts::StaticBytesAlgo"]
 
-    app_client.create()
+    app_client, _ = app_client_factory.send.bare.create()
 
-    res_receive_b32 = app_client.call(call_abi_method="receiveB32", b=b"\0" * 32)
-    assert len(res_receive_b32.return_value) == 32
+    res_receive_b32 = app_client.send.call(
+        au.AppClientMethodCallParams(
+            method="receiveB32",
+            args=[bytes(32)],
+        )
+    )
+    assert isinstance(res_receive_b32.abi_return, bytes)
+    assert len(res_receive_b32.abi_return) == 32
 
-    app_client.call(call_abi_method="test")
-
-    app_client.call(call_abi_method="testArray")
+    app_client.send.call(au.AppClientMethodCallParams(method="test"))
+    app_client.send.call(au.AppClientMethodCallParams(method="testArray"))
