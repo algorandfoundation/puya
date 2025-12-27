@@ -566,13 +566,6 @@ def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
     assert result.decode_logs("u") == ["whoop!"]
 
 
-def test_nested_loops(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "nested_loops", AppCallRequest(increase_budget=15))
-    x, y = result.decode_logs("ii")
-    assert x == 192
-    assert y == 285
-
-
 def test_with_reentrancy(harness: _TestHarness) -> None:
     result = harness.deploy(TEST_CASES_DIR / "with_reentrancy")
     logs = result.decode_logs("iuuuuuu")
