@@ -5,7 +5,8 @@ from puya.awst.serialize import get_converter
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.log import Log, LogLevel
 from puya.parse import SourceLocation
-from tests.utils import PuyaTestCase, get_awst_cache
+from tests.utils import PuyaTestCase
+from tests.utils.compile import get_awst_cache
 
 
 def test_cattrs(test_case: PuyaTestCase) -> None:
