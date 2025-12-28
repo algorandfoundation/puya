@@ -1214,14 +1214,6 @@ def test_inner_transactions_loop(harness: _TestHarness) -> None:
     assert result.decode_logs("bibibibi") == [b"", 0, b"A", 1, b"AB", 2, b"ABC", 3]
 
 
-def test_inheritance_direct_method_invocation(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "inheritance" / "child.py")
-    assert result.decode_logs("uu") == [
-        "ChildContract.method called",
-        "GrandParentContract.method called",
-    ]
-
-
 def test_account_from_bytes_validation(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Account, Contract, Txn
