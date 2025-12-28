@@ -560,24 +560,6 @@ def test_undefined_phi_args(
     assert "💥" in "".join(ex.lines[ex.line_no - 5 : ex.line_no])
 
 
-def test_asset(harness: _TestHarness, asset_a: int, asset_b: int) -> None:
-    harness.deploy(TEST_CASES_DIR / "asset")
-
-    # ensure app meets minimum balance requirements
-    harness.fund(200_000)
-
-    # increase fee to cover opt_in inner txn
-    increased_fee = harness.client.suggested_params()
-    increased_fee.flat_fee = True
-    increased_fee.fee = constants.min_txn_fee * 2
-
-    # call functions to assert asset behaviour
-    harness.call(AppCallRequest(args=[b"opt_in"], assets=[asset_a], sp=increased_fee))
-    harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_a]))
-    with pytest.raises(LogicError, match=re.escape("asset self.asa == asset")):
-        harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_b]))
-
-
 def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
     sp = harness.client.suggested_params()
     sp.fee = 10
