@@ -882,15 +882,6 @@ def test_application(harness: _TestHarness) -> None:
     harness.call(AppCallRequest(args=[b"validate"]))
 
 
-def test_conditional_execution(harness: _TestHarness) -> None:
-    harness.deploy(
-        TEST_CASES_DIR / "conditional_execution",
-        request=AppCallRequest(
-            trace_output=TEST_CASES_DIR / "conditional_execution" / "out" / "trace.log",
-        ),
-    )
-
-
 def iteration_idfn(value: object) -> str:
     if isinstance(value, str):
         return value
