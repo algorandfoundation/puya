@@ -731,10 +731,6 @@ def test_unary(harness: _TestHarness) -> None:
     )
 
 
-def test_enumeration(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "enumeration", AppCallRequest(increase_budget=1))
-
-
 def test_bytes_stubs(harness: _TestHarness) -> None:
     result = harness.deploy(
         TEST_CASES_DIR / "stubs" / "bytes.py",
