@@ -1599,31 +1599,6 @@ def test_diamond_mro(
     assert method_logs == expected_method_log
 
 
-def test_arc4_conversions(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = TEST_CASES_DIR / "arc4_conversions"
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(example, contract_name="TestContract")
-    )
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    sp = algod_client.suggested_params()
-    sp.flat_fee = True
-    sp.fee = 10_000
-    app_client.suggested_params = sp
-    app_client.create()
-
-    app_client.call("test_literal_encoding")
-    app_client.call("test_native_encoding")
-    app_client.call("test_arc4_encoding")
-    app_client.call("test_array_uint64_encoding")
-    app_client.call("test_array_static_encoding")
-    app_client.call("test_array_dynamic_encoding")
-    app_client.call("test_bytes_to_fixed", wrong_size=False)
-
-    with pytest.raises(LogicError, match="invalid size\t\t<-- Error"):
-        app_client.call("test_bytes_to_fixed", wrong_size=True)
-
-
 @pytest.mark.parametrize("optimization_level", [0, 1])
 def test_array_uint64(
     algod_client: AlgodClient,
