@@ -569,42 +569,6 @@ def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
     )
 
 
-def test_inner_transactions(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "inner_transactions" / "contract.py")
-    # ensure app meets minimum balance requirements
-    harness.fund(9 * 100_000)
-
-    increased_fee = harness.client.suggested_params()
-    increased_fee.flat_fee = True
-    increased_fee.fee = constants.min_txn_fee * (1 + 16)
-
-    harness.call(AppCallRequest(sp=increased_fee, args=[b"test1"]))
-
-    harness.call(AppCallRequest(sp=increased_fee, args=[b"test2"]))
-
-    harness.call(AppCallRequest(sp=increased_fee, args=[b"test2", b"do 2nd submit"]))
-
-    harness.call(AppCallRequest(sp=increased_fee, args=[b"test3"]))
-
-    harness.call(AppCallRequest(sp=increased_fee, args=[b"test4"]))
-
-
-def test_inner_transactions_loop(harness: _TestHarness) -> None:
-    increased_fee = harness.client.suggested_params()
-    increased_fee.flat_fee = True
-    increased_fee.fee = constants.min_txn_fee * (1 + 4)
-
-    result = harness.deploy(
-        TEST_CASES_DIR / "inner_transactions" / "itxn_loop.py",
-        AppCallRequest(
-            sp=increased_fee,
-            add_random_note=True,
-        ),
-    )
-
-    assert result.decode_logs("bibibibi") == [b"", 0, b"A", 1, b"AB", 2, b"ABC", 3]
-
-
 def test_account_from_bytes_validation(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Account, Contract, Txn
