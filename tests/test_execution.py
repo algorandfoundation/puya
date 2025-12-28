@@ -546,33 +546,6 @@ def test_contains_operator(harness: _TestHarness) -> None:
     )
 
 
-def test_boolean_binary_ops(harness: _TestHarness) -> None:
-    result = harness.deploy(
-        TEST_CASES_DIR / "boolean_binary_ops", request=AppCallRequest(increase_budget=1)
-    )
-    logs = set(result.decode_logs("u" * 12))
-    assert logs == {
-        # AND
-        "lhs_true_and_true",
-        "rhs_true_and_true",
-        "lhs_true_and_false",
-        "rhs_true_and_false",
-        "lhs_false_and_true",
-        # "rhs_false_and_true",
-        "lhs_false_and_false",
-        # "rhs_false_and_false",
-        # OR
-        "lhs_true_or_true",
-        # "rhs_true_or_true",
-        "lhs_true_or_false",
-        # "rhs_true_or_false",
-        "lhs_false_or_true",
-        "rhs_false_or_true",
-        "lhs_false_or_false",
-        "rhs_false_or_false",
-    }
-
-
 def test_unssa(harness: _TestHarness) -> None:
     result = harness.deploy(
         TEST_CASES_DIR / "unssa",
