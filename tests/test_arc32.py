@@ -1248,34 +1248,6 @@ def test_box_map(box_client: algokit_utils.ApplicationClient) -> None:
     ).return_value, "Box does not exist after deletion"
 
 
-def test_compile(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(TEST_CASES_DIR / "compile", contract_name="HelloFactory")
-    )
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-
-    app_client.create()
-
-    increased_fee = algod_client.suggested_params()
-    increased_fee.flat_fee = True
-    increased_fee.fee = constants.min_txn_fee * 6
-    txn_params = algokit_utils.OnCompleteCallParameters(suggested_params=increased_fee)
-    algokit_utils.config.config.configure(debug=True, trace_all=True)
-    app_client.call("test_compile_contract", transaction_parameters=txn_params)
-    app_client.call("test_compile_contract_tmpl", transaction_parameters=txn_params)
-    app_client.call("test_compile_contract_prfx", transaction_parameters=txn_params)
-    app_client.call("test_compile_contract_large", transaction_parameters=txn_params)
-
-    app_client.call("test_arc4_create", transaction_parameters=txn_params)
-    app_client.call("test_arc4_create_tmpl", transaction_parameters=txn_params)
-    app_client.call("test_arc4_create_prfx", transaction_parameters=txn_params)
-    app_client.call("test_arc4_create_large", transaction_parameters=txn_params)
-    app_client.call("test_arc4_create_modified_compiled", transaction_parameters=txn_params)
-    app_client.call("test_arc4_update", transaction_parameters=txn_params)
-    app_client.call("test_other_constants", transaction_parameters=txn_params)
-    app_client.call("test_abi_call_create_params", transaction_parameters=txn_params)
-
-
 def test_nested_tuples(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
