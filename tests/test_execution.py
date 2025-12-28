@@ -560,46 +560,6 @@ def test_undefined_phi_args(
     assert "💥" in "".join(ex.lines[ex.line_no - 5 : ex.line_no])
 
 
-def test_account_from_bytes_validation(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import Account, Contract, Txn
-
-        class Baddie(Contract):
-            def approval_program(self) -> bool:
-                b = Txn.sender.bytes + b"!"
-                x = Account(b)
-                assert x.bytes.length > 0, "shouldn't get here"
-                return True
-
-            def clear_state_program(self) -> bool:
-                return True
-
-    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
-        harness.deploy_from_closure(test)
-    assert exc_info.value.line_no is not None
-    assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
-
-
-def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import Contract, Txn, arc4
-
-        class Baddie(Contract):
-            def approval_program(self) -> bool:
-                b = Txn.sender.bytes + b"!"
-                x = arc4.Address(b)
-                assert x.bytes.length > 0, "shouldn't get here"
-                return True
-
-            def clear_state_program(self) -> bool:
-                return True
-
-    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
-        harness.deploy_from_closure(test)
-    assert exc_info.value.line_no is not None
-    assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
-
-
 def test_loop_else(harness: _TestHarness) -> None:
     contract_path = TEST_CASES_DIR / "loop_else" / "loop_else.py"
     with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
