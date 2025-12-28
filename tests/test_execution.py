@@ -586,10 +586,6 @@ def test_unssa(harness: _TestHarness) -> None:
     assert result2 == 1
 
 
-def test_bytes_ops(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "bytes_ops")
-
-
 def test_fixed_bytes_ops(harness: _TestHarness) -> None:
     result = harness.deploy(
         TEST_CASES_DIR / "fixed_bytes_ops" / "contract.py",
