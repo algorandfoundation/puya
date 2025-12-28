@@ -14,10 +14,9 @@ from tests.utils import (
     SUFFIX_O1,
     SUFFIX_O2,
     PuyaTestCase,
-    compile_src_from_options,
     load_template_vars,
-    log_to_str,
 )
+from tests.utils.compile import compile_src_from_options, log_to_str
 from tests.utils.git import check_for_diff
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
