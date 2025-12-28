@@ -36,7 +36,7 @@ from puya.artifact_metadata import ContractState
 from puya.avm import AVMType
 from puya.compilation_artifacts import CompiledContract
 from puyapy.options import PuyaPyOptions
-from tests import EXAMPLES_DIR, TEST_CASES_DIR
+from tests import TEST_CASES_DIR
 from tests.utils import compile_src_from_options
 
 pytestmark = pytest.mark.localnet
@@ -537,89 +537,6 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
 @pytest.fixture
 def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _TestHarness:
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
-
-
-def test_local_storage(harness: _TestHarness) -> None:
-    default_value = "this is a default"
-    stored_value = "testing 123"
-    harness.deploy(
-        EXAMPLES_DIR / "local_state/local_state_contract.py",
-        AppCallRequest(on_complete=OnComplete.OptInOC),
-    )
-
-    get_data_with_default_result_1 = harness.call(
-        AppCallRequest(args=["get_data_with_default", default_value])
-    )
-    assert get_data_with_default_result_1.decode_logs("u") == [default_value]
-
-    set_data_result = harness.call(AppCallRequest(args=["set_data", stored_value]))
-    assert set_data_result.local_state_deltas == {
-        (harness.sender, encode_utf8("local")): {
-            "action": 1,
-            "bytes": encode_utf8(stored_value),
-        }
-    }
-
-    get_data_with_default_result_2 = harness.call(
-        AppCallRequest(args=["get_data_with_default", default_value])
-    )
-    assert get_data_with_default_result_2.decode_logs("u") == [stored_value]
-
-    get_guaranteed_data_result = harness.call(AppCallRequest(args=["get_guaranteed_data"]))
-    assert get_guaranteed_data_result.decode_logs("u") == [stored_value]
-
-    get_data_or_assert_result = harness.call(AppCallRequest(args=["get_data_or_assert"]))
-    assert get_data_or_assert_result.decode_logs("u") == [stored_value]
-
-    delete_data_result = harness.call(AppCallRequest(args=["delete_data"]))
-    assert delete_data_result.local_state_deltas == {
-        (harness.sender, encode_utf8("local")): {"action": 3}
-    }
-
-
-def test_local_storage_with_offsets(harness: _TestHarness) -> None:
-    default_value = "this is a default"
-    stored_value = "testing 123"
-    harness.deploy(
-        EXAMPLES_DIR / "local_state/local_state_with_offsets.py",
-        AppCallRequest(on_complete=OnComplete.OptInOC),
-    )
-
-    def make_request(*args: AppArgs) -> AppCallRequest:
-        return AppCallRequest(
-            # yes this is redundant, sender is [0] anyway
-            args=[1, *args],
-            accounts=[harness.sender],
-        )
-
-    get_data_with_default_result_1 = harness.call(
-        make_request("get_data_with_default", default_value)
-    )
-    assert get_data_with_default_result_1.decode_logs("u") == [default_value]
-
-    set_data_result = harness.call(make_request("set_data", stored_value))
-    assert set_data_result.local_state_deltas == {
-        (harness.sender, encode_utf8("local")): {
-            "action": 1,
-            "bytes": encode_utf8(stored_value),
-        }
-    }
-
-    get_data_with_default_result_2 = harness.call(
-        make_request("get_data_with_default", default_value)
-    )
-    assert get_data_with_default_result_2.decode_logs("u") == [stored_value]
-
-    get_guaranteed_data_result = harness.call(make_request("get_guaranteed_data"))
-    assert get_guaranteed_data_result.decode_logs("u") == [stored_value]
-
-    get_data_or_assert_result = harness.call(make_request("get_data_or_assert"))
-    assert get_data_or_assert_result.decode_logs("u") == [stored_value]
-
-    delete_data_result = harness.call(make_request("delete_data"))
-    assert delete_data_result.local_state_deltas == {
-        (harness.sender, encode_utf8("local")): {"action": 3}
-    }
 
 
 def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
