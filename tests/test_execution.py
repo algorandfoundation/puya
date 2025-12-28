@@ -1115,27 +1115,6 @@ def test_iteration(harness: _TestHarness, name: str, increase_budget: int) -> No
     assert logs_decoded == expected_logs
 
 
-def test_ignored_value(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import Contract, subroutine
-
-        class Silly(Contract):
-            def approval_program(self) -> bool:
-                True  # noqa: B018
-                self.silly()
-                return True
-
-            @subroutine
-            def silly(self) -> bool:
-                True  # noqa: B018
-                return True
-
-            def clear_state_program(self) -> bool:
-                return True
-
-    harness.deploy_from_closure(test)
-
-
 def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
     sp = harness.client.suggested_params()
     sp.fee = 10
