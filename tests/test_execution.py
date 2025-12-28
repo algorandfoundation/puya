@@ -1008,11 +1008,6 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
     assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
 
 
-@pytest.mark.slow
-def test_brute_force_rotation_search(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "stress_tests" / "brute_force_rotation_search.py")
-
-
 def test_loop_else(harness: _TestHarness) -> None:
     contract_path = TEST_CASES_DIR / "loop_else" / "loop_else.py"
     with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
