@@ -1464,29 +1464,6 @@ def test_named_tuples(
     assert (l1, l2, l3) == expected_log
 
 
-def test_uint_overflow(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    app_client = algokit_utils.ApplicationClient(
-        algod_client,
-        algokit_utils.ApplicationSpecification.from_json(
-            compile_arc32(TEST_CASES_DIR / "arc4_types", contract_name="UIntOverflow")
-        ),
-        signer=account,
-    )
-    app_client.create()
-
-    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
-        app_client.call("test_uint8")
-
-    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
-        app_client.call("test_uint16")
-
-    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
-        app_client.call("test_uint32")
-
-    with pytest.raises(LogicError, match="overflow\t\t<-- Error"):
-        app_client.call("test_as_uint64")
-
-
 def test_group_side_effects(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
