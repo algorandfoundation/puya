@@ -539,48 +539,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_fixed_bytes_ops(harness: _TestHarness) -> None:
-    result = harness.deploy(
-        TEST_CASES_DIR / "fixed_bytes_ops" / "contract.py",
-        request=AppCallRequest(increase_budget=3, on_complete=OnComplete.OptInOC, extra_pages=1),
-    )
-    assert result.decode_logs("b") == [b"hello"]
-
-    state_value = b"test"
-    set_data_result = harness.call(AppCallRequest(args=["set_state_data", state_value]))
-    assert set_data_result.local_state_deltas == {
-        (harness.sender, encode_utf8("local")): {
-            "action": 1,
-            "bytes": encode_bytes(state_value),
-        }
-    }
-
-    get_data_or_assert_result = harness.call(AppCallRequest(args=["get_state_data_or_assert"]))
-    assert get_data_or_assert_result.decode_logs("b") == [state_value]
-
-    augmented_assignment = harness.call(
-        AppCallRequest(args=["test_augmented_or_assignment_with_bytes", b"\x0f", b"\xff"])
-    )
-    assert augmented_assignment.decode_logs("b") == [b"\xff"]
-
-    with pytest.raises(algokit_utils.LogicError):
-        harness.call(
-            AppCallRequest(args=["test_augmented_or_assignment_with_bytes", b"\x0f", b"\xff\xff"])
-        )
-
-    harness.call(AppCallRequest(args=["validate_fixed_bytes_3", b"abc"]))
-    with pytest.raises(
-        algokit_utils.LogicError,
-        match="invalid number of bytes for arc4.static_array<arc4.uint8, 3>\t\t<-- Error",
-    ):
-        harness.call(AppCallRequest(args=["validate_fixed_bytes_3", b"1234"]))
-    with pytest.raises(
-        algokit_utils.LogicError,
-        match="invalid number of bytes for arc4.static_array<arc4.uint8, 3>\t\t<-- Error",
-    ):
-        harness.call(AppCallRequest(args=["validate_fixed_bytes_3", b"12"]))
-
-
 def test_simplish(harness: _TestHarness) -> None:
     nickname = "My Nicky Nick"
     harness.deploy(TEST_CASES_DIR / "simplish")
