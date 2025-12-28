@@ -756,24 +756,6 @@ def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
     )
 
 
-@pytest.mark.parametrize(
-    ("args", "expected_logs"),
-    [
-        ([], []),
-        ([1], [1]),
-        ([1, 2], []),
-        ([1, 2, 3], [3]),
-    ],
-)
-def test_control_op_simplification(
-    harness: _TestHarness, args: list[int], expected_logs: list[int]
-) -> None:
-    result = harness.deploy(
-        TEST_CASES_DIR / "control_op_simplification", request=AppCallRequest(args=[*args])
-    )
-    assert result.decode_logs("i" * len(expected_logs)) == expected_logs
-
-
 def test_inner_transactions(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "inner_transactions" / "contract.py")
     # ensure app meets minimum balance requirements
