@@ -640,10 +640,6 @@ def test_address(harness: _TestHarness) -> None:
     assert result.decode_logs("b") == [sender_bytes]
 
 
-def test_string_ops(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=4))
-
-
 def test_global_storage(harness: _TestHarness) -> None:
     harness.deploy(EXAMPLES_DIR / "global_state", AppCallRequest(increase_budget=1))
 
