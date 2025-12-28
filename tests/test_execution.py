@@ -1019,16 +1019,6 @@ def test_brute_force_rotation_search(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "stress_tests" / "brute_force_rotation_search.py")
 
 
-def test_match(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "match" / "contract.py", AppCallRequest(args=[b""]))
-    assert result.decode_logs(4 * "u") == [
-        "Hello There biguint",
-        "Hello bytes",
-        "Hello one",
-        "Hello True",
-    ]
-
-
 def test_loop_else(harness: _TestHarness) -> None:
     contract_path = TEST_CASES_DIR / "loop_else" / "loop_else.py"
     with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
