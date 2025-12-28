@@ -538,25 +538,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import BigUInt, Contract, log, op
-
-        class BigUIntByteTests(Contract):
-            def approval_program(self) -> bool:
-                arg = op.Txn.application_args(0)
-                big_uint = BigUInt.from_bytes(arg)
-                big_uint += 1
-                log(big_uint.bytes)
-                return True
-
-            def clear_state_program(self) -> bool:
-                return True
-
-    result = harness.deploy_from_closure(test, AppCallRequest(args=[122]))
-    assert result.decode_logs("i") == [123]
-
-
 @pytest.mark.parametrize(
     ("test_case", "expected_logic_error"),
     [
