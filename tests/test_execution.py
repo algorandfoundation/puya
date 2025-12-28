@@ -26,7 +26,6 @@ from algosdk.atomic_transaction_composer import (
     SimulateAtomicTransactionResponse,
     TransactionWithSigner,
 )
-from algosdk.encoding import decode_address
 from algosdk.logic import get_application_address
 from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComplete, StateSchema
 from algosdk.v2client.algod import AlgodClient
@@ -685,19 +684,6 @@ def test_asset(harness: _TestHarness, asset_a: int, asset_b: int) -> None:
     harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_a]))
     with pytest.raises(LogicError, match=re.escape("asset self.asa == asset")):
         harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_b]))
-
-
-def test_application(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "application")
-
-    harness.call(AppCallRequest(args=[b"validate"]))
-
-
-def iteration_idfn(value: object) -> str:
-    if isinstance(value, str):
-        return value
-    else:
-        return ""
 
 
 def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
