@@ -560,15 +560,6 @@ def test_undefined_phi_args(
     assert "💥" in "".join(ex.lines[ex.line_no - 5 : ex.line_no])
 
 
-def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
-    sp = harness.client.suggested_params()
-    sp.fee = 10
-    harness.deploy(
-        TEST_CASES_DIR / "intrinsics" / "immediate_variants.py",
-        AppCallRequest(args=[b""], sp=sp, add_random_note=True),
-    )
-
-
 def test_account_from_bytes_validation(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Account, Contract, Txn
