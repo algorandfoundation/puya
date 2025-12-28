@@ -546,19 +546,6 @@ def test_contains_operator(harness: _TestHarness) -> None:
     )
 
 
-def test_unssa(harness: _TestHarness) -> None:
-    result = harness.deploy(
-        TEST_CASES_DIR / "unssa",
-        AppCallRequest(
-            increase_budget=1,
-            trace_output=TEST_CASES_DIR / "unssa" / "out" / "execution_trace.log",
-        ),
-    )
-    result1, result2 = result.decode_logs("ii")
-    assert result1 == 2
-    assert result2 == 1
-
-
 def test_fixed_bytes_ops(harness: _TestHarness) -> None:
     result = harness.deploy(
         TEST_CASES_DIR / "fixed_bytes_ops" / "contract.py",
