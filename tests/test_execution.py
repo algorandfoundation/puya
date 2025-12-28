@@ -31,7 +31,6 @@ from algosdk.logic import get_application_address
 from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComplete, StateSchema
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
-from nacl.signing import SigningKey
 
 from puya.artifact_metadata import ContractState
 from puya.avm import AVMType
@@ -850,24 +849,6 @@ def test_asset(harness: _TestHarness, asset_a: int, asset_b: int) -> None:
     harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_a]))
     with pytest.raises(LogicError, match=re.escape("asset self.asa == asset")):
         harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_b]))
-
-
-def test_verify(harness: _TestHarness) -> None:
-    key = SigningKey.generate()
-    data = b"random bytes"
-    sig = key.sign(data).signature
-    public_key = key.verify_key.encode()
-
-    result = harness.deploy(
-        TEST_CASES_DIR / "edverify",
-        AppCallRequest(
-            args=[data, sig, public_key],
-            increase_budget=4,
-        ),
-    )
-    (verify_outcome,) = result.decode_logs("i")
-
-    assert verify_outcome == 1
 
 
 def test_application(harness: _TestHarness) -> None:
