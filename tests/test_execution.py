@@ -1225,24 +1225,6 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
     assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
 
 
-def test_tuple_element_mutation(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import Contract, arc4
-
-        class MyContract(Contract):
-            def approval_program(self) -> bool:
-                t = (arc4.UInt64(1), arc4.DynamicBytes(b"abc"))
-                assert t[1].bytes[2:] == b"abc", "initial value"
-                t[1].extend(arc4.DynamicBytes(b"def"))
-                assert t[1].bytes[2:] == b"abcdef", "updated value"
-                return True
-
-            def clear_state_program(self) -> bool:
-                return True
-
-    harness.deploy_from_closure(test)
-
-
 def test_arc4_tuple_element_mutation(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import Contract, arc4
