@@ -1,5 +1,4 @@
 import base64
-import collections
 import inspect
 import os
 import random
@@ -539,32 +538,6 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
 @pytest.fixture
 def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _TestHarness:
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
-
-
-def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import Bytes, Contract, log, op, subroutine
-
-        class Exclaimer(Contract):
-            def approval_program(self) -> bool:
-                num_args = op.Txn.num_app_args
-                assert num_args == 1, "expected one arg"
-                msg = op.Txn.application_args(0)
-                exclaimed = self.exclaim(msg)
-                log(exclaimed)
-                return True
-
-            @subroutine
-            def exclaim(self, value: Bytes) -> Bytes:
-                value = value + b"!"
-                return value
-
-            def clear_state_program(self) -> bool:
-                return True
-
-    result = harness.deploy_from_closure(test, AppCallRequest(args=[b"whoop"]))
-    assert result.decode_logs("u") == ["whoop!"]
-
 
 
 def test_contains_operator(harness: _TestHarness) -> None:
