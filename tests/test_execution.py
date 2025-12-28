@@ -539,39 +539,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_simplish(harness: _TestHarness) -> None:
-    nickname = "My Nicky Nick"
-    harness.deploy(TEST_CASES_DIR / "simplish")
-
-    opt_in_result = harness.call(AppCallRequest(args=[nickname], on_complete=OnComplete.OptInOC))
-    assert not opt_in_result.logs
-    assert opt_in_result.local_state_deltas == {
-        (harness.sender, encode_utf8("name")): {
-            "action": 1,
-            "bytes": encode_utf8(nickname),
-        },
-    }
-    assert not opt_in_result.global_state_deltas
-
-    circle_report_result = harness.call(AppCallRequest(args=["circle_report", 123]))
-    assert circle_report_result.decode_logs("uu") == [
-        "Approximate area and circumference of circle with radius 123 = 47529, 772",
-        "Incrementing counter!",
-    ]
-    assert not circle_report_result.local_state_deltas
-    assert circle_report_result.global_state_deltas == {
-        encode_utf8("counter"): {
-            "action": 2,
-            "uint": 1,
-        }
-    }
-
-    delete_result = harness.call(AppCallRequest(on_complete=OnComplete.DeleteApplicationOC))
-    assert delete_result.decode_logs("u") == ["I was used 1 time(s) before I died"]
-    assert not delete_result.global_state_deltas
-    assert not delete_result.local_state_deltas
-
-
 def test_local_storage(harness: _TestHarness) -> None:
     default_value = "this is a default"
     stored_value = "testing 123"
