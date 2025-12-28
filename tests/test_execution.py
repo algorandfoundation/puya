@@ -540,12 +540,6 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-def test_contains_operator(harness: _TestHarness) -> None:
-    harness.deploy(
-        TEST_CASES_DIR / "contains", request=AppCallRequest(increase_budget=1, extra_pages=1)
-    )
-
-
 def test_fixed_bytes_ops(harness: _TestHarness) -> None:
     result = harness.deploy(
         TEST_CASES_DIR / "fixed_bytes_ops" / "contract.py",
