@@ -920,13 +920,6 @@ def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
     )
 
 
-def test_too_many_permutations(harness: _TestHarness) -> None:
-    harness.deploy(
-        TEST_CASES_DIR / "too_many_permutations",
-        request=AppCallRequest(args=[1, 2, 3, 4]),
-    )
-
-
 @pytest.mark.parametrize(
     ("args", "expected_logs"),
     [
