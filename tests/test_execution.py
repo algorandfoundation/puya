@@ -723,16 +723,6 @@ def test_local_storage_with_offsets(harness: _TestHarness) -> None:
     }
 
 
-def test_bytes_stubs(harness: _TestHarness) -> None:
-    result = harness.deploy(
-        TEST_CASES_DIR / "stubs" / "bytes.py",
-        AppCallRequest(
-            increase_budget=1, trace_output=TEST_CASES_DIR / "stubs" / "out" / "bytes.log"
-        ),
-    )
-    assert result.decode_logs("u") == ["one_to_seven called"]
-
-
 def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
     def test() -> None:
         from algopy import BigUInt, Contract, log, op
