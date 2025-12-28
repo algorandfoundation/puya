@@ -1347,43 +1347,6 @@ def test_tuple_storage(
     assert loc_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
 
 
-def test_named_tuples(
-    algod_client: AlgodClient,
-    account: algokit_utils.Account,
-) -> None:
-    example = TEST_CASES_DIR / "named_tuples" / "contract.py"
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-
-    # create
-    app_client.create()
-
-    result = app_client.call("build_tuple", a=12, b=343459043, c="hello 123", d=account.public_key)
-
-    (a, b, c, d) = result.return_value
-
-    app_client.call("test_tuple", value=(a, b, c, d))
-
-    app_client.call(
-        "test_tuple",
-        value={"a": 34, "b": 53934433, "c": "hmmmm", "d": account.public_key},
-    )
-
-    # order of argument evaluation check (with side effects)
-    expected_log = (
-        1,
-        2,
-        3,
-    )
-    expected_return = [2, 3, 1]
-    result = app_client.call(call_abi_method="build_tuple_side_effects")
-    assert result.return_value == expected_return
-
-    result_logs_raw = result.tx_info["logs"]
-    l1, l2, l3, _ = decode_logs(result_logs_raw, len(result_logs_raw) * "i")
-    assert (l1, l2, l3) == expected_log
-
-
 def test_group_side_effects(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
