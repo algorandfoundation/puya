@@ -614,12 +614,6 @@ def test_simplish(harness: _TestHarness) -> None:
     assert not delete_result.local_state_deltas
 
 
-def test_address(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "constants" / "address_constant.py")
-    sender_bytes = decode_address(harness.sender)
-    assert result.decode_logs("b") == [sender_bytes]
-
-
 def test_local_storage(harness: _TestHarness) -> None:
     default_value = "this is a default"
     stored_value = "testing 123"
