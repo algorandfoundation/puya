@@ -1,4 +1,5 @@
 import algokit_utils as au
+import pytest
 
 from tests import TEST_CASES_DIR
 from tests.utils.deployer import Deployer
@@ -74,3 +75,22 @@ def test_abi_tuple(deployer_o: Deployer) -> None:
         TEST_CASES_DIR / "arc4_types" / "tuples.py",
         num_op_ups=1 if deployer_o.optimization_level == 0 else 0,
     )
+
+
+def test_uint_overflow(deployer: Deployer) -> None:
+    result = deployer.create(
+        (TEST_CASES_DIR / "arc4_types", "UIntOverflow"),
+    )
+    client = result.client
+
+    with pytest.raises(au.LogicError, match="overflow\t\t<-- Error"):
+        client.send.call(au.AppClientMethodCallParams(method="test_uint8"))
+
+    with pytest.raises(au.LogicError, match="overflow\t\t<-- Error"):
+        client.send.call(au.AppClientMethodCallParams(method="test_uint16"))
+
+    with pytest.raises(au.LogicError, match="overflow\t\t<-- Error"):
+        client.send.call(au.AppClientMethodCallParams(method="test_uint32"))
+
+    with pytest.raises(au.LogicError, match="overflow\t\t<-- Error"):
+        client.send.call(au.AppClientMethodCallParams(method="test_as_uint64"))
