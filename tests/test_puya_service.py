@@ -21,7 +21,7 @@ from puya.awst.serialize import awst_from_json, get_converter
 from puya.main import PuyaOptionsWithCompilationSet
 from puya.service import AnalyseParams, AnalyseResult, CompileParams, CompileResult, PuyaProtocol
 from tests import EXAMPLES_DIR, VCS_ROOT
-from tests.utils import get_awst_cache, log_to_str
+from tests.utils.compile import get_awst_cache, log_to_str
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
