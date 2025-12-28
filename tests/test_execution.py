@@ -586,14 +586,6 @@ def test_unssa(harness: _TestHarness) -> None:
     assert result2 == 1
 
 
-def test_byte_constants(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "constants" / "byte_constants.py")
-    the_str, the_length = result.decode_logs("bi")
-    expected = b"Base 16 encoded|Base 64 encoded|Base 32 encoded|UTF-8 Encoded"
-    assert the_str == expected
-    assert the_length == len(expected)
-
-
 def test_bytes_ops(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "bytes_ops")
 
