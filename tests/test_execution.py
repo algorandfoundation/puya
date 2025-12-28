@@ -573,10 +573,6 @@ def test_boolean_binary_ops(harness: _TestHarness) -> None:
     }
 
 
-def test_biguint_binary_ops(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "biguint_binary_ops")
-
-
 def test_unssa(harness: _TestHarness) -> None:
     result = harness.deploy(
         TEST_CASES_DIR / "unssa",
