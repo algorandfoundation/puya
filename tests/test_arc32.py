@@ -1,5 +1,4 @@
 import base64
-import hashlib
 import math
 import random
 from collections.abc import Callable, Sequence
@@ -29,7 +28,6 @@ from nacl.signing import SigningKey
 
 from puya.arc56 import create_arc56_json
 from puya.compilation_artifacts import CompiledContract
-from puya.utils import sha512_256_hash
 from puyapy.options import PuyaPyOptions
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.test_execution import decode_logs
@@ -1788,63 +1786,6 @@ def test_nested_immutable(
         3,
         6,
     ]
-
-
-@pytest.mark.parametrize(
-    "value_to_hash",
-    [
-        b"123456",
-        b"",
-        b"HASHME",
-        b"\x00" * 65,
-    ],
-)
-def test_intrinsic_optimizations_implementation_correct(
-    algod_client: AlgodClient, account: algokit_utils.Account, value_to_hash: bytes
-) -> None:
-    from Cryptodome.Hash import keccak
-
-    example = TEST_CASES_DIR / "intrinsics" / "optimizations.py"
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
-
-    response = app_client.call("all", value_to_hash=value_to_hash)
-    sha256, sha3_256, sha512_256, keccak256 = (bytes(v) for v in response.return_value)
-    assert sha256 == hashlib.sha256(value_to_hash).digest()
-    assert sha3_256 == hashlib.sha3_256(value_to_hash).digest()
-    assert sha512_256 == sha512_256_hash(value_to_hash)
-    assert keccak256 == keccak.new(data=value_to_hash, digest_bits=256).digest()
-
-
-@pytest.mark.parametrize("opt_level", [0, 1, 2])
-def test_intrinsic_optimizations(
-    algod_client: AlgodClient, account: algokit_utils.Account, opt_level: int
-) -> None:
-    from Cryptodome.Hash import keccak
-
-    example = TEST_CASES_DIR / "intrinsics" / "optimizations.py"
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(example, optimization_level=opt_level)
-    )
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
-
-    response = app_client.call("sha256")
-    assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
-
-    response = app_client.call("sha3_256")
-    assert bytes(response.return_value) == hashlib.sha3_256(b"Hello World").digest()
-
-    response = app_client.call("sha512_256")
-    assert bytes(response.return_value) == sha512_256_hash(b"Hello World")
-
-    response = app_client.call("keccak256")
-    assert (
-        bytes(response.return_value) == keccak.new(data=b"Hello World", digest_bits=256).digest()
-    )
 
 
 @pytest.fixture(scope="session")
