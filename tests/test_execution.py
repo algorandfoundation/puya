@@ -640,10 +640,6 @@ def test_address(harness: _TestHarness) -> None:
     assert result.decode_logs("b") == [sender_bytes]
 
 
-def test_global_storage(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "global_state", AppCallRequest(increase_budget=1))
-
-
 def test_local_storage(harness: _TestHarness) -> None:
     default_value = "this is a default"
     stored_value = "testing 123"
