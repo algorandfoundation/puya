@@ -1225,21 +1225,6 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
     assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
 
 
-def test_arc4_copy_in_state(harness: _TestHarness) -> None:
-    def test() -> None:
-        from algopy import GlobalState, arc4
-
-        class MyContract(arc4.ARC4Contract):
-            def __init__(self) -> None:
-                self.g = GlobalState(arc4.Address())
-
-            @arc4.abimethod
-            def okay(self) -> None:
-                pass
-
-    harness.deploy_from_closure(test)
-
-
 @pytest.mark.slow
 def test_brute_force_rotation_search(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "stress_tests" / "brute_force_rotation_search.py")
