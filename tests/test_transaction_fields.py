@@ -14,7 +14,7 @@ from puyapy.awst_build.context import function_pytype, type_to_pytype
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
 from tests import EXAMPLES_DIR, VCS_ROOT
-from tests.utils import get_awst_cache
+from tests.utils.compile import get_awst_cache
 
 # the need to use approval / clear_state pages is abstracted away by
 # allowing a tuple of pages in the stubs layer
