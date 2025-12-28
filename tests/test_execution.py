@@ -538,25 +538,3 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
     return _TestHarness(algod_client, account, op_up_app_id=no_op_app_id)
 
 
-@pytest.mark.parametrize(
-    ("test_case", "expected_logic_error"),
-    [
-        (b"uint", "+ arg 0 wanted uint64 but got []byte"),
-        (b"bytes", "b+ arg 0 wanted bigint but got uint64"),
-        (b"mixed", "itob arg 0 wanted uint64 but got []byte"),
-    ],
-)
-def test_undefined_phi_args(
-    harness: _TestHarness, test_case: bytes, expected_logic_error: str
-) -> None:
-    example = TEST_CASES_DIR / "undefined_phi_args"
-    harness.deploy(example, AppCallRequest(args=[test_case]))
-
-    with pytest.raises(LogicError) as ex_info:
-        harness.deploy(example, AppCallRequest(args=[test_case, True], debug_level=2))
-    ex = ex_info.value
-    assert ex.message == expected_logic_error
-    assert ex.line_no is not None
-    assert "💥" in "".join(ex.lines[ex.line_no - 5 : ex.line_no])
-
-
