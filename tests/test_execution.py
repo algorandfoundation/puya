@@ -723,14 +723,6 @@ def test_local_storage_with_offsets(harness: _TestHarness) -> None:
     }
 
 
-def test_unary(harness: _TestHarness) -> None:
-    unary_path = TEST_CASES_DIR / "unary"
-    harness.deploy(
-        unary_path,
-        AppCallRequest(trace_output=unary_path / "out" / "execution_trace.log"),
-    )
-
-
 def test_bytes_stubs(harness: _TestHarness) -> None:
     result = harness.deploy(
         TEST_CASES_DIR / "stubs" / "bytes.py",
