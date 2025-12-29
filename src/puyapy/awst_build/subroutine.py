@@ -145,7 +145,19 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
             return func_builder
         match expr:
             case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True)):
-                return self.builder_for_self(expr_loc)
+                self_name = expr.name
+                self_type = self.resolve_local_type(self_name, expr_loc)
+
+                # FIXME: Assuming this means that self is a contract!
+                if self_type is None:
+                    return self.builder_for_self(expr_loc)
+
+                var_expr = VarExpression(
+                    name=self_name,
+                    wtype=self_type.checked_wtype(expr_loc),
+                    source_location=expr_loc,
+                )
+                return builder_for_instance(self_type, var_expr)
             case mypy.nodes.RefExpr(
                 node=mypy.nodes.Decorator() as dec
             ) if constants.SUBROUTINE_HINT in get_decorators_by_fullname(self.context, dec):
@@ -599,16 +611,20 @@ class FunctionASTConverter(
                 )
                 mypy_args = mypy_args[1:]
                 mypy_arg_types = mypy_arg_types[1:]
-        elif mypy_args:
-            self._precondition(
-                not mypy_args[0].variable.is_self,
-                "if function is not a method, first variable should be self-like",
-                func_loc,
-            )
+        # FIXME: Was this assertion correct?
+        # elif mypy_args:
+        #    self._precondition(
+        #        not mypy_args[0].variable.is_self,
+        #        "if function is not a method, first variable should not be self-like",
+        #        func_loc,
+        #    )
         self._symtable = dict[str, pytypes.PyType]()
         args = list[SubroutineArgument]()
         for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
-            arg_loc = context.node_location(arg)
+            if arg.variable.is_self:
+                arg_loc = source_location
+            else:
+                arg_loc = context.node_location(arg)
             if arg.kind.is_star():
                 raise CodeError("variadic functions are not supported", arg_loc)
             if arg.initializer is not None:

@@ -7,8 +7,9 @@ import mypy.types
 
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals
+from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals, Subroutine
 from puya.errors import CodeError, InternalError
+from puya.parse import SourceLocation
 from puya.program_refs import LogicSigReference
 from puya.utils import coalesce
 from puyapy import code_fixes
@@ -697,12 +698,47 @@ def _process_dataclass_like_fields(
                 pass
             case mypy.nodes.PassStmt():
                 pass
+            case mypy.nodes.FuncDef():
+                # A later pass once we have our fields in place will process struct methods
+                pass
             case _:
                 logger.error(
                     f"unsupported syntax for {base_type} member declaration", location=stmt_loc
                 )
                 has_error = True
     return fields if not has_error else None
+
+
+def _process_dataclass_like_methods(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> tuple[StatementResult, dict[str, pytypes.FuncType]]:
+    method_routines: StatementResult = []
+    methods: dict[str, pytypes.FuncType] = {}
+    for stmt in cdef.defs.body:
+        stmt_loc = context.node_location(stmt)
+        match stmt:
+            case mypy.nodes.FuncDef():
+                # FIXME: Decide what to do with __init__ and its friends
+                if stmt.name.startswith("__"):
+                    continue
+
+                current_func_def = stmt
+
+                def deferred_conversion(
+                    ctx: ASTConversionModuleContext,
+                    *,
+                    func_def: mypy.nodes.FuncDef = current_func_def,
+                    func_loc: SourceLocation = stmt_loc,
+                ) -> Subroutine:
+                    return FunctionASTConverter.convert(ctx, func_def, func_loc, inline=None)
+
+                methods[current_func_def.name] = context.function_pytype(
+                    current_func_def, drop_self=False
+                )
+                method_routines.append(deferred_conversion)
+            case _:
+                pass
+    return method_routines, methods
 
 
 def _process_struct(
@@ -723,7 +759,9 @@ def _process_struct(
         source_location=cls_loc,
     )
     context.register_pytype(struct_typ)
-    return []
+    method_routines, methods = _process_dataclass_like_methods(context, cdef)
+    struct_typ.methods.update(methods)
+    return method_routines
 
 
 def _process_named_tuple(

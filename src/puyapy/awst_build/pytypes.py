@@ -481,6 +481,7 @@ class StructType(RuntimeType):
     source_location: SourceLocation | None = attrs.field(eq=False)
     generic: None = None
     desc: str | None = None
+    methods: dict[str, FuncType] = attrs.field(eq=False, factory=dict)
 
     @cached_property
     def names(self) -> tuple[str, ...]:

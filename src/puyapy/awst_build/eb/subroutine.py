@@ -124,6 +124,37 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
         return builder_for_instance(result_pytyp, call_expr)
 
 
+class BoundSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBuilder):
+    def __init__(
+        self,
+        target: SubroutineTarget,
+        func_type: pytypes.FuncType,
+        location: SourceLocation,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+    ):
+        super().__init__(target, func_type, location)
+        assert len(args) == len(arg_kinds) == len(arg_names)
+        self.bound_args = args
+        self.bound_arg_kinds = arg_kinds
+        self.bound_arg_names = arg_names
+
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        return super().call(
+            args=(*self.bound_args, *args),
+            arg_kinds=self.bound_arg_kinds + arg_kinds,
+            arg_names=self.bound_arg_names + arg_names,
+            location=location,
+        )
+
+
 class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBuilder):
     def __init__(
         self,
