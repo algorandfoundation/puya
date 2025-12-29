@@ -1,0 +1,59 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // structure_methods/contract.py:11
+    // class TestContract(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0xd0b4016d // method "test_method(uint64)uint64"
+    txna ApplicationArgs 0
+    match main_test_method_route@3
+    err
+
+main_test_method_route@3:
+    // structure_methods/contract.py:12
+    // @public
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b test_method
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.structure_methods.contract.TestContract.test_method[routing]() -> void:
+test_method:
+    // structure_methods/contract.py:12
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // structure_methods/contract.py:8
+    // return self.value.as_uint64() * times
+    pushint 18
+    // structure_methods/contract.py:15
+    // return value + self.internal_method()
+    +
+    // structure_methods/contract.py:12
+    // @public
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1
+    return

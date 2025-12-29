@@ -1,0 +1,40 @@
+subroutine return_value_times(self: test_cases.structure_methods.contract.TestStruct, times: uint64): uint64
+{
+  return arc4_decode(self.value, uint64) * times
+}
+
+contract TestContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.structure_methods.contract.TestContract.test_method(value: uint64): uint64
+  {
+    return value + this::internal_method()
+  }
+  
+  subroutine test_cases.structure_methods.contract.TestContract.internal_method(): uint64
+  {
+    return test_cases.structure_methods.contract.TestStruct.return_value_times(new test_cases.structure_methods.contract.TestStruct(value=9_arc4u64), 2u)
+  }
+  
+  baremethod test_cases.structure_methods.contract.TestContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
