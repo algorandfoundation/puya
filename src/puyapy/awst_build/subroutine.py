@@ -606,6 +606,11 @@ class FunctionASTConverter(
                     mypy_arg_types = mypy_arg_types[1:]
         elif mypy_args:
             self._precondition(
+                contract_method_info is None,
+                "if a function is not a method, it shouldn't be bound to a contract",
+                func_loc,
+            )
+            self._precondition(
                 not mypy_args[0].variable.is_self,
                 "if function is not a method, first variable should not be self-like",
                 func_loc,
