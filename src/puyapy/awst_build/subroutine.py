@@ -559,6 +559,7 @@ class FunctionASTConverter(
         contract_method_info: ContractMethodInfo | None,
         source_location: SourceLocation,
         *,
+        is_method: bool,
         inline: bool | None,
         pure: bool | None,
     ):
@@ -590,7 +591,7 @@ class FunctionASTConverter(
         # check & convert the arguments
         mypy_args = func_def.arguments
         mypy_arg_types = type_info.arg_types
-        if contract_method_info is not None:
+        if is_method:
             # function is a method
             if not mypy_args:
                 logger.error("method declaration is missing 'self' argument", location=func_loc)
@@ -600,15 +601,15 @@ class FunctionASTConverter(
                     "if function is a method, first variable should be self-like",
                     func_loc,
                 )
-                mypy_args = mypy_args[1:]
-                mypy_arg_types = mypy_arg_types[1:]
-        # FIXME: Was this assertion correct?
-        # elif mypy_args:
-        #    self._precondition(
-        #        not mypy_args[0].variable.is_self,
-        #        "if function is not a method, first variable should not be self-like",
-        #        func_loc,
-        #    )
+                if contract_method_info is not None:
+                    mypy_args = mypy_args[1:]
+                    mypy_arg_types = mypy_arg_types[1:]
+        elif mypy_args:
+            self._precondition(
+                not mypy_args[0].variable.is_self,
+                "if function is not a method, first variable should not be self-like",
+                func_loc,
+            )
         self._self_var_name: str | None = None
         self._symtable = dict[str, pytypes.PyType]()
         args = list[SubroutineArgument]()
@@ -668,6 +669,7 @@ class FunctionASTConverter(
         func_def: mypy.nodes.FuncDef,
         source_location: SourceLocation,
         *,
+        is_method: bool,
         inline: bool | None,
         pure: bool = False,
     ) -> Subroutine: ...
@@ -681,6 +683,7 @@ class FunctionASTConverter(
         source_location: SourceLocation,
         contract_method_info: ContractMethodInfo,
         *,
+        is_method: bool,
         inline: bool | None,
     ) -> ContractMethod: ...
 
@@ -692,6 +695,7 @@ class FunctionASTConverter(
         source_location: SourceLocation,
         contract_method_info: ContractMethodInfo | None = None,
         *,
+        is_method: bool,
         inline: bool | None,
         pure: bool | None = None,
     ) -> Subroutine | ContractMethod:
@@ -701,6 +705,7 @@ class FunctionASTConverter(
             contract_method_info=contract_method_info,
             inline=inline,
             pure=pure,
+            is_method=is_method,
             source_location=source_location,
         ).result
 

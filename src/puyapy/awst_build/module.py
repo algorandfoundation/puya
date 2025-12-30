@@ -106,7 +106,7 @@ class ModuleASTConverter(
 
             def deferred(ctx: ASTConversionModuleContext) -> RootNode:
                 program = FunctionASTConverter.convert(
-                    ctx, func_def, source_location, inline=False
+                    ctx, func_def, source_location, is_method=False, inline=False
                 )
                 ctx.register_pytype(pytypes.LogicSigType, alias=func_def.fullname)
                 return LogicSignature(
@@ -141,7 +141,12 @@ class ModuleASTConverter(
 
         return [
             lambda ctx: FunctionASTConverter.convert(
-                ctx, func_def, source_location, inline=inline, pure=internal_pure_dec is not None
+                ctx,
+                func_def,
+                source_location,
+                is_method=False,
+                inline=inline,
+                pure=internal_pure_dec is not None,
             )
         ]
 
@@ -730,7 +735,9 @@ def _process_dataclass_like_methods(
                     func_def: mypy.nodes.FuncDef = current_func_def,
                     func_loc: SourceLocation = stmt_loc,
                 ) -> Subroutine:
-                    return FunctionASTConverter.convert(ctx, func_def, func_loc, inline=None)
+                    return FunctionASTConverter.convert(
+                        ctx, func_def, func_loc, is_method=True, inline=None
+                    )
 
                 methods[current_func_def.name] = context.function_pytype(current_func_def)
                 method_routines.append(deferred_conversion)

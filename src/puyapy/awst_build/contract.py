@@ -331,6 +331,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         ctx,
                         func_def=func_def,
                         source_location=source_location,
+                        is_method=True,
                         inline=inline,
                         contract_method_info=ContractMethodInfo(
                             fragment=self.fragment,
