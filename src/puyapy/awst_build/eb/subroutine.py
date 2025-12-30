@@ -17,7 +17,7 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puyapy.awst_build.utils import get_arg_mapping
 from puyapy.models import ContractFragmentMethod
 
@@ -107,7 +107,7 @@ class SubroutineInvokerExpressionBuilder(FunctionBuilder):
                 return dummy_value(result_pytyp, location)
 
             arg = arg_map[arg_map_name]
-            if pytypes.ContractBaseType < arg_typ:
+            if pytypes.ContractBaseType <= arg_typ:
                 if not (arg_typ <= arg.pytype):
                     logger.error("unexpected argument type", location=arg.source_location)
             else:

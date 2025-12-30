@@ -26,7 +26,7 @@ from puyapy.awst_build.eb.storage import (
 )
 from puyapy.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,
-    SubroutineInvokerExpressionBuilder,
+    BoundSubroutineInvokerExpressionBuilder,
 )
 from puyapy.models import ContractFragmentBase
 
@@ -56,18 +56,11 @@ class ContractTypeExpressionBuilder(TypeBuilder[pytypes.ContractType]):
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        sym_type = self.fragment.resolve_symbol(name)
-        if sym_type is None:
+        func_type = self.fragment.resolve_symbol(name)
+        if func_type is None:
             return super().member_access(name, location)
-        if not isinstance(sym_type, pytypes.FuncType):
+        if not isinstance(func_type, pytypes.FuncType):
             raise CodeError("static references are only supported for methods", location)
-        func_type = attrs.evolve(
-            sym_type,
-            args=[
-                pytypes.FuncArg(type=self.produces(), name=None, kind=models.ArgKind.ARG_POS),
-                *sym_type.args,
-            ],
-        )
         method = self.fragment.resolve_method(name)
         if method is None:
             raise CodeError("unable to resolve method member", location)
@@ -98,10 +91,13 @@ class ContractSelfExpressionBuilder(NodeBuilder):  # TODO: this _is_ an instance
         if sym_type is None:
             raise CodeError(f"unrecognised member of {self.pytype}: {name}", location)
         if isinstance(sym_type, pytypes.FuncType):
-            return SubroutineInvokerExpressionBuilder(
+            return BoundSubroutineInvokerExpressionBuilder(
                 target=InstanceMethodTarget(member_name=name),
                 func_type=sym_type,
                 location=location,
+                args=[self],
+                arg_names=[None],
+                arg_kinds=[models.ArgKind.ARG_POS],
             )
         else:
             storage = self._fragment.resolve_storage(name)

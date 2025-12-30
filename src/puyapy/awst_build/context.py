@@ -149,12 +149,9 @@ class ASTConversionModuleContext(ASTConversionContext):
                         edits=code_error.edits,
                     )
 
-    # FIXME: Instead of dropping self we should keep it around and add it virtually when needed
-    def function_pytype(
-        self, func_def: mypy.nodes.FuncDef, *, drop_self: bool = True
-    ) -> pytypes.FuncType:
+    def function_pytype(self, func_def: mypy.nodes.FuncDef) -> pytypes.FuncType:
         loc = self.node_location(func_def, module_src=func_def.info)
-        return function_pytype(self._pytypes, func_def, loc, drop_self=drop_self)
+        return function_pytype(self._pytypes, func_def, loc)
 
     def type_to_pytype(
         self,
@@ -175,9 +172,6 @@ def function_pytype(
     registry: Mapping[str, pytypes.PyType],
     func_def: mypy.nodes.FuncDef,
     loc: SourceLocation,
-    *,
-    # FIXME: Instead of dropping self we should keep it around and add it virtually when needed
-    drop_self: bool = True,
 ) -> pytypes.FuncType:
     maybe_overloaded = func_def.type
     if not isinstance(maybe_overloaded, mypy.types.FunctionLike):
@@ -196,9 +190,6 @@ def function_pytype(
     ):
         arg_pytype = type_to_pytype(registry, at, source_location=loc, in_func_sig=True)
         func_args.append(pytypes.FuncArg(type=arg_pytype, kind=kind, name=name))
-    # is the function a method but not a static method? if so, drop the first (implicit) argument
-    if drop_self and func_def.info and not func_def.is_static:
-        _self_arg, *func_args = func_args
     return pytypes.FuncType(
         name=func_def.fullname,
         args=func_args,

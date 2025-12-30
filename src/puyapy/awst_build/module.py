@@ -732,9 +732,7 @@ def _process_dataclass_like_methods(
                 ) -> Subroutine:
                     return FunctionASTConverter.convert(ctx, func_def, func_loc, inline=None)
 
-                methods[current_func_def.name] = context.function_pytype(
-                    current_func_def, drop_self=False
-                )
+                methods[current_func_def.name] = context.function_pytype(current_func_def)
                 method_routines.append(deferred_conversion)
             case _:
                 pass

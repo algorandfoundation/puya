@@ -181,7 +181,11 @@ def _get_func_types(
             )
         return arg.name
 
-    result = {require_arg_name(arg): arg.type for arg in func_type.args}
+    if not func_type.args[0].type.is_type_or_subtype(pytypes.ARC4ClientBaseType, pytypes.ARC4ContractBaseType):
+        raise InternalError(f"expected a self parameter for {func_type.name}")
+    args = func_type.args[1:]
+
+    result = {require_arg_name(arg): arg.type for arg in args}
     if "output" in result:
         # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
         raise CodeError(
