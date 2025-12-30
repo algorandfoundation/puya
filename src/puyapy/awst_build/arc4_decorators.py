@@ -181,7 +181,9 @@ def _get_func_types(
             )
         return arg.name
 
-    if not func_type.args[0].type.is_type_or_subtype(pytypes.ARC4ClientBaseType, pytypes.ARC4ContractBaseType):
+    if not func_type.args[0].type.is_type_or_subtype(
+        pytypes.ARC4ClientBaseType, pytypes.ARC4ContractBaseType
+    ):
         raise InternalError(f"expected a self parameter for {func_type.name}")
     args = func_type.args[1:]
 

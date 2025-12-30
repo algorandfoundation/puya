@@ -169,9 +169,7 @@ class ASTConversionModuleContext(ASTConversionContext):
 
 
 def function_pytype(
-    registry: Mapping[str, pytypes.PyType],
-    func_def: mypy.nodes.FuncDef,
-    loc: SourceLocation,
+    registry: Mapping[str, pytypes.PyType], func_def: mypy.nodes.FuncDef, loc: SourceLocation
 ) -> pytypes.FuncType:
     maybe_overloaded = func_def.type
     if not isinstance(maybe_overloaded, mypy.types.FunctionLike):
