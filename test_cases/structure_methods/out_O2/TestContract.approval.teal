@@ -5,12 +5,12 @@
 main:
     txn NumAppArgs
     bz main___algopy_default_create@5
-    pushbytes 0xd0b4016d // method "test_method(uint64)uint64"
+    pushbytes 0x2a337771 // method "test(uint64)void"
     txna ApplicationArgs 0
-    match main_test_method_route@3
+    match main_test_route@3
     err
 
-main_test_method_route@3:
+main_test_route@3:
     txn OnCompletion
     !
     txn ApplicationID
@@ -24,12 +24,8 @@ main_test_method_route@3:
     assert // invalid number of bytes for arc4.uint64
     btoi
     pushint 18
-    +
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
+    ==
+    assert
     pushint 1
     return
 

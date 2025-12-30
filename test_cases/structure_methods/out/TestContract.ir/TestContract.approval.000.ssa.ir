@@ -3,7 +3,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = test_cases.structure_methods.contract.TestContract.__puya_arc4_router__()
         return tmp%0#0
 
-subroutine test_cases.structure_methods.contract.TestStruct.return_value_times(self: Encoded(uint64), times: uint64) -> <uint64, Encoded(uint64)>:
+subroutine test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(self: Encoded(uint64), times: uint64) -> <uint64, Encoded(uint64)>:
     block@0: // L7
         let self%is_original#0: bool = 1u
         let self%out#0: Encoded(uint64) = self#0
@@ -12,24 +12,33 @@ subroutine test_cases.structure_methods.contract.TestStruct.return_value_times(s
         let tmp%1#0: uint64 = (* tmp%0#0 times#0)
         return tmp%1#0 self#0
 
+subroutine test_cases.structure_methods.contract.TestStruct.return_value_times(self: Encoded(uint64), times: uint64) -> <uint64, Encoded(uint64)>:
+    block@0: // L14
+        let self%is_original#0: bool = 1u
+        let self%out#0: Encoded(uint64) = self#0
+        let tuple_item%0#0: Encoded(uint64) = extract_value(self#0, 0)
+        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%0#0: uint64 = (* values%0#0 times#0)
+        return tmp%0#0 self#0
+
 subroutine test_cases.structure_methods.contract.TestContract.__puya_arc4_router__() -> bool:
-    block@0: // L11
+    block@0: // L18
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
         goto tmp%1#0 ? block@1 : block@4
-    block@1: // abi_routing_L11
+    block@1: // abi_routing_L18
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_method(uint64)uint64" => block@2, * => block@3}
-    block@2: // test_method_route_L12
+        switch tmp%2#0 {method "test(uint64)void" => block@2, * => block@3}
+    block@2: // test_route_L19
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
         (assert tmp%7#0)
-        test_cases.structure_methods.contract.TestContract.test_method[routing]()
+        test_cases.structure_methods.contract.TestContract.test[routing]()
         goto block@3
-    block@3: // switch_case_next_L11
+    block@3: // switch_case_next_L18
         goto block@5
     block@4: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn OnCompletion)
@@ -40,33 +49,44 @@ subroutine test_cases.structure_methods.contract.TestContract.__puya_arc4_router
         (assert tmp%12#0)
         test_cases.structure_methods.contract.TestContract.__algopy_default_create()
         exit 1u
-    block@5: // after_if_else_L11
+    block@5: // after_if_else_L18
         exit 0u
 
-subroutine test_cases.structure_methods.contract.TestContract.test_method[routing]() -> void:
-    block@0: // L12
+subroutine test_cases.structure_methods.contract.TestContract.test[routing]() -> void:
+    block@0: // L19
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
-        let tmp%2#0: uint64 = test_cases.structure_methods.contract.TestContract.test_method(tmp%1#0)
-        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
-        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
-        (log tmp%4#0)
+        test_cases.structure_methods.contract.TestContract.test(tmp%1#0)
         exit 1u
 
-subroutine test_cases.structure_methods.contract.TestContract.test_method(value: uint64) -> uint64:
-    block@0: // L12
-        let tmp%0#0: uint64 = test_cases.structure_methods.contract.TestContract.internal_method()
-        let tmp%1#0: uint64 = (+ value#0 tmp%0#0)
-        return tmp%1#0
+subroutine test_cases.structure_methods.contract.TestContract.test(expected: uint64) -> void:
+    block@0: // L19
+        let tmp%0#0: uint64 = test_cases.structure_methods.contract.TestContract.arc4_struct_test()
+        let tmp%1#0: bool = (== expected#0 tmp%0#0)
+        (assert tmp%1#0)
+        let tmp%2#0: uint64 = test_cases.structure_methods.contract.TestContract.struct_test()
+        let tmp%3#0: bool = (== expected#0 tmp%2#0)
+        (assert tmp%3#0)
+        return 
 
-subroutine test_cases.structure_methods.contract.TestContract.internal_method() -> uint64:
-    block@0: // L17
+subroutine test_cases.structure_methods.contract.TestContract.arc4_struct_test() -> uint64:
+    block@0: // L24
         let tmp%0#0: Encoded(uint64) = bytes_encode<(uint64)>(0x0000000000000009)
-        let (return_value_times%0#0: uint64, return_value_times%1#0: Encoded(uint64)) = test_cases.structure_methods.contract.TestStruct.return_value_times(tmp%0#0, 2u)
+        let arc4_struct#0: Encoded(uint64) = tmp%0#0
+        let (return_value_times%0#0: uint64, return_value_times%1#0: Encoded(uint64)) = test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(arc4_struct#0, 2u)
+        let arc4_struct#1: Encoded(uint64) = return_value_times%1#0
+        return return_value_times%0#0
+
+subroutine test_cases.structure_methods.contract.TestContract.struct_test() -> uint64:
+    block@0: // L28
+        let tmp%0#0: Encoded(uint64) = bytes_encode<(uint64)>(9u)
+        let struct#0: Encoded(uint64) = tmp%0#0
+        let (return_value_times%0#0: uint64, return_value_times%1#0: Encoded(uint64)) = test_cases.structure_methods.contract.TestStruct.return_value_times(struct#0, 2u)
+        let struct#1: Encoded(uint64) = return_value_times%1#0
         return return_value_times%0#0
 
 subroutine test_cases.structure_methods.contract.TestContract.__algopy_default_create() -> void:

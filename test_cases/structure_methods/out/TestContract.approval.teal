@@ -3,24 +3,24 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    // structure_methods/contract.py:11
+    // structure_methods/contract.py:18
     // class TestContract(ARC4Contract):
     txn NumAppArgs
     bz main___algopy_default_create@5
-    pushbytes 0xd0b4016d // method "test_method(uint64)uint64"
+    pushbytes 0x2a337771 // method "test(uint64)void"
     txna ApplicationArgs 0
-    match main_test_method_route@3
+    match main_test_route@3
     err
 
-main_test_method_route@3:
-    // structure_methods/contract.py:12
+main_test_route@3:
+    // structure_methods/contract.py:19
     // @public
     txn OnCompletion
     !
     txn ApplicationID
     &&
     assert
-    b test_method
+    b test
 
 main___algopy_default_create@5:
     txn OnCompletion
@@ -31,9 +31,9 @@ main___algopy_default_create@5:
     return
 
 
-// test_cases.structure_methods.contract.TestContract.test_method[routing]() -> void:
-test_method:
-    // structure_methods/contract.py:12
+// test_cases.structure_methods.contract.TestContract.test[routing]() -> void:
+test:
+    // structure_methods/contract.py:19
     // @public
     txna ApplicationArgs 1
     dup
@@ -45,15 +45,11 @@ test_method:
     // structure_methods/contract.py:8
     // return self.value.as_uint64() * times
     pushint 18
-    // structure_methods/contract.py:15
-    // return value + self.internal_method()
-    +
-    // structure_methods/contract.py:12
+    // structure_methods/contract.py:21
+    // assert expected == self.arc4_struct_test()
+    ==
+    assert
+    // structure_methods/contract.py:19
     // @public
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     pushint 1
     return

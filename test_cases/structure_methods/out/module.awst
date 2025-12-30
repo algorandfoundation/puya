@@ -1,6 +1,11 @@
-subroutine return_value_times(self: test_cases.structure_methods.contract.TestStruct, times: uint64): uint64
+subroutine return_value_times(self: test_cases.structure_methods.contract.ARC4TestStruct, times: uint64): uint64
 {
   return arc4_decode(self.value, uint64) * times
+}
+
+subroutine return_value_times(self: test_cases.structure_methods.contract.TestStruct, times: uint64): uint64
+{
+  return self.value * times
 }
 
 contract TestContract
@@ -20,14 +25,22 @@ contract TestContract
     return true
   }
   
-  abimethod test_cases.structure_methods.contract.TestContract.test_method(value: uint64): uint64
+  abimethod test_cases.structure_methods.contract.TestContract.test(expected: uint64): void
   {
-    return value + this::internal_method()
+    assert(expected == this::arc4_struct_test())
+    assert(expected == this::struct_test())
   }
   
-  subroutine test_cases.structure_methods.contract.TestContract.internal_method(): uint64
+  subroutine test_cases.structure_methods.contract.TestContract.arc4_struct_test(): uint64
   {
-    return test_cases.structure_methods.contract.TestStruct.return_value_times(new test_cases.structure_methods.contract.TestStruct(value=9_arc4u64), 2u)
+    arc4_struct: test_cases.structure_methods.contract.ARC4TestStruct = new test_cases.structure_methods.contract.ARC4TestStruct(value=9_arc4u64)
+    return test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(arc4_struct, 2u)
+  }
+  
+  subroutine test_cases.structure_methods.contract.TestContract.struct_test(): uint64
+  {
+    struct: test_cases.structure_methods.contract.TestStruct = new test_cases.structure_methods.contract.TestStruct(value=9u)
+    return test_cases.structure_methods.contract.TestStruct.return_value_times(struct, 2u)
   }
   
   baremethod test_cases.structure_methods.contract.TestContract.__algopy_default_create(): void
