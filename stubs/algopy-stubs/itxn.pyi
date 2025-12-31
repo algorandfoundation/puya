@@ -1,4 +1,5 @@
 import typing
+from collections.abc import Callable
 
 from algopy import (
     Account,
@@ -636,3 +637,61 @@ def submit_staged() -> None:
     :note: `op.GITxn.last_log(n)` (and other methods on the GITxn object) can be used to read fields from the most recently submitted
     transaction group where `n` is a compile time constant representing the index of the transaction in the group.
     """
+
+class ABIApplicationCallInnerTransaction[T](ApplicationCallInnerTransaction):
+    @property
+    def result(self) -> T: ...
+
+class ABIApplicationCall[T](_InnerTransaction[ABIApplicationCallInnerTransaction[T]]): ...
+
+_TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
+
+class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
+    def __call__(
+        self,
+        method: str,
+        /,
+        *args: object,
+        app_id: Application | UInt64 | int = ...,
+        on_completion: OnCompleteAction = ...,
+        fee: UInt64 | int = 0,
+        sender: Account | str = ...,
+        note: Bytes | bytes | str = ...,
+        rekey_to: Account | str = ...,
+        reject_version: UInt64 | int = ...,
+    ) -> ABIApplicationCall[_TABIResult_co]: ...
+
+class _ABICallProtocolType(typing.Protocol):
+    @typing.overload
+    def __call__(
+        self,
+        method: str,
+        /,
+        *args: object,
+        app_id: Application | UInt64 | int = ...,
+        on_completion: OnCompleteAction = ...,
+        fee: UInt64 | int = 0,
+        sender: Account | str = ...,
+        note: Bytes | bytes | str = ...,
+        rekey_to: Account | str = ...,
+        reject_version: UInt64 | int = ...,
+    ) -> ApplicationCall: ...
+    @typing.overload
+    def __call__(  # type: ignore[explicit-any]
+        self,
+        method: Callable[..., _TABIResult_co],
+        /,
+        *args: object,
+        app_id: Application | UInt64 | int = ...,
+        on_completion: OnCompleteAction = ...,
+        fee: UInt64 | int = 0,
+        sender: Account | str = ...,
+        note: Bytes | bytes | str = ...,
+        rekey_to: Account | str = ...,
+        reject_version: UInt64 | int = ...,
+    ) -> ABIApplicationCall[_TABIResult_co]: ...
+    def __getitem__(
+        self, _: type[_TABIResult_co]
+    ) -> _ABICallWithReturnProtocol[_TABIResult_co]: ...
+
+abi_call: _ABICallProtocolType = ...

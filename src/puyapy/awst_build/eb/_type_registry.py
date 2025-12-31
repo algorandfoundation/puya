@@ -46,6 +46,7 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy.arc4.emit": arc4.EmitBuilder,
     "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
     "algopy.itxn.submit_staged": transaction.SubmitStagedInnerTransactionsExpressionBuilder,
+    "algopy.itxn.abi_call": transaction.ABICallGenericTypeBuilder,
     "algopy._compiled.compile_contract": compiled.CompileContractFunctionBuilder,
     "algopy._compiled.compile_logicsig": compiled.CompileLogicSigFunctionBuilder,
     "algopy.arc4.arc4_create": arc4.ARC4CreateFunctionBuilder,
@@ -147,6 +148,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     ),
     pytypes.GenericTemplateVarType: template_variables.TemplateVariableExpressionBuilder,
     pytypes.GenericABICallWithReturnType: arc4.ABICallTypeBuilder,
+    pytypes.GenericITxnABICallWithReturnType: transaction.ABICallTypeBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateTypeBuilder,
     pytypes.GenericGlobalStateType: storage.GlobalStateTypeBuilder,
     pytypes.GenericBoxType: storage.BoxTypeBuilder,
@@ -251,6 +253,10 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericGlobalStateType: storage.GlobalStateExpressionBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateExpressionBuilder,
     pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesExpressionBuilder,
+    pytypes.GenericABIApplicationCall: transaction.ABIApplicationCallExpressionBuilder,
+    pytypes.GenericABIApplicationCallInnerTransaction: (
+        transaction.ABIApplicationCallInnerTransactionExpressionBuilder
+    ),
 }
 
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {
