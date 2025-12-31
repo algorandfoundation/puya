@@ -254,7 +254,6 @@ class WGroupTransaction(_WTypeInstance):
         return visitor.visit_group_transaction_type(self)
 
 
-@typing.final
 @attrs.frozen
 class WInnerTransactionFields(_WTypeInstance):
     transaction_type: TransactionType | None
@@ -273,6 +272,16 @@ class WInnerTransactionFields(_WTypeInstance):
     @typing.override
     def accept[T](self, visitor: WTypeVisitor[T]) -> T:
         return visitor.visit_inner_transaction_fields_type(self)
+
+
+@typing.final
+@attrs.frozen(kw_only=True)
+class WABICallInnerTransactionFields(WInnerTransactionFields):
+    transaction_type: TransactionType = attrs.field(default=TransactionType.appl, init=False)
+    name: str = attrs.field(
+        default=f"inner_transaction_fields_{TransactionType.appl.name}", init=False
+    )
+    result_type: WType = attrs.field(default=void_wtype)
 
 
 @typing.final

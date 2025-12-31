@@ -33,12 +33,17 @@ from puya.ir.builder import (
     sequence,
     storage,
 )
-from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_implicit_return_out
+from puya.ir.builder._utils import (
+    assign,
+    get_implicit_return_is_original,
+    get_implicit_return_out,
+    method_signature_to_abi_signature,
+)
 from puya.ir.builder.encoding_validation import validate_encoding
 from puya.ir.context import IRBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
-from puya.ir.types_ import wtype_to_abi_name, wtype_to_encoded_ir_type, wtype_to_ir_type
+from puya.ir.types_ import wtype_to_encoded_ir_type, wtype_to_ir_type
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ir.ValueProvider | None
@@ -658,7 +663,7 @@ class FunctionIRBuilder(
                 ir_type=result_ir_type,
                 source_location=submit.source_location,
             )
-        (result_value,) = result
+        (*_, result_value) = result
         return result_value
 
     def visit_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
@@ -669,26 +674,22 @@ class FunctionIRBuilder(
     ) -> TExpression:
         return self._itxn.handle_inner_transaction_field(itxn_field)
 
+    def visit_abi_call(self, node: awst_nodes.ABICall) -> None:
+        # for semantic compatibility, this is an error, since we don't evaluate the args
+        # here (there would be no point, if we hit this node on its own and not as part
+        # of a stage, a submit or an assigment, it does nothing)
+        logger.error(
+            "statement has no effect, did you forget to stage or submit?",
+            location=node.source_location,
+        )
+
     def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> TExpression:
         if isinstance(expr.value, awst_nodes.MethodSignatureString):
             signature = expr.value.value
         else:
-            name = expr.value.name
-            arg_abi_names = [
-                wtype_to_abi_name(
-                    t,
-                    resource_encoding=expr.value.resource_encoding,
-                    source_location=expr.value.source_location,
-                )
-                for t in expr.value.arg_types or []
-            ]
-            args = ",".join(arg_abi_names)
-            return_ = wtype_to_abi_name(
-                expr.value.return_type, source_location=expr.source_location
-            )
-            signature = f"{name}({args}){return_}"
+            signature = method_signature_to_abi_signature(expr.value)
 
-        return ir.MethodConstant(expr.source_location, value=signature)
+        return ir.MethodConstant(value=signature, source_location=expr.source_location)
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
         items = list[ir.Value]()

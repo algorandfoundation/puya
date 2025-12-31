@@ -1,3 +1,9 @@
+from puyapy.awst_build.eb.transaction.abi_call import (
+    ABIApplicationCallExpressionBuilder,
+    ABIApplicationCallInnerTransactionExpressionBuilder,
+    ABICallGenericTypeBuilder,
+    ABICallTypeBuilder,
+)
 from puyapy.awst_build.eb.transaction.group import (
     GroupTransactionExpressionBuilder,
     GroupTransactionTypeBuilder,
@@ -22,4 +28,8 @@ __all__ = [
     "InnerTxnParamsExpressionBuilder",
     "SubmitInnerTransactionExpressionBuilder",
     "SubmitStagedInnerTransactionsExpressionBuilder",
+    "ABICallTypeBuilder",
+    "ABICallGenericTypeBuilder",
+    "ABIApplicationCallExpressionBuilder",
+    "ABIApplicationCallInnerTransactionExpressionBuilder",
 ]

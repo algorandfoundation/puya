@@ -3537,6 +3537,134 @@ def test_native_validation_invalid(
         arc4_validation_client.call(f"validate_native_{type_name}", value=bytes_value)
 
 
+def test_abi_call_with_txns(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    caller_app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(TEST_CASES_DIR / "typed_abi_call_txn" / "caller.py")
+    )
+    callee_app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(TEST_CASES_DIR / "typed_abi_call_txn" / "txn_contract.py")
+    )
+
+    increased_fee = algod_client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * 3
+
+    caller_client = algokit_utils.ApplicationClient(
+        algod_client, caller_app_spec, signer=account, suggested_params=increased_fee
+    )
+    callee_client = algokit_utils.ApplicationClient(algod_client, callee_app_spec, signer=account)
+
+    # Create the application
+    caller_client.create()
+    callee_client.create()
+
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=caller_client.app_address,
+            min_spending_balance_micro_algos=400_000,
+        ),
+    )
+
+    txn_params = algokit_utils.OnCompleteCallParameters(
+        suggested_params=increased_fee, foreign_apps=[callee_client.app_id]
+    )
+
+    caller_client.call(
+        "test_call_with_txn",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+    caller_client.call(
+        "test_call_with_acfg",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+    caller_client.call(
+        "test_call_with_infer",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+    caller_client.call(
+        "test_call_with_acfg_no_return",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+
+
+def test_itxn_abi_call_with_txns(
+    algod_client: AlgodClient, account: algokit_utils.Account
+) -> None:
+    caller_app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(TEST_CASES_DIR / "typed_itxn_abi_call_txn" / "caller.py")
+    )
+    callee_app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(TEST_CASES_DIR / "typed_itxn_abi_call_txn" / "txn_contract.py")
+    )
+
+    increased_fee = algod_client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * 3
+
+    caller_client = algokit_utils.ApplicationClient(
+        algod_client, caller_app_spec, signer=account, suggested_params=increased_fee
+    )
+    callee_client = algokit_utils.ApplicationClient(algod_client, callee_app_spec, signer=account)
+
+    # Create the application
+    caller_client.create()
+    callee_client.create()
+
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=caller_client.app_address,
+            min_spending_balance_micro_algos=400_000,
+        ),
+    )
+
+    txn_params = algokit_utils.OnCompleteCallParameters(
+        suggested_params=increased_fee, foreign_apps=[callee_client.app_id]
+    )
+
+    caller_client.call(
+        "test_call_with_txn",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+    caller_client.call(
+        "test_call_with_acfg",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+    caller_client.call(
+        "test_call_with_infer",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+    caller_client.call(
+        "test_call_with_acfg_no_return",
+        a=b"a",
+        b=b"b",
+        app=callee_client.app_id,
+        transaction_parameters=txn_params,
+    )
+
+
 def _get_immutable_array_app(
     algod_client: AlgodClient,
     optimization_level: int,

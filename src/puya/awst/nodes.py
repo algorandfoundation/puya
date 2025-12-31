@@ -1745,6 +1745,23 @@ class SubroutineCallExpression(Expression):
 
 
 @attrs.frozen
+class ABICall(Expression):
+    """
+    Create an InnerTransactionFields object with the specified fields and arguments,
+    representing a call to an ABI method. This object can be staged with StageInnerTransaction,
+    or submitted with SubmitInnerTransaction.
+    """
+
+    target: MethodSignature | MethodSignatureString
+    args: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
+    fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
+    wtype: wtypes.WInnerTransactionFields = attrs.field()
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_abi_call(self)
+
+
+@attrs.frozen
 class PuyaLibData:
     id: str
     params: Mapping[str, WType]
