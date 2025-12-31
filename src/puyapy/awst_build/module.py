@@ -723,9 +723,27 @@ def _process_dataclass_like_methods(
         stmt_loc = context.node_location(stmt)
         match stmt:
             case mypy.nodes.FuncDef():
-                # FIXME: Decide what to do with __init__ and its friends
-                if stmt.name.startswith("__"):
-                    continue
+                method_name = stmt.name
+                if method_name in {"__init__", "__replace__"}:
+                    # mypy inserts methods on dataclass-like classes, we should not process them.
+                    # Because these methods lack accurate line information we can detect them by
+                    # looking at phony column numbers
+                    if stmt.column < 0:
+                        continue
+                    raise CodeError(
+                        "Custom definitions of __init__ or __replace__ are not supported"
+                        " for dataclasses",
+                        stmt_loc,
+                    )
+                if method_name.startswith("__") and method_name.endswith("__"):
+                    raise CodeError(
+                        "methods starting and ending with a double underscore"
+                        ' (aka "dunder" methods) are reserved for the Python data model'
+                        " (https://docs.python.org/3/reference/datamodel.html)."
+                        " These methods are not supported in dataclasses "
+                        "(NamedTuple, Struct, arc4.Struct)",
+                        stmt_loc,
+                    )
 
                 current_func_def = stmt
 
