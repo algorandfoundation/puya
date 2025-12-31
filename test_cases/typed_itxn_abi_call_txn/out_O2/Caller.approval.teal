@@ -1,0 +1,264 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1 8
+    bytecblock "TEST" "TST" 0x31 0x6d4700ad
+    txn NumAppArgs
+    bz main___algopy_default_create@11
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x0ab53563 0xea6a6ade 0x2381ff80 0x00b50f1c // method "test_call_with_txn(byte[],byte[],uint64)void", method "test_call_with_acfg(byte[],byte[],uint64)void", method "test_call_with_infer(byte[],byte[],uint64)void", method "test_call_with_acfg_no_return(byte[],byte[],uint64)void"
+    txna ApplicationArgs 0
+    match main_test_call_with_txn_route@4 main_test_call_with_acfg_route@5 main_test_call_with_infer_route@6 main_test_call_with_acfg_no_return_route@7
+    err
+
+main_test_call_with_acfg_no_return_route@7:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    intc_2 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "TEST"
+    itxn_field ConfigAssetName
+    bytec_1 // "TST"
+    itxn_field ConfigAssetUnitName
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    bytec_2 // 0x31
+    itxn_field Note
+    itxn_field ApplicationID
+    pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn Note
+    bytec_2 // 0x31
+    ==
+    assert
+    gitxn 0 CreatedAssetID
+    assert // expected asset to be created
+    intc_2 // 1
+    return
+
+main_test_call_with_infer_route@6:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    intc_2 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "TEST"
+    itxn_field ConfigAssetName
+    bytec_1 // "TST"
+    itxn_field ConfigAssetUnitName
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    itxn_field ApplicationID
+    bytec_3 // method "call_with_acfg(byte[],acfg,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_2 // 1
+    return
+
+main_test_call_with_acfg_route@5:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    intc_2 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "TEST"
+    itxn_field ConfigAssetName
+    bytec_1 // "TST"
+    itxn_field ConfigAssetUnitName
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    itxn_field ApplicationID
+    bytec_3 // method "call_with_acfg(byte[],acfg,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_2 // 1
+    return
+
+main_test_call_with_txn_route@4:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    intc_2 // 1
+    itxn_field ConfigAssetTotal
+    bytec_0 // "TEST"
+    itxn_field ConfigAssetName
+    bytec_1 // "TST"
+    itxn_field ConfigAssetUnitName
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0xa1f5040d // method "call_with_txn(byte[],txn,byte[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 0 4
+    pushbytes 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    extract 4 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    assert // expected asset id
+    intc_2 // 1
+    return
+
+main___algopy_default_create@11:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
