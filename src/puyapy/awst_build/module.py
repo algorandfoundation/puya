@@ -801,7 +801,9 @@ def _process_named_tuple(
         source_location=cls_loc,
     )
     context.register_pytype(named_tuple_type)
-    return []
+    method_routines, methods = _process_dataclass_like_methods(context, cdef)
+    named_tuple_type.methods.update(methods)
+    return method_routines
 
 
 def _map_scratch_space_reservation(

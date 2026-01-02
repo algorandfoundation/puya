@@ -16,6 +16,7 @@ from puya.awst.nodes import (
     NamedTupleExpression,
     SliceExpression,
     Statement,
+    SubroutineID,
     TupleExpression,
     TupleItemExpression,
     UInt64Constant,
@@ -45,6 +46,7 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
+from puyapy.awst_build.eb.subroutine import BoundSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping, tuple_iterable_item_type
 
 logger = log.get_logger(__name__)
@@ -323,6 +325,15 @@ class TupleExpressionBuilder(
             elif name in _NAMED_TUPLE_CLASS_MEMBERS:
                 type_builder = NamedTupleTypeBuilder(self.pytype, self.source_location)
                 return type_builder.member_access(name, location)
+            elif method := self.pytype.methods.get(name):
+                return BoundSubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(method.name),
+                    func_type=method,
+                    location=location,
+                    args=[self],
+                    arg_names=[None],
+                    arg_kinds=[models.ArgKind.ARG_POS],
+                )
         if name in _TUPLE_MEMBERS:
             raise CodeError("unsupported member access", location)
         raise CodeError("unrecognised member access", location)
