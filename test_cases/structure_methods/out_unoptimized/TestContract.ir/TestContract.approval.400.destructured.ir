@@ -1,14 +1,14 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         goto block@1
-    block@1: // L18
+    block@1: // L27
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%1#0 ? block@2 : block@5
-    block@2: // abi_routing_L18
+    block@2: // abi_routing_L27
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "test(uint64)void" => block@3, * => block@4}
-    block@3: // test_route_L19
+    block@3: // test_route_L28
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         let tmp%5#0: uint64 = (txn ApplicationID)
@@ -17,7 +17,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%7#0)
         test_cases.structure_methods.contract.TestContract.test[routing]()
         goto block@4
-    block@4: // switch_case_next_L18
+    block@4: // switch_case_next_L27
         goto block@6
     block@5: // __algopy_default_create_L1
         let tmp%8#0: uint64 = (txn OnCompletion)
@@ -31,14 +31,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@9
     block@9: // after_inlined_test_cases.structure_methods.contract.TestContract.__algopy_default_create_L1
         exit 1u
-    block@6: // after_if_else_L18
+    block@6: // after_if_else_L27
         exit 0u
     block@7: // after_inlined_test_cases.structure_methods.contract.TestContract.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0
 
 subroutine test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(self: Encoded(uint64), times: uint64) -> <uint64, Encoded(uint64)>:
-    block@0: // L7
+    block@0: // L9
         let aggregate%extract%0#0: bytes = (extract3 self#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
@@ -46,15 +46,20 @@ subroutine test_cases.structure_methods.contract.ARC4TestStruct.return_value_tim
         return tmp%1#0 self#0
 
 subroutine test_cases.structure_methods.contract.TestStruct.return_value_times(self: Encoded(uint64), times: uint64) -> <uint64, Encoded(uint64)>:
-    block@0: // L14
+    block@0: // L16
         let aggregate%extract%0#0: bytes = (extract3 self#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%0#0: uint64 = (* values%0#0 times#0)
         return tmp%0#0 self#0
 
+subroutine test_cases.structure_methods.contract.TestNamedTuple.return_value_times(self.value: uint64, times: uint64) -> uint64:
+    block@0: // L23
+        let tmp%0#0: uint64 = (* self.value#0 times#0)
+        return tmp%0#0
+
 subroutine test_cases.structure_methods.contract.TestContract.test[routing]() -> void:
-    block@0: // L19
+    block@0: // L28
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -65,17 +70,20 @@ subroutine test_cases.structure_methods.contract.TestContract.test[routing]() ->
         exit 1u
 
 subroutine test_cases.structure_methods.contract.TestContract.test(expected: uint64) -> void:
-    block@0: // L19
+    block@0: // L28
         let tmp%0#0: uint64 = test_cases.structure_methods.contract.TestContract.arc4_struct_test()
         let tmp%1#0: bool = (== expected#0 tmp%0#0)
         (assert tmp%1#0)
         let tmp%2#0: uint64 = test_cases.structure_methods.contract.TestContract.struct_test()
         let tmp%3#0: bool = (== expected#0 tmp%2#0)
         (assert tmp%3#0)
+        let tmp%4#0: uint64 = test_cases.structure_methods.contract.TestContract.named_tuple_test()
+        let tmp%5#0: bool = (== expected#0 tmp%4#0)
+        (assert tmp%5#0)
         return 
 
 subroutine test_cases.structure_methods.contract.TestContract.arc4_struct_test() -> uint64:
-    block@0: // L24
+    block@0: // L34
         let aggregate%head%0#0: bytes = (concat 0x 0x0000000000000009)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%head%0#0
         let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
@@ -84,7 +92,7 @@ subroutine test_cases.structure_methods.contract.TestContract.arc4_struct_test()
         return return_value_times%0#0
 
 subroutine test_cases.structure_methods.contract.TestContract.struct_test() -> uint64:
-    block@0: // L28
+    block@0: // L38
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 9u)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
@@ -93,3 +101,8 @@ subroutine test_cases.structure_methods.contract.TestContract.struct_test() -> u
         let struct#0: Encoded(uint64) = tmp%0#0
         let (return_value_times%0#0: uint64, return_value_times%1#0: Encoded(uint64)) = test_cases.structure_methods.contract.TestStruct.return_value_times(struct#0, 2u)
         return return_value_times%0#0
+
+subroutine test_cases.structure_methods.contract.TestContract.named_tuple_test() -> uint64:
+    block@0: // L42
+        let tmp%0#0: uint64 = test_cases.structure_methods.contract.TestNamedTuple.return_value_times(9u, 2u)
+        return tmp%0#0

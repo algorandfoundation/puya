@@ -8,6 +8,11 @@ subroutine return_value_times(self: test_cases.structure_methods.contract.TestSt
   return self.value * times
 }
 
+subroutine return_value_times(self: test_cases.structure_methods.contract.TestNamedTuple, times: uint64): uint64
+{
+  return self.value * times
+}
+
 contract TestContract
 {
   method_resolution_order: (
@@ -29,6 +34,7 @@ contract TestContract
   {
     assert(expected == this::arc4_struct_test())
     assert(expected == this::struct_test())
+    assert(expected == this::named_tuple_test())
   }
   
   subroutine test_cases.structure_methods.contract.TestContract.arc4_struct_test(): uint64
@@ -41,6 +47,12 @@ contract TestContract
   {
     struct: test_cases.structure_methods.contract.TestStruct = new test_cases.structure_methods.contract.TestStruct(value=9u)
     return test_cases.structure_methods.contract.TestStruct.return_value_times(struct, 2u)
+  }
+  
+  subroutine test_cases.structure_methods.contract.TestContract.named_tuple_test(): uint64
+  {
+    named_tuple: test_cases.structure_methods.contract.TestNamedTuple = (value=9u)
+    return test_cases.structure_methods.contract.TestNamedTuple.return_value_times(named_tuple, 2u)
   }
   
   baremethod test_cases.structure_methods.contract.TestContract.__algopy_default_create(): void
