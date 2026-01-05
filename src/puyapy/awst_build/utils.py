@@ -305,7 +305,7 @@ def maybe_resolve_literal_as_native_type(operand: InstanceBuilder) -> InstanceBu
         return operand
     python_type = operand.pytype.python_type
     if python_type is int:
-        target_type = pytypes.UInt64Type
+        target_type = pytypes.BigUIntType
     elif python_type is str:
         target_type = pytypes.StringType
     elif python_type is bytes:
