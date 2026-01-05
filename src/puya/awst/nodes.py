@@ -552,6 +552,10 @@ class MethodSignature(Node):
     name: str = attrs.field()
     arg_types: Sequence[wtypes.WType] = attrs.field(converter=tuple[wtypes.WType, ...])
     return_type: wtypes.WType
+    allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
+        default=(),
+        converter=tuple[OnCompletionAction, ...],
+    )
     resource_encoding: typing.Literal["index", "value"] = "value"
 
 
