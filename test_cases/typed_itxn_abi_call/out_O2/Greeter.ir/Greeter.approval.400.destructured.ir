@@ -1,0 +1,1560 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@26
+    block@2: // abi_routing_L25
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "test_is_a_b(byte[],byte[],uint64)void" => block@4, method "test_method_selector_kinds(uint64)void" => block@5, method "test_method_overload(uint64)void" => block@6, method "test_arg_conversion(uint64)void" => block@7, method "test_15plus_args(uint64)void" => block@8, method "test_void(uint64)void" => block@9, method "test_ref_types(uint64,uint64)void" => block@10, method "test_account_to_address(uint64)void" => block@11, method "test_native_string(uint64)void" => block@12, method "test_native_bytes(uint64)void" => block@13, method "test_native_uint64(uint64)void" => block@14, method "test_native_biguint(uint64)void" => block@15, method "test_native_tuple(uint64)void" => block@16, method "test_native_tuple_method_ref(uint64)void" => block@17, method "test_nested_tuples(uint64)void" => block@18, method "test_no_args(uint64)void" => block@19, method "test_named_tuples(uint64)void" => block@20, method "test_arc4_struct(uint64)void" => block@21, method "test_resource_encoding(uint64,uint64)void" => block@22, * => block@25}
+    block@4: // test_is_a_b_route_L26
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#2 0u) // on error: invalid array length header
+        let add%0#4: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#4)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#1 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%4#1: bytes = (txna ApplicationArgs 3)
+        let len%2#0: uint64 = (len tmp%4#1)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%4#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "is_a_b(byte[],byte[])void")
+        ((itxn_field ApplicationArgs) tmp%0#2)
+        ((itxn_field ApplicationArgs) tmp%2#1)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+    block@5: // test_method_selector_kinds_route_L35
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x00057465737431)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%2#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#1 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let result#3: bytes = ((extract 4 0) awst_tmp%0#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
+        let add%0#4: uint64 = (+ aggregate%array_length%2#0 2u)
+        let len%0#0: uint64 = (len result#3)
+        let eq%0#0: bool = (== len%0#0 add%0#4)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%6#2: bool = (== result#3 0x000b6563686f3a207465737431)
+        (assert tmp%6#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x00057465737432)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%8#2: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%9#1: bool = (== tmp%8#2 0x151f7c75)
+        (assert tmp%9#1) // application log value is not the result of an ABI return
+        let result#3: bytes = ((extract 4 0) awst_tmp%1#0)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%3#0 2u)
+        let len%1#0: uint64 = (len result#3)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%12#0: bool = (== result#3 0x000b6563686f3a207465737432)
+        (assert tmp%12#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x00057465737433)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%14#5: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%15#7: bool = (== tmp%14#5 0x151f7c75)
+        (assert tmp%15#7) // application log value is not the result of an ABI return
+        let result#3: bytes = ((extract 4 0) awst_tmp%2#0)
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
+        let add%2#1: uint64 = (+ aggregate%array_length%4#0 2u)
+        let len%2#0: uint64 = (len result#3)
+        let eq%2#0: bool = (== len%2#0 add%2#1)
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%18#1: bool = (== result#3 0x000b6563686f3a207465737433)
+        (assert tmp%18#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x00057465737434)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%3#0: bytes = (itxn LastLog)
+        let tmp%20#2: bytes = ((extract 0 4) awst_tmp%3#0)
+        let tmp%21#2: bool = (== tmp%20#2 0x151f7c75)
+        (assert tmp%21#2) // application log value is not the result of an ABI return
+        let result#3: bytes = ((extract 4 0) awst_tmp%3#0)
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
+        let add%3#1: uint64 = (+ aggregate%array_length%5#0 2u)
+        let len%3#0: uint64 = (len result#3)
+        let eq%3#0: bool = (== len%3#0 add%3#1)
+        (assert eq%3#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%24#0: bool = (== result#3 0x000b6563686f3a207465737434)
+        (assert tmp%24#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x00057465737435)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%4#0: bytes = (itxn LastLog)
+        let tmp%26#3: bytes = ((extract 0 4) awst_tmp%4#0)
+        let tmp%27#1: bool = (== tmp%26#3 0x151f7c75)
+        (assert tmp%27#1) // application log value is not the result of an ABI return
+        let result#3: bytes = ((extract 4 0) awst_tmp%4#0)
+        let aggregate%array_length%6#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
+        let add%4#0: uint64 = (+ aggregate%array_length%6#0 2u)
+        let len%4#0: uint64 = (len result#3)
+        let eq%4#0: bool = (== len%4#0 add%4#0)
+        (assert eq%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%30#0: bool = (== result#3 0x000b6563686f3a207465737435)
+        (assert tmp%30#0)
+        exit 1u
+    block@6: // test_method_overload_route_L51
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x000e7479706564202b2069676e6f7265)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%1#6: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%2#6: bool = (== tmp%1#6 0x151f7c75)
+        (assert tmp%2#6) // application log value is not the result of an ABI return
+        let tmp%3#5: bytes = ((extract 4 0) awst_tmp%0#0)
+        let aggregate%array_length%7#0: uint64 = (extract_uint16 tmp%3#5 0u) // on error: invalid array length header
+        let add%0#4: uint64 = (+ aggregate%array_length%7#0 2u)
+        let len%0#0: uint64 = (len tmp%3#5)
+        let eq%0#0: bool = (== len%0#0 add%0#4)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%5#1: bool = (== tmp%3#5 0x00146563686f3a207479706564202b2069676e6f7265)
+        (assert tmp%5#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x0010756e7479706564202b2069676e6f7265)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%7#1: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%8#0: bool = (== tmp%7#1 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let tmp%9#3: bytes = ((extract 4 0) awst_tmp%1#0)
+        let aggregate%array_length%8#0: uint64 = (extract_uint16 tmp%9#3 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%8#0 2u)
+        let len%1#0: uint64 = (len tmp%9#3)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%11#0: bool = (== tmp%9#3 0x00166563686f3a20756e7479706564202b2069676e6f7265)
+        (assert tmp%11#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x00057475706c65)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let result.LastLog#0: bytes = (itxn LastLog)
+        let tmp%13#3: bytes = ((extract 0 4) result.LastLog#0)
+        let tmp%14#1: bool = (== tmp%13#3 0x151f7c75)
+        (assert tmp%14#1) // application log value is not the result of an ABI return
+        let tmp%15#3: bytes = ((extract 4 0) result.LastLog#0)
+        let aggregate%array_length%9#0: uint64 = (extract_uint16 tmp%15#3 0u) // on error: invalid array length header
+        let add%2#1: uint64 = (+ aggregate%array_length%9#0 2u)
+        let len%2#0: uint64 = (len tmp%15#3)
+        let eq%2#0: bool = (== len%2#0 add%2#1)
+        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%17#0: bool = (== tmp%15#3 0x000b6563686f3a207475706c65)
+        (assert tmp%17#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo(string)string")
+        ((itxn_field ApplicationArgs) 0x0007756e7479706564)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn_result.LastLog#0: bytes = (itxn LastLog)
+        let tmp%24#2: bytes = ((extract 0 4) txn_result.LastLog#0)
+        let tmp%25#0: bool = (== tmp%24#2 0x151f7c75)
+        (assert tmp%25#0) // application log value is not the result of an ABI return
+        let tmp%26#3: bytes = ((extract 4 0) txn_result.LastLog#0)
+        let aggregate%array_length%11#0: uint64 = (extract_uint16 tmp%26#3 0u) // on error: invalid array length header
+        let add%4#0: uint64 = (+ aggregate%array_length%11#0 2u)
+        let len%4#0: uint64 = (len tmp%26#3)
+        let eq%4#0: bool = (== len%4#0 add%4#0)
+        (assert eq%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%28#0: bool = (== tmp%26#3 0x000d6563686f3a20756e7479706564)
+        (assert tmp%28#0)
+        exit 1u
+    block@7: // test_arg_conversion_route_L66
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(string)void")
+        ((itxn_field ApplicationArgs) 0x000a636f6e76657274656431)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%1#4: bool = (== txn.LastLog#0 0x636f6e76657274656431)
+        (assert tmp%1#4)
+        itxn_begin
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 2u)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(uint64)void")
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%4#4: bool = (== txn.LastLog#0 aggregate%val_as_bytes%0#0)
+        (assert tmp%4#4)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(uint512)void")
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%9#1: bool = (== txn.LastLog#0 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003)
+        (assert tmp%9#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(byte[])void")
+        ((itxn_field ApplicationArgs) 0x000134)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%11#0: bool = (== txn.LastLog#0 0x34)
+        (assert tmp%11#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(bool)void")
+        ((itxn_field ApplicationArgs) 0x80)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%13#1: bool = (== txn.LastLog#0 0x54727565)
+        (assert tmp%13#1)
+        exit 1u
+    block@8: // test_15plus_args_route_L83
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 1u)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 2u)
+        let aggregate%val_as_bytes%4#0: bytes[8] = (itob 3u)
+        let aggregate%val_as_bytes%5#0: bytes[8] = (itob 4u)
+        let aggregate%val_as_bytes%6#0: bytes[8] = (itob 5u)
+        let aggregate%val_as_bytes%7#0: bytes[8] = (itob 6u)
+        let aggregate%val_as_bytes%8#0: bytes[8] = (itob 7u)
+        let aggregate%val_as_bytes%9#0: bytes[8] = (itob 8u)
+        let aggregate%val_as_bytes%10#0: bytes[8] = (itob 9u)
+        let aggregate%val_as_bytes%11#0: bytes[8] = (itob 10u)
+        let aggregate%val_as_bytes%12#0: bytes[8] = (itob 11u)
+        let aggregate%val_as_bytes%13#0: bytes[8] = (itob 12u)
+        let aggregate%val_as_bytes%14#0: bytes[8] = (itob 13u)
+        let aggregate%val_as_bytes%15#0: bytes[8] = (itob 14u)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]")
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%2#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%3#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%4#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%5#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%6#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%7#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%8#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%9#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%10#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%11#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%12#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%13#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%14#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%15#0)
+        ((itxn_field ApplicationArgs) 0x0f101112deadbeef14)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%21#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%22#0: bool = (== tmp%21#0 0x151f7c75)
+        (assert tmp%22#0) // application log value is not the result of an ABI return
+        let result#3: bytes = ((extract 4 0) awst_tmp%0#0)
+        let aggregate%array_length%12#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
+        let add%0#4: uint64 = (+ aggregate%array_length%12#0 2u)
+        let len%0#0: uint64 = (len result#3)
+        let eq%0#0: bool = (== len%0#0 add%0#4)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let tmp%24#2: bytes = ((extract 6 0) awst_tmp%0#0)
+        let tmp%25#0: bool = (== tmp%24#2 0x0f101112deadbeef14)
+        (assert tmp%25#0)
+        exit 1u
+    block@9: // test_void_route_L117
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(string)void")
+        ((itxn_field ApplicationArgs) 0x0006576f726c6431)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%1#4: bool = (== txn.LastLog#0 0x576f726c6431)
+        (assert tmp%1#4)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(string)void")
+        ((itxn_field ApplicationArgs) 0x0006576f726c6432)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%3#0: bool = (== txn.LastLog#0 0x576f726c6432)
+        (assert tmp%3#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(string)void")
+        ((itxn_field ApplicationArgs) 0x0006576f726c6433)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%5#1: bool = (== txn.LastLog#0 0x576f726c6433)
+        (assert tmp%5#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(string)void")
+        ((itxn_field ApplicationArgs) 0x0006576f726c6434)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%7#5: bool = (== txn.LastLog#0 0x576f726c6434)
+        (assert tmp%7#5)
+        exit 1u
+    block@10: // test_ref_types_route_L131
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let asset#0: uint64 = (btoi tmp%2#1)
+        itxn_begin
+        let tmp%1#22: account = (global CurrentApplicationAddress)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(uint64,address,uint64)void")
+        ((itxn_field ApplicationArgs) tmp%2#1)
+        ((itxn_field ApplicationArgs) tmp%1#22)
+        ((itxn_field ApplicationArgs) tmp%0#2)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetName) asset#0)
+        (assert check%0#0) // asset exists
+        let tmp%4#7: account = (global CurrentApplicationAddress)
+        let tmp%5#2: bytes = (concat value%0#0 tmp%4#7)
+        let (value%1#0: account, check%1#0: bool) = ((app_params_get AppAddress) app#0)
+        (assert check%1#0) // application exists
+        let tmp%6#0: bytes = (concat tmp%5#2 value%1#0)
+        let tmp%7#5: bool = (== txn.LastLog#0 tmp%6#0)
+        (assert tmp%7#5)
+        exit 1u
+    block@11: // test_account_to_address_route_L145
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        let tmp%0#24: account = (global CurrentApplicationAddress)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "log(address)void")
+        ((itxn_field ApplicationArgs) tmp%0#24)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%2#13: account = (global CurrentApplicationAddress)
+        let tmp%3#0: bool = (== txn.LastLog#0 tmp%2#13)
+        (assert tmp%3#0)
+        exit 1u
+    block@12: // test_native_string_route_L154
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
+        ((itxn_field ApplicationArgs) 0x000173)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%1#6: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%2#6: bool = (== tmp%1#6 0x151f7c75)
+        (assert tmp%2#6) // application log value is not the result of an ABI return
+        let tmp%3#5: bytes = ((extract 4 0) awst_tmp%0#0)
+        let aggregate%array_length%13#0: uint64 = (extract_uint16 tmp%3#5 0u) // on error: invalid array length header
+        let add%0#4: uint64 = (+ aggregate%array_length%13#0 2u)
+        let len%0#0: uint64 = (len tmp%3#5)
+        let eq%0#0: bool = (== len%0#0 add%0#4)
+        (assert eq%0#0) // invalid number of bytes for string
+        let result1#4: string = ((extract 6 0) awst_tmp%0#0)
+        let tmp%5#1: bool = (== result1#4 "echo: s")
+        (assert tmp%5#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
+        ((itxn_field ApplicationArgs) 0x000173)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%7#1: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%8#0: bool = (== tmp%7#1 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let tmp%9#3: bytes = ((extract 4 0) awst_tmp%1#0)
+        let aggregate%array_length%14#0: uint64 = (extract_uint16 tmp%9#3 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%14#0 2u)
+        let len%1#0: uint64 = (len tmp%9#3)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for string
+        let result2#4: string = ((extract 6 0) awst_tmp%1#0)
+        let tmp%11#0: bool = (== result2#4 result1#4)
+        (assert tmp%11#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_string(string)string")
+        ((itxn_field ApplicationArgs) 0x000173)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%13#3: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%14#1: bool = (== tmp%13#3 0x151f7c75)
+        (assert tmp%14#1) // application log value is not the result of an ABI return
+        let tmp%15#3: bytes = ((extract 4 0) awst_tmp%2#0)
+        let aggregate%array_length%15#0: uint64 = (extract_uint16 tmp%15#3 0u) // on error: invalid array length header
+        let add%2#1: uint64 = (+ aggregate%array_length%15#0 2u)
+        let len%2#0: uint64 = (len tmp%15#3)
+        let eq%2#0: bool = (== len%2#0 add%2#1)
+        (assert eq%2#0) // invalid number of bytes for string
+        let result3#4: string = ((extract 6 0) awst_tmp%2#0)
+        let tmp%17#0: bool = (== result3#4 result1#4)
+        (assert tmp%17#0)
+        exit 1u
+    block@13: // test_native_bytes_route_L167
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
+        ((itxn_field ApplicationArgs) 0x000162)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%1#6: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%2#6: bool = (== tmp%1#6 0x151f7c75)
+        (assert tmp%2#6) // application log value is not the result of an ABI return
+        let tmp%3#5: bytes = ((extract 4 0) awst_tmp%0#0)
+        let aggregate%array_length%16#0: uint64 = (extract_uint16 tmp%3#5 0u) // on error: invalid array length header
+        let add%0#4: uint64 = (+ aggregate%array_length%16#0 2u)
+        let len%0#0: uint64 = (len tmp%3#5)
+        let eq%0#0: bool = (== len%0#0 add%0#4)
+        (assert eq%0#0) // invalid number of bytes for bytes
+        let result1#0: bytes = ((extract 6 0) awst_tmp%0#0)
+        let tmp%5#1: bool = (== result1#0 0x6563686f3a2062)
+        (assert tmp%5#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
+        ((itxn_field ApplicationArgs) 0x000162)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%7#1: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%8#0: bool = (== tmp%7#1 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let tmp%9#3: bytes = ((extract 4 0) awst_tmp%1#0)
+        let aggregate%array_length%17#0: uint64 = (extract_uint16 tmp%9#3 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%17#0 2u)
+        let len%1#0: uint64 = (len tmp%9#3)
+        let eq%1#0: bool = (== len%1#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for bytes
+        let result2#0: bytes = ((extract 6 0) awst_tmp%1#0)
+        let tmp%11#0: bool = (== result2#0 result1#0)
+        (assert tmp%11#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_bytes(byte[])byte[]")
+        ((itxn_field ApplicationArgs) 0x000162)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%13#3: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%14#1: bool = (== tmp%13#3 0x151f7c75)
+        (assert tmp%14#1) // application log value is not the result of an ABI return
+        let tmp%15#3: bytes = ((extract 4 0) awst_tmp%2#0)
+        let aggregate%array_length%18#0: uint64 = (extract_uint16 tmp%15#3 0u) // on error: invalid array length header
+        let add%2#1: uint64 = (+ aggregate%array_length%18#0 2u)
+        let len%2#0: uint64 = (len tmp%15#3)
+        let eq%2#0: bool = (== len%2#0 add%2#1)
+        (assert eq%2#0) // invalid number of bytes for bytes
+        let result3#0: bytes = ((extract 6 0) awst_tmp%2#0)
+        let tmp%17#0: bool = (== result3#0 result1#0)
+        (assert tmp%17#0)
+        exit 1u
+    block@14: // test_native_uint64_route_L182
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        let aggregate%val_as_bytes%21#0: bytes[8] = (itob 1u)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%21#0)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%1#6: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%2#6: bool = (== tmp%1#6 0x151f7c75)
+        (assert tmp%2#6) // application log value is not the result of an ABI return
+        let tmp%3#5: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%3#5)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let result1#2: uint64 = (btoi tmp%3#5)
+        let tmp%5#1: bool = (== result1#2 2u)
+        (assert tmp%5#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%21#0)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%7#1: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%8#0: bool = (== tmp%7#1 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let tmp%9#3: bytes = ((extract 4 0) awst_tmp%1#0)
+        let len%1#0: uint64 = (len tmp%9#3)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for uint64
+        let result2#2: uint64 = (btoi tmp%9#3)
+        let tmp%11#0: bool = (== result2#2 result1#2)
+        (assert tmp%11#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%12#6: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%13#1: bool = (== tmp%12#6 0x151f7c75)
+        (assert tmp%13#1) // application log value is not the result of an ABI return
+        let tmp%14#5: bytes = ((extract 4 0) awst_tmp%2#0)
+        let len%2#0: uint64 = (len tmp%14#5)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for uint64
+        let result3#2: uint64 = (btoi tmp%14#5)
+        let tmp%16#2: bool = (== result3#2 result1#2)
+        (assert tmp%16#2)
+        exit 1u
+    block@15: // test_native_biguint_route_L195
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%1#6: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%2#6: bool = (== tmp%1#6 0x151f7c75)
+        (assert tmp%2#6) // application log value is not the result of an ABI return
+        let result1#1: biguint = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len result1#1)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for biguint
+        let tmp%5#1: bool = (b== result1#1 3b)
+        (assert tmp%5#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%7#1: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%8#0: bool = (== tmp%7#1 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let result2#1: biguint = ((extract 4 0) awst_tmp%1#0)
+        let len%1#0: uint64 = (len result2#1)
+        let eq%1#0: bool = (== len%1#0 64u)
+        (assert eq%1#0) // invalid number of bytes for biguint
+        let tmp%11#0: bool = (b== result2#1 result1#1)
+        (assert tmp%11#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%12#6: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%13#1: bool = (== tmp%12#6 0x151f7c75)
+        (assert tmp%13#1) // application log value is not the result of an ABI return
+        let result3#1: biguint = ((extract 4 0) awst_tmp%2#0)
+        let len%2#0: uint64 = (len result3#1)
+        let eq%2#0: bool = (== len%2#0 64u)
+        (assert eq%2#0) // invalid number of bytes for biguint
+        let tmp%16#2: bool = (b== result3#1 result1#1)
+        (assert tmp%16#2)
+        exit 1u
+    block@16: // test_native_tuple_route_L208
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        let aggregate%val_as_bytes%23#0: bytes[8] = (itob 1u)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%23#0)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%4#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%5#1: bool = (== tmp%4#1 0x151f7c75)
+        (assert tmp%5#1) // application log value is not the result of an ABI return
+        let result1#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tuple_len%0#0: uint64 = (len result1#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 result1#0 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 76u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%0#0: bytes = (substring3 result1#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%19#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%19#0 78u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 result1#0 2u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let b#0: Encoded(len+uint8[]) = (substring3 result1#0 extract_uint16%1#0 tuple_len%0#0)
+        let aggregate%array_length%20#0: uint64 = (extract_uint16 b#0 0u) // on error: invalid array length header
+        let add%2#1: uint64 = (+ aggregate%array_length%20#0 2u)
+        let add%3#1: uint64 = (+ add%1#0 add%2#1)
+        let eq%2#0: bool = (== tuple_len%0#0 add%3#1)
+        (assert eq%2#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+        let s#0: Encoded(len+utf8[]) = (substring3 result1#0 extract_uint16%0#0 extract_uint16%1#0)
+        let bu#0: Encoded(uint512) = ((extract 16 64) awst_tmp%0#0)
+        let tmp%11#5: string = ((extract 2 0) s#0)
+        let tmp%12#0: bool = (== tmp%11#5 "echo: s1")
+        (assert tmp%12#0)
+        let tmp%13#3: bytes = ((extract 2 0) b#0)
+        let tmp%14#1: bool = (== tmp%13#3 0x6563686f3a206231)
+        (assert tmp%14#1)
+        let tmp%15#2: uint64 = (extract_uint64 awst_tmp%0#0 8u)
+        let tmp%16#2: bool = (== tmp%15#2 2u)
+        (assert tmp%16#2)
+        let tmp%18#1: bool = (b== bu#0 3b)
+        (assert tmp%18#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%23#0)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%23#1: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%24#0: bool = (== tmp%23#1 0x151f7c75)
+        (assert tmp%24#0) // application log value is not the result of an ABI return
+        let result2#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let tuple_len%1#0: uint64 = (len result2#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 result2#0 0u) // on error: invalid tuple encoding
+        let eq%3#0: bool = (== extract_uint16%2#0 76u)
+        (assert eq%3#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%2#0: bytes = (substring3 result2#0 extract_uint16%2#0 tuple_len%1#0)
+        let aggregate%array_length%21#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
+        let add%5#1: uint64 = (+ aggregate%array_length%21#0 78u)
+        let extract_uint16%3#0: uint64 = (extract_uint16 result2#0 2u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%3#0 add%5#1)
+        (assert eq%4#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%3#0: bytes = (substring3 result2#0 extract_uint16%3#0 tuple_len%1#0)
+        let aggregate%array_length%22#0: uint64 = (extract_uint16 substring3%3#0 0u) // on error: invalid array length header
+        let add%6#0: uint64 = (+ aggregate%array_length%22#0 2u)
+        let add%7#0: uint64 = (+ add%5#1 add%6#0)
+        let eq%5#0: bool = (== tuple_len%1#0 add%7#0)
+        (assert eq%5#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+        let tmp%26#0: bool = (== result1#0 result2#0)
+        (assert tmp%26#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%29#0: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%30#0: bool = (== tmp%29#0 0x151f7c75)
+        (assert tmp%30#0) // application log value is not the result of an ABI return
+        let result3#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let tuple_len%2#0: uint64 = (len result3#0)
+        let extract_uint16%4#0: uint64 = (extract_uint16 result3#0 0u) // on error: invalid tuple encoding
+        let eq%6#0: bool = (== extract_uint16%4#0 76u)
+        (assert eq%6#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%4#0: bytes = (substring3 result3#0 extract_uint16%4#0 tuple_len%2#0)
+        let aggregate%array_length%23#0: uint64 = (extract_uint16 substring3%4#0 0u) // on error: invalid array length header
+        let add%9#0: uint64 = (+ aggregate%array_length%23#0 78u)
+        let extract_uint16%5#0: uint64 = (extract_uint16 result3#0 2u) // on error: invalid tuple encoding
+        let eq%7#0: bool = (== extract_uint16%5#0 add%9#0)
+        (assert eq%7#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%5#0: bytes = (substring3 result3#0 extract_uint16%5#0 tuple_len%2#0)
+        let aggregate%array_length%24#0: uint64 = (extract_uint16 substring3%5#0 0u) // on error: invalid array length header
+        let add%10#0: uint64 = (+ aggregate%array_length%24#0 2u)
+        let add%11#0: uint64 = (+ add%9#0 add%10#0)
+        let eq%8#0: bool = (== tuple_len%2#0 add%11#0)
+        (assert eq%8#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+        let tmp%32#1: bool = (== result1#0 result3#0)
+        (assert tmp%32#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%3#0: bytes = (itxn LastLog)
+        let tmp%35#2: bytes = ((extract 0 4) awst_tmp%3#0)
+        let tmp%36#0: bool = (== tmp%35#2 0x151f7c75)
+        (assert tmp%36#0) // application log value is not the result of an ABI return
+        let tmp%37#1: bytes = ((extract 4 0) awst_tmp%3#0)
+        let tuple_len%3#0: uint64 = (len tmp%37#1)
+        let extract_uint16%6#0: uint64 = (extract_uint16 tmp%37#1 0u) // on error: invalid tuple encoding
+        let eq%9#0: bool = (== extract_uint16%6#0 76u)
+        (assert eq%9#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%6#0: bytes = (substring3 tmp%37#1 extract_uint16%6#0 tuple_len%3#0)
+        let aggregate%array_length%25#0: uint64 = (extract_uint16 substring3%6#0 0u) // on error: invalid array length header
+        let add%13#1: uint64 = (+ aggregate%array_length%25#0 78u)
+        let extract_uint16%7#0: uint64 = (extract_uint16 tmp%37#1 2u) // on error: invalid tuple encoding
+        let eq%10#0: bool = (== extract_uint16%7#0 add%13#1)
+        (assert eq%10#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%7#0: bytes = (substring3 tmp%37#1 extract_uint16%7#0 tuple_len%3#0)
+        let aggregate%array_length%26#0: uint64 = (extract_uint16 substring3%7#0 0u) // on error: invalid array length header
+        let add%14#0: uint64 = (+ aggregate%array_length%26#0 2u)
+        let add%15#0: uint64 = (+ add%13#1 add%14#0)
+        let eq%11#0: bool = (== tuple_len%3#0 add%15#0)
+        (assert eq%11#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
+        let aggregate%substring3%2#0: bytes = (substring3 tmp%37#1 extract_uint16%6#0 extract_uint16%7#0)
+        let result_native.0#0: string = ((extract 2 0) aggregate%substring3%2#0)
+        let result_native.1#0: bytes = ((extract 2 0) substring3%7#0)
+        let result_native.2#0: uint64 = (extract_uint64 awst_tmp%3#0 8u)
+        let result_native.3#0: biguint = ((extract 16 64) awst_tmp%3#0)
+        let tmp%47#0: bool = (== tmp%11#5 result_native.0#0)
+        (assert tmp%47#0)
+        let tmp%53#0: bool = (== tmp%13#3 result_native.1#0)
+        (assert tmp%53#0)
+        let tmp%59#0: bool = (== tmp%15#2 result_native.2#0)
+        (assert tmp%59#0)
+        let tmp%65#0: bool = (b== bu#0 result_native.3#0)
+        (assert tmp%65#0)
+        exit 1u
+    block@17: // test_native_tuple_method_ref_route_L277
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        let aggregate%val_as_bytes%25#0: bytes[8] = (itob 1u)
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%4#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%5#1: bool = (== tmp%4#1 0x151f7c75)
+        (assert tmp%5#1) // application log value is not the result of an ABI return
+        let tmp%6#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tuple_len%0#0: uint64 = (len tmp%6#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%6#0 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 76u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%0#0: bytes = (substring3 tmp%6#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%27#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%27#0 78u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%6#0 2u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%1#0: bytes = (substring3 tmp%6#0 extract_uint16%1#0 tuple_len%0#0)
+        let aggregate%array_length%28#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
+        let add%2#1: uint64 = (+ aggregate%array_length%28#0 2u)
+        let add%3#1: uint64 = (+ add%1#0 add%2#1)
+        let eq%2#0: bool = (== tuple_len%0#0 add%3#1)
+        (assert eq%2#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
+        let aggregate%substring3%4#0: bytes = (substring3 tmp%6#0 extract_uint16%0#0 extract_uint16%1#0)
+        let result.0#6: string = ((extract 2 0) aggregate%substring3%4#0)
+        let result.1#6: bytes = ((extract 2 0) substring3%1#0)
+        let result.2#6: uint64 = (extract_uint64 awst_tmp%0#0 8u)
+        let result.3#0: biguint = ((extract 16 64) awst_tmp%0#0)
+        let tmp%11#0: bool = (== result.0#6 "echo: s1")
+        (assert tmp%11#0)
+        let tmp%12#0: bool = (== result.1#6 0x6563686f3a206231)
+        (assert tmp%12#0)
+        let tmp%13#1: bool = (== result.2#6 2u)
+        (assert tmp%13#1)
+        let tmp%14#1: bool = (b== result.3#0 3b)
+        (assert tmp%14#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%19#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%20#0: bool = (== tmp%19#0 0x151f7c75)
+        (assert tmp%20#0) // application log value is not the result of an ABI return
+        let tmp%21#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let tuple_len%1#0: uint64 = (len tmp%21#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%21#0 0u) // on error: invalid tuple encoding
+        let eq%3#0: bool = (== extract_uint16%2#0 76u)
+        (assert eq%3#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%2#0: bytes = (substring3 tmp%21#0 extract_uint16%2#0 tuple_len%1#0)
+        let aggregate%array_length%29#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
+        let add%5#1: uint64 = (+ aggregate%array_length%29#0 78u)
+        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%21#0 2u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%3#0 add%5#1)
+        (assert eq%4#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%3#0: bytes = (substring3 tmp%21#0 extract_uint16%3#0 tuple_len%1#0)
+        let aggregate%array_length%30#0: uint64 = (extract_uint16 substring3%3#0 0u) // on error: invalid array length header
+        let add%6#0: uint64 = (+ aggregate%array_length%30#0 2u)
+        let add%7#0: uint64 = (+ add%5#1 add%6#0)
+        let eq%5#0: bool = (== tuple_len%1#0 add%7#0)
+        (assert eq%5#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
+        let aggregate%substring3%6#0: bytes = (substring3 tmp%21#0 extract_uint16%2#0 extract_uint16%3#0)
+        let result_2.0#0: string = ((extract 2 0) aggregate%substring3%6#0)
+        let result_2.1#0: bytes = ((extract 2 0) substring3%3#0)
+        let result_2.2#0: uint64 = (extract_uint64 awst_tmp%1#0 8u)
+        let result_2.3#0: biguint = ((extract 16 64) awst_tmp%1#0)
+        let tmp%26#0: bool = (== result_2.0#0 result.0#6)
+        let tmp%27#1: bool = (== result_2.1#0 result.1#6)
+        let tmp%28#0: bool = (&& tmp%26#0 tmp%27#1)
+        let tmp%29#1: bool = (== result_2.2#0 result.2#6)
+        let tmp%30#0: bool = (&& tmp%28#0 tmp%29#1)
+        let tmp%31#1: bool = (b== result_2.3#0 result.3#0)
+        let tmp%32#1: bool = (&& tmp%30#0 tmp%31#1)
+        (assert tmp%32#1) // expected native arguments to give the same result
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%35#2: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%36#0: bool = (== tmp%35#2 0x151f7c75)
+        (assert tmp%36#0) // application log value is not the result of an ABI return
+        let tmp%37#1: bytes = ((extract 4 0) awst_tmp%2#0)
+        let tuple_len%2#0: uint64 = (len tmp%37#1)
+        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%37#1 0u) // on error: invalid tuple encoding
+        let eq%6#0: bool = (== extract_uint16%4#0 76u)
+        (assert eq%6#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%4#0: bytes = (substring3 tmp%37#1 extract_uint16%4#0 tuple_len%2#0)
+        let aggregate%array_length%31#0: uint64 = (extract_uint16 substring3%4#0 0u) // on error: invalid array length header
+        let add%9#0: uint64 = (+ aggregate%array_length%31#0 78u)
+        let extract_uint16%5#0: uint64 = (extract_uint16 tmp%37#1 2u) // on error: invalid tuple encoding
+        let eq%7#0: bool = (== extract_uint16%5#0 add%9#0)
+        (assert eq%7#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%5#0: bytes = (substring3 tmp%37#1 extract_uint16%5#0 tuple_len%2#0)
+        let aggregate%array_length%32#0: uint64 = (extract_uint16 substring3%5#0 0u) // on error: invalid array length header
+        let add%10#0: uint64 = (+ aggregate%array_length%32#0 2u)
+        let add%11#0: uint64 = (+ add%9#0 add%10#0)
+        let eq%8#0: bool = (== tuple_len%2#0 add%11#0)
+        (assert eq%8#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
+        let aggregate%substring3%8#0: bytes = (substring3 tmp%37#1 extract_uint16%4#0 extract_uint16%5#0)
+        let result_3.0#0: string = ((extract 2 0) aggregate%substring3%8#0)
+        let result_3.1#0: bytes = ((extract 2 0) substring3%5#0)
+        let result_3.2#0: uint64 = (extract_uint64 awst_tmp%2#0 8u)
+        let result_3.3#0: biguint = ((extract 16 64) awst_tmp%2#0)
+        let tmp%42#0: bool = (== result_3.0#0 result.0#6)
+        let tmp%43#1: bool = (== result_3.1#0 result.1#6)
+        let tmp%44#0: bool = (&& tmp%42#0 tmp%43#1)
+        let tmp%45#0: bool = (== result_3.2#0 result.2#6)
+        let tmp%46#1: bool = (&& tmp%44#0 tmp%45#0)
+        let tmp%47#0: bool = (b== result_3.3#0 result.3#0)
+        let tmp%48#0: bool = (&& tmp%46#1 tmp%47#0)
+        (assert tmp%48#0) // expected arc4 arguments to give the same result
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
+        ((itxn_field ApplicationArgs) 0x00027331)
+        ((itxn_field ApplicationArgs) 0x00026231)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%3#0: bytes = (itxn LastLog)
+        let tmp%51#1: bytes = ((extract 0 4) awst_tmp%3#0)
+        let tmp%52#1: bool = (== tmp%51#1 0x151f7c75)
+        (assert tmp%52#1) // application log value is not the result of an ABI return
+        let tmp%53#1: bytes = ((extract 4 0) awst_tmp%3#0)
+        let tuple_len%3#0: uint64 = (len tmp%53#1)
+        let extract_uint16%6#0: uint64 = (extract_uint16 tmp%53#1 0u) // on error: invalid tuple encoding
+        let eq%9#0: bool = (== extract_uint16%6#0 76u)
+        (assert eq%9#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%6#0: bytes = (substring3 tmp%53#1 extract_uint16%6#0 tuple_len%3#0)
+        let aggregate%array_length%33#0: uint64 = (extract_uint16 substring3%6#0 0u) // on error: invalid array length header
+        let add%13#1: uint64 = (+ aggregate%array_length%33#0 78u)
+        let extract_uint16%7#0: uint64 = (extract_uint16 tmp%53#1 2u) // on error: invalid tuple encoding
+        let eq%10#0: bool = (== extract_uint16%7#0 add%13#1)
+        (assert eq%10#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+        let substring3%7#0: bytes = (substring3 tmp%53#1 extract_uint16%7#0 tuple_len%3#0)
+        let aggregate%array_length%34#0: uint64 = (extract_uint16 substring3%7#0 0u) // on error: invalid array length header
+        let add%14#0: uint64 = (+ aggregate%array_length%34#0 2u)
+        let add%15#0: uint64 = (+ add%13#1 add%14#0)
+        let eq%11#0: bool = (== tuple_len%3#0 add%15#0)
+        (assert eq%11#0) // invalid number of bytes for tuple<string,bytes,uint64,biguint>
+        let aggregate%substring3%10#0: bytes = (substring3 tmp%53#1 extract_uint16%6#0 extract_uint16%7#0)
+        let result_native.0#0: string = ((extract 2 0) aggregate%substring3%10#0)
+        let result_native.1#0: bytes = ((extract 2 0) substring3%7#0)
+        let result_native.2#0: uint64 = (extract_uint64 awst_tmp%3#0 8u)
+        let result_native.3#0: biguint = ((extract 16 64) awst_tmp%3#0)
+        let tmp%58#0: bool = (== result_native.0#0 result.0#6)
+        let tmp%59#0: bool = (== result_native.1#0 result.1#6)
+        let tmp%60#0: bool = (&& tmp%58#0 tmp%59#0)
+        let tmp%61#0: bool = (== result_native.2#0 result.2#6)
+        let tmp%62#0: bool = (&& tmp%60#0 tmp%61#0)
+        let tmp%63#0: bool = (b== result_native.3#0 result.3#0)
+        let tmp%64#0: bool = (&& tmp%62#0 tmp%63#0)
+        (assert tmp%64#0)
+        exit 1u
+    block@18: // test_nested_tuples_route_L343
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
+        ((itxn_field ApplicationArgs) 0x00040010000400080002733100027332000000000000000100000000000000020012000133)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%1#6: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%2#6: bool = (== tmp%1#6 0x151f7c75)
+        (assert tmp%2#6) // application log value is not the result of an ABI return
+        let tmp%3#5: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tuple_len%0#0: uint64 = (len tmp%3#5)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%3#5 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 4u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+        let substring3%0#0: bytes = (substring3 tmp%3#5 extract_uint16%0#0 tuple_len%0#0)
+        let tuple_len%1#0: uint64 = (len substring3%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 4u)
+        (assert eq%1#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%1#0 tuple_len%1#0)
+        let aggregate%array_length%35#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%35#0 6u)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%0#0 2u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%1#0)
+        (assert eq%2#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+        let substring3%2#0: bytes = (substring3 substring3%0#0 extract_uint16%2#0 tuple_len%1#0)
+        let aggregate%array_length%36#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
+        let add%2#1: uint64 = (+ aggregate%array_length%36#0 2u)
+        let add%3#1: uint64 = (+ add%1#0 add%2#1)
+        let add%4#0: uint64 = (+ 4u add%3#1)
+        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%3#5 2u) // on error: invalid tuple encoding
+        let eq%3#0: bool = (== extract_uint16%3#0 add%4#0)
+        (assert eq%3#0) // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+        let substring3%3#0: bytes = (substring3 tmp%3#5 extract_uint16%3#0 tuple_len%0#0)
+        let tuple_len%2#0: uint64 = (len substring3%3#0)
+        let extract_uint16%4#0: uint64 = (extract_uint16 substring3%3#0 16u) // on error: invalid tuple encoding
+        let eq%4#0: bool = (== extract_uint16%4#0 18u)
+        (assert eq%4#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
+        let substring3%4#0: bytes = (substring3 substring3%3#0 extract_uint16%4#0 tuple_len%2#0)
+        let aggregate%array_length%37#0: uint64 = (extract_uint16 substring3%4#0 0u) // on error: invalid array length header
+        let add%6#0: uint64 = (+ aggregate%array_length%37#0 20u)
+        let add%7#0: uint64 = (+ add%4#0 add%6#0)
+        let eq%5#0: bool = (== tuple_len%0#0 add%7#0)
+        (assert eq%5#0) // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
+        let aggregate%substring3%12#0: bytes = (substring3 tmp%3#5 extract_uint16%0#0 extract_uint16%3#0)
+        let aggregate%extract_uint16%20#0: uint64 = (extract_uint16 aggregate%substring3%12#0 0u)
+        let aggregate%extract_uint16%21#0: uint64 = (extract_uint16 aggregate%substring3%12#0 2u)
+        let aggregate%substring3%13#0: bytes = (substring3 aggregate%substring3%12#0 aggregate%extract_uint16%20#0 aggregate%extract_uint16%21#0)
+        let result.0.0#0: string = ((extract 2 0) aggregate%substring3%13#0)
+        let aggregate%len%6#0: uint64 = (len aggregate%substring3%12#0)
+        let result.0.1#0: Encoded(len+utf8[]) = (substring3 aggregate%substring3%12#0 aggregate%extract_uint16%21#0 aggregate%len%6#0)
+        let result.1.0#0: uint64 = (extract_uint64 substring3%3#0 0u)
+        let result.1.1#0: Encoded(uint64) = ((extract 8 8) substring3%3#0)
+        let result.1.2#0: bytes = ((extract 2 0) substring3%4#0)
+        let tmp%9#1: bool = (== result.0.0#0 "echo: s1")
+        (assert tmp%9#1)
+        let tmp%11#0: bool = (== result.0.1#0 0x00086563686f3a207332)
+        (assert tmp%11#0)
+        let tmp%12#0: bool = (== result.1.0#0 2u)
+        (assert tmp%12#0)
+        let tmp%13#1: bool = (b== result.1.1#0 0x0000000000000003)
+        (assert tmp%13#1)
+        let tmp%14#1: bool = (== result.1.2#0 0x6563686f3a2033)
+        (assert tmp%14#1)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
+        ((itxn_field ApplicationArgs) 0x00040010000400080002733100027332000000000000000100000000000000020012000133)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%17#1: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%18#1: bool = (== tmp%17#1 0x151f7c75)
+        (assert tmp%18#1) // application log value is not the result of an ABI return
+        let tmp%19#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let tuple_len%3#0: uint64 = (len tmp%19#0)
+        let extract_uint16%5#0: uint64 = (extract_uint16 tmp%19#0 0u) // on error: invalid tuple encoding
+        let eq%6#0: bool = (== extract_uint16%5#0 4u)
+        (assert eq%6#0) // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+        let substring3%5#0: bytes = (substring3 tmp%19#0 extract_uint16%5#0 tuple_len%3#0)
+        let tuple_len%4#0: uint64 = (len substring3%5#0)
+        let extract_uint16%6#0: uint64 = (extract_uint16 substring3%5#0 0u) // on error: invalid tuple encoding
+        let eq%7#0: bool = (== extract_uint16%6#0 4u)
+        (assert eq%7#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+        let substring3%6#0: bytes = (substring3 substring3%5#0 extract_uint16%6#0 tuple_len%4#0)
+        let aggregate%array_length%38#0: uint64 = (extract_uint16 substring3%6#0 0u) // on error: invalid array length header
+        let add%9#0: uint64 = (+ aggregate%array_length%38#0 6u)
+        let extract_uint16%7#0: uint64 = (extract_uint16 substring3%5#0 2u) // on error: invalid tuple encoding
+        let eq%8#0: bool = (== extract_uint16%7#0 add%9#0)
+        (assert eq%8#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+        let substring3%7#0: bytes = (substring3 substring3%5#0 extract_uint16%7#0 tuple_len%4#0)
+        let aggregate%array_length%39#0: uint64 = (extract_uint16 substring3%7#0 0u) // on error: invalid array length header
+        let add%10#0: uint64 = (+ aggregate%array_length%39#0 2u)
+        let add%11#0: uint64 = (+ add%9#0 add%10#0)
+        let add%12#0: uint64 = (+ 4u add%11#0)
+        let extract_uint16%8#0: uint64 = (extract_uint16 tmp%19#0 2u) // on error: invalid tuple encoding
+        let eq%9#0: bool = (== extract_uint16%8#0 add%12#0)
+        (assert eq%9#0) // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+        let substring3%8#0: bytes = (substring3 tmp%19#0 extract_uint16%8#0 tuple_len%3#0)
+        let tuple_len%5#0: uint64 = (len substring3%8#0)
+        let extract_uint16%9#0: uint64 = (extract_uint16 substring3%8#0 16u) // on error: invalid tuple encoding
+        let eq%10#0: bool = (== extract_uint16%9#0 18u)
+        (assert eq%10#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
+        let substring3%9#0: bytes = (substring3 substring3%8#0 extract_uint16%9#0 tuple_len%5#0)
+        let aggregate%array_length%40#0: uint64 = (extract_uint16 substring3%9#0 0u) // on error: invalid array length header
+        let add%14#0: uint64 = (+ aggregate%array_length%40#0 20u)
+        let add%15#0: uint64 = (+ add%12#0 add%14#0)
+        let eq%11#0: bool = (== tuple_len%3#0 add%15#0)
+        (assert eq%11#0) // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
+        let aggregate%substring3%17#0: bytes = (substring3 tmp%19#0 extract_uint16%5#0 extract_uint16%8#0)
+        let aggregate%extract_uint16%27#0: uint64 = (extract_uint16 aggregate%substring3%17#0 0u)
+        let aggregate%extract_uint16%28#0: uint64 = (extract_uint16 aggregate%substring3%17#0 2u)
+        let aggregate%substring3%18#0: bytes = (substring3 aggregate%substring3%17#0 aggregate%extract_uint16%27#0 aggregate%extract_uint16%28#0)
+        let result.0.0#0: string = ((extract 2 0) aggregate%substring3%18#0)
+        let aggregate%len%9#0: uint64 = (len aggregate%substring3%17#0)
+        let result.0.1#0: Encoded(len+utf8[]) = (substring3 aggregate%substring3%17#0 aggregate%extract_uint16%28#0 aggregate%len%9#0)
+        let result.1.0#0: uint64 = (extract_uint64 substring3%8#0 0u)
+        let result.1.1#0: Encoded(uint64) = ((extract 8 8) substring3%8#0)
+        let result.1.2#0: bytes = ((extract 2 0) substring3%9#0)
+        let tmp%25#0: bool = (== result.0.0#0 "echo: s1")
+        (assert tmp%25#0)
+        let tmp%27#1: bool = (== result.0.1#0 0x00086563686f3a207332)
+        (assert tmp%27#1)
+        let tmp%28#0: bool = (== result.1.0#0 2u)
+        (assert tmp%28#0)
+        let tmp%29#1: bool = (b== result.1.1#0 0x0000000000000003)
+        (assert tmp%29#1)
+        let tmp%30#0: bool = (== result.1.2#0 0x6563686f3a2033)
+        (assert tmp%30#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
+        ((itxn_field ApplicationArgs) 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%37#1: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%38#0: bool = (== tmp%37#1 0x151f7c75)
+        (assert tmp%38#0) // application log value is not the result of an ABI return
+        let tmp%39#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let tuple_len%6#0: uint64 = (len tmp%39#0)
+        let extract_uint16%10#0: uint64 = (extract_uint16 tmp%39#0 0u) // on error: invalid tuple encoding
+        let eq%12#0: bool = (== extract_uint16%10#0 4u)
+        (assert eq%12#0) // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+        let substring3%10#0: bytes = (substring3 tmp%39#0 extract_uint16%10#0 tuple_len%6#0)
+        let tuple_len%7#0: uint64 = (len substring3%10#0)
+        let extract_uint16%11#0: uint64 = (extract_uint16 substring3%10#0 0u) // on error: invalid tuple encoding
+        let eq%13#0: bool = (== extract_uint16%11#0 4u)
+        (assert eq%13#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+        let substring3%11#0: bytes = (substring3 substring3%10#0 extract_uint16%11#0 tuple_len%7#0)
+        let aggregate%array_length%41#0: uint64 = (extract_uint16 substring3%11#0 0u) // on error: invalid array length header
+        let add%17#0: uint64 = (+ aggregate%array_length%41#0 6u)
+        let extract_uint16%12#0: uint64 = (extract_uint16 substring3%10#0 2u) // on error: invalid tuple encoding
+        let eq%14#0: bool = (== extract_uint16%12#0 add%17#0)
+        (assert eq%14#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+        let substring3%12#0: bytes = (substring3 substring3%10#0 extract_uint16%12#0 tuple_len%7#0)
+        let aggregate%array_length%42#0: uint64 = (extract_uint16 substring3%12#0 0u) // on error: invalid array length header
+        let add%18#0: uint64 = (+ aggregate%array_length%42#0 2u)
+        let add%19#0: uint64 = (+ add%17#0 add%18#0)
+        let add%20#0: uint64 = (+ 4u add%19#0)
+        let extract_uint16%13#0: uint64 = (extract_uint16 tmp%39#0 2u) // on error: invalid tuple encoding
+        let eq%15#0: bool = (== extract_uint16%13#0 add%20#0)
+        (assert eq%15#0) // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+        let substring3%13#0: bytes = (substring3 tmp%39#0 extract_uint16%13#0 tuple_len%6#0)
+        let tuple_len%8#0: uint64 = (len substring3%13#0)
+        let extract_uint16%14#0: uint64 = (extract_uint16 substring3%13#0 16u) // on error: invalid tuple encoding
+        let eq%16#0: bool = (== extract_uint16%14#0 18u)
+        (assert eq%16#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
+        let substring3%14#0: bytes = (substring3 substring3%13#0 extract_uint16%14#0 tuple_len%8#0)
+        let aggregate%array_length%43#0: uint64 = (extract_uint16 substring3%14#0 0u) // on error: invalid array length header
+        let add%22#0: uint64 = (+ aggregate%array_length%43#0 20u)
+        let add%23#0: uint64 = (+ add%20#0 add%22#0)
+        let eq%17#0: bool = (== tuple_len%6#0 add%23#0)
+        (assert eq%17#0) // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
+        let aggregate%substring3%22#0: bytes = (substring3 tmp%39#0 extract_uint16%10#0 extract_uint16%13#0)
+        let aggregate%extract_uint16%34#0: uint64 = (extract_uint16 aggregate%substring3%22#0 0u)
+        let aggregate%extract_uint16%35#0: uint64 = (extract_uint16 aggregate%substring3%22#0 2u)
+        let aggregate%substring3%23#0: bytes = (substring3 aggregate%substring3%22#0 aggregate%extract_uint16%34#0 aggregate%extract_uint16%35#0)
+        let result.0.0#0: string = ((extract 2 0) aggregate%substring3%23#0)
+        let aggregate%len%12#0: uint64 = (len aggregate%substring3%22#0)
+        let result.0.1#0: Encoded(len+utf8[]) = (substring3 aggregate%substring3%22#0 aggregate%extract_uint16%35#0 aggregate%len%12#0)
+        let result.1.0#0: uint64 = (extract_uint64 substring3%13#0 0u)
+        let result.1.1#0: Encoded(uint64) = ((extract 8 8) substring3%13#0)
+        let result.1.2#0: bytes = ((extract 2 0) substring3%14#0)
+        let tmp%45#0: bool = (== result.0.0#0 "echo: s1b")
+        (assert tmp%45#0)
+        let tmp%47#0: bool = (== result.0.1#0 0x00096563686f3a20733262)
+        (assert tmp%47#0)
+        let tmp%48#0: bool = (== result.1.0#0 12u)
+        (assert tmp%48#0)
+        let tmp%49#0: bool = (b== result.1.1#0 0x0000000000000016)
+        (assert tmp%49#0)
+        let tmp%50#0: bool = (== result.1.2#0 0x6563686f3a203362)
+        (assert tmp%50#0)
+        exit 1u
+    block@19: // test_no_args_route_L401
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "no_args()uint64")
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#2: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%1#4: bool = (== tmp%0#2 0x151f7c75)
+        (assert tmp%1#4) // application log value is not the result of an ABI return
+        let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%2#1)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let result#2: uint64 = (btoi tmp%2#1)
+        let tmp%4#4: bool = (== result#2 42u)
+        (assert tmp%4#4)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "no_args()uint64")
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%5#2: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%6#2: bool = (== tmp%5#2 0x151f7c75)
+        (assert tmp%6#2) // application log value is not the result of an ABI return
+        let arc4_result#0: Encoded(uint64) = ((extract 4 0) awst_tmp%1#0)
+        let len%1#0: uint64 = (len arc4_result#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let tmp%8#0: bool = (b== arc4_result#0 0x000000000000002a)
+        (assert tmp%8#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "no_args()uint64")
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%9#3: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%10#0: bool = (== tmp%9#3 0x151f7c75)
+        (assert tmp%10#0) // application log value is not the result of an ABI return
+        let tmp%11#2: bytes = ((extract 4 0) awst_tmp%2#0)
+        let len%2#0: uint64 = (len tmp%11#2)
+        let eq%2#0: bool = (== len%2#0 8u)
+        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        let tmp%12#0: bool = (b== tmp%11#2 0x000000000000002a)
+        (assert tmp%12#0)
+        exit 1u
+    block@20: // test_named_tuples_route_L411
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "logs_are_equal((uint64,string),(uint64,string))bool")
+        ((itxn_field ApplicationArgs) 0x0000000000000001000a00056c6f672031)
+        ((itxn_field ApplicationArgs) 0x0000000000000001000a00056c6f672031)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%2#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#1 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let tmp%4#1: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%4#1)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool
+        let result#0: bool = (getbit tmp%4#1 0u)
+        (assert result#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "logs_are_equal((uint64,string),(uint64,string))bool")
+        ((itxn_field ApplicationArgs) 0x0000000000000002000a00056c6f672032)
+        ((itxn_field ApplicationArgs) 0x0000000000000001000a00056c6f672031)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%8#2: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%9#1: bool = (== tmp%8#2 0x151f7c75)
+        (assert tmp%9#1) // application log value is not the result of an ABI return
+        let tmp%10#2: bytes = ((extract 4 0) awst_tmp%1#0)
+        let len%1#0: uint64 = (len tmp%10#2)
+        let eq%1#0: bool = (== len%1#0 1u)
+        (assert eq%1#0) // invalid number of bytes for bool
+        let result#0: bool = (getbit tmp%10#2 0u)
+        let tmp%12#0: bool = (! result#0)
+        (assert tmp%12#0)
+        exit 1u
+    block@21: // test_arc4_struct_route_L436
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi tmp%0#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_log_struct((uint64,string))(uint64,string)")
+        ((itxn_field ApplicationArgs) 0x0000000000000001000a00056c6f672031)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let txn.LastLog#0: bytes = (itxn LastLog)
+        let tmp%2#1: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%3#0: bool = (== tmp%2#1 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let tmp%4#1: bytes = ((extract 4 0) txn.LastLog#0)
+        let tuple_len%0#0: uint64 = (len tmp%4#1)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%4#1 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 10u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+        let substring3%0#0: bytes = (substring3 tmp%4#1 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%44#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%44#0 12u)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
+        let tmp%5#1: bool = (== tmp%4#1 0x0000000000000001000a00056c6f672031)
+        (assert tmp%5#1) // expected output to match input
+        exit 1u
+    block@22: // test_resource_encoding_route_L447
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app_to_call#0: uint64 = (btoi tmp%0#2)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let asset#0: uint64 = (btoi tmp%2#1)
+        let app#0: uint64 = (global CurrentApplicationID)
+        let acc#0: account = (global CurrentApplicationAddress)
+        itxn_begin
+        ((itxn_field ApplicationID) app_to_call#0)
+        ((itxn_field Assets) asset#0)
+        ((itxn_field Applications) app#0)
+        ((itxn_field Accounts) acc#0)
+        ((itxn_field ApplicationArgs) method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)")
+        ((itxn_field ApplicationArgs) 0x00)
+        ((itxn_field ApplicationArgs) 0x01)
+        ((itxn_field ApplicationArgs) 0x01)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%2#2: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#2 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let tmp%4#1: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%4#1)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for tuple<asset,application,account>
+        let result.0#0: uint64 = (extract_uint64 awst_tmp%0#0 4u)
+        let result.1#0: uint64 = (extract_uint64 awst_tmp%0#0 12u)
+        let result.2#0: account = ((extract 20 32) awst_tmp%0#0)
+        let tmp%8#0: bool = (== result.0#0 asset#0)
+        let tmp%9#1: bool = (== result.1#0 app#0)
+        let tmp%10#0: bool = (&& tmp%8#0 tmp%9#1)
+        let tmp%11#0: bool = (== result.2#0 acc#0)
+        let tmp%12#0: bool = (&& tmp%10#0 tmp%11#0)
+        (assert tmp%12#0) // expected echo to return same resources
+        itxn_begin
+        let aggregate%val_as_bytes%33#0: bytes[8] = (itob app#0)
+        ((itxn_field ApplicationID) app_to_call#0)
+        ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
+        ((itxn_field ApplicationArgs) tmp%2#1)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%33#0)
+        ((itxn_field ApplicationArgs) acc#0)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%1#0: bytes = (itxn LastLog)
+        let tmp%16#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%17#0: bool = (== tmp%16#0 0x151f7c75)
+        (assert tmp%17#0) // application log value is not the result of an ABI return
+        let tmp%18#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let len%1#0: uint64 = (len tmp%18#0)
+        let eq%1#0: bool = (== len%1#0 48u)
+        (assert eq%1#0) // invalid number of bytes for tuple<asset,application,account>
+        let result.0#0: uint64 = (extract_uint64 awst_tmp%1#0 4u)
+        let result.1#0: uint64 = (extract_uint64 awst_tmp%1#0 12u)
+        let result.2#0: account = ((extract 20 32) awst_tmp%1#0)
+        let tmp%22#0: bool = (== result.0#0 asset#0)
+        let tmp%23#0: bool = (== result.1#0 app#0)
+        let tmp%24#0: bool = (&& tmp%22#0 tmp%23#0)
+        let tmp%25#0: bool = (== result.2#0 acc#0)
+        let tmp%26#0: bool = (&& tmp%24#0 tmp%25#0)
+        (assert tmp%26#0) // expected echo to return same resources
+        itxn_begin
+        ((itxn_field ApplicationID) app_to_call#0)
+        ((itxn_field Assets) asset#0)
+        ((itxn_field Applications) app#0)
+        ((itxn_field Accounts) acc#0)
+        ((itxn_field ApplicationArgs) method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)")
+        ((itxn_field ApplicationArgs) 0x00)
+        ((itxn_field ApplicationArgs) 0x01)
+        ((itxn_field ApplicationArgs) 0x01)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%2#0: bytes = (itxn LastLog)
+        let tmp%27#0: bytes = ((extract 0 4) awst_tmp%2#0)
+        let tmp%28#0: bool = (== tmp%27#0 0x151f7c75)
+        (assert tmp%28#0) // application log value is not the result of an ABI return
+        let tmp%29#0: bytes = ((extract 4 0) awst_tmp%2#0)
+        let len%2#0: uint64 = (len tmp%29#0)
+        let eq%2#0: bool = (== len%2#0 48u)
+        (assert eq%2#0) // invalid number of bytes for tuple<asset,application,account>
+        let result.0#0: uint64 = (extract_uint64 awst_tmp%2#0 4u)
+        let result.1#0: uint64 = (extract_uint64 awst_tmp%2#0 12u)
+        let result.2#0: account = ((extract 20 32) awst_tmp%2#0)
+        let tmp%33#0: bool = (== result.0#0 asset#0)
+        let tmp%34#0: bool = (== result.1#0 app#0)
+        let tmp%35#0: bool = (&& tmp%33#0 tmp%34#0)
+        let tmp%36#0: bool = (== result.2#0 acc#0)
+        let tmp%37#0: bool = (&& tmp%35#0 tmp%36#0)
+        (assert tmp%37#0) // expected echo to return same resources
+        itxn_begin
+        ((itxn_field ApplicationID) app_to_call#0)
+        ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
+        ((itxn_field ApplicationArgs) tmp%2#1)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%33#0)
+        ((itxn_field ApplicationArgs) acc#0)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%3#0: bytes = (itxn LastLog)
+        let tmp%41#0: bytes = ((extract 0 4) awst_tmp%3#0)
+        let tmp%42#0: bool = (== tmp%41#0 0x151f7c75)
+        (assert tmp%42#0) // application log value is not the result of an ABI return
+        let tmp%43#0: bytes = ((extract 4 0) awst_tmp%3#0)
+        let len%3#0: uint64 = (len tmp%43#0)
+        let eq%3#0: bool = (== len%3#0 48u)
+        (assert eq%3#0) // invalid number of bytes for tuple<asset,application,account>
+        let result.0#0: uint64 = (extract_uint64 awst_tmp%3#0 4u)
+        let result.1#0: uint64 = (extract_uint64 awst_tmp%3#0 12u)
+        let result.2#0: account = ((extract 20 32) awst_tmp%3#0)
+        let tmp%47#0: bool = (== result.0#0 asset#0)
+        let tmp%48#0: bool = (== result.1#0 app#0)
+        let tmp%49#0: bool = (&& tmp%47#0 tmp%48#0)
+        let tmp%50#0: bool = (== result.2#0 acc#0)
+        let tmp%51#0: bool = (&& tmp%49#0 tmp%50#0)
+        (assert tmp%51#0) // expected echo to return same resources
+        itxn_begin
+        ((itxn_field ApplicationID) app_to_call#0)
+        ((itxn_field Assets) asset#0)
+        ((itxn_field Applications) app#0)
+        ((itxn_field Accounts) acc#0)
+        ((itxn_field ApplicationArgs) method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)")
+        ((itxn_field ApplicationArgs) 0x00)
+        ((itxn_field ApplicationArgs) 0x01)
+        ((itxn_field ApplicationArgs) 0x01)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%4#0: bytes = (itxn LastLog)
+        let tmp%52#0: bytes = ((extract 0 4) awst_tmp%4#0)
+        let tmp%53#0: bool = (== tmp%52#0 0x151f7c75)
+        (assert tmp%53#0) // application log value is not the result of an ABI return
+        let tmp%54#0: bytes = ((extract 4 0) awst_tmp%4#0)
+        let len%4#0: uint64 = (len tmp%54#0)
+        let eq%4#0: bool = (== len%4#0 48u)
+        (assert eq%4#0) // invalid number of bytes for tuple<asset,application,account>
+        let result.0#0: uint64 = (extract_uint64 awst_tmp%4#0 4u)
+        let result.1#0: uint64 = (extract_uint64 awst_tmp%4#0 12u)
+        let result.2#0: account = ((extract 20 32) awst_tmp%4#0)
+        let tmp%58#0: bool = (== result.0#0 asset#0)
+        let tmp%59#0: bool = (== result.1#0 app#0)
+        let tmp%60#0: bool = (&& tmp%58#0 tmp%59#0)
+        let tmp%61#0: bool = (== result.2#0 acc#0)
+        let tmp%62#0: bool = (&& tmp%60#0 tmp%61#0)
+        (assert tmp%62#0) // expected echo to return same resources
+        itxn_begin
+        ((itxn_field ApplicationID) app_to_call#0)
+        ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
+        ((itxn_field ApplicationArgs) tmp%2#1)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%33#0)
+        ((itxn_field ApplicationArgs) acc#0)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%5#0: bytes = (itxn LastLog)
+        let tmp%66#0: bytes = ((extract 0 4) awst_tmp%5#0)
+        let tmp%67#0: bool = (== tmp%66#0 0x151f7c75)
+        (assert tmp%67#0) // application log value is not the result of an ABI return
+        let tmp%68#0: bytes = ((extract 4 0) awst_tmp%5#0)
+        let len%5#0: uint64 = (len tmp%68#0)
+        let eq%5#0: bool = (== len%5#0 48u)
+        (assert eq%5#0) // invalid number of bytes for tuple<asset,application,account>
+        let result.0#0: uint64 = (extract_uint64 awst_tmp%5#0 4u)
+        let result.1#0: uint64 = (extract_uint64 awst_tmp%5#0 12u)
+        let result.2#0: account = ((extract 20 32) awst_tmp%5#0)
+        let tmp%72#0: bool = (== result.0#0 asset#0)
+        let tmp%73#0: bool = (== result.1#0 app#0)
+        let tmp%74#0: bool = (&& tmp%72#0 tmp%73#0)
+        let tmp%75#0: bool = (== result.2#0 acc#0)
+        let tmp%76#0: bool = (&& tmp%74#0 tmp%75#0)
+        (assert tmp%76#0) // expected echo to return same resources
+        exit 1u
+    block@25: // after_if_else_L25
+        fail
+    block@26: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        exit 1u
