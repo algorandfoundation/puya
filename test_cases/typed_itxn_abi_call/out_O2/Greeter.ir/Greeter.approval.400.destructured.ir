@@ -109,8 +109,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         let awst_tmp%3#0: bytes = (itxn LastLog)
         let tmp%20#2: bytes = ((extract 0 4) awst_tmp%3#0)
-        let tmp%21#2: bool = (== tmp%20#2 0x151f7c75)
-        (assert tmp%21#2) // application log value is not the result of an ABI return
+        let tmp%21#3: bool = (== tmp%20#2 0x151f7c75)
+        (assert tmp%21#3) // application log value is not the result of an ABI return
         let result#3: bytes = ((extract 4 0) awst_tmp%3#0)
         let aggregate%array_length%5#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
         let add%3#1: uint64 = (+ aggregate%array_length%5#0 2u)
@@ -127,8 +127,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%4#0: bytes = (itxn LastLog)
-        let tmp%26#3: bytes = ((extract 0 4) awst_tmp%4#0)
-        let tmp%27#1: bool = (== tmp%26#3 0x151f7c75)
+        let tmp%26#4: bytes = ((extract 0 4) awst_tmp%4#0)
+        let tmp%27#1: bool = (== tmp%26#4 0x151f7c75)
         (assert tmp%27#1) // application log value is not the result of an ABI return
         let result#3: bytes = ((extract 4 0) awst_tmp%4#0)
         let aggregate%array_length%6#0: uint64 = (extract_uint16 result#3 0u) // on error: invalid array length header
@@ -213,13 +213,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%24#2: bytes = ((extract 0 4) txn_result.LastLog#0)
         let tmp%25#0: bool = (== tmp%24#2 0x151f7c75)
         (assert tmp%25#0) // application log value is not the result of an ABI return
-        let tmp%26#3: bytes = ((extract 4 0) txn_result.LastLog#0)
-        let aggregate%array_length%11#0: uint64 = (extract_uint16 tmp%26#3 0u) // on error: invalid array length header
+        let tmp%26#4: bytes = ((extract 4 0) txn_result.LastLog#0)
+        let aggregate%array_length%11#0: uint64 = (extract_uint16 tmp%26#4 0u) // on error: invalid array length header
         let add%4#0: uint64 = (+ aggregate%array_length%11#0 2u)
-        let len%4#0: uint64 = (len tmp%26#3)
+        let len%4#0: uint64 = (len tmp%26#4)
         let eq%4#0: bool = (== len%4#0 add%4#0)
         (assert eq%4#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%28#0: bool = (== tmp%26#3 0x000d6563686f3a20756e7479706564)
+        let tmp%28#0: bool = (== tmp%26#4 0x000d6563686f3a20756e7479706564)
         (assert tmp%28#0)
         exit 1u
     block@7: // test_arg_conversion_route_L66
@@ -239,15 +239,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%1#4: bool = (== txn.LastLog#0 0x636f6e76657274656431)
         (assert tmp%1#4)
         itxn_begin
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 2u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "log(uint64)void")
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
+        ((itxn_field ApplicationArgs) 0x0000000000000002)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let tmp%4#4: bool = (== txn.LastLog#0 aggregate%val_as_bytes%0#0)
+        let tmp%3#5: bytes = (itob 2u)
+        let tmp%4#4: bool = (== txn.LastLog#0 tmp%3#5)
         (assert tmp%4#4)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
@@ -287,36 +287,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#2)
         itxn_begin
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 1u)
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob 2u)
-        let aggregate%val_as_bytes%4#0: bytes[8] = (itob 3u)
-        let aggregate%val_as_bytes%5#0: bytes[8] = (itob 4u)
-        let aggregate%val_as_bytes%6#0: bytes[8] = (itob 5u)
-        let aggregate%val_as_bytes%7#0: bytes[8] = (itob 6u)
-        let aggregate%val_as_bytes%8#0: bytes[8] = (itob 7u)
-        let aggregate%val_as_bytes%9#0: bytes[8] = (itob 8u)
-        let aggregate%val_as_bytes%10#0: bytes[8] = (itob 9u)
-        let aggregate%val_as_bytes%11#0: bytes[8] = (itob 10u)
-        let aggregate%val_as_bytes%12#0: bytes[8] = (itob 11u)
-        let aggregate%val_as_bytes%13#0: bytes[8] = (itob 12u)
-        let aggregate%val_as_bytes%14#0: bytes[8] = (itob 13u)
-        let aggregate%val_as_bytes%15#0: bytes[8] = (itob 14u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]")
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%2#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%3#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%4#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%5#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%6#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%7#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%8#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%9#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%10#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%11#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%12#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%13#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%14#0)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%15#0)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
+        ((itxn_field ApplicationArgs) 0x0000000000000002)
+        ((itxn_field ApplicationArgs) 0x0000000000000003)
+        ((itxn_field ApplicationArgs) 0x0000000000000004)
+        ((itxn_field ApplicationArgs) 0x0000000000000005)
+        ((itxn_field ApplicationArgs) 0x0000000000000006)
+        ((itxn_field ApplicationArgs) 0x0000000000000007)
+        ((itxn_field ApplicationArgs) 0x0000000000000008)
+        ((itxn_field ApplicationArgs) 0x0000000000000009)
+        ((itxn_field ApplicationArgs) 0x000000000000000a)
+        ((itxn_field ApplicationArgs) 0x000000000000000b)
+        ((itxn_field ApplicationArgs) 0x000000000000000c)
+        ((itxn_field ApplicationArgs) 0x000000000000000d)
+        ((itxn_field ApplicationArgs) 0x000000000000000e)
         ((itxn_field ApplicationArgs) 0x0f101112deadbeef14)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
@@ -574,10 +560,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#2)
         itxn_begin
-        let aggregate%val_as_bytes%21#0: bytes[8] = (itob 1u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%21#0)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -593,9 +578,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#1: bool = (== result1#2 2u)
         (assert tmp%5#1)
         itxn_begin
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%21#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -628,8 +614,26 @@ main algopy.arc4.ARC4Contract.approval_program:
         let result3#2: uint64 = (btoi tmp%14#5)
         let tmp%16#2: bool = (== result3#2 result1#2)
         (assert tmp%16#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_uint64(uint64)uint64")
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%3#0: bytes = (itxn LastLog)
+        let tmp%18#0: bytes = ((extract 0 4) awst_tmp%3#0)
+        let tmp%19#2: bool = (== tmp%18#0 0x151f7c75)
+        (assert tmp%19#2) // application log value is not the result of an ABI return
+        let tmp%20#2: bytes = ((extract 4 0) awst_tmp%3#0)
+        let len%3#0: uint64 = (len tmp%20#2)
+        let eq%3#0: bool = (== len%3#0 8u)
+        (assert eq%3#0) // invalid number of bytes for uint64
+        let result4#1: uint64 = (btoi tmp%20#2)
+        let tmp%22#0: bool = (== result4#1 result1#2)
+        (assert tmp%22#0)
         exit 1u
-    block@15: // test_native_biguint_route_L195
+    block@15: // test_native_biguint_route_L202
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -686,20 +690,53 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%2#0) // invalid number of bytes for biguint
         let tmp%16#2: bool = (b== result3#1 result1#1)
         (assert tmp%16#2)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+        ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%3#0: bytes = (itxn LastLog)
+        let tmp%18#0: bytes = ((extract 0 4) awst_tmp%3#0)
+        let tmp%19#2: bool = (== tmp%18#0 0x151f7c75)
+        (assert tmp%19#2) // application log value is not the result of an ABI return
+        let result4#0: biguint = ((extract 4 0) awst_tmp%3#0)
+        let len%3#0: uint64 = (len result4#0)
+        let eq%3#0: bool = (== len%3#0 64u)
+        (assert eq%3#0) // invalid number of bytes for biguint
+        let tmp%22#0: bool = (b== result4#0 result1#1)
+        (assert tmp%22#0)
+        itxn_begin
+        ((itxn_field ApplicationID) app#0)
+        ((itxn_field ApplicationArgs) method "echo_native_biguint(uint512)uint512")
+        ((itxn_field ApplicationArgs) 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe)
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%4#0: bytes = (itxn LastLog)
+        let tmp%24#2: bytes = ((extract 0 4) awst_tmp%4#0)
+        let tmp%25#0: bool = (== tmp%24#2 0x151f7c75)
+        (assert tmp%25#0) // application log value is not the result of an ABI return
+        let result5#0: biguint = ((extract 4 0) awst_tmp%4#0)
+        let len%4#0: uint64 = (len result5#0)
+        let eq%4#0: bool = (== len%4#0 64u)
+        (assert eq%4#0) // invalid number of bytes for biguint
+        let tmp%28#0: bool = (b== result5#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        (assert tmp%28#0)
         exit 1u
-    block@16: // test_native_tuple_route_L208
+    block@16: // test_native_tuple_route_L229
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#2)
         itxn_begin
-        let aggregate%val_as_bytes%23#0: bytes[8] = (itob 1u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%23#0)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
         ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
@@ -739,11 +776,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%18#1: bool = (b== bu#0 3b)
         (assert tmp%18#1)
         itxn_begin
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 1u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%23#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%1#0)
         ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
@@ -849,19 +887,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%65#0: bool = (b== bu#0 result_native.3#0)
         (assert tmp%65#0)
         exit 1u
-    block@17: // test_native_tuple_method_ref_route_L277
+    block@17: // test_native_tuple_method_ref_route_L298
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let app#0: uint64 = (btoi tmp%0#2)
         itxn_begin
-        let aggregate%val_as_bytes%25#0: bytes[8] = (itob 1u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
+        ((itxn_field ApplicationArgs) 0x0000000000000001)
         ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
@@ -901,11 +938,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%14#1: bool = (b== result.3#0 3b)
         (assert tmp%14#1)
         itxn_begin
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob 1u)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
         ((itxn_field ApplicationArgs) 0x00027331)
         ((itxn_field ApplicationArgs) 0x00026231)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%25#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%2#0)
         ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
@@ -1033,7 +1071,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%64#0: bool = (&& tmp%62#0 tmp%63#0)
         (assert tmp%64#0)
         exit 1u
-    block@18: // test_nested_tuples_route_L343
+    block@18: // test_nested_tuples_route_L364
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -1238,7 +1276,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%50#0: bool = (== result.1.2#0 0x6563686f3a203362)
         (assert tmp%50#0)
         exit 1u
-    block@19: // test_no_args_route_L401
+    block@19: // test_no_args_route_L422
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -1294,7 +1332,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%12#0: bool = (b== tmp%11#2 0x000000000000002a)
         (assert tmp%12#0)
         exit 1u
-    block@20: // test_named_tuples_route_L411
+    block@20: // test_named_tuples_route_L432
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -1338,7 +1376,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%12#0: bool = (! result#0)
         (assert tmp%12#0)
         exit 1u
-    block@21: // test_arc4_struct_route_L436
+    block@21: // test_arc4_struct_route_L457
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -1368,7 +1406,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#1: bool = (== tmp%4#1 0x0000000000000001000a00056c6f672031)
         (assert tmp%5#1) // expected output to match input
         exit 1u
-    block@22: // test_resource_encoding_route_L447
+    block@22: // test_resource_encoding_route_L468
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -1411,11 +1449,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%12#0: bool = (&& tmp%10#0 tmp%11#0)
         (assert tmp%12#0) // expected echo to return same resources
         itxn_begin
-        let aggregate%val_as_bytes%33#0: bytes[8] = (itob app#0)
+        let aggregate%val_as_bytes%7#0: bytes[8] = (itob app#0)
         ((itxn_field ApplicationID) app_to_call#0)
         ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
         ((itxn_field ApplicationArgs) tmp%2#1)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%33#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%7#0)
         ((itxn_field ApplicationArgs) acc#0)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
@@ -1470,7 +1508,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationID) app_to_call#0)
         ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
         ((itxn_field ApplicationArgs) tmp%2#1)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%33#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%7#0)
         ((itxn_field ApplicationArgs) acc#0)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
@@ -1525,7 +1563,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field ApplicationID) app_to_call#0)
         ((itxn_field ApplicationArgs) method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)")
         ((itxn_field ApplicationArgs) tmp%2#1)
-        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%33#0)
+        ((itxn_field ApplicationArgs) aggregate%val_as_bytes%7#0)
         ((itxn_field ApplicationArgs) acc#0)
         ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
