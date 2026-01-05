@@ -14,7 +14,8 @@ For top level release notes, leave all the headers commented out.
 ### Added
 
 - Instance method definitios on structure types (`typing.NamedTuple`, `puyapy.Struct` and
-  `puyapy.arc4.Struct`) are now supported.
+  `puyapy.arc4.Struct`) are now supported. As with contracts @subroutine will be the compiler hint
+  for inhibiting or forcing inlining of these methods.
 
 <!--
 ### Changed
