@@ -3,14 +3,29 @@ subroutine return_value_times(self: test_cases.structure_methods.contract.ARC4Te
   return arc4_decode(self.value, uint64) * times
 }
 
+subroutine return1(): uint64
+{
+  return 1u
+}
+
 subroutine return_value_times(self: test_cases.structure_methods.contract.TestStruct, times: uint64): uint64
 {
   return self.value * times
 }
 
+subroutine return1(): uint64
+{
+  return 1u
+}
+
 subroutine return_value_times(self: test_cases.structure_methods.contract.TestNamedTuple, times: uint64): uint64
 {
   return self.value * times
+}
+
+subroutine return1(): uint64
+{
+  return 1u
 }
 
 subroutine never_inlined_usually_inlined(self: test_cases.structure_methods.contract.GroupedMethods, v: uint64): uint64
@@ -64,11 +79,20 @@ contract TestContract
     return true
   }
   
-  abimethod test_cases.structure_methods.contract.TestContract.test(expected: uint64): void
+  abimethod test_cases.structure_methods.contract.TestContract.test(): void
   {
-    assert(expected == this::arc4_struct_test())
-    assert(expected == this::struct_test())
-    assert(expected == this::named_tuple_test())
+    assert(18u == test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(new test_cases.structure_methods.contract.ARC4TestStruct(value=9_arc4u64), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestStruct.return_value_times(new test_cases.structure_methods.contract.TestStruct(value=9u), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestNamedTuple.return_value_times((value=9u), 2u))
+    assert(18u == test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(new test_cases.structure_methods.contract.ARC4TestStruct(value=9_arc4u64), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestStruct.return_value_times(new test_cases.structure_methods.contract.TestStruct(value=9u), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestNamedTuple.return_value_times((value=9u), 2u))
+    assert(1u == test_cases.structure_methods.contract.ARC4TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestNamedTuple.return1())
+    assert(1u == test_cases.structure_methods.contract.ARC4TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestNamedTuple.return1())
     assert(3u == test_cases.structure_methods.contract.GroupedMethods.never_inlined_usually_inlined((), 2u))
     assert(3u == test_cases.structure_methods.contract.GroupedMethods.never_inlined_usually_inlined((), 2u))
     assert(3u == test_cases.structure_methods.contract.GroupedMethods.usually_inlined((), 2u))
@@ -77,24 +101,6 @@ contract TestContract
     test_cases.structure_methods.contract.GroupedMethods.always_inlined_not_usually_inlined((), 2u)
     test_cases.structure_methods.contract.GroupedMethods.not_usually_inlined((), 2u)
     test_cases.structure_methods.contract.GroupedMethods.not_usually_inlined((), 2u)
-  }
-  
-  subroutine test_cases.structure_methods.contract.TestContract.arc4_struct_test(): uint64
-  {
-    arc4_struct: test_cases.structure_methods.contract.ARC4TestStruct = new test_cases.structure_methods.contract.ARC4TestStruct(value=9_arc4u64)
-    return test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(arc4_struct, 2u)
-  }
-  
-  subroutine test_cases.structure_methods.contract.TestContract.struct_test(): uint64
-  {
-    struct: test_cases.structure_methods.contract.TestStruct = new test_cases.structure_methods.contract.TestStruct(value=9u)
-    return test_cases.structure_methods.contract.TestStruct.return_value_times(struct, 2u)
-  }
-  
-  subroutine test_cases.structure_methods.contract.TestContract.named_tuple_test(): uint64
-  {
-    named_tuple: test_cases.structure_methods.contract.TestNamedTuple = (value=9u)
-    return test_cases.structure_methods.contract.TestNamedTuple.return_value_times(named_tuple, 2u)
   }
   
   baremethod test_cases.structure_methods.contract.TestContract.__algopy_default_create(): void

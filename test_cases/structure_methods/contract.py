@@ -9,6 +9,10 @@ class ARC4TestStruct(arc4.Struct):
     def return_value_times(self, times: UInt64) -> UInt64:
         return self.value.as_uint64() * times
 
+    @staticmethod
+    def return1() -> UInt64:
+        return UInt64(1)
+
 
 class TestStruct(Struct):
     value: UInt64
@@ -16,12 +20,20 @@ class TestStruct(Struct):
     def return_value_times(self, times: UInt64) -> UInt64:
         return self.value * times
 
+    @staticmethod
+    def return1() -> UInt64:
+        return UInt64(1)
+
 
 class TestNamedTuple(typing.NamedTuple):
     value: UInt64
 
     def return_value_times(self, times: UInt64) -> UInt64:
         return self.value * times
+
+    @staticmethod
+    def return1() -> UInt64:
+        return UInt64(1)
 
 
 class GroupedMethods(typing.NamedTuple):
@@ -56,10 +68,30 @@ class GroupedMethods(typing.NamedTuple):
 
 class TestContract(ARC4Contract):
     @public
-    def test(self, expected: UInt64) -> None:
-        assert expected == self.arc4_struct_test()
-        assert expected == self.struct_test()
-        assert expected == self.named_tuple_test()
+    def test(self) -> None:
+        # Call instance methods from instance side
+        assert UInt64(18) == ARC4TestStruct(arc4.UInt64(9)).return_value_times(UInt64(2))
+        assert UInt64(18) == TestStruct(UInt64(9)).return_value_times(UInt64(2))
+        assert UInt64(18) == TestNamedTuple(UInt64(9)).return_value_times(UInt64(2))
+
+        # Call instance methods from class side
+        assert UInt64(18) == ARC4TestStruct.return_value_times(
+            ARC4TestStruct(arc4.UInt64(9)), UInt64(2)
+        )
+        assert UInt64(18) == TestStruct.return_value_times(TestStruct(UInt64(9)), UInt64(2))
+        assert UInt64(18) == TestNamedTuple.return_value_times(
+            TestNamedTuple(UInt64(9)), UInt64(2)
+        )
+
+        # Call static methods from class side
+        assert UInt64(1) == ARC4TestStruct.return1()
+        assert UInt64(1) == TestStruct.return1()
+        assert UInt64(1) == TestNamedTuple.return1()
+
+        # Call static methods from instance side
+        assert UInt64(1) == ARC4TestStruct(arc4.UInt64(0)).return1()
+        assert UInt64(1) == TestStruct(UInt64(0)).return1()
+        assert UInt64(1) == TestNamedTuple(UInt64(0)).return1()
 
         # Every method is called twice for a simple reason: if a method is only called once it
         # makes no sense to emit it separately (doing that adds callsub/proto/retsub machinery and
@@ -74,15 +106,3 @@ class TestContract(ARC4Contract):
         GroupedMethods().always_inlined_not_usually_inlined(UInt64(2))
         GroupedMethods().not_usually_inlined(UInt64(2))
         GroupedMethods().not_usually_inlined(UInt64(2))
-
-    def arc4_struct_test(self) -> UInt64:
-        arc4_struct = ARC4TestStruct(arc4.UInt64(9))
-        return arc4_struct.return_value_times(UInt64(2))
-
-    def struct_test(self) -> UInt64:
-        struct = TestStruct(UInt64(9))
-        return struct.return_value_times(UInt64(2))
-
-    def named_tuple_test(self) -> UInt64:
-        named_tuple = TestNamedTuple(UInt64(9))
-        return named_tuple.return_value_times(UInt64(2))
