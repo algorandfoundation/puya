@@ -80,6 +80,37 @@ contract DynamicITxnGroup
     itxn_submit()
   }
   
+  abimethod test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_firstly_abi_call(addresses: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>, funds: group_transaction_pay, verifier: application): void
+  {
+    assert(gtxns<Receiver>(funds) == global<CurrentApplicationAddress>(), comment="Funds must be sent to app")
+    assert(addresses.length != 0u, comment="must provide some accounts")
+    share: uint64 = gtxns<Amount>(funds) // addresses.length
+    stage_itxns=([create_inner_transaction(Fee=0u, TypeEnum=pay, Amount=share, Receiver=reinterpret_cast<account>(addresses[0u]))], start_new_group=true)
+    for i in range(1u, addresses.length, 1u) {
+      addr: arc4.static_array<arc4.uint8, 32> = addresses[i]
+      stage_itxns=([create_inner_transaction(Fee=0u, TypeEnum=pay, Amount=share, Receiver=reinterpret_cast<account>(addr))], start_new_group=false)
+    }
+    stage_itxns=([abi_call(signature='verify', args=, fields=TxnField.ApplicationID=reinterpret_cast<uint64>(verifier))], start_new_group=false)
+    stage_itxns=([create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetName='abc')], start_new_group=false)
+    itxn_submit()
+  }
+  
+  abimethod test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply_abi_call(addresses: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>, funds: group_transaction_pay, verifier: application): void
+  {
+    assert(gtxns<Receiver>(funds) == global<CurrentApplicationAddress>(), comment="Funds must be sent to app")
+    assert(addresses.length != 0u, comment="must provide some accounts")
+    share: uint64 = gtxns<Amount>(funds) // addresses.length
+    is_first: bool = true
+    for addr in addresses {
+      my_txn: inner_transaction_fields_pay = create_inner_transaction(Fee=0u, TypeEnum=pay, Amount=share, Receiver=reinterpret_cast<account>(addr))
+      stage_itxns=([my_txn], start_new_group=is_first)
+      is_first: bool = false
+    }
+    stage_itxns=([abi_call(signature='verify', args=, fields=TxnField.ApplicationID=reinterpret_cast<uint64>(verifier))], start_new_group=false)
+    stage_itxns=([create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetName='abc')], start_new_group=false)
+    itxn_submit()
+  }
+  
   baremethod test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.__algopy_default_create(): void
   {
   }

@@ -22,3 +22,19 @@ class DynamicITxnGroup(algopy.arc4.ARC4Client, typing.Protocol):
         funds: algopy.gtxn.PaymentTransaction,
         verifier: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_firstly_abi_call(
+        self,
+        addresses: algopy.arc4.DynamicArray[algopy.arc4.Address],
+        funds: algopy.gtxn.PaymentTransaction,
+        verifier: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_looply_abi_call(
+        self,
+        addresses: algopy.arc4.DynamicArray[algopy.arc4.Address],
+        funds: algopy.gtxn.PaymentTransaction,
+        verifier: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
