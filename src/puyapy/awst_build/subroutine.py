@@ -591,7 +591,7 @@ class FunctionASTConverter(
         # check & convert the arguments
         mypy_args = func_def.arguments
         mypy_arg_types = type_info.arg_types
-        if is_method:
+        if is_method and not func_def.is_static:
             # function is a method
             if not mypy_args:
                 logger.error("method declaration is missing 'self' argument", location=func_loc)

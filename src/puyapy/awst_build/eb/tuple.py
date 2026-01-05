@@ -46,7 +46,10 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.eb.subroutine import BoundSubroutineInvokerExpressionBuilder
+from puyapy.awst_build.eb.subroutine import (
+    BoundSubroutineInvokerExpressionBuilder,
+    SubroutineInvokerExpressionBuilder,
+)
 from puyapy.awst_build.utils import get_arg_mapping, tuple_iterable_item_type
 
 logger = log.get_logger(__name__)
@@ -151,6 +154,15 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         return TupleExpressionBuilder(expr, pytype)
 
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        pytype = self.produces()
+        method = pytype.static_methods.get(name) or pytype.methods.get(name)
+        if method:
+            return SubroutineInvokerExpressionBuilder(
+                target=SubroutineID(method.name),
+                func_type=method,
+                location=location,
+            )
+
         if name in _NAMED_TUPLE_CLASS_MEMBERS:
             raise CodeError("unsupported member access", location)
         return super().member_access(name, location)
@@ -333,6 +345,12 @@ class TupleExpressionBuilder(
                     args=[self],
                     arg_names=[None],
                     arg_kinds=[models.ArgKind.ARG_POS],
+                )
+            elif static_method := self.pytype.static_methods.get(name):
+                return SubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(static_method.name),
+                    func_type=static_method,
+                    location=location,
                 )
         if name in _TUPLE_MEMBERS:
             raise CodeError("unsupported member access", location)

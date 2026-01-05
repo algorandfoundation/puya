@@ -719,9 +719,10 @@ def _process_dataclass_like_fields(
 
 def _process_dataclass_like_methods(
     context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
-) -> tuple[StatementResult, dict[str, pytypes.FuncType]]:
+) -> tuple[StatementResult, dict[str, pytypes.FuncType], dict[str, pytypes.FuncType]]:
     method_routines: StatementResult = []
     methods: dict[str, pytypes.FuncType] = {}
+    static_methods: dict[str, pytypes.FuncType] = {}
 
     def handle_function_definition(
         func_def: mypy.nodes.FuncDef,
@@ -735,9 +736,12 @@ def _process_dataclass_like_methods(
                 ' (aka "dunder" methods) are reserved for the Python data model'
                 " (https://docs.python.org/3/reference/datamodel.html)."
                 " These methods are not supported in dataclasses "
-                "(typing.NamedTuple, algopy.Struct, algopy.arc4.Struct)",
+                "(typing.namedtuple, algopy.struct, algopy.arc4.struct)",
                 location,
             )
+
+        if func_def.is_class:
+            logger.error("@classmethod is not supported inside dataclasses")
 
         dec_by_fullname = get_decorators_by_fullname(context, decorator) if decorator else {}
         subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
@@ -747,7 +751,11 @@ def _process_dataclass_like_methods(
         for _ in dec_by_fullname.values():
             logger.error("unsupported struct method decorator", location=location)
 
-        methods[method_name] = context.function_pytype(func_def)
+        if func_def.is_static:
+            static_methods[method_name] = context.function_pytype(func_def)
+        else:
+            methods[method_name] = context.function_pytype(func_def)
+
         method_routines.append(
             lambda ctx: FunctionASTConverter.convert(
                 ctx, func_def, location, is_method=True, inline=inline
@@ -767,7 +775,7 @@ def _process_dataclass_like_methods(
                 handle_function_definition(stmt.func, stmt, stmt_loc)
             case _:
                 pass
-    return method_routines, methods
+    return method_routines, methods, static_methods
 
 
 def _process_struct(
@@ -788,8 +796,9 @@ def _process_struct(
         source_location=cls_loc,
     )
     context.register_pytype(struct_typ)
-    method_routines, methods = _process_dataclass_like_methods(context, cdef)
+    method_routines, methods, static_methods = _process_dataclass_like_methods(context, cdef)
     struct_typ.methods.update(methods)
+    struct_typ.static_methods.update(static_methods)
     return method_routines
 
 
@@ -807,8 +816,9 @@ def _process_named_tuple(
         source_location=cls_loc,
     )
     context.register_pytype(named_tuple_type)
-    method_routines, methods = _process_dataclass_like_methods(context, cdef)
+    method_routines, methods, static_methods = _process_dataclass_like_methods(context, cdef)
     named_tuple_type.methods.update(methods)
+    named_tuple_type.static_methods.update(static_methods)
     return method_routines
 
 

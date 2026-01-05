@@ -27,7 +27,10 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.eb.subroutine import BoundSubroutineInvokerExpressionBuilder
+from puyapy.awst_build.eb.subroutine import (
+    BoundSubroutineInvokerExpressionBuilder,
+    SubroutineInvokerExpressionBuilder,
+)
 from puyapy.awst_build.utils import get_arg_mapping
 
 logger = log.get_logger(__name__)
@@ -68,6 +71,18 @@ class StructTypeBuilder(TypeBuilder[pytypes.StructType]):
         expr = NewStruct(wtype=pytype.wtype, values=values, source_location=location)
         return StructExpressionBuilder(expr, pytype)
 
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        pytype = self.produces()
+        method = pytype.static_methods.get(name) or pytype.methods.get(name)
+        if method:
+            return SubroutineInvokerExpressionBuilder(
+                target=SubroutineID(method.name),
+                func_type=method,
+                location=location,
+            )
+
+        return super().member_access(name, location)
+
 
 class StructExpressionBuilder(
     NotIterableInstanceExpressionBuilder[pytypes.StructType],
@@ -100,6 +115,12 @@ class StructExpressionBuilder(
                     args=[self],
                     arg_names=[None],
                     arg_kinds=[models.ArgKind.ARG_POS],
+                )
+            case method_name if static_method := self.pytype.static_methods.get(method_name):
+                return SubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(static_method.name),
+                    func_type=static_method,
+                    location=location,
                 )
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
