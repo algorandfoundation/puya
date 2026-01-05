@@ -1,7 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@9
+        goto tmp%0#1 ? block@2 : block@11
     block@2: // abi_routing_L15
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -9,16 +9,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "test_firstly(address[],pay,uint64)void" => block@4, method "test_looply(address[],pay,uint64)void" => block@5, * => block@8}
+        switch tmp%6#0 {method "test_firstly(address[],pay,uint64)void" => block@4, method "test_looply(address[],pay,uint64)void" => block@5, method "test_firstly_abi_call(address[],pay,uint64)void" => block@6, method "test_looply_abi_call(address[],pay,uint64)void" => block@7, * => block@10}
     block@4: // test_firstly_route_L16
         test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_firstly[routing]()
-        goto block@8
+        goto block@10
     block@5: // test_looply_route_L39
         test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply[routing]()
-        goto block@8
-    block@8: // after_if_else_L15
+        goto block@10
+    block@6: // test_firstly_abi_call_route_L62
+        test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_firstly_abi_call[routing]()
+        goto block@10
+    block@7: // test_looply_abi_call_route_L83
+        test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply_abi_call[routing]()
+        goto block@10
+    block@10: // after_if_else_L15
         fail
-    block@9: // __algopy_default_create_L1
+    block@11: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -147,6 +153,134 @@ subroutine test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply[r
         ((itxn_field ApplicationArgs) method "verify()void")
         ((itxn_field ApplicationID) verifier#0)
         ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_next
+        ((itxn_field ConfigAssetName) "abc")
+        ((itxn_field TypeEnum) acfg)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_firstly_abi_call[routing]() -> void:
+    block@0: // L62
+        let addresses#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 addresses#0 0u) // on error: invalid array length header
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 32u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len addresses#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        let tmp%1#0: uint64 = (txn GroupIndex)
+        let funds#0: uint64 = (- tmp%1#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) funds#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let verifier#0: uint64 = (btoi tmp%2#0)
+        let tmp%0#1: account = ((gtxns Receiver) funds#0)
+        let tmp%1#1: account = (global CurrentApplicationAddress)
+        let tmp%2#1: bool = (== tmp%0#1 tmp%1#1)
+        (assert tmp%2#1) // Funds must be sent to app
+        (assert aggregate%array_length%0#0) // must provide some accounts
+        let tmp%5#0: uint64 = ((gtxns Amount) funds#0)
+        let share#0: uint64 = (/ tmp%5#0 aggregate%array_length%0#0)
+        itxn_begin
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) addresses#0)
+        let aggregate%encoded_element%0#0: bytes = ((extract 2 32) addresses#0)
+        ((itxn_field Receiver) aggregate%encoded_element%0#0)
+        ((itxn_field Amount) share#0)
+        ((itxn_field TypeEnum) pay)
+        ((itxn_field Fee) 0u)
+        let value_internal%0#0: uint64 = 1u
+        goto block@2
+    block@2: // for_header_L73
+        let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let continue_looping%0#0: bool = (< i#0 aggregate%array_length%0#0)
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L74
+        let aggregate%bytes_offset%1#0: uint64 = (* i#0 32u)
+        let addr#0: Encoded(uint8[32]) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%1#0 32u) // on error: index access is out of bounds
+        itxn_next
+        ((itxn_field Receiver) addr#0)
+        ((itxn_field Amount) share#0)
+        ((itxn_field TypeEnum) pay)
+        ((itxn_field Fee) 0u)
+        let value_internal%0#2: uint64 = (+ i#0 1u)
+        goto block@2
+    block@5: // after_for_L73
+        itxn_next
+        ((itxn_field ApplicationID) verifier#0)
+        ((itxn_field ApplicationArgs) method "verify()void")
+        ((itxn_field TypeEnum) 6u)
+        ((itxn_field Fee) 0u)
+        itxn_next
+        ((itxn_field ConfigAssetName) "abc")
+        ((itxn_field TypeEnum) acfg)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        exit 1u
+
+subroutine test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply_abi_call[routing]() -> void:
+    block@0: // L83
+        let addresses#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 addresses#0 0u) // on error: invalid array length header
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 32u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len addresses#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        let tmp%1#0: uint64 = (txn GroupIndex)
+        let funds#0: uint64 = (- tmp%1#0 1u)
+        let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) funds#0)
+        let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
+        (assert gtxn_type_matches%0#0) // transaction type is pay
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let verifier#0: uint64 = (btoi tmp%2#0)
+        let tmp%0#1: account = ((gtxns Receiver) funds#0)
+        let tmp%1#1: account = (global CurrentApplicationAddress)
+        let tmp%2#1: bool = (== tmp%0#1 tmp%1#1)
+        (assert tmp%2#1) // Funds must be sent to app
+        (assert aggregate%array_length%0#0) // must provide some accounts
+        let tmp%5#0: uint64 = ((gtxns Amount) funds#0)
+        let share#0: uint64 = (/ tmp%5#0 aggregate%array_length%0#0)
+        let is_first#0: bool = 1u
+        let item_index_internal%0#0: uint64 = 0u
+        goto block@2
+    block@2: // for_header_L93
+        let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@6)
+        let is_first#1: bool = φ(is_first#0 <- block@0, is_first#2 <- block@6)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 aggregate%array_length%0#0)
+        goto continue_looping%0#0 ? block@3 : block@8
+    block@3: // for_body_L94
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) addresses#0)
+        let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#1 32u)
+        let addr#0: Encoded(uint8[32]) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 32u) // on error: index access is out of bounds
+        goto is_first#1 ? block@4 : block@5
+    block@4: // itxn_begins_L95
+        itxn_begin
+        goto block@6
+    block@5: // itxn_next_L95
+        itxn_next
+        goto block@6
+    block@6: // after_itxn_begin_next_L95
+        ((itxn_field Receiver) addr#0)
+        ((itxn_field Amount) share#0)
+        ((itxn_field TypeEnum) pay)
+        ((itxn_field Fee) 0u)
+        let is_first#2: bool = 0u
+        let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
+        goto block@2
+    block@8: // after_for_L93
+        itxn_next
+        ((itxn_field ApplicationID) verifier#0)
+        ((itxn_field ApplicationArgs) method "verify()void")
+        ((itxn_field TypeEnum) 6u)
         ((itxn_field Fee) 0u)
         itxn_next
         ((itxn_field ConfigAssetName) "abc")

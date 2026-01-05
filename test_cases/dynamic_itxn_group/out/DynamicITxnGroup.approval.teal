@@ -8,18 +8,18 @@ main:
     // dynamic_itxn_group/contract.py:15
     // class DynamicITxnGroup(ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@9
+    bz main___algopy_default_create@11
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0x17391784 0x3f10aea7 // method "test_firstly(address[],pay,uint64)void", method "test_looply(address[],pay,uint64)void"
+    pushbytess 0x17391784 0x3f10aea7 0xacbbf0f5 0x0eb38a7c // method "test_firstly(address[],pay,uint64)void", method "test_looply(address[],pay,uint64)void", method "test_firstly_abi_call(address[],pay,uint64)void", method "test_looply_abi_call(address[],pay,uint64)void"
     txna ApplicationArgs 0
-    match test_firstly test_looply
+    match test_firstly test_looply test_firstly_abi_call test_looply_abi_call
     err
 
-main___algopy_default_create@9:
+main___algopy_default_create@11:
     txn OnCompletion
     !
     txn ApplicationID
@@ -304,6 +304,275 @@ test_looply_after_for@8:
     // itxn.submit_staged()
     itxn_submit
     // dynamic_itxn_group/contract.py:39
+    // @public
+    intc_0 // 1
+    return
+
+
+// test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_firstly_abi_call[routing]() -> void:
+test_firstly_abi_call:
+    // dynamic_itxn_group/contract.py:62
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    dup
+    intc_2 // 32
+    *
+    intc_3 // 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 3
+    // dynamic_itxn_group/contract.py:66
+    // assert funds.receiver == Global.current_application_address, "Funds must be sent to app"
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // Funds must be sent to app
+    // dynamic_itxn_group/contract.py:68
+    // assert addresses.length, "must provide some accounts"
+    dig 1
+    assert // must provide some accounts
+    // dynamic_itxn_group/contract.py:69
+    // share: UInt64 = funds.amount // addresses.length
+    gtxns Amount
+    swap
+    /
+    dup
+    cover 2
+    // dynamic_itxn_group/contract.py:71
+    // itxn.Payment(amount=share, receiver=addresses[0].native).stage(begin_group=True)
+    itxn_begin
+    dig 1
+    extract 2 0
+    cover 2
+    swap
+    extract 2 32
+    itxn_field Receiver
+    itxn_field Amount
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // dynamic_itxn_group/contract.py:73
+    // for i in urange(1, addresses.length):
+    intc_0 // 1
+
+test_firstly_abi_call_for_header@2:
+    // dynamic_itxn_group/contract.py:73
+    // for i in urange(1, addresses.length):
+    dup
+    dig 5
+    <
+    bz test_firstly_abi_call_after_for@5
+    // dynamic_itxn_group/contract.py:74
+    // addr = addresses[i]
+    dupn 2
+    intc_2 // 32
+    *
+    dig 3
+    swap
+    intc_2 // 32
+    extract3 // on error: index access is out of bounds
+    // dynamic_itxn_group/contract.py:75
+    // itxn.Payment(amount=share, receiver=addr.native).stage()
+    itxn_next
+    itxn_field Receiver
+    dig 3
+    itxn_field Amount
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // dynamic_itxn_group/contract.py:73
+    // for i in urange(1, addresses.length):
+    intc_0 // 1
+    +
+    bury 1
+    b test_firstly_abi_call_for_header@2
+
+test_firstly_abi_call_after_for@5:
+    // dynamic_itxn_group/contract.py:77
+    // itxn.abi_call("verify", app_id=verifier.id).stage()
+    itxn_next
+    dig 3
+    itxn_field ApplicationID
+    bytec_0 // method "verify()void"
+    itxn_field ApplicationArgs
+    pushint 6
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // dynamic_itxn_group/contract.py:79
+    // itxn.AssetConfig(asset_name="abc").stage()
+    itxn_next
+    bytec_1 // "abc"
+    itxn_field ConfigAssetName
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // dynamic_itxn_group/contract.py:81
+    // itxn.submit_staged()
+    itxn_submit
+    // dynamic_itxn_group/contract.py:62
+    // @public
+    intc_0 // 1
+    return
+
+
+// test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply_abi_call[routing]() -> void:
+test_looply_abi_call:
+    intc_1 // 0
+    // dynamic_itxn_group/contract.py:83
+    // @public
+    txna ApplicationArgs 1
+    dupn 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    dup
+    intc_2 // 32
+    *
+    intc_3 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    // dynamic_itxn_group/contract.py:87
+    // assert funds.receiver == Global.current_application_address, "Funds must be sent to app"
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // Funds must be sent to app
+    // dynamic_itxn_group/contract.py:89
+    // assert addresses.length, "must provide some accounts"
+    dig 1
+    assert // must provide some accounts
+    // dynamic_itxn_group/contract.py:90
+    // share: UInt64 = funds.amount // addresses.length
+    gtxns Amount
+    swap
+    /
+    // dynamic_itxn_group/contract.py:92
+    // is_first = True
+    intc_0 // 1
+    intc_1 // 0
+
+test_looply_abi_call_for_header@2:
+    // dynamic_itxn_group/contract.py:93
+    // for addr in addresses:
+    dup
+    dig 5
+    <
+    bz test_looply_abi_call_after_for@8
+    dig 5
+    extract 2 0
+    dig 1
+    intc_2 // 32
+    *
+    intc_2 // 32
+    extract3 // on error: index access is out of bounds
+    bury 7
+    // dynamic_itxn_group/contract.py:95
+    // my_txn.stage(begin_group=is_first)
+    dig 1
+    bz test_looply_abi_call_itxn_next@5
+    itxn_begin
+
+test_looply_abi_call_after_itxn_begin_next@6:
+    dig 6
+    itxn_field Receiver
+    dig 2
+    itxn_field Amount
+    // dynamic_itxn_group/contract.py:94
+    // my_txn = itxn.Payment(amount=share, receiver=addr.native)
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // dynamic_itxn_group/contract.py:96
+    // is_first = False
+    intc_1 // 0
+    bury 2
+    dup
+    intc_0 // 1
+    +
+    bury 1
+    b test_looply_abi_call_for_header@2
+
+test_looply_abi_call_itxn_next@5:
+    // dynamic_itxn_group/contract.py:95
+    // my_txn.stage(begin_group=is_first)
+    itxn_next
+    b test_looply_abi_call_after_itxn_begin_next@6
+
+test_looply_abi_call_after_for@8:
+    // dynamic_itxn_group/contract.py:98
+    // itxn.abi_call("verify", app_id=verifier.id).stage()
+    itxn_next
+    dig 3
+    itxn_field ApplicationID
+    bytec_0 // method "verify()void"
+    itxn_field ApplicationArgs
+    pushint 6
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // dynamic_itxn_group/contract.py:100
+    // itxn.AssetConfig(asset_name="abc").stage()
+    itxn_next
+    bytec_1 // "abc"
+    itxn_field ConfigAssetName
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // dynamic_itxn_group/contract.py:102
+    // itxn.submit_staged()
+    itxn_submit
+    // dynamic_itxn_group/contract.py:83
     // @public
     intc_0 // 1
     return

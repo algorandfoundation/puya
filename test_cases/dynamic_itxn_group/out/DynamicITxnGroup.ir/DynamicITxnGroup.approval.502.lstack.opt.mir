@@ -5,7 +5,7 @@ subroutine main:
         // dynamic_itxn_group/contract.py:15
         // class DynamicITxnGroup(ARC4Contract):
         txn NumAppArgs                                                                              tmp%0#1
-        bz main___algopy_default_create@9 ; b main_abi_routing@2
+        bz main___algopy_default_create@11 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // dynamic_itxn_group/contract.py:15
@@ -18,27 +18,41 @@ subroutine main:
         txna ApplicationArgs 0                                                                      tmp%6#0
         method test_firstly(address[],pay,uint64)void                                               tmp%6#0,Method(test_firstly(address[],pay,uint64)void)
         method test_looply(address[],pay,uint64)void                                                tmp%6#0,Method(test_firstly(address[],pay,uint64)void),Method(test_looply(address[],pay,uint64)void)
-        l-load tmp%6#0 2                                                                            Method(test_firstly(address[],pay,uint64)void),Method(test_looply(address[],pay,uint64)void),tmp%6#0
-        match main_test_firstly_route@4 main_test_looply_route@5 ; b main_after_if_else@8 
+        method test_firstly_abi_call(address[],pay,uint64)void                                      tmp%6#0,Method(test_firstly(address[],pay,uint64)void),Method(test_looply(address[],pay,uint64)void),Method(test_firstly_abi_call(address[],pay,uint64)void)
+        method test_looply_abi_call(address[],pay,uint64)void                                       tmp%6#0,Method(test_firstly(address[],pay,uint64)void),Method(test_looply(address[],pay,uint64)void),Method(test_firstly_abi_call(address[],pay,uint64)void),Method(test_looply_abi_call(address[],pay,uint64)void)
+        l-load tmp%6#0 4                                                                            Method(test_firstly(address[],pay,uint64)void),Method(test_looply(address[],pay,uint64)void),Method(test_firstly_abi_call(address[],pay,uint64)void),Method(test_looply_abi_call(address[],pay,uint64)void),tmp%6#0
+        match main_test_firstly_route@4 main_test_looply_route@5 main_test_firstly_abi_call_route@6 main_test_looply_abi_call_route@7 ; b main_after_if_else@10 
 
     main_test_firstly_route@4:
         // dynamic_itxn_group/contract.py:16
         // @public
         callsub test_firstly
-        b main_after_if_else@8
+        b main_after_if_else@10
 
     main_test_looply_route@5:
         // dynamic_itxn_group/contract.py:39
         // @public
         callsub test_looply
-        b main_after_if_else@8
+        b main_after_if_else@10
 
-    main_after_if_else@8:
+    main_test_firstly_abi_call_route@6:
+        // dynamic_itxn_group/contract.py:62
+        // @public
+        callsub test_firstly_abi_call
+        b main_after_if_else@10
+
+    main_test_looply_abi_call_route@7:
+        // dynamic_itxn_group/contract.py:83
+        // @public
+        callsub test_looply_abi_call
+        b main_after_if_else@10
+
+    main_after_if_else@10:
         // dynamic_itxn_group/contract.py:15
         // class DynamicITxnGroup(ARC4Contract):
         err
 
-    main___algopy_default_create@9:
+    main___algopy_default_create@11:
         txn OnCompletion                                                                            tmp%7#0
         !                                                                                           tmp%8#0
         txn ApplicationID                                                                           tmp%8#0,tmp%9#0
@@ -363,6 +377,311 @@ subroutine test_looply:
         // itxn.submit_staged()
         itxn_submit
         // dynamic_itxn_group/contract.py:39
+        // @public
+        int 1                                                                                       1
+        return
+
+
+// test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_firstly_abi_call[routing]() -> void:
+subroutine test_firstly_abi_call:
+    test_firstly_abi_call_block@0:
+        // dynamic_itxn_group/contract.py:62
+        // @public
+        txna ApplicationArgs 1                                                                      addresses#0
+        l-load-copy addresses#0 0                                                                   addresses#0,addresses#0 (copy)
+        int 0                                                                                       addresses#0,addresses#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                     addresses#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                                   addresses#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                          addresses#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                                    addresses#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 32                                                                                      addresses#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),32
+        *                                                                                           addresses#0,aggregate%array_length%0#0,mul%0#0
+        int 2                                                                                       addresses#0,aggregate%array_length%0#0,mul%0#0,2
+        +                                                                                           addresses#0,aggregate%array_length%0#0,add%0#0
+        l-load-copy addresses#0 2                                                                   addresses#0,aggregate%array_length%0#0,add%0#0,addresses#0 (copy)
+        len                                                                                         addresses#0,aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                            addresses#0,aggregate%array_length%0#0,len%0#0,add%0#0
+        ==                                                                                          addresses#0,aggregate%array_length%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> addresses#0,aggregate%array_length%0#0
+        txn GroupIndex                                                                              addresses#0,aggregate%array_length%0#0,tmp%1#0
+        int 1                                                                                       addresses#0,aggregate%array_length%0#0,tmp%1#0,1
+        -                                                                                           addresses#0,aggregate%array_length%0#0,funds#0
+        l-load-copy funds#0 0                                                                       addresses#0,aggregate%array_length%0#0,funds#0,funds#0 (copy)
+        gtxns TypeEnum                                                                              addresses#0,aggregate%array_length%0#0,funds#0,gtxn_type%0#0
+        int pay                                                                                     addresses#0,aggregate%array_length%0#0,funds#0,gtxn_type%0#0,pay
+        ==                                                                                          addresses#0,aggregate%array_length%0#0,funds#0,gtxn_type_matches%0#0
+        assert // transaction type is pay                                                           addresses#0,aggregate%array_length%0#0,funds#0
+        txna ApplicationArgs 2                                                                      addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                       addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                         addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#0,len%1#0
+        int 8                                                                                       addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#0,len%1#0,8
+        ==                                                                                          addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for arc4.uint64                                           addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#0
+        l-load tmp%2#0 0                                                                            addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#0
+        btoi                                                                                        addresses#0,aggregate%array_length%0#0,funds#0,verifier#0
+        v-store verifier#0                                                                          addresses#0,aggregate%array_length%0#0,funds#0
+        // dynamic_itxn_group/contract.py:66
+        // assert funds.receiver == Global.current_application_address, "Funds must be sent to app"
+        l-load-copy funds#0 0                                                                       addresses#0,aggregate%array_length%0#0,funds#0,funds#0 (copy)
+        gtxns Receiver                                                                              addresses#0,aggregate%array_length%0#0,funds#0,tmp%0#1
+        global CurrentApplicationAddress                                                            addresses#0,aggregate%array_length%0#0,funds#0,tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                                                            addresses#0,aggregate%array_length%0#0,funds#0,tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                                                            addresses#0,aggregate%array_length%0#0,funds#0,tmp%0#1,tmp%1#1
+        ==                                                                                          addresses#0,aggregate%array_length%0#0,funds#0,tmp%2#1
+        assert // Funds must be sent to app                                                         addresses#0,aggregate%array_length%0#0,funds#0
+        // dynamic_itxn_group/contract.py:68
+        // assert addresses.length, "must provide some accounts"
+        l-load-copy aggregate%array_length%0#0 1                                                    addresses#0,aggregate%array_length%0#0,funds#0,aggregate%array_length%0#0 (copy)
+        assert // must provide some accounts                                                        addresses#0,aggregate%array_length%0#0,funds#0
+        // dynamic_itxn_group/contract.py:69
+        // share: UInt64 = funds.amount // addresses.length
+        l-load funds#0 0                                                                            addresses#0,aggregate%array_length%0#0,funds#0
+        gtxns Amount                                                                                addresses#0,aggregate%array_length%0#0,tmp%5#0
+        l-load aggregate%array_length%0#0 1                                                         addresses#0,tmp%5#0,aggregate%array_length%0#0
+        /                                                                                           addresses#0,share#0
+        l-store-copy share#0 0                                                                      addresses#0,share#0,share#0 (copy)
+        v-store share#0                                                                             addresses#0,share#0
+        // dynamic_itxn_group/contract.py:71
+        // itxn.Payment(amount=share, receiver=addresses[0].native).stage(begin_group=True)
+        itxn_begin                                                                                  addresses#0,share#0
+        l-load-copy addresses#0 1                                                                   addresses#0,share#0,addresses#0 (copy)
+        extract 2 0                                                                                 addresses#0,share#0,aggregate%array_trimmed%0#0
+        v-store aggregate%array_trimmed%0#0                                                         addresses#0,share#0
+        l-load addresses#0 1                                                                        share#0,addresses#0
+        extract 2 32                                                                                share#0,aggregate%encoded_element%0#0
+        itxn_field Receiver                                                                         share#0
+        l-load share#0 0                                                                            share#0
+        itxn_field Amount
+        int pay                                                                                     pay
+        itxn_field TypeEnum
+        int 0                                                                                       0
+        itxn_field Fee
+        // dynamic_itxn_group/contract.py:73
+        // for i in urange(1, addresses.length):
+        int 1                                                                                       value_internal%0#0
+        v-store i#0
+        b test_firstly_abi_call_for_header@2
+
+    test_firstly_abi_call_for_header@2:
+        // dynamic_itxn_group/contract.py:73
+        // for i in urange(1, addresses.length):
+        v-load i#0                                                                                  i#0
+        v-load aggregate%array_length%0#0                                                           i#0,aggregate%array_length%0#0
+        <                                                                                           continue_looping%0#0
+        bz test_firstly_abi_call_after_for@5 ; b test_firstly_abi_call_for_body@3
+
+    test_firstly_abi_call_for_body@3:
+        // dynamic_itxn_group/contract.py:74
+        // addr = addresses[i]
+        v-load i#0                                                                                  i#0
+        l-store-copy i#0 0                                                                          i#0,i#0 (copy)
+        int 32                                                                                      i#0,i#0 (copy),32
+        *                                                                                           i#0,aggregate%bytes_offset%1#0
+        v-load aggregate%array_trimmed%0#0                                                          i#0,aggregate%bytes_offset%1#0,aggregate%array_trimmed%0#0
+        l-load aggregate%bytes_offset%1#0 1                                                         i#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%1#0
+        int 32                                                                                      i#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%1#0,32
+        extract3 // on error: index access is out of bounds                                         i#0,addr#0
+        // dynamic_itxn_group/contract.py:75
+        // itxn.Payment(amount=share, receiver=addr.native).stage()
+        itxn_next                                                                                   i#0,addr#0
+        l-load addr#0 0                                                                             i#0,addr#0
+        itxn_field Receiver                                                                         i#0
+        v-load share#0                                                                              i#0,share#0
+        itxn_field Amount                                                                           i#0
+        int pay                                                                                     i#0,pay
+        itxn_field TypeEnum                                                                         i#0
+        int 0                                                                                       i#0,0
+        itxn_field Fee                                                                              i#0
+        // dynamic_itxn_group/contract.py:73
+        // for i in urange(1, addresses.length):
+        l-load i#0 0                                                                                i#0
+        int 1                                                                                       i#0,1
+        +                                                                                           value_internal%0#0
+        v-store i#0
+        b test_firstly_abi_call_for_header@2
+
+    test_firstly_abi_call_after_for@5:
+        // dynamic_itxn_group/contract.py:77
+        // itxn.abi_call("verify", app_id=verifier.id).stage()
+        itxn_next
+        v-load verifier#0                                                                           verifier#0
+        itxn_field ApplicationID
+        method verify()void                                                                         Method(verify()void)
+        itxn_field ApplicationArgs
+        int 6                                                                                       6
+        itxn_field TypeEnum
+        int 0                                                                                       0
+        itxn_field Fee
+        // dynamic_itxn_group/contract.py:79
+        // itxn.AssetConfig(asset_name="abc").stage()
+        itxn_next
+        byte "abc"                                                                                  "abc"
+        itxn_field ConfigAssetName
+        int acfg                                                                                    acfg
+        itxn_field TypeEnum
+        int 0                                                                                       0
+        itxn_field Fee
+        // dynamic_itxn_group/contract.py:81
+        // itxn.submit_staged()
+        itxn_submit
+        // dynamic_itxn_group/contract.py:62
+        // @public
+        int 1                                                                                       1
+        return
+
+
+// test_cases.dynamic_itxn_group.contract.DynamicITxnGroup.test_looply_abi_call[routing]() -> void:
+subroutine test_looply_abi_call:
+    test_looply_abi_call_block@0:
+        // dynamic_itxn_group/contract.py:83
+        // @public
+        txna ApplicationArgs 1                                                                      addresses#0
+        l-store-copy addresses#0 0                                                                  addresses#0,addresses#0 (copy)
+        v-store addresses#0                                                                         addresses#0
+        l-load-copy addresses#0 0                                                                   addresses#0,addresses#0 (copy)
+        int 0                                                                                       addresses#0,addresses#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                     addresses#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                                   addresses#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                          addresses#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                                    addresses#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 32                                                                                      addresses#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),32
+        *                                                                                           addresses#0,aggregate%array_length%0#0,mul%0#0
+        int 2                                                                                       addresses#0,aggregate%array_length%0#0,mul%0#0,2
+        +                                                                                           addresses#0,aggregate%array_length%0#0,add%0#0
+        l-load addresses#0 2                                                                        aggregate%array_length%0#0,add%0#0,addresses#0
+        len                                                                                         aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                            aggregate%array_length%0#0,len%0#0,add%0#0
+        ==                                                                                          aggregate%array_length%0#0,eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> aggregate%array_length%0#0
+        txn GroupIndex                                                                              aggregate%array_length%0#0,tmp%1#0
+        int 1                                                                                       aggregate%array_length%0#0,tmp%1#0,1
+        -                                                                                           aggregate%array_length%0#0,funds#0
+        l-load-copy funds#0 0                                                                       aggregate%array_length%0#0,funds#0,funds#0 (copy)
+        gtxns TypeEnum                                                                              aggregate%array_length%0#0,funds#0,gtxn_type%0#0
+        int pay                                                                                     aggregate%array_length%0#0,funds#0,gtxn_type%0#0,pay
+        ==                                                                                          aggregate%array_length%0#0,funds#0,gtxn_type_matches%0#0
+        assert // transaction type is pay                                                           aggregate%array_length%0#0,funds#0
+        txna ApplicationArgs 2                                                                      aggregate%array_length%0#0,funds#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                                       aggregate%array_length%0#0,funds#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                                                         aggregate%array_length%0#0,funds#0,tmp%2#0,len%1#0
+        int 8                                                                                       aggregate%array_length%0#0,funds#0,tmp%2#0,len%1#0,8
+        ==                                                                                          aggregate%array_length%0#0,funds#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for arc4.uint64                                           aggregate%array_length%0#0,funds#0,tmp%2#0
+        l-load tmp%2#0 0                                                                            aggregate%array_length%0#0,funds#0,tmp%2#0
+        btoi                                                                                        aggregate%array_length%0#0,funds#0,verifier#0
+        v-store verifier#0                                                                          aggregate%array_length%0#0,funds#0
+        // dynamic_itxn_group/contract.py:87
+        // assert funds.receiver == Global.current_application_address, "Funds must be sent to app"
+        l-load-copy funds#0 0                                                                       aggregate%array_length%0#0,funds#0,funds#0 (copy)
+        gtxns Receiver                                                                              aggregate%array_length%0#0,funds#0,tmp%0#1
+        global CurrentApplicationAddress                                                            aggregate%array_length%0#0,funds#0,tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                                                            aggregate%array_length%0#0,funds#0,tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                                                            aggregate%array_length%0#0,funds#0,tmp%0#1,tmp%1#1
+        ==                                                                                          aggregate%array_length%0#0,funds#0,tmp%2#1
+        assert // Funds must be sent to app                                                         aggregate%array_length%0#0,funds#0
+        // dynamic_itxn_group/contract.py:89
+        // assert addresses.length, "must provide some accounts"
+        l-load-copy aggregate%array_length%0#0 1                                                    aggregate%array_length%0#0,funds#0,aggregate%array_length%0#0 (copy)
+        assert // must provide some accounts                                                        aggregate%array_length%0#0,funds#0
+        // dynamic_itxn_group/contract.py:90
+        // share: UInt64 = funds.amount // addresses.length
+        l-load funds#0 0                                                                            aggregate%array_length%0#0,funds#0
+        gtxns Amount                                                                                aggregate%array_length%0#0,tmp%5#0
+        l-load aggregate%array_length%0#0 1                                                         tmp%5#0,aggregate%array_length%0#0
+        /                                                                                           share#0
+        v-store share#0
+        // dynamic_itxn_group/contract.py:92
+        // is_first = True
+        int 1                                                                                       1
+        v-store is_first#0
+        int 0                                                                                       0
+        v-store item_index_internal%0#0
+        b test_looply_abi_call_for_header@2
+
+    test_looply_abi_call_for_header@2:
+        // dynamic_itxn_group/contract.py:93
+        // for addr in addresses:
+        v-load item_index_internal%0#0                                                              item_index_internal%0#0
+        v-load aggregate%array_length%0#0                                                           item_index_internal%0#0,aggregate%array_length%0#0
+        <                                                                                           continue_looping%0#0
+        bz test_looply_abi_call_after_for@8 ; b test_looply_abi_call_for_body@3
+
+    test_looply_abi_call_for_body@3:
+        // dynamic_itxn_group/contract.py:93
+        // for addr in addresses:
+        v-load addresses#0                                                                          addresses#0
+        extract 2 0                                                                                 aggregate%array_trimmed%0#0
+        v-load item_index_internal%0#0                                                              aggregate%array_trimmed%0#0,item_index_internal%0#0
+        int 32                                                                                      aggregate%array_trimmed%0#0,item_index_internal%0#0,32
+        *                                                                                           aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        l-load aggregate%array_trimmed%0#0 1                                                        aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
+        l-load aggregate%bytes_offset%0#0 1                                                         aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        int 32                                                                                      aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,32
+        extract3 // on error: index access is out of bounds                                         addr#0
+        v-store addr#0
+        // dynamic_itxn_group/contract.py:95
+        // my_txn.stage(begin_group=is_first)
+        v-load is_first#0                                                                           is_first#0
+        bz test_looply_abi_call_itxn_next@5 ; b test_looply_abi_call_itxn_begins@4
+
+    test_looply_abi_call_itxn_begins@4:
+        // dynamic_itxn_group/contract.py:95
+        // my_txn.stage(begin_group=is_first)
+        itxn_begin
+        b test_looply_abi_call_after_itxn_begin_next@6
+
+    test_looply_abi_call_itxn_next@5:
+        // dynamic_itxn_group/contract.py:95
+        // my_txn.stage(begin_group=is_first)
+        itxn_next
+        b test_looply_abi_call_after_itxn_begin_next@6
+
+    test_looply_abi_call_after_itxn_begin_next@6:
+        v-load addr#0                                                                               addr#0
+        itxn_field Receiver
+        v-load share#0                                                                              share#0
+        itxn_field Amount
+        // dynamic_itxn_group/contract.py:94
+        // my_txn = itxn.Payment(amount=share, receiver=addr.native)
+        int pay                                                                                     pay
+        itxn_field TypeEnum
+        int 0                                                                                       0
+        itxn_field Fee
+        // dynamic_itxn_group/contract.py:96
+        // is_first = False
+        int 0                                                                                       0
+        v-store is_first#0
+        v-load item_index_internal%0#0                                                              item_index_internal%0#0
+        int 1                                                                                       item_index_internal%0#0,1
+        +                                                                                           item_index_internal%0#0
+        v-store item_index_internal%0#0
+        b test_looply_abi_call_for_header@2
+
+    test_looply_abi_call_after_for@8:
+        // dynamic_itxn_group/contract.py:98
+        // itxn.abi_call("verify", app_id=verifier.id).stage()
+        itxn_next
+        v-load verifier#0                                                                           verifier#0
+        itxn_field ApplicationID
+        method verify()void                                                                         Method(verify()void)
+        itxn_field ApplicationArgs
+        int 6                                                                                       6
+        itxn_field TypeEnum
+        int 0                                                                                       0
+        itxn_field Fee
+        // dynamic_itxn_group/contract.py:100
+        // itxn.AssetConfig(asset_name="abc").stage()
+        itxn_next
+        byte "abc"                                                                                  "abc"
+        itxn_field ConfigAssetName
+        int acfg                                                                                    acfg
+        itxn_field TypeEnum
+        int 0                                                                                       0
+        itxn_field Fee
+        // dynamic_itxn_group/contract.py:102
+        // itxn.submit_staged()
+        itxn_submit
+        // dynamic_itxn_group/contract.py:83
         // @public
         int 1                                                                                       1
         return
