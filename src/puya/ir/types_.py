@@ -522,7 +522,7 @@ class _WTypeToABIName(WTypeVisitor[str]):
         self._unencodable(wtype)
 
     def visit_arc4_uint(self, wtype: wtypes.ARC4UIntN) -> str:
-        if wtype == wtypes.arc4_byte_alias:
+        if wtype.arc4_alias == "byte":
             return "byte"
         return f"uint{wtype.n}"
 
@@ -540,12 +540,12 @@ class _WTypeToABIName(WTypeVisitor[str]):
         return f"{element}[]"
 
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> str:
-        if wtype == wtypes.arc4_string_alias:
+        if wtype.arc4_alias == "string":
             return "string"
         return f"{self._visit_in_aggregate(wtype.element_type)}[]"
 
     def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> str:
-        if wtype == wtypes.arc4_address_alias:
+        if wtype.arc4_alias == "address":
             return "address"
         return f"{self._visit_in_aggregate(wtype.element_type)}[{wtype.array_size}]"
 
