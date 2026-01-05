@@ -192,6 +192,13 @@ class Greeter(ARC4Contract):
         )
         assert result3 == result1
 
+        result4 = (
+            itxn.abi_call[UInt64]("echo_native_uint64(uint64)uint64", 1, app_id=app)
+            .submit()
+            .result
+        )
+        assert result4 == result1
+
     @arc4.abimethod()
     def test_native_biguint(self, app: Application) -> None:
         result1 = itxn.abi_call(Logger.echo_native_biguint, 2, app_id=app).submit().result
@@ -204,6 +211,20 @@ class Greeter(ARC4Contract):
             itxn.abi_call(Logger.echo_native_biguint, arc4.UInt512(2), app_id=app).submit().result
         )
         assert result3 == result1
+
+        result4 = (
+            itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
+            .submit()
+            .result
+        )
+        assert result4 == result1
+
+        result5 = (
+            itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2**512 - 2, app_id=app)
+            .submit()
+            .result
+        )
+        assert result5 == BigUInt(2**512 - 1)
 
     @arc4.abimethod()
     def test_native_tuple(self, app: Application) -> None:
