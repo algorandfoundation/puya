@@ -7,7 +7,7 @@ import mypy.types
 
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals, Subroutine
+from puya.awst.nodes import AWST, LogicSignature, RootNode, StateTotals
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import LogicSigReference
@@ -706,6 +706,9 @@ def _process_dataclass_like_fields(
             case mypy.nodes.FuncDef():
                 # A later pass once we have our fields in place will process struct methods
                 pass
+            case mypy.nodes.Decorator():
+                # A later pass once we have our fields in place will process struct methods
+                pass
             case _:
                 logger.error(
                     f"unsupported syntax for {base_type} member declaration", location=stmt_loc
@@ -719,46 +722,49 @@ def _process_dataclass_like_methods(
 ) -> tuple[StatementResult, dict[str, pytypes.FuncType]]:
     method_routines: StatementResult = []
     methods: dict[str, pytypes.FuncType] = {}
+
+    def handle_function_definition(
+        func_def: mypy.nodes.FuncDef,
+        decorator: mypy.nodes.Decorator | None,
+        location: SourceLocation,
+    ) -> None:
+        method_name = func_def.name
+        if method_name.startswith("__") and method_name.endswith("__"):
+            raise CodeError(
+                "methods starting and ending with a double underscore"
+                ' (aka "dunder" methods) are reserved for the Python data model'
+                " (https://docs.python.org/3/reference/datamodel.html)."
+                " These methods are not supported in dataclasses "
+                "(typing.NamedTuple, algopy.Struct, algopy.arc4.Struct)",
+                location,
+            )
+
+        dec_by_fullname = get_decorators_by_fullname(context, decorator) if decorator else {}
+        subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
+        inline = None
+        if subroutine_dec is not None:
+            inline = get_subroutine_decorator_inline_arg(context, subroutine_dec)
+        for _ in dec_by_fullname.values():
+            logger.error("unsupported struct method decorator", location=location)
+
+        methods[method_name] = context.function_pytype(func_def)
+        method_routines.append(
+            lambda ctx: FunctionASTConverter.convert(
+                ctx, func_def, location, is_method=True, inline=inline
+            )
+        )
+
     for stmt in cdef.defs.body:
         stmt_loc = context.node_location(stmt)
         match stmt:
+            case mypy.nodes.SymbolNode(name=symbol_name) if (
+                cdef.info.names[symbol_name].plugin_generated
+            ):
+                pass
             case mypy.nodes.FuncDef():
-                method_name = stmt.name
-                if method_name in {"__init__", "__replace__"}:
-                    # mypy inserts methods on dataclass-like classes, we should not process them.
-                    # Because these methods lack accurate line information we can detect them by
-                    # looking at phony column numbers
-                    if stmt.column < 0:
-                        continue
-                    raise CodeError(
-                        "Custom definitions of __init__ or __replace__ are not supported"
-                        " for dataclasses",
-                        stmt_loc,
-                    )
-                if method_name.startswith("__") and method_name.endswith("__"):
-                    raise CodeError(
-                        "methods starting and ending with a double underscore"
-                        ' (aka "dunder" methods) are reserved for the Python data model'
-                        " (https://docs.python.org/3/reference/datamodel.html)."
-                        " These methods are not supported in dataclasses "
-                        "(NamedTuple, Struct, arc4.Struct)",
-                        stmt_loc,
-                    )
-
-                current_func_def = stmt
-
-                def deferred_conversion(
-                    ctx: ASTConversionModuleContext,
-                    *,
-                    func_def: mypy.nodes.FuncDef = current_func_def,
-                    func_loc: SourceLocation = stmt_loc,
-                ) -> Subroutine:
-                    return FunctionASTConverter.convert(
-                        ctx, func_def, func_loc, is_method=True, inline=None
-                    )
-
-                methods[current_func_def.name] = context.function_pytype(current_func_def)
-                method_routines.append(deferred_conversion)
+                handle_function_definition(stmt, None, stmt_loc)
+            case mypy.nodes.Decorator():
+                handle_function_definition(stmt.func, stmt, stmt_loc)
             case _:
                 pass
     return method_routines, methods
