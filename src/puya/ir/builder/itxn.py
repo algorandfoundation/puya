@@ -753,6 +753,7 @@ def _get_method_signature(call: awst_nodes.ABICall) -> awst_nodes.MethodSignatur
                 arg_types=arg_wtypes,
                 return_type=return_wtype,
                 source_location=call.source_location,
+                resource_encoding="index",
             )
         case never:
             typing.assert_never(never)
@@ -772,7 +773,14 @@ def _get_arc4_args(
 
     result: list[awst_nodes.Expression] = []
     for arg_in, target_type in zip(args, signature.arg_types, strict=True):
-        if not isinstance(target_type, wtypes.WGroupTransaction | wtypes.WInnerTransactionFields):
+        if (
+            target_type in [wtypes.asset_wtype, wtypes.account_wtype, wtypes.application_wtype]
+            and signature.resource_encoding == "index"
+        ):
+            result.append(arg_in)
+        elif not isinstance(
+            target_type, wtypes.WGroupTransaction | wtypes.WInnerTransactionFields
+        ):
             arc4_wtype = wtype_to_arc4_wtype(target_type, signature.source_location)
             if arg_in.wtype == arc4_wtype:
                 result.append(arg_in)
@@ -854,26 +862,29 @@ def _parse_args(
 
     for arg_b, param_type in zip(args, signature.arg_types, strict=True):
         arg_expr = None
-        match param_type:
-            case wtypes.WGroupTransaction() | wtypes.WInnerTransactionFields() if isinstance(
+        match (param_type, signature.resource_encoding):
+            case (wtypes.WGroupTransaction() | wtypes.WInnerTransactionFields(), _) if isinstance(
                 arg_b.wtype, wtypes.WInnerTransactionFields
             ):
                 group.append(arg_b)
                 # no arg_expr as txn aren't part of the app args
             case (
-                wtypes.WGroupTransaction()
-                | wtypes.WInnerTransactionFields()
-                | wtypes.WInnerTransaction()
+                (
+                    wtypes.WGroupTransaction()
+                    | wtypes.WInnerTransactionFields()
+                    | wtypes.WInnerTransaction()
+                ),
+                _,
             ):
                 logger.error(
                     "only inner transaction types can be used to call another contract",
                     location=arg_b.source_location,
                 )
-            case wtypes.asset_wtype:
+            case (wtypes.asset_wtype, "index"):
                 arg_expr = ref_to_arg(txn_fields.TxnField.Assets, arg_b)
-            case wtypes.account_wtype:
+            case (wtypes.account_wtype, "index"):
                 arg_expr = ref_to_arg(txn_fields.TxnField.Accounts, arg_b)
-            case wtypes.application_wtype:
+            case (wtypes.application_wtype, "index"):
                 arg_expr = ref_to_arg(txn_fields.TxnField.Applications, arg_b)
             case _:
                 arg_expr = arg_b

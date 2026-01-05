@@ -28,6 +28,8 @@ from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpression
 from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner_params import InnerTxnParamsExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
+from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
+from puyapy.awst_build.utils import maybe_resolve_literal_as_native_type
 
 logger = log.get_logger(__name__)
 
@@ -153,6 +155,7 @@ def _abi_call(
         args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
     )
 
+    return_type: pytypes.PyType | None = None
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
@@ -199,7 +202,8 @@ def _abi_call(
             fields[field] = params.validate_and_convert(field_node).resolve()
 
     abi_call_args = [
-        expect.instance_builder(arg, default=expect.default_raise).resolve() for arg in abi_args
+        _maybe_resolve_literal(arg).resolve()
+        for arg in [expect.instance_builder(arg, default=expect.default_raise) for arg in abi_args]
     ]
 
     if return_type_annotation is None:
@@ -243,3 +247,10 @@ def _get_python_kwargs(fields: Sequence[TxnField]) -> Set[str]:
     return StableSet.from_iter(
         arg for arg, param in PYTHON_ITXN_ARGUMENTS.items() if param.field in fields
     )
+
+
+def _maybe_resolve_literal(operand: InstanceBuilder) -> InstanceBuilder:
+    if isinstance(operand, TupleLiteralBuilder):
+        resolved_items = [_maybe_resolve_literal(elem) for elem in operand.iterate_static()]
+        return TupleLiteralBuilder(resolved_items, operand.source_location)
+    return maybe_resolve_literal_as_native_type(operand)
