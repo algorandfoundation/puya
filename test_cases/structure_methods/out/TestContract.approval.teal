@@ -3,7 +3,9 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    // structure_methods/contract.py:27
+    intcblock 2 1 3
+    bytecblock 0xed3267e80000000000000002
+    // structure_methods/contract.py:57
     // class TestContract(ARC4Contract):
     txn NumAppArgs
     bz main___algopy_default_create@5
@@ -13,7 +15,7 @@ main:
     err
 
 main_test_route@3:
-    // structure_methods/contract.py:28
+    // structure_methods/contract.py:58
     // @public
     txn OnCompletion
     !
@@ -31,9 +33,67 @@ main___algopy_default_create@5:
     return
 
 
+// test_cases.structure_methods.contract.GroupedMethods.never_inlined_usually_inlined(v: uint64) -> uint64:
+never_inlined_usually_inlined:
+    // structure_methods/contract.py:28-29
+    // @subroutine(inline=False)
+    // def never_inlined_usually_inlined(self, v: UInt64) -> UInt64:
+    proto 1 1
+    // structure_methods/contract.py:30
+    // return v + UInt64(1)
+    frame_dig -1
+    intc_1 // 1
+    +
+    retsub
+
+
+// test_cases.structure_methods.contract.GroupedMethods.not_usually_inlined(v: uint64) -> void:
+not_usually_inlined:
+    // structure_methods/contract.py:46
+    // def not_usually_inlined(self, v: UInt64) -> None:
+    proto 1 0
+    // structure_methods/contract.py:47
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    frame_dig -1
+    itob
+    pushbytes 0xed3267e8 // method "ARC4TestStruct(uint64)"
+    swap
+    concat
+    dup
+    log
+    // structure_methods/contract.py:48
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    dup
+    log
+    // structure_methods/contract.py:49
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    dup
+    log
+    // structure_methods/contract.py:50
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    dup
+    log
+    // structure_methods/contract.py:51
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    dup
+    log
+    // structure_methods/contract.py:52
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    dup
+    log
+    // structure_methods/contract.py:53
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    dup
+    log
+    // structure_methods/contract.py:54
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    retsub
+
+
 // test_cases.structure_methods.contract.TestContract.test[routing]() -> void:
 test:
-    // structure_methods/contract.py:28
+    // structure_methods/contract.py:58
     // @public
     txna ApplicationArgs 1
     dup
@@ -45,11 +105,126 @@ test:
     // structure_methods/contract.py:10
     // return self.value.as_uint64() * times
     pushint 18
-    // structure_methods/contract.py:30
+    // structure_methods/contract.py:60
     // assert expected == self.arc4_struct_test()
     ==
     assert
-    // structure_methods/contract.py:28
+    // structure_methods/contract.py:64-69
+    // # Every method is called twice for a simple reason: if a method is only called once it
+    // # makes no sense to emit it separately (doing that adds callsub/proto/retsub machinery and
+    // # limits the ability of our optimizer).
+    // # Calling a method twice forces the optimizer to decide if the contract-size wins outweigh
+    // # the function-calling ceremony.
+    // assert UInt64(3) == GroupedMethods().never_inlined_usually_inlined(UInt64(2))
+    intc_0 // 2
+    callsub never_inlined_usually_inlined
+    intc_2 // 3
+    ==
+    assert
+    // structure_methods/contract.py:70
+    // assert UInt64(3) == GroupedMethods().never_inlined_usually_inlined(UInt64(2))
+    intc_0 // 2
+    callsub never_inlined_usually_inlined
+    intc_2 // 3
+    ==
+    assert
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    log
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:35
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:36
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:37
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:38
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:39
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:40
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:41
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    log
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:35
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:36
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:37
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:38
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:39
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:40
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:34
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    bytec_0 // 0xed3267e80000000000000002
+    // structure_methods/contract.py:41
+    // arc4.emit(ARC4TestStruct(arc4.UInt64(v)))
+    log
+    // structure_methods/contract.py:75
+    // GroupedMethods().not_usually_inlined(UInt64(2))
+    intc_0 // 2
+    callsub not_usually_inlined
+    // structure_methods/contract.py:76
+    // GroupedMethods().not_usually_inlined(UInt64(2))
+    intc_0 // 2
+    callsub not_usually_inlined
+    // structure_methods/contract.py:58
     // @public
-    pushint 1
+    intc_1 // 1
     return
