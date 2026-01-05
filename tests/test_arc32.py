@@ -3173,6 +3173,35 @@ def test_mutable_native_types_abi_call(
     app_client.call("test_log", transaction_parameters=large_fee_txn_params)
 
 
+def test_mutable_native_types_itxn_abi_call(
+    algod_client: AlgodClient, account: algokit_utils.Account
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "mutable_native_types",
+            contract_name="TestItxnAbiCall",
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    sp = algod_client.suggested_params()
+    sp.flat_fee = True
+    sp.fee = 1_000 * 7
+    large_fee_txn_params = algokit_utils.OnCompleteCallParameters(
+        suggested_params=sp,
+    )
+
+    app_client.call("test_fixed_struct", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_nested_struct", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_dynamic_struct", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_fixed_array", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_native_array", transaction_parameters=large_fee_txn_params)
+
+    sp.fee = 1_000 * 9
+    app_client.call("test_log", transaction_parameters=large_fee_txn_params)
+
+
 def test_mutable_native_types_contract(
     algod_client: AlgodClient, account: algokit_utils.Account
 ) -> None:

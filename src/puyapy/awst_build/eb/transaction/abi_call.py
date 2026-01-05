@@ -172,18 +172,20 @@ def _abi_call(
                 arg_types = abi_method_data.argument_types
                 return_type = abi_method_data.return_type
                 resource_encoding = abi_method_data.config.resource_encoding
-
+                allowed_completion_types = abi_method_data.config.allowed_completion_types
             else:
                 name = fmethod.member_name
                 arg_types = []
                 return_type = pytypes.NoneType
                 resource_encoding = "value"
+                allowed_completion_types = []
 
             target: MethodSignatureString | MethodSignature = MethodSignature(
                 name=name,
                 arg_types=[t.checked_wtype(location) for t in arg_types],
                 return_type=return_type.checked_wtype(location),
                 resource_encoding=resource_encoding,
+                allowed_completion_types=allowed_completion_types,
                 source_location=args[0].source_location,
             )
         case _:

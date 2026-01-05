@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 import attrs
 
 from puya import log
-from puya.avm import TransactionType
+from puya.avm import OnCompletionAction, TransactionType
 from puya.awst import (
     nodes as awst_nodes,
     txn_fields,
@@ -719,6 +719,19 @@ class InnerTransactionBuilder:
                 )
 
         fields.update(call.fields)
+        if (
+            txn_fields.TxnField.OnCompletion not in fields
+            and (
+                on_completion := _get_singular_on_complete(
+                    method_signature.allowed_completion_types
+                )
+            )
+            is not None
+        ):
+            fields[txn_fields.TxnField.OnCompletion] = awst_nodes.UInt64Constant(
+                value=on_completion.value,
+                source_location=call.source_location,
+            )
 
         return (fields, itxn_group)
 
@@ -1457,3 +1470,9 @@ def _get_tuple_items[T](
         target_arity = get_wtype_arity(tuple_wtype.types[index])
 
     return tuple_values[skip_values : skip_values + target_arity]
+
+
+def _get_singular_on_complete(actions: Sequence[OnCompletionAction]) -> OnCompletionAction | None:
+    if len(actions) == 1 and actions[0] != OnCompletionAction.NoOp:
+        return actions[0]
+    return None
