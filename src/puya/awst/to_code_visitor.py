@@ -381,7 +381,17 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
-        return f'Method("{expr.value}")'
+        if isinstance(expr.value, nodes.MethodSignatureString):
+            return f'Method("{expr.value.value}")'
+
+        name = expr.value.name
+        args = ",".join(t.name for t in expr.value.arg_types or [])
+        return_ = expr.value.return_type.name
+
+        return (
+            f'Method(name="{name}",args=({args}),result={return_},'
+            f'resource_encoding="{expr.value.resource_encoding}")'
+        )
 
     @typing.override
     def visit_address_constant(self, expr: nodes.AddressConstant) -> str:
@@ -471,6 +481,13 @@ class ToCodeVisitor(
         for field, value in expr.fields.items():
             fields.append(f"{field.immediate}={value.accept(self)}")
         return f"update_inner_transaction({expr.itxn.accept(self)},{', '.join(fields)})"
+
+    @typing.override
+    def visit_stage_inner_transactions(self, node: nodes.StageInnerTransactions) -> str:
+        start_new_group = node.start_new_group.accept(self)
+        itxns = f'{", ".join(itxn.accept(self) for itxn in node.itxns)}'
+
+        return f"stage_itxns=([{itxns}], start_new_group={start_new_group})"
 
     @typing.override
     def visit_set_inner_transaction_fields(self, node: nodes.SetInnerTransactionFields) -> str:

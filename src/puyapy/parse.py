@@ -2,6 +2,7 @@ import codecs
 import enum
 import functools
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -14,14 +15,14 @@ from operator import itemgetter
 from pathlib import Path
 
 import attrs
-from mypy.build import BuildManager, Graph, load_graph, process_graph, sorted_components
-from mypy.error_formatter import ErrorFormatter
-from mypy.errors import SHOW_NOTE_CODES, Errors, MypyError
+from mypy.build import BuildManager, Graph, dispatch, sorted_components
+from mypy.errors import Errors
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
 from mypy.nodes import MypyFile
 from mypy.options import Options as MypyOptions
 from mypy.plugins.default import DefaultPlugin
+from mypy.types import instance_cache
 from mypy.typestate import reset_global_state, type_state
 from mypy.util import find_python_encoding, hash_digest, read_py_file
 from mypy.version import __version__ as mypy_version
@@ -38,7 +39,7 @@ logger = log.get_logger(__name__)
 
 # this should contain the lowest version number that this compiler does NOT support
 # i.e. the next minor version after what is defined in stubs/pyproject.toml:project.version
-MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("3.3.0")
+MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("3.4.0")
 MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.major}.0.0")
 
 
@@ -130,8 +131,8 @@ def parse_python(
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
-    for scc_module_names in sorted_components(graph):
-        for module_name in sorted(scc_module_names):
+    for scc in sorted_components(graph):
+        for module_name in sorted(scc.mod_ids):
             module = manager.modules[module_name]
             state = graph[module_name]
             assert (
@@ -322,26 +323,32 @@ def _mypy_build(
     search_paths: SearchPaths,
     fscache: FileSystemCache,
 ) -> tuple[BuildManager, Graph]:
-    """Simple wrapper around mypy.build.build
-
-    Makes it so that check errors and parse errors are handled the same (ie with an exception)
     """
+    Our own implementation of mypy.build.build which handles errors via logging,
+    and uses our computed search paths.
+    """
+
+    all_messages = list[str]()
+
+    instance_cache.reset()
+
+    def flush_errors(
+        _filename: str | None,
+        new_messages: list[str],
+        _is_serious: bool,  # noqa: FBT001
+    ) -> None:
+        all_messages.extend(msg for msg in new_messages if os.devnull not in msg)
 
     source_set = BuildSourceSet(sources)
     cached_read = fscache.read
     errors = Errors(options, read_source=lambda path: read_py_file(path, cached_read))
     plugin = DefaultPlugin(options)
-    reporter = _LogReporter()
-
-    def ignore_error(*_args: object) -> None:
-        pass
 
     # Construct a build manager object to hold state during the build.
-    #
-    # Ignore current directory prefix in error messages.
     manager = BuildManager(
         data_dir=os.devnull,
         search_paths=search_paths,
+        # Ignore current directory prefix in error messages.
         ignore_prefix=os.getcwd(),  # noqa: PTH109
         source_set=source_set,
         reports=None,
@@ -350,45 +357,91 @@ def _mypy_build(
         plugin=plugin,
         plugins_snapshot={},
         errors=errors,
-        error_formatter=reporter,
-        flush_errors=ignore_error,
+        flush_errors=flush_errors,
         fscache=fscache,
         stdout=sys.stdout,
         stderr=sys.stderr,
     )
 
     reset_global_state()
-    graph = load_graph(sources, manager)
-    process_graph(graph, manager)
-    type_state.reset_all_subtype_caches()
+    graph = dispatch(sources, manager, sys.stdout)
+    _log_mypy_messages(all_messages)
+    if not options.fine_grained_incremental:
+        type_state.reset_all_subtype_caches()
     return manager, graph
 
 
-class _LogReporter(ErrorFormatter):
-    """Formatter for basic JSON output format."""
+def _log_mypy_message(message: log.Log | None, related_lines: list[str]) -> None:
+    if not message:
+        return
+    logger.log(
+        message.level, message.message, location=message.location, related_lines=related_lines
+    )
 
-    def report_error(self, error: MypyError) -> str:
-        if error.file_path != os.devnull:
-            match error.severity:
-                case "note":
-                    level = log.LogLevel.info
-                case level_str:
-                    level = log.LogLevel[level_str]
-            resolved_path = Path(error.file_path).resolve()
-            location = SourceLocation(
-                file=resolved_path,
-                line=max(error.line, 1),
-                column=error.column if error.column >= 0 else None,
-            )
-            message = error.message
-            if error.errorcode and (
-                error.severity != "note" or error.errorcode in SHOW_NOTE_CODES
-            ):
-                # If note has an error code, it is related to a previous error. Avoid
-                # displaying duplicate error codes.
-                message = f"{message}  [{error.errorcode.code}]"
-            logger.log(level, message, location=location)
-        return ""
+
+def _log_mypy_messages(messages: list[str]) -> None:
+    first_message: log.Log | None = None
+    related_messages = list[str]()
+    for message_str in messages:
+        message = _parse_log_message(message_str)
+        if not first_message:
+            first_message = message
+        elif not message.location:
+            # collate related error messages and log together
+            related_messages.append(message.message)
+        else:
+            _log_mypy_message(first_message, related_messages)
+            related_messages = []
+            first_message = message
+    _log_mypy_message(first_message, related_messages)
+
+
+_MYPY_LOG_MESSAGE = re.compile(
+    r"""^
+    (?P<filename>([A-Z]:\\)?[^:]*)(:(?P<line>\d+))?
+    :\s(?P<severity>error|warning|note)
+    :\s(?P<msg>.*)$""",
+    re.VERBOSE,
+)
+
+
+def _parse_log_message(log_message: str) -> log.Log:
+    match = _MYPY_LOG_MESSAGE.match(log_message)
+    if match:
+        matches = match.groupdict()
+        return _try_parse_log_parts(
+            matches.get("filename"),
+            matches.get("line") or "",
+            matches.get("severity") or "error",
+            matches["msg"],
+        )
+    return log.Log(
+        level=log.LogLevel.error,
+        message=log_message,
+        location=None,
+    )
+
+
+_MYPY_SEVERITY_TO_LOG_LEVEL: typing.Final = {
+    "error": log.LogLevel.error,
+    "warning": log.LogLevel.warning,
+    "note": log.LogLevel.info,
+}
+
+
+def _try_parse_log_parts(
+    path_str: str | None, line_str: str, severity_str: str, msg: str
+) -> log.Log:
+    if not path_str:
+        location = None
+    else:
+        try:
+            line = int(line_str)
+        except ValueError:
+            line = 1
+        location = SourceLocation(file=Path(path_str).resolve(), line=line)
+    level = _MYPY_SEVERITY_TO_LOG_LEVEL[severity_str]
+    return log.Log(message=msg, level=level, location=location)
 
 
 @functools.cache

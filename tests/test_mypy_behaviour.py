@@ -3,6 +3,7 @@
 import inspect
 import sys
 import typing
+from collections.abc import Iterator
 from textwrap import dedent
 
 import mypy.build
@@ -57,16 +58,17 @@ def strip_error_prefixes(br: mypy.build.BuildResult) -> list[str]:
 def get_revealed_types(
     br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile
 ) -> list[mypy.types.Type | None]:
-    import mypy.traverser
-
     types = []
-
-    class MyVisitor(mypy.traverser.TraverserVisitor):
-        def visit_reveal_expr(self, o: mypy.nodes.RevealExpr) -> None:
-            types.append(br.types.get(o.expr, mypy.types.UninhabitedType()))
-
-    visitor = MyVisitor()
-    visitor.visit_mypy_file(tree)
+    for stmt in tree.defs:
+        inner = None
+        match stmt:
+            case mypy.nodes.AssignmentStmt(rvalue=inner):
+                pass
+            case mypy.nodes.ExpressionStmt(expr=inner):
+                pass
+        match inner:
+            case mypy.nodes.CallExpr(analyzed=mypy.nodes.RevealExpr() as o):
+                types.append(br.types.get(o.expr, mypy.types.UninhabitedType()))
     return types
 
 
@@ -523,10 +525,8 @@ def test_assignment_statements() -> None:
     tree = result.graph[TEST_MODULE].tree
     assert tree
 
-    import mypy.traverser
-
-    class MyVisitor(mypy.traverser.TraverserVisitor):
-        def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> None:
+    for stmt in _traverse_statements(tree.defs):
+        if isinstance(stmt, mypy.nodes.AssignmentStmt):
             (lval,) = stmt.lvalues
             assert isinstance(
                 lval,
@@ -541,10 +541,24 @@ def test_assignment_statements() -> None:
             if isinstance(stmt.rvalue, mypy.nodes.TempNode) and stmt.rvalue.no_rhs:
                 assert stmt.type is not None
                 assert lval.is_new_def
-            super().visit_assignment_stmt(stmt)
 
-    vis = MyVisitor()
-    tree.accept(vis)
+
+def _traverse_statements(body: list[mypy.nodes.Statement]) -> Iterator[mypy.nodes.Statement]:
+    for stmt in body:
+        yield stmt
+        match stmt:
+            case mypy.nodes.ClassDef(defs=inner):
+                yield from _traverse_statements(inner.body)
+            case mypy.nodes.FuncDef(body=inner):
+                yield from _traverse_statements(inner.body)
+            case mypy.nodes.Decorator(func=mypy.nodes.FuncDef(body=inner)):
+                yield from _traverse_statements(inner.body)
+            case mypy.nodes.AssignmentStmt() | mypy.nodes.ExpressionStmt():
+                pass
+            case unsupported:
+                raise AssertionError(
+                    f"need to add support for traversing {type(unsupported).__name__}"
+                )
 
 
 def test_super_exprs() -> None:
@@ -827,6 +841,10 @@ def test_global_types() -> None:
         assert isinstance(arg_name_expr.node, mypy.nodes.Var)
         if isinstance(arg_name_expr.node.type, mypy.types.LiteralType):
             inst_type = arg_name_expr.node.type.fallback
+        elif isinstance(arg_name_expr.node.type, mypy.types.UnionType) and isinstance(
+            (first_union_member := arg_name_expr.node.type.items[0]), mypy.types.LiteralType
+        ):
+            inst_type = first_union_member.fallback
         else:
             assert isinstance(arg_name_expr.node.type, mypy.types.Instance)
             inst_type = arg_name_expr.node.type

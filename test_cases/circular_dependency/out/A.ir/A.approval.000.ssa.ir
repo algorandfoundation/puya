@@ -149,17 +149,17 @@ subroutine test_cases.circular_dependency.a.A.ping(b: uint64) -> string:
     block@1: // next_txn_L9
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%0#0)
+        let tmp%0#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%1#0: bool = (== tmp%0#0 0x151f7c75)
+        (assert tmp%1#0) // application log value is not the result of an ABI return
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(tmp%2#0)
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len tmp%2#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%0#0
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
+        (assert eq%0#0) // invalid number of bytes for string
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let result#0: string = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
@@ -300,14 +300,14 @@ subroutine test_cases.circular_dependency.a.A.create_b(factory_id: uint64) -> ui
     block@1: // next_txn_L20
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let tmp%0#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%1#0: bool = (== tmp%0#0 0x151f7c75)
+        (assert tmp%1#0) // application log value is not the result of an ABI return
+        let tmp%2#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len tmp%2#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
+        (assert eq%0#0) // invalid number of bytes for application
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         let result#0: uint64 = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)

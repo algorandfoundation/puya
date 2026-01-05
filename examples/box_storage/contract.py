@@ -6,6 +6,7 @@ from algopy import (
     BoxMap,
     Bytes,
     FixedArray,
+    FixedBytes,
     Global,
     ImmutableFixedArray,
     String,
@@ -90,6 +91,8 @@ class BoxContract(arc4.ARC4Contract):
         self.dynamic_box = Box(Array[UInt64])
         self.dynamic_arr_struct = Box(DynamicArrayInAStruct)
         self.too_many_bools = Box(FixedArray[bool, typing.Literal[33_000]])
+        self.big_fixed_bytes = Box(FixedBytes[typing.Literal[5000]])
+        self.big_bytes = Box(Bytes)
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
@@ -141,6 +144,38 @@ class BoxContract(arc4.ARC4Contract):
     @arc4.abimethod()
     def set_many_ints(self, index: UInt64, value: UInt64) -> None:
         self.many_ints.value[index] = value
+
+    @arc4.abimethod()
+    def create_big_fixed_bytes(self) -> None:
+        self.big_fixed_bytes.create()
+
+    @arc4.abimethod()
+    def update_big_fixed_bytes(self, start_index: UInt64, value: Bytes) -> None:
+        self.big_fixed_bytes.splice(start_index, value.length, value)
+
+    @arc4.abimethod()
+    def assert_big_fixed_bytes(self, index: UInt64, value: Bytes) -> None:
+        assert self.big_fixed_bytes.value[index] == value
+
+    @arc4.abimethod()
+    def slice_big_fixed_bytes(self, start: UInt64, end: UInt64) -> Bytes:
+        return self.big_fixed_bytes.value[start:end]
+
+    @arc4.abimethod()
+    def create_big_bytes(self, size: UInt64) -> None:
+        self.big_bytes.create(size=size)
+
+    @arc4.abimethod()
+    def update_big_bytes(self, start_index: UInt64, value: Bytes) -> None:
+        self.big_bytes.splice(start_index, value.length, value)
+
+    @arc4.abimethod()
+    def assert_big_bytes(self, index: UInt64, value: Bytes) -> None:
+        assert self.big_bytes.value[index] == value
+
+    @arc4.abimethod()
+    def slice_big_bytes(self, start: UInt64, end: UInt64) -> Bytes:
+        return self.big_bytes.value[start:end]
 
     @arc4.abimethod()
     def sum_many_ints(self) -> UInt64:

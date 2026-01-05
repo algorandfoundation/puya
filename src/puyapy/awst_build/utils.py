@@ -278,20 +278,6 @@ def snake_case(s: str) -> str:
     return re.sub(r"[-\s]", "_", s).lower()
 
 
-def require_callable_type(
-    node: mypy.nodes.FuncBase | mypy.nodes.Decorator, location: SourceLocation
-) -> mypy.types.CallableType:
-    if isinstance(node, mypy.nodes.Decorator):
-        typ = node.var.type
-    else:
-        typ = node.type
-    if typ is None:
-        raise InternalError(f"unable to resolve type of {node.fullname}", location)
-    if not isinstance(typ, mypy.types.CallableType):
-        raise CodeError("expected a callable type", location)
-    return typ
-
-
 def maybe_resolve_literal(
     operand: TBuilder, target_type: pytypes.PyType
 ) -> TBuilder | InstanceBuilder:

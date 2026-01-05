@@ -61,7 +61,7 @@ jobs:
       fail-fast: false # Continue with other matrix jobs even if one fails
       matrix:
         runner:
-          - { id: ubuntu-22.04, arch: x64}
+          - { id: ubuntu-22.04, arch: x64 }
           - { id: ubuntu-22.04-arm, arch: arm64 }
     steps:
       - name: Checkout source code
@@ -128,10 +128,10 @@ jobs:
       fail-fast: false # Continue with other matrix jobs even if one fails
       matrix:
         runner:
-            # macos-14 is the Apple Silicon M1 runner (mac os 14)
-            # macos-13 is the last available Intel Mac runner (mac os 13)
-            # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
-          - { id: macos-13, arch: x64 }
+          # macos-14 is the Apple Silicon M1 runner (mac os 14)
+          # macos-15-intel is the Intel Mac runner (mac os 15)
+          # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
+          - { id: macos-15-intel, arch: x64 }
           - { id: macos-14, arch: arm64 }
     steps:
       - name: Checkout source code
@@ -165,18 +165,24 @@ jobs:
   runner-native-smoketests:
     name: "Smoke test ${{ matrix.runner.id }}"
     runs-on: ${{ matrix.runner.id }}
-    needs: [ generate-smoke-test-inputs, build-linux-binaries, build-windows-binaries, build-macos-binaries ]
+    needs:
+      [
+        generate-smoke-test-inputs,
+        build-linux-binaries,
+        build-windows-binaries,
+        build-macos-binaries,
+      ]
     strategy:
       fail-fast: false # Continue with other matrix jobs even if one fails
       matrix:
         runner:
-          - { id: ubuntu-22.04, os: linux, arch: x64}
+          - { id: ubuntu-22.04, os: linux, arch: x64 }
           - { id: ubuntu-22.04-arm, os: linux, arch: arm64 }
           - { id: windows-latest, os: windows, arch: x64 }
             # macos-14 is the Apple Silicon M1 runner (mac os 14)
-            # macos-13 is the last available Intel Mac runner (mac os 13)
+            # macos-15-intel is the Intel Mac runner (mac os 15)
             # See https://github.com/actions/runner-images?tab=readme-ov-file#available-images
-          - { id: macos-13, os: macos, arch: x64 }
+          - { id: macos-15-intel, os: macos, arch: x64 }
           - { id: macos-14, os: macos, arch: arm64 }
     env:
       PACKAGE_NAME: "${{ inputs.package_prefix }}-${{ matrix.runner.os }}_${{ matrix.runner.arch }}"
@@ -195,7 +201,7 @@ jobs:
         shell: bash
         run: |
           tar -xzf ${PACKAGE_NAME}.tar.gz       
-          
+
           # Run a basic test to verify the binary works
           ./puya --version
 
@@ -217,14 +223,18 @@ jobs:
   manylinux-docker-smoke-tests:
     name: "Smoke test ${{ matrix.distro.name }} ${{ matrix.arch.name }}"
     if: ${{ inputs.run_manylinux_tests }}
-    needs: [ generate-smoke-test-inputs, build-linux-binaries ]
+    needs: [generate-smoke-test-inputs, build-linux-binaries]
     runs-on: ${{ matrix.arch.runner }}
     strategy:
       fail-fast: false
       matrix:
         arch:
           - { runner: "ubuntu-22.04", name: "amd64", identifier: "linux_x64" }
-          - { runner: "ubuntu-22.04-arm", name: "arm64", identifier: "linux_arm64" }
+          - {
+              runner: "ubuntu-22.04-arm",
+              name: "arm64",
+              identifier: "linux_arm64",
+            }
         distro:
           # Debian family (glibc 2.28+)
           - { name: "Debian 10", image: "debian:10" }
@@ -264,11 +274,11 @@ jobs:
             bash -c -e '
               # Print glibc version
               ldd --version
-          
+
               # extract the binary
               cd /workspace
               tar -xzf ${PACKAGE_NAME}.tar.gz               
-    
+
               # Run a basic test to verify the binary works
               ./puya --version
               

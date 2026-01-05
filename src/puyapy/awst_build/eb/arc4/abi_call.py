@@ -8,7 +8,6 @@ from puya.avm import OnCompletionAction, TransactionType
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4CreateOption,
-    ARC4Decode,
     ARC4Encode,
     ARC4MethodConfig,
     BytesConstant,
@@ -18,6 +17,7 @@ from puya.awst.nodes import (
     Expression,
     IntegerConstant,
     MethodConstant,
+    MethodSignatureString,
     SubmitInnerTransaction,
     TupleExpression,
     TupleItemExpression,
@@ -273,7 +273,6 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
         )
         return _create_abi_call_expr(
             arg_value_and_types=arg_value_and_types,
-            arc4_return_type=method_call.arc4_return_type,
             declared_result_type=method_call.method_return_type,
             field_nodes=field_nodes,
             location=location,
@@ -322,7 +321,6 @@ def _abi_call(
             # in this case the arc4 signature and declared return type are inferred
             method_call = _get_arc4_method_call(fmethod, abi_args, location)
             arc4_args = method_call.arc4_args
-            arc4_return_type = method_call.arc4_return_type
             arc4_config = method_call.config
             declared_result_type = method_call.method_return_type
             if return_type_annotation not in (declared_result_type, pytypes.NoneType):
@@ -365,7 +363,6 @@ def _abi_call(
                     location=method.source_location,
                 )
             arc4_args = _method_selector_and_arc4_args(signature, abi_args, location)
-            arc4_return_type = signature.return_type
             arg_value_and_types = list(
                 zip(arc4_args, (pytypes.BytesType, *arg_types), strict=True)
             )
@@ -385,7 +382,6 @@ def _abi_call(
         call_location=location,
     )
     return _create_abi_call_expr(
-        arc4_return_type=arc4_return_type,
         arg_value_and_types=arg_value_and_types,
         declared_result_type=declared_result_type,
         field_nodes=field_nodes,
@@ -509,10 +505,11 @@ def _method_selector_and_arc4_args(
             f" got {num_args}",
             signature.source_location,
         )
+    method_signature = MethodSignatureString(
+        value=signature.method_selector, source_location=location
+    )
     result: list[InstanceBuilder] = [
-        BytesExpressionBuilder(
-            MethodConstant(value=signature.method_selector, source_location=location)
-        )
+        BytesExpressionBuilder(MethodConstant(value=method_signature, source_location=location))
     ]
     for arg_in, target_type in zip(abi_args, signature.arg_types, strict=True):
         if not isinstance(target_type, pytypes.GroupTransactionType):
@@ -549,7 +546,6 @@ def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.Py
 def _create_abi_call_expr(
     *,
     arg_value_and_types: Sequence[tuple[InstanceBuilder, pytypes.PyType]],
-    arc4_return_type: pytypes.PyType,
     declared_result_type: pytypes.PyType,
     field_nodes: dict[TxnField, NodeBuilder],
     location: SourceLocation,
@@ -660,18 +656,11 @@ def _create_abi_call_expr(
         return itxn_builder
     itxn_builder = itxn_builder.single_eval()
     assert isinstance(itxn_builder, InnerTransactionExpressionBuilder)
-    last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
-    abi_result = ARC4FromLogBuilder.abi_expr_from_log(arc4_return_type, last_log, location)
-    # the declared result type may be different to the arc4 signature return type
-    # due to automatic conversion of ARC-4 -> native types
-    if declared_result_type != arc4_return_type:
-        abi_result = ARC4Decode(
-            value=abi_result,
-            wtype=declared_result_type.checked_wtype(location),
-            source_location=location,
-        )
 
+    last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(declared_result_type, last_log, location)
     abi_result_builder = builder_for_instance(declared_result_type, abi_result)
+
     return TupleLiteralBuilder((abi_result_builder, itxn_builder), location)
 
 

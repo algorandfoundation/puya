@@ -6,7 +6,6 @@ from collections.abc import Callable, Iterator, Sequence, Set
 import attrs
 import mypy.nodes
 import mypy.types
-import mypy.visitor
 
 from puya import log
 from puya.avm import OnCompletionAction
@@ -96,7 +95,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         #       we can still keep trying to convert other functions to produce more valid errors)
         for stmt in stmts:
             with context.log_exceptions(fallback_location=stmt):
-                stmt.accept(self)
+                self.visit_statement(stmt)
 
         if (
             self.fragment.is_arc4
@@ -397,9 +396,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> None:
         self._unsupported_stmt("match", stmt)
 
-    def visit_type_alias_stmt(self, stmt: mypy.nodes.TypeAliasStmt) -> None:
-        self._unsupported_stmt("type", stmt)
-
 
 class _UserContractBase(ContractFragmentBase, abc.ABC):
     @property
@@ -689,9 +685,13 @@ def _build_symbols_and_state(
             # we don't support any decorators that would change signature
             node = node.func
         pytyp = None
-        if isinstance(node, mypy.nodes.Var | mypy.nodes.FuncDef) and node.type:
-            with contextlib.suppress(CodeError):
-                pytyp = context.type_to_pytype(node.type, source_location=node_loc)
+        with contextlib.suppress(CodeError):
+            if isinstance(node, mypy.nodes.Var):
+                if node.type:
+                    pytyp = context.type_to_pytype(node.type, source_location=node_loc)
+            elif isinstance(node, mypy.nodes.FuncDef):  # noqa: SIM102
+                if node.type:
+                    pytyp = context.function_pytype(node)
 
         fragment.symbols[name] = pytyp
         if pytyp and not isinstance(pytyp, pytypes.FuncType):

@@ -273,6 +273,10 @@ test_cases.inner_transactions.c2c.Greeter.log_greetings_next_txn@1:
     // inner_transactions/c2c.py:29
     // greeting = arc4.String.from_log(hello_call.last_log)
     dup
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
     extract 4 0
     dup
     intc_0 // 0
@@ -285,11 +289,6 @@ test_cases.inner_transactions.c2c.Greeter.log_greetings_next_txn@1:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    uncover 1
-    extract 0 4
-    bytec_1 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
     // inner_transactions/c2c.py:30
     // log("HelloWorld returned: ", greeting.native)
     pushbytes "HelloWorld returned: "

@@ -236,6 +236,26 @@ export class TemplateVar extends Expression {
      return visitor.visitTemplateVar(this)
    }
 }
+export class MethodSignatureString extends Node {
+  constructor(props: Props<MethodSignatureString>) {
+    super(props)
+    this.value = props.value
+  }
+  readonly value: string
+}
+export class MethodSignature extends Node {
+  constructor(props: Props<MethodSignature>) {
+    super(props)
+    this.name = props.name
+    this.argTypes = props.argTypes
+    this.returnType = props.returnType
+    this.resourceEncoding = props.resourceEncoding
+  }
+  readonly name: string
+  readonly argTypes: Array<wtypes.WType>
+  readonly returnType: wtypes.WType
+  readonly resourceEncoding: 'index' | 'value'
+}
 export class MethodConstant extends Expression {
   constructor(props: Props<MethodConstant>) {
     super(props)
@@ -243,7 +263,7 @@ export class MethodConstant extends Expression {
     this.value = props.value
   }
   readonly wtype: wtypes.WType
-  readonly value: string
+  readonly value: MethodSignature | MethodSignatureString
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitMethodConstant(this)
    }
@@ -294,7 +314,7 @@ export class ARC4FromBytes extends Expression {
     this.validate = props.validate
   }
   readonly value: Expression
-  readonly wtype: wtypes.ARC4Type
+  readonly wtype: wtypes.WType
   readonly validate: boolean
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitARC4FromBytes(this)
@@ -430,6 +450,20 @@ export class UpdateInnerTransaction extends Expression {
   readonly wtype: wtypes.WType
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitUpdateInnerTransaction(this)
+   }
+}
+export class StageInnerTransactions extends Expression {
+  constructor(props: Props<StageInnerTransactions>) {
+    super(props)
+    this.itxns = props.itxns
+    this.startNewGroup = props.startNewGroup
+    this.wtype = props.wtype
+  }
+  readonly itxns: Array<Expression>
+  readonly startNewGroup: Expression
+  readonly wtype: wtypes.WType
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitStageInnerTransactions(this)
    }
 }
 export class GroupTransactionReference extends Expression {
@@ -1524,6 +1558,8 @@ export const concreteNodes = {
   stringConstant: StringConstant,
   voidConstant: VoidConstant,
   templateVar: TemplateVar,
+  methodSignatureString: MethodSignatureString,
+  methodSignature: MethodSignature,
   methodConstant: MethodConstant,
   addressConstant: AddressConstant,
   aRC4Encode: ARC4Encode,
@@ -1539,6 +1575,7 @@ export const concreteNodes = {
   intrinsicCall: IntrinsicCall,
   createInnerTransaction: CreateInnerTransaction,
   updateInnerTransaction: UpdateInnerTransaction,
+  stageInnerTransactions: StageInnerTransactions,
   groupTransactionReference: GroupTransactionReference,
   checkedMaybe: CheckedMaybe,
   tupleExpression: TupleExpression,
@@ -1654,6 +1691,7 @@ export interface ExpressionVisitor<T> {
   visitIntrinsicCall(expression: IntrinsicCall): T
   visitCreateInnerTransaction(expression: CreateInnerTransaction): T
   visitUpdateInnerTransaction(expression: UpdateInnerTransaction): T
+  visitStageInnerTransactions(expression: StageInnerTransactions): T
   visitGroupTransactionReference(expression: GroupTransactionReference): T
   visitCheckedMaybe(expression: CheckedMaybe): T
   visitTupleExpression(expression: TupleExpression): T

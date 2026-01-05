@@ -43,6 +43,59 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def create_big_fixed_bytes(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def update_big_fixed_bytes(
+        self,
+        start_index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def assert_big_fixed_bytes(
+        self,
+        index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def slice_big_fixed_bytes(
+        self,
+        start: algopy.arc4.UIntN[typing.Literal[64]],
+        end: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> algopy.arc4.DynamicBytes: ...
+
+    @algopy.arc4.abimethod
+    def create_big_bytes(
+        self,
+        size: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def update_big_bytes(
+        self,
+        start_index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def assert_big_bytes(
+        self,
+        index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def slice_big_bytes(
+        self,
+        start: algopy.arc4.UIntN[typing.Literal[64]],
+        end: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> algopy.arc4.DynamicBytes: ...
+
+    @algopy.arc4.abimethod
     def sum_many_ints(
         self,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...

@@ -277,7 +277,8 @@ subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> voi
         (app_local_put tmp%2#0 "loc" as_Encoded(len+(uint64,(len+utf8[]))[])%1#0)
         let storage_value%0#0: bytes = box_read("box")
         let extract_uint16%2#0: uint64 = (extract_uint16 storage_value%0#0 0u)
-        let total_length%2#0: uint64 = (len storage_value%0#0)
+        let (box%box_len%0#0: uint64, box%_%0#0: bool) = (box_len "box")
+        let total_length%2#0: uint64 = box%box_len%0#0
         let extract_to_end%2#0: bytes = ((extract 2 0) storage_value%0#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, tmp%1#0)
         box_write("box", as_Encoded(len+(uint64,(len+utf8[]))[])%2#0)
@@ -285,7 +286,8 @@ subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> voi
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
         let extract_uint16%3#0: uint64 = (extract_uint16 storage_value%1#0 0u)
-        let total_length%3#0: uint64 = (len storage_value%1#0)
+        let (box%box_len%1#0: uint64, box%_%1#0: bool) = (box_len box_prefixed_key%0#0)
+        let total_length%3#0: uint64 = box%box_len%1#0
         let extract_to_end%3#0: bytes = ((extract 2 0) storage_value%1#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%1#0)
         box_write(box_prefixed_key%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)

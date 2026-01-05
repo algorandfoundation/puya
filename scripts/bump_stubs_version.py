@@ -7,7 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-VCS_ROOT = Path(__file__).parent.parent
+from scripts.script_utils import VCS_ROOT
+
 STUBS_DIR = VCS_ROOT / "stubs"
 STUBS_PYPROJECT = STUBS_DIR / "pyproject.toml"
 PARSE_PY = VCS_ROOT / "src" / "puyapy" / "parse.py"

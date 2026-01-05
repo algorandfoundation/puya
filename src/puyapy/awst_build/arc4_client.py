@@ -4,7 +4,6 @@ from collections.abc import Iterator, Mapping, Sequence
 import attrs
 import mypy.nodes
 import mypy.types
-import mypy.visitor
 
 from puya import log
 from puya.errors import InternalError
@@ -89,7 +88,7 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[ARC4ABIMethodData | None]):
         for stmt in class_def.defs.body:
             stmt_loc = context.node_location(stmt)
             with context.log_exceptions(fallback_location=stmt_loc):
-                if (abi_method_data := stmt.accept(visitor)) is not None:
+                if (abi_method_data := visitor.visit_statement(stmt)) is not None:
                     fragment.add_method(abi_method_data, stmt_loc)
         context.add_contract_fragment(fragment)
 
@@ -164,6 +163,3 @@ class ARC4ClientASTVisitor(BaseMyPyStatementVisitor[ARC4ABIMethodData | None]):
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> None:
         self._unsupported_stmt("match", stmt)
-
-    def visit_type_alias_stmt(self, stmt: mypy.nodes.TypeAliasStmt) -> None:
-        self._unsupported_stmt("type", stmt)

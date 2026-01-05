@@ -8,6 +8,7 @@ from functools import cached_property
 
 import attrs
 from immutabledict import immutabledict
+from typing_extensions import deprecated
 
 from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
@@ -541,6 +542,19 @@ class TemplateVar(Expression):
         return visitor.visit_template_var(self)
 
 
+@attrs.frozen
+class MethodSignatureString(Node):
+    value: str
+
+
+@attrs.frozen
+class MethodSignature(Node):
+    name: str = attrs.field()
+    arg_types: Sequence[wtypes.WType] = attrs.field(converter=tuple[wtypes.WType, ...])
+    return_type: wtypes.WType
+    resource_encoding: typing.Literal["index", "value"] = "value"
+
+
 @attrs.frozen(kw_only=True)
 class MethodConstant(Expression):
     """
@@ -553,7 +567,7 @@ class MethodConstant(Expression):
         default=wtypes.bytes_wtype,
         validator=attrs.validators.in_([wtypes.bytes_wtype, wtypes.BytesWType(length=4)]),
     )
-    value: str
+    value: MethodSignature | MethodSignatureString
     """An ARC4 method signature. eg. my_method(int,string)bytes"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -614,7 +628,7 @@ class ARC4FromBytes(Expression):
     """
 
     value: Expression
-    wtype: wtypes.ARC4Type
+    wtype: wtypes.WType
     validate: bool
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -862,6 +876,29 @@ class UpdateInnerTransaction(Expression):
         return visitor.visit_update_inner_transaction(self)
 
 
+@attrs.frozen(kw_only=True)
+class StageInnerTransactions(Expression):
+    """
+    Emits an `itxn_begin` or `itxn_next` plus the relevant `itxn_field` ops for each field
+    in each itxn of itxns.
+    """
+
+    itxns: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
+    """A sequence of inner transaction fields expressions"""
+    start_new_group: Expression = attrs.field(validator=wtype_is_bool)
+    """Use `itxn_begin` for the first itxn in itxns (else use `itxn_next`)"""
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+
+    @itxns.validator
+    def _check_itxns(self, _attribute: object, itxns: Sequence[Expression]) -> None:
+        for expr in itxns:
+            if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
+                raise CodeError("expected an inner transaction", expr.source_location)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_stage_inner_transactions(self)
+
+
 @attrs.frozen
 class GroupTransactionReference(Expression):
     """
@@ -1047,6 +1084,7 @@ class InnerTransactionField(Expression):
         return visitor.visit_inner_transaction_field(self)
 
 
+@deprecated("replaced by StageInnerTransactions")
 @attrs.frozen
 class SetInnerTransactionFields(Expression):
     """

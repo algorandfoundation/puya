@@ -5,6 +5,5 @@ significantly.
 However this means certain python modules such as `enum` or `dataclasses` cannot be used in
 PuyaPy stubs unless this typeshed is updated.
 
-The contents of the typeshed are populated by the `scripts/vendor_mypy.py` script, which is used
-to vendor new versions of MyPy or to update the stubs included in this typeshed. So to add new
-stubs, update that script and rerun.
+The contents of the typeshed are populated by the `scripts/update_typeshed.py` script, so to
+support additional stubs, update that script and rerun.

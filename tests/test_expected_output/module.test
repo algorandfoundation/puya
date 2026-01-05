@@ -1,7 +1,7 @@
 ## test module level declarations
 
 ## case: no_float
-FLOAT = 0.1 ## E: Unsupported construct FloatExpr: floating point math is not supported
+FLOAT = 0.1 ## E: floating point math is not supported
 another_float = 1 / 2 ## E: unsupported result type of float
 
 ## case: no_subroutine_hint
@@ -27,13 +27,13 @@ BYTES_LITERAL = b"some bytes"
 FORMATTED_STR = f"{STR_LITERAL} {LITERAL}"
 MULTIPLIED_STR = "a" * 64
 
-NOT_A_LITERAL = UInt64(1) ## E: Unsupported construct CallExpr: not supported at module level
+NOT_A_LITERAL = UInt64(1) ## E: unsupported statement type at module level
 
 ## case: no_typed_dict
 from algopy import UInt64
 import typing
 
-class NotAllowed(typing.TypedDict): ## E: Unsupported construct ClassDef: TypedDict classes are not supported
+class NotAllowed(typing.TypedDict): ## E: TypedDict classes are not supported
     an_int: UInt64
 
 ## case: no_collections_namedtuple
@@ -41,8 +41,8 @@ import collections
 
 from algopy import UInt64
 
-NotAllowed = collections.namedtuple("NotAllowed", ["x", "y"]) ## E: Unsupported construct CallExpr: not supported at module level \
-                                                              ## E: Module has no attribute "namedtuple"  [attr-defined]
+NotAllowed = collections.namedtuple("NotAllowed", ["x", "y"]) ## E: Module has no attribute "namedtuple"  [attr-defined] \
+                                                              ## E: unsupported statement type at module level
 
 
 ## case: empty_namedtuple
@@ -78,7 +78,7 @@ __all__ = ["FOO"]
 
 ## case: list_not_allowed
 
-FOO = [1] ## E: Unsupported construct ListExpr: not supported at module level
+FOO = [1] ## E: unsupported usage of list literal
 
 ## case: type_alias_allowed
 import typing
@@ -92,46 +92,46 @@ def one() -> IntAlias:
 
 ## case: for_not_supported
 
-for i in [True, False]: ## E: Unsupported construct ForStmt: not supported at module level
+for i in [True, False]: ## E: unsupported statement type at module level
     pass
 
 ## case: while_not_supported
 
-while False: ## E: Unsupported construct WhileStmt: not supported at module level
+while False: ## E: unsupported statement type at module level
     pass
 
 ## case: assert_not_supported
 
-assert True ## E: Unsupported construct AssertStmt: not supported at module level
+assert True ## E: unsupported statement type at module level
 
 ## case: expression_stmt_not_supported
 
-3 + 4 ## E: Unsupported construct ExpressionStmt: not supported at module level
+3 + 4 ## E: unsupported statement type at module level
 
 ## case: tuple_not_supported
 
-TUPLE = 1, 2 ## E: Unsupported construct TupleExpr: not supported at module level
+TUPLE = 1, 2 ## E: unsupported statement type at module level
 
 ## case: lambda_not_supported
 
-LAMBDA = lambda: 1 ## E: Unsupported construct LambdaExpr: not supported at module level
+LAMBDA = lambda: 1 ## E: lambda functions are not supported
 
 ## case: slice_not_supported
 
-SLICE = [1, 2][:] ## E: Unsupported construct IndexExpr: not supported at module level
+SLICE = [1, 2][:] ## E: unsupported statement type at module level
 
 ## case: comprehension_not_supported
 
-COMPREHENSION = [f for f in [1, 2]] ## E: Unsupported construct ListComprehension: not supported at module level
+COMPREHENSION = [f for f in [1, 2]] ## E: comprehensions are not supported
 
 ## case: index_not_supported
 
-INDEXED = [1,2,3][0] ## E: Unsupported construct IndexExpr: not supported at module level
+INDEXED = [1,2,3][0] ## E: unsupported statement type at module level
 
 ## case: match_not_supported
 ONE = 1
 
-match ONE: ## E: Unsupported construct MatchStmt: not supported at module level
+match ONE: ## E: unsupported statement type at module level
     case 1:
         TWO = 2
     case _:
@@ -153,6 +153,7 @@ ONE = 1
 TWO = 2
 
 ## path: pkg/__init__.py
+from . import two
 
 ## path: three.py
 from one import ONE

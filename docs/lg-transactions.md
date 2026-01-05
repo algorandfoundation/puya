@@ -122,6 +122,31 @@ def example() -> tuple[Asset, Bytes]:
     return asset1_txn.created_asset, app_txn.logs(1)
 ```
 
+#### Submitting a group with dynamic number of inner transactions
+
+[`.stage()`](#algopy.itxn.InnerTransaction.stage) method in inner transaction classes and [`algopy.itxn.submit_staged()`](#algopy.itxn.submit_staged) function allow for composition of dynamically sized inner transaction groups. It makes some sacrifices to the developer experience in order to support this scenario, so its use should be limited to situations that require it; an example being when an arbitrary number of transactions must be submitted as a single group in order for another application to introspect this group. In most cases, it will be easier to create variadic groups in batches and rely on the atomic nature of the outer transaction to provide transactional consistency.
+
+The first transaction staged for any group should pass `begin_group=True` and all other transactions can omit that parameter as it has a default value of `False`. Exactly one call to `stage` with `begin_group=True` is required for each transaction group. Otherwise, it will fail when executed on chain. When all transactions in the group have been staged, [`algopy.itxn.submit_staged()`](#algopy.itxn.submit_staged) can be called to dispatch these transactions.
+
+To read the result from any of these transactions, one can make use of the `GITxn` ops; e.g., `op.GITxn.last_log(n)`, where n is a compile time constant representing the index of the transaction in the group.
+
+```python
+from algopy import UInt64, arc4, itxn, subroutine, urange
+
+
+@subroutine
+def demo(count: UInt64) -> None:
+    hello_app = arc4.arc4_create(Hello.create, "hello").created_app
+
+    for i in urange(count):
+        app_call = itxn.ApplicationCall(
+            app_id=hello_app.id, app_args=(arc4.arc4_signature("greet(string)string"), "ho")
+        )
+        app_call.stage(begin_group=(i == 0))
+
+    itxn.submit_staged()
+```
+
 #### Create an ARC-4 application, and then call it
 
 ```python

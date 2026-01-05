@@ -7,7 +7,6 @@ import docstring_parser
 import mypy.nodes
 import mypy.patterns
 import mypy.types
-import mypy.visitor
 
 from puya import log
 from puya.awst.nodes import (
@@ -83,7 +82,6 @@ from puyapy.awst_build.utils import (
     get_decorators_by_fullname,
     get_unaliased_fullname,
     maybe_resolve_literal,
-    require_callable_type,
 )
 from puyapy.models import ContractFragmentBase
 
@@ -156,10 +154,7 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
                     "unqualified name found in call to function",
                     expr_loc,
                 )
-                mypy_func_type = require_callable_type(dec, expr_loc)
-                func_type = self.context.type_to_pytype(mypy_func_type, source_location=expr_loc)
-                if not isinstance(func_type, pytypes.FuncType):
-                    raise CodeError("decorated function has non-function type", expr_loc)
+                func_type = self.context.function_pytype(dec.func)
                 return SubroutineInvokerExpressionBuilder(
                     target=SubroutineID(expr.fullname),
                     func_type=func_type,
@@ -274,7 +269,7 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
             # special case for module attribute access
             return self._visit_ref_expr(expr)
 
-        base = expr.expr.accept(self)
+        base = self.visit_expression(expr.expr)
         return base.member_access(expr.name, expr_loc)
 
     @typing.override
@@ -282,11 +277,11 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
         if call.analyzed is not None:
             return self._visit_special_call_expr(call, analyzed=call.analyzed)
 
-        callee = call.callee.accept(self)
+        callee = self.visit_expression(call.callee)
         if not isinstance(callee, CallableBuilder):
             raise CodeError("not a callable expression", self._location(call.callee))
 
-        args = [arg.accept(self) for arg in call.args]
+        args = [self.visit_expression(arg) for arg in call.args]
         return callee.call(
             args=args,
             arg_kinds=call.arg_kinds,
@@ -317,12 +312,12 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
                     self._location(call),
                 )
 
-        return inner_expr.accept(self)
+        return self.visit_expression(inner_expr)
 
     @typing.override
     def visit_unary_expr(self, node: mypy.nodes.UnaryExpr) -> NodeBuilder:
         expr_loc = self._location(node)
-        builder_or_literal = node.expr.accept(self)
+        builder_or_literal = self.visit_expression(node.expr)
         match node.op:
             case "not":
                 return builder_or_literal.bool_eval(expr_loc, negate=True)
@@ -336,8 +331,8 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
     @typing.override
     def visit_op_expr(self, node: mypy.nodes.OpExpr) -> NodeBuilder:
         node_loc = self._location(node)
-        lhs = require_instance_builder(node.left.accept(self))
-        rhs = require_instance_builder(node.right.accept(self))
+        lhs = require_instance_builder(self.visit_expression(node.left))
+        rhs = require_instance_builder(self.visit_expression(node.right))
 
         # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
         if node.op in BinaryBooleanOperator:
@@ -393,28 +388,34 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
             case _:
                 typing.assert_never(expr.analyzed)
 
-        base_builder = require_instance_builder(expr.base.accept(self))
+        base_builder = require_instance_builder(self.visit_expression(expr.base))
         match expr.index:
             # special case handling of SliceExpr, so we don't need to handle slice Literal's
             # or some such everywhere
             # TODO: SliceBuilder?
             case mypy.nodes.SliceExpr(begin_index=begin, end_index=end, stride=stride):
                 return base_builder.slice_index(
-                    begin_index=(require_instance_builder(begin.accept(self)) if begin else None),
-                    end_index=(require_instance_builder(end.accept(self)) if end else None),
-                    stride=(require_instance_builder(stride.accept(self)) if stride else None),
+                    begin_index=(
+                        require_instance_builder(self.visit_expression(begin)) if begin else None
+                    ),
+                    end_index=(
+                        require_instance_builder(self.visit_expression(end)) if end else None
+                    ),
+                    stride=(
+                        require_instance_builder(self.visit_expression(stride)) if stride else None
+                    ),
                     location=expr_location,
                 )
 
-        index_builder = require_instance_builder(expr.index.accept(self))
+        index_builder = require_instance_builder(self.visit_expression(expr.index))
         return base_builder.index(index=index_builder, location=expr_location)
 
     @typing.override
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
-        condition = expr.cond.accept(self).bool_eval(self._location(expr.cond))
-        true_b = require_instance_builder(expr.if_expr.accept(self))
-        false_b = require_instance_builder(expr.else_expr.accept(self))
+        condition = self.visit_expression(expr.cond).bool_eval(self._location(expr.cond))
+        true_b = require_instance_builder(self.visit_expression(expr.if_expr))
+        false_b = require_instance_builder(self.visit_expression(expr.else_expr))
         if true_b.pytype <= false_b.pytype:
             expr_pytype = true_b.pytype
         elif false_b.pytype < true_b.pytype:
@@ -463,7 +464,7 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
         #       type signatures that should be possible, and we can always know it's value at
         #       compile time, but it would always result in a constant ...
 
-        operands = [require_instance_builder(o.accept(self)) for o in expr.operands]
+        operands = [require_instance_builder(self.visit_expression(o)) for o in expr.operands]
         operands[1:-1] = [operand.single_eval() for operand in list(operands)[1:-1]]
 
         comparisons = [
@@ -522,7 +523,8 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
 
         location = self._location(mypy_expr)
         item_builders = [
-            require_instance_builder(mypy_item.accept(self)) for mypy_item in mypy_expr.items
+            require_instance_builder(self.visit_expression(mypy_item))
+            for mypy_item in mypy_expr.items
         ]
         return TupleLiteralBuilder(item_builders, location)
 
@@ -534,30 +536,13 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
             if mypy_name is None:
                 logger.error("None is not usable as a value", location=location)
                 continue
-            key_node = mypy_name.accept(self)
-            value_node = mypy_value.accept(self)
+            key_node = self.visit_expression(mypy_name)
+            value_node = self.visit_expression(mypy_value)
             key = expect.simple_string_literal(key_node, default=expect.default_none)
             value = require_instance_builder(value_node)
             if key is not None:
                 mappings[key] = value
         return DictLiteralBuilder(mappings, location)
-
-    # unsupported expressions
-
-    def visit_list_comprehension(self, expr: mypy.nodes.ListComprehension) -> NodeBuilder:
-        raise CodeError("List comprehensions are not supported", self._location(expr))
-
-    def visit_slice_expr(self, expr: mypy.nodes.SliceExpr) -> NodeBuilder:
-        raise CodeError("Slices are not supported outside of indexing", self._location(expr))
-
-    def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> NodeBuilder:
-        raise CodeError("lambda functions are not supported", self._location(expr))
-
-    def visit_ellipsis(self, expr: mypy.nodes.EllipsisExpr) -> NodeBuilder:
-        raise CodeError("ellipsis expressions are not supported", self._location(expr))
-
-    def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> NodeBuilder:
-        raise CodeError("Python lists are not supported", self._location(expr))
 
 
 class FunctionASTConverter(
@@ -602,7 +587,7 @@ class FunctionASTConverter(
         # check & convert the arguments
         mypy_args = func_def.arguments
         mypy_arg_types = type_info.arg_types
-        if type_info.def_extras.get("first_arg"):
+        if contract_method_info is not None:
             # function is a method
             if not mypy_args:
                 logger.error("method declaration is missing 'self' argument", location=func_loc)
@@ -735,7 +720,7 @@ class FunctionASTConverter(
             expr_loc,
         )
         # TODO: test if self. assignment?
-        source = require_instance_builder(expr.value.accept(self))
+        source = require_instance_builder(self.visit_expression(expr.value))
         if not self._assign_type(expr.target, source.pytype):
             # typing error, just return the source to continue with
             return source
@@ -797,7 +782,7 @@ class FunctionASTConverter(
     def visit_block(self, block: mypy.nodes.Block) -> Block:
         translated_body = []
         for stmt in block.body:
-            translated_stmt = stmt.accept(self)
+            translated_stmt = self.visit_statement(stmt)
             if translated_stmt is None:
                 pass
             elif isinstance(translated_stmt, Statement):
@@ -824,7 +809,7 @@ class FunctionASTConverter(
                 " check for a stray comma at the end of the statement",
                 stmt_loc,
             )
-        expr_builder = require_instance_builder(stmt.expr.accept(self))
+        expr_builder = require_instance_builder(self.visit_expression(stmt.expr))
         expr = expr_builder.resolve()
         if expr_builder.pytype != pytypes.NoneType:
             if isinstance(expr, ARC4FromBytes) and expr.validate:
@@ -873,7 +858,7 @@ class FunctionASTConverter(
                 self._assign_type(lvalue, annotated_type)
                 # forward type-declaration only, no-op
                 return []
-        rvalue = require_instance_builder(stmt.rvalue.accept(self))
+        rvalue = require_instance_builder(self.visit_expression(stmt.rvalue))
         if stmt.type is not None:
             annotated_type = self.context.type_to_pytype(stmt.type, source_location=stmt_loc)
             if not (annotated_type <= rvalue.pytype):
@@ -1059,7 +1044,7 @@ class FunctionASTConverter(
                 )
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
-        builder_or_literal = lvalue.accept(self)
+        builder_or_literal = self.visit_expression(lvalue)
         builder = require_instance_builder(builder_or_literal)
         return builder.resolve_lvalue()
 
@@ -1069,8 +1054,8 @@ class FunctionASTConverter(
 
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> Statement:
         stmt_loc = self._location(stmt)
-        builder = require_instance_builder(stmt.lvalue.accept(self))
-        rhs = require_instance_builder(stmt.rvalue.accept(self))
+        builder = require_instance_builder(self.visit_expression(stmt.lvalue))
+        rhs = require_instance_builder(self.visit_expression(stmt.rvalue))
         try:
             op = BuilderBinaryOp(stmt.op)
         except ValueError as ex:
@@ -1090,7 +1075,7 @@ class FunctionASTConverter(
         )
         (expr,) = stmt.expr
         (if_body,) = stmt.body
-        condition = expr.accept(self).bool_eval(self._location(expr))
+        condition = self.visit_expression(expr).bool_eval(self._location(expr))
         if_branch = self.visit_block(if_body)
         else_branch = self.visit_block(stmt.else_body) if stmt.else_body else None
         return IfElse(
@@ -1143,7 +1128,7 @@ class FunctionASTConverter(
         )
 
     def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> WhileLoop | Block:
-        condition = stmt.expr.accept(self).bool_eval(self._location(stmt.expr))
+        condition = self.visit_expression(stmt.expr).bool_eval(self._location(stmt.expr))
         return self._build_loop(
             stmt,
             lambda loop_body, loop_loc: WhileLoop(
@@ -1154,7 +1139,7 @@ class FunctionASTConverter(
         )
 
     def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> ForInLoop | Block:
-        sequence_builder = require_instance_builder(stmt.expr.accept(self))
+        sequence_builder = require_instance_builder(self.visit_expression(stmt.expr))
         sequence = sequence_builder.iterate()
         iter_item_type = sequence_builder.iterable_item_type()
         self._assign_type(stmt.index, iter_item_type)
@@ -1183,13 +1168,13 @@ class FunctionASTConverter(
     def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> ExpressionStatement:
         error_message: str | None = None
         if stmt.msg is not None:
-            msg = stmt.msg.accept(self)
+            msg = self.visit_expression(stmt.msg)
             match msg:
                 case LiteralBuilder(value=str(error_message)):
                     pass
                 case _:
                     self._error("only literal strings are supported as assertion messages", stmt)
-        condition = stmt.expr.accept(self).bool_eval(self._location(stmt.expr))
+        condition = self.visit_expression(stmt.expr).bool_eval(self._location(stmt.expr))
         return ExpressionStatement(
             AssertExpression(
                 condition=condition.resolve(),
@@ -1199,7 +1184,7 @@ class FunctionASTConverter(
         )
 
     def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> Statement:
-        stmt_expr = stmt.expr.accept(self)
+        stmt_expr = self.visit_expression(stmt.expr)
         del_item = require_instance_builder(stmt_expr)
         return del_item.delete(self._location(stmt))
 
@@ -1213,7 +1198,7 @@ class FunctionASTConverter(
                 )
             return ReturnStatement(source_location=loc, value=None)
 
-        returning_builder = require_instance_builder(return_expr.accept(self))
+        returning_builder = require_instance_builder(self.visit_expression(return_expr))
         if not (self._return_type <= returning_builder.pytype):
             self._error(
                 f"invalid return type of {returning_builder.pytype}, expected {self._return_type}",
@@ -1224,7 +1209,7 @@ class FunctionASTConverter(
     @typing.override
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
-        subject = require_instance_builder(stmt.subject.accept(self))
+        subject = require_instance_builder(self.visit_expression(stmt.subject))
         case_block_map = dict[Expression, Block]()
         default_block: Block | None = None
         for pattern, guard, block in zip(stmt.patterns, stmt.guards, stmt.bodies, strict=True):
@@ -1287,13 +1272,13 @@ class FunctionASTConverter(
             case mypy.patterns.OrPattern():
                 raise CodeError("nesting of or-patterns is not supported", loc)
             case mypy.patterns.ValuePattern(expr=case_expr):
-                return require_instance_builder(case_expr.accept(self))
+                return require_instance_builder(self.visit_expression(case_expr))
             case mypy.patterns.SingletonPattern(value=singleton_value):
                 if singleton_value is None:
                     _none_value_error(loc)
                 return LiteralBuilderImpl(value=singleton_value, source_location=loc)
             case mypy.patterns.ClassPattern() as cls_pattern:
-                class_builder = cls_pattern.class_ref.accept(self)
+                class_builder = self.visit_expression(cls_pattern.class_ref)
                 if not isinstance(class_builder, CallableBuilder):
                     raise CodeError("expected a type", class_builder.source_location)
                 if cls_pattern.keyword_values:
@@ -1322,10 +1307,6 @@ class FunctionASTConverter(
     @typing.override
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> None:
         self._error("classes nested inside functions are not supported", cdef)
-
-    @typing.override
-    def visit_type_alias_stmt(self, o: mypy.nodes.TypeAliasStmt) -> None:
-        self._error("type alias statements are not supported", o)
 
 
 def is_self_member(

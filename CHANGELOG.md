@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.6.0'></a>
+## v5.6.0 (2025-12-23)
+
+### Added
+
+-   `.stage()` method in inner transaction classes and `algopy.itxn.submit_staged` function to support submitting a dynamic number of inner transactions in a group
+
+-   Improved code generation for box operations.
+
+### Changed
+
+- mypy is no longer a vendored dependency, allowing use of the compiled version of mypy, which
+  speeds up Python parsing times by 400-500%.
+
+### Fixed
+
+-   Fixed `index` and `slice` operations on boxes containing `FixedBytes` larger than 4k to not throw `box_get produced a too big byte-array` error.
+
 <a id='changelog-v5.5.0'></a>
 ## v5.5.0 (2025-11-28)
 

@@ -18,10 +18,9 @@ from puya.awst import (
     txn_fields,
     wtypes,
 )
+from scripts.script_utils import VCS_ROOT
 
-_VCS_ROOT = Path(__file__).parent.parent
-
-_DEFAULT_OUT_PATH = _VCS_ROOT / "tests" / "output" / "nodes.ts.txt"
+_DEFAULT_OUT_PATH = VCS_ROOT / "tests" / "output" / "nodes.ts.txt"
 
 _EXPORT_UNIONS = {
     awst_nodes.Lvalue: "LValue",

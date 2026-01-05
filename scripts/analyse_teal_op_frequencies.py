@@ -3,7 +3,7 @@ from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
 
-VCS_ROOT = Path(__file__).parent.parent
+from scripts.script_utils import VCS_ROOT
 
 OUTPUT_BASE_DIRS = ["examples", "test_cases"]
 

@@ -514,7 +514,7 @@ class MyContract(arc4.ARC4Contract):
 from algopy import *
 
 class MyContract(ARC4Contract): ## E: Non-abstract ARC-4 contract has no methods that can be called to create the contract, but does have a NoOp bare method, so one couldn't be inserted. In order to allow creating the contract add either an @abimethod or @baremethod decorated method with create="require" or create="allow"
-    @arc4.abimethod(name=1) # type: ignore[misc,call-overload] ## E: unexpected argument type
+    @arc4.abimethod(name=1) # type: ignore[untyped-decorator,call-overload] ## E: unexpected argument type
     def a(self) -> None:  # type: ignore[misc]
         pass
 
@@ -943,6 +943,10 @@ class MyAbiMethodNameTests(ARC4Contract):
     def test_5(self) -> None:
         pass
 
-
-    
-
+    @arc4.abimethod()
+    def test_signature(self) -> None:
+        assert arc4.arc4_signature(MyAbiMethodNameTests.test_1) ## W: method name '1_test' does not conform to ARC-4 spec
+        assert arc4.arc4_signature(MyAbiMethodNameTests.test_2) ## W: method name 'test-2' does not conform to ARC-4 spec
+        assert arc4.arc4_signature(MyAbiMethodNameTests.test_3) ## W: method name 'test_3*' does not conform to ARC-4 spec
+        assert arc4.arc4_signature(MyAbiMethodNameTests.test_4) ## W: method name '' does not conform to ARC-4 spec
+        assert arc4.arc4_signature(MyAbiMethodNameTests.test_5) == arc4.arc4_signature("if()void")
