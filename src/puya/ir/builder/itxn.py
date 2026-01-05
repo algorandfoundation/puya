@@ -351,7 +351,17 @@ class InnerTransactionBuilder:
         start_new_group: awst_nodes.Expression | bool,
         source_location: SourceLocation,
     ) -> None:
-        for idx, itxn in enumerate(itxns):
+        group: list[awst_nodes.Expression] = []
+        for itxn in itxns:
+            if isinstance(itxn.wtype, wtypes.WABICallInnerTransactionFields):
+                abi_call_itxns = self._get_abi_itxns(itxn)
+                if abi_call_itxns is None and isinstance(itxn, awst_nodes.ABICall):
+                    abi_call_fields, abi_call_itxns = self._map_abi_call_to_txn_fields(itxn)
+                    self._abi_call_fields[itxn] = abi_call_fields
+
+                group.extend(abi_call_itxns or [])
+            group.append(itxn)
+        for idx, itxn in enumerate(group):
             if idx == 0:
                 match start_new_group:
                     case bool(val) | awst_nodes.BoolConstant(value=val):
