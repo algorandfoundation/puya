@@ -1,0 +1,393 @@
+contract Logger
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.is_a_b(a: bytes, b: bytes): void
+  {
+    assert(a == hex<"61">, comment="a is not a")
+    assert(b == hex<"62">, comment="b is not b")
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo(value: arc4.dynamic_array<arc4.uint8>): arc4.dynamic_array<arc4.uint8>
+  {
+    return 'echo: ' + value
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.no_args(): uint64
+  {
+    return 42u
+  }
+  
+  abimethod[name_override=log] test_cases.typed_itxn_abi_call.logger.Logger.log_uint64(value: arc4.uint64): void
+  {
+    log(reinterpret_cast<bytes>(value))
+  }
+  
+  abimethod[name_override=log] test_cases.typed_itxn_abi_call.logger.Logger.log_uint512(value: arc4.uint512): void
+  {
+    log(reinterpret_cast<bytes>(value))
+  }
+  
+  abimethod[name_override=log] test_cases.typed_itxn_abi_call.logger.Logger.log_string(value: arc4.dynamic_array<arc4.uint8>): void
+  {
+    log(reinterpret_cast<bytes>(arc4_decode(value, string)))
+  }
+  
+  abimethod[name_override=log] test_cases.typed_itxn_abi_call.logger.Logger.log_bool(value: arc4.bool): void
+  {
+    log((arc4_decode(value, bool)) ? (hex<"54727565">) : (hex<"46616C7365">))
+  }
+  
+  abimethod[name_override=log] test_cases.typed_itxn_abi_call.logger.Logger.log_bytes(value: arc4.dynamic_array<arc4.uint8>): void
+  {
+    log(arc4_decode(value, bytes))
+  }
+  
+  abimethod[name_override=log] test_cases.typed_itxn_abi_call.logger.Logger.log_asset_account_app(asset: asset, account: account, app: application): void
+  {
+    log(concat(concat(concat(concat(checked_maybe(asset_params_get<AssetName>(asset)), ''), reinterpret_cast<bytes>(account)), ''), reinterpret_cast<bytes>(checked_maybe(app_params_get<AppAddress>(app)))))
+  }
+  
+  abimethod[name_override=log] test_cases.typed_itxn_abi_call.logger.Logger.log_address(address: arc4.static_array<arc4.uint8, 32>): void
+  {
+    log(reinterpret_cast<bytes>(address))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_native_string(value: string): string
+  {
+    return 'echo: ' + value
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_native_bytes(value: bytes): bytes
+  {
+    return hex<"6563686F3A20"> + value
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_native_uint64(value: uint64): uint64
+  {
+    return value + 1u
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_native_biguint(value: biguint): biguint
+  {
+    return value b+ 1n
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_resource_by_index(asset: asset, app: application, acc: account): tuple<asset,application,account>
+  {
+    asset_idx: uint64 = btoi(txna<ApplicationArgs, 1>())
+    assert(asset == txnas<Assets>(asset_idx), comment="expected asset to be passed by index")
+    app_idx: uint64 = btoi(txna<ApplicationArgs, 2>())
+    assert(app == txnas<Applications>(app_idx), comment="expected application to be passed by index")
+    acc_idx: uint64 = btoi(txna<ApplicationArgs, 3>())
+    assert(acc == txnas<Accounts>(acc_idx), comment="expected account to be passed by index")
+    return (asset, app, acc)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_resource_by_value(asset: asset, app: application, acc: account): tuple<asset,application,account>
+  {
+    asset_id: uint64 = btoi(txna<ApplicationArgs, 1>())
+    assert(reinterpret_cast<uint64>(asset) == asset_id, comment="expected asset to be passed by value")
+    app_id: uint64 = btoi(txna<ApplicationArgs, 2>())
+    assert(reinterpret_cast<uint64>(app) == app_id, comment="expected application to be passed by value")
+    address: bytes = txna<ApplicationArgs, 3>()
+    assert(reinterpret_cast<bytes>(acc) == address, comment="expected account to be passed by value")
+    return (asset, app, acc)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_native_tuple(s: string, b: bytes, u: uint64, bu: biguint): tuple<string,bytes,uint64,biguint>
+  {
+    return ('echo: ' + s, hex<"6563686F3A20"> + b, u + 1u, bu b+ 1n)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple(tuple_of_tuples: tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
+  {
+    ((string, arc4_string), (u64, arc4_u64, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = tuple_of_tuples
+    return (('echo: ' + string, 'echo: ' + arc4_string), (u64 + 1u, arc4_encode(arc4_decode(arc4_u64, uint64) + 1u, arc4.uint64), hex<"6563686F3A20"> + bytez))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.return_args_after_14th(_a1: arc4.uint64, _a2: arc4.uint64, _a3: arc4.uint64, _a4: arc4.uint64, _a5: arc4.uint64, _a6: arc4.uint64, _a7: arc4.uint64, _a8: arc4.uint64, _a9: arc4.uint64, _a10: arc4.uint64, _a11: arc4.uint64, _a12: arc4.uint64, _a13: arc4.uint64, _a14: arc4.uint64, a15: arc4.uint8, a16: arc4.uint8, a17: arc4.uint8, a18: arc4.uint8, a19: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>, a20: arc4.uint8): arc4.dynamic_array<arc4.uint8>
+  {
+    last_arg: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> = arc4_encode((a15, a16, a17, a18, a19, a20), arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>)
+    assert(txna<ApplicationArgs, 15>() == reinterpret_cast<bytes>(last_arg))
+    return arc4_encode(reinterpret_cast<bytes>(last_arg), arc4.dynamic_array<arc4.uint8>)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.logs_are_equal(log_1: test_cases.typed_itxn_abi_call.logger.LogMessage, log_2: test_cases.typed_itxn_abi_call.logger.LogMessage): bool
+  {
+    return &&(log_1[0] == log_2[0], log_1[1] == log_2[1])
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_log_struct(log: test_cases.typed_itxn_abi_call.logger.LogStruct): test_cases.typed_itxn_abi_call.logger.LogStruct
+  {
+    return log
+  }
+  
+  baremethod test_cases.typed_itxn_abi_call.logger.Logger.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Greeter
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_is_a_b(a: bytes, b: bytes, app: application): void
+  {
+    submit_txn(abi_call(signature='is_a_b(byte[],byte[])void', args=a, b, fields=TxnField.ApplicationID=app))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_selector_kinds(app: application): void
+  {
+    assert(Method(name="echo",args=(arc4.dynamic_array<arc4.uint8>),result=arc4.dynamic_array<arc4.uint8>,resource_encoding="value") == Method("echo(string)string"))
+    result: arc4.dynamic_array<arc4.uint8> = (assert(extract<0, 4>(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(abi_call(signature={name="echo",args=(arc4.dynamic_array<arc4.uint8>),result=arc4.dynamic_array<arc4.uint8>}, args='test1', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=1)), arc4.dynamic_array<arc4.uint8>))[-1]
+    assert(result == 'echo: test1')
+    result: arc4.dynamic_array<arc4.uint8> = (assert(extract<0, 4>(SINGLE_EVAL(id=3, source=SINGLE_EVAL(id=2, source=submit_txn(abi_call(signature={name="echo",args=(arc4.dynamic_array<arc4.uint8>),result=arc4.dynamic_array<arc4.uint8>}, args='test2', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=3)), arc4.dynamic_array<arc4.uint8>))[-1]
+    assert(result == 'echo: test2')
+    result: arc4.dynamic_array<arc4.uint8> = (assert(extract<0, 4>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=submit_txn(abi_call(signature='echo', args='test3', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=5)), arc4.dynamic_array<arc4.uint8>))[-1]
+    assert(result == 'echo: test3')
+    result: arc4.dynamic_array<arc4.uint8> = (assert(extract<0, 4>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(abi_call(signature='echo(string)', args='test4', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=7)), arc4.dynamic_array<arc4.uint8>))[-1]
+    assert(result == 'echo: test4')
+    result: arc4.dynamic_array<arc4.uint8> = (assert(extract<0, 4>(SINGLE_EVAL(id=9, source=SINGLE_EVAL(id=8, source=submit_txn(abi_call(signature='echo(string)string', args='test5', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=9)), arc4.dynamic_array<arc4.uint8>))[-1]
+    assert(result == 'echo: test5')
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_overload(app: application): void
+  {
+    submit_txn(abi_call(signature='echo(string)string', args='typed + ignore', fields=TxnField.ApplicationID=app))
+    assert((assert(extract<0, 4>(SINGLE_EVAL(id=10, source=itxn<LastLog>())) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=10)), arc4.dynamic_array<arc4.uint8>))[-1] == 'echo: typed + ignore')
+    submit_txn(abi_call(signature='echo(string)string', args='untyped + ignore', fields=TxnField.ApplicationID=app))
+    assert((assert(extract<0, 4>(SINGLE_EVAL(id=11, source=itxn<LastLog>())) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=11)), arc4.dynamic_array<arc4.uint8>))[-1] == 'echo: untyped + ignore')
+    result: inner_transaction_appl = submit_txn(abi_call(signature='echo(string)string', args='tuple', fields=TxnField.ApplicationID=app))
+    assert((assert(extract<0, 4>(SINGLE_EVAL(id=12, source=result.LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=12)), arc4.dynamic_array<arc4.uint8>))[-1] == 'echo: tuple')
+    assert((assert(extract<0, 4>(SINGLE_EVAL(id=13, source=result.LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=13)), arc4.dynamic_array<arc4.uint8>))[-1] == 'echo: tuple')
+    txn_result: inner_transaction_appl = submit_txn(abi_call(signature='echo(string)string', args='untyped', fields=TxnField.ApplicationID=app))
+    assert((assert(extract<0, 4>(SINGLE_EVAL(id=14, source=txn_result.LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=14)), arc4.dynamic_array<arc4.uint8>))[-1] == 'echo: untyped')
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arg_conversion(app: application): void
+  {
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(arc4.dynamic_array<arc4.uint8>),result=void}, args='converted1', fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == hex<"636F6E76657274656431">)
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(arc4.uint64),result=void}, args=2u, fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == itob(2u))
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(arc4.uint512),result=void}, args=3u, fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == bzero(56u) + itob(3u))
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(arc4.dynamic_array<arc4.uint8>),result=void}, args=hex<"34">, fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == hex<"34">)
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(arc4.bool),result=void}, args=true, fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == hex<"54727565">)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_15plus_args(app: application): void
+  {
+    result: arc4.dynamic_array<arc4.uint8> = (assert(extract<0, 4>(SINGLE_EVAL(id=16, source=SINGLE_EVAL(id=15, source=submit_txn(abi_call(signature={name="return_args_after_14th",args=(arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8),result=arc4.dynamic_array<arc4.uint8>}, args=1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u, 12u, 13u, 14u, 15u, 16u, 17u, 18u, arc4_encode((222_arc4u8, 173_arc4u8, 190_arc4u8, 239_arc4u8), arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>), 20u, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=16)), arc4.dynamic_array<arc4.uint8>))[-1]
+    assert(arc4_decode(result, bytes) == hex<"0F101112DEADBEEF14">)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_void(app: application): void
+  {
+    txn: inner_transaction_appl = submit_txn(abi_call(signature='log(string)void', args='World1', fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == hex<"576F726C6431">)
+    txn: inner_transaction_appl = submit_txn(abi_call(signature='log(string)', args='World2', fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == hex<"576F726C6432">)
+    txn: inner_transaction_appl = submit_txn(abi_call(signature='log', args='World3', fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == hex<"576F726C6433">)
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(arc4.dynamic_array<arc4.uint8>),result=void}, args='World4', fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == hex<"576F726C6434">)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_ref_types(app: application, asset: asset): void
+  {
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(asset,account,application),result=void}, args=asset, global<CurrentApplicationAddress>(), app, fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == checked_maybe(asset_params_get<AssetName>(asset)) + reinterpret_cast<bytes>(global<CurrentApplicationAddress>()) + reinterpret_cast<bytes>(checked_maybe(app_params_get<AppAddress>(app))))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_account_to_address(app: application): void
+  {
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="log",args=(arc4.static_array<arc4.uint8, 32>),result=void}, args=global<CurrentApplicationAddress>(), fields=TxnField.ApplicationID=app))
+    assert(txn.LastLog == reinterpret_cast<bytes>(global<CurrentApplicationAddress>()))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_string(app: application): void
+  {
+    result1: string = (assert(extract<0, 4>(SINGLE_EVAL(id=18, source=SINGLE_EVAL(id=17, source=submit_txn(abi_call(signature={name="echo_native_string",args=(string),result=string}, args='s', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=18)), string))[-1]
+    assert(result1 == 'echo: s')
+    result2: string = (assert(extract<0, 4>(SINGLE_EVAL(id=20, source=SINGLE_EVAL(id=19, source=submit_txn(abi_call(signature={name="echo_native_string",args=(string),result=string}, args='s', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=20)), string))[-1]
+    assert(result2 == result1)
+    result3: string = (assert(extract<0, 4>(SINGLE_EVAL(id=22, source=SINGLE_EVAL(id=21, source=submit_txn(abi_call(signature={name="echo_native_string",args=(string),result=string}, args='s', fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=22)), string))[-1]
+    assert(result3 == result1)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_bytes(app: application): void
+  {
+    result1: bytes = (assert(extract<0, 4>(SINGLE_EVAL(id=24, source=SINGLE_EVAL(id=23, source=submit_txn(abi_call(signature={name="echo_native_bytes",args=(bytes),result=bytes}, args=hex<"62">, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=24)), bytes))[-1]
+    assert(result1 == hex<"6563686F3A2062">)
+    result2: bytes = (assert(extract<0, 4>(SINGLE_EVAL(id=26, source=SINGLE_EVAL(id=25, source=submit_txn(abi_call(signature={name="echo_native_bytes",args=(bytes),result=bytes}, args=hex<"62">, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=26)), bytes))[-1]
+    assert(result2 == result1)
+    result3: bytes = (assert(extract<0, 4>(SINGLE_EVAL(id=28, source=SINGLE_EVAL(id=27, source=submit_txn(abi_call(signature={name="echo_native_bytes",args=(bytes),result=bytes}, args=arc4_encode(hex<"62">, arc4.dynamic_array<arc4.uint8>), fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=28)), bytes))[-1]
+    assert(result3 == result1)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_uint64(app: application): void
+  {
+    result1: uint64 = (assert(extract<0, 4>(SINGLE_EVAL(id=30, source=SINGLE_EVAL(id=29, source=submit_txn(abi_call(signature={name="echo_native_uint64",args=(uint64),result=uint64}, args=1u, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=30)), uint64))[-1]
+    assert(result1 == 2u)
+    result2: uint64 = (assert(extract<0, 4>(SINGLE_EVAL(id=32, source=SINGLE_EVAL(id=31, source=submit_txn(abi_call(signature={name="echo_native_uint64",args=(uint64),result=uint64}, args=1u, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=32)), uint64))[-1]
+    assert(result2 == result1)
+    result3: uint64 = (assert(extract<0, 4>(SINGLE_EVAL(id=34, source=SINGLE_EVAL(id=33, source=submit_txn(abi_call(signature={name="echo_native_uint64",args=(uint64),result=uint64}, args=1_arc4u64, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=34)), uint64))[-1]
+    assert(result3 == result1)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint(app: application): void
+  {
+    result1: biguint = (assert(extract<0, 4>(SINGLE_EVAL(id=36, source=SINGLE_EVAL(id=35, source=submit_txn(abi_call(signature={name="echo_native_biguint",args=(biguint),result=biguint}, args=2u, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=36)), biguint))[-1]
+    assert(result1 == 3n)
+    result2: biguint = (assert(extract<0, 4>(SINGLE_EVAL(id=38, source=SINGLE_EVAL(id=37, source=submit_txn(abi_call(signature={name="echo_native_biguint",args=(biguint),result=biguint}, args=2n, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=38)), biguint))[-1]
+    assert(result2 == result1)
+    result3: biguint = (assert(extract<0, 4>(SINGLE_EVAL(id=40, source=SINGLE_EVAL(id=39, source=submit_txn(abi_call(signature={name="echo_native_biguint",args=(biguint),result=biguint}, args=2_arc4u512, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=40)), biguint))[-1]
+    assert(result3 == result1)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple(app: application): void
+  {
+    result1: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = (assert(extract<0, 4>(SINGLE_EVAL(id=42, source=SINGLE_EVAL(id=41, source=submit_txn(abi_call(signature='echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)', args='s1', hex<"6231">, 1u, 2u, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=42)), arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>))[-1]
+    (s, b, u, bu): tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)
+    assert(arc4_decode(s, string) == 'echo: s1')
+    assert(arc4_decode(b, bytes) == hex<"6563686F3A206231">)
+    assert(arc4_decode(u, uint64) == 2u)
+    assert(arc4_decode(bu, biguint) == 3n)
+    result2: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = (assert(extract<0, 4>(SINGLE_EVAL(id=44, source=SINGLE_EVAL(id=43, source=submit_txn(abi_call(signature='echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)', args='s1', hex<"6231">, 1u, 2n, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=44)), arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>))[-1]
+    assert(result1 == result2)
+    result3: arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512> = (assert(extract<0, 4>(SINGLE_EVAL(id=46, source=SINGLE_EVAL(id=45, source=submit_txn(abi_call(signature='echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)', args='s1', arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1_arc4u64, 2_arc4u512, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=46)), arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>))[-1]
+    assert(result1 == result3)
+    result_native: tuple<string,bytes,uint64,biguint> = (assert(extract<0, 4>(SINGLE_EVAL(id=48, source=SINGLE_EVAL(id=47, source=submit_txn(abi_call(signature='echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)', args='s1', arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1_arc4u64, 2_arc4u512, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=48)), tuple<string,bytes,uint64,biguint>))[-1]
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[0], string) == result_native[0])
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[1], bytes) == result_native[1])
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[2], uint64) == result_native[2])
+    assert(arc4_decode(arc4_decode(result1, tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>)[3], biguint) == result_native[3])
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref(app: application): void
+  {
+    result: tuple<string,bytes,uint64,biguint> = (assert(extract<0, 4>(SINGLE_EVAL(id=50, source=SINGLE_EVAL(id=49, source=submit_txn(abi_call(signature={name="echo_native_tuple",args=(string,bytes,uint64,biguint),result=tuple<string,bytes,uint64,biguint>}, args='s1', hex<"6231">, 1u, 2u, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=50)), tuple<string,bytes,uint64,biguint>))[-1]
+    (s, b, u, bu): tuple<string,bytes,uint64,biguint> = result
+    assert(s == 'echo: s1')
+    assert(b == hex<"6563686F3A206231">)
+    assert(u == 2u)
+    assert(bu == 3n)
+    result_2: tuple<string,bytes,uint64,biguint> = (assert(extract<0, 4>(SINGLE_EVAL(id=52, source=SINGLE_EVAL(id=51, source=submit_txn(abi_call(signature={name="echo_native_tuple",args=(string,bytes,uint64,biguint),result=tuple<string,bytes,uint64,biguint>}, args='s1', hex<"6231">, 1u, 2n, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=52)), tuple<string,bytes,uint64,biguint>))[-1]
+    assert(&&(&&(&&(result_2[0] == result[0], result_2[1] == result[1]), result_2[2] == result[2]), result_2[3] == result[3]), comment="expected native arguments to give the same result")
+    result_3: tuple<string,bytes,uint64,biguint> = (assert(extract<0, 4>(SINGLE_EVAL(id=54, source=SINGLE_EVAL(id=53, source=submit_txn(abi_call(signature={name="echo_native_tuple",args=(string,bytes,uint64,biguint),result=tuple<string,bytes,uint64,biguint>}, args='s1', arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1_arc4u64, 2_arc4u512, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=54)), tuple<string,bytes,uint64,biguint>))[-1]
+    assert(&&(&&(&&(result_3[0] == result[0], result_3[1] == result[1]), result_3[2] == result[2]), result_3[3] == result[3]), comment="expected arc4 arguments to give the same result")
+    result_native: tuple<string,bytes,uint64,biguint> = (assert(extract<0, 4>(SINGLE_EVAL(id=56, source=SINGLE_EVAL(id=55, source=submit_txn(abi_call(signature='echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)', args='s1', arc4_encode(hex<"6231">, arc4.dynamic_array<arc4.uint8>), 1_arc4u64, 2_arc4u512, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=56)), tuple<string,bytes,uint64,biguint>))[-1]
+    assert(&&(&&(&&(result_native[0] == result[0], result_native[1] == result[1]), result_native[2] == result[2]), result_native[3] == result[3]))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples(app: application): void
+  {
+    result: tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = (assert(extract<0, 4>(SINGLE_EVAL(id=58, source=SINGLE_EVAL(id=57, source=submit_txn(abi_call(signature={name="echo_nested_tuple",args=(tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>),result=tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>}, args=(('s1', 's2'), (1u, 2u, hex<"33">)), fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=58)), tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>))[-1]
+    ((s1, s2), (u64_1, u64_2, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = result
+    assert(s1 == 'echo: s1')
+    assert(s2 == 'echo: s2')
+    assert(u64_1 == 2u)
+    assert(reinterpret_cast<biguint>(u64_2) == reinterpret_cast<biguint>(3_arc4u64))
+    assert(bytez == hex<"6563686F3A2033">)
+    result: tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = (assert(extract<0, 4>(SINGLE_EVAL(id=60, source=SINGLE_EVAL(id=59, source=submit_txn(abi_call(signature={name="echo_nested_tuple",args=(tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>),result=tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>}, args=(('s1', 's2'), (1u, 2_arc4u64, hex<"33">)), fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=60)), tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>))[-1]
+    ((s1, s2), (u64_1, u64_2, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = result
+    assert(s1 == 'echo: s1')
+    assert(s2 == 'echo: s2')
+    assert(u64_1 == 2u)
+    assert(reinterpret_cast<biguint>(u64_2) == reinterpret_cast<biguint>(3_arc4u64))
+    assert(bytez == hex<"6563686F3A2033">)
+    result: tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = (assert(extract<0, 4>(SINGLE_EVAL(id=62, source=SINGLE_EVAL(id=61, source=submit_txn(abi_call(signature={name="echo_nested_tuple",args=(tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>),result=tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>}, args=arc4_encode((arc4_encode(('s1b', 's2b'), arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>), arc4_encode((11_arc4u64, 21_arc4u64, arc4_encode(hex<"3362">, arc4.dynamic_array<arc4.uint8>)), arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>)), arc4.tuple<arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>,arc4.tuple<arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>>>), fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=62)), tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>))[-1]
+    ((s1, s2), (u64_1, u64_2, bytez)): tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> = result
+    assert(s1 == 'echo: s1b')
+    assert(s2 == 'echo: s2b')
+    assert(u64_1 == 12u)
+    assert(reinterpret_cast<biguint>(u64_2) == reinterpret_cast<biguint>(22_arc4u64))
+    assert(bytez == hex<"6563686F3A203362">)
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_no_args(app: application): void
+  {
+    result: uint64 = (assert(extract<0, 4>(SINGLE_EVAL(id=64, source=SINGLE_EVAL(id=63, source=submit_txn(abi_call(signature={name="no_args",args=(),result=uint64}, args=, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=64)), uint64))[-1]
+    assert(result == 42u)
+    arc4_result: arc4.uint64 = (assert(extract<0, 4>(SINGLE_EVAL(id=66, source=SINGLE_EVAL(id=65, source=submit_txn(abi_call(signature='no_args()uint64', args=, fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=66)), arc4.uint64))[-1]
+    assert(reinterpret_cast<biguint>(arc4_result) == reinterpret_cast<biguint>(42_arc4u64))
+    submit_txn(abi_call(signature={name="no_args",args=(),result=uint64}, args=, fields=TxnField.ApplicationID=app))
+    assert(reinterpret_cast<biguint>((assert(extract<0, 4>(SINGLE_EVAL(id=67, source=itxn<LastLog>())) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=67)), arc4.uint64))[-1]) == reinterpret_cast<biguint>(42_arc4u64))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_named_tuples(app: application): void
+  {
+    result: bool = (assert(extract<0, 4>(SINGLE_EVAL(id=69, source=SINGLE_EVAL(id=68, source=submit_txn(abi_call(signature={name="logs_are_equal",args=(test_cases.typed_abi_call.logger.LogMessage,test_cases.typed_abi_call.logger.LogMessage),result=bool}, args=(1u, 'log 1'), (level=1u, message='log 1'), fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=69)), bool))[-1]
+    assert(result)
+    result: bool = (assert(extract<0, 4>(SINGLE_EVAL(id=71, source=SINGLE_EVAL(id=70, source=submit_txn(abi_call(signature={name="logs_are_equal",args=(test_cases.typed_abi_call.logger.LogMessage,test_cases.typed_abi_call.logger.LogMessage),result=bool}, args=(2u, 'log 2'), (level=1u, message='log 1'), fields=TxnField.ApplicationID=app))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=71)), bool))[-1]
+    assert(!(result))
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arc4_struct(app: application): void
+  {
+    log: test_cases.typed_abi_call.logger.LogStruct = new test_cases.typed_abi_call.logger.LogStruct(level=1_arc4u64, message='log 1')
+    txn: inner_transaction_appl = submit_txn(abi_call(signature={name="echo_log_struct",args=(test_cases.typed_abi_call.logger.LogStruct),result=test_cases.typed_abi_call.logger.LogStruct}, args=log, fields=TxnField.ApplicationID=app))
+    assert((assert(extract<0, 4>(SINGLE_EVAL(id=72, source=txn.LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=72)), test_cases.typed_abi_call.logger.LogStruct))[-1] == log, comment="expected output to match input")
+    assert((assert(extract<0, 4>(SINGLE_EVAL(id=73, source=txn.LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=73)), test_cases.typed_abi_call.logger.LogStruct))[-1] == log, comment="expected output to match input")
+  }
+  
+  abimethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encoding(app_to_call: application, asset: asset): void
+  {
+    app: application = global<CurrentApplicationID>()
+    acc: account = global<CurrentApplicationAddress>()
+    result: tuple<asset,application,account> = (assert(extract<0, 4>(SINGLE_EVAL(id=75, source=SINGLE_EVAL(id=74, source=submit_txn(abi_call(signature={name="echo_resource_by_index",args=(asset,application,account),result=tuple<asset,application,account>}, args=asset, app, acc, fields=TxnField.ApplicationID=app_to_call))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=75)), tuple<asset,application,account>))[-1]
+    assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
+    result: tuple<asset,application,account> = (assert(extract<0, 4>(SINGLE_EVAL(id=77, source=SINGLE_EVAL(id=76, source=submit_txn(abi_call(signature={name="echo_resource_by_value",args=(asset,application,account),result=tuple<asset,application,account>}, args=asset, app, acc, fields=TxnField.ApplicationID=app_to_call))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=77)), tuple<asset,application,account>))[-1]
+    assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
+    result: tuple<asset,application,account> = (assert(extract<0, 4>(SINGLE_EVAL(id=79, source=SINGLE_EVAL(id=78, source=submit_txn(abi_call(signature={name="echo_resource_by_index",args=(asset,application,account),result=tuple<asset,application,account>}, args=asset, app, acc, fields=TxnField.ApplicationID=app_to_call))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=79)), tuple<asset,application,account>))[-1]
+    assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
+    result: tuple<asset,application,account> = (assert(extract<0, 4>(SINGLE_EVAL(id=81, source=SINGLE_EVAL(id=80, source=submit_txn(abi_call(signature={name="echo_resource_by_value",args=(asset,application,account),result=tuple<asset,application,account>}, args=asset, app, acc, fields=TxnField.ApplicationID=app_to_call))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=81)), tuple<asset,application,account>))[-1]
+    assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
+    result: tuple<asset,application,account> = (assert(extract<0, 4>(SINGLE_EVAL(id=83, source=SINGLE_EVAL(id=82, source=submit_txn(abi_call(signature='echo_resource_by_index(asset,application,account)(uint64,uint64,address)', args=asset, app, acc, fields=TxnField.ApplicationID=app_to_call))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=83)), tuple<asset,application,account>))[-1]
+    assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
+    result: tuple<asset,application,account> = (assert(extract<0, 4>(SINGLE_EVAL(id=85, source=SINGLE_EVAL(id=84, source=submit_txn(abi_call(signature='echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)', args=asset, app, acc, fields=TxnField.ApplicationID=app_to_call))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=85)), tuple<asset,application,account>))[-1]
+    assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
+  }
+  
+  baremethod test_cases.typed_itxn_abi_call.typed_c2c.Greeter.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
