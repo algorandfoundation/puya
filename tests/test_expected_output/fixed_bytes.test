@@ -179,6 +179,15 @@ class FixedBytesABI(arc4.ARC4Contract):
             app_id=1_000_000,
         )
 
+    @arc4.abimethod
+    def test_itxn_static_to_static_encoding(self) -> None:
+        greeting = FixedBytes11(b"hello world")
+        itxn.abi_call(
+            CheckABIApp.grammar_checker,
+            greeting, ## E: invalid size
+            app_id=1_000_000,
+        ).submit()
+
 
 class CheckABIApp(arc4.ARC4Contract):
     @arc4.abimethod

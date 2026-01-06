@@ -788,12 +788,14 @@ def _get_arc4_args(
                 itxn_wtype.transaction_type is not None
                 and arg_in.wtype.transaction_type != itxn_wtype.transaction_type
             ):
-                logger.error(
-                    f"expected {itxn_wtype}, got {arg_in.wtype}",
-                    arg_in.source_location,
-                )
+                if isinstance(arg_in, awst_nodes.GroupTransactionReference):
+                    error_message = f"expected {itxn_wtype}, got reference to {arg_in.wtype}"
+                else:
+                    error_message = f"expected {itxn_wtype}, got {arg_in.wtype}"
+
+                logger.error(error_message, location=arg_in.source_location)
                 dummy_value = awst_nodes.VarExpression(
-                    name="", wtype=itxn_wtype, source_location=arg_in.source_location
+                    name="", wtype=target_type, source_location=arg_in.source_location
                 )
                 result.append(dummy_value)
             else:
@@ -849,19 +851,6 @@ def _parse_args(
                 arg_b.wtype, wtypes.WInnerTransactionFields
             ):
                 group.append(arg_b)
-                # no arg_expr as txn aren't part of the app args
-            case (
-                (
-                    wtypes.WGroupTransaction()
-                    | wtypes.WInnerTransactionFields()
-                    | wtypes.WInnerTransaction()
-                ),
-                _,
-            ):
-                logger.error(
-                    "only inner transaction types can be used to call another contract",
-                    location=arg_b.source_location,
-                )
             case (wtypes.asset_wtype, "index"):
                 arg_expr = ref_to_arg(txn_fields.TxnField.Assets, arg_b)
             case (wtypes.account_wtype, "index"):

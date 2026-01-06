@@ -1,10 +1,14 @@
 import typing
-from collections.abc import Sequence, Set
+from collections.abc import Mapping, Sequence, Set
 
 from puya import log
+from puya.avm import OnCompletionAction
 from puya.awst.nodes import (
     ABICall,
+    ARC4CreateOption,
+    ARC4MethodConfig,
     Expression,
+    IntegerConstant,
     MethodSignature,
     SubmitInnerTransaction,
     VoidConstant,
@@ -24,7 +28,7 @@ from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4._utils import split_arc4_signature
 from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
@@ -158,6 +162,8 @@ def _abi_call(
 
     abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
     return_type: pytypes.PyType | None = None
+
+    abi_config = None
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
@@ -169,6 +175,7 @@ def _abi_call(
                 raise CodeError("method is not an ARC-4 method", location=location)
 
             abi_method_data = fmethod.metadata
+            abi_config = abi_method_data.config
             if isinstance(abi_method_data, models.ARC4ABIMethodData):
                 name = abi_method_data.config.name
                 arg_types = abi_method_data.argument_types
@@ -213,7 +220,7 @@ def _abi_call(
                 name=sig.name,
                 arg_types=arg_wtypes,
                 return_type=return_wtype,
-                source_location=method.source_location,
+                source_location=location,
                 resource_encoding="index",
             )
             abi_signature = method_signature_to_abi_signature(target)
@@ -246,6 +253,12 @@ def _abi_call(
     abi_call_wtype = pytype.checked_wtype(location)
     assert isinstance(abi_call_wtype, WInnerTransactionFields)
 
+    _validate_transaction_kwargs(
+        field_nodes,
+        abi_config,
+        method_location=target.source_location,
+        call_location=location,
+    )
     expr = ABICall(
         target=target,
         args=abi_call_args,
@@ -311,3 +324,79 @@ def _maybe_resolve_literal(
         ]
         return TupleLiteralBuilder(resolved_items, operand.source_location)
     return maybe_resolve_literal(operand, target_type)
+
+
+def _validate_transaction_kwargs(
+    field_nodes: Mapping[TxnField, NodeBuilder],
+    arc4_config: ARC4MethodConfig | None,
+    *,
+    method_location: SourceLocation,
+    call_location: SourceLocation,
+) -> None:
+    # note these values may be None which indicates their value is unknown at compile time
+    on_completion = _get_on_completion(field_nodes, arc4_config)
+    is_update = on_completion == OnCompletionAction.UpdateApplication
+    is_create = _is_creating(field_nodes)
+
+    if is_create:
+        # app_id not provided but method doesn't support creating
+        if arc4_config and arc4_config.create == ARC4CreateOption.disallow:
+            logger.error("method cannot be used to create application", location=method_location)
+        # required args for creation missing
+        else:
+            logger.error(
+                "use 'arc4.arc4_create' or 'arc4.abi_call' to create application",
+                location=call_location,
+            )
+    if is_update:
+        if arc4_config and (
+            OnCompletionAction.UpdateApplication not in arc4_config.allowed_completion_types
+        ):
+            logger.error("method cannot be used to update application", location=method_location)
+        else:
+            logger.error(
+                "use 'arc4.arc4_update' or 'arc4.abi_call' to update application",
+                location=call_location,
+            )
+    # on_completion not valid for arc4_config
+    elif (
+        on_completion is not None
+        and arc4_config
+        and on_completion not in arc4_config.allowed_completion_types
+    ):
+        arg = field_nodes[TxnField.OnCompletion]
+        logger.error(
+            "on completion action is not supported by ARC-4 method being called",
+            location=arg.source_location,
+        )
+        logger.info("method ARC-4 configuration", location=arc4_config.source_location)
+
+
+def _get_on_completion(
+    field_nodes: Mapping[TxnField, NodeBuilder], arc4_config: ARC4MethodConfig | None
+) -> OnCompletionAction | None:
+    """
+    Returns OnCompletionAction if it is statically known, otherwise returns None
+    """
+    match field_nodes.get(TxnField.OnCompletion):
+        case None:
+            if arc4_config:
+                return arc4_config.allowed_completion_types[0]
+            return OnCompletionAction.NoOp
+        case InstanceBuilder(pytype=pytypes.OnCompleteActionType) as eb:
+            value = eb.resolve()
+            if isinstance(value, IntegerConstant):
+                return OnCompletionAction(value.value)
+    return None
+
+
+def _is_creating(field_nodes: Mapping[TxnField, NodeBuilder]) -> bool | None:
+    """
+    Returns app_id == 0 if app_id is statically known, otherwise returns None
+    """
+    match field_nodes.get(TxnField.ApplicationID):
+        case None:
+            return True
+        case LiteralBuilder(value=int(app_id)):
+            return app_id == 0
+    return None

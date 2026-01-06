@@ -234,13 +234,28 @@ def allowed_coercions() -> None:
 
 ## case: test_itxn_abi_call_errors
 import typing
-from algopy import arc4, subroutine, itxn
-
+from algopy import *
 
 class Client(arc4.ARC4Client, typing.Protocol):
 
     @arc4.abimethod
     def foo(self, uint: arc4.UInt64) -> None:
+        raise NotImplementedError
+
+    @arc4.abimethod
+    def primitive_types(self, a: UInt64, b: BigUInt, c: Bytes, d: String, e: arc4.UInt64, f: arc4.Bool) -> None:
+        raise NotImplementedError
+
+    @arc4.abimethod
+    def dynamic_bytes(self, a: Bytes) -> None:
+        raise NotImplementedError
+
+    @arc4.abimethod
+    def static_bytes(self, a: arc4.StaticArray[arc4.Byte, typing.Literal[2]]) -> None:
+        raise NotImplementedError
+
+    @arc4.abimethod
+    def acfg_arg(self, acfg: gtxn.AssetConfigTransaction) -> None:
         raise NotImplementedError
 
 
@@ -288,6 +303,137 @@ def method_selector_mismatch() -> None:
 def allowed_coercions() -> None:
     itxn.abi_call("foo", 256, app_id=1).submit()  # value inferred from args
     itxn.abi_call(Client.foo, 1, app_id=1).submit()
+
+
+@subroutine
+def none_return() -> None:
+    x: None = itxn.abi_call[None]("foo()void", app_id=1).submit().result # type: ignore[index] ## E: None indicates an empty return and cannot be assigned
+
+@subroutine
+def txn_arg_with_wrong_literal_type() -> None:
+    itxn.abi_call(
+        Client.acfg_arg,
+        "", ## E: can't convert literal to algopy.gtxn.AssetConfigTransaction
+        app_id=1,
+    ).submit()
+
+
+@subroutine
+def primitive_types() -> None:
+    itxn.abi_call(
+        Client.primitive_types,
+        1, 2, b"3", "4", 5, True,
+        app_id=1,
+    ).submit()
+
+
+@subroutine
+def dynamic_bytes_bad_literal() -> None:
+    itxn.abi_call(
+        Client.dynamic_bytes,
+        1, ## E: can't convert literal to algopy.Bytes
+        app_id=1,
+    ).submit()
+
+
+@subroutine
+def static_bytes_bad_literal() -> None:
+    itxn.abi_call(
+        Client.static_bytes,
+        2, ## E: can't convert literal to algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[2]]
+        app_id=1,
+    ).submit()
+
+
+@subroutine
+def caller() -> None:
+    itxn.abi_call( ## E: unencodable type: inner_transaction_pay
+        "foo",
+        itxn.Payment(receiver=Txn.sender).submit(),
+        app_id=1234,
+    ).submit()
+
+
+## case: abi_call_struct_member_ordering
+import typing
+from algopy import *
+
+class MyStruct(arc4.Struct):
+    foo: arc4.UInt64
+    bar: arc4.Bool
+
+class Client(arc4.ARC4Client, typing.Protocol):
+    @arc4.abimethod
+    def array_check(self, arg: arc4.DynamicArray[MyStruct]) -> None:
+        raise NotImplementedError
+
+@subroutine
+def correct_array_positional() -> None:
+    itxn.abi_call(Client.array_check, ImmutableArray(((UInt64(), True),)), app_id=1234).submit()
+
+class Caller(arc4.ARC4Contract):
+    @arc4.abimethod
+    def incorrect_array_positional(self) -> None:
+        itxn.abi_call(Client.array_check, ImmutableArray(((True, UInt64()),)), app_id=1234).submit() ## E: expected type arc4.dynamic_array<abi_call_struct_member_ordering.MyStruct>, got type arc4.dynamic_array<tuple<bool,uint64>>
+
+
+## case: array_encoding
+import typing
+from algopy import *
+
+class Client(arc4.ARC4Client, typing.Protocol):
+
+    @arc4.abimethod
+    def take_arc4_uint8(self, arr: arc4.DynamicArray[arc4.UInt8]) -> None: ...
+
+class Caller(arc4.ARC4Contract):
+    @arc4.abimethod
+    def stack_uint64_to_arc4_uint8(self) -> None:
+        arr = ImmutableArray[UInt64]()
+        itxn.abi_call(Client.take_arc4_uint8, arr, app_id=1234).submit() ## E: expected type arc4.dynamic_array<arc4.uint8>, got type arc4.dynamic_array<uint64>
+
+
+## case: test_itxn_abi_call_gtxn_errors
+
+import typing
+from algopy import *
+
+class Logger(ARC4Contract):
+
+    @arc4.abimethod
+    def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
+        log(asset.name, account.bytes, app.address)
+
+    @arc4.abimethod
+    def acfg_arg(self, acfg: gtxn.AssetConfigTransaction) -> None:
+        pass
+
+@subroutine
+def ref_types_with_literal() -> None:
+    itxn.abi_call(
+        Logger.log_asset_account_app,
+        1234,
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+        4567,
+        app_id=4242,
+    ).submit()
+
+
+@subroutine
+def txn_arg_with_literal() -> None:
+    itxn.abi_call(
+        Logger.acfg_arg,
+        1, ## E: expected inner_transaction_fields_acfg, got reference to group_transaction_acfg
+        app_id=1,
+    ).submit()
+
+@subroutine
+def arg_with_gtxn() -> None:
+    itxn.abi_call(
+        Logger.acfg_arg,
+        gtxn.AssetConfigTransaction(0), ## E: expected inner_transaction_fields_acfg, got reference to group_transaction_acfg
+        app_id=1,
+    ).submit()
 
 
 ## case: test_stale_itxn_array_read

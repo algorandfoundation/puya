@@ -217,6 +217,25 @@ class Factory(ARC4Contract):
         )
 
     @arc4.abimethod
+    def test_itxn_abi_call(self) -> None:
+        itxn.abi_call(
+            MyContract.noop, ## E: method cannot be used to create application
+        ).submit()
+        itxn.abi_call( ## E: use 'arc4.arc4_create' or 'arc4.abi_call' to create application
+            MyContract.create,
+        ).submit()
+        itxn.abi_call( ## E: use 'arc4.arc4_update' or 'arc4.abi_call' to update application
+            MyContract.update,
+            app_id = 1234
+        ).submit() 
+        itxn.abi_call(
+            MyContract.noop,
+            app_id=1234,
+            on_completion=OnCompleteAction.OptIn, ## E: on completion action is not supported by ARC-4 method being called
+        ).submit()
+
+
+    @arc4.abimethod
     def test_arc4_create(self) -> None:
         arc4.arc4_create(
             MyContract.noop, ## E: method cannot be used to create application
