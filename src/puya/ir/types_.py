@@ -507,16 +507,20 @@ class _WTypeToABIName(WTypeVisitor[str]):
             self._unencodable(wtype)
 
     def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> str:
+        if wtype.arc4_alias is not None:
+            return wtype.arc4_alias
         if wtype == wtypes.arc4_bool_wtype:
             return "bool"
         self._unencodable(wtype)
 
     def visit_arc4_uint(self, wtype: wtypes.ARC4UIntN) -> str:
-        if wtype.arc4_alias == "byte":
-            return "byte"
+        if wtype.arc4_alias is not None:
+            return wtype.arc4_alias
         return f"uint{wtype.n}"
 
     def visit_arc4_ufixed(self, wtype: wtypes.ARC4UFixedNxM) -> str:
+        if wtype.arc4_alias is not None:
+            return wtype.arc4_alias
         return f"ufixed{wtype.n}x{wtype.m}"
 
     def visit_bytes_type(self, wtype: wtypes.BytesWType) -> str:
@@ -530,22 +534,24 @@ class _WTypeToABIName(WTypeVisitor[str]):
         return f"{element}[]"
 
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> str:
-        if wtype.arc4_alias == "string":
-            return "string"
+        if wtype.arc4_alias is not None:
+            return wtype.arc4_alias
         return f"{self._visit_in_aggregate(wtype.element_type)}[]"
 
     def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> str:
-        if wtype.arc4_alias == "address":
-            return "address"
+        if wtype.arc4_alias is not None:
+            return wtype.arc4_alias
         return f"{self._visit_in_aggregate(wtype.element_type)}[{wtype.array_size}]"
 
     def visit_tuple_type(self, wtype: wtypes.WTuple) -> str:
         return f"({','.join(self._visit_in_aggregate(t) for t in wtype.types)})"
 
     def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> str:
+        typing.assert_type(wtype.arc4_alias, None)
         return f"({','.join(self._visit_in_aggregate(t) for t in wtype.types)})"
 
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> str:
+        typing.assert_type(wtype.arc4_alias, None)
         return f"({','.join(self._visit_in_aggregate(t) for t in wtype.types)})"
 
     def _visit_in_aggregate(self, wtype: wtypes.WType) -> str:

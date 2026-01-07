@@ -278,9 +278,7 @@ class WInnerTransactionFields(_WTypeInstance):
 @attrs.frozen(kw_only=True)
 class WABICallInnerTransactionFields(WInnerTransactionFields):
     transaction_type: TransactionType = attrs.field(default=TransactionType.appl, init=False)
-    name: str = attrs.field(
-        default=f"inner_transaction_fields_{TransactionType.appl.name}", init=False
-    )
+    name: str = attrs.field(default="abi_call_inner_transaction_fields", init=False)
     result_type: WType = attrs.field(default=void_wtype)
 
 

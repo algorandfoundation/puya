@@ -1223,14 +1223,14 @@ class ABIApplicationCall(InnerTransactionFieldsetType):
     generic: _GenericType[ABIApplicationCall] = attrs.field()
     name: str = attrs.field(init=False)
     transaction_type: TransactionType = attrs.field(default=TransactionType.appl, init=False)
-    wtype: wtypes.WInnerTransactionFields = attrs.field(init=False)
+    wtype: wtypes.WABICallInnerTransactionFields = attrs.field(init=False)
 
     @name.default
     def _name_default(self) -> str:
         return f"algopy.itxn.ABIApplicationCall[{self.result_type}]"
 
     @wtype.default
-    def _wtype_default(self) -> wtypes.WInnerTransactionFields:
+    def _wtype_default(self) -> wtypes.WABICallInnerTransactionFields:
         return wtypes.WABICallInnerTransactionFields(
             result_type=self.result_type.checked_wtype(location=None)
         )

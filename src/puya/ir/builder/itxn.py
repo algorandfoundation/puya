@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 import attrs
 
 from puya import log
-from puya.avm import OnCompletionAction, TransactionType
+from puya.avm import TransactionType
 from puya.awst import (
     nodes as awst_nodes,
     txn_fields,
@@ -138,7 +138,7 @@ class InnerTransactionBuilder:
                 self._set_inner_transaction_fields(var_name, fields, var_loc)
                 return True
             case awst_nodes.ABICall():
-                fields, itxn_group = self._map_abi_call_to_txn_fields(value)
+                fields, itxn_group = _map_abi_call_to_txn_fields(value)
                 ((name, loc),) = _get_assignment_target_local_names(target, 1)
                 self._abi_call_itxns[name] = itxn_group
                 self._set_inner_transaction_fields(name, fields, loc)
@@ -288,12 +288,6 @@ class InnerTransactionBuilder:
             source_location=src_loc,
         )
 
-    def _get_abi_itxns(
-        self, fields: awst_nodes.Expression
-    ) -> Sequence[awst_nodes.Expression] | None:
-        var_name = self._resolve_inner_txn_params_var_name(fields)
-        return self._abi_call_itxns.get(var_name, None)
-
     def _emit_itxn_fields(
         self, fields: awst_nodes.Expression, emit_loc: SourceLocation
     ) -> BasicBlock:
@@ -345,16 +339,7 @@ class InnerTransactionBuilder:
         start_new_group: awst_nodes.Expression | bool,
         source_location: SourceLocation,
     ) -> None:
-        group: list[awst_nodes.Expression] = []
-        for itxn in itxns:
-            if isinstance(itxn.wtype, wtypes.WABICallInnerTransactionFields):
-                abi_call_itxns = self._get_abi_itxns(itxn)
-                if abi_call_itxns is None and isinstance(itxn, awst_nodes.ABICall):
-                    abi_call_fields, abi_call_itxns = self._map_abi_call_to_txn_fields(itxn)
-                    self._abi_call_fields[itxn] = abi_call_fields
-
-                group.extend(abi_call_itxns or [])
-            group.append(itxn)
+        group = self._expand_abi_calls(itxns)
         for idx, itxn in enumerate(group):
             if idx == 0:
                 match start_new_group:
@@ -431,16 +416,7 @@ class InnerTransactionBuilder:
         )
 
         group_indexes = []
-        itxns: list[awst_nodes.Expression] = []
-        for itxn in submit.itxns:
-            if isinstance(itxn.wtype, wtypes.WABICallInnerTransactionFields):
-                abi_call_itxns = self._get_abi_itxns(itxn)
-                if abi_call_itxns is None and isinstance(itxn, awst_nodes.ABICall):
-                    abi_call_fields, abi_call_itxns = self._map_abi_call_to_txn_fields(itxn)
-                    self._abi_call_fields[itxn] = abi_call_fields
-
-                itxns.extend(abi_call_itxns or [])
-            itxns.append(itxn)
+        itxns = self._expand_abi_calls(submit.itxns)
         for group_index, param in enumerate(itxns):
             submit_var_loc = param.source_location
             if group_index > 0:
@@ -692,52 +668,63 @@ class InnerTransactionBuilder:
                 )
         return var_name
 
-    def _map_abi_call_to_txn_fields(
-        self, call: awst_nodes.ABICall
-    ) -> tuple[
-        Mapping[txn_fields.TxnField, awst_nodes.Expression], Sequence[awst_nodes.Expression]
-    ]:
-        fields: dict[txn_fields.TxnField, awst_nodes.Expression] = {
+    def _expand_abi_calls(
+        self, itxns: Sequence[awst_nodes.Expression]
+    ) -> list[awst_nodes.Expression]:
+        group = list[awst_nodes.Expression]()
+        for itxn in itxns:
+            if isinstance(itxn.wtype, wtypes.WABICallInnerTransactionFields):
+                abi_call_itxns = self._get_abi_itxns(itxn)
+                if abi_call_itxns is None and isinstance(itxn, awst_nodes.ABICall):
+                    abi_call_fields, abi_call_itxns = _map_abi_call_to_txn_fields(itxn)
+                    self._abi_call_fields[itxn] = abi_call_fields
+
+                group.extend(abi_call_itxns or [])
+            group.append(itxn)
+        return group
+
+    def _get_abi_itxns(
+        self, fields: awst_nodes.Expression
+    ) -> Sequence[awst_nodes.Expression] | None:
+        var_name = self._resolve_inner_txn_params_var_name(fields)
+        return self._abi_call_itxns.get(var_name, None)
+
+
+def _map_abi_call_to_txn_fields(
+    call: awst_nodes.ABICall,
+) -> tuple[Mapping[txn_fields.TxnField, awst_nodes.Expression], Sequence[awst_nodes.Expression]]:
+    fields = dict[txn_fields.TxnField, awst_nodes.Expression](
+        {
             txn_fields.TxnField.Fee: awst_nodes.UInt64Constant(
                 value=0, source_location=call.source_location
             ),
             txn_fields.TxnField.TypeEnum: awst_nodes.UInt64Constant(
-                value=TransactionType.appl, source_location=call.source_location
+                value=TransactionType.appl,
+                teal_alias=TransactionType.appl.name,
+                source_location=call.source_location,
             ),
         }
+    )
 
-        method_signature = call.target
+    method_signature = call.target
 
-        arc4_args = _get_arc4_args(method_signature, call.args)
-        array_fields, itxn_group = _parse_args(method_signature, arc4_args)
+    arc4_args = _get_arc4_args(method_signature, call.args)
+    array_fields, itxn_group = _parse_args(method_signature, arc4_args)
 
-        for arr_field, arr_field_values in array_fields.items():
-            if arr_field_values:
-                if arr_field == txn_fields.TxnField.ApplicationArgs and len(arr_field_values) > 16:
-                    args_to_pack = arr_field_values[15:]
-                    arr_field_values[15:] = [
-                        _arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
-                    ]
-                fields[arr_field] = awst_nodes.TupleExpression.from_items(
-                    arr_field_values, _combine_locs(arr_field_values)
-                )
-
-        fields.update(call.fields)
-        if (
-            txn_fields.TxnField.OnCompletion not in fields
-            and (
-                on_completion := _get_singular_on_complete(
-                    method_signature.allowed_completion_types
-                )
-            )
-            is not None
-        ):
-            fields[txn_fields.TxnField.OnCompletion] = awst_nodes.UInt64Constant(
-                value=on_completion.value,
-                source_location=call.source_location,
+    for arr_field, arr_field_values in array_fields.items():
+        if arr_field_values:
+            if arr_field == txn_fields.TxnField.ApplicationArgs and len(arr_field_values) > 16:
+                args_to_pack = arr_field_values[15:]
+                arr_field_values[15:] = [
+                    _arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
+                ]
+            fields[arr_field] = awst_nodes.TupleExpression.from_items(
+                arr_field_values, _combine_locs(arr_field_values)
             )
 
-        return (fields, itxn_group)
+    fields.update(call.fields)
+
+    return (fields, itxn_group)
 
 
 def _get_arc4_args(
@@ -752,16 +739,14 @@ def _get_arc4_args(
             signature.source_location,
         )
 
-    result: list[awst_nodes.Expression] = []
+    result = list[awst_nodes.Expression]()
     for arg_in, target_type in zip(args, signature.arg_types, strict=True):
         if (
             target_type in [wtypes.asset_wtype, wtypes.account_wtype, wtypes.application_wtype]
             and signature.resource_encoding == "index"
         ):
             result.append(arg_in)
-        elif not isinstance(
-            target_type, wtypes.WGroupTransaction | wtypes.WInnerTransactionFields
-        ):
+        elif not isinstance(target_type, wtypes.WGroupTransaction):
             arc4_wtype = wtype_to_arc4_wtype(target_type, signature.source_location)
             if arg_in.wtype == arc4_wtype:
                 result.append(arg_in)
@@ -810,13 +795,15 @@ def _parse_args(
     Mapping[txn_fields.TxnField, list[awst_nodes.Expression]],
     Sequence[awst_nodes.Expression],
 ]:
-    group: list[awst_nodes.Expression] = []
-    array_fields: dict[txn_fields.TxnField, list[awst_nodes.Expression]] = {
-        txn_fields.TxnField.ApplicationArgs: [],
-        txn_fields.TxnField.Accounts: [],
-        txn_fields.TxnField.Applications: [],
-        txn_fields.TxnField.Assets: [],
-    }
+    group = list[awst_nodes.Expression]()
+    array_fields = dict[txn_fields.TxnField, list[awst_nodes.Expression]](
+        {
+            txn_fields.TxnField.ApplicationArgs: [],
+            txn_fields.TxnField.Accounts: [],
+            txn_fields.TxnField.Applications: [],
+            txn_fields.TxnField.Assets: [],
+        }
+    )
     abi_signature = method_signature_to_abi_signature(signature)
     array_fields[txn_fields.TxnField.ApplicationArgs].append(
         awst_nodes.MethodConstant(
@@ -847,7 +834,7 @@ def _parse_args(
     for arg_b, param_type in zip(args, signature.arg_types, strict=True):
         arg_expr = None
         match (param_type, signature.resource_encoding):
-            case (wtypes.WGroupTransaction() | wtypes.WInnerTransactionFields(), _) if isinstance(
+            case (wtypes.WGroupTransaction(), _) if isinstance(
                 arg_b.wtype, wtypes.WInnerTransactionFields
             ):
                 group.append(arg_b)
@@ -1428,9 +1415,3 @@ def _get_tuple_items[T](
         target_arity = get_wtype_arity(tuple_wtype.types[index])
 
     return tuple_values[skip_values : skip_values + target_arity]
-
-
-def _get_singular_on_complete(actions: Sequence[OnCompletionAction]) -> OnCompletionAction | None:
-    if len(actions) == 1 and actions[0] != OnCompletionAction.NoOp:
-        return actions[0]
-    return None

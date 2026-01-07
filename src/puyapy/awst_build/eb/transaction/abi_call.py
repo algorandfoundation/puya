@@ -11,10 +11,11 @@ from puya.awst.nodes import (
     IntegerConstant,
     MethodSignature,
     SubmitInnerTransaction,
+    UInt64Constant,
     VoidConstant,
 )
 from puya.awst.txn_fields import TxnField
-from puya.awst.wtypes import WInnerTransactionFields
+from puya.awst.wtypes import WABICallInnerTransactionFields
 from puya.errors import CodeError
 from puya.ir.builder._utils import method_signature_to_abi_signature
 from puya.parse import SourceLocation
@@ -34,6 +35,7 @@ from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpression
 from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner_params import InnerTxnParamsExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
+from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import maybe_resolve_literal
 
 logger = log.get_logger(__name__)
@@ -84,31 +86,31 @@ class ABICallTypeBuilder(FunctionBuilder):
 class ABIApplicationCallExpressionBuilder(InnerTxnParamsExpressionBuilder):
     def __init__(self, expr: Expression, pytype: pytypes.PyType):
         assert isinstance(pytype, pytypes.ABIApplicationCall)
+        self._result_type = pytype.result_type
         super().__init__(pytype, expr)
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "submit":
-            assert isinstance(self.pytype, pytypes.ABIApplicationCall)
-            return _Submit(self, location)
+            return _Submit(self, self._result_type, location)
 
         return super().member_access(name, location)
 
 
 class ABIApplicationCallInnerTransactionExpressionBuilder(InnerTransactionExpressionBuilder):
+    def __init__(self, expr: Expression, pytype: pytypes.PyType):
+        assert isinstance(pytype, pytypes.ABIApplicationCallInnerTransaction)
+        self._result_type = pytype.result_type
+        super().__init__(expr, pytype)
+
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == "result":
-            assert isinstance(self.pytype, pytypes.ABIApplicationCallInnerTransaction)
-
-            result_type = self.pytype.result_type
+            result_type = self._result_type
             if result_type == pytypes.NoneType:
                 return NoneExpressionBuilder(VoidConstant(location))
 
-            expr = self.single_eval()
-            assert isinstance(expr, InnerTransactionExpressionBuilder)
-
-            last_log = expr.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
+            last_log = self.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
             abi_result = ARC4FromLogBuilder.abi_expr_from_log(result_type, last_log, location)
 
             return builder_for_instance(result_type, abi_result)
@@ -120,9 +122,11 @@ class _Submit(FunctionBuilder):
     def __init__(
         self,
         base: ABIApplicationCallExpressionBuilder,
+        result_type: pytypes.PyType,
         location: SourceLocation,
     ) -> None:
         self.base = base
+        self._result_type = result_type
         super().__init__(location)
 
     @typing.override
@@ -135,12 +139,10 @@ class _Submit(FunctionBuilder):
     ) -> InstanceBuilder:
         expect.no_args(args, location)
 
-        assert isinstance(self.base.pytype, pytypes.ABIApplicationCall)
         expr = self.base.resolve()
 
-        result_type = self.base.pytype.result_type
         result_transaction_type = pytypes.GenericABIApplicationCallInnerTransaction.parameterise(
-            [result_type], location
+            [self._result_type], location
         )
 
         return builder_for_instance(
@@ -156,14 +158,19 @@ def _abi_call(
     *,
     return_type_annotation: pytypes.PyType | None = None,
 ) -> InstanceBuilder:
+    if return_type_annotation == pytypes.NeverType:
+        raise CodeError(
+            f"invalid return type for an ARC-4 method: {return_type_annotation}",
+            location=location,
+        )
     method, pos_args, kwargs = _get_method_abi_args_and_kwargs(
         args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
     )
 
-    abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
-    return_type: pytypes.PyType | None = None
-
     abi_config = None
+    return_type: pytypes.PyType | None = None
+    abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
+
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
@@ -181,20 +188,16 @@ def _abi_call(
                 arg_types = abi_method_data.argument_types
                 return_type = abi_method_data.return_type
                 resource_encoding = abi_method_data.config.resource_encoding
-                allowed_completion_types = abi_method_data.config.allowed_completion_types
             else:
                 name = fmethod.member_name
                 arg_types = []
                 return_type = pytypes.NoneType
                 resource_encoding = "value"
-                allowed_completion_types = []
-
             target = MethodSignature(
                 name=name,
                 arg_types=[t.checked_wtype(location) for t in arg_types],
                 return_type=return_type.checked_wtype(location),
                 resource_encoding=resource_encoding,
-                allowed_completion_types=allowed_completion_types,
                 source_location=args[0].source_location,
             )
         case _:
@@ -202,7 +205,8 @@ def _abi_call(
 
             if sig.maybe_args is None:
                 arg_types = [
-                    _convert_literal_pytype(arg.pytype, arg.source_location) for arg in abi_args
+                    _maybe_convert_literal_and_itxn_field(arg.pytype, arg.source_location)
+                    for arg in abi_args
                 ]
             else:
                 arg_types = [arc4_to_pytype(arg) for arg in sig.maybe_args]
@@ -232,7 +236,12 @@ def _abi_call(
                 )
 
     field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
-    fields: dict[TxnField, Expression] = {}
+    if (
+        TxnField.OnCompletion not in field_nodes
+        and (on_completion := _get_singular_on_complete(abi_config)) is not None
+    ):
+        _add_on_completion(field_nodes, on_completion, location)
+    fields = dict[TxnField, Expression]()
     for field, field_node in field_nodes.items():
         params = _FIELD_TO_ITXN_ARGUMENT[field]
         if params is None:
@@ -251,7 +260,7 @@ def _abi_call(
     pytype = pytypes.GenericABIApplicationCall.parameterise([return_type_annotation], location)
 
     abi_call_wtype = pytype.checked_wtype(location)
-    assert isinstance(abi_call_wtype, WInnerTransactionFields)
+    assert isinstance(abi_call_wtype, WABICallInnerTransactionFields)
 
     _validate_transaction_kwargs(
         field_nodes,
@@ -294,7 +303,9 @@ def _get_python_kwargs(fields: Sequence[TxnField]) -> Set[str]:
     )
 
 
-def _convert_literal_pytype(typ: pytypes.PyType, location: SourceLocation) -> pytypes.PyType:
+def _maybe_convert_literal_and_itxn_field(
+    typ: pytypes.PyType, location: SourceLocation
+) -> pytypes.PyType:
     match typ:
         case pytypes.StrLiteralType:
             return pytypes.StringType
@@ -304,9 +315,12 @@ def _convert_literal_pytype(typ: pytypes.PyType, location: SourceLocation) -> py
             return pytypes.UInt64Type
         case pytypes.TupleType:
             return pytypes.GenericTupleType.parameterise(
-                [_convert_literal_pytype(t, location) for t in typ.items],
+                [_maybe_convert_literal_and_itxn_field(t, location) for t in typ.items],
                 source_location=location,
             )
+        # convert an inner txn type to the equivalent group txn type
+        case pytypes.InnerTransactionFieldsetType(transaction_type=txn_type):
+            return pytypes.GroupTransactionTypes[txn_type]
         case _:
             return typ
 
@@ -314,7 +328,7 @@ def _convert_literal_pytype(typ: pytypes.PyType, location: SourceLocation) -> py
 def _maybe_resolve_literal(
     operand: InstanceBuilder, target_type: pytypes.PyType
 ) -> InstanceBuilder:
-    """Handles special case of resolving a literal tuple into an arc4 tuple"""
+    """Handles special case of resolving a literal tuple into a tuple"""
     from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 
     if isinstance(operand, TupleLiteralBuilder) and isinstance(target_type, pytypes.TupleLikeType):
@@ -372,6 +386,17 @@ def _validate_transaction_kwargs(
         logger.info("method ARC-4 configuration", location=arc4_config.source_location)
 
 
+def _get_singular_on_complete(config: ARC4MethodConfig | None) -> OnCompletionAction | None:
+    if config:
+        try:
+            (on_complete,) = config.allowed_completion_types
+        except ValueError:
+            pass
+        else:
+            return on_complete
+    return None
+
+
 def _get_on_completion(
     field_nodes: Mapping[TxnField, NodeBuilder], arc4_config: ARC4MethodConfig | None
 ) -> OnCompletionAction | None:
@@ -400,3 +425,19 @@ def _is_creating(field_nodes: Mapping[TxnField, NodeBuilder]) -> bool | None:
         case LiteralBuilder(value=int(app_id)):
             return app_id == 0
     return None
+
+
+def _add_on_completion(
+    field_nodes: dict[TxnField, NodeBuilder],
+    on_complete: OnCompletionAction,
+    location: SourceLocation,
+) -> None:
+    # if NoOp can just omit
+    if on_complete == OnCompletionAction.NoOp:
+        return
+    field_nodes[TxnField.OnCompletion] = UInt64ExpressionBuilder(
+        UInt64Constant(
+            source_location=location, value=on_complete.value, teal_alias=on_complete.name
+        ),
+        enum_type=pytypes.OnCompleteActionType,
+    )
