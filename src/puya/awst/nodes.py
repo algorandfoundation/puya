@@ -552,10 +552,6 @@ class MethodSignature(Node):
     name: str = attrs.field()
     arg_types: Sequence[wtypes.WType] = attrs.field(converter=tuple[wtypes.WType, ...])
     return_type: wtypes.WType
-    allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
-        default=(),
-        converter=tuple[OnCompletionAction, ...],
-    )
     resource_encoding: typing.Literal["index", "value"] = "value"
 
 
@@ -1759,7 +1755,7 @@ class ABICall(Expression):
     target: MethodSignature
     args: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
-    wtype: wtypes.WInnerTransactionFields = attrs.field()
+    wtype: wtypes.WABICallInnerTransactionFields
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_abi_call(self)

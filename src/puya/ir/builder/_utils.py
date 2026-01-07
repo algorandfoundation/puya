@@ -2,7 +2,6 @@ from collections.abc import Sequence
 
 from puya.awst import (
     nodes as awst_nodes,
-    wtypes,
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import (
@@ -121,11 +120,7 @@ def method_signature_to_abi_signature(value: awst_nodes.MethodSignature) -> str:
     name = value.name
     arg_abi_names = [
         wtype_to_abi_name(
-            wtypes.WGroupTransaction(transaction_type=t.transaction_type)
-            if isinstance(t, wtypes.WInnerTransactionFields)
-            else t,
-            resource_encoding=value.resource_encoding,
-            source_location=value.source_location,
+            t, resource_encoding=value.resource_encoding, source_location=value.source_location
         )
         for t in value.arg_types or []
     ]
