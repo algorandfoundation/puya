@@ -13,6 +13,7 @@ from puya.awst.nodes import (
     Expression,
     NumericComparison,
     NumericComparisonExpression,
+    ReinterpretCast,
     Statement,
 )
 from puya.parse import SourceLocation
@@ -135,6 +136,8 @@ class BigUIntExpressionBuilder(
             other_expr = other.resolve()
         elif pytypes.UInt64Type <= other.pytype:
             other_expr = _uint64_to_biguint(other, location)
+        elif pytypes.BoolType <= other.pytype:
+            other_expr = _bool_to_biguint(other, location)
         else:
             return NotImplemented  # type: ignore[no-any-return]
         lhs = self.resolve()
@@ -190,3 +193,15 @@ def _translate_biguint_math_operator(
 
 def _uint64_to_biguint(arg_in: InstanceBuilder, location: SourceLocation) -> Expression:
     return intrinsic_factory.itob_as(arg_in.resolve(), wtypes.biguint_wtype, location)
+
+
+def _bool_to_biguint(arg_in: InstanceBuilder, location: SourceLocation) -> Expression:
+    return intrinsic_factory.itob_as(
+        ReinterpretCast(
+            expr=arg_in.resolve(),
+            wtype=wtypes.uint64_wtype,
+            source_location=location,
+        ),
+        wtypes.biguint_wtype,
+        location,
+    )
