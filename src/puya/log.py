@@ -263,7 +263,7 @@ def figure_out_exc_info(v: object) -> structlog.typing.ExcInfo | None:
         result = sys.exc_info()
         if result == (None, None, None):
             return None
-        return typing.cast("structlog.typing.ExcInfo", result)
+        return typing.cast(structlog.typing.ExcInfo, result)
 
     return None
 
