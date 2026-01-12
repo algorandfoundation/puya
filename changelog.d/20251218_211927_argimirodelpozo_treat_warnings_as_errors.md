@@ -14,7 +14,9 @@ For top level release notes, leave all the headers commented out.
 
 ### Added
 
--   A new compiler flag, `treat-warnings-as-errors`, which causes compilation to fail if any warnings are emitted (disabled by default).
+- A new compiler flag, `-treat-warnings-as-errors` or `-Werror`, which causes compilation to fail
+  if any
+  warnings are emitted (disabled by default).
 
 <!--
 ### Changed
