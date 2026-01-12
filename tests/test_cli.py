@@ -122,6 +122,10 @@ def test_run_puyapy_treat_warnings_as_errors() -> None:
     # flag on and warnings should fail
     result_warn = run_puyapy([NO_INIT_DIR, "--treat-warnings-as-errors"], check=False)
     assert result_warn.returncode == 1
+    assert (
+        f"error: cannot determine package root for {NO_INIT_DIR.relative_to(VCS_ROOT)}"
+        in result_warn.stdout
+    )
 
 
 def test_run_single_file_with_other_references(tmpdir: Path) -> None:
@@ -265,3 +269,4 @@ def test_puya_treat_warnings_as_errors(
         assert (
             result_warn.returncode == 1
         ), "treat warnings as errors should fail compilation when there are warnings"
+        assert "error: assertion is always true, ignoring" in result_warn.stdout
