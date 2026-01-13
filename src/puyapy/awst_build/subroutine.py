@@ -154,7 +154,7 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
                     "unqualified name found in call to function",
                     expr_loc,
                 )
-                func_type = self.context.function_pytype(dec.func)
+                func_type = self.context.function_pytype(dec.func, expr_loc)
                 return SubroutineInvokerExpressionBuilder(
                     target=SubroutineID(expr.fullname),
                     func_type=func_type,
