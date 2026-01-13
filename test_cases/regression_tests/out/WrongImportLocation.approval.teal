@@ -1,0 +1,34 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // regression_tests/wrong_import_location.py:21
+    // class WrongImportLocation(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x2c64defb // method "verify()uint64"
+    txna ApplicationArgs 0
+    match main_verify_route@3
+    err
+
+main_verify_route@3:
+    // regression_tests/wrong_import_location.py:22
+    // @public
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    pushbytes 0x151f7c750000000000000000
+    log
+    pushint 1
+    return
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
