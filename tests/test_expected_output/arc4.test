@@ -38,12 +38,8 @@ def abi_call_tuple_ok() -> None:
     event, txn = arc4.abi_call[Event]("foo()(string,uint8)", app_id=1)
 
 @subroutine
-def abi_call_wrong_return() -> None:
-    event, txn = arc4.abi_call[Event]("foo()(string,uint64)", app_id=1) ## E: method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
-
-@subroutine
 def abi_call_none_return() -> None:
-    arc4.abi_call[None]("foo()(string,uint64)", app_id=1) # type: ignore[index] ## E: invalid return type for an ARC-4 method: typing.Never
+    arc4.abi_call[None]("foo()void", app_id=1) # type: ignore[index] ## E: invalid return type for an ARC-4 method: typing.Never
 
 
 @subroutine
@@ -85,6 +81,17 @@ def dont_copy_array() -> None:
     a = arc4.DynamicBytes()
     arc4.emit("Event(byte[])", a)  # this should not need a .copy()
 
+## case: test_emit_errors_from_ir_layer
+from algopy import *
+
+class Event(arc4.Struct):
+    a: arc4.String
+    b: arc4.UInt8
+
+@subroutine
+def abi_call_wrong_return() -> None:
+    event, txn = arc4.abi_call[Event]("foo()(string,uint64)", app_id=1) ## E: method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
+    
 ## case: test_emit_errors_ir
 from algopy import *
 
@@ -461,7 +468,7 @@ from algopy import arc4, Contract, public, subroutine
 
 class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContract is implicitly abstract
     @arc4.abimethod ## E: decorator is only valid in subclasses of algopy.arc4.ARC4Contract
-    def abi(self) -> None: 
+    def abi(self) -> None:
         pass
 
     @arc4.baremethod # type: ignore[type-var] ## E: decorator is only valid in subclasses of algopy.arc4.ARC4Contract
@@ -548,6 +555,34 @@ def invalid_aug_operator() -> None:
     a -= arc4.String()  # type: ignore[operator] ## E: unsupported operator for type: '-'
 
 
+## case:test_abi_call_gtxn_errors
+
+import typing
+from algopy import *
+
+class Logger(ARC4Contract):
+
+    @arc4.abimethod
+    def acfg_arg(self, acfg: gtxn.AssetConfigTransaction) -> None:
+        pass
+
+
+@subroutine
+def test_txn_arg_with_gtxn() -> None:
+    arc4.abi_call(
+        Logger.acfg_arg,
+        gtxn.AssetConfigTransaction(0), ## E: expected inner_transaction_fields_acfg, got reference to group_transaction_acfg
+        app_id=1,
+    )
+
+@subroutine
+def test_txn_arg_with_literal() -> None:
+    arc4.abi_call(
+        Logger.acfg_arg,
+        1, ## E: expected inner_transaction_fields_acfg, got reference to group_transaction_acfg
+        app_id=1,
+    )
+
 ## case: test_abi_call_literal
 import typing
 from algopy import *
@@ -585,26 +620,10 @@ def test_ref_types_with_literal() -> None:
     )
 
 @subroutine
-def test_txn_arg_with_gtxn() -> None:
-    arc4.abi_call(
-        Logger.acfg_arg,
-        gtxn.AssetConfigTransaction(0), ## E: expected type algopy.itxn.AssetConfig, got type algopy.gtxn.AssetConfigTransaction
-        app_id=1,
-    )
-
-@subroutine
-def test_txn_arg_with_literal() -> None:
-    arc4.abi_call(
-        Logger.acfg_arg,
-        1, ## E: expected type algopy.itxn.AssetConfig, got type int
-        app_id=1,
-    )
-
-@subroutine
 def test_txn_arg_with_wrong_literal_type() -> None:
     arc4.abi_call(
         Logger.acfg_arg,
-        "", ## E: expected type algopy.itxn.AssetConfig, got type str
+        "", ## E: can't convert literal to algopy.gtxn.AssetConfigTransaction
         app_id=1,
     )
 
@@ -620,7 +639,7 @@ def test_primitive_types() -> None:
 def test_dynamic_bytes_bad_literal() -> None:
     arc4.abi_call(
         Logger.dynamic_bytes,
-        1, ## E: can't convert literal to algopy.arc4.DynamicBytes
+        1, ## E: can't convert literal to algopy.Bytes
         app_id=1,
     )
 
@@ -808,7 +827,7 @@ def correct_array_positional() -> None:
 class Caller(arc4.ARC4Contract):
     @arc4.abimethod
     def incorrect_array_positional(self) -> None:
-        arc4.abi_call(Client.check, ImmutableArray(((True, UInt64()),)), app_id=1234) ## E: expected type algopy.arc4.DynamicArray[struct_member_ordering2.MyStruct], got type algopy.ImmutableArray[tuple[bool, algopy.UInt64]]
+        arc4.abi_call(Client.check, ImmutableArray(((True, UInt64()),)), app_id=1234) ## E: expected type arc4.dynamic_array<struct_member_ordering2.MyStruct>, got type arc4.dynamic_array<tuple<bool,uint64>>
 
 
 ## case: array_encoding
@@ -824,7 +843,7 @@ class Caller(arc4.ARC4Contract):
     @arc4.abimethod
     def stack_uint64_to_arc4_uint8(self) -> None:
         arr = ImmutableArray[UInt64]()
-        arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: expected type algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]], got type algopy.ImmutableArray[algopy.UInt64]
+        arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: expected type arc4.dynamic_array<arc4.uint8>, got type arc4.dynamic_array<uint64>
 
 ## case: abimethod_reference_type_in_tuple
 from algopy import *
@@ -862,9 +881,9 @@ from algopy import *
 
 @subroutine
 def caller() -> None:
-    arc4.abi_call( ## E: algopy.itxn.PaymentInnerTransaction is not an ARC-4 type and no implicit ARC-4 conversion possible
+    arc4.abi_call(
         "foo",
-        itxn.Payment(receiver=Txn.sender).submit(),
+        itxn.Payment(receiver=Txn.sender).submit(), ## E: cannot use algopy.itxn.PaymentInnerTransaction as an argument to an ARC-4 method
         app_id=1234,
     )
 
@@ -930,7 +949,7 @@ class MyAbiMethodNameTests(ARC4Contract):
     @arc4.abimethod(name="test-2") ## W: method name 'test-2' does not conform to ARC-4 spec
     def test_2(self) -> None:
         pass
-    
+
     @arc4.abimethod(name="test_3*") ## W: method name 'test_3*' does not conform to ARC-4 spec
     def test_3(self) -> None:
         pass
