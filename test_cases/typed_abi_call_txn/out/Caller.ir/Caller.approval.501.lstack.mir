@@ -153,18 +153,28 @@ subroutine test_call_with_txn:
         itxn_next                                                                      tmp%0#0,tmp%2#0,app#0
         l-load app#0 0                                                                 tmp%0#0,tmp%2#0,app#0
         itxn_field ApplicationID                                                       tmp%0#0,tmp%2#0
+        // typed_abi_call_txn/caller.py:23
+        // TxnContract.call_with_txn,
         method call_with_txn(byte[],txn,byte[])uint64                                  tmp%0#0,tmp%2#0,Method(call_with_txn(byte[],txn,byte[])uint64)
         itxn_field ApplicationArgs                                                     tmp%0#0,tmp%2#0
         l-load tmp%0#0 1                                                               tmp%2#0,tmp%0#0
         itxn_field ApplicationArgs                                                     tmp%2#0
         l-load tmp%2#0 0                                                               tmp%2#0
         itxn_field ApplicationArgs
+        // typed_abi_call_txn/caller.py:22-28
+        // asset_id, _txn = arc4.abi_call(
+        //     TxnContract.call_with_txn,
+        //     a,
+        //     txn,
+        //     b,
+        //     app_id=app,
+        // )
         int appl                                                                       appl
         itxn_field TypeEnum
         int 0                                                                          0
         itxn_field Fee
         itxn_submit
-        gitxn 1 LastLog                                                                awst_tmp%0#0
+        itxn LastLog                                                                   awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                     awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                    awst_tmp%0#0,tmp%2#0
         l-load tmp%2#0 0                                                               awst_tmp%0#0,tmp%2#0
@@ -274,18 +284,28 @@ subroutine test_call_with_acfg:
         itxn_next                                                                      tmp%0#0,tmp%2#0,app#0
         l-load app#0 0                                                                 tmp%0#0,tmp%2#0,app#0
         itxn_field ApplicationID                                                       tmp%0#0,tmp%2#0
+        // typed_abi_call_txn/caller.py:39
+        // TxnContract.call_with_acfg,
         method call_with_acfg(byte[],acfg,byte[])uint64                                tmp%0#0,tmp%2#0,Method(call_with_acfg(byte[],acfg,byte[])uint64)
         itxn_field ApplicationArgs                                                     tmp%0#0,tmp%2#0
         l-load tmp%0#0 1                                                               tmp%2#0,tmp%0#0
         itxn_field ApplicationArgs                                                     tmp%2#0
         l-load tmp%2#0 0                                                               tmp%2#0
         itxn_field ApplicationArgs
+        // typed_abi_call_txn/caller.py:38-44
+        // arc4.abi_call(
+        //     TxnContract.call_with_acfg,
+        //     a,
+        //     txn,
+        //     b,
+        //     app_id=app,
+        // )
         int appl                                                                       appl
         itxn_field TypeEnum
         int 0                                                                          0
         itxn_field Fee
         itxn_submit
-        gitxn 1 LastLog                                                                awst_tmp%0#0
+        itxn LastLog                                                                   awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                     awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                    awst_tmp%0#0,tmp%2#0
         l-load tmp%2#0 0                                                               awst_tmp%0#0,tmp%2#0
@@ -400,7 +420,7 @@ subroutine test_call_with_infer:
         int 0                                                                          0
         itxn_field Fee
         itxn_submit
-        gitxn 1 LastLog                                                                awst_tmp%0#0
+        itxn LastLog                                                                   awst_tmp%0#0
         l-load-copy awst_tmp%0#0 0                                                     awst_tmp%0#0,awst_tmp%0#0 (copy)
         extract 0 4                                                                    awst_tmp%0#0,tmp%2#0
         l-load tmp%2#0 0                                                               awst_tmp%0#0,tmp%2#0
@@ -500,16 +520,16 @@ subroutine test_call_with_acfg_no_return:
         itxn_field Note                                                                tmp%0#0,tmp%2#0,app#0
         l-load app#0 0                                                                 tmp%0#0,tmp%2#0,app#0
         itxn_field ApplicationID                                                       tmp%0#0,tmp%2#0
-        // typed_abi_call_txn/caller.py:68-70
-        // txn1 = arc4.abi_call(
-        //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
-        // )
         method call_with_acfg_no_return(byte[],acfg,byte[])void                        tmp%0#0,tmp%2#0,Method(call_with_acfg_no_return(byte[],acfg,byte[])void)
         itxn_field ApplicationArgs                                                     tmp%0#0,tmp%2#0
         l-load tmp%0#0 1                                                               tmp%2#0,tmp%0#0
         itxn_field ApplicationArgs                                                     tmp%2#0
         l-load tmp%2#0 0                                                               tmp%2#0
         itxn_field ApplicationArgs
+        // typed_abi_call_txn/caller.py:68-70
+        // txn1 = arc4.abi_call(
+        //     TxnContract.call_with_acfg_no_return, a, acfg, b, app_id=app, note=b"1"
+        // )
         int appl                                                                       appl
         itxn_field TypeEnum
         int 0                                                                          0

@@ -461,25 +461,25 @@ contract FixedBytesABI
   
   abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes(checker: application, val: bytes): void
   {
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(val, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
+    submit_txn(abi_call(signature={name="manual_validate",args=(bytes[11]),result=void}, args=val, fields=TxnField.ApplicationID=checker))
   }
   
   abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual(checker: application, val: bytes): void
   {
     fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("manual_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
+    submit_txn(abi_call(signature={name="manual_validate",args=(bytes[11]),result=void}, args=fb, fields=TxnField.ApplicationID=checker))
   }
   
   abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router(checker: application, val: bytes): void
   {
     fb: bytes[11] = reinterpret_cast<bytes[11]>(val)
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("router_validate(byte[11])void"), arc4_encode(fb, arc4.static_array<arc4.uint8, 11>)), ApplicationID=checker))
+    submit_txn(abi_call(signature={name="router_validate",args=(bytes[11]),result=void}, args=fb, fields=TxnField.ApplicationID=checker))
   }
   
   abimethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding(checker: application): void
   {
     fb: bytes[11] = hex<"68656C6C6F20776F726C64">
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("i_am_a_dynamic_personality(byte[])void"), arc4_encode(fb, arc4.dynamic_array<arc4.uint8>)), ApplicationID=checker))
+    submit_txn(abi_call(signature={name="i_am_a_dynamic_personality",args=(arc4.dynamic_array<arc4.uint8>),result=void}, args=fb, fields=TxnField.ApplicationID=checker))
   }
   
   baremethod test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create(): void
