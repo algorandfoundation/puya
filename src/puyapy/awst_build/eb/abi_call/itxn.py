@@ -1,9 +1,8 @@
 import typing
-from collections.abc import Mapping, Sequence, Set
+from collections.abc import Mapping, Sequence
 from itertools import zip_longest
 
 from puya import log
-from puya.algo_constants import MAX_UINT64
 from puya.avm import OnCompletionAction
 from puya.awst.nodes import (
     ABICall,
@@ -21,26 +20,28 @@ from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WABICallInnerTransactionFields
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-from puya.utils import StableSet
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
+from puyapy.awst_build.eb.abi_call._utils import (
+    get_method_abi_args_and_kwargs,
+    get_python_kwargs,
+    is_creating,
+    maybe_resolve_literal,
+)
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
-from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
+from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
-    LiteralBuilder,
     NodeBuilder,
-    TypeBuilder,
 )
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner_params import InnerTxnParamsExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
-from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
 logger = log.get_logger(__name__)
@@ -168,8 +169,8 @@ def _abi_call(
             f"invalid return type for an ARC-4 method: {return_type_annotation}",
             location=location,
         )
-    method, pos_args, kwargs = _get_method_abi_args_and_kwargs(
-        args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
+    method, pos_args, kwargs = get_method_abi_args_and_kwargs(
+        args, arg_names, get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
     )
 
     abi_config = None
@@ -229,7 +230,7 @@ def _abi_call(
             fields[field] = params.validate_and_convert(field_node).resolve()
 
     abi_call_args = [
-        _maybe_resolve_literal(
+        maybe_resolve_literal(
             arg, expected_type=arg_type, allow_literal=allow_literal_args
         ).resolve()
         for arg, arg_type in zip_longest(abi_args, arg_types)
@@ -259,31 +260,6 @@ def _abi_call(
     return builder_for_instance(pytype, expr)
 
 
-def _get_method_abi_args_and_kwargs(
-    args: Sequence[NodeBuilder], arg_names: list[str | None], allowed_kwargs: Set[str]
-) -> tuple[NodeBuilder | None, Sequence[NodeBuilder], dict[str, NodeBuilder]]:
-    method: NodeBuilder | None = None
-    abi_args = list[NodeBuilder]()
-    kwargs = dict[str, NodeBuilder]()
-    for idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
-        if arg_name is None:
-            if idx == 0:
-                method = arg
-            else:
-                abi_args.append(arg)
-        elif arg_name in allowed_kwargs:
-            kwargs[arg_name] = arg
-        else:
-            logger.error("unrecognised keyword argument", location=arg.source_location)
-    return method, abi_args, kwargs
-
-
-def _get_python_kwargs(fields: Sequence[TxnField]) -> Set[str]:
-    return StableSet.from_iter(
-        arg for arg, param in PYTHON_ITXN_ARGUMENTS.items() if param.field in fields
-    )
-
-
 def _validate_transaction_kwargs(
     field_nodes: Mapping[TxnField, NodeBuilder],
     arc4_config: ARC4MethodConfig | None,
@@ -294,7 +270,7 @@ def _validate_transaction_kwargs(
     # note these values may be None which indicates their value is unknown at compile time
     on_completion = _get_on_completion(field_nodes, arc4_config)
     is_update = on_completion == OnCompletionAction.UpdateApplication
-    is_create = _is_creating(field_nodes)
+    is_create = is_creating(field_nodes)
 
     if is_create:
         # app_id not provided but method doesn't support creating
@@ -359,18 +335,6 @@ def _get_on_completion(
     return None
 
 
-def _is_creating(field_nodes: Mapping[TxnField, NodeBuilder]) -> bool | None:
-    """
-    Returns app_id == 0 if app_id is statically known, otherwise returns None
-    """
-    match field_nodes.get(TxnField.ApplicationID):
-        case None:
-            return True
-        case LiteralBuilder(value=int(app_id)):
-            return app_id == 0
-    return None
-
-
 def _add_on_completion(
     field_nodes: dict[TxnField, NodeBuilder],
     on_complete: OnCompletionAction,
@@ -385,53 +349,3 @@ def _add_on_completion(
         ),
         enum_type=pytypes.OnCompleteActionType,
     )
-
-
-def _maybe_resolve_literal(
-    operand: InstanceBuilder,
-    *,
-    expected_type: pytypes.PyType | None = None,
-    allow_literal: bool = True,
-) -> InstanceBuilder:
-    if isinstance(operand, TupleLiteralBuilder):
-        item_types = list[pytypes.PyType]()
-        if expected_type is not None and isinstance(expected_type, pytypes.TupleType):
-            item_types.extend(expected_type.items)
-        resolved_items = [
-            _maybe_resolve_literal(elem, expected_type=item_type, allow_literal=allow_literal)
-            for elem, item_type in zip_longest(operand.iterate_static(), item_types)
-        ]
-        return TupleLiteralBuilder(resolved_items, operand.source_location)
-
-    if expected_type is None:
-        match operand.pytype:
-            case pytypes.StrLiteralType:
-                typ: pytypes.PyType = pytypes.StringType
-            case pytypes.BytesLiteralType:
-                typ = pytypes.BytesType
-            case pytypes.IntLiteralType:
-                if (
-                    (isinstance(operand, LiteralBuilder))
-                    and isinstance(operand.value, int)
-                    and operand.value > MAX_UINT64
-                ):
-                    typ = pytypes.BigUIntType
-                else:
-                    typ = pytypes.UInt64Type
-            case pytypes.GroupTransactionType() | pytypes.InnerTransactionResultType():
-                raise CodeError(
-                    f"cannot use {operand.pytype} as an argument to an ARC-4 method",
-                    location=operand.source_location,
-                )
-            case _:
-                typ = operand.pytype
-        if (typ != operand.pytype) and not allow_literal:
-            logger.error(
-                "type information is needed when passing a literal value",
-                location=operand.source_location,
-            )
-    else:
-        typ = expected_type
-    target_type_builder = builder_for_type(typ, operand.source_location)
-    assert isinstance(target_type_builder, TypeBuilder)
-    return operand.resolve_literal(target_type_builder)

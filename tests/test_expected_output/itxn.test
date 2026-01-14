@@ -201,34 +201,13 @@ def wrong_arg_type2() -> None:
 
 
 @subroutine
-def wrong_arg_type3() -> None:
-    arc4.abi_call(
-        "foo(uint64)void", b"", app_id=1 ## E: can't convert literal to algopy.arc4.UIntN[typing.Literal[64]]
-    )
-
-
-@subroutine
-def wrong_arg_type4() -> None:
-    arc4.abi_call("foo(uint8)void", 256, app_id=1) ## E: invalid algopy.arc4.UIntN[typing.Literal[8]] value
-
-
-@subroutine
 def wrong_arg_type5() -> None:
-    arc4.abi_call("foo", 2**64 + 1, app_id=1) ## E: invalid algopy.arc4.UIntN[typing.Literal[64]] value
+    arc4.abi_call("foo", 2**64 + 1, app_id=1) ## E: type information is needed when passing a literal value
+    arc4.abi_call("foo", 256, app_id=1)  ## E: type information is needed when passing a literal value
 
 
 @subroutine
-def method_selector_mismatch() -> None:
-    arc4.abi_call[arc4.UInt64](
-        "foo(uint8)void", ## E: method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
-        1,
-        app_id=1,
-    )
-
-
-@subroutine
-def allowed_coercions() -> None:
-    arc4.abi_call("foo", 256, app_id=1)  # value inferred from args
+def allowed_coercions() -> None:    
     arc4.abi_call(Client.foo, 1, app_id=1)
 
 
@@ -331,6 +310,18 @@ def caller() -> None:
     ).submit()
 
 
+## case: test_abi_call_errors_from_ir_layer
+
+import typing
+from algopy import *
+
+@subroutine
+def method_selector_mismatch() -> None:
+    arc4.abi_call[arc4.UInt64](
+        "foo(uint8)void", ## E: method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
+        1,
+        app_id=1,
+    )
 
 ## case: test_itxn_abi_call_errors_from_ir_layer
 import typing
@@ -343,6 +334,23 @@ def method_selector_mismatch() -> None:
         1,
         app_id=1,
     ).submit()
+
+## case: test_abi_call_errors_from_lowering_ir
+
+import typing
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+
+    @arc4.abimethod
+    def wrong_arg_type3(self) -> None:
+        arc4.abi_call(
+            "foo(uint64)void", b"", app_id=1 ## E: cannot encode bytes to arc4.uint64
+        )
+
+    @arc4.abimethod
+    def wrong_arg_type4(self) -> None:
+        arc4.abi_call("foo(uint8)void", 256, app_id=1) ## E: cannot encode uint64 to arc4.uint8
 
 
 ## case: test_itxn_abi_call_errors_from_lowering_ir

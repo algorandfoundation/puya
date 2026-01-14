@@ -1,5 +1,6 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence, Set
+from itertools import zip_longest
 
 import attrs
 
@@ -7,6 +8,7 @@ from puya import log
 from puya.avm import OnCompletionAction, TransactionType
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ABICall,
     ARC4CreateOption,
     ARC4Encode,
     ARC4MethodConfig,
@@ -17,6 +19,7 @@ from puya.awst.nodes import (
     Expression,
     IntegerConstant,
     MethodConstant,
+    MethodSignature,
     MethodSignatureString,
     SubmitInnerTransaction,
     TupleExpression,
@@ -27,18 +30,20 @@ from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.program_refs import ContractReference
-from puya.utils import StableSet
 from puyapy import models
-from puyapy.awst_build import arc4_utils, pytypes
+from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
+from puyapy.awst_build.eb.abi_call._utils import (
+    get_method_abi_args_and_kwargs,
+    get_python_kwargs,
+    maybe_resolve_literal,
+)
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4._utils import (
     ARC4Signature,
     implicit_arc4_conversion,
-    implicit_arc4_type_arg_conversion,
-    split_arc4_signature,
 )
 from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
@@ -135,18 +140,12 @@ class ABICallTypeBuilder(FunctionBuilder):
         )
 
 
-def _get_python_kwargs(fields: Sequence[TxnField]) -> Set[str]:
-    return StableSet.from_iter(
-        arg for arg, param in PYTHON_ITXN_ARGUMENTS.items() if param.field in fields
-    )
-
-
 class _ARC4CompilationFunctionBuilder(FunctionBuilder):
     allowed_fields: Sequence[TxnField]
 
     @property
     def allowed_kwargs(self) -> Set[str]:
-        return {_COMPILED_KWARG, *_get_python_kwargs(self.allowed_fields)}
+        return {_COMPILED_KWARG, *get_python_kwargs(self.allowed_fields)}
 
     @typing.override
     def call(
@@ -158,7 +157,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         # if on_completion not allowed, it must be an update
         is_update = TxnField.OnCompletion not in self.allowed_fields
-        method_or_type, abi_args, kwargs = _get_method_abi_args_and_kwargs(
+        method_or_type, abi_args, kwargs = get_method_abi_args_and_kwargs(
             args, arg_names, self.allowed_kwargs
         )
         compiled = None
@@ -259,10 +258,18 @@ def _abi_call(
     *,
     return_type_annotation: pytypes.PyType,
 ) -> InstanceBuilder:
-    method, abi_args, kwargs = _get_method_abi_args_and_kwargs(
-        args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
+    if return_type_annotation == pytypes.NeverType:
+        raise CodeError(
+            f"invalid return type for an ARC-4 method: {return_type_annotation}",
+            location=location,
+        )
+    method, pos_args, kwargs = get_method_abi_args_and_kwargs(
+        args, arg_names, get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
     )
     arc4_config = None
+
+    abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
+
     match method:
         case None:
             raise CodeError("missing required positional argument 'method'", location)
@@ -271,53 +278,39 @@ def _abi_call(
             | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
         ):
             # in this case the arc4 signature and declared return type are inferred
-            method_call = _get_arc4_method_call(fmethod, abi_args, location)
-            arc4_args = method_call.arc4_args
-            arc4_config = method_call.config
-            declared_result_type = method_call.method_return_type
-            if return_type_annotation not in (declared_result_type, pytypes.NoneType):
-                logger.error(
-                    "mismatch between return type of method and generic parameter",
-                    location=location,
-                )
-            arg_value_and_types = list(zip(arc4_args, method_call.arc4_param_types, strict=True))
-        case _:
-            declared_result_type = return_type_annotation
-            method_sig = split_arc4_signature(method)
-            method_str = method_sig.value
-            if method_sig.maybe_args is None:
-                arg_types = [
-                    implicit_arc4_type_arg_conversion(
-                        expect.instance_builder(na, default=expect.default_raise).pytype, location
-                    )
-                    for na in abi_args
-                ]
+            if fmethod.metadata is None:
+                raise CodeError("method is not an ARC-4 method", location=location)
+
+            abi_method_data = fmethod.metadata
+            arc4_config = abi_method_data.config
+            if isinstance(abi_method_data, models.ARC4ABIMethodData):
+                name = abi_method_data.config.name
+                arg_types = abi_method_data.argument_types
+                return_type = abi_method_data.return_type
+                resource_encoding = abi_method_data.config.resource_encoding
             else:
-                arg_types = [arc4_utils.arc4_to_pytype(a, location) for a in method_sig.maybe_args]
-            if declared_result_type != pytypes.NoneType:
-                # this will be validated against signature below, by comparing
-                # the generated method_selector against the supplied method_str
-                return_type = declared_result_type
-            elif method_sig.maybe_returns:
-                return_type = arc4_utils.arc4_to_pytype(method_sig.maybe_returns, location)
-            else:
+                name = fmethod.member_name
+                arg_types = []
                 return_type = pytypes.NoneType
-            signature = ARC4Signature(
-                method_name=method_sig.name,
-                arg_types=arg_types,
-                return_type=return_type,
-                source_location=location,
+                resource_encoding = "value"
+
+            target: MethodSignature | MethodSignatureString = MethodSignature(
+                name=name,
+                arg_types=[t.checked_wtype(location) for t in arg_types],
+                return_type=return_type.checked_wtype(location),
+                resource_encoding=resource_encoding,
+                source_location=args[0].source_location,
             )
-            if not signature.method_selector.startswith(method_str):
-                logger.error(
-                    f"method selector from args '{signature.method_selector}' "
-                    f"does not match provided method selector: '{method_str}'",
-                    location=method.source_location,
-                )
-            arc4_args = _method_selector_and_arc4_args(signature, abi_args, location)
-            arg_value_and_types = list(
-                zip(arc4_args, (pytypes.BytesType, *arg_types), strict=True)
+            if return_type_annotation is None or return_type_annotation == pytypes.NoneType:
+                return_type_annotation = return_type
+            allow_literal_args = True
+        case _:
+            method_str = expect.simple_string_literal(method, default=expect.default_raise)
+            target = MethodSignatureString(
+                value=method_str, source_location=method.source_location
             )
+            arg_types = []
+            allow_literal_args = "(" in method_str
 
     field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
     # set on_completion if it can be inferred from config
@@ -327,37 +320,53 @@ def _abi_call(
     ):
         _add_on_completion(field_nodes, on_completion, location)
 
+    fields: dict[TxnField, Expression] = {}
+    for field, field_node in field_nodes.items():
+        params = _FIELD_TO_ITXN_ARGUMENT[field]
+        if params is None:
+            logger.error("unrecognised keyword argument", location=field_node.source_location)
+        else:
+            fields[field] = params.validate_and_convert(field_node).resolve()
+
+    abi_call_args = [
+        maybe_resolve_literal(
+            arg, expected_type=arg_type, allow_literal=allow_literal_args
+        ).resolve()
+        for arg, arg_type in zip_longest(abi_args, arg_types)
+    ]
+
     _validate_transaction_kwargs(
         field_nodes,
         arc4_config,
         method_location=method.source_location,
         call_location=location,
     )
-    return _create_abi_call_expr(
-        arg_value_and_types=arg_value_and_types,
-        declared_result_type=declared_result_type,
-        field_nodes=field_nodes,
-        location=location,
+
+    result_wtype = (return_type_annotation or pytypes.NoneType).checked_wtype(location)
+    call_expr = ABICall(
+        target=target,
+        args=abi_call_args,
+        fields=fields,
+        wtype=wtypes.WABICallInnerTransactionFields(result_type=result_wtype),
+        source_location=location,
     )
 
+    result_transaction_type = pytypes.InnerTransactionResultTypes[TransactionType.appl]
 
-def _get_method_abi_args_and_kwargs(
-    args: Sequence[NodeBuilder], arg_names: list[str | None], allowed_kwargs: Set[str]
-) -> tuple[NodeBuilder | None, Sequence[NodeBuilder], dict[str, NodeBuilder]]:
-    method: NodeBuilder | None = None
-    abi_args = list[NodeBuilder]()
-    kwargs = dict[str, NodeBuilder]()
-    for idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
-        if arg_name is None:
-            if idx == 0:
-                method = arg
-            else:
-                abi_args.append(arg)
-        elif arg_name in allowed_kwargs:
-            kwargs[arg_name] = arg
-        else:
-            logger.error("unrecognised keyword argument", location=arg.source_location)
-    return method, abi_args, kwargs
+    itxn_builder = builder_for_instance(
+        result_transaction_type,
+        SubmitInnerTransaction(itxns=[call_expr], source_location=location),
+    )
+
+    if return_type_annotation is None or return_type_annotation == pytypes.NoneType:
+        return itxn_builder
+    itxn_builder = itxn_builder.single_eval()
+    assert isinstance(itxn_builder, InnerTransactionExpressionBuilder)
+
+    last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(return_type_annotation, last_log, location)
+    abi_result_builder = builder_for_instance(return_type_annotation, abi_result)
+    return TupleLiteralBuilder((abi_result_builder, itxn_builder), location)
 
 
 @attrs.frozen
@@ -700,7 +709,7 @@ def _check_program_fields_are_present(
 ) -> None:
     if missing_fields := [field for field in PROGRAM_FIELDS.values() if field not in field_nodes]:
         logger.error(
-            f"{error_message}: {', '.join(_get_python_kwargs(missing_fields))}",
+            f"{error_message}: {', '.join(get_python_kwargs(missing_fields))}",
             location=location,
         )
 
