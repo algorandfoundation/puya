@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Callable, Mapping, Sequence, Set
 from itertools import zip_longest
 
@@ -171,7 +172,7 @@ def add_on_completion(
 
 @attrs.frozen
 class ParsedMethod:
-    target: MethodSignature | MethodSignatureString
+    target: MethodSignature | MethodSignatureString | None
     arg_types: Sequence[pytypes.PyType]
     return_type: pytypes.PyType
     declared_return_type: pytypes.PyType | None
@@ -209,7 +210,7 @@ def parse_method(
 class ParsedABICallArgs:
     """Result of parsing ABI call arguments."""
 
-    target: MethodSignature | MethodSignatureString
+    target: MethodSignature | MethodSignatureString | None
     abi_call_args: Sequence[Expression]
     return_type: pytypes.PyType
     declared_return_type: pytypes.PyType
@@ -222,7 +223,12 @@ def parse_abi_call_args(
     allowed_fields: Sequence[TxnField],
     return_type_annotation: pytypes.PyType | None,
     validate_transaction_kwargs: Callable[
-        [dict[TxnField, NodeBuilder], ARC4MethodConfig | None, SourceLocation, SourceLocation],
+        [
+            dict[TxnField, NodeBuilder],
+            ARC4MethodConfig | None,
+            SourceLocation | None,
+            SourceLocation,
+        ],
         None,
     ],
     location: SourceLocation,
@@ -249,45 +255,47 @@ def parse_abi_call_args(
 
     abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
 
-    resolved = parse_method(method, location, return_type_annotation=return_type_annotation)
+    parsed_method = parse_method(method, location, return_type_annotation=return_type_annotation)
 
     field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
     # set on_completion if it can be inferred from config
     if (
         TxnField.OnCompletion not in field_nodes
-        and (on_completion := get_singular_on_complete(resolved.abi_config)) is not None
+        and (on_completion := get_singular_on_complete(parsed_method.abi_config)) is not None
     ):
         add_on_completion(field_nodes, on_completion, location)
 
     fields = dict[TxnField, Expression]()
     for field, field_node in field_nodes.items():
         params = FIELD_TO_ITXN_ARGUMENT[field]
-        if params is None:
-            logger.error("unrecognised keyword argument", location=field_node.source_location)
-        else:
-            fields[field] = params.validate_and_convert(field_node).resolve()
+        fields[field] = params.validate_and_convert(field_node).resolve()
 
-    declared_return_type = resolved.declared_return_type
+    declared_return_type = parsed_method.declared_return_type
     if declared_return_type is None:
-        declared_return_type = resolved.return_type or pytypes.NoneType
+        declared_return_type = parsed_method.return_type or pytypes.NoneType
 
     abi_call_args = [
         maybe_resolve_literal(
-            arg, expected_type=arg_type, allow_literal=resolved.allow_literal_args
+            arg, expected_type=arg_type, allow_literal=parsed_method.allow_literal_args
         ).resolve()
-        for arg, arg_type in zip_longest(abi_args, resolved.arg_types)
+        for arg, arg_type in zip_longest(abi_args, parsed_method.arg_types)
     ]
+    if parsed_method.target:
+        method_location: SourceLocation | None = parsed_method.target.source_location
+    else:
+        method_location = None
+
     validate_transaction_kwargs(
         field_nodes,
-        resolved.abi_config,
-        resolved.target.source_location,
+        parsed_method.abi_config,
+        method_location,
         location,
     )
 
     return ParsedABICallArgs(
-        target=resolved.target,
+        target=parsed_method.target,
         abi_call_args=abi_call_args,
-        return_type=resolved.return_type,
+        return_type=parsed_method.return_type,
         declared_return_type=declared_return_type,
         fields=fields,
     )
@@ -350,4 +358,38 @@ def parse_signature_string(
         declared_return_type=return_type_annotation,
         abi_config=None,
         allow_literal_args=allow_literal_args,
+    )
+
+
+def parse_abi_method_data(data: models.ARC4MethodData, location: SourceLocation) -> ParsedMethod:
+    match data:
+        case models.ARC4ABIMethodData() as abi_method_data:
+            name = abi_method_data.config.name
+            arg_types = list(abi_method_data.argument_types)
+            return_type = abi_method_data.return_type
+            resource_encoding = abi_method_data.config.resource_encoding
+            config: ARC4MethodConfig = abi_method_data.config
+            target: MethodSignature | None = MethodSignature(
+                name=name,
+                arg_types=[t.checked_wtype(location) for t in arg_types],
+                return_type=return_type.checked_wtype(location),
+                source_location=location,
+                resource_encoding=resource_encoding,
+            )
+        case models.ARC4BareMethodData() as bare_method_data:
+            target = None
+            arg_types = []
+            return_type = pytypes.NoneType
+            config = bare_method_data.config
+
+        case other:
+            typing.assert_never(other)
+
+    return ParsedMethod(
+        target=target,
+        arg_types=arg_types,
+        return_type=return_type,
+        declared_return_type=pytypes.NoneType,
+        abi_config=config,
+        allow_literal_args=True,
     )

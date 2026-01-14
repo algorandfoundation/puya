@@ -177,7 +177,7 @@ def _abi_call(
 def _validate_transaction_kwargs(
     field_nodes: Mapping[TxnField, NodeBuilder],
     arc4_config: ARC4MethodConfig | None,
-    method_location: SourceLocation,
+    method_location: SourceLocation | None,
     call_location: SourceLocation,
 ) -> None:
     # note these values may be None which indicates their value is unknown at compile time

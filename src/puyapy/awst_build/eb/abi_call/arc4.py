@@ -1,53 +1,39 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence, Set
 
-import attrs
-
 from puya import log
 from puya.avm import OnCompletionAction, TransactionType
-from puya.awst import wtypes
 from puya.awst.nodes import (
     ABICall,
     ARC4CreateOption,
-    ARC4Encode,
     ARC4MethodConfig,
-    BytesConstant,
-    BytesEncoding,
     CompiledContract,
-    CreateInnerTransaction,
     Expression,
-    MethodConstant,
-    MethodSignatureString,
     SubmitInnerTransaction,
-    TupleExpression,
-    TupleItemExpression,
-    UInt64Constant,
 )
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError
-from puya.parse import SourceLocation, sequential_source_locations_merge
+from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
-from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.abi_call._utils import (
     FIELD_TO_ITXN_ARGUMENT,
+    ParsedMethod,
     add_on_completion,
     get_method_abi_args_and_kwargs,
     get_on_completion,
     get_python_kwargs,
     get_singular_on_complete,
     is_creating,
+    maybe_resolve_literal,
     parse_abi_call_args,
+    parse_abi_method_data,
+    parse_contract_fragment_method,
 )
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
-from puyapy.awst_build.eb.arc4._utils import (
-    ARC4Signature,
-    implicit_arc4_conversion,
-)
-from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.compiled import (
     APP_ALLOCATION_FIELDS,
     PROGRAM_FIELDS,
@@ -62,13 +48,9 @@ from puyapy.awst_build.eb.interface import (
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
-from puyapy.awst_build.eb.tuple import TupleExpressionBuilder, TupleLiteralBuilder
+from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 from puyapy.models import (
-    ARC4ABIMethodData,
-    ARC4BareMethodData,
-    ARC4MethodData,
     ContractFragmentBase,
-    ContractFragmentMethod,
 )
 
 logger = log.get_logger(__name__)
@@ -155,7 +137,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         # if on_completion not allowed, it must be an update
         is_update = TxnField.OnCompletion not in self.allowed_fields
-        method_or_type, abi_args, kwargs = get_method_abi_args_and_kwargs(
+        method_or_type, pos_args, kwargs = get_method_abi_args_and_kwargs(
             args, arg_names, self.allowed_kwargs
         )
         compiled = None
@@ -168,14 +150,15 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             case None:
                 raise CodeError("missing required positional argument 'method'", location)
             case BaseClassSubroutineInvokerExpressionBuilder(method=fmethod, cref=contract_ref):
-                method_call = _get_arc4_method_call(fmethod, abi_args, location)
+                parsed_method = parse_contract_fragment_method(
+                    fmethod, None, method_or_type.source_location
+                )
             case ContractTypeExpressionBuilder(
                 fragment=fragment, pytype=pytypes.TypeType(typ=typ)
             ) if pytypes.ARC4ContractBaseType < typ:
                 contract_ref = fragment.id
-                method_call = _get_lifecycle_method_call(
+                parsed_method = _get_lifecycle_method_call(
                     fragment,
-                    abi_args,
                     kind="update" if is_update else "create",
                     location=method_or_type.source_location,
                 )
@@ -193,13 +176,14 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             _warn_if_different_contract(
                 compiled, contract_ref, related_location=method_or_type.source_location
             )
+
         field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
         if is_update:
             add_on_completion(field_nodes, OnCompletionAction.UpdateApplication, location)
         # if on_completion is not set but can be inferred from config then use that
         elif (
             TxnField.OnCompletion not in field_nodes
-            and (on_completion := get_singular_on_complete(method_call.config)) is not None
+            and (on_completion := get_singular_on_complete(parsed_method.abi_config)) is not None
         ):
             add_on_completion(field_nodes, on_completion, location)
 
@@ -211,21 +195,58 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             # add all app allocation fields
             for member_name, field in APP_ALLOCATION_FIELDS.items():
                 field_nodes[field] = compiled.member_access(member_name, location)
+
+        fields = dict[TxnField, Expression]()
+        for field, field_node in field_nodes.items():
+            params = FIELD_TO_ITXN_ARGUMENT[field]
+            fields[field] = params.validate_and_convert(field_node).resolve()
+
         _validate_transaction_kwargs(
             field_nodes,
-            method_call.config,
+            parsed_method.abi_config,
             method_location=method_or_type.source_location,
             call_location=location,
         )
-        arg_value_and_types = list(
-            zip(method_call.arc4_args, method_call.arc4_param_types, strict=True)
+
+        abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
+        abi_call_args = [
+            maybe_resolve_literal(
+                arg, expected_type=arg_type, allow_literal=parsed_method.allow_literal_args
+            ).resolve()
+            for arg, arg_type in zip(abi_args, parsed_method.arg_types, strict=True)
+        ]
+        pytype = pytypes.GenericABIApplicationCall.parameterise(
+            [parsed_method.declared_return_type or pytypes.NoneType], location
         )
-        return _create_abi_call_expr(
-            arg_value_and_types=arg_value_and_types,
-            declared_result_type=method_call.method_return_type,
-            field_nodes=field_nodes,
-            location=location,
+
+        call_expr = ABICall(
+            target=parsed_method.target,
+            args=abi_call_args,
+            fields=fields,
+            wtype=pytype.wtype,
+            source_location=location,
         )
+
+        itxn_type = pytypes.InnerTransactionResultTypes[TransactionType.appl]
+        itxn_builder = builder_for_instance(
+            itxn_type,
+            SubmitInnerTransaction(itxns=[call_expr], source_location=location),
+        )
+
+        if (
+            parsed_method.declared_return_type is None
+            or parsed_method.declared_return_type == pytypes.NoneType
+        ):
+            return itxn_builder
+        itxn_builder = itxn_builder.single_eval()
+        assert isinstance(itxn_builder, InnerTransactionExpressionBuilder)
+
+        last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
+        abi_result = ARC4FromLogBuilder.abi_expr_from_log(
+            parsed_method.declared_return_type, last_log, location
+        )
+        abi_result_builder = builder_for_instance(parsed_method.declared_return_type, abi_result)
+        return TupleLiteralBuilder((abi_result_builder, itxn_builder), location)
 
 
 def _warn_if_different_contract(
@@ -296,69 +317,11 @@ def _abi_call(
     return TupleLiteralBuilder((abi_result_builder, itxn_builder), location)
 
 
-@attrs.frozen
-class _ARC4MethodCall:
-    config: ARC4MethodConfig | None
-    arc4_args: Sequence[InstanceBuilder]
-    arc4_param_types: Sequence[pytypes.PyType]
-    method_return_type: pytypes.PyType
-    """
-    Return type as declared on the method, this may not be an ARC-4 type due to automatic
-    type conversion
-    """
-    arc4_return_type: pytypes.PyType
-    """
-    ARC-4 return type
-    """
-
-
-def _get_arc4_method_call(
-    data: ContractFragmentMethod, abi_args: Sequence[NodeBuilder], location: SourceLocation
-) -> _ARC4MethodCall:
-    if data.metadata is None:
-        raise CodeError("not a valid ARC-4 method", location)
-    return _map_arc4_method_data_to_call(data.metadata, abi_args, location)
-
-
-def _map_arc4_method_data_to_call(
-    data: ARC4MethodData,
-    abi_args: Sequence[NodeBuilder],
-    location: SourceLocation,
-) -> _ARC4MethodCall:
-    match data:
-        case ARC4ABIMethodData() as abi_method_data:
-            signature = ARC4Signature(
-                method_name=abi_method_data.config.name,
-                arg_types=abi_method_data.arc4_argument_types,
-                return_type=abi_method_data.arc4_return_type,
-                source_location=location,
-            )
-            return _ARC4MethodCall(
-                config=abi_method_data.config,
-                arc4_args=_method_selector_and_arc4_args(signature, abi_args, location),
-                arc4_param_types=[pytypes.BytesType, *signature.arg_types],
-                method_return_type=abi_method_data.return_type,
-                arc4_return_type=abi_method_data.arc4_return_type,
-            )
-        case ARC4BareMethodData() as bare_method_data:
-            _expect_bare_method_args(abi_args)
-            return _ARC4MethodCall(
-                config=bare_method_data.config,
-                arc4_args=[],
-                arc4_param_types=[],
-                method_return_type=pytypes.NoneType,
-                arc4_return_type=pytypes.NoneType,
-            )
-        case other:
-            typing.assert_never(other)
-
-
 def _get_lifecycle_method_call(
     fragment: ContractFragmentBase,
-    abi_args: Sequence[NodeBuilder],
     kind: typing.Literal["create", "update"],
     location: SourceLocation,
-) -> _ARC4MethodCall:
+) -> ParsedMethod:
     if kind == "create":
         possible_methods = list(fragment.find_arc4_method_metadata(can_create=True))
     elif kind == "update":
@@ -375,208 +338,14 @@ def _get_lifecycle_method_call(
             f"found multiple {kind} methods on {fragment.id}, please specify which one to use",
             location,
         )
-    method_call = _map_arc4_method_data_to_call(single_method, abi_args, location)
-    # remove method_return_type from result
-    # so _create_abi_call_expr does not attempt to include any decoded ARC-4 result
-    # as per the stubs overload for arc4_create/arc4_update with a Contract type
-    return attrs.evolve(method_call, method_return_type=pytypes.NoneType)
 
-
-def _method_selector_and_arc4_args(
-    signature: ARC4Signature, abi_args: Sequence[NodeBuilder], location: SourceLocation
-) -> Sequence[InstanceBuilder]:
-    num_args = len(abi_args)
-    num_sig_args = len(signature.arg_types)
-    if num_sig_args != num_args:
-        raise CodeError(
-            f"expected {num_sig_args} ABI argument{'' if num_sig_args == 1 else 's'},"
-            f" got {num_args}",
-            signature.source_location,
-        )
-    method_signature = MethodSignatureString(
-        value=signature.method_selector, source_location=location
-    )
-    result: list[InstanceBuilder] = [
-        BytesExpressionBuilder(MethodConstant(value=method_signature, source_location=location))
-    ]
-    for arg_in, target_type in zip(abi_args, signature.arg_types, strict=True):
-        if not isinstance(target_type, pytypes.GroupTransactionType):
-            arg = implicit_arc4_conversion(arg_in, target_type)
-        else:
-            target_type = pytypes.InnerTransactionFieldsetTypes[target_type.transaction_type]
-            instance = expect.instance_builder(
-                arg_in, default=expect.default_dummy_value(target_type)
-            )
-            if _inner_transaction_type_matches(instance.pytype, target_type):
-                arg = instance
-            else:
-                logger.error(
-                    f"expected type {target_type}, got type {instance.pytype}",
-                    location=instance.source_location,
-                )
-                arg = dummy_value(target_type, instance.source_location)
-        result.append(arg)
-    return result
-
-
-def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
-    if not isinstance(instance, pytypes.InnerTransactionFieldsetType):
-        return False
-    if not isinstance(target, pytypes.InnerTransactionFieldsetType):
-        return False
-    return (
-        instance.transaction_type == target.transaction_type
-        or instance.transaction_type is None
-        or target.transaction_type is None
-    )
-
-
-def _create_abi_call_expr(
-    *,
-    arg_value_and_types: Sequence[tuple[InstanceBuilder, pytypes.PyType]],
-    declared_result_type: pytypes.PyType,
-    field_nodes: dict[TxnField, NodeBuilder],
-    location: SourceLocation,
-) -> InstanceBuilder:
-    group = []
-    array_fields: dict[TxnField, list[Expression]] = {
-        TxnField.ApplicationArgs: [],
-        TxnField.Accounts: [],
-        TxnField.Applications: [],
-        TxnField.Assets: [],
-    }
-
-    def ref_to_arg(ref_field: TxnField, arg: InstanceBuilder) -> Expression:
-        # TODO: what about references that are used more than once?
-        implicit_offset = 1 if ref_field in (TxnField.Accounts, TxnField.Applications) else 0
-        ref_list = array_fields[ref_field]
-        ref_index = len(ref_list)
-        ref_list.append(arg.resolve())
-        return BytesConstant(
-            value=(ref_index + implicit_offset).to_bytes(length=1),
-            encoding=BytesEncoding.base16,
-            source_location=arg.source_location,
-        )
-
-    for arg_b, param_type in arg_value_and_types:
-        arg_expr = None
-        match param_type:
-            case pytypes.GroupTransactionType() if isinstance(
-                arg_b.pytype, pytypes.InnerTransactionFieldsetType
-            ):
-                group.append(arg_b.resolve())
-                # no arg_expr as txn aren't part of the app args
-            case pytypes.TransactionRelatedType():
-                logger.error(
-                    "only inner transaction types can be used to call another contract",
-                    location=arg_b.source_location,
-                )
-            case pytypes.AssetType:
-                arg_expr = ref_to_arg(TxnField.Assets, arg_b)
-            case pytypes.AccountType:
-                arg_expr = ref_to_arg(TxnField.Accounts, arg_b)
-            case pytypes.ApplicationType:
-                arg_expr = ref_to_arg(TxnField.Applications, arg_b)
-            case _:
-                arg_expr = arg_b.resolve()
-        if arg_expr is not None:
-            array_fields[TxnField.ApplicationArgs].append(arg_expr)
-
-    txn_type_appl = TransactionType.appl
-    fields: dict[TxnField, Expression] = {
-        TxnField.Fee: UInt64Constant(value=0, source_location=location),
-        TxnField.TypeEnum: UInt64Constant(
-            value=txn_type_appl.value, teal_alias=txn_type_appl.name, source_location=location
-        ),
-    }
-    for arr_field, arr_field_values in array_fields.items():
-        if arr_field_values:
-            if arr_field == TxnField.ApplicationArgs and len(arr_field_values) > 16:
-                args_to_pack = arr_field_values[15:]
-                arr_field_values[15:] = [
-                    _arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
-                ]
-            fields[arr_field] = TupleExpression.from_items(
-                arr_field_values, _combine_locs(arr_field_values)
-            )
-
-    for field, field_node in field_nodes.items():
-        params = FIELD_TO_ITXN_ARGUMENT[field]
-        if params is None:
-            logger.error("unrecognised keyword argument", location=field_node.source_location)
-        else:
-            fields[field] = params.validate_and_convert(field_node).resolve()
-
-    itxn_result_pytype = pytypes.InnerTransactionResultTypes[txn_type_appl]
-    create_itxn = CreateInnerTransaction(
-        fields=fields,
-        wtype=pytypes.InnerTransactionFieldsetTypes[txn_type_appl].wtype,
-        source_location=location,
-    )
-    group.append(create_itxn)
-    if len(group) == 1:
-        itxn_builder: InstanceBuilder = InnerTransactionExpressionBuilder(
-            SubmitInnerTransaction(itxns=group, source_location=location), itxn_result_pytype
-        )
-    else:
-        itxn_types = []
-        for itxn in group:
-            assert isinstance(itxn.wtype, wtypes.WInnerTransactionFields)
-            itxn_types.append(pytypes.InnerTransactionResultTypes[itxn.wtype.transaction_type])
-        itxn_tuple_result_pytype = pytypes.GenericTupleType.parameterise(
-            itxn_types,
-            location,
-        )
-        itxn_tuple_builder = TupleExpressionBuilder(
-            SubmitInnerTransaction(itxns=group, source_location=location),
-            itxn_tuple_result_pytype,
-        ).single_eval()
-        itxn_builder = InnerTransactionExpressionBuilder(
-            TupleItemExpression(
-                base=itxn_tuple_builder.resolve(),
-                index=-1,
-                source_location=location,
-            ),
-            itxn_result_pytype,
-        )
-
-    if declared_result_type == pytypes.NoneType:
-        return itxn_builder
-    itxn_builder = itxn_builder.single_eval()
-    assert isinstance(itxn_builder, InnerTransactionExpressionBuilder)
-
-    last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
-    abi_result = ARC4FromLogBuilder.abi_expr_from_log(declared_result_type, last_log, location)
-    abi_result_builder = builder_for_instance(declared_result_type, abi_result)
-
-    return TupleLiteralBuilder((abi_result_builder, itxn_builder), location)
-
-
-def _combine_locs(exprs: Sequence[Expression | NodeBuilder]) -> SourceLocation:
-    return sequential_source_locations_merge(a.source_location for a in exprs)
-
-
-def _arc4_tuple_from_items(
-    items: Sequence[Expression], source_location: SourceLocation
-) -> ARC4Encode:
-    # TODO: should we just allow TupleExpression to have an ARCTuple wtype?
-    args_tuple = TupleExpression.from_items(items, source_location)
-    return ARC4Encode(
-        value=args_tuple,
-        wtype=wtypes.ARC4Tuple(types=args_tuple.wtype.types, source_location=source_location),
-        source_location=source_location,
-    )
-
-
-def _expect_bare_method_args(abi_args: Sequence[NodeBuilder]) -> None:
-    if abi_args:
-        logger.error("unexpected args for bare method", location=_combine_locs(abi_args))
+    return parse_abi_method_data(single_method, location)
 
 
 def _validate_transaction_kwargs(
     field_nodes: Mapping[TxnField, NodeBuilder],
     arc4_config: ARC4MethodConfig | None,
-    method_location: SourceLocation,
+    method_location: SourceLocation | None,
     call_location: SourceLocation,
 ) -> None:
     # note these values may be None which indicates their value is unknown at compile time
