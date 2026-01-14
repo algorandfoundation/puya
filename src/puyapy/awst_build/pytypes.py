@@ -1251,7 +1251,7 @@ def _parameterise_abi_application_call(
     return ABIApplicationCall(generic=self, result_type=result_type)
 
 
-GenericABIApplicationCall: typing.Final = _GenericType(
+GenericABIApplicationCall: typing.Final = _GenericType[ABIApplicationCall](
     name="algopy.itxn.ABIApplicationCall",
     parameterise=_parameterise_abi_application_call,
 )
@@ -1287,7 +1287,9 @@ def _parameterise_abi_application_call_inner_transaction(
     return ABIApplicationCallInnerTransaction(generic=self, result_type=result_type)
 
 
-GenericABIApplicationCallInnerTransaction: typing.Final = _GenericType(
+GenericABIApplicationCallInnerTransaction: typing.Final = _GenericType[
+    ABIApplicationCallInnerTransaction
+](
     name="algopy.itxn.ABIApplicationCallInnerTransaction",
     parameterise=_parameterise_abi_application_call_inner_transaction,
 )
