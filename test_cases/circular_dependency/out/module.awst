@@ -17,7 +17,7 @@ contract A
   
   abimethod test_cases.circular_dependency.a.A.ping(b: application): string
   {
-    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("ping()string")), ApplicationID=b))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=1)), string))[-1], SINGLE_EVAL(id=0))
+    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(abi_call(signature={name="ping",args=(),result=string}, args=, fields=TxnField.ApplicationID=b))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=1)), string))[-1], SINGLE_EVAL(id=0))
     return result
   }
   
@@ -28,7 +28,7 @@ contract A
   
   abimethod test_cases.circular_dependency.a.A.create_b(factory_id: application): application
   {
-    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=3, source=SINGLE_EVAL(id=2, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("deploy_b()uint64")), ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=3)), application))[-1], SINGLE_EVAL(id=2))
+    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=3, source=SINGLE_EVAL(id=2, source=submit_txn(abi_call(signature={name="deploy_b",args=(),result=application}, args=, fields=TxnField.ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=3)), application))[-1], SINGLE_EVAL(id=2))
     return result
   }
   
@@ -65,13 +65,13 @@ contract B
   
   abimethod test_cases.circular_dependency.b.B.pong(a: application): string
   {
-    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("pong()string")), ApplicationID=a))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=5)), string))[-1], SINGLE_EVAL(id=4))
+    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=submit_txn(abi_call(signature={name="pong",args=(),result=string}, args=, fields=TxnField.ApplicationID=a))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=5)), string))[-1], SINGLE_EVAL(id=4))
     return result
   }
   
   abimethod test_cases.circular_dependency.b.B.create_a(factory_id: application): application
   {
-    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("deploy_a()uint64")), ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=7)), application))[-1], SINGLE_EVAL(id=6))
+    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(abi_call(signature={name="deploy_a",args=(),result=application}, args=, fields=TxnField.ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=7)), application))[-1], SINGLE_EVAL(id=6))
     return result
   }
   

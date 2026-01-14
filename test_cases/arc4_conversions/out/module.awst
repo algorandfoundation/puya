@@ -104,34 +104,34 @@ contract TestContract
   abimethod test_cases.arc4_conversions.contract.TestContract.test_literal_encoding(): void
   {
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=1)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=0).clear_state_program)[0], SINGLE_EVAL(id=2)[1]), ExtraProgramPages=SINGLE_EVAL(id=0).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=0).global_bytes, GlobalNumUint=SINGLE_EVAL(id=0).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=0).local_bytes, LocalNumUint=SINGLE_EVAL(id=0).local_uints)).CreatedApplicationID
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_uint64(uint64,byte[])void"), 0_arc4u64, arc4_encode(bzero(8u), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dynamic_bytes(byte[],byte[])void"), arc4_encode(hex<"48656C6C6F20576F726C64">, arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"000B48656C6C6F20576F726C64">, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_string(string,byte[])void"), 'Hello World', arc4_encode(hex<"000B48656C6C6F20576F726C64">, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_biguint(uint512,byte[])void"), arc4_encode(0n, arc4.uint512), arc4_encode(bzero(64u), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_bool(bool,byte[])void"), true, arc4_encode(hex<"80">, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(abi_call(signature={name="check_uint64",args=(arc4.uint64,bytes),result=void}, args=0_arc4u64, bzero(8u), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_dynamic_bytes",args=(arc4.dynamic_array<arc4.uint8>,bytes),result=void}, args=arc4_encode(hex<"48656C6C6F20576F726C64">, arc4.dynamic_array<arc4.uint8>), hex<"000B48656C6C6F20576F726C64">, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_string",args=(arc4.dynamic_array<arc4.uint8>,bytes),result=void}, args='Hello World', hex<"000B48656C6C6F20576F726C64">, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_biguint",args=(arc4.uint512,bytes),result=void}, args=0n, bzero(64u), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_bool",args=(arc4.bool,bytes),result=void}, args=true, hex<"80">, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="delete_application",args=(),result=void}, args=, fields=TxnField.ApplicationID=app, TxnField.OnCompletion=DeleteApplication))
   }
   
   abimethod test_cases.arc4_conversions.contract.TestContract.test_native_encoding(): void
   {
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=4)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=3).clear_state_program)[0], SINGLE_EVAL(id=5)[1]), ExtraProgramPages=SINGLE_EVAL(id=3).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=3).global_bytes, GlobalNumUint=SINGLE_EVAL(id=3).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=3).local_bytes, LocalNumUint=SINGLE_EVAL(id=3).local_uints)).CreatedApplicationID
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_uint64(uint64,byte[])void"), arc4_encode(txn<NumAppArgs>() - 1u, arc4.uint64), arc4_encode(bzero(8u), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dynamic_bytes(byte[],byte[])void"), arc4_encode(txna<ApplicationArgs, 0>(), arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"0004"> + txna<ApplicationArgs, 0>(), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_string(string,byte[])void"), arc4_encode('Hello World', arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"000B48656C6C6F20576F726C64">, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_biguint(uint512,byte[])void"), arc4_encode(0n, arc4.uint512), arc4_encode(bzero(64u), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_bool(bool,byte[])void"), arc4_encode(txn<NumAppArgs>() == 1u, arc4.bool), arc4_encode(hex<"80">, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(abi_call(signature={name="check_uint64",args=(arc4.uint64,bytes),result=void}, args=txn<NumAppArgs>() - 1u, bzero(8u), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_dynamic_bytes",args=(arc4.dynamic_array<arc4.uint8>,bytes),result=void}, args=txna<ApplicationArgs, 0>(), hex<"0004"> + txna<ApplicationArgs, 0>(), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_string",args=(arc4.dynamic_array<arc4.uint8>,bytes),result=void}, args='Hello World', hex<"000B48656C6C6F20576F726C64">, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_biguint",args=(arc4.uint512,bytes),result=void}, args=0n, bzero(64u), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_bool",args=(arc4.bool,bytes),result=void}, args=txn<NumAppArgs>() == 1u, hex<"80">, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="delete_application",args=(),result=void}, args=, fields=TxnField.ApplicationID=app, TxnField.OnCompletion=DeleteApplication))
   }
   
   abimethod test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(): void
   {
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=7)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=8, source=SINGLE_EVAL(id=6).clear_state_program)[0], SINGLE_EVAL(id=8)[1]), ExtraProgramPages=SINGLE_EVAL(id=6).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=6).global_bytes, GlobalNumUint=SINGLE_EVAL(id=6).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=6).local_bytes, LocalNumUint=SINGLE_EVAL(id=6).local_uints)).CreatedApplicationID
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_uint64(uint64,byte[])void"), 0_arc4u64, arc4_encode(bzero(8u), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dynamic_bytes(byte[],byte[])void"), arc4_encode(txna<ApplicationArgs, 0>(), arc4.dynamic_array<arc4.uint8>), arc4_encode(hex<"0004"> + txna<ApplicationArgs, 0>(), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_string(string,byte[])void"), 'Hello World', arc4_encode(hex<"000B48656C6C6F20576F726C64">, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_biguint(uint512,byte[])void"), 0_arc4u512, arc4_encode(bzero(64u), arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_bool(bool,byte[])void"), arc4_encode(txn<NumAppArgs>() == 1u, arc4.bool), arc4_encode(hex<"80">, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(abi_call(signature={name="check_uint64",args=(arc4.uint64,bytes),result=void}, args=0_arc4u64, bzero(8u), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_dynamic_bytes",args=(arc4.dynamic_array<arc4.uint8>,bytes),result=void}, args=arc4_encode(txna<ApplicationArgs, 0>(), arc4.dynamic_array<arc4.uint8>), hex<"0004"> + txna<ApplicationArgs, 0>(), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_string",args=(arc4.dynamic_array<arc4.uint8>,bytes),result=void}, args='Hello World', hex<"000B48656C6C6F20576F726C64">, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_biguint",args=(arc4.uint512,bytes),result=void}, args=0_arc4u512, bzero(64u), fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_bool",args=(arc4.bool,bytes),result=void}, args=arc4_encode(txn<NumAppArgs>() == 1u, arc4.bool), hex<"80">, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="delete_application",args=(),result=void}, args=, fields=TxnField.ApplicationID=app, TxnField.OnCompletion=DeleteApplication))
   }
   
   abimethod test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding(): void
@@ -139,10 +139,10 @@ contract TestContract
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=10, source=SINGLE_EVAL(id=9, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=10)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=11, source=SINGLE_EVAL(id=9).clear_state_program)[0], SINGLE_EVAL(id=11)[1]), ExtraProgramPages=SINGLE_EVAL(id=9).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=9).global_bytes, GlobalNumUint=SINGLE_EVAL(id=9).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=9).local_bytes, LocalNumUint=SINGLE_EVAL(id=9).local_uints)).CreatedApplicationID
     arr: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u)
     expected_bytes: bytes = hex<"0003"> + bzero(7u) + hex<"01"> + bzero(7u) + hex<"02"> + bzero(7u) + hex<"03">
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_uin64(uint64[],byte[])void"), arc4_encode(arr, arc4.dynamic_array<arc4.uint64>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_uin64(uint64[],byte[])void"), arc4_encode((txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u), arc4.dynamic_array<arc4.uint64>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_static_array_uin64_3(uint64[3],byte[])void"), arc4_encode((txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u), arc4.static_array<arc4.uint64, 3>), arc4_encode(expected_bytes[2:], arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(abi_call(signature={name="check_dyn_array_uin64",args=(arc4.dynamic_array<arc4.uint64>,bytes),result=void}, args=arr, expected_bytes, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_dyn_array_uin64",args=(arc4.dynamic_array<arc4.uint64>,bytes),result=void}, args=(txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u), expected_bytes, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_static_array_uin64_3",args=(arc4.static_array<arc4.uint64, 3>,bytes),result=void}, args=(txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u), expected_bytes[2:], fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="delete_application",args=(),result=void}, args=, fields=TxnField.ApplicationID=app, TxnField.OnCompletion=DeleteApplication))
   }
   
   abimethod test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding(): void
@@ -150,9 +150,9 @@ contract TestContract
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=13, source=SINGLE_EVAL(id=12, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=13)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=14, source=SINGLE_EVAL(id=12).clear_state_program)[0], SINGLE_EVAL(id=14)[1]), ExtraProgramPages=SINGLE_EVAL(id=12).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=12).global_bytes, GlobalNumUint=SINGLE_EVAL(id=12).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=12).local_bytes, LocalNumUint=SINGLE_EVAL(id=12).local_uints)).CreatedApplicationID
     arr: arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStruct> = new arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStruct>(test_cases.arc4_conversions.contract.my_struct(1u), test_cases.arc4_conversions.contract.my_struct(2u), test_cases.arc4_conversions.contract.my_struct(3u))
     expected_bytes: bytes = hex<"0003"> + bzero(7u) + hex<"01"> + reinterpret_cast<bytes>(txn<Sender>()) + bzero(7u) + hex<"02"> + reinterpret_cast<bytes>(txn<Sender>()) + bzero(7u) + hex<"03"> + reinterpret_cast<bytes>(txn<Sender>())
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_struct((uint64,address)[],byte[])void"), arc4_encode(arr, arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_static_array_struct((uint64,address)[3],byte[])void"), arc4_encode((test_cases.arc4_conversions.contract.my_struct(1u), test_cases.arc4_conversions.contract.my_struct(2u), test_cases.arc4_conversions.contract.my_struct(3u)), arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>), arc4_encode(expected_bytes[2:], arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(abi_call(signature={name="check_dyn_array_struct",args=(arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4>,bytes),result=void}, args=arr, expected_bytes, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_static_array_struct",args=(arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>,bytes),result=void}, args=(test_cases.arc4_conversions.contract.my_struct(1u), test_cases.arc4_conversions.contract.my_struct(2u), test_cases.arc4_conversions.contract.my_struct(3u)), expected_bytes[2:], fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="delete_application",args=(),result=void}, args=, fields=TxnField.ApplicationID=app, TxnField.OnCompletion=DeleteApplication))
   }
   
   abimethod test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding(): void
@@ -160,10 +160,10 @@ contract TestContract
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=16, source=SINGLE_EVAL(id=15, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=16)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=17, source=SINGLE_EVAL(id=15).clear_state_program)[0], SINGLE_EVAL(id=17)[1]), ExtraProgramPages=SINGLE_EVAL(id=15).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=15).global_bytes, GlobalNumUint=SINGLE_EVAL(id=15).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=15).local_bytes, LocalNumUint=SINGLE_EVAL(id=15).local_uints)).CreatedApplicationID
     arr: arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStruct> = new arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStruct>(test_cases.arc4_conversions.contract.my_dyn_struct(1u), test_cases.arc4_conversions.contract.my_dyn_struct(2u), test_cases.arc4_conversions.contract.my_dyn_struct(3u))
     expected_bytes: bytes = reinterpret_cast<bytes>(new arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>(test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(3u)))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void"), arc4_encode(arr, arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
+    submit_txn(abi_call(signature={name="check_dyn_array_dyn_struct",args=(arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>,bytes),result=void}, args=arr, expected_bytes, fields=TxnField.ApplicationID=app))
     expected_bytes: bytes = reinterpret_cast<bytes>(new arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>(test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(3u)))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void"), arc4_encode((test_cases.arc4_conversions.contract.my_dyn_struct(1u), test_cases.arc4_conversions.contract.my_dyn_struct(2u), test_cases.arc4_conversions.contract.my_dyn_struct(3u)), arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(abi_call(signature={name="check_static_array_dyn_struct",args=(arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>,bytes),result=void}, args=(test_cases.arc4_conversions.contract.my_dyn_struct(1u), test_cases.arc4_conversions.contract.my_dyn_struct(2u), test_cases.arc4_conversions.contract.my_dyn_struct(3u)), expected_bytes, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="delete_application",args=(),result=void}, args=, fields=TxnField.ApplicationID=app, TxnField.OnCompletion=DeleteApplication))
   }
   
   abimethod test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(wrong_size: bool): void
@@ -173,8 +173,8 @@ contract TestContract
     if (wrong_size) {
       sender: bytes = sender + sender
     }
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_static_bytes(byte[32])void"), arc4_encode(sender, arc4.static_array<arc4.uint8, 32>)), ApplicationID=app))
-    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete_application()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+    submit_txn(abi_call(signature={name="check_static_bytes",args=(arc4.static_array<arc4.uint8, 32>),result=void}, args=sender, fields=TxnField.ApplicationID=app))
+    submit_txn(abi_call(signature={name="delete_application",args=(),result=void}, args=, fields=TxnField.ApplicationID=app, TxnField.OnCompletion=DeleteApplication))
   }
   
   baremethod test_cases.arc4_conversions.contract.TestContract.__algopy_default_create(): void
