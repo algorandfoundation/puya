@@ -729,7 +729,7 @@ def _map_abi_call_to_txn_fields(
     return (fields, itxn_group)
 
 
-def _get_method_signature(call: awst_nodes.ABICall) -> awst_nodes.MethodSignature:
+def _get_method_signature(call: awst_nodes.ABICall) -> awst_nodes.MethodSignature | None:
     match call.target:
         case awst_nodes.MethodSignature() as sig:
             return sig
@@ -779,13 +779,18 @@ def _get_method_signature(call: awst_nodes.ABICall) -> awst_nodes.MethodSignatur
                     location=loc,
                 )
             return target
+        case None:
+            return None
         case never:
             typing.assert_never(never)
 
 
 def _get_arc4_args(
-    signature: awst_nodes.MethodSignature, args: Sequence[awst_nodes.Expression]
+    signature: awst_nodes.MethodSignature | None, args: Sequence[awst_nodes.Expression]
 ) -> Sequence[awst_nodes.Expression]:
+    if signature is None:
+        return []
+
     num_args = len(args)
     num_arg_types = len(signature.arg_types)
     if num_args != num_arg_types:
@@ -846,7 +851,7 @@ def _get_arc4_args(
 
 
 def _parse_args(
-    signature: awst_nodes.MethodSignature, args: Sequence[awst_nodes.Expression]
+    signature: awst_nodes.MethodSignature | None, args: Sequence[awst_nodes.Expression]
 ) -> tuple[
     Mapping[txn_fields.TxnField, list[awst_nodes.Expression]],
     Sequence[awst_nodes.Expression],
@@ -860,6 +865,8 @@ def _parse_args(
             txn_fields.TxnField.Assets: [],
         }
     )
+    if signature is None:
+        return (array_fields, group)
     abi_signature = method_signature_to_abi_signature(signature)
     array_fields[txn_fields.TxnField.ApplicationArgs].append(
         awst_nodes.MethodConstant(
