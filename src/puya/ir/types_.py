@@ -1,12 +1,13 @@
 import abc
 import enum
+import re
 import typing
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from functools import cached_property
 
 import attrs
 
-from puya.avm import AVMType
+from puya.avm import AVMType, TransactionType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -474,18 +475,27 @@ _RESOURCE_INDEX_TO_VALUE = {
     wtypes.application_wtype: wtypes.uint64_wtype,
     wtypes.asset_wtype: wtypes.uint64_wtype,
 }
-_BASIC_TYPES_TO_ABI_NAME = {
-    wtypes.account_wtype: "account",
-    wtypes.application_wtype: "application",
-    wtypes.asset_wtype: "asset",
-    wtypes.biguint_wtype: "uint512",
-    wtypes.bool_wtype: "bool",
-    wtypes.uint64_wtype: "uint64",
-    wtypes.string_wtype: "string",
-    # address is not a basic type, but appears if account is mapped to a value type
-    wtypes.arc4_address_alias: "address",
-    wtypes.void_wtype: "void",
+_ABI_NAME_TO_WTYPE = {
+    "bool": wtypes.bool_wtype,
+    "string": wtypes.string_wtype,
+    "account": wtypes.account_wtype,
+    "application": wtypes.application_wtype,
+    "asset": wtypes.asset_wtype,
+    "void": wtypes.void_wtype,
+    "txn": wtypes.WGroupTransaction(transaction_type=None),
+    **{t.name: wtypes.WGroupTransaction(transaction_type=t) for t in TransactionType},
+    "address": wtypes.arc4_address_alias,
+    "byte": wtypes.arc4_byte_alias,
+    "byte[]": wtypes.BytesWType(length=None),
+    "uint64": wtypes.uint64_wtype,
+    "uint512": wtypes.biguint_wtype,
 }
+_WTYPE_TO_ABI_NAME = {v: k for k, v in _ABI_NAME_TO_WTYPE.items()}
+_UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
+_UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
+_FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
+_DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
+_TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
 
 
 class _WTypeToABIName(WTypeVisitor[str]):
@@ -502,7 +512,7 @@ class _WTypeToABIName(WTypeVisitor[str]):
             wtype = _RESOURCE_INDEX_TO_VALUE.get(wtype, wtype)
 
         try:
-            return _BASIC_TYPES_TO_ABI_NAME[wtype]
+            return _WTYPE_TO_ABI_NAME[wtype]
         except KeyError:
             self._unencodable(wtype)
 
@@ -574,3 +584,49 @@ class _WTypeToABIName(WTypeVisitor[str]):
 
     def _unencodable(self, wtype: wtypes.WType) -> typing.Never:
         raise CodeError(f"unencodable type: {wtype}", self.loc)
+
+
+def abi_name_to_wtype(typ: str, location: SourceLocation | None = None) -> wtypes.WType:
+    if known_typ := _ABI_NAME_TO_WTYPE.get(typ):
+        return known_typ
+    if uint := _UINT_REGEX.match(typ):
+        n = int(uint.group("n"))
+        return wtypes.ARC4UIntN(n=n, source_location=location)
+    if ufixed := _UFIXED_REGEX.match(typ):
+        n, m = map(int, ufixed.group("n", "m"))
+        return wtypes.ARC4UFixedNxM(n=n, m=m, source_location=location)
+    if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
+        arr_type, size_str = fixed_array.group("type", "size")
+        size = int(size_str)
+        element_type = abi_name_to_wtype(arr_type, location)
+        return wtypes.ARC4StaticArray(
+            element_type=element_type, array_size=size, source_location=location
+        )
+    if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
+        arr_type = dynamic_array.group("type")
+        element_type = abi_name_to_wtype(arr_type, location)
+        return wtypes.ARC4DynamicArray(element_type=element_type, source_location=location)
+    if tuple_match := _TUPLE_REGEX.match(typ):
+        tuple_types = [
+            abi_name_to_wtype(x, location) for x in split_tuple_types(tuple_match.group("types"))
+        ]
+        return wtypes.ARC4Tuple(types=tuple_types, source_location=location)
+    raise CodeError(f"unknown ABI type '{typ}'", location)
+
+
+def split_tuple_types(types: str) -> Iterable[str]:
+    """Splits inner tuple types into individual elements.
+
+    e.g. "uint64,(uint8,string),bool" becomes ["uint64", "(uint8,string)", "bool"]
+    """
+    tuple_level = 0
+    last_idx = 0
+    for idx, tok in enumerate(types):
+        if tok == "(":
+            tuple_level += 1
+        elif tok == ")":
+            tuple_level -= 1
+        if tok == "," and tuple_level == 0:
+            yield types[last_idx:idx]
+            last_idx = idx + 1
+    yield types[last_idx:]

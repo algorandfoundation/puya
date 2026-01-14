@@ -346,6 +346,8 @@ class _UInt64Codec(_ScalarCodec):
     ) -> ir.ValueProvider | None:
         match encoding:
             case encodings.UIntEncoding(n=bits):
+                if isinstance(value, ir.UInt64Constant) and value.value >= (1 << bits):
+                    return None
                 num_bytes = bits // 8
                 return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
         return None
