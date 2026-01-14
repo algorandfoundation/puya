@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 6 2 8
-    bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x9bf81913 0x0000000000000001 0x16e03919 0x00027331 0x00026231 0x01 0xb4b4334e 0xd8cc363b 0x0000000000000001000a00056c6f672031 0xa9fb6cf1 "echo: s1" 0x0000000000000003 0x4a444c77 0x000173 0x2659e818 0x000162 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x00 0x48142d5e 0x0000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x0f101112deadbeef14 0x6563686f3a206231 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x000000000000002a 0xddd07185
+    bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x9bf81913 0x16e03919 0x00027331 0x00026231 0x0000000000000001 0x01 0xb4b4334e 0xd8cc363b 0x0000000000000001000a00056c6f672031 0xa9fb6cf1 "echo: s1" 0x0000000000000003 0x4a444c77 0x000173 0x2659e818 0x000162 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x00 0x48142d5e 0x0000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x0f101112deadbeef14 0x6563686f3a206231 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x000000000000002a 0xddd07185
     // typed_itxn_abi_call/typed_c2c.py:25
     // class Greeter(ARC4Contract):
     txn NumAppArgs
@@ -165,8 +165,8 @@ test_method_selector_kinds:
     pushbytes 0x000b6563686f3a207465737432
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:42
-    // result = itxn.abi_call[arc4.String]("echo", "test3", app_id=app).submit().result
+    // typed_itxn_abi_call/typed_c2c.py:43
+    // itxn.abi_call[arc4.String]("echo", arc4.String("test3"), app_id=app).submit().result
     itxn_begin
     dup
     itxn_field ApplicationID
@@ -195,12 +195,12 @@ test_method_selector_kinds:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // typed_itxn_abi_call/typed_c2c.py:43
+    // typed_itxn_abi_call/typed_c2c.py:45
     // assert result == "echo: test3"
     pushbytes 0x000b6563686f3a207465737433
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:44
+    // typed_itxn_abi_call/typed_c2c.py:46
     // result = itxn.abi_call[arc4.String]("echo(string)", "test4", app_id=app).submit().result
     itxn_begin
     dup
@@ -230,12 +230,12 @@ test_method_selector_kinds:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // typed_itxn_abi_call/typed_c2c.py:45
+    // typed_itxn_abi_call/typed_c2c.py:47
     // assert result == "echo: test4"
     pushbytes 0x000b6563686f3a207465737434
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:47
+    // typed_itxn_abi_call/typed_c2c.py:49
     // itxn.abi_call[arc4.String]("echo(string)string", "test5", app_id=app).submit().result
     itxn_begin
     itxn_field ApplicationID
@@ -264,7 +264,7 @@ test_method_selector_kinds:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // typed_itxn_abi_call/typed_c2c.py:49
+    // typed_itxn_abi_call/typed_c2c.py:51
     // assert result == "echo: test5"
     pushbytes 0x000b6563686f3a207465737435
     ==
@@ -277,7 +277,7 @@ test_method_selector_kinds:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_overload[routing]() -> void:
 test_method_overload:
-    // typed_itxn_abi_call/typed_c2c.py:51
+    // typed_itxn_abi_call/typed_c2c.py:53
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -286,7 +286,7 @@ test_method_overload:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:53
+    // typed_itxn_abi_call/typed_c2c.py:55
     // itxn.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app).submit()
     itxn_begin
     dup
@@ -300,7 +300,7 @@ test_method_overload:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:54
+    // typed_itxn_abi_call/typed_c2c.py:56
     // assert arc4.String.from_log(op.ITxn.last_log()) == "echo: typed + ignore"
     itxn LastLog
     dup
@@ -321,7 +321,7 @@ test_method_overload:
     pushbytes 0x00146563686f3a207479706564202b2069676e6f7265
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:56
+    // typed_itxn_abi_call/typed_c2c.py:58
     // itxn.abi_call("echo(string)string", "untyped + ignore", app_id=app).submit()
     itxn_begin
     dup
@@ -335,7 +335,7 @@ test_method_overload:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:57
+    // typed_itxn_abi_call/typed_c2c.py:59
     // assert arc4.String.from_log(op.ITxn.last_log()) == "echo: untyped + ignore"
     itxn LastLog
     dup
@@ -356,7 +356,7 @@ test_method_overload:
     pushbytes 0x00166563686f3a20756e7479706564202b2069676e6f7265
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:59
+    // typed_itxn_abi_call/typed_c2c.py:61
     // result = itxn.abi_call[arc4.String]("echo(string)string", "tuple", app_id=app).submit()
     itxn_begin
     dup
@@ -371,7 +371,7 @@ test_method_overload:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:60
+    // typed_itxn_abi_call/typed_c2c.py:62
     // assert result.result == "echo: tuple"
     dup
     extract 0 4
@@ -391,7 +391,7 @@ test_method_overload:
     pushbytes 0x000b6563686f3a207475706c65
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:63
+    // typed_itxn_abi_call/typed_c2c.py:65
     // txn_result = itxn.abi_call("echo(string)string", "untyped", app_id=app).submit()
     itxn_begin
     itxn_field ApplicationID
@@ -405,7 +405,7 @@ test_method_overload:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:64
+    // typed_itxn_abi_call/typed_c2c.py:66
     // assert arc4.String.from_log(txn_result.last_log) == "echo: untyped"
     dup
     extract 0 4
@@ -425,7 +425,7 @@ test_method_overload:
     pushbytes 0x000d6563686f3a20756e7479706564
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:51
+    // typed_itxn_abi_call/typed_c2c.py:53
     // @arc4.abimethod()
     pushint 1
     return
@@ -433,7 +433,7 @@ test_method_overload:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arg_conversion[routing]() -> void:
 test_arg_conversion:
-    // typed_itxn_abi_call/typed_c2c.py:66
+    // typed_itxn_abi_call/typed_c2c.py:68
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -442,7 +442,7 @@ test_arg_conversion:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:68
+    // typed_itxn_abi_call/typed_c2c.py:70
     // txn = itxn.abi_call(Logger.log_string, "converted1", app_id=app).submit()
     itxn_begin
     dup
@@ -457,12 +457,12 @@ test_arg_conversion:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:69
+    // typed_itxn_abi_call/typed_c2c.py:71
     // assert txn.last_log == b"converted1"
     pushbytes 0x636f6e76657274656431
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:71
+    // typed_itxn_abi_call/typed_c2c.py:73
     // txn = itxn.abi_call(Logger.log_uint64, 2, app_id=app).submit()
     itxn_begin
     dup
@@ -477,13 +477,13 @@ test_arg_conversion:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:72
+    // typed_itxn_abi_call/typed_c2c.py:74
     // assert txn.last_log == op.itob(2)
     intc_2 // 2
     itob
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:74
+    // typed_itxn_abi_call/typed_c2c.py:76
     // txn = itxn.abi_call(Logger.log_uint512, 3, app_id=app).submit()
     itxn_begin
     dup
@@ -498,12 +498,12 @@ test_arg_conversion:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:75
+    // typed_itxn_abi_call/typed_c2c.py:77
     // assert txn.last_log == (op.bzero(56) + op.itob(3))
     bytec 25 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:77
+    // typed_itxn_abi_call/typed_c2c.py:79
     // txn = itxn.abi_call(Logger.log_bytes, b"4", app_id=app).submit()
     itxn_begin
     dup
@@ -518,12 +518,12 @@ test_arg_conversion:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:78
+    // typed_itxn_abi_call/typed_c2c.py:80
     // assert txn.last_log == b"4"
     pushbytes 0x34
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:80
+    // typed_itxn_abi_call/typed_c2c.py:82
     // txn = itxn.abi_call(Logger.log_bool, True, app_id=app).submit()
     itxn_begin
     itxn_field ApplicationID
@@ -537,12 +537,12 @@ test_arg_conversion:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:81
+    // typed_itxn_abi_call/typed_c2c.py:83
     // assert txn.last_log == b"True"
     pushbytes 0x54727565
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:66
+    // typed_itxn_abi_call/typed_c2c.py:68
     // @arc4.abimethod()
     pushint 1
     return
@@ -550,7 +550,7 @@ test_arg_conversion:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_15plus_args[routing]() -> void:
 test_15plus_args:
-    // typed_itxn_abi_call/typed_c2c.py:83
+    // typed_itxn_abi_call/typed_c2c.py:85
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -559,7 +559,7 @@ test_15plus_args:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:86-112
+    // typed_itxn_abi_call/typed_c2c.py:88-114
     // itxn.abi_call(
     //     Logger.return_args_after_14th,
     //     1,
@@ -589,67 +589,67 @@ test_15plus_args:
     // .submit()
     itxn_begin
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:87
+    // typed_itxn_abi_call/typed_c2c.py:89
     // Logger.return_args_after_14th,
     pushbytes 0xba0b4381 // method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:88
+    // typed_itxn_abi_call/typed_c2c.py:90
     // 1,
-    bytec_3 // 0x0000000000000001
+    bytec 6 // 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:89
+    // typed_itxn_abi_call/typed_c2c.py:91
     // 2,
     bytec 24 // 0x0000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:90
+    // typed_itxn_abi_call/typed_c2c.py:92
     // 3,
     bytec 13 // 0x0000000000000003
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:91
+    // typed_itxn_abi_call/typed_c2c.py:93
     // 4,
     pushbytes 0x0000000000000004
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:92
+    // typed_itxn_abi_call/typed_c2c.py:94
     // 5,
     pushbytes 0x0000000000000005
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:93
+    // typed_itxn_abi_call/typed_c2c.py:95
     // 6,
     pushbytes 0x0000000000000006
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:94
+    // typed_itxn_abi_call/typed_c2c.py:96
     // 7,
     pushbytes 0x0000000000000007
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:95
+    // typed_itxn_abi_call/typed_c2c.py:97
     // 8,
     pushbytes 0x0000000000000008
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:96
+    // typed_itxn_abi_call/typed_c2c.py:98
     // 9,
     pushbytes 0x0000000000000009
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:97
+    // typed_itxn_abi_call/typed_c2c.py:99
     // 10,
     pushbytes 0x000000000000000a
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:98
+    // typed_itxn_abi_call/typed_c2c.py:100
     // 11,
     pushbytes 0x000000000000000b
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:99
+    // typed_itxn_abi_call/typed_c2c.py:101
     // 12,
     pushbytes 0x000000000000000c
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:100
+    // typed_itxn_abi_call/typed_c2c.py:102
     // 13,
     pushbytes 0x000000000000000d
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:101
+    // typed_itxn_abi_call/typed_c2c.py:103
     // 14,
     pushbytes 0x000000000000000e
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:102-109
+    // typed_itxn_abi_call/typed_c2c.py:104-111
     // 15,
     // 16,
     // 17,
@@ -660,7 +660,7 @@ test_15plus_args:
     // 20,
     bytec 26 // 0x0f101112deadbeef14
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:86-111
+    // typed_itxn_abi_call/typed_c2c.py:88-113
     // itxn.abi_call(
     //     Logger.return_args_after_14th,
     //     1,
@@ -691,7 +691,7 @@ test_15plus_args:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:86-112
+    // typed_itxn_abi_call/typed_c2c.py:88-114
     // itxn.abi_call(
     //     Logger.return_args_after_14th,
     //     1,
@@ -720,7 +720,7 @@ test_15plus_args:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:86-113
+    // typed_itxn_abi_call/typed_c2c.py:88-115
     // itxn.abi_call(
     //     Logger.return_args_after_14th,
     //     1,
@@ -766,13 +766,13 @@ test_15plus_args:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // typed_itxn_abi_call/typed_c2c.py:115
+    // typed_itxn_abi_call/typed_c2c.py:117
     // assert result.native == Bytes.from_hex("0F101112DEADBEEF14")
     extract 6 0
     bytec 26 // 0x0f101112deadbeef14
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:83
+    // typed_itxn_abi_call/typed_c2c.py:85
     // @arc4.abimethod()
     pushint 1
     return
@@ -780,7 +780,7 @@ test_15plus_args:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_void[routing]() -> void:
 test_void:
-    // typed_itxn_abi_call/typed_c2c.py:117
+    // typed_itxn_abi_call/typed_c2c.py:119
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -789,7 +789,7 @@ test_void:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:119
+    // typed_itxn_abi_call/typed_c2c.py:121
     // txn = itxn.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app).submit()
     itxn_begin
     dup
@@ -804,12 +804,12 @@ test_void:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:120
+    // typed_itxn_abi_call/typed_c2c.py:122
     // assert txn.last_log == b"World1"
     pushbytes 0x576f726c6431
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:122
+    // typed_itxn_abi_call/typed_c2c.py:124
     // txn = itxn.abi_call(LOG_METHOD_NAME + "(string)", "World2", app_id=app).submit()
     itxn_begin
     dup
@@ -824,12 +824,12 @@ test_void:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:123
+    // typed_itxn_abi_call/typed_c2c.py:125
     // assert txn.last_log == b"World2"
     pushbytes 0x576f726c6432
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:125
+    // typed_itxn_abi_call/typed_c2c.py:127
     // txn = itxn.abi_call(LOG_METHOD_NAME, arc4.String("World3"), app_id=app).submit()
     itxn_begin
     dup
@@ -844,12 +844,12 @@ test_void:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:126
+    // typed_itxn_abi_call/typed_c2c.py:128
     // assert txn.last_log == b"World3"
     pushbytes 0x576f726c6433
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:128
+    // typed_itxn_abi_call/typed_c2c.py:130
     // txn = itxn.abi_call(Logger.log_string, "World4", app_id=app).submit()
     itxn_begin
     itxn_field ApplicationID
@@ -863,12 +863,12 @@ test_void:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:129
+    // typed_itxn_abi_call/typed_c2c.py:131
     // assert txn.last_log == b"World4"
     pushbytes 0x576f726c6434
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:117
+    // typed_itxn_abi_call/typed_c2c.py:119
     // @arc4.abimethod()
     pushint 1
     return
@@ -876,7 +876,7 @@ test_void:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_ref_types[routing]() -> void:
 test_ref_types:
-    // typed_itxn_abi_call/typed_c2c.py:131
+    // typed_itxn_abi_call/typed_c2c.py:133
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -894,7 +894,7 @@ test_ref_types:
     assert // invalid number of bytes for arc4.uint64
     dup
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:133-139
+    // typed_itxn_abi_call/typed_c2c.py:135-141
     // txn = itxn.abi_call(
     //     Logger.log_asset_account_app,
     //     asset,
@@ -903,12 +903,12 @@ test_ref_types:
     //     app_id=app,
     // ).submit()
     itxn_begin
-    // typed_itxn_abi_call/typed_c2c.py:136
+    // typed_itxn_abi_call/typed_c2c.py:138
     // Global.current_application_address,
     global CurrentApplicationAddress
     dig 3
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:134
+    // typed_itxn_abi_call/typed_c2c.py:136
     // Logger.log_asset_account_app,
     pushbytes 0x46b50faf // method "log(uint64,address,uint64)void"
     itxn_field ApplicationArgs
@@ -917,7 +917,7 @@ test_ref_types:
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:133-139
+    // typed_itxn_abi_call/typed_c2c.py:135-141
     // txn = itxn.abi_call(
     //     Logger.log_asset_account_app,
     //     asset,
@@ -931,7 +931,7 @@ test_ref_types:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:142
+    // typed_itxn_abi_call/typed_c2c.py:144
     // == asset.name + Global.current_application_address.bytes + app.address.bytes
     swap
     asset_params_get AssetName
@@ -942,17 +942,17 @@ test_ref_types:
     app_params_get AppAddress
     assert // application exists
     concat
-    // typed_itxn_abi_call/typed_c2c.py:141-142
+    // typed_itxn_abi_call/typed_c2c.py:143-144
     // txn.last_log
     // == asset.name + Global.current_application_address.bytes + app.address.bytes
     ==
-    // typed_itxn_abi_call/typed_c2c.py:140-143
+    // typed_itxn_abi_call/typed_c2c.py:142-145
     // assert (
     //     txn.last_log
     //     == asset.name + Global.current_application_address.bytes + app.address.bytes
     // )
     assert
-    // typed_itxn_abi_call/typed_c2c.py:131
+    // typed_itxn_abi_call/typed_c2c.py:133
     // @arc4.abimethod()
     pushint 1
     return
@@ -960,7 +960,7 @@ test_ref_types:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_account_to_address[routing]() -> void:
 test_account_to_address:
-    // typed_itxn_abi_call/typed_c2c.py:145
+    // typed_itxn_abi_call/typed_c2c.py:147
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -969,24 +969,24 @@ test_account_to_address:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:147-151
+    // typed_itxn_abi_call/typed_c2c.py:149-153
     // txn = itxn.abi_call(
     //     Logger.log_address,
     //     Global.current_application_address,
     //     app_id=app,
     // ).submit()
     itxn_begin
-    // typed_itxn_abi_call/typed_c2c.py:149
+    // typed_itxn_abi_call/typed_c2c.py:151
     // Global.current_application_address,
     global CurrentApplicationAddress
     swap
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:148
+    // typed_itxn_abi_call/typed_c2c.py:150
     // Logger.log_address,
     pushbytes 0x0437b17e // method "log(address)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:147-151
+    // typed_itxn_abi_call/typed_c2c.py:149-153
     // txn = itxn.abi_call(
     //     Logger.log_address,
     //     Global.current_application_address,
@@ -998,12 +998,12 @@ test_account_to_address:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:152
+    // typed_itxn_abi_call/typed_c2c.py:154
     // assert txn.last_log == Global.current_application_address.bytes
     global CurrentApplicationAddress
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:145
+    // typed_itxn_abi_call/typed_c2c.py:147
     // @arc4.abimethod()
     pushint 1
     return
@@ -1011,7 +1011,7 @@ test_account_to_address:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_string[routing]() -> void:
 test_native_string:
-    // typed_itxn_abi_call/typed_c2c.py:154
+    // typed_itxn_abi_call/typed_c2c.py:156
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1020,7 +1020,7 @@ test_native_string:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:156
+    // typed_itxn_abi_call/typed_c2c.py:158
     // result1 = itxn.abi_call(Logger.echo_native_string, "s", app_id=app).submit().result
     itxn_begin
     dup
@@ -1052,24 +1052,24 @@ test_native_string:
     ==
     assert // invalid number of bytes for string
     extract 6 0
-    // typed_itxn_abi_call/typed_c2c.py:157
+    // typed_itxn_abi_call/typed_c2c.py:159
     // assert result1 == "echo: s"
     dup
     pushbytes "echo: s"
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:159
+    // typed_itxn_abi_call/typed_c2c.py:161
     // result2 = itxn.abi_call(Logger.echo_native_string, String("s"), app_id=app).submit().result
     itxn_begin
     dig 1
     itxn_field ApplicationID
     bytec 14 // method "echo_native_string(string)string"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:156
+    // typed_itxn_abi_call/typed_c2c.py:158
     // result1 = itxn.abi_call(Logger.echo_native_string, "s", app_id=app).submit().result
     bytec 15 // 0x000173
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:159
+    // typed_itxn_abi_call/typed_c2c.py:161
     // result2 = itxn.abi_call(Logger.echo_native_string, String("s"), app_id=app).submit().result
     intc_1 // appl
     itxn_field TypeEnum
@@ -1094,23 +1094,23 @@ test_native_string:
     ==
     assert // invalid number of bytes for string
     extract 6 0
-    // typed_itxn_abi_call/typed_c2c.py:160
+    // typed_itxn_abi_call/typed_c2c.py:162
     // assert result2 == result1
     dig 1
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:163
+    // typed_itxn_abi_call/typed_c2c.py:165
     // itxn.abi_call(Logger.echo_native_string, arc4.String("s"), app_id=app).submit().result
     itxn_begin
     swap
     itxn_field ApplicationID
     bytec 14 // method "echo_native_string(string)string"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:156
+    // typed_itxn_abi_call/typed_c2c.py:158
     // result1 = itxn.abi_call(Logger.echo_native_string, "s", app_id=app).submit().result
     bytec 15 // 0x000173
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:163
+    // typed_itxn_abi_call/typed_c2c.py:165
     // itxn.abi_call(Logger.echo_native_string, arc4.String("s"), app_id=app).submit().result
     intc_1 // appl
     itxn_field TypeEnum
@@ -1135,11 +1135,11 @@ test_native_string:
     ==
     assert // invalid number of bytes for string
     extract 6 0
-    // typed_itxn_abi_call/typed_c2c.py:165
+    // typed_itxn_abi_call/typed_c2c.py:167
     // assert result3 == result1
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:154
+    // typed_itxn_abi_call/typed_c2c.py:156
     // @arc4.abimethod()
     pushint 1
     return
@@ -1147,7 +1147,7 @@ test_native_string:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_bytes[routing]() -> void:
 test_native_bytes:
-    // typed_itxn_abi_call/typed_c2c.py:167
+    // typed_itxn_abi_call/typed_c2c.py:169
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1156,7 +1156,7 @@ test_native_bytes:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:169
+    // typed_itxn_abi_call/typed_c2c.py:171
     // result1 = itxn.abi_call(Logger.echo_native_bytes, b"b", app_id=app).submit().result
     itxn_begin
     dup
@@ -1188,24 +1188,24 @@ test_native_bytes:
     ==
     assert // invalid number of bytes for bytes
     extract 6 0
-    // typed_itxn_abi_call/typed_c2c.py:170
+    // typed_itxn_abi_call/typed_c2c.py:172
     // assert result1 == b"echo: b"
     dup
     pushbytes 0x6563686f3a2062
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:172
+    // typed_itxn_abi_call/typed_c2c.py:174
     // result2 = itxn.abi_call(Logger.echo_native_bytes, Bytes(b"b"), app_id=app).submit().result
     itxn_begin
     dig 1
     itxn_field ApplicationID
     bytec 16 // method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:169
+    // typed_itxn_abi_call/typed_c2c.py:171
     // result1 = itxn.abi_call(Logger.echo_native_bytes, b"b", app_id=app).submit().result
     bytec 17 // 0x000162
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:172
+    // typed_itxn_abi_call/typed_c2c.py:174
     // result2 = itxn.abi_call(Logger.echo_native_bytes, Bytes(b"b"), app_id=app).submit().result
     intc_1 // appl
     itxn_field TypeEnum
@@ -1230,36 +1230,36 @@ test_native_bytes:
     ==
     assert // invalid number of bytes for bytes
     extract 6 0
-    // typed_itxn_abi_call/typed_c2c.py:173
+    // typed_itxn_abi_call/typed_c2c.py:175
     // assert result2 == result1
     dig 1
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:176-177
+    // typed_itxn_abi_call/typed_c2c.py:178-179
     // itxn.abi_call(Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app)
     // .submit()
     itxn_begin
     swap
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:176
+    // typed_itxn_abi_call/typed_c2c.py:178
     // itxn.abi_call(Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app)
     bytec 16 // method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:169
+    // typed_itxn_abi_call/typed_c2c.py:171
     // result1 = itxn.abi_call(Logger.echo_native_bytes, b"b", app_id=app).submit().result
     bytec 17 // 0x000162
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:176
+    // typed_itxn_abi_call/typed_c2c.py:178
     // itxn.abi_call(Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app)
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:176-177
+    // typed_itxn_abi_call/typed_c2c.py:178-179
     // itxn.abi_call(Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:176-178
+    // typed_itxn_abi_call/typed_c2c.py:178-180
     // itxn.abi_call(Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app)
     // .submit()
     // .result
@@ -1281,11 +1281,11 @@ test_native_bytes:
     ==
     assert // invalid number of bytes for bytes
     extract 6 0
-    // typed_itxn_abi_call/typed_c2c.py:180
+    // typed_itxn_abi_call/typed_c2c.py:182
     // assert result3 == result1
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:167
+    // typed_itxn_abi_call/typed_c2c.py:169
     // @arc4.abimethod()
     pushint 1
     return
@@ -1293,7 +1293,7 @@ test_native_bytes:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_uint64[routing]() -> void:
 test_native_uint64:
-    // typed_itxn_abi_call/typed_c2c.py:182
+    // typed_itxn_abi_call/typed_c2c.py:184
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1302,7 +1302,7 @@ test_native_uint64:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:184
+    // typed_itxn_abi_call/typed_c2c.py:186
     // result1 = itxn.abi_call(Logger.echo_native_uint64, 1, app_id=app).submit().result
     itxn_begin
     pushint 1
@@ -1331,20 +1331,20 @@ test_native_uint64:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:185
+    // typed_itxn_abi_call/typed_c2c.py:187
     // assert result1 == 2
     dup
     intc_2 // 2
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:187
+    // typed_itxn_abi_call/typed_c2c.py:189
     // result2 = itxn.abi_call(Logger.echo_native_uint64, UInt64(1), app_id=app).submit().result
     itxn_begin
     dig 2
     itxn_field ApplicationID
     bytec 11 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
-    swap
+    dig 1
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1364,19 +1364,19 @@ test_native_uint64:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:188
+    // typed_itxn_abi_call/typed_c2c.py:190
     // assert result2 == result1
     dig 1
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:191
+    // typed_itxn_abi_call/typed_c2c.py:193
     // itxn.abi_call(Logger.echo_native_uint64, arc4.UInt64(1), app_id=app).submit().result
     itxn_begin
-    dig 1
+    dig 2
     itxn_field ApplicationID
     bytec 11 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
-    bytec_3 // 0x0000000000000001
+    bytec 6 // 0x0000000000000001
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
@@ -1396,32 +1396,32 @@ test_native_uint64:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:193
+    // typed_itxn_abi_call/typed_c2c.py:195
     // assert result3 == result1
     dig 1
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:196-197
+    // typed_itxn_abi_call/typed_c2c.py:198-199
     // itxn.abi_call[UInt64]("echo_native_uint64(uint64)uint64", 1, app_id=app)
     // .submit()
     itxn_begin
-    swap
+    uncover 2
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:196
+    // typed_itxn_abi_call/typed_c2c.py:198
     // itxn.abi_call[UInt64]("echo_native_uint64(uint64)uint64", 1, app_id=app)
     bytec 11 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
-    bytec_3 // 0x0000000000000001
+    swap
     itxn_field ApplicationArgs
     intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:196-197
+    // typed_itxn_abi_call/typed_c2c.py:198-199
     // itxn.abi_call[UInt64]("echo_native_uint64(uint64)uint64", 1, app_id=app)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:196-198
+    // typed_itxn_abi_call/typed_c2c.py:198-200
     // itxn.abi_call[UInt64]("echo_native_uint64(uint64)uint64", 1, app_id=app)
     // .submit()
     // .result
@@ -1438,11 +1438,11 @@ test_native_uint64:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:200
+    // typed_itxn_abi_call/typed_c2c.py:202
     // assert result4 == result1
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:182
+    // typed_itxn_abi_call/typed_c2c.py:184
     // @arc4.abimethod()
     pushint 1
     return
@@ -1450,7 +1450,7 @@ test_native_uint64:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[routing]() -> void:
 test_native_biguint:
-    // typed_itxn_abi_call/typed_c2c.py:202
+    // typed_itxn_abi_call/typed_c2c.py:204
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1459,7 +1459,7 @@ test_native_biguint:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:204
+    // typed_itxn_abi_call/typed_c2c.py:206
     // result1 = itxn.abi_call(Logger.echo_native_biguint, 2, app_id=app).submit().result
     itxn_begin
     dup
@@ -1485,24 +1485,24 @@ test_native_biguint:
     pushint 64
     ==
     assert // invalid number of bytes for biguint
-    // typed_itxn_abi_call/typed_c2c.py:205
+    // typed_itxn_abi_call/typed_c2c.py:207
     // assert result1 == 3
     dup
     bytec 18 // 0x03
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:207
+    // typed_itxn_abi_call/typed_c2c.py:209
     // result2 = itxn.abi_call(Logger.echo_native_biguint, BigUInt(2), app_id=app).submit().result
     itxn_begin
     dig 1
     itxn_field ApplicationID
     bytec 9 // method "echo_native_biguint(uint512)uint512"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:204
+    // typed_itxn_abi_call/typed_c2c.py:206
     // result1 = itxn.abi_call(Logger.echo_native_biguint, 2, app_id=app).submit().result
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:207
+    // typed_itxn_abi_call/typed_c2c.py:209
     // result2 = itxn.abi_call(Logger.echo_native_biguint, BigUInt(2), app_id=app).submit().result
     intc_1 // appl
     itxn_field TypeEnum
@@ -1521,12 +1521,12 @@ test_native_biguint:
     pushint 64
     ==
     assert // invalid number of bytes for biguint
-    // typed_itxn_abi_call/typed_c2c.py:208
+    // typed_itxn_abi_call/typed_c2c.py:210
     // assert result2 == result1
     dig 1
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:211
+    // typed_itxn_abi_call/typed_c2c.py:213
     // itxn.abi_call(Logger.echo_native_biguint, arc4.UInt512(2), app_id=app).submit().result
     itxn_begin
     dig 1
@@ -1552,18 +1552,18 @@ test_native_biguint:
     pushint 64
     ==
     assert // invalid number of bytes for biguint
-    // typed_itxn_abi_call/typed_c2c.py:213
+    // typed_itxn_abi_call/typed_c2c.py:215
     // assert result3 == result1
     dig 1
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:216-217
+    // typed_itxn_abi_call/typed_c2c.py:218-219
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
     // .submit()
     itxn_begin
     dig 1
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:216
+    // typed_itxn_abi_call/typed_c2c.py:218
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
     bytec 9 // method "echo_native_biguint(uint512)uint512"
     itxn_field ApplicationArgs
@@ -1573,11 +1573,11 @@ test_native_biguint:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:216-217
+    // typed_itxn_abi_call/typed_c2c.py:218-219
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:216-218
+    // typed_itxn_abi_call/typed_c2c.py:218-220
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
     // .submit()
     // .result
@@ -1593,16 +1593,16 @@ test_native_biguint:
     pushint 64
     ==
     assert // invalid number of bytes for biguint
-    // typed_itxn_abi_call/typed_c2c.py:220
+    // typed_itxn_abi_call/typed_c2c.py:222
     // assert result4 == result1
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:223-224
+    // typed_itxn_abi_call/typed_c2c.py:225-226
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2**512 - 2, app_id=app)
     // .submit()
     itxn_begin
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:223
+    // typed_itxn_abi_call/typed_c2c.py:225
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2**512 - 2, app_id=app)
     bytec 9 // method "echo_native_biguint(uint512)uint512"
     itxn_field ApplicationArgs
@@ -1612,11 +1612,11 @@ test_native_biguint:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:223-224
+    // typed_itxn_abi_call/typed_c2c.py:225-226
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2**512 - 2, app_id=app)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:223-225
+    // typed_itxn_abi_call/typed_c2c.py:225-227
     // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2**512 - 2, app_id=app)
     // .submit()
     // .result
@@ -1632,12 +1632,12 @@ test_native_biguint:
     pushint 64
     ==
     assert // invalid number of bytes for biguint
-    // typed_itxn_abi_call/typed_c2c.py:227
+    // typed_itxn_abi_call/typed_c2c.py:229
     // assert result5 == BigUInt(2**512 - 1)
     pushbytes 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:202
+    // typed_itxn_abi_call/typed_c2c.py:204
     // @arc4.abimethod()
     pushint 1
     return
@@ -1645,7 +1645,7 @@ test_native_biguint:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[routing]() -> void:
 test_native_tuple:
-    // typed_itxn_abi_call/typed_c2c.py:229
+    // typed_itxn_abi_call/typed_c2c.py:231
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -1654,7 +1654,7 @@ test_native_tuple:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:233-241
+    // typed_itxn_abi_call/typed_c2c.py:235-243
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     "s1",
@@ -1665,9 +1665,13 @@ test_native_tuple:
     // )
     // .submit()
     itxn_begin
-    dup
+    // typed_itxn_abi_call/typed_c2c.py:239
+    // 1,
+    pushint 1
+    itob
+    dig 1
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:233-240
+    // typed_itxn_abi_call/typed_c2c.py:235-242
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     "s1",
@@ -1676,25 +1680,23 @@ test_native_tuple:
     //     2,
     //     app_id=app,
     // )
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-    itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:235
-    // "s1",
-    bytec 5 // 0x00027331
-    itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:236
-    // b"b1",
-    bytec 6 // 0x00026231
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     // typed_itxn_abi_call/typed_c2c.py:237
-    // 1,
-    bytec_3 // 0x0000000000000001
+    // "s1",
+    bytec 4 // 0x00027331
     itxn_field ApplicationArgs
     // typed_itxn_abi_call/typed_c2c.py:238
+    // b"b1",
+    bytec 5 // 0x00026231
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    // typed_itxn_abi_call/typed_c2c.py:240
     // 2,
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:233-240
+    // typed_itxn_abi_call/typed_c2c.py:235-242
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     "s1",
@@ -1707,7 +1709,7 @@ test_native_tuple:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:233-241
+    // typed_itxn_abi_call/typed_c2c.py:235-243
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     "s1",
@@ -1718,7 +1720,7 @@ test_native_tuple:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:233-242
+    // typed_itxn_abi_call/typed_c2c.py:235-244
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     "s1",
@@ -1775,7 +1777,7 @@ test_native_tuple:
     uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    // typed_itxn_abi_call/typed_c2c.py:244
+    // typed_itxn_abi_call/typed_c2c.py:246
     // s, b, u, bu = result1.native
     dig 3
     uncover 3
@@ -1783,7 +1785,7 @@ test_native_tuple:
     substring3
     dig 3
     extract 16 64
-    // typed_itxn_abi_call/typed_c2c.py:245
+    // typed_itxn_abi_call/typed_c2c.py:247
     // assert s.native == "echo: s1"
     swap
     extract 2 0
@@ -1791,7 +1793,7 @@ test_native_tuple:
     bytec 12 // "echo: s1"
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:246
+    // typed_itxn_abi_call/typed_c2c.py:248
     // assert b.native == b"echo: b1"
     uncover 2
     extract 2 0
@@ -1799,7 +1801,7 @@ test_native_tuple:
     bytec 27 // 0x6563686f3a206231
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:247
+    // typed_itxn_abi_call/typed_c2c.py:249
     // assert u.as_uint64() == 2
     uncover 4
     intc_3 // 8
@@ -1808,13 +1810,13 @@ test_native_tuple:
     intc_2 // 2
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:248
+    // typed_itxn_abi_call/typed_c2c.py:250
     // assert bu.as_biguint() == 3
     dig 3
     bytec 18 // 0x03
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:252-260
+    // typed_itxn_abi_call/typed_c2c.py:254-262
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
@@ -1825,13 +1827,9 @@ test_native_tuple:
     // )
     // .submit()
     itxn_begin
-    // typed_itxn_abi_call/typed_c2c.py:256
-    // UInt64(1),
-    pushint 1
-    itob
     dig 6
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:252-259
+    // typed_itxn_abi_call/typed_c2c.py:254-261
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
@@ -1840,22 +1838,23 @@ test_native_tuple:
     //     BigUInt(2),
     //     app_id=app,
     // )
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:235
+    // typed_itxn_abi_call/typed_c2c.py:237
     // "s1",
-    bytec 5 // 0x00027331
+    bytec 4 // 0x00027331
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:236
+    // typed_itxn_abi_call/typed_c2c.py:238
     // b"b1",
-    bytec 6 // 0x00026231
+    bytec 5 // 0x00026231
     itxn_field ApplicationArgs
+    uncover 5
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:257
+    // typed_itxn_abi_call/typed_c2c.py:259
     // BigUInt(2),
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:252-259
+    // typed_itxn_abi_call/typed_c2c.py:254-261
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
@@ -1868,7 +1867,7 @@ test_native_tuple:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:252-260
+    // typed_itxn_abi_call/typed_c2c.py:254-262
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
@@ -1879,7 +1878,7 @@ test_native_tuple:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:252-261
+    // typed_itxn_abi_call/typed_c2c.py:254-263
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     String("s1"),
@@ -1932,12 +1931,12 @@ test_native_tuple:
     +
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    // typed_itxn_abi_call/typed_c2c.py:263
+    // typed_itxn_abi_call/typed_c2c.py:265
     // assert result1 == result2
     dig 5
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:267-275
+    // typed_itxn_abi_call/typed_c2c.py:269-277
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -1950,7 +1949,7 @@ test_native_tuple:
     itxn_begin
     dig 5
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:267-274
+    // typed_itxn_abi_call/typed_c2c.py:269-276
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -1959,25 +1958,25 @@ test_native_tuple:
     //     arc4.UInt512(2),
     //     app_id=app,
     // )
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:235
+    // typed_itxn_abi_call/typed_c2c.py:237
     // "s1",
-    bytec 5 // 0x00027331
+    bytec 4 // 0x00027331
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:236
+    // typed_itxn_abi_call/typed_c2c.py:238
     // b"b1",
-    bytec 6 // 0x00026231
+    bytec 5 // 0x00026231
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:271
+    // typed_itxn_abi_call/typed_c2c.py:273
     // arc4.UInt64(1),
-    bytec_3 // 0x0000000000000001
+    bytec 6 // 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:272
+    // typed_itxn_abi_call/typed_c2c.py:274
     // arc4.UInt512(2),
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:267-274
+    // typed_itxn_abi_call/typed_c2c.py:269-276
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -1990,7 +1989,7 @@ test_native_tuple:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:267-275
+    // typed_itxn_abi_call/typed_c2c.py:269-277
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2001,7 +2000,7 @@ test_native_tuple:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:267-276
+    // typed_itxn_abi_call/typed_c2c.py:269-278
     // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2054,12 +2053,12 @@ test_native_tuple:
     +
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
-    // typed_itxn_abi_call/typed_c2c.py:278
+    // typed_itxn_abi_call/typed_c2c.py:280
     // assert result1 == result3
     uncover 5
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:282-290
+    // typed_itxn_abi_call/typed_c2c.py:284-292
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2072,7 +2071,7 @@ test_native_tuple:
     itxn_begin
     uncover 4
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:282-289
+    // typed_itxn_abi_call/typed_c2c.py:284-291
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2081,25 +2080,25 @@ test_native_tuple:
     //     arc4.UInt512(2),
     //     app_id=app,
     // )
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:235
+    // typed_itxn_abi_call/typed_c2c.py:237
     // "s1",
-    bytec 5 // 0x00027331
+    bytec 4 // 0x00027331
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:236
+    // typed_itxn_abi_call/typed_c2c.py:238
     // b"b1",
-    bytec 6 // 0x00026231
+    bytec 5 // 0x00026231
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:286
+    // typed_itxn_abi_call/typed_c2c.py:288
     // arc4.UInt64(1),
-    bytec_3 // 0x0000000000000001
+    bytec 6 // 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:287
+    // typed_itxn_abi_call/typed_c2c.py:289
     // arc4.UInt512(2),
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:282-289
+    // typed_itxn_abi_call/typed_c2c.py:284-291
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2112,7 +2111,7 @@ test_native_tuple:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:282-290
+    // typed_itxn_abi_call/typed_c2c.py:284-292
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2123,7 +2122,7 @@ test_native_tuple:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:282-291
+    // typed_itxn_abi_call/typed_c2c.py:284-293
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2190,28 +2189,28 @@ test_native_tuple:
     extract_uint64
     uncover 3
     extract 16 64
-    // typed_itxn_abi_call/typed_c2c.py:293
+    // typed_itxn_abi_call/typed_c2c.py:295
     // assert result1.native[0].native == result_native[0]
     uncover 6
     uncover 4
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:294
+    // typed_itxn_abi_call/typed_c2c.py:296
     // assert result1.native[1].native == result_native[1]
     uncover 4
     uncover 3
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:295
+    // typed_itxn_abi_call/typed_c2c.py:297
     // assert result1.native[2].as_uint64() == result_native[2]
     cover 2
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:296
+    // typed_itxn_abi_call/typed_c2c.py:298
     // assert result1.native[3].as_biguint() == result_native[3]
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:229
+    // typed_itxn_abi_call/typed_c2c.py:231
     // @arc4.abimethod()
     pushint 1
     return
@@ -2219,7 +2218,7 @@ test_native_tuple:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref[routing]() -> void:
 test_native_tuple_method_ref:
-    // typed_itxn_abi_call/typed_c2c.py:298
+    // typed_itxn_abi_call/typed_c2c.py:300
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -2228,7 +2227,7 @@ test_native_tuple_method_ref:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:302-310
+    // typed_itxn_abi_call/typed_c2c.py:304-312
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     "s1",
@@ -2239,31 +2238,31 @@ test_native_tuple_method_ref:
     // )
     // .submit()
     itxn_begin
-    // typed_itxn_abi_call/typed_c2c.py:306
+    // typed_itxn_abi_call/typed_c2c.py:308
     // 1,
     pushint 1
     itob
     dig 1
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:303
-    // Logger.echo_native_tuple,
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-    itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:304
-    // "s1",
-    bytec 5 // 0x00027331
-    itxn_field ApplicationArgs
     // typed_itxn_abi_call/typed_c2c.py:305
+    // Logger.echo_native_tuple,
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    // typed_itxn_abi_call/typed_c2c.py:306
+    // "s1",
+    bytec 4 // 0x00027331
+    itxn_field ApplicationArgs
+    // typed_itxn_abi_call/typed_c2c.py:307
     // b"b1",
-    bytec 6 // 0x00026231
+    bytec 5 // 0x00026231
     itxn_field ApplicationArgs
     dup
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:307
+    // typed_itxn_abi_call/typed_c2c.py:309
     // 2,
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:302-309
+    // typed_itxn_abi_call/typed_c2c.py:304-311
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     "s1",
@@ -2276,7 +2275,7 @@ test_native_tuple_method_ref:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:302-310
+    // typed_itxn_abi_call/typed_c2c.py:304-312
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     "s1",
@@ -2287,7 +2286,7 @@ test_native_tuple_method_ref:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:302-311
+    // typed_itxn_abi_call/typed_c2c.py:304-313
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     "s1",
@@ -2354,31 +2353,31 @@ test_native_tuple_method_ref:
     extract_uint64
     uncover 3
     extract 16 64
-    // typed_itxn_abi_call/typed_c2c.py:314
+    // typed_itxn_abi_call/typed_c2c.py:316
     // assert s == "echo: s1"
     dig 3
     bytec 12 // "echo: s1"
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:315
+    // typed_itxn_abi_call/typed_c2c.py:317
     // assert b == b"echo: b1"
     dig 2
     bytec 27 // 0x6563686f3a206231
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:316
+    // typed_itxn_abi_call/typed_c2c.py:318
     // assert u == 2
     dig 1
     intc_2 // 2
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:317
+    // typed_itxn_abi_call/typed_c2c.py:319
     // assert bu == 3
     dup
     bytec 18 // 0x03
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:321-329
+    // typed_itxn_abi_call/typed_c2c.py:323-331
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     String("s1"),
@@ -2391,25 +2390,25 @@ test_native_tuple_method_ref:
     itxn_begin
     dig 5
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:322
+    // typed_itxn_abi_call/typed_c2c.py:324
     // Logger.echo_native_tuple,
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:304
+    // typed_itxn_abi_call/typed_c2c.py:306
     // "s1",
-    bytec 5 // 0x00027331
+    bytec 4 // 0x00027331
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:305
+    // typed_itxn_abi_call/typed_c2c.py:307
     // b"b1",
-    bytec 6 // 0x00026231
+    bytec 5 // 0x00026231
     itxn_field ApplicationArgs
     uncover 4
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:307
+    // typed_itxn_abi_call/typed_c2c.py:309
     // 2,
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:321-328
+    // typed_itxn_abi_call/typed_c2c.py:323-330
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     String("s1"),
@@ -2422,7 +2421,7 @@ test_native_tuple_method_ref:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:321-329
+    // typed_itxn_abi_call/typed_c2c.py:323-331
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     String("s1"),
@@ -2433,7 +2432,7 @@ test_native_tuple_method_ref:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:321-330
+    // typed_itxn_abi_call/typed_c2c.py:323-332
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     String("s1"),
@@ -2500,7 +2499,7 @@ test_native_tuple_method_ref:
     extract_uint64
     uncover 3
     extract 16 64
-    // typed_itxn_abi_call/typed_c2c.py:332
+    // typed_itxn_abi_call/typed_c2c.py:334
     // assert result_2 == result, "expected native arguments to give the same result"
     uncover 3
     dig 7
@@ -2518,7 +2517,7 @@ test_native_tuple_method_ref:
     b==
     &&
     assert // expected native arguments to give the same result
-    // typed_itxn_abi_call/typed_c2c.py:336-344
+    // typed_itxn_abi_call/typed_c2c.py:338-346
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     arc4.String("s1"),
@@ -2531,27 +2530,27 @@ test_native_tuple_method_ref:
     itxn_begin
     dig 4
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:337
+    // typed_itxn_abi_call/typed_c2c.py:339
     // Logger.echo_native_tuple,
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:304
+    // typed_itxn_abi_call/typed_c2c.py:306
     // "s1",
-    bytec 5 // 0x00027331
+    bytec 4 // 0x00027331
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:305
+    // typed_itxn_abi_call/typed_c2c.py:307
     // b"b1",
-    bytec 6 // 0x00026231
+    bytec 5 // 0x00026231
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:340
+    // typed_itxn_abi_call/typed_c2c.py:342
     // arc4.UInt64(1),
-    bytec_3 // 0x0000000000000001
+    bytec 6 // 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:341
+    // typed_itxn_abi_call/typed_c2c.py:343
     // arc4.UInt512(2),
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:336-343
+    // typed_itxn_abi_call/typed_c2c.py:338-345
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     arc4.String("s1"),
@@ -2564,7 +2563,7 @@ test_native_tuple_method_ref:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:336-344
+    // typed_itxn_abi_call/typed_c2c.py:338-346
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     arc4.String("s1"),
@@ -2575,7 +2574,7 @@ test_native_tuple_method_ref:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:336-345
+    // typed_itxn_abi_call/typed_c2c.py:338-347
     // itxn.abi_call(
     //     Logger.echo_native_tuple,
     //     arc4.String("s1"),
@@ -2642,7 +2641,7 @@ test_native_tuple_method_ref:
     extract_uint64
     uncover 3
     extract 16 64
-    // typed_itxn_abi_call/typed_c2c.py:347
+    // typed_itxn_abi_call/typed_c2c.py:349
     // assert result_3 == result, "expected arc4 arguments to give the same result"
     uncover 3
     dig 7
@@ -2660,7 +2659,7 @@ test_native_tuple_method_ref:
     b==
     &&
     assert // expected arc4 arguments to give the same result
-    // typed_itxn_abi_call/typed_c2c.py:351-359
+    // typed_itxn_abi_call/typed_c2c.py:353-361
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2673,7 +2672,7 @@ test_native_tuple_method_ref:
     itxn_begin
     uncover 4
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:351-358
+    // typed_itxn_abi_call/typed_c2c.py:353-360
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2682,25 +2681,25 @@ test_native_tuple_method_ref:
     //     arc4.UInt512(2),
     //     app_id=app,
     // )
-    bytec 4 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec_3 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:304
+    // typed_itxn_abi_call/typed_c2c.py:306
     // "s1",
-    bytec 5 // 0x00027331
+    bytec 4 // 0x00027331
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:305
+    // typed_itxn_abi_call/typed_c2c.py:307
     // b"b1",
-    bytec 6 // 0x00026231
+    bytec 5 // 0x00026231
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:355
+    // typed_itxn_abi_call/typed_c2c.py:357
     // arc4.UInt64(1),
-    bytec_3 // 0x0000000000000001
+    bytec 6 // 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:356
+    // typed_itxn_abi_call/typed_c2c.py:358
     // arc4.UInt512(2),
     bytec_1 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:351-358
+    // typed_itxn_abi_call/typed_c2c.py:353-360
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2713,7 +2712,7 @@ test_native_tuple_method_ref:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:351-359
+    // typed_itxn_abi_call/typed_c2c.py:353-361
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2724,7 +2723,7 @@ test_native_tuple_method_ref:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:351-360
+    // typed_itxn_abi_call/typed_c2c.py:353-362
     // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
     //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
     //     arc4.String("s1"),
@@ -2791,7 +2790,7 @@ test_native_tuple_method_ref:
     extract_uint64
     uncover 3
     extract 16 64
-    // typed_itxn_abi_call/typed_c2c.py:362
+    // typed_itxn_abi_call/typed_c2c.py:364
     // assert result_native == result
     uncover 3
     uncover 7
@@ -2809,7 +2808,7 @@ test_native_tuple_method_ref:
     b==
     &&
     assert
-    // typed_itxn_abi_call/typed_c2c.py:298
+    // typed_itxn_abi_call/typed_c2c.py:300
     // @arc4.abimethod()
     pushint 1
     return
@@ -2817,7 +2816,7 @@ test_native_tuple_method_ref:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[routing]() -> void:
 test_nested_tuples:
-    // typed_itxn_abi_call/typed_c2c.py:364
+    // typed_itxn_abi_call/typed_c2c.py:366
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -2826,7 +2825,7 @@ test_nested_tuples:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:368-373
+    // typed_itxn_abi_call/typed_c2c.py:370-375
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     (("s1", "s2"), (1, 2, b"3")),
@@ -2836,15 +2835,15 @@ test_nested_tuples:
     itxn_begin
     dup
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:369
+    // typed_itxn_abi_call/typed_c2c.py:371
     // Logger.echo_nested_tuple,
     bytec 19 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:370
+    // typed_itxn_abi_call/typed_c2c.py:372
     // (("s1", "s2"), (1, 2, b"3")),
     bytec 28 // 0x00040010000400080002733100027332000000000000000100000000000000020012000133
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:368-372
+    // typed_itxn_abi_call/typed_c2c.py:370-374
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     (("s1", "s2"), (1, 2, b"3")),
@@ -2854,7 +2853,7 @@ test_nested_tuples:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:368-373
+    // typed_itxn_abi_call/typed_c2c.py:370-375
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     (("s1", "s2"), (1, 2, b"3")),
@@ -2862,7 +2861,7 @@ test_nested_tuples:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:368-374
+    // typed_itxn_abi_call/typed_c2c.py:370-376
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     (("s1", "s2"), (1, 2, b"3")),
@@ -2986,36 +2985,36 @@ test_nested_tuples:
     extract 8 8
     uncover 4
     extract 2 0
-    // typed_itxn_abi_call/typed_c2c.py:377
+    // typed_itxn_abi_call/typed_c2c.py:379
     // assert s1 == "echo: s1"
     uncover 4
     bytec 12 // "echo: s1"
-    ==
-    assert
-    // typed_itxn_abi_call/typed_c2c.py:378
-    // assert s2 == "echo: s2"
-    uncover 3
-    bytec 29 // 0x00086563686f3a207332
-    ==
-    assert
-    // typed_itxn_abi_call/typed_c2c.py:379
-    // assert u64_1 == 2
-    uncover 2
-    intc_2 // 2
     ==
     assert
     // typed_itxn_abi_call/typed_c2c.py:380
+    // assert s2 == "echo: s2"
+    uncover 3
+    bytec 29 // 0x00086563686f3a207332
+    ==
+    assert
+    // typed_itxn_abi_call/typed_c2c.py:381
+    // assert u64_1 == 2
+    uncover 2
+    intc_2 // 2
+    ==
+    assert
+    // typed_itxn_abi_call/typed_c2c.py:382
     // assert u64_2 == 3
     swap
     bytec 13 // 0x0000000000000003
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:381
+    // typed_itxn_abi_call/typed_c2c.py:383
     // assert bytez == b"echo: 3"
     bytec 30 // 0x6563686f3a2033
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:385-390
+    // typed_itxn_abi_call/typed_c2c.py:387-392
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
@@ -3025,15 +3024,15 @@ test_nested_tuples:
     itxn_begin
     dup
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:386
+    // typed_itxn_abi_call/typed_c2c.py:388
     // Logger.echo_nested_tuple,
     bytec 19 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:370
+    // typed_itxn_abi_call/typed_c2c.py:372
     // (("s1", "s2"), (1, 2, b"3")),
     bytec 28 // 0x00040010000400080002733100027332000000000000000100000000000000020012000133
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:385-389
+    // typed_itxn_abi_call/typed_c2c.py:387-391
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
@@ -3043,7 +3042,7 @@ test_nested_tuples:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:385-390
+    // typed_itxn_abi_call/typed_c2c.py:387-392
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
@@ -3051,7 +3050,7 @@ test_nested_tuples:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:385-391
+    // typed_itxn_abi_call/typed_c2c.py:387-393
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
@@ -3175,40 +3174,40 @@ test_nested_tuples:
     extract 8 8
     uncover 4
     extract 2 0
-    // typed_itxn_abi_call/typed_c2c.py:394
+    // typed_itxn_abi_call/typed_c2c.py:396
     // assert s1 == "echo: s1"
     uncover 4
     bytec 12 // "echo: s1"
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:395
+    // typed_itxn_abi_call/typed_c2c.py:397
     // assert s2 == "echo: s2"
     uncover 3
-    // typed_itxn_abi_call/typed_c2c.py:378
+    // typed_itxn_abi_call/typed_c2c.py:380
     // assert s2 == "echo: s2"
     bytec 29 // 0x00086563686f3a207332
-    // typed_itxn_abi_call/typed_c2c.py:395
+    // typed_itxn_abi_call/typed_c2c.py:397
     // assert s2 == "echo: s2"
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:396
+    // typed_itxn_abi_call/typed_c2c.py:398
     // assert u64_1 == 2
     uncover 2
     intc_2 // 2
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:397
+    // typed_itxn_abi_call/typed_c2c.py:399
     // assert u64_2 == 3
     swap
     bytec 13 // 0x0000000000000003
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:398
+    // typed_itxn_abi_call/typed_c2c.py:400
     // assert bytez == b"echo: 3"
     bytec 30 // 0x6563686f3a2033
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:402-412
+    // typed_itxn_abi_call/typed_c2c.py:404-414
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     arc4.Tuple(
@@ -3222,11 +3221,11 @@ test_nested_tuples:
     // .submit()
     itxn_begin
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:403
+    // typed_itxn_abi_call/typed_c2c.py:405
     // Logger.echo_nested_tuple,
     bytec 19 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:404-409
+    // typed_itxn_abi_call/typed_c2c.py:406-411
     // arc4.Tuple(
     //     (
     //         arc4.Tuple((arc4.String("s1b"), arc4.String("s2b"))),
@@ -3235,7 +3234,7 @@ test_nested_tuples:
     // ),
     pushbytes 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:402-411
+    // typed_itxn_abi_call/typed_c2c.py:404-413
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     arc4.Tuple(
@@ -3250,7 +3249,7 @@ test_nested_tuples:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:402-412
+    // typed_itxn_abi_call/typed_c2c.py:404-414
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     arc4.Tuple(
@@ -3263,7 +3262,7 @@ test_nested_tuples:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:402-413
+    // typed_itxn_abi_call/typed_c2c.py:404-415
     // itxn.abi_call(
     //     Logger.echo_nested_tuple,
     //     arc4.Tuple(
@@ -3392,36 +3391,36 @@ test_nested_tuples:
     extract 8 8
     uncover 4
     extract 2 0
-    // typed_itxn_abi_call/typed_c2c.py:416
+    // typed_itxn_abi_call/typed_c2c.py:418
     // assert s1 == "echo: s1b"
     uncover 4
     pushbytes "echo: s1b"
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:417
+    // typed_itxn_abi_call/typed_c2c.py:419
     // assert s2 == "echo: s2b"
     uncover 3
     pushbytes 0x00096563686f3a20733262
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:418
+    // typed_itxn_abi_call/typed_c2c.py:420
     // assert u64_1 == 12
     uncover 2
     pushint 12
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:419
+    // typed_itxn_abi_call/typed_c2c.py:421
     // assert u64_2 == 22
     swap
     pushbytes 0x0000000000000016
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:420
+    // typed_itxn_abi_call/typed_c2c.py:422
     // assert bytez == b"echo: 3b"
     pushbytes 0x6563686f3a203362
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:364
+    // typed_itxn_abi_call/typed_c2c.py:366
     // @arc4.abimethod()
     pushint 1
     return
@@ -3429,7 +3428,7 @@ test_nested_tuples:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_no_args[routing]() -> void:
 test_no_args:
-    // typed_itxn_abi_call/typed_c2c.py:422
+    // typed_itxn_abi_call/typed_c2c.py:424
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -3438,7 +3437,7 @@ test_no_args:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:424
+    // typed_itxn_abi_call/typed_c2c.py:426
     // result = itxn.abi_call(Logger.no_args, app_id=app).submit().result
     itxn_begin
     dup
@@ -3463,12 +3462,12 @@ test_no_args:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:425
+    // typed_itxn_abi_call/typed_c2c.py:427
     // assert result == 42
     pushint 42
     ==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:426
+    // typed_itxn_abi_call/typed_c2c.py:428
     // arc4_result = itxn.abi_call[arc4.UInt64]("no_args()uint64", app_id=app).submit().result
     itxn_begin
     dup
@@ -3492,12 +3491,12 @@ test_no_args:
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // typed_itxn_abi_call/typed_c2c.py:427
+    // typed_itxn_abi_call/typed_c2c.py:429
     // assert arc4_result == 42
     bytec 31 // 0x000000000000002a
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:429
+    // typed_itxn_abi_call/typed_c2c.py:431
     // itxn.abi_call(Logger.no_args, app_id=app).submit()
     itxn_begin
     itxn_field ApplicationID
@@ -3508,7 +3507,7 @@ test_no_args:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:430
+    // typed_itxn_abi_call/typed_c2c.py:432
     // assert arc4.UInt64.from_log(op.ITxn.last_log()) == 42
     itxn LastLog
     dup
@@ -3525,7 +3524,7 @@ test_no_args:
     bytec 31 // 0x000000000000002a
     b==
     assert
-    // typed_itxn_abi_call/typed_c2c.py:422
+    // typed_itxn_abi_call/typed_c2c.py:424
     // @arc4.abimethod()
     pushint 1
     return
@@ -3533,7 +3532,7 @@ test_no_args:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_named_tuples[routing]() -> void:
 test_named_tuples:
-    // typed_itxn_abi_call/typed_c2c.py:432
+    // typed_itxn_abi_call/typed_c2c.py:434
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -3542,7 +3541,7 @@ test_named_tuples:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:435-441
+    // typed_itxn_abi_call/typed_c2c.py:437-443
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(1), String("log 1")),
@@ -3553,19 +3552,19 @@ test_named_tuples:
     itxn_begin
     dup
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:436
+    // typed_itxn_abi_call/typed_c2c.py:438
     // Logger.logs_are_equal,
     bytec 32 // method "logs_are_equal((uint64,string),(uint64,string))bool"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:437
+    // typed_itxn_abi_call/typed_c2c.py:439
     // (UInt64(1), String("log 1")),
     bytec 10 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:438
+    // typed_itxn_abi_call/typed_c2c.py:440
     // LogMessage(level=UInt64(1), message=String("log 1")),
     bytec 10 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:435-440
+    // typed_itxn_abi_call/typed_c2c.py:437-442
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(1), String("log 1")),
@@ -3576,7 +3575,7 @@ test_named_tuples:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:435-441
+    // typed_itxn_abi_call/typed_c2c.py:437-443
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(1), String("log 1")),
@@ -3585,7 +3584,7 @@ test_named_tuples:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:435-442
+    // typed_itxn_abi_call/typed_c2c.py:437-444
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(1), String("log 1")),
@@ -3608,10 +3607,10 @@ test_named_tuples:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // typed_itxn_abi_call/typed_c2c.py:444
+    // typed_itxn_abi_call/typed_c2c.py:446
     // assert result
     assert
-    // typed_itxn_abi_call/typed_c2c.py:446-452
+    // typed_itxn_abi_call/typed_c2c.py:448-454
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(2), String("log 2")),
@@ -3621,19 +3620,19 @@ test_named_tuples:
     // .submit()
     itxn_begin
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:447
+    // typed_itxn_abi_call/typed_c2c.py:449
     // Logger.logs_are_equal,
     bytec 32 // method "logs_are_equal((uint64,string),(uint64,string))bool"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:448
+    // typed_itxn_abi_call/typed_c2c.py:450
     // (UInt64(2), String("log 2")),
     pushbytes 0x0000000000000002000a00056c6f672032
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:438
+    // typed_itxn_abi_call/typed_c2c.py:440
     // LogMessage(level=UInt64(1), message=String("log 1")),
     bytec 10 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:446-451
+    // typed_itxn_abi_call/typed_c2c.py:448-453
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(2), String("log 2")),
@@ -3644,7 +3643,7 @@ test_named_tuples:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:446-452
+    // typed_itxn_abi_call/typed_c2c.py:448-454
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(2), String("log 2")),
@@ -3653,7 +3652,7 @@ test_named_tuples:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:446-453
+    // typed_itxn_abi_call/typed_c2c.py:448-455
     // itxn.abi_call(
     //     Logger.logs_are_equal,
     //     (UInt64(2), String("log 2")),
@@ -3676,11 +3675,11 @@ test_named_tuples:
     assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // typed_itxn_abi_call/typed_c2c.py:455
+    // typed_itxn_abi_call/typed_c2c.py:457
     // assert not result
     !
     assert
-    // typed_itxn_abi_call/typed_c2c.py:432
+    // typed_itxn_abi_call/typed_c2c.py:434
     // @arc4.abimethod()
     pushint 1
     return
@@ -3688,7 +3687,7 @@ test_named_tuples:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arc4_struct[routing]() -> void:
 test_arc4_struct:
-    // typed_itxn_abi_call/typed_c2c.py:457
+    // typed_itxn_abi_call/typed_c2c.py:459
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -3697,7 +3696,7 @@ test_arc4_struct:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:460-464
+    // typed_itxn_abi_call/typed_c2c.py:462-466
     // txn = itxn.abi_call(
     //     Logger.echo_log_struct,
     //     log,
@@ -3705,15 +3704,15 @@ test_arc4_struct:
     // ).submit()
     itxn_begin
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:461
+    // typed_itxn_abi_call/typed_c2c.py:463
     // Logger.echo_log_struct,
     pushbytes 0xdc4f1992 // method "echo_log_struct((uint64,string))(uint64,string)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:459
+    // typed_itxn_abi_call/typed_c2c.py:461
     // log = LogStruct(level=arc4.UInt64(1), message=arc4.String("log 1"))
     bytec 10 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:460-464
+    // typed_itxn_abi_call/typed_c2c.py:462-466
     // txn = itxn.abi_call(
     //     Logger.echo_log_struct,
     //     log,
@@ -3725,7 +3724,7 @@ test_arc4_struct:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    // typed_itxn_abi_call/typed_c2c.py:465
+    // typed_itxn_abi_call/typed_c2c.py:467
     // assert txn.result == log, "expected output to match input"
     dup
     extract 0 4
@@ -3752,14 +3751,14 @@ test_arc4_struct:
     +
     ==
     assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
-    // typed_itxn_abi_call/typed_c2c.py:459
+    // typed_itxn_abi_call/typed_c2c.py:461
     // log = LogStruct(level=arc4.UInt64(1), message=arc4.String("log 1"))
     bytec 10 // 0x0000000000000001000a00056c6f672031
-    // typed_itxn_abi_call/typed_c2c.py:465
+    // typed_itxn_abi_call/typed_c2c.py:467
     // assert txn.result == log, "expected output to match input"
     ==
     assert // expected output to match input
-    // typed_itxn_abi_call/typed_c2c.py:457
+    // typed_itxn_abi_call/typed_c2c.py:459
     // @arc4.abimethod()
     pushint 1
     return
@@ -3767,7 +3766,7 @@ test_arc4_struct:
 
 // test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encoding[routing]() -> void:
 test_resource_encoding:
-    // typed_itxn_abi_call/typed_c2c.py:468
+    // typed_itxn_abi_call/typed_c2c.py:470
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
@@ -3784,13 +3783,13 @@ test_resource_encoding:
     assert // invalid number of bytes for arc4.uint64
     dup
     btoi
-    // typed_itxn_abi_call/typed_c2c.py:470
+    // typed_itxn_abi_call/typed_c2c.py:472
     // app = Global.current_application_id
     global CurrentApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:471
+    // typed_itxn_abi_call/typed_c2c.py:473
     // acc = Global.current_application_address
     global CurrentApplicationAddress
-    // typed_itxn_abi_call/typed_c2c.py:474-475
+    // typed_itxn_abi_call/typed_c2c.py:476-477
     // itxn.abi_call(Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_begin
@@ -3802,7 +3801,7 @@ test_resource_encoding:
     itxn_field Applications
     dup
     itxn_field Accounts
-    // typed_itxn_abi_call/typed_c2c.py:474
+    // typed_itxn_abi_call/typed_c2c.py:476
     // itxn.abi_call(Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     bytec 21 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
@@ -3816,11 +3815,11 @@ test_resource_encoding:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:474-475
+    // typed_itxn_abi_call/typed_c2c.py:476-477
     // itxn.abi_call(Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:474-476
+    // typed_itxn_abi_call/typed_c2c.py:476-478
     // itxn.abi_call(Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     // .submit()
     // .result
@@ -3844,7 +3843,7 @@ test_resource_encoding:
     extract_uint64
     uncover 2
     extract 20 32
-    // typed_itxn_abi_call/typed_c2c.py:478
+    // typed_itxn_abi_call/typed_c2c.py:480
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
     dig 5
@@ -3858,11 +3857,11 @@ test_resource_encoding:
     ==
     &&
     assert // expected echo to return same resources
-    // typed_itxn_abi_call/typed_c2c.py:481-482
+    // typed_itxn_abi_call/typed_c2c.py:483-484
     // itxn.abi_call(Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_begin
-    // typed_itxn_abi_call/typed_c2c.py:481
+    // typed_itxn_abi_call/typed_c2c.py:483
     // itxn.abi_call(Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     dig 1
     itob
@@ -3880,11 +3879,11 @@ test_resource_encoding:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:481-482
+    // typed_itxn_abi_call/typed_c2c.py:483-484
     // itxn.abi_call(Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:481-483
+    // typed_itxn_abi_call/typed_c2c.py:483-485
     // itxn.abi_call(Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     // .submit()
     // .result
@@ -3908,7 +3907,7 @@ test_resource_encoding:
     extract_uint64
     uncover 2
     extract 20 32
-    // typed_itxn_abi_call/typed_c2c.py:485
+    // typed_itxn_abi_call/typed_c2c.py:487
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
     dig 6
@@ -3922,7 +3921,7 @@ test_resource_encoding:
     ==
     &&
     assert // expected echo to return same resources
-    // typed_itxn_abi_call/typed_c2c.py:488-489
+    // typed_itxn_abi_call/typed_c2c.py:490-491
     // itxn.abi_call(LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_begin
@@ -3934,7 +3933,7 @@ test_resource_encoding:
     itxn_field Applications
     dig 1
     itxn_field Accounts
-    // typed_itxn_abi_call/typed_c2c.py:488
+    // typed_itxn_abi_call/typed_c2c.py:490
     // itxn.abi_call(LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     bytec 21 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
@@ -3948,11 +3947,11 @@ test_resource_encoding:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:488-489
+    // typed_itxn_abi_call/typed_c2c.py:490-491
     // itxn.abi_call(LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:488-490
+    // typed_itxn_abi_call/typed_c2c.py:490-492
     // itxn.abi_call(LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call)
     // .submit()
     // .result
@@ -3976,7 +3975,7 @@ test_resource_encoding:
     extract_uint64
     uncover 2
     extract 20 32
-    // typed_itxn_abi_call/typed_c2c.py:492
+    // typed_itxn_abi_call/typed_c2c.py:494
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
     dig 6
@@ -3990,13 +3989,13 @@ test_resource_encoding:
     ==
     &&
     assert // expected echo to return same resources
-    // typed_itxn_abi_call/typed_c2c.py:495-496
+    // typed_itxn_abi_call/typed_c2c.py:497-498
     // itxn.abi_call(LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_begin
     dig 5
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:495
+    // typed_itxn_abi_call/typed_c2c.py:497
     // itxn.abi_call(LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     bytec 23 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
     itxn_field ApplicationArgs
@@ -4010,11 +4009,11 @@ test_resource_encoding:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:495-496
+    // typed_itxn_abi_call/typed_c2c.py:497-498
     // itxn.abi_call(LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:495-497
+    // typed_itxn_abi_call/typed_c2c.py:497-499
     // itxn.abi_call(LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call)
     // .submit()
     // .result
@@ -4038,7 +4037,7 @@ test_resource_encoding:
     extract_uint64
     uncover 2
     extract 20 32
-    // typed_itxn_abi_call/typed_c2c.py:499
+    // typed_itxn_abi_call/typed_c2c.py:501
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
     dig 6
@@ -4052,7 +4051,7 @@ test_resource_encoding:
     ==
     &&
     assert // expected echo to return same resources
-    // typed_itxn_abi_call/typed_c2c.py:502-509
+    // typed_itxn_abi_call/typed_c2c.py:504-511
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
     //     asset,
@@ -4070,7 +4069,7 @@ test_resource_encoding:
     itxn_field Applications
     dig 1
     itxn_field Accounts
-    // typed_itxn_abi_call/typed_c2c.py:502-508
+    // typed_itxn_abi_call/typed_c2c.py:504-510
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
     //     asset,
@@ -4080,19 +4079,19 @@ test_resource_encoding:
     // )
     bytec 21 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:504
+    // typed_itxn_abi_call/typed_c2c.py:506
     // asset,
     bytec 22 // 0x00
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:505
+    // typed_itxn_abi_call/typed_c2c.py:507
     // app,
     bytec 7 // 0x01
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:506
+    // typed_itxn_abi_call/typed_c2c.py:508
     // acc,
     bytec 7 // 0x01
     itxn_field ApplicationArgs
-    // typed_itxn_abi_call/typed_c2c.py:502-508
+    // typed_itxn_abi_call/typed_c2c.py:504-510
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
     //     asset,
@@ -4104,7 +4103,7 @@ test_resource_encoding:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:502-509
+    // typed_itxn_abi_call/typed_c2c.py:504-511
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
     //     asset,
@@ -4114,7 +4113,7 @@ test_resource_encoding:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:502-510
+    // typed_itxn_abi_call/typed_c2c.py:504-512
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
     //     asset,
@@ -4144,7 +4143,7 @@ test_resource_encoding:
     extract_uint64
     uncover 2
     extract 20 32
-    // typed_itxn_abi_call/typed_c2c.py:512
+    // typed_itxn_abi_call/typed_c2c.py:514
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
     dig 6
@@ -4158,7 +4157,7 @@ test_resource_encoding:
     ==
     &&
     assert // expected echo to return same resources
-    // typed_itxn_abi_call/typed_c2c.py:515-522
+    // typed_itxn_abi_call/typed_c2c.py:517-524
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
     //     asset,
@@ -4170,7 +4169,7 @@ test_resource_encoding:
     itxn_begin
     uncover 5
     itxn_field ApplicationID
-    // typed_itxn_abi_call/typed_c2c.py:515-521
+    // typed_itxn_abi_call/typed_c2c.py:517-523
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
     //     asset,
@@ -4189,7 +4188,7 @@ test_resource_encoding:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // typed_itxn_abi_call/typed_c2c.py:515-522
+    // typed_itxn_abi_call/typed_c2c.py:517-524
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
     //     asset,
@@ -4199,7 +4198,7 @@ test_resource_encoding:
     // )
     // .submit()
     itxn_submit
-    // typed_itxn_abi_call/typed_c2c.py:515-523
+    // typed_itxn_abi_call/typed_c2c.py:517-525
     // itxn.abi_call[tuple[Asset, Application, Account]](
     //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
     //     asset,
@@ -4229,7 +4228,7 @@ test_resource_encoding:
     extract_uint64
     uncover 2
     extract 20 32
-    // typed_itxn_abi_call/typed_c2c.py:525
+    // typed_itxn_abi_call/typed_c2c.py:527
     // assert result == (asset, app, acc), "expected echo to return same resources"
     uncover 2
     uncover 5
@@ -4243,7 +4242,7 @@ test_resource_encoding:
     ==
     &&
     assert // expected echo to return same resources
-    // typed_itxn_abi_call/typed_c2c.py:468
+    // typed_itxn_abi_call/typed_c2c.py:470
     // @arc4.abimethod()
     pushint 1
     return

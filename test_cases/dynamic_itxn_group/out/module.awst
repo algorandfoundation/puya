@@ -90,7 +90,7 @@ contract DynamicITxnGroup
       addr: arc4.static_array<arc4.uint8, 32> = addresses[i]
       stage_itxns=([create_inner_transaction(Fee=0u, TypeEnum=pay, Amount=share, Receiver=reinterpret_cast<account>(addr))], start_new_group=false)
     }
-    stage_itxns=([abi_call(signature={name="verify",args=(),result=void}, args=(), fields={TxnField.ApplicationID=reinterpret_cast<uint64>(verifier)})], start_new_group=false)
+    stage_itxns=([abi_call(signature='verify', args=(), fields={TxnField.ApplicationID=reinterpret_cast<uint64>(verifier)})], start_new_group=false)
     stage_itxns=([create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetName='abc')], start_new_group=false)
     itxn_submit()
   }
@@ -106,7 +106,7 @@ contract DynamicITxnGroup
       stage_itxns=([my_txn], start_new_group=is_first)
       is_first: bool = false
     }
-    stage_itxns=([abi_call(signature={name="verify",args=(),result=void}, args=(), fields={TxnField.ApplicationID=reinterpret_cast<uint64>(verifier)})], start_new_group=false)
+    stage_itxns=([abi_call(signature='verify', args=(), fields={TxnField.ApplicationID=reinterpret_cast<uint64>(verifier)})], start_new_group=false)
     stage_itxns=([create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetName='abc')], start_new_group=false)
     itxn_submit()
   }
