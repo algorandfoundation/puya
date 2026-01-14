@@ -515,8 +515,10 @@ class ToCodeVisitor(
     def visit_abi_call(self, node: nodes.ABICall) -> str:
         if isinstance(node.target, nodes.MethodSignatureString):
             method = f"signature='{node.target.value}'"
-        else:
+        elif isinstance(node.target, nodes.MethodSignature):
             method = "".join(["signature=", "{", self._method_signature(node.target), "}"])
+        else:
+            method = "signature=None"
         args = ", ".join([a.accept(self) for a in node.args])
         fields = ", ".join(f"{name}={expr.accept(self)}" for name, expr in node.fields.items())
         return f"abi_call({method}, args=({args}), fields={{{fields}}})"

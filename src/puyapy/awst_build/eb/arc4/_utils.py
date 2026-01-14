@@ -1,6 +1,5 @@
 import re
 import typing
-from collections.abc import Sequence
 
 import attrs
 
@@ -11,7 +10,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-from puyapy.awst_build import arc4_utils, pytypes
+from puyapy.awst_build import pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype, split_tuple_types
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -22,33 +21,6 @@ logger = log.get_logger(__name__)
 
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 _ARRAY_PATTERN = re.compile(r"^\[[0-9]*]$")
-
-
-def _pytype_to_arc4_return_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pytypes.PyType:
-    assert isinstance(sig, ARC4Signature)
-
-    def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
-        raise CodeError(f"invalid return type for an ARC-4 method: {bad_type}", loc)
-
-    return arc4_utils.pytype_to_arc4_pytype(
-        typ, on_error, encode_resource_types=True, source_location=sig.source_location
-    )
-
-
-def _pytypes_to_arc4_arg_pytypes(
-    types: Sequence[pytypes.PyType], sig: attrs.AttrsInstance
-) -> Sequence[pytypes.PyType]:
-    assert isinstance(sig, ARC4Signature)
-
-    def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
-        raise CodeError(f"invalid argument type for an ARC-4 method: {bad_type}", loc)
-
-    return tuple(
-        pytype_to_arc4_pytype(
-            t, on_error, encode_resource_types=False, source_location=sig.source_location
-        )
-        for t in types
-    )
 
 
 @attrs.frozen(kw_only=True)
@@ -73,26 +45,6 @@ def split_arc4_signature(method: NodeBuilder) -> ParsedARC4SignatureString:
     return ParsedARC4SignatureString(
         value=method_sig, name=method_name, maybe_args=maybe_args, maybe_returns=maybe_returns
     )
-
-
-@attrs.frozen(kw_only=True)
-class ARC4Signature:
-    source_location: SourceLocation | None
-    method_name: str
-    arg_types: Sequence[pytypes.PyType] = attrs.field(
-        converter=attrs.Converter(_pytypes_to_arc4_arg_pytypes, takes_self=True)  # type: ignore[misc]
-    )
-    return_type: pytypes.PyType = attrs.field(
-        converter=attrs.Converter(_pytype_to_arc4_return_pytype, takes_self=True)  # type: ignore[misc]
-    )
-
-    @property
-    def method_selector(self) -> str:
-        args = ",".join(
-            arc4_utils.pytype_to_arc4(t, encode_resource_types=False) for t in self.arg_types
-        )
-        return_type = arc4_utils.pytype_to_arc4(self.return_type, encode_resource_types=True)
-        return f"{self.method_name}({args}){return_type}"
 
 
 def implicit_arc4_type_arg_conversion(typ: pytypes.PyType, loc: SourceLocation) -> pytypes.PyType:
