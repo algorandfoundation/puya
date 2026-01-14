@@ -1,6 +1,5 @@
 import typing
 from collections.abc import Iterable, Mapping, Sequence, Set
-from itertools import zip_longest
 
 import attrs
 
@@ -17,9 +16,7 @@ from puya.awst.nodes import (
     CompiledContract,
     CreateInnerTransaction,
     Expression,
-    IntegerConstant,
     MethodConstant,
-    MethodSignature,
     MethodSignatureString,
     SubmitInnerTransaction,
     TupleExpression,
@@ -36,16 +33,20 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.abi_call._utils import (
+    FIELD_TO_ITXN_ARGUMENT,
+    add_on_completion,
     get_method_abi_args_and_kwargs,
+    get_on_completion,
     get_python_kwargs,
-    maybe_resolve_literal,
+    get_singular_on_complete,
+    is_creating,
+    parse_abi_call_args,
 )
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4._utils import (
     ARC4Signature,
     implicit_arc4_conversion,
 )
-from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.compiled import (
     APP_ALLOCATION_FIELDS,
@@ -56,14 +57,12 @@ from puyapy.awst_build.eb.contracts import ContractTypeExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
-    LiteralBuilder,
     NodeBuilder,
 )
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder, TupleLiteralBuilder
-from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.models import (
     ARC4ABIMethodData,
     ARC4BareMethodData,
@@ -74,7 +73,6 @@ from puyapy.models import (
 
 logger = log.get_logger(__name__)
 
-_FIELD_TO_ITXN_ARGUMENT = {arg.field: arg for arg in PYTHON_ITXN_ARGUMENTS.values()}
 _ABI_CALL_TRANSACTION_FIELDS = [
     TxnField.ApplicationID,
     TxnField.OnCompletion,
@@ -197,13 +195,13 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             )
         field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
         if is_update:
-            _add_on_completion(field_nodes, OnCompletionAction.UpdateApplication, location)
+            add_on_completion(field_nodes, OnCompletionAction.UpdateApplication, location)
         # if on_completion is not set but can be inferred from config then use that
         elif (
             TxnField.OnCompletion not in field_nodes
-            and (on_completion := _get_singular_on_complete(method_call.config)) is not None
+            and (on_completion := get_singular_on_complete(method_call.config)) is not None
         ):
-            _add_on_completion(field_nodes, on_completion, location)
+            add_on_completion(field_nodes, on_completion, location)
 
         compiled = compiled.single_eval()
         for member_name, field in PROGRAM_FIELDS.items():
@@ -258,114 +256,43 @@ def _abi_call(
     *,
     return_type_annotation: pytypes.PyType,
 ) -> InstanceBuilder:
-    if return_type_annotation == pytypes.NeverType:
-        raise CodeError(
-            f"invalid return type for an ARC-4 method: {return_type_annotation}",
-            location=location,
-        )
-    method, pos_args, kwargs = get_method_abi_args_and_kwargs(
-        args, arg_names, get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
-    )
-    arc4_config = None
-
-    abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
-
-    match method:
-        case None:
-            raise CodeError("missing required positional argument 'method'", location)
-        case (
-            ARC4ClientMethodExpressionBuilder(method=fmethod)
-            | BaseClassSubroutineInvokerExpressionBuilder(method=fmethod)
-        ):
-            # in this case the arc4 signature and declared return type are inferred
-            if fmethod.metadata is None:
-                raise CodeError("method is not an ARC-4 method", location=location)
-
-            abi_method_data = fmethod.metadata
-            arc4_config = abi_method_data.config
-            if isinstance(abi_method_data, models.ARC4ABIMethodData):
-                name = abi_method_data.config.name
-                arg_types = abi_method_data.argument_types
-                return_type = abi_method_data.return_type
-                resource_encoding = abi_method_data.config.resource_encoding
-            else:
-                name = fmethod.member_name
-                arg_types = []
-                return_type = pytypes.NoneType
-                resource_encoding = "value"
-
-            target: MethodSignature | MethodSignatureString = MethodSignature(
-                name=name,
-                arg_types=[t.checked_wtype(location) for t in arg_types],
-                return_type=return_type.checked_wtype(location),
-                resource_encoding=resource_encoding,
-                source_location=args[0].source_location,
-            )
-            if return_type_annotation is None or return_type_annotation == pytypes.NoneType:
-                return_type_annotation = return_type
-            allow_literal_args = True
-        case _:
-            method_str = expect.simple_string_literal(method, default=expect.default_raise)
-            target = MethodSignatureString(
-                value=method_str, source_location=method.source_location
-            )
-            arg_types = []
-            allow_literal_args = "(" in method_str
-
-    field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
-    # set on_completion if it can be inferred from config
-    if (
-        TxnField.OnCompletion not in field_nodes
-        and (on_completion := _get_singular_on_complete(arc4_config)) is not None
-    ):
-        _add_on_completion(field_nodes, on_completion, location)
-
-    fields: dict[TxnField, Expression] = {}
-    for field, field_node in field_nodes.items():
-        params = _FIELD_TO_ITXN_ARGUMENT[field]
-        if params is None:
-            logger.error("unrecognised keyword argument", location=field_node.source_location)
-        else:
-            fields[field] = params.validate_and_convert(field_node).resolve()
-
-    abi_call_args = [
-        maybe_resolve_literal(
-            arg, expected_type=arg_type, allow_literal=allow_literal_args
-        ).resolve()
-        for arg, arg_type in zip_longest(abi_args, arg_types)
-    ]
-
-    _validate_transaction_kwargs(
-        field_nodes,
-        arc4_config,
-        method_location=method.source_location,
-        call_location=location,
+    parsed = parse_abi_call_args(
+        args,
+        arg_names,
+        _ABI_CALL_TRANSACTION_FIELDS,
+        return_type_annotation,
+        _validate_transaction_kwargs,
+        location,
     )
 
-    result_wtype = (return_type_annotation or pytypes.NoneType).checked_wtype(location)
+    pytype = pytypes.GenericABIApplicationCall.parameterise(
+        [parsed.declared_return_type], location
+    )
+
     call_expr = ABICall(
-        target=target,
-        args=abi_call_args,
-        fields=fields,
-        wtype=wtypes.WABICallInnerTransactionFields(result_type=result_wtype),
+        target=parsed.target,
+        args=parsed.abi_call_args,
+        fields=parsed.fields,
+        wtype=pytype.wtype,
         source_location=location,
     )
 
-    result_transaction_type = pytypes.InnerTransactionResultTypes[TransactionType.appl]
-
+    itxn_type = pytypes.InnerTransactionResultTypes[TransactionType.appl]
     itxn_builder = builder_for_instance(
-        result_transaction_type,
+        itxn_type,
         SubmitInnerTransaction(itxns=[call_expr], source_location=location),
     )
 
-    if return_type_annotation is None or return_type_annotation == pytypes.NoneType:
+    if parsed.declared_return_type == pytypes.NoneType:
         return itxn_builder
     itxn_builder = itxn_builder.single_eval()
     assert isinstance(itxn_builder, InnerTransactionExpressionBuilder)
 
     last_log = itxn_builder.get_field_value(TxnField.LastLog, pytypes.BytesType, location)
-    abi_result = ARC4FromLogBuilder.abi_expr_from_log(return_type_annotation, last_log, location)
-    abi_result_builder = builder_for_instance(return_type_annotation, abi_result)
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(
+        parsed.declared_return_type, last_log, location
+    )
+    abi_result_builder = builder_for_instance(parsed.declared_return_type, abi_result)
     return TupleLiteralBuilder((abi_result_builder, itxn_builder), location)
 
 
@@ -574,7 +501,7 @@ def _create_abi_call_expr(
             )
 
     for field, field_node in field_nodes.items():
-        params = _FIELD_TO_ITXN_ARGUMENT[field]
+        params = FIELD_TO_ITXN_ARGUMENT[field]
         if params is None:
             logger.error("unrecognised keyword argument", location=field_node.source_location)
         else:
@@ -649,14 +576,13 @@ def _expect_bare_method_args(abi_args: Sequence[NodeBuilder]) -> None:
 def _validate_transaction_kwargs(
     field_nodes: Mapping[TxnField, NodeBuilder],
     arc4_config: ARC4MethodConfig | None,
-    *,
     method_location: SourceLocation,
     call_location: SourceLocation,
 ) -> None:
     # note these values may be None which indicates their value is unknown at compile time
-    on_completion = _get_on_completion(field_nodes)
+    on_completion = get_on_completion(field_nodes)
     is_update = on_completion == OnCompletionAction.UpdateApplication
-    is_create = _is_creating(field_nodes)
+    is_create = is_creating(field_nodes)
 
     if is_create:
         # app_id not provided but method doesn't support creating
@@ -722,56 +648,3 @@ def _check_fields_not_present(
     for field in fields_to_omit:
         if node := field_nodes.get(field):
             logger.error(error_message, location=node.source_location)
-
-
-def _get_singular_on_complete(config: ARC4MethodConfig | None) -> OnCompletionAction | None:
-    if config:
-        try:
-            (on_complete,) = config.allowed_completion_types
-        except ValueError:
-            pass
-        else:
-            return on_complete
-    return None
-
-
-def _get_on_completion(field_nodes: Mapping[TxnField, NodeBuilder]) -> OnCompletionAction | None:
-    """
-    Returns OnCompletionAction if it is statically known, otherwise returns None
-    """
-    match field_nodes.get(TxnField.OnCompletion):
-        case None:
-            return OnCompletionAction.NoOp
-        case InstanceBuilder(pytype=pytypes.OnCompleteActionType) as eb:
-            value = eb.resolve()
-            if isinstance(value, IntegerConstant):
-                return OnCompletionAction(value.value)
-    return None
-
-
-def _is_creating(field_nodes: Mapping[TxnField, NodeBuilder]) -> bool | None:
-    """
-    Returns app_id == 0 if app_id is statically known, otherwise returns None
-    """
-    match field_nodes.get(TxnField.ApplicationID):
-        case None:
-            return True
-        case LiteralBuilder(value=int(app_id)):
-            return app_id == 0
-    return None
-
-
-def _add_on_completion(
-    field_nodes: dict[TxnField, NodeBuilder],
-    on_complete: OnCompletionAction,
-    location: SourceLocation,
-) -> None:
-    # if NoOp can just omit
-    if on_complete == OnCompletionAction.NoOp:
-        return
-    field_nodes[TxnField.OnCompletion] = UInt64ExpressionBuilder(
-        UInt64Constant(
-            source_location=location, value=on_complete.value, teal_alias=on_complete.name
-        ),
-        enum_type=pytypes.OnCompleteActionType,
-    )
