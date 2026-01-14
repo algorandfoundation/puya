@@ -1,7 +1,9 @@
 import typing
 from collections.abc import Mapping, Sequence, Set
+from itertools import zip_longest
 
 from puya import log
+from puya.algo_constants import MAX_UINT64
 from puya.avm import OnCompletionAction
 from puya.awst.nodes import (
     ABICall,
@@ -10,6 +12,7 @@ from puya.awst.nodes import (
     Expression,
     IntegerConstant,
     MethodSignature,
+    MethodSignatureString,
     SubmitInnerTransaction,
     UInt64Constant,
     VoidConstant,
@@ -17,26 +20,28 @@ from puya.awst.nodes import (
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WABICallInnerTransactionFields
 from puya.errors import CodeError
-from puya.ir.builder._utils import method_signature_to_abi_signature
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.arc4_utils import arc4_to_pytype
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
-from puyapy.awst_build.eb.arc4._utils import split_arc4_signature
 from puyapy.awst_build.eb.arc4_client import ARC4ClientMethodExpressionBuilder
-from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
+from puyapy.awst_build.eb.interface import (
+    InstanceBuilder,
+    LiteralBuilder,
+    NodeBuilder,
+    TypeBuilder,
+)
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner import InnerTransactionExpressionBuilder
 from puyapy.awst_build.eb.transaction.inner_params import InnerTxnParamsExpressionBuilder
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
+from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
-from puyapy.awst_build.utils import maybe_resolve_literal
 
 logger = log.get_logger(__name__)
 
@@ -193,47 +198,21 @@ def _abi_call(
                 arg_types = []
                 return_type = pytypes.NoneType
                 resource_encoding = "value"
-            target = MethodSignature(
+            target: MethodSignature | MethodSignatureString = MethodSignature(
                 name=name,
                 arg_types=[t.checked_wtype(location) for t in arg_types],
                 return_type=return_type.checked_wtype(location),
                 resource_encoding=resource_encoding,
                 source_location=args[0].source_location,
             )
+            allow_literal_args = True
         case _:
-            sig = split_arc4_signature(method)
-
-            if sig.maybe_args is None:
-                arg_types = [
-                    _maybe_convert_literal_and_itxn_field(arg.pytype, arg.source_location)
-                    for arg in abi_args
-                ]
-            else:
-                arg_types = [arc4_to_pytype(arg) for arg in sig.maybe_args]
-            arg_wtypes = [t.checked_wtype(location) for t in arg_types]
-
-            if return_type_annotation is not None and return_type_annotation != pytypes.NoneType:
-                return_type = return_type_annotation
-            elif sig.maybe_returns:
-                return_type = arc4_to_pytype(sig.maybe_returns)
-            else:
-                return_type = pytypes.NoneType
-            return_wtype = return_type.checked_wtype(location)
-
-            target = MethodSignature(
-                name=sig.name,
-                arg_types=arg_wtypes,
-                return_type=return_wtype,
-                source_location=location,
-                resource_encoding="index",
+            method_str = expect.simple_string_literal(method, default=expect.default_raise)
+            target = MethodSignatureString(
+                value=method_str, source_location=method.source_location
             )
-            abi_signature = method_signature_to_abi_signature(target)
-            if not abi_signature.startswith(sig.value):
-                logger.error(
-                    f"method selector from args '{abi_signature}' "
-                    f"does not match provided method selector: '{sig.value}'",
-                    location=method.source_location,
-                )
+            arg_types = []
+            allow_literal_args = "(" in method_str
 
     field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
     if (
@@ -250,8 +229,10 @@ def _abi_call(
             fields[field] = params.validate_and_convert(field_node).resolve()
 
     abi_call_args = [
-        _maybe_resolve_literal(arg, arg_type).resolve()
-        for arg, arg_type in zip(abi_args, arg_types, strict=True)
+        _maybe_resolve_literal(
+            arg, expected_type=arg_type, allow_literal=allow_literal_args
+        ).resolve()
+        for arg, arg_type in zip_longest(abi_args, arg_types)
     ]
 
     if return_type_annotation is None:
@@ -301,43 +282,6 @@ def _get_python_kwargs(fields: Sequence[TxnField]) -> Set[str]:
     return StableSet.from_iter(
         arg for arg, param in PYTHON_ITXN_ARGUMENTS.items() if param.field in fields
     )
-
-
-def _maybe_convert_literal_and_itxn_field(
-    typ: pytypes.PyType, location: SourceLocation
-) -> pytypes.PyType:
-    match typ:
-        case pytypes.StrLiteralType:
-            return pytypes.StringType
-        case pytypes.BytesLiteralType:
-            return pytypes.BytesType
-        case pytypes.IntLiteralType:
-            return pytypes.UInt64Type
-        case pytypes.TupleType:
-            return pytypes.GenericTupleType.parameterise(
-                [_maybe_convert_literal_and_itxn_field(t, location) for t in typ.items],
-                source_location=location,
-            )
-        # convert an inner txn type to the equivalent group txn type
-        case pytypes.InnerTransactionFieldsetType(transaction_type=txn_type):
-            return pytypes.GroupTransactionTypes[txn_type]
-        case _:
-            return typ
-
-
-def _maybe_resolve_literal(
-    operand: InstanceBuilder, target_type: pytypes.PyType
-) -> InstanceBuilder:
-    """Handles special case of resolving a literal tuple into a tuple"""
-    from puyapy.awst_build.eb.tuple import TupleLiteralBuilder
-
-    if isinstance(operand, TupleLiteralBuilder) and isinstance(target_type, pytypes.TupleLikeType):
-        resolved_items = [
-            _maybe_resolve_literal(elem, elem_type)
-            for elem, elem_type in zip(operand.iterate_static(), target_type.items, strict=True)
-        ]
-        return TupleLiteralBuilder(resolved_items, operand.source_location)
-    return maybe_resolve_literal(operand, target_type)
 
 
 def _validate_transaction_kwargs(
@@ -441,3 +385,53 @@ def _add_on_completion(
         ),
         enum_type=pytypes.OnCompleteActionType,
     )
+
+
+def _maybe_resolve_literal(
+    operand: InstanceBuilder,
+    *,
+    expected_type: pytypes.PyType | None = None,
+    allow_literal: bool = True,
+) -> InstanceBuilder:
+    if isinstance(operand, TupleLiteralBuilder):
+        item_types = list[pytypes.PyType]()
+        if expected_type is not None and isinstance(expected_type, pytypes.TupleType):
+            item_types.extend(expected_type.items)
+        resolved_items = [
+            _maybe_resolve_literal(elem, expected_type=item_type, allow_literal=allow_literal)
+            for elem, item_type in zip_longest(operand.iterate_static(), item_types)
+        ]
+        return TupleLiteralBuilder(resolved_items, operand.source_location)
+
+    if expected_type is None:
+        match operand.pytype:
+            case pytypes.StrLiteralType:
+                typ: pytypes.PyType = pytypes.StringType
+            case pytypes.BytesLiteralType:
+                typ = pytypes.BytesType
+            case pytypes.IntLiteralType:
+                if (
+                    (isinstance(operand, LiteralBuilder))
+                    and isinstance(operand.value, int)
+                    and operand.value > MAX_UINT64
+                ):
+                    typ = pytypes.BigUIntType
+                else:
+                    typ = pytypes.UInt64Type
+            case pytypes.GroupTransactionType() | pytypes.InnerTransactionResultType():
+                raise CodeError(
+                    f"cannot use {operand.pytype} as an argument to an ARC-4 method",
+                    location=operand.source_location,
+                )
+            case _:
+                typ = operand.pytype
+        if (typ != operand.pytype) and not allow_literal:
+            logger.error(
+                "type information is needed when passing a literal value",
+                location=operand.source_location,
+            )
+    else:
+        typ = expected_type
+    target_type_builder = builder_for_type(typ, operand.source_location)
+    assert isinstance(target_type_builder, TypeBuilder)
+    return operand.resolve_literal(target_type_builder)

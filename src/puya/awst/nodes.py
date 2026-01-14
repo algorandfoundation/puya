@@ -1752,7 +1752,7 @@ class ABICall(Expression):
     or submitted with SubmitInnerTransaction.
     """
 
-    target: MethodSignature
+    target: MethodSignature | MethodSignatureString
     args: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: wtypes.WABICallInnerTransactionFields

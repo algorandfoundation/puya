@@ -272,36 +272,13 @@ def wrong_arg_type2() -> None:
         Client.foo, "", app_id=1 ## E: can't convert literal to algopy.arc4.UIntN[typing.Literal[64]]
     ).submit()
 
-
-@subroutine
-def wrong_arg_type3() -> None:
-    itxn.abi_call(
-        "foo(uint64)void", b"", app_id=1 ## E: can't convert literal to algopy.arc4.UIntN[typing.Literal[64]]
-    ).submit()
-
-
-@subroutine
-def wrong_arg_type4() -> None:
-    itxn.abi_call("foo(uint8)void", 256, app_id=1).submit() ## E: invalid algopy.arc4.UIntN[typing.Literal[8]] value
-
-
 @subroutine
 def wrong_arg_type5() -> None:
-    itxn.abi_call("foo", 2**64 + 1, app_id=1).submit() ## E: invalid algopy.UInt64 value
-
-
-@subroutine
-def method_selector_mismatch() -> None:
-    itxn.abi_call[arc4.UInt64](
-        "foo(uint8)void", ## E: method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
-        1,
-        app_id=1,
-    ).submit()
-
+    itxn.abi_call("foo", 2**64 + 1, app_id=1).submit() ## E: type information is needed when passing a literal value
+    itxn.abi_call("foo", 256, app_id=1).submit()  ## E: type information is needed when passing a literal value
 
 @subroutine
 def allowed_coercions() -> None:
-    itxn.abi_call("foo", 256, app_id=1).submit()  # value inferred from args
     itxn.abi_call(Client.foo, 1, app_id=1).submit()
 
 
@@ -347,11 +324,43 @@ def static_bytes_bad_literal() -> None:
 
 @subroutine
 def caller() -> None:
-    itxn.abi_call( ## E: unencodable type: inner_transaction_pay
+    itxn.abi_call(
         "foo",
-        itxn.Payment(receiver=Txn.sender).submit(),
+        itxn.Payment(receiver=Txn.sender).submit(), ## E: cannot use algopy.itxn.PaymentInnerTransaction as an argument to an ARC-4 method
         app_id=1234,
     ).submit()
+
+
+
+## case: test_itxn_abi_call_errors_from_ir_layer
+import typing
+from algopy import *
+
+@subroutine
+def method_selector_mismatch() -> None:
+    itxn.abi_call[arc4.UInt64](
+        "foo(uint8)void", ## E: method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
+        1,
+        app_id=1,
+    ).submit()
+
+
+## case: test_itxn_abi_call_errors_from_lowering_ir
+import typing
+from algopy import *
+
+class MyContract(arc4.ARC4Contract):
+
+    @arc4.abimethod
+    def wrong_arg_type3(self) -> None:
+        itxn.abi_call(
+            "foo(uint64)void", b"", app_id=1 ## E: cannot encode bytes to arc4.uint64
+        ).submit()
+
+    @arc4.abimethod
+    def wrong_arg_type4(self) -> None:
+        itxn.abi_call("foo(uint8)void", 256, app_id=1).submit() ## E: cannot encode uint64 to arc4.uint8
+
 
 
 ## case: abi_call_struct_member_ordering

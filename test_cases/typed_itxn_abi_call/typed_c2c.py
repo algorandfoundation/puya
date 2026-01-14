@@ -39,7 +39,9 @@ class Greeter(ARC4Contract):
         assert result == "echo: test1"
         result = itxn.abi_call(LoggerClient.echo, "test2", app_id=app).submit().result
         assert result == "echo: test2"
-        result = itxn.abi_call[arc4.String]("echo", "test3", app_id=app).submit().result
+        result = (
+            itxn.abi_call[arc4.String]("echo", arc4.String("test3"), app_id=app).submit().result
+        )
         assert result == "echo: test3"
         result = itxn.abi_call[arc4.String]("echo(string)", "test4", app_id=app).submit().result
         assert result == "echo: test4"
