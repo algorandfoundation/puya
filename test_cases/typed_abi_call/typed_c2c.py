@@ -38,7 +38,7 @@ class Greeter(ARC4Contract):
         assert result == "echo: test1"
         result, _txn = arc4.abi_call(LoggerClient.echo, "test2", app_id=app)
         assert result == "echo: test2"
-        result, _txn = arc4.abi_call[arc4.String]("echo", "test3", app_id=app)
+        result, _txn = arc4.abi_call[arc4.String]("echo", arc4.String("test3"), app_id=app)
         assert result == "echo: test3"
         result, _txn = arc4.abi_call[arc4.String]("echo(string)", "test4", app_id=app)
         assert result == "echo: test4"

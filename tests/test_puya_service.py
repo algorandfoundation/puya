@@ -34,8 +34,7 @@ _EXPECTED_ANALYSE_OUTPUT = {
         "warning: Variable tokenPayoutRatio potentially used before assignment",
     ],
     _ANALYSE_DIR / "valid_awst_with_error": [
-        "contract.py:7:38 error: cannot encode algopy.Bytes"
-        " to algopy.arc4.UIntN[typing.Literal[64]]",
+        "contract.py:7:38 error: cannot encode bytes to arc4.uint64",
     ],
 }
 
