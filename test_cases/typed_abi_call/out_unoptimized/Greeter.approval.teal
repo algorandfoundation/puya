@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 2 1 8
-    bytecblock 0x151f7c75 "s1" 0x 0x6231 0x9bf81913 0x0000000000000001 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x16e03919 "log 1" "s" 0x62 0x02 0x01 0xb4b4334e "echo: tuple" 0x0000000000000002 0x00 "echo: s1" "s2" 0x33 "echo: s2" 0x636f6e76657274656431 0x34 0x0000000000000003 0x576f726c6431 0x576f726c6432 0x576f726c6433 0x576f726c6434 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x48142d5e "test1" "echo: test1" "test2" "echo: test2" "test3" "echo: test3" "test4" "echo: test4" "test5" "echo: test5" "typed + ignore" "echo: typed + ignore" "untyped + ignore" "echo: untyped + ignore" "tuple" "untyped" "echo: untyped" 0x000000000000000b 0x6563686f3a206231 0x6563686f3a2033 "s1b" "s2b" 0x3362 "echo: s2b" 0x000000000000002a 0xddd07185 "log 2"
+    bytecblock 0x151f7c75 "s1" 0x 0x6231 0x9bf81913 0x02 0x16e03919 "log 1" 0x0000000000000001 "s" 0x62 0x01 0xb4b4334e 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 "echo: tuple" 0x0000000000000002 0x00 "echo: s1" "s2" 0x33 "echo: s2" 0x636f6e76657274656431 0x34 0x0000000000000003 0x576f726c6431 0x576f726c6432 0x576f726c6433 0x576f726c6434 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x48142d5e "test1" "echo: test1" "test2" "echo: test2" "test3" "echo: test3" "test4" "echo: test4" "test5" "echo: test5" "typed + ignore" "echo: typed + ignore" "untyped + ignore" "echo: untyped + ignore" "tuple" "untyped" "echo: untyped" 0x000000000000000b 0x6563686f3a206231 0x6563686f3a2033 "s1b" "s2b" 0x3362 "echo: s2b" 0x000000000000002a 0xddd07185 "log 2"
     b main_block@0
 
 main_block@0:
@@ -797,7 +797,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@
     ==
     assert
     // typed_abi_call/typed_c2c.py:41
-    // result, _txn = arc4.abi_call[arc4.String]("echo", "test3", app_id=app)
+    // result, _txn = arc4.abi_call[arc4.String]("echo", arc4.String("test3"), app_id=app)
     itxn_begin
     bytec 41 // "test3"
     len
@@ -818,7 +818,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@
 
 test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds_next_txn@3:
     // typed_abi_call/typed_c2c.py:41
-    // result, _txn = arc4.abi_call[arc4.String]("echo", "test3", app_id=app)
+    // result, _txn = arc4.abi_call[arc4.String]("echo", arc4.String("test3"), app_id=app)
     itxn_submit
     itxn LastLog
     dup
@@ -1242,7 +1242,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion_block@0:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 13 // method "log(string)void"
+    bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -1492,36 +1492,13 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args_block@0:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
-    // typed_abi_call/typed_c2c.py:82-105
-    // result, txn = arc4.abi_call(
-    //     Logger.return_args_after_14th,
-    //     1,
-    //     2,
-    //     3,
-    //     4,
-    //     5,
-    //     6,
-    //     7,
-    //     8,
-    //     9,
-    //     10,
-    //     11,
-    //     12,
-    //     13,
-    //     14,
-    //     15,
-    //     16,
-    //     17,
-    //     18,
-    //     arc4.Tuple((arc4.UInt8(0xDE), arc4.UInt8(0xAD), arc4.UInt8(0xBE), arc4.UInt8(0xEF))),
-    //     20,
-    //     app_id=app,
-    // )
+    // typed_abi_call/typed_c2c.py:83
+    // Logger.return_args_after_14th,
     pushbytes 0xba0b4381 // method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:84
     // 1,
-    bytec 5 // 0x0000000000000001
+    bytec 8 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:85
     // 2,
@@ -1681,7 +1658,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_void_block@0:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 13 // method "log(string)void"
+    bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -1711,7 +1688,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@1:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 13 // method "log(string)void"
+    bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -1741,7 +1718,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@2:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 13 // method "log(string)void"
+    bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -1771,7 +1748,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_void_next_txn@3:
     concat
     frame_dig -1
     itxn_field ApplicationID
-    bytec 13 // method "log(string)void"
+    bytec 12 // method "log(string)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -1833,6 +1810,13 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types_block@0:
     // app_id=app,
     frame_dig -2
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:125
+    // Logger.log_asset_account_app,
+    pushbytes 0x46b50faf // method "log(uint64,address,uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:124-130
     // txn = arc4.abi_call(
     //     Logger.log_asset_account_app,
@@ -1841,11 +1825,6 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types_block@0:
     //     app,
     //     app_id=app,
     // )
-    pushbytes 0x46b50faf // method "log(uint64,address,uint64)void"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -1910,15 +1889,17 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address_block@0:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:139
+    // Logger.log_address,
+    pushbytes 0x0437b17e // method "log(address)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:138-142
     // txn = arc4.abi_call(
     //     Logger.log_address,
     //     Global.current_application_address,
     //     app_id=app,
     // )
-    pushbytes 0x0437b17e // method "log(address)void"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -2224,13 +2205,13 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes_next_txn@2:
     concat
     frame_dig -1
     itxn_field ApplicationID
+    bytec 29 // method "echo_native_bytes(byte[])byte[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:164-166
     // result3, _txn = arc4.abi_call(
     //     Logger.echo_native_bytes, arc4.DynamicBytes(b"b"), app_id=app
     // )
-    bytec 29 // method "echo_native_bytes(byte[])byte[]"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -2283,11 +2264,12 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_block@0:
     // typed_abi_call/typed_c2c.py:171
     // result1, _txn = arc4.abi_call(Logger.echo_native_uint64, 1, app_id=app)
     itxn_begin
+    intc_2 // 1
+    itob
     frame_dig -1
     itxn_field ApplicationID
     bytec 30 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
-    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -2364,7 +2346,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64_next_txn@2:
     itxn_field ApplicationID
     bytec 30 // method "echo_native_uint64(uint64)uint64"
     itxn_field ApplicationArgs
-    bytec 5 // 0x0000000000000001
+    bytec 8 // 0x0000000000000001
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -2410,11 +2392,19 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_block@0:
     // typed_abi_call/typed_c2c.py:182
     // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
     itxn_begin
+    bytec 5 // 0x02
+    len
+    pushint 64
+    <=
+    assert // overflow
+    pushint 64
+    bzero
+    bytec 5 // 0x02
+    b|
     frame_dig -1
     itxn_field ApplicationID
     bytec 31 // method "echo_native_biguint(uint512)uint512"
     itxn_field ApplicationArgs
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -2448,14 +2438,14 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@1:
     // typed_abi_call/typed_c2c.py:185
     // result2, _txn = arc4.abi_call(Logger.echo_native_biguint, BigUInt(2), app_id=app)
     itxn_begin
-    bytec 11 // 0x02
+    bytec 5 // 0x02
     len
     pushint 64
     <=
     assert // overflow
     pushint 64
     bzero
-    bytec 11 // 0x02
+    bytec 5 // 0x02
     b|
     frame_dig -1
     itxn_field ApplicationID
@@ -2496,7 +2486,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint_next_txn@2:
     itxn_field ApplicationID
     bytec 31 // method "echo_native_biguint(uint512)uint512"
     itxn_field ApplicationArgs
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    bytec 13 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -2567,7 +2557,28 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_block@0:
     extract 6 2
     bytec_3 // 0x6231
     concat
+    // typed_abi_call/typed_c2c.py:200
+    // 1,
+    intc_2 // 1
+    itob
+    // typed_abi_call/typed_c2c.py:201
+    // 2,
+    intc_1 // 2
+    itob
+    pushint 64
+    bzero
+    b|
+    // typed_abi_call/typed_c2c.py:198
+    // "s1",
+    uncover 3
     cover 1
+    // typed_abi_call/typed_c2c.py:199
+    // b"b1",
+    uncover 3
+    cover 2
+    // typed_abi_call/typed_c2c.py:201
+    // 2,
+    cover 3
     // typed_abi_call/typed_c2c.py:202
     // app_id=app,
     frame_dig -1
@@ -2584,30 +2595,12 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_block@0:
     //     2,
     //     app_id=app,
     // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:200
-    // 1,
-    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:201
-    // 2,
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:193-203
-    // # python literals
-    // result1, txn = arc4.abi_call[
-    //     arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]
-    // ](
-    //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
-    //     "s1",
-    //     b"b1",
-    //     1,
-    //     2,
-    //     app_id=app,
-    // )
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -2782,14 +2775,14 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@1:
     itob
     // typed_abi_call/typed_c2c.py:218
     // BigUInt(2),
-    bytec 11 // 0x02
+    bytec 5 // 0x02
     len
     pushint 64
     <=
     assert // overflow
     pushint 64
     bzero
-    bytec 11 // 0x02
+    bytec 5 // 0x02
     b|
     // typed_abi_call/typed_c2c.py:215
     // String("s1"),
@@ -2818,7 +2811,7 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@1:
     //     BigUInt(2),
     //     app_id=app,
     // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
@@ -2946,17 +2939,17 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@2:
     //     arc4.UInt512(2),
     //     app_id=app,
     // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:230
     // arc4.UInt64(1),
-    bytec 5 // 0x0000000000000001
+    bytec 8 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:231
     // arc4.UInt512(2),
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    bytec 13 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:223-233
     // # test again using arc4 types in arguments
@@ -3088,17 +3081,17 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_next_txn@3:
     //     arc4.UInt512(2),
     //     app_id=app,
     // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:241
     // arc4.UInt64(1),
-    bytec 5 // 0x0000000000000001
+    bytec 8 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:242
     // arc4.UInt512(2),
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    bytec 13 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:236-244
     // # test again using native result type
@@ -3318,32 +3311,43 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_block@0
     extract 6 2
     bytec_3 // 0x6231
     concat
+    // typed_abi_call/typed_c2c.py:257
+    // 1,
+    intc_2 // 1
+    itob
+    // typed_abi_call/typed_c2c.py:258
+    // 2,
+    bytec 5 // 0x02
+    len
+    pushint 64
+    <=
+    assert // overflow
+    pushint 64
+    bzero
+    bytec 5 // 0x02
+    b|
+    // typed_abi_call/typed_c2c.py:255
+    // "s1",
+    uncover 3
     cover 1
+    // typed_abi_call/typed_c2c.py:256
+    // b"b1",
+    uncover 3
+    cover 2
+    // typed_abi_call/typed_c2c.py:258
+    // 2,
+    cover 3
     // typed_abi_call/typed_c2c.py:259
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
-    // typed_abi_call/typed_c2c.py:252-260
-    // # test with literal args
-    // result, txn = arc4.abi_call(
-    //     Logger.echo_native_tuple,
-    //     "s1",
-    //     b"b1",
-    //     1,
-    //     2,
-    //     app_id=app,
-    // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    // typed_abi_call/typed_c2c.py:254
+    // Logger.echo_native_tuple,
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:257
-    // 1,
-    bytec 5 // 0x0000000000000001
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:258
-    // 2,
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:252-260
     // # test with literal args
@@ -3535,14 +3539,14 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_tx
     itob
     // typed_abi_call/typed_c2c.py:273
     // BigUInt(2),
-    bytec 11 // 0x02
+    bytec 5 // 0x02
     len
     pushint 64
     <=
     assert // overflow
     pushint 64
     bzero
-    bytec 11 // 0x02
+    bytec 5 // 0x02
     b|
     // typed_abi_call/typed_c2c.py:270
     // String("s1"),
@@ -3559,6 +3563,14 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_tx
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:269
+    // Logger.echo_native_tuple,
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:267-275
     // # test with native args
     // result_2, txn = arc4.abi_call(
@@ -3569,12 +3581,6 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_tx
     //     BigUInt(2),
     //     app_id=app,
     // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -3737,27 +3743,19 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_tx
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
-    // typed_abi_call/typed_c2c.py:278-286
-    // # test with arc4 args
-    // result_3, txn = arc4.abi_call(
-    //     Logger.echo_native_tuple,
-    //     arc4.String("s1"),
-    //     arc4.DynamicBytes(b"b1"),
-    //     arc4.UInt64(1),
-    //     arc4.UInt512(2),
-    //     app_id=app,
-    // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    // typed_abi_call/typed_c2c.py:280
+    // Logger.echo_native_tuple,
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:283
     // arc4.UInt64(1),
-    bytec 5 // 0x0000000000000001
+    bytec 8 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:284
     // arc4.UInt512(2),
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    bytec 13 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:278-286
     // # test with arc4 args
@@ -3941,17 +3939,17 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref_next_tx
     //     arc4.UInt512(2),
     //     app_id=app,
     // )
-    bytec 7 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    bytec 6 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:294
     // arc4.UInt64(1),
-    bytec 5 // 0x0000000000000001
+    bytec 8 // 0x0000000000000001
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:295
     // arc4.UInt512(2),
-    bytec 6 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    bytec 13 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:289-297
     // # test again using native result type
@@ -4115,38 +4113,33 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_block@0:
     itxn_begin
     // typed_abi_call/typed_c2c.py:305
     // (("s1", "s2"), (1, 2, b"3")),
-    bytec_1 // "s1"
-    len
-    itob
-    extract 6 2
-    bytec_1 // "s1"
-    concat
     bytec 18 // "s2"
     len
     itob
     extract 6 2
     bytec 18 // "s2"
     concat
-    cover 1
-    bytec 19 // 0x33
+    bytec_1 // "s1"
     len
     itob
     extract 6 2
-    bytec 19 // 0x33
+    bytec_1 // "s1"
     concat
-    cover 2
     pushint 4
     itob
     extract 6 2
     bytec_2 // 0x
     uncover 1
     concat
-    dig 1
+    cover 1
+    dup
     len
     pushint 4
     +
     itob
     extract 6 2
+    uncover 2
+    uncover 1
     concat
     uncover 1
     concat
@@ -4163,16 +4156,26 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_block@0:
     len
     pushint 4
     +
+    intc_2 // 1
+    itob
     bytec_2 // 0x
-    bytec 5 // 0x0000000000000001
+    uncover 1
     concat
     bytec 15 // 0x0000000000000002
+    concat
+    bytec 19 // 0x33
+    len
+    itob
+    extract 6 2
+    bytec 19 // 0x33
     concat
     pushint 18
     itob
     extract 6 2
+    uncover 2
+    uncover 1
     concat
-    uncover 4
+    uncover 1
     concat
     uncover 1
     itob
@@ -4188,6 +4191,11 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_block@0:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:304
+    // Logger.echo_nested_tuple,
+    bytec 33 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:302-307
     // # literal args
     // result, txn = arc4.abi_call(
@@ -4195,9 +4203,6 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_block@0:
     //     (("s1", "s2"), (1, 2, b"3")),
     //     app_id=app,
     // )
-    bytec 33 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -4516,6 +4521,11 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@1:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:317
+    // Logger.echo_nested_tuple,
+    bytec 33 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:315-320
     // # native args
     // result, txn = arc4.abi_call(
@@ -4523,9 +4533,6 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@1:
     //     ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
     //     app_id=app,
     // )
-    bytec 33 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -4848,6 +4855,11 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@2:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:330
+    // Logger.echo_nested_tuple,
+    bytec 33 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:328-338
     // # arc4 args
     // result, txn = arc4.abi_call(
@@ -4860,9 +4872,6 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples_next_txn@2:
     //     ),
     //     app_id=app,
     // )
-    bytec 33 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -5251,11 +5260,11 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_block@0:
     bytec_2 // 0x
     uncover 1
     concat
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     len
     itob
     extract 6 2
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     concat
     pushint 10
     itob
@@ -5272,11 +5281,11 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_block@0:
     bytec_2 // 0x
     uncover 1
     concat
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     len
     itob
     extract 6 2
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     concat
     pushint 10
     itob
@@ -5291,6 +5300,12 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_block@0:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:359
+    // Logger.logs_are_equal,
+    bytec 62 // method "logs_are_equal((uint64,string),(uint64,string))bool"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:358-363
     // result, _txn = arc4.abi_call(
     //     Logger.logs_are_equal,
@@ -5298,10 +5313,6 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_block@0:
     //     LogMessage(level=UInt64(1), message=String("log 1")),
     //     app_id=app,
     // )
-    bytec 62 // method "logs_are_equal((uint64,string),(uint64,string))bool"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -5370,11 +5381,11 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_next_txn@1:
     bytec_2 // 0x
     uncover 1
     concat
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     len
     itob
     extract 6 2
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     concat
     pushint 10
     itob
@@ -5389,6 +5400,12 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_next_txn@1:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:366
+    // Logger.logs_are_equal,
+    bytec 62 // method "logs_are_equal((uint64,string),(uint64,string))bool"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:365-370
     // result, _txn = arc4.abi_call(
     //     Logger.logs_are_equal,
@@ -5396,10 +5413,6 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples_next_txn@1:
     //     LogMessage(level=UInt64(1), message=String("log 1")),
     //     app_id=app,
     // )
-    bytec 62 // method "logs_are_equal((uint64,string),(uint64,string))bool"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -5447,14 +5460,14 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct:
 test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct_block@0:
     // typed_abi_call/typed_c2c.py:375
     // log = LogStruct(level=arc4.UInt64(1), message=arc4.String("log 1"))
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     len
     itob
     extract 6 2
-    bytec 8 // "log 1"
+    bytec 7 // "log 1"
     concat
     bytec_2 // 0x
-    bytec 5 // 0x0000000000000001
+    bytec 8 // 0x0000000000000001
     concat
     pushint 10
     itob
@@ -5474,15 +5487,17 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct_block@0:
     // app_id=app,
     frame_dig -1
     itxn_field ApplicationID
+    // typed_abi_call/typed_c2c.py:377
+    // Logger.echo_log_struct,
+    pushbytes 0xdc4f1992 // method "echo_log_struct((uint64,string))(uint64,string)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:376-380
     // result, txn = arc4.abi_call(
     //     Logger.echo_log_struct,
     //     log,
     //     app_id=app,
     // )
-    pushbytes 0xdc4f1992 // method "echo_log_struct((uint64,string))(uint64,string)"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -5610,19 +5625,13 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_block@0:
     itxn_field Assets
     itxn_field Applications
     itxn_field Accounts
-    // typed_abi_call/typed_c2c.py:389-391
-    // result, txn = arc4.abi_call(
-    //     Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
-    // )
     bytec 35 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:390
-    // Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     bytec 16 // 0x00
     itxn_field ApplicationArgs
-    bytec 12 // 0x01
+    bytec 11 // 0x01
     itxn_field ApplicationArgs
-    bytec 12 // 0x01
+    bytec 11 // 0x01
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:389-391
     // result, txn = arc4.abi_call(
@@ -5707,15 +5716,15 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@1:
     cover 2
     frame_dig -2
     itxn_field ApplicationID
-    // typed_abi_call/typed_c2c.py:394-396
-    // result, txn = arc4.abi_call(
-    //     Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call
-    // )
     bytec 36 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:394-396
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call
+    // )
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -5792,19 +5801,13 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@2:
     itxn_field Assets
     itxn_field Applications
     itxn_field Accounts
-    // typed_abi_call/typed_c2c.py:399-401
-    // result, txn = arc4.abi_call(
-    //     LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
-    // )
     bytec 35 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
-    // typed_abi_call/typed_c2c.py:400
-    // LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     bytec 16 // 0x00
     itxn_field ApplicationArgs
-    bytec 12 // 0x01
+    bytec 11 // 0x01
     itxn_field ApplicationArgs
-    bytec 12 // 0x01
+    bytec 11 // 0x01
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:399-401
     // result, txn = arc4.abi_call(
@@ -5889,15 +5892,15 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@3:
     cover 2
     frame_dig -2
     itxn_field ApplicationID
-    // typed_abi_call/typed_c2c.py:404-406
-    // result, txn = arc4.abi_call(
-    //     LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call
-    // )
     bytec 36 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
+    // typed_abi_call/typed_c2c.py:404-406
+    // result, txn = arc4.abi_call(
+    //     LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call
+    // )
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -5998,11 +6001,11 @@ test_cases.typed_abi_call.typed_c2c.Greeter.test_resource_encoding_next_txn@4:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:412
     // app,
-    bytec 12 // 0x01
+    bytec 11 // 0x01
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:413
     // acc,
-    bytec 12 // 0x01
+    bytec 11 // 0x01
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:409-415
     // result, txn = arc4.abi_call[tuple[Asset, Application, Account]](

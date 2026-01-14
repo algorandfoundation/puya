@@ -68,6 +68,11 @@ test_itxn_validate_caller_bytes:
     assert // invalid size
     swap
     itxn_field ApplicationID
+    // fixed_bytes_ops/abi_values.py:13
+    // CheckABIApp.manual_validate,
+    bytec_0 // method "manual_validate(byte[11])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     // fixed_bytes_ops/abi_values.py:11-16
     // # this be validated in the caller as it will attempt to encode val to FixedBytes11
     // arc4.abi_call(
@@ -75,9 +80,6 @@ test_itxn_validate_caller_bytes:
     //     val,
     //     app_id=checker,
     // )
-    bytec_0 // method "manual_validate(byte[11])void"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
     intc_2 // appl
     itxn_field TypeEnum
     intc_1 // 0
@@ -122,9 +124,18 @@ test_itxn_validate_callee_manual:
     itxn_begin
     swap
     itxn_field ApplicationID
+    // fixed_bytes_ops/abi_values.py:23
+    // CheckABIApp.manual_validate,
     bytec_0 // method "manual_validate(byte[11])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
+    // fixed_bytes_ops/abi_values.py:21-26
+    // # this will be validated in the callee method as types match
+    // arc4.abi_call(
+    //     CheckABIApp.manual_validate,
+    //     fb,
+    //     app_id=checker,
+    // )
     intc_2 // appl
     itxn_field TypeEnum
     intc_1 // 0
@@ -169,9 +180,18 @@ test_itxn_validate_callee_router:
     itxn_begin
     swap
     itxn_field ApplicationID
+    // fixed_bytes_ops/abi_values.py:33
+    // CheckABIApp.router_validate,
     pushbytes 0xe50b9860 // method "router_validate(byte[11])void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
+    // fixed_bytes_ops/abi_values.py:31-36
+    // # this will be validated in the callee router as types match
+    // arc4.abi_call(
+    //     CheckABIApp.router_validate,
+    //     fb,
+    //     app_id=checker,
+    // )
     intc_2 // appl
     itxn_field TypeEnum
     intc_1 // 0
@@ -203,6 +223,8 @@ test_static_to_dynamic_encoding:
     // )
     itxn_begin
     itxn_field ApplicationID
+    // fixed_bytes_ops/abi_values.py:42
+    // CheckABIApp.i_am_a_dynamic_personality,
     pushbytes 0x96f7f4ed // method "i_am_a_dynamic_personality(byte[])void"
     itxn_field ApplicationArgs
     // fixed_bytes_ops/abi_values.py:43
