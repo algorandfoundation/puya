@@ -17,7 +17,7 @@ contract A
   
   abimethod test_cases.circular_dependency.a.A.ping(b: application): string
   {
-    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(abi_call(signature={name="ping",args=(),result=string}, args=, fields=TxnField.ApplicationID=b))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=1)), string))[-1], SINGLE_EVAL(id=0))
+    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=submit_txn(abi_call(signature={name="ping",args=(),result=string}, args=(), fields={TxnField.ApplicationID=b}))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=1)), string))[-1], SINGLE_EVAL(id=0))
     return result
   }
   
@@ -28,7 +28,7 @@ contract A
   
   abimethod test_cases.circular_dependency.a.A.create_b(factory_id: application): application
   {
-    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=3, source=SINGLE_EVAL(id=2, source=submit_txn(abi_call(signature={name="deploy_b",args=(),result=application}, args=, fields=TxnField.ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=3)), application))[-1], SINGLE_EVAL(id=2))
+    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=3, source=SINGLE_EVAL(id=2, source=submit_txn(abi_call(signature={name="deploy_b",args=(),result=application}, args=(), fields={TxnField.ApplicationID=factory_id}))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=3)), application))[-1], SINGLE_EVAL(id=2))
     return result
   }
   
@@ -65,13 +65,13 @@ contract B
   
   abimethod test_cases.circular_dependency.b.B.pong(a: application): string
   {
-    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=submit_txn(abi_call(signature={name="pong",args=(),result=string}, args=, fields=TxnField.ApplicationID=a))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=5)), string))[-1], SINGLE_EVAL(id=4))
+    (result, _txn): tuple<string,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=submit_txn(abi_call(signature={name="pong",args=(),result=string}, args=(), fields={TxnField.ApplicationID=a}))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=5)), string))[-1], SINGLE_EVAL(id=4))
     return result
   }
   
   abimethod test_cases.circular_dependency.b.B.create_a(factory_id: application): application
   {
-    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(abi_call(signature={name="deploy_a",args=(),result=application}, args=, fields=TxnField.ApplicationID=factory_id))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=7)), application))[-1], SINGLE_EVAL(id=6))
+    (result, _txn): tuple<application,inner_transaction_appl> = ((assert(extract<0, 4>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(abi_call(signature={name="deploy_a",args=(),result=application}, args=(), fields={TxnField.ApplicationID=factory_id}))).LastLog)) == hex<"151F7C75">, comment="application log value is not the result of an ABI return"), arc4_validate(extract<4, 0>(SINGLE_EVAL(id=7)), application))[-1], SINGLE_EVAL(id=6))
     return result
   }
   
@@ -103,13 +103,13 @@ contract Factory
   
   abimethod test_cases.circular_dependency.factory.Factory.deploy_a(): application
   {
-    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=9, source=SINGLE_EVAL(id=8, source=compiled_contract(test_cases.circular_dependency.a.A,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=9)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=10, source=SINGLE_EVAL(id=8).clear_state_program)[0], SINGLE_EVAL(id=10)[1]), ExtraProgramPages=SINGLE_EVAL(id=8).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=8).global_bytes, GlobalNumUint=SINGLE_EVAL(id=8).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=8).local_bytes, LocalNumUint=SINGLE_EVAL(id=8).local_uints))
+    txn: inner_transaction_appl = submit_txn(abi_call(signature=None, args=(), fields={TxnField.ApprovalProgramPages=(SINGLE_EVAL(id=9, source=SINGLE_EVAL(id=8, source=compiled_contract(test_cases.circular_dependency.a.A,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=9)[1]), TxnField.ClearStateProgramPages=(SINGLE_EVAL(id=10, source=SINGLE_EVAL(id=8).clear_state_program)[0], SINGLE_EVAL(id=10)[1]), TxnField.ExtraProgramPages=SINGLE_EVAL(id=8).extra_program_pages, TxnField.GlobalNumByteSlice=SINGLE_EVAL(id=8).global_bytes, TxnField.GlobalNumUint=SINGLE_EVAL(id=8).global_uints, TxnField.LocalNumByteSlice=SINGLE_EVAL(id=8).local_bytes, TxnField.LocalNumUint=SINGLE_EVAL(id=8).local_uints}))
     return txn.CreatedApplicationID
   }
   
   abimethod test_cases.circular_dependency.factory.Factory.deploy_b(): application
   {
-    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=12, source=SINGLE_EVAL(id=11, source=compiled_contract(test_cases.circular_dependency.b.B,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=12)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=13, source=SINGLE_EVAL(id=11).clear_state_program)[0], SINGLE_EVAL(id=13)[1]), ExtraProgramPages=SINGLE_EVAL(id=11).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=11).global_bytes, GlobalNumUint=SINGLE_EVAL(id=11).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=11).local_bytes, LocalNumUint=SINGLE_EVAL(id=11).local_uints))
+    txn: inner_transaction_appl = submit_txn(abi_call(signature=None, args=(), fields={TxnField.ApprovalProgramPages=(SINGLE_EVAL(id=12, source=SINGLE_EVAL(id=11, source=compiled_contract(test_cases.circular_dependency.b.B,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=12)[1]), TxnField.ClearStateProgramPages=(SINGLE_EVAL(id=13, source=SINGLE_EVAL(id=11).clear_state_program)[0], SINGLE_EVAL(id=13)[1]), TxnField.ExtraProgramPages=SINGLE_EVAL(id=11).extra_program_pages, TxnField.GlobalNumByteSlice=SINGLE_EVAL(id=11).global_bytes, TxnField.GlobalNumUint=SINGLE_EVAL(id=11).global_uints, TxnField.LocalNumByteSlice=SINGLE_EVAL(id=11).local_bytes, TxnField.LocalNumUint=SINGLE_EVAL(id=11).local_uints}))
     return txn.CreatedApplicationID
   }
   
