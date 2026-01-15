@@ -318,8 +318,8 @@ class ReferenceArray(_WTypeInstance):
     @element_type.validator
     def _element_type_validator(self, _: object, element_type: WType) -> None:
         if element_type == void_wtype:
-            raise CodeError("array element type cannot be void", self.source_location)
-        if not element_type.immutable:
+            logger.error("array element type cannot be void", location=self.source_location)
+        elif not element_type.immutable:
             logger.error("arrays must have immutable elements", location=self.source_location)
 
     @name.default
