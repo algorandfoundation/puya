@@ -299,6 +299,29 @@ jobs:
       - name: Compile AMM directly
         run: puyapy --log-level=debug examples/amm
 
+  run-smoke-test-python-versions:
+    name: "Run CLI tests with Python ${{ matrix.version }}"
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [ "3.12", "3.13", "3.14" ]
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          python_version: ${{ matrix.version }}
+          uv_sync_args: "--all-groups"
+
+      - name: pytest
+        shell: bash
+        run: pytest tests/test_cli.py
+        env:
+          COVERAGE_CORE: sysmon
+
   build-and-test-binaries:
     name: Build and test binaries
     uses: ./.github/workflows/build-binaries.yaml
