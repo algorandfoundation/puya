@@ -194,6 +194,28 @@ def hello_world_awst_json() -> Iterable[Path]:
         yield awst_json
 
 
+def test_edits_do_not_appear_in_output(tmpdir: Path) -> None:
+    file = tmpdir / "contract.py"
+    file.write_text(
+        """
+import algopy
+
+def sub_with_no_decorator() -> bool:
+    return True
+
+class MyContract(algopy.ARC4Contract):
+
+    @algopy.public
+    def test(self) -> bool:
+        return sub_with_no_decorator()
+""",
+        "utf-8",
+    )
+    result = run_puyapy([file], check=False)
+    assert "error: free functions must be annotated with @algopy.subroutine" in result.stdout
+    assert "edits=" not in result.stdout
+
+
 @pytest.fixture(scope="session")
 def boolean_bin_ops_awst_json() -> Iterable[Path]:
     path = TEST_CASES_DIR / "boolean_binary_ops" / "contract.py"
