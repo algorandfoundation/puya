@@ -50,7 +50,7 @@ async def test_open_doc_updates_diagnostics(
     )
     diag_params = await harness.wait_for_diagnostic(unique_uri, 1)
 
-    assert diag_params.diagnostics == []
+    assert diag_params.diagnostics == ()
 
 
 @pytest.mark.skipif(platform.system() != "Windows", reason="Windows only test")
@@ -69,7 +69,7 @@ async def test_open_doc_encoded_uri_updates_diagnostics(
     )
     diag_params = await harness.wait_for_diagnostic(unique_uri, 1)
 
-    assert diag_params.diagnostics == []
+    assert diag_params.diagnostics == ()
 
 
 async def test_doc_change_updates_diagnostics(
@@ -363,8 +363,8 @@ class Contract(ARC4Contract):
         doc_b, harness.current_version(doc_b), num_matches=2
     )
 
-    assert diag_a.diagnostics == []
-    assert diag_b.diagnostics == []
+    assert diag_a.diagnostics == ()
+    assert diag_b.diagnostics == ()
 
 
 async def test_backend_error(harness: "_LanguageServerHarness", unique_uri: URI) -> None:

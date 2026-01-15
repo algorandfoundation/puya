@@ -2573,7 +2573,9 @@ class Contract(RootNode):
     """The short / friendly name for the Contract, used in output file naming and in ARC-32"""
     description: str | None
     """The (user supplied) contract description, currently only used in ARC-32 output"""
-    method_resolution_order: Sequence[ContractReference]
+    method_resolution_order: Sequence[ContractReference] = attrs.field(
+        converter=tuple[ContractReference, ...]
+    )
     """
     The lookup order to use when resolving calls to contract methods.
     Shouldn't include the current contract, but otherwise should be exhaustive,
