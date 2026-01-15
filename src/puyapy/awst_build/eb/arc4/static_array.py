@@ -10,7 +10,7 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import GenericTypeBuilder
-from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
+from puyapy.awst_build.eb._bytes_backed import BytesConvertibleTypeBuilder
 from puyapy.awst_build.eb._utils import constant_bool_and_error
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
@@ -55,7 +55,7 @@ class StaticArrayGenericTypeBuilder(GenericTypeBuilder):
         )
 
 
-class StaticArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
+class StaticArrayTypeBuilder(BytesConvertibleTypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericARC4StaticArrayType

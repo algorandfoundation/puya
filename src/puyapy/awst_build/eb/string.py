@@ -25,7 +25,7 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
-    BytesBackedTypeBuilder,
+    BytesConvertibleTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import compare_bytes, dummy_statement, dummy_value
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -43,7 +43,7 @@ from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 logger = log.get_logger(__name__)
 
 
-class StringTypeBuilder(BytesBackedTypeBuilder):
+class StringTypeBuilder(BytesConvertibleTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.StringType, location)
 

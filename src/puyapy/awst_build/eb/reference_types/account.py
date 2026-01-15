@@ -20,7 +20,7 @@ from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
-from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
+from puyapy.awst_build.eb._bytes_backed import BytesConvertibleTypeBuilder
 from puyapy.awst_build.eb._utils import (
     cast_to_bytes,
     compare_bytes,
@@ -42,7 +42,7 @@ from puyapy.awst_build.eb.reference_types._base import ReferenceValueExpressionB
 logger = log.get_logger(__name__)
 
 
-class AccountTypeBuilder(BytesBackedTypeBuilder):
+class AccountTypeBuilder(BytesConvertibleTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.AccountType, location)
 
