@@ -15,7 +15,7 @@ from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
-from puya.utils import lazy_setdefault, unique
+from puya.utils import unique
 from puyapy.awst_build import constants
 
 if typing.TYPE_CHECKING:
@@ -181,7 +181,6 @@ class _GenericType(PyType, abc.ABC, typing.Generic[_TPyType]):
     """Represents a typing.Generic type with unknown parameters"""
 
     _parameterise: _Parameterise[_TPyType]
-    _instance_cache: dict[_TypeArgs, _TPyType] = attrs.field(factory=dict, eq=False)
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
@@ -195,11 +194,7 @@ class _GenericType(PyType, abc.ABC, typing.Generic[_TPyType]):
     def parameterise(
         self, args: Sequence[PyType], source_location: SourceLocation | None
     ) -> _TPyType:
-        return lazy_setdefault(
-            self._instance_cache,
-            key=tuple(args),
-            default=lambda args_: self._parameterise(self, args_, source_location),
-        )
+        return self._parameterise(self, tuple(args), source_location)
 
 
 def _parameterise_type_type(
