@@ -1,6 +1,22 @@
 # ruff: noqa
 # fmt: off
 # type: ignore
+## case: test_reference_array_dynamic_element
+from algopy import *
+
+class ArrayContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def array_dynamic(self) -> None:
+        arr = ReferenceArray[Bytes]() ## E: reference arrays can't have dynamic elements
+
+## case: test_reference_array_immutable_element
+from algopy import *
+
+class ArrayContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def array_nested(self) -> None:
+        arr = ReferenceArray[ReferenceArray[Bytes]]() ## E: arrays must have immutable elements
+
 ## case: test_array_element_support
 import typing
 from algopy import *
@@ -27,11 +43,10 @@ class ArrayContract(arc4.ARC4Contract):
         arr = ReferenceArray[UInt64]()
 
     @arc4.abimethod
-    def array_dynamic(self) -> None:
-        arr = ReferenceArray[Bytes]()
-
-    @arc4.abimethod
     def array_nested(self) -> None:
+        # this test is a duplicate of one above to cover
+        # a case where the same invalid types is present multiple times
+        # and ensuring both occurrences show an error
         arr = ReferenceArray[ReferenceArray[Bytes]]() ## E: arrays must have immutable elements
 
     @arc4.abimethod
