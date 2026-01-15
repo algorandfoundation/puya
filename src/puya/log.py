@@ -208,6 +208,7 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
         stack = event_dict.pop("stack", None)
         exc = event_dict.pop("exception", None)
         exc_info = event_dict.pop("exc_info", None)
+        event_dict.pop("edits", None)  # don't include language server edits in output
 
         event_dict_keys: typing.Iterable[str] = event_dict.keys()
         if self._sort_keys:
