@@ -1,3 +1,8 @@
+subroutine get_return_value(): uint64
+{
+  return 0u
+}
+
 contract TealSwitchInlining
 {
   method_resolution_order: (
@@ -696,6 +701,37 @@ contract ConstBigIntToIntOverflow
   }
   
   baremethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract WrongImportLocation
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.wrong_import_location.WrongImportLocation.verify(): uint64
+  {
+    return test_cases.regression_tests.wrong_import_location__sub.get_return_value()
+  }
+  
+  baremethod test_cases.regression_tests.wrong_import_location.WrongImportLocation.__algopy_default_create(): void
   {
   }
   

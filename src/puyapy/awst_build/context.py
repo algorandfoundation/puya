@@ -149,8 +149,9 @@ class ASTConversionModuleContext(ASTConversionContext):
                         edits=code_error.edits,
                     )
 
-    def function_pytype(self, func_def: mypy.nodes.FuncDef) -> pytypes.FuncType:
-        loc = self.node_location(func_def, module_src=func_def.info)
+    def function_pytype(
+        self, func_def: mypy.nodes.FuncDef, loc: SourceLocation
+    ) -> pytypes.FuncType:
         return function_pytype(self._pytypes, func_def, loc)
 
     def type_to_pytype(

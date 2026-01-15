@@ -172,7 +172,8 @@ def get_arc4_abimethod_data(
 def _get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
 ) -> tuple[pytypes.FuncType, dict[str, pytypes.PyType]]:
-    func_type = context.function_pytype(func_def)
+    func_loc = context.node_location(func_def, module_src=func_def.info)
+    func_type = context.function_pytype(func_def, func_loc)
 
     def require_arg_name(arg: pytypes.FuncArg) -> str:
         if arg.name is None:

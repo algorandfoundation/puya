@@ -691,7 +691,7 @@ def _build_symbols_and_state(
                     pytyp = context.type_to_pytype(node.type, source_location=node_loc)
             elif isinstance(node, mypy.nodes.FuncDef):  # noqa: SIM102
                 if node.type:
-                    pytyp = context.function_pytype(node)
+                    pytyp = context.function_pytype(node, node_loc)
 
         fragment.symbols[name] = pytyp
         if pytyp and not isinstance(pytyp, pytypes.FuncType):
