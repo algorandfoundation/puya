@@ -148,7 +148,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         try:
             folded = item.value in self.value  # type: ignore[operator]
         except Exception as ex:
-            raise CodeError(str(ex), location) from ex
+            raise CodeError("invalid Python operation", location) from ex
         return LiteralBuilderImpl(value=folded, source_location=location)
 
     @typing.override
