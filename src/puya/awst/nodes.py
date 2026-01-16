@@ -1756,7 +1756,7 @@ class ABICall(Expression):
     or submitted with SubmitInnerTransaction.
     """
 
-    target: MethodSignature | MethodSignatureString
+    target: MethodSignature
     args: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: wtypes.WInnerTransactionFields = attrs.field()
