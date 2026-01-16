@@ -1,20 +1,14 @@
+from collections.abc import Iterable
 from random import randbytes
 
+import algokit_utils as au
 import pytest
 from _pytest.mark import ParameterSet
-from algokit_utils import (
-    Account,
-    get_algod_client,
-    get_default_localnet_config,
-    get_localnet_default_account,
-)
-from algosdk import transaction
-from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
-from algosdk.v2client.algod import AlgodClient
 
 from puya import log
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import PuyaTestCase
+from tests.utils.deployer import Deployer
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
@@ -46,48 +40,75 @@ def _setup_logging() -> None:
     )
 
 
-@pytest.fixture(scope="session")
-def algod_client() -> AlgodClient:
-    return get_algod_client(get_default_localnet_config("algod"))
+@pytest.fixture
+def deployer(localnet: au.AlgorandClient, account: au.AddressWithSigners) -> Deployer:
+    return Deployer(localnet=localnet, account=account)
 
 
 @pytest.fixture(scope="session")
-def account(algod_client: AlgodClient) -> Account:
-    return get_localnet_default_account(algod_client)
+def algod_client() -> Iterable[au.AlgodClient]:
+    config = au.ClientManager.get_default_localnet_config("algod")
+    algod = au.ClientManager.get_algod_client(config)
+    yield algod
+    algod.close()
 
 
 @pytest.fixture(scope="session")
-def asset_a(algod_client: AlgodClient, account: Account) -> int:
-    return _create_asset(algod_client, account, "a")
+def kmd_client() -> Iterable[au.KmdClient]:
+    config = au.ClientManager.get_default_localnet_config("kmd")
+    kmd = au.ClientManager.get_kmd_client(config)
+    yield kmd
+    kmd.close()
 
 
 @pytest.fixture(scope="session")
-def asset_b(algod_client: AlgodClient, account: Account) -> int:
-    return _create_asset(algod_client, account, "b")
+def localnet_clients(algod_client: au.AlgodClient, kmd_client: au.KmdClient) -> au.AlgoSdkClients:
+    return au.AlgoSdkClients(algod=algod_client, kmd=kmd_client)
 
 
-def _create_asset(algod_client: AlgodClient, account: Account, asset_unit: str) -> int:
-    sp = algod_client.suggested_params()
-    atc = AtomicTransactionComposer()
-    atc.add_transaction(
-        TransactionWithSigner(
-            transaction.AssetCreateTxn(
-                account.address,
-                sp,
-                10_000_000,
-                0,
-                default_frozen=False,
-                asset_name=f"asset {asset_unit}",
-                unit_name=asset_unit,
-                note=randbytes(8),
-            ),
-            signer=account.signer,
+@pytest.fixture(scope="session")
+def account(localnet_clients: au.AlgoSdkClients) -> au.AddressWithSigners:
+    # retrieving localnet dispenser is slow so cache for session
+    # reuse localnet_clients to avoid creating unclosed connections
+    return au.AlgorandClient(localnet_clients).account.localnet_dispenser()
+
+
+@pytest.fixture
+def localnet(
+    localnet_clients: au.AlgoSdkClients, account: au.AddressWithSigners
+) -> au.AlgorandClient:
+    # algorand client is stateful, so create a new instance each test
+    localnet = au.AlgorandClient(localnet_clients)
+    localnet.account.set_signer_from_account(account)
+    return localnet
+
+
+@pytest.fixture(scope="session")
+def asset_a(localnet_clients: au.AlgoSdkClients, account: au.AddressWithSigners) -> int:
+    localnet = au.AlgorandClient(localnet_clients)
+    localnet.account.set_signer_from_account(account)
+    return _create_asset(localnet, account, "a")
+
+
+@pytest.fixture(scope="session")
+def asset_b(localnet_clients: au.AlgoSdkClients, account: au.AddressWithSigners) -> int:
+    localnet = au.AlgorandClient(localnet_clients)
+    localnet.account.set_signer_from_account(account)
+    return _create_asset(localnet, account, "b")
+
+
+def _create_asset(
+    localnet: au.AlgorandClient, account: au.AddressWithSigners, asset_unit: str
+) -> int:
+    result = localnet.send.asset_create(
+        au.AssetCreateParams(
+            sender=account.addr,
+            total=10_000_000,
+            decimals=0,
+            default_frozen=False,
+            asset_name=f"asset {asset_unit}",
+            unit_name=asset_unit,
+            note=randbytes(8),
         )
     )
-    response = atc.execute(algod_client, 4)
-    txn_id = response.tx_ids[0]
-    result = algod_client.pending_transaction_info(txn_id)
-    assert isinstance(result, dict)
-    asset_index = result["asset-index"]
-    assert isinstance(asset_index, int)
-    return asset_index
+    return result.asset_id
