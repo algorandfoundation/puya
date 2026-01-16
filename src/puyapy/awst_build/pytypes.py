@@ -1125,9 +1125,6 @@ class TransactionRelatedType(PyType, abc.ABC):
     transaction_type: TransactionType | None
     """None implies "any" type, which may be considered as either union or an intersection"""
 
-    def __attrs_post_init__(self) -> None:
-        _register_builtin(self)
-
 
 @typing.final
 @attrs.frozen(order=False)
@@ -1145,10 +1142,12 @@ class InnerTransactionResultType(TransactionRelatedType):
     wtype: wtypes.WInnerTransaction
 
 
-GroupTransactionBaseType: typing.Final = GroupTransactionType(
-    name="algopy.gtxn.TransactionBase",
-    wtype=wtypes.WGroupTransaction(name="group_transaction_base", transaction_type=None),
-    transaction_type=None,
+GroupTransactionBaseType: typing.Final = _register_builtin(
+    GroupTransactionType(
+        name="algopy.gtxn.TransactionBase",
+        wtype=wtypes.WGroupTransaction(name="group_transaction_base", transaction_type=None),
+        transaction_type=None,
+    )
 )
 
 
@@ -1158,12 +1157,14 @@ def _make_gtxn_type(kind: TransactionType | None) -> GroupTransactionType:
     else:
         cls_name = f"{_TXN_TYPE_NAMES[kind]}Transaction"
     stub_name = f"algopy.gtxn.{cls_name}"
-    return GroupTransactionType(
-        name=stub_name,
-        transaction_type=kind,
-        wtype=wtypes.WGroupTransaction(kind),
-        bases=[GroupTransactionBaseType],
-        mro=[GroupTransactionBaseType],
+    return _register_builtin(
+        GroupTransactionType(
+            name=stub_name,
+            transaction_type=kind,
+            wtype=wtypes.WGroupTransaction(kind),
+            bases=[GroupTransactionBaseType],
+            mro=[GroupTransactionBaseType],
+        )
     )
 
 
@@ -1173,10 +1174,12 @@ def _make_itxn_fieldset_type(kind: TransactionType | None) -> InnerTransactionFi
     else:
         cls_name = _TXN_TYPE_NAMES[kind]
     stub_name = f"algopy.itxn.{cls_name}"
-    return InnerTransactionFieldsetType(
-        name=stub_name,
-        transaction_type=kind,
-        wtype=wtypes.WInnerTransactionFields(kind),
+    return _register_builtin(
+        InnerTransactionFieldsetType(
+            name=stub_name,
+            transaction_type=kind,
+            wtype=wtypes.WInnerTransactionFields(kind),
+        )
     )
 
 
@@ -1186,10 +1189,12 @@ def _make_itxn_result_type(kind: TransactionType | None) -> InnerTransactionResu
     else:
         cls_name = f"{_TXN_TYPE_NAMES[kind]}InnerTransaction"
     stub_name = f"algopy.itxn.{cls_name}"
-    return InnerTransactionResultType(
-        name=stub_name,
-        transaction_type=kind,
-        wtype=wtypes.WInnerTransaction(kind),
+    return _register_builtin(
+        InnerTransactionResultType(
+            name=stub_name,
+            transaction_type=kind,
+            wtype=wtypes.WInnerTransaction(kind),
+        )
     )
 
 
