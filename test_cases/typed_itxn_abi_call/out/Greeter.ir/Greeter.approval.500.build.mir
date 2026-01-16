@@ -254,12 +254,21 @@ subroutine test_is_a_b:
         itxn_begin
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
+        // typed_itxn_abi_call/typed_c2c.py:29
+        // "is_a_b(byte[],byte[])void",
         method is_a_b(byte[],byte[])void                                                               Method(is_a_b(byte[],byte[])void)
         itxn_field ApplicationArgs
         v-load tmp%0#0                                                                                 tmp%0#0
         itxn_field ApplicationArgs
         v-load tmp%2#0                                                                                 tmp%2#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:28-33
+        // itxn.abi_call(
+        //     "is_a_b(byte[],byte[])void",
+        //     a,
+        //     b,
+        //     app_id=app,
+        // ).submit()
         int 6                                                                                          6
         itxn_field TypeEnum
         int 0                                                                                          0
@@ -860,13 +869,13 @@ subroutine test_arg_conversion:
         // typed_itxn_abi_call/typed_c2c.py:72
         // assert txn.last_log == op.itob(2)
         int 2                                                                                          2
-        itob                                                                                           tmp%3#0
-        v-store tmp%3#0
+        itob                                                                                           tmp%2#0
+        v-store tmp%2#0
         v-load txn.LastLog#0                                                                           txn.LastLog#0
-        v-load tmp%3#0                                                                                 txn.LastLog#0,tmp%3#0
-        ==                                                                                             tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                                 tmp%4#0
+        v-load tmp%2#0                                                                                 txn.LastLog#0,tmp%2#0
+        ==                                                                                             tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                                 tmp%3#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:74
         // txn = itxn.abi_call(Logger.log_uint512, 3, app_id=app).submit()
@@ -888,9 +897,9 @@ subroutine test_arg_conversion:
         // assert txn.last_log == (op.bzero(56) + op.itob(3))
         v-load txn.LastLog#0                                                                           txn.LastLog#0
         byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 txn.LastLog#0,0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
-        ==                                                                                             tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                                                 tmp%9#0
+        ==                                                                                             tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                                 tmp%7#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:77
         // txn = itxn.abi_call(Logger.log_bytes, b"4", app_id=app).submit()
@@ -912,9 +921,9 @@ subroutine test_arg_conversion:
         // assert txn.last_log == b"4"
         v-load txn.LastLog#0                                                                           txn.LastLog#0
         byte 0x34                                                                                      txn.LastLog#0,0x34
-        ==                                                                                             tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                                tmp%11#0
+        ==                                                                                             tmp%9#0
+        v-store tmp%9#0
+        v-load tmp%9#0                                                                                 tmp%9#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:80
         // txn = itxn.abi_call(Logger.log_bool, True, app_id=app).submit()
@@ -936,9 +945,9 @@ subroutine test_arg_conversion:
         // assert txn.last_log == b"True"
         v-load txn.LastLog#0                                                                           txn.LastLog#0
         byte 0x54727565                                                                                txn.LastLog#0,0x54727565
-        ==                                                                                             tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                                tmp%13#0
+        ==                                                                                             tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                                                tmp%11#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:66
         // @arc4.abimethod()
@@ -1159,13 +1168,13 @@ subroutine test_15plus_args:
         itxn LastLog                                                                                   awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
-        extract 0 4                                                                                    tmp%21#0
-        v-store tmp%21#0
-        v-load tmp%21#0                                                                                tmp%21#0
-        byte 0x151f7c75                                                                                tmp%21#0,0x151f7c75
-        ==                                                                                             tmp%22#0
-        v-store tmp%22#0
-        v-load tmp%22#0                                                                                tmp%22#0
+        extract 0 4                                                                                    tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                                 tmp%2#0
+        byte 0x151f7c75                                                                                tmp%2#0,0x151f7c75
+        ==                                                                                             tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                                 tmp%3#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 4 0                                                                                    result#0
@@ -1190,13 +1199,13 @@ subroutine test_15plus_args:
         // typed_itxn_abi_call/typed_c2c.py:115
         // assert result.native == Bytes.from_hex("0F101112DEADBEEF14")
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
-        extract 6 0                                                                                    tmp%24#0
-        v-store tmp%24#0
-        v-load tmp%24#0                                                                                tmp%24#0
-        byte 0x0f101112deadbeef14                                                                      tmp%24#0,0x0f101112deadbeef14
-        ==                                                                                             tmp%25#0
-        v-store tmp%25#0
-        v-load tmp%25#0                                                                                tmp%25#0
+        extract 6 0                                                                                    tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                                 tmp%5#0
+        byte 0x0f101112deadbeef14                                                                      tmp%5#0,0x0f101112deadbeef14
+        ==                                                                                             tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                                 tmp%6#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:83
         // @arc4.abimethod()
@@ -1943,11 +1952,14 @@ subroutine test_native_uint64:
         // typed_itxn_abi_call/typed_c2c.py:184
         // result1 = itxn.abi_call(Logger.echo_native_uint64, 1, app_id=app).submit().result
         itxn_begin
+        int 1                                                                                          1
+        itob                                                                                           aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         method echo_native_uint64(uint64)uint64                                                        Method(echo_native_uint64(uint64)uint64)
         itxn_field ApplicationArgs
-        byte 0x0000000000000001                                                                        0x0000000000000001
+        v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
         int 6                                                                                          6
         itxn_field TypeEnum
@@ -1991,9 +2003,6 @@ subroutine test_native_uint64:
         // typed_itxn_abi_call/typed_c2c.py:187
         // result2 = itxn.abi_call(Logger.echo_native_uint64, UInt64(1), app_id=app).submit().result
         itxn_begin
-        int 1                                                                                          1
-        itob                                                                                           aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         method echo_native_uint64(uint64)uint64                                                        Method(echo_native_uint64(uint64)uint64)
@@ -2097,12 +2106,8 @@ subroutine test_native_uint64:
         // itxn.abi_call[UInt64]("echo_native_uint64(uint64)uint64", 1, app_id=app)
         method echo_native_uint64(uint64)uint64                                                        Method(echo_native_uint64(uint64)uint64)
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:184
-        // result1 = itxn.abi_call(Logger.echo_native_uint64, 1, app_id=app).submit().result
         byte 0x0000000000000001                                                                        0x0000000000000001
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:196
-        // itxn.abi_call[UInt64]("echo_native_uint64(uint64)uint64", 1, app_id=app)
         int 6                                                                                          6
         itxn_field TypeEnum
         int 0                                                                                          0
@@ -2118,18 +2123,18 @@ subroutine test_native_uint64:
         itxn LastLog                                                                                   awst_tmp%3#0
         v-store awst_tmp%3#0
         v-load awst_tmp%3#0                                                                            awst_tmp%3#0
-        extract 0 4                                                                                    tmp%18#0
+        extract 0 4                                                                                    tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%17#0                                                                                tmp%17#0
+        byte 0x151f7c75                                                                                tmp%17#0,0x151f7c75
+        ==                                                                                             tmp%18#0
         v-store tmp%18#0
         v-load tmp%18#0                                                                                tmp%18#0
-        byte 0x151f7c75                                                                                tmp%18#0,0x151f7c75
-        ==                                                                                             tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                                                tmp%19#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%3#0                                                                            awst_tmp%3#0
-        extract 4 0                                                                                    tmp%20#0
-        v-store tmp%20#0
-        v-load tmp%20#0                                                                                tmp%20#0
+        extract 4 0                                                                                    tmp%19#0
+        v-store tmp%19#0
+        v-load tmp%19#0                                                                                tmp%19#0
         len                                                                                            len%3#0
         v-store len%3#0
         v-load len%3#0                                                                                 len%3#0
@@ -2138,16 +2143,16 @@ subroutine test_native_uint64:
         v-store eq%3#0
         v-load eq%3#0                                                                                  eq%3#0
         assert // invalid number of bytes for uint64
-        v-load tmp%20#0                                                                                tmp%20#0
+        v-load tmp%19#0                                                                                tmp%19#0
         btoi                                                                                           result4#0
         v-store result4#0
         // typed_itxn_abi_call/typed_c2c.py:200
         // assert result4 == result1
         v-load result4#0                                                                               result4#0
         v-load result1#0                                                                               result4#0,result1#0
-        ==                                                                                             tmp%22#0
-        v-store tmp%22#0
-        v-load tmp%22#0                                                                                tmp%22#0
+        ==                                                                                             tmp%21#0
+        v-store tmp%21#0
+        v-load tmp%21#0                                                                                tmp%21#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:182
         // @arc4.abimethod()
@@ -2323,12 +2328,8 @@ subroutine test_native_biguint:
         // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
         method echo_native_biguint(uint512)uint512                                                     Method(echo_native_biguint(uint512)uint512)
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:204
-        // result1 = itxn.abi_call(Logger.echo_native_biguint, 2, app_id=app).submit().result
         byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:216
-        // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2, app_id=app)
         int 6                                                                                          6
         itxn_field TypeEnum
         int 0                                                                                          0
@@ -2344,13 +2345,13 @@ subroutine test_native_biguint:
         itxn LastLog                                                                                   awst_tmp%3#0
         v-store awst_tmp%3#0
         v-load awst_tmp%3#0                                                                            awst_tmp%3#0
-        extract 0 4                                                                                    tmp%18#0
+        extract 0 4                                                                                    tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%17#0                                                                                tmp%17#0
+        byte 0x151f7c75                                                                                tmp%17#0,0x151f7c75
+        ==                                                                                             tmp%18#0
         v-store tmp%18#0
         v-load tmp%18#0                                                                                tmp%18#0
-        byte 0x151f7c75                                                                                tmp%18#0,0x151f7c75
-        ==                                                                                             tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                                                tmp%19#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%3#0                                                                            awst_tmp%3#0
         extract 4 0                                                                                    result4#0
@@ -2368,9 +2369,9 @@ subroutine test_native_biguint:
         // assert result4 == result1
         v-load result4#0                                                                               result4#0
         v-load result1#0                                                                               result4#0,result1#0
-        b==                                                                                            tmp%22#0
-        v-store tmp%22#0
-        v-load tmp%22#0                                                                                tmp%22#0
+        b==                                                                                            tmp%21#0
+        v-store tmp%21#0
+        v-load tmp%21#0                                                                                tmp%21#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:223-224
         // itxn.abi_call[BigUInt]("echo_native_biguint(uint512)uint512", 2**512 - 2, app_id=app)
@@ -2399,13 +2400,13 @@ subroutine test_native_biguint:
         itxn LastLog                                                                                   awst_tmp%4#0
         v-store awst_tmp%4#0
         v-load awst_tmp%4#0                                                                            awst_tmp%4#0
-        extract 0 4                                                                                    tmp%24#0
-        v-store tmp%24#0
-        v-load tmp%24#0                                                                                tmp%24#0
-        byte 0x151f7c75                                                                                tmp%24#0,0x151f7c75
-        ==                                                                                             tmp%25#0
-        v-store tmp%25#0
-        v-load tmp%25#0                                                                                tmp%25#0
+        extract 0 4                                                                                    tmp%22#0
+        v-store tmp%22#0
+        v-load tmp%22#0                                                                                tmp%22#0
+        byte 0x151f7c75                                                                                tmp%22#0,0x151f7c75
+        ==                                                                                             tmp%23#0
+        v-store tmp%23#0
+        v-load tmp%23#0                                                                                tmp%23#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%4#0                                                                            awst_tmp%4#0
         extract 4 0                                                                                    result5#0
@@ -2423,9 +2424,9 @@ subroutine test_native_biguint:
         // assert result5 == BigUInt(2**512 - 1)
         v-load result5#0                                                                               result5#0
         byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff result5#0,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        b==                                                                                            tmp%28#0
-        v-store tmp%28#0
-        v-load tmp%28#0                                                                                tmp%28#0
+        b==                                                                                            tmp%26#0
+        v-store tmp%26#0
+        v-load tmp%26#0                                                                                tmp%26#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:202
         // @arc4.abimethod()
@@ -2465,15 +2466,8 @@ subroutine test_native_tuple:
         itxn_begin
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
-        // typed_itxn_abi_call/typed_c2c.py:233-240
-        // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
-        //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
-        //     "s1",
-        //     b"b1",
-        //     1,
-        //     2,
-        //     app_id=app,
-        // )
+        // typed_itxn_abi_call/typed_c2c.py:234
+        // "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
         method echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512) Method(echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512))
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:235
@@ -2530,13 +2524,13 @@ subroutine test_native_tuple:
         itxn LastLog                                                                                   awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
-        extract 0 4                                                                                    tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                                 tmp%4#0
-        byte 0x151f7c75                                                                                tmp%4#0,0x151f7c75
-        ==                                                                                             tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                                 tmp%5#0
+        extract 0 4                                                                                    tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                                 tmp%2#0
+        byte 0x151f7c75                                                                                tmp%2#0,0x151f7c75
+        ==                                                                                             tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                                 tmp%3#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         extract 4 0                                                                                    result1#0
@@ -2613,44 +2607,44 @@ subroutine test_native_tuple:
         // typed_itxn_abi_call/typed_c2c.py:245
         // assert s.native == "echo: s1"
         v-load s#0                                                                                     s#0
-        extract 2 0                                                                                    tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                                tmp%11#0
-        byte "echo: s1"                                                                                tmp%11#0,"echo: s1"
-        ==                                                                                             tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                                tmp%12#0
+        extract 2 0                                                                                    tmp%9#0
+        v-store tmp%9#0
+        v-load tmp%9#0                                                                                 tmp%9#0
+        byte "echo: s1"                                                                                tmp%9#0,"echo: s1"
+        ==                                                                                             tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%10#0                                                                                tmp%10#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:246
         // assert b.native == b"echo: b1"
         v-load b#0                                                                                     b#0
-        extract 2 0                                                                                    tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                                tmp%13#0
-        byte 0x6563686f3a206231                                                                        tmp%13#0,0x6563686f3a206231
-        ==                                                                                             tmp%14#0
-        v-store tmp%14#0
-        v-load tmp%14#0                                                                                tmp%14#0
+        extract 2 0                                                                                    tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                                                tmp%11#0
+        byte 0x6563686f3a206231                                                                        tmp%11#0,0x6563686f3a206231
+        ==                                                                                             tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                                                tmp%12#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:247
         // assert u.as_uint64() == 2
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
         int 8                                                                                          awst_tmp%0#0,8
-        extract_uint64                                                                                 tmp%15#0
-        v-store tmp%15#0
-        v-load tmp%15#0                                                                                tmp%15#0
-        int 2                                                                                          tmp%15#0,2
-        ==                                                                                             tmp%16#0
-        v-store tmp%16#0
-        v-load tmp%16#0                                                                                tmp%16#0
+        extract_uint64                                                                                 tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                                                tmp%13#0
+        int 2                                                                                          tmp%13#0,2
+        ==                                                                                             tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                                                                tmp%14#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:248
         // assert bu.as_biguint() == 3
         v-load bu#0                                                                                    bu#0
         byte 0x03                                                                                      bu#0,0x03
-        b==                                                                                            tmp%18#0
-        v-store tmp%18#0
-        v-load tmp%18#0                                                                                tmp%18#0
+        b==                                                                                            tmp%16#0
+        v-store tmp%16#0
+        v-load tmp%16#0                                                                                tmp%16#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:252-260
         // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
@@ -2670,15 +2664,8 @@ subroutine test_native_tuple:
         v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
-        // typed_itxn_abi_call/typed_c2c.py:252-259
-        // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
-        //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
-        //     String("s1"),
-        //     Bytes(b"b1"),
-        //     UInt64(1),
-        //     BigUInt(2),
-        //     app_id=app,
-        // )
+        // typed_itxn_abi_call/typed_c2c.py:253
+        // "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
         method echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512) Method(echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512))
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:235
@@ -2691,8 +2678,8 @@ subroutine test_native_tuple:
         itxn_field ApplicationArgs
         v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:238
-        // 2,
+        // typed_itxn_abi_call/typed_c2c.py:257
+        // BigUInt(2),
         byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:252-259
@@ -2733,13 +2720,13 @@ subroutine test_native_tuple:
         itxn LastLog                                                                                   awst_tmp%1#0
         v-store awst_tmp%1#0
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
-        extract 0 4                                                                                    tmp%23#0
-        v-store tmp%23#0
-        v-load tmp%23#0                                                                                tmp%23#0
-        byte 0x151f7c75                                                                                tmp%23#0,0x151f7c75
-        ==                                                                                             tmp%24#0
-        v-store tmp%24#0
-        v-load tmp%24#0                                                                                tmp%24#0
+        extract 0 4                                                                                    tmp%21#0
+        v-store tmp%21#0
+        v-load tmp%21#0                                                                                tmp%21#0
+        byte 0x151f7c75                                                                                tmp%21#0,0x151f7c75
+        ==                                                                                             tmp%22#0
+        v-store tmp%22#0
+        v-load tmp%22#0                                                                                tmp%22#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
         extract 4 0                                                                                    result2#0
@@ -2807,9 +2794,9 @@ subroutine test_native_tuple:
         // assert result1 == result2
         v-load result1#0                                                                               result1#0
         v-load result2#0                                                                               result1#0,result2#0
-        ==                                                                                             tmp%26#0
-        v-store tmp%26#0
-        v-load tmp%26#0                                                                                tmp%26#0
+        ==                                                                                             tmp%24#0
+        v-store tmp%24#0
+        v-load tmp%24#0                                                                                tmp%24#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:267-275
         // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
@@ -2824,15 +2811,8 @@ subroutine test_native_tuple:
         itxn_begin
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
-        // typed_itxn_abi_call/typed_c2c.py:267-274
-        // itxn.abi_call[arc4.Tuple[arc4.String, arc4.DynamicBytes, arc4.UInt64, arc4.UInt512]](
-        //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
-        //     arc4.String("s1"),
-        //     arc4.DynamicBytes(b"b1"),
-        //     arc4.UInt64(1),
-        //     arc4.UInt512(2),
-        //     app_id=app,
-        // )
+        // typed_itxn_abi_call/typed_c2c.py:268
+        // "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
         method echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512) Method(echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512))
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:235
@@ -2889,13 +2869,13 @@ subroutine test_native_tuple:
         itxn LastLog                                                                                   awst_tmp%2#0
         v-store awst_tmp%2#0
         v-load awst_tmp%2#0                                                                            awst_tmp%2#0
-        extract 0 4                                                                                    tmp%29#0
-        v-store tmp%29#0
-        v-load tmp%29#0                                                                                tmp%29#0
-        byte 0x151f7c75                                                                                tmp%29#0,0x151f7c75
-        ==                                                                                             tmp%30#0
-        v-store tmp%30#0
-        v-load tmp%30#0                                                                                tmp%30#0
+        extract 0 4                                                                                    tmp%27#0
+        v-store tmp%27#0
+        v-load tmp%27#0                                                                                tmp%27#0
+        byte 0x151f7c75                                                                                tmp%27#0,0x151f7c75
+        ==                                                                                             tmp%28#0
+        v-store tmp%28#0
+        v-load tmp%28#0                                                                                tmp%28#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%2#0                                                                            awst_tmp%2#0
         extract 4 0                                                                                    result3#0
@@ -2963,9 +2943,9 @@ subroutine test_native_tuple:
         // assert result1 == result3
         v-load result1#0                                                                               result1#0
         v-load result3#0                                                                               result1#0,result3#0
-        ==                                                                                             tmp%32#0
-        v-store tmp%32#0
-        v-load tmp%32#0                                                                                tmp%32#0
+        ==                                                                                             tmp%30#0
+        v-store tmp%30#0
+        v-load tmp%30#0                                                                                tmp%30#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:282-290
         // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
@@ -2980,15 +2960,8 @@ subroutine test_native_tuple:
         itxn_begin
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
-        // typed_itxn_abi_call/typed_c2c.py:282-289
-        // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
-        //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
-        //     arc4.String("s1"),
-        //     arc4.DynamicBytes(b"b1"),
-        //     arc4.UInt64(1),
-        //     arc4.UInt512(2),
-        //     app_id=app,
-        // )
+        // typed_itxn_abi_call/typed_c2c.py:283
+        // "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
         method echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512) Method(echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512))
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:235
@@ -3045,22 +3018,22 @@ subroutine test_native_tuple:
         itxn LastLog                                                                                   awst_tmp%3#0
         v-store awst_tmp%3#0
         v-load awst_tmp%3#0                                                                            awst_tmp%3#0
-        extract 0 4                                                                                    tmp%35#0
-        v-store tmp%35#0
-        v-load tmp%35#0                                                                                tmp%35#0
-        byte 0x151f7c75                                                                                tmp%35#0,0x151f7c75
-        ==                                                                                             tmp%36#0
-        v-store tmp%36#0
-        v-load tmp%36#0                                                                                tmp%36#0
+        extract 0 4                                                                                    tmp%33#0
+        v-store tmp%33#0
+        v-load tmp%33#0                                                                                tmp%33#0
+        byte 0x151f7c75                                                                                tmp%33#0,0x151f7c75
+        ==                                                                                             tmp%34#0
+        v-store tmp%34#0
+        v-load tmp%34#0                                                                                tmp%34#0
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%3#0                                                                            awst_tmp%3#0
-        extract 4 0                                                                                    tmp%37#0
-        v-store tmp%37#0
-        v-load tmp%37#0                                                                                tmp%37#0
+        extract 4 0                                                                                    tmp%35#0
+        v-store tmp%35#0
+        v-load tmp%35#0                                                                                tmp%35#0
         len                                                                                            tuple_len%3#0
         v-store tuple_len%3#0
-        v-load tmp%37#0                                                                                tmp%37#0
-        int 0                                                                                          tmp%37#0,0
+        v-load tmp%35#0                                                                                tmp%35#0
+        int 0                                                                                          tmp%35#0,0
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%6#0
         v-store extract_uint16%6#0
         v-load extract_uint16%6#0                                                                      extract_uint16%6#0
@@ -3069,9 +3042,9 @@ subroutine test_native_tuple:
         v-store eq%9#0
         v-load eq%9#0                                                                                  eq%9#0
         assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512) 
-        v-load tmp%37#0                                                                                tmp%37#0
-        v-load extract_uint16%6#0                                                                      tmp%37#0,extract_uint16%6#0
-        v-load tuple_len%3#0                                                                           tmp%37#0,extract_uint16%6#0,tuple_len%3#0
+        v-load tmp%35#0                                                                                tmp%35#0
+        v-load extract_uint16%6#0                                                                      tmp%35#0,extract_uint16%6#0
+        v-load tuple_len%3#0                                                                           tmp%35#0,extract_uint16%6#0,tuple_len%3#0
         substring3                                                                                     substring3%6#0
         v-store substring3%6#0
         v-load substring3%6#0                                                                          substring3%6#0
@@ -3082,8 +3055,8 @@ subroutine test_native_tuple:
         int 78                                                                                         aggregate%array_length%6#0,78
         +                                                                                              add%13#0
         v-store add%13#0
-        v-load tmp%37#0                                                                                tmp%37#0
-        int 2                                                                                          tmp%37#0,2
+        v-load tmp%35#0                                                                                tmp%35#0
+        int 2                                                                                          tmp%35#0,2
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%7#0
         v-store extract_uint16%7#0
         v-load extract_uint16%7#0                                                                      extract_uint16%7#0
@@ -3092,9 +3065,9 @@ subroutine test_native_tuple:
         v-store eq%10#0
         v-load eq%10#0                                                                                 eq%10#0
         assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512) 
-        v-load tmp%37#0                                                                                tmp%37#0
-        v-load extract_uint16%7#0                                                                      tmp%37#0,extract_uint16%7#0
-        v-load tuple_len%3#0                                                                           tmp%37#0,extract_uint16%7#0,tuple_len%3#0
+        v-load tmp%35#0                                                                                tmp%35#0
+        v-load extract_uint16%7#0                                                                      tmp%35#0,extract_uint16%7#0
+        v-load tuple_len%3#0                                                                           tmp%35#0,extract_uint16%7#0,tuple_len%3#0
         substring3                                                                                     substring3%7#0
         v-store substring3%7#0
         v-load substring3%7#0                                                                          substring3%7#0
@@ -3115,9 +3088,9 @@ subroutine test_native_tuple:
         v-store eq%11#0
         v-load eq%11#0                                                                                 eq%11#0
         assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
-        v-load tmp%37#0                                                                                tmp%37#0
-        v-load extract_uint16%6#0                                                                      tmp%37#0,extract_uint16%6#0
-        v-load extract_uint16%7#0                                                                      tmp%37#0,extract_uint16%6#0,extract_uint16%7#0
+        v-load tmp%35#0                                                                                tmp%35#0
+        v-load extract_uint16%6#0                                                                      tmp%35#0,extract_uint16%6#0
+        v-load extract_uint16%7#0                                                                      tmp%35#0,extract_uint16%6#0,extract_uint16%7#0
         substring3                                                                                     aggregate%substring3%2#0
         v-store aggregate%substring3%2#0
         v-load aggregate%substring3%2#0                                                                aggregate%substring3%2#0
@@ -3135,35 +3108,35 @@ subroutine test_native_tuple:
         v-store result_native.3#0
         // typed_itxn_abi_call/typed_c2c.py:293
         // assert result1.native[0].native == result_native[0]
-        v-load tmp%11#0                                                                                tmp%11#0
-        v-load result_native.0#0                                                                       tmp%11#0,result_native.0#0
-        ==                                                                                             tmp%47#0
-        v-store tmp%47#0
-        v-load tmp%47#0                                                                                tmp%47#0
+        v-load tmp%9#0                                                                                 tmp%9#0
+        v-load result_native.0#0                                                                       tmp%9#0,result_native.0#0
+        ==                                                                                             tmp%45#0
+        v-store tmp%45#0
+        v-load tmp%45#0                                                                                tmp%45#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:294
         // assert result1.native[1].native == result_native[1]
-        v-load tmp%13#0                                                                                tmp%13#0
-        v-load result_native.1#0                                                                       tmp%13#0,result_native.1#0
-        ==                                                                                             tmp%53#0
-        v-store tmp%53#0
-        v-load tmp%53#0                                                                                tmp%53#0
+        v-load tmp%11#0                                                                                tmp%11#0
+        v-load result_native.1#0                                                                       tmp%11#0,result_native.1#0
+        ==                                                                                             tmp%51#0
+        v-store tmp%51#0
+        v-load tmp%51#0                                                                                tmp%51#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:295
         // assert result1.native[2].as_uint64() == result_native[2]
-        v-load tmp%15#0                                                                                tmp%15#0
-        v-load result_native.2#0                                                                       tmp%15#0,result_native.2#0
-        ==                                                                                             tmp%59#0
-        v-store tmp%59#0
-        v-load tmp%59#0                                                                                tmp%59#0
+        v-load tmp%13#0                                                                                tmp%13#0
+        v-load result_native.2#0                                                                       tmp%13#0,result_native.2#0
+        ==                                                                                             tmp%57#0
+        v-store tmp%57#0
+        v-load tmp%57#0                                                                                tmp%57#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:296
         // assert result1.native[3].as_biguint() == result_native[3]
         v-load bu#0                                                                                    bu#0
         v-load result_native.3#0                                                                       bu#0,result_native.3#0
-        b==                                                                                            tmp%65#0
-        v-store tmp%65#0
-        v-load tmp%65#0                                                                                tmp%65#0
+        b==                                                                                            tmp%63#0
+        v-store tmp%63#0
+        v-load tmp%63#0                                                                                tmp%63#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:229
         // @arc4.abimethod()
@@ -3201,6 +3174,11 @@ subroutine test_native_tuple_method_ref:
         // )
         // .submit()
         itxn_begin
+        // typed_itxn_abi_call/typed_c2c.py:306
+        // 1,
+        int 1                                                                                          1
+        itob                                                                                           aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         // typed_itxn_abi_call/typed_c2c.py:303
@@ -3215,9 +3193,7 @@ subroutine test_native_tuple_method_ref:
         // b"b1",
         byte 0x00026231                                                                                0x00026231
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:306
-        // 1,
-        byte 0x0000000000000001                                                                        0x0000000000000001
+        v-load aggregate%val_as_bytes%0#0                                                              aggregate%val_as_bytes%0#0
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:307
         // 2,
@@ -3392,11 +3368,6 @@ subroutine test_native_tuple_method_ref:
         // )
         // .submit()
         itxn_begin
-        // typed_itxn_abi_call/typed_c2c.py:325
-        // UInt64(1),
-        int 1                                                                                          1
-        itob                                                                                           aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
         // typed_itxn_abi_call/typed_c2c.py:322
@@ -3779,15 +3750,8 @@ subroutine test_native_tuple_method_ref:
         itxn_begin
         v-load app#0                                                                                   app#0
         itxn_field ApplicationID
-        // typed_itxn_abi_call/typed_c2c.py:351-358
-        // itxn.abi_call[tuple[String, Bytes, UInt64, BigUInt]](
-        //     "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
-        //     arc4.String("s1"),
-        //     arc4.DynamicBytes(b"b1"),
-        //     arc4.UInt64(1),
-        //     arc4.UInt512(2),
-        //     app_id=app,
-        // )
+        // typed_itxn_abi_call/typed_c2c.py:352
+        // "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)",
         method echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512) Method(echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512))
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:304
@@ -4036,22 +4000,22 @@ subroutine test_nested_tuples:
         itxn LastLog                                                                                   awst_tmp%0#0
         v-store awst_tmp%0#0
         v-load awst_tmp%0#0                                                                            awst_tmp%0#0
-        extract 0 4                                                                                    tmp%1#1
-        v-store tmp%1#1
-        v-load tmp%1#1                                                                                 tmp%1#1
-        byte 0x151f7c75                                                                                tmp%1#1,0x151f7c75
-        ==                                                                                             tmp%2#0
+        extract 0 4                                                                                    tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                                 tmp%2#0
-        assert // application log value is not the result of an ABI return
-        v-load awst_tmp%0#0                                                                            awst_tmp%0#0
-        extract 4 0                                                                                    tmp%3#0
+        byte 0x151f7c75                                                                                tmp%2#0,0x151f7c75
+        ==                                                                                             tmp%3#0
         v-store tmp%3#0
         v-load tmp%3#0                                                                                 tmp%3#0
+        assert // application log value is not the result of an ABI return
+        v-load awst_tmp%0#0                                                                            awst_tmp%0#0
+        extract 4 0                                                                                    tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                                 tmp%4#0
         len                                                                                            tuple_len%0#0
         v-store tuple_len%0#0
-        v-load tmp%3#0                                                                                 tmp%3#0
-        int 0                                                                                          tmp%3#0,0
+        v-load tmp%4#0                                                                                 tmp%4#0
+        int 0                                                                                          tmp%4#0,0
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                                      extract_uint16%0#0
@@ -4060,9 +4024,9 @@ subroutine test_nested_tuples:
         v-store eq%0#0
         v-load eq%0#0                                                                                  eq%0#0
         assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) 
-        v-load tmp%3#0                                                                                 tmp%3#0
-        v-load extract_uint16%0#0                                                                      tmp%3#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                                           tmp%3#0,extract_uint16%0#0,tuple_len%0#0
+        v-load tmp%4#0                                                                                 tmp%4#0
+        v-load extract_uint16%0#0                                                                      tmp%4#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                           tmp%4#0,extract_uint16%0#0,tuple_len%0#0
         substring3                                                                                     substring3%0#0
         v-store substring3%0#0
         v-load substring3%0#0                                                                          substring3%0#0
@@ -4122,8 +4086,8 @@ subroutine test_nested_tuples:
         v-load add%3#0                                                                                 4,add%3#0
         +                                                                                              add%4#0
         v-store add%4#0
-        v-load tmp%3#0                                                                                 tmp%3#0
-        int 2                                                                                          tmp%3#0,2
+        v-load tmp%4#0                                                                                 tmp%4#0
+        int 2                                                                                          tmp%4#0,2
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%3#0
         v-store extract_uint16%3#0
         v-load extract_uint16%3#0                                                                      extract_uint16%3#0
@@ -4132,9 +4096,9 @@ subroutine test_nested_tuples:
         v-store eq%3#0
         v-load eq%3#0                                                                                  eq%3#0
         assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) 
-        v-load tmp%3#0                                                                                 tmp%3#0
-        v-load extract_uint16%3#0                                                                      tmp%3#0,extract_uint16%3#0
-        v-load tuple_len%0#0                                                                           tmp%3#0,extract_uint16%3#0,tuple_len%0#0
+        v-load tmp%4#0                                                                                 tmp%4#0
+        v-load extract_uint16%3#0                                                                      tmp%4#0,extract_uint16%3#0
+        v-load tuple_len%0#0                                                                           tmp%4#0,extract_uint16%3#0,tuple_len%0#0
         substring3                                                                                     substring3%3#0
         v-store substring3%3#0
         v-load substring3%3#0                                                                          substring3%3#0
@@ -4173,9 +4137,9 @@ subroutine test_nested_tuples:
         v-store eq%5#0
         v-load eq%5#0                                                                                  eq%5#0
         assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> 
-        v-load tmp%3#0                                                                                 tmp%3#0
-        v-load extract_uint16%0#0                                                                      tmp%3#0,extract_uint16%0#0
-        v-load extract_uint16%3#0                                                                      tmp%3#0,extract_uint16%0#0,extract_uint16%3#0
+        v-load tmp%4#0                                                                                 tmp%4#0
+        v-load extract_uint16%0#0                                                                      tmp%4#0,extract_uint16%0#0
+        v-load extract_uint16%3#0                                                                      tmp%4#0,extract_uint16%0#0,extract_uint16%3#0
         substring3                                                                                     aggregate%substring3%0#0
         v-store aggregate%substring3%0#0
         v-load aggregate%substring3%0#0                                                                aggregate%substring3%0#0
@@ -4216,41 +4180,41 @@ subroutine test_nested_tuples:
         // assert s1 == "echo: s1"
         v-load result.0.0#0                                                                            result.0.0#0
         byte "echo: s1"                                                                                result.0.0#0,"echo: s1"
-        ==                                                                                             tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                                                                 tmp%9#0
+        ==                                                                                             tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%10#0                                                                                tmp%10#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:378
         // assert s2 == "echo: s2"
         v-load result.0.1#0                                                                            result.0.1#0
         byte 0x00086563686f3a207332                                                                    result.0.1#0,0x00086563686f3a207332
-        ==                                                                                             tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                                tmp%11#0
+        ==                                                                                             tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                                                tmp%12#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:379
         // assert u64_1 == 2
         v-load result.1.0#0                                                                            result.1.0#0
         int 2                                                                                          result.1.0#0,2
-        ==                                                                                             tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                                tmp%12#0
+        ==                                                                                             tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                                                tmp%13#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:380
         // assert u64_2 == 3
         v-load result.1.1#0                                                                            result.1.1#0
         byte 0x0000000000000003                                                                        result.1.1#0,0x0000000000000003
-        b==                                                                                            tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                                tmp%13#0
+        b==                                                                                            tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                                                                tmp%14#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:381
         // assert bytez == b"echo: 3"
         v-load result.1.2#0                                                                            result.1.2#0
         byte 0x6563686f3a2033                                                                          result.1.2#0,0x6563686f3a2033
-        ==                                                                                             tmp%14#0
-        v-store tmp%14#0
-        v-load tmp%14#0                                                                                tmp%14#0
+        ==                                                                                             tmp%15#0
+        v-store tmp%15#0
+        v-load tmp%15#0                                                                                tmp%15#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:385-390
         // itxn.abi_call(
@@ -4266,8 +4230,8 @@ subroutine test_nested_tuples:
         // Logger.echo_nested_tuple,
         method echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[])) Method(echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[])))
         itxn_field ApplicationArgs
-        // typed_itxn_abi_call/typed_c2c.py:387
-        // ((String("s1"), arc4.String("s2")), (UInt64(1), arc4.UInt64(2), Bytes(b"3"))),
+        // typed_itxn_abi_call/typed_c2c.py:370
+        // (("s1", "s2"), (1, 2, b"3")),
         byte 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00040010000400080002733100027332000000000000000100000000000000020012000133
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:385-389
@@ -4299,22 +4263,22 @@ subroutine test_nested_tuples:
         itxn LastLog                                                                                   awst_tmp%1#0
         v-store awst_tmp%1#0
         v-load awst_tmp%1#0                                                                            awst_tmp%1#0
-        extract 0 4                                                                                    tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                                                tmp%17#0
-        byte 0x151f7c75                                                                                tmp%17#0,0x151f7c75
-        ==                                                                                             tmp%18#0
+        extract 0 4                                                                                    tmp%18#0
         v-store tmp%18#0
         v-load tmp%18#0                                                                                tmp%18#0
-        assert // application log value is not the result of an ABI return
-        v-load awst_tmp%1#0                                                                            awst_tmp%1#0
-        extract 4 0                                                                                    tmp%19#0
+        byte 0x151f7c75                                                                                tmp%18#0,0x151f7c75
+        ==                                                                                             tmp%19#0
         v-store tmp%19#0
         v-load tmp%19#0                                                                                tmp%19#0
+        assert // application log value is not the result of an ABI return
+        v-load awst_tmp%1#0                                                                            awst_tmp%1#0
+        extract 4 0                                                                                    tmp%20#0
+        v-store tmp%20#0
+        v-load tmp%20#0                                                                                tmp%20#0
         len                                                                                            tuple_len%3#0
         v-store tuple_len%3#0
-        v-load tmp%19#0                                                                                tmp%19#0
-        int 0                                                                                          tmp%19#0,0
+        v-load tmp%20#0                                                                                tmp%20#0
+        int 0                                                                                          tmp%20#0,0
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%5#0
         v-store extract_uint16%5#0
         v-load extract_uint16%5#0                                                                      extract_uint16%5#0
@@ -4323,9 +4287,9 @@ subroutine test_nested_tuples:
         v-store eq%6#0
         v-load eq%6#0                                                                                  eq%6#0
         assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) 
-        v-load tmp%19#0                                                                                tmp%19#0
-        v-load extract_uint16%5#0                                                                      tmp%19#0,extract_uint16%5#0
-        v-load tuple_len%3#0                                                                           tmp%19#0,extract_uint16%5#0,tuple_len%3#0
+        v-load tmp%20#0                                                                                tmp%20#0
+        v-load extract_uint16%5#0                                                                      tmp%20#0,extract_uint16%5#0
+        v-load tuple_len%3#0                                                                           tmp%20#0,extract_uint16%5#0,tuple_len%3#0
         substring3                                                                                     substring3%5#0
         v-store substring3%5#0
         v-load substring3%5#0                                                                          substring3%5#0
@@ -4385,8 +4349,8 @@ subroutine test_nested_tuples:
         v-load add%11#0                                                                                4,add%11#0
         +                                                                                              add%12#0
         v-store add%12#0
-        v-load tmp%19#0                                                                                tmp%19#0
-        int 2                                                                                          tmp%19#0,2
+        v-load tmp%20#0                                                                                tmp%20#0
+        int 2                                                                                          tmp%20#0,2
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%8#0
         v-store extract_uint16%8#0
         v-load extract_uint16%8#0                                                                      extract_uint16%8#0
@@ -4395,9 +4359,9 @@ subroutine test_nested_tuples:
         v-store eq%9#0
         v-load eq%9#0                                                                                  eq%9#0
         assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) 
-        v-load tmp%19#0                                                                                tmp%19#0
-        v-load extract_uint16%8#0                                                                      tmp%19#0,extract_uint16%8#0
-        v-load tuple_len%3#0                                                                           tmp%19#0,extract_uint16%8#0,tuple_len%3#0
+        v-load tmp%20#0                                                                                tmp%20#0
+        v-load extract_uint16%8#0                                                                      tmp%20#0,extract_uint16%8#0
+        v-load tuple_len%3#0                                                                           tmp%20#0,extract_uint16%8#0,tuple_len%3#0
         substring3                                                                                     substring3%8#0
         v-store substring3%8#0
         v-load substring3%8#0                                                                          substring3%8#0
@@ -4436,9 +4400,9 @@ subroutine test_nested_tuples:
         v-store eq%11#0
         v-load eq%11#0                                                                                 eq%11#0
         assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> 
-        v-load tmp%19#0                                                                                tmp%19#0
-        v-load extract_uint16%5#0                                                                      tmp%19#0,extract_uint16%5#0
-        v-load extract_uint16%8#0                                                                      tmp%19#0,extract_uint16%5#0,extract_uint16%8#0
+        v-load tmp%20#0                                                                                tmp%20#0
+        v-load extract_uint16%5#0                                                                      tmp%20#0,extract_uint16%5#0
+        v-load extract_uint16%8#0                                                                      tmp%20#0,extract_uint16%5#0,extract_uint16%8#0
         substring3                                                                                     aggregate%substring3%5#0
         v-store aggregate%substring3%5#0
         v-load aggregate%substring3%5#0                                                                aggregate%substring3%5#0
@@ -4479,9 +4443,9 @@ subroutine test_nested_tuples:
         // assert s1 == "echo: s1"
         v-load result.0.0#0                                                                            result.0.0#0
         byte "echo: s1"                                                                                result.0.0#0,"echo: s1"
-        ==                                                                                             tmp%25#0
-        v-store tmp%25#0
-        v-load tmp%25#0                                                                                tmp%25#0
+        ==                                                                                             tmp%26#0
+        v-store tmp%26#0
+        v-load tmp%26#0                                                                                tmp%26#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:395
         // assert s2 == "echo: s2"
@@ -4491,33 +4455,33 @@ subroutine test_nested_tuples:
         byte 0x00086563686f3a207332                                                                    result.0.1#0,0x00086563686f3a207332
         // typed_itxn_abi_call/typed_c2c.py:395
         // assert s2 == "echo: s2"
-        ==                                                                                             tmp%27#0
-        v-store tmp%27#0
-        v-load tmp%27#0                                                                                tmp%27#0
+        ==                                                                                             tmp%28#0
+        v-store tmp%28#0
+        v-load tmp%28#0                                                                                tmp%28#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:396
         // assert u64_1 == 2
         v-load result.1.0#0                                                                            result.1.0#0
         int 2                                                                                          result.1.0#0,2
-        ==                                                                                             tmp%28#0
-        v-store tmp%28#0
-        v-load tmp%28#0                                                                                tmp%28#0
+        ==                                                                                             tmp%29#0
+        v-store tmp%29#0
+        v-load tmp%29#0                                                                                tmp%29#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:397
         // assert u64_2 == 3
         v-load result.1.1#0                                                                            result.1.1#0
         byte 0x0000000000000003                                                                        result.1.1#0,0x0000000000000003
-        b==                                                                                            tmp%29#0
-        v-store tmp%29#0
-        v-load tmp%29#0                                                                                tmp%29#0
+        b==                                                                                            tmp%30#0
+        v-store tmp%30#0
+        v-load tmp%30#0                                                                                tmp%30#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:398
         // assert bytez == b"echo: 3"
         v-load result.1.2#0                                                                            result.1.2#0
         byte 0x6563686f3a2033                                                                          result.1.2#0,0x6563686f3a2033
-        ==                                                                                             tmp%30#0
-        v-store tmp%30#0
-        v-load tmp%30#0                                                                                tmp%30#0
+        ==                                                                                             tmp%31#0
+        v-store tmp%31#0
+        v-load tmp%31#0                                                                                tmp%31#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:402-412
         // itxn.abi_call(
@@ -4591,22 +4555,22 @@ subroutine test_nested_tuples:
         itxn LastLog                                                                                   awst_tmp%2#0
         v-store awst_tmp%2#0
         v-load awst_tmp%2#0                                                                            awst_tmp%2#0
-        extract 0 4                                                                                    tmp%37#0
-        v-store tmp%37#0
-        v-load tmp%37#0                                                                                tmp%37#0
-        byte 0x151f7c75                                                                                tmp%37#0,0x151f7c75
-        ==                                                                                             tmp%38#0
+        extract 0 4                                                                                    tmp%38#0
         v-store tmp%38#0
         v-load tmp%38#0                                                                                tmp%38#0
-        assert // application log value is not the result of an ABI return
-        v-load awst_tmp%2#0                                                                            awst_tmp%2#0
-        extract 4 0                                                                                    tmp%39#0
+        byte 0x151f7c75                                                                                tmp%38#0,0x151f7c75
+        ==                                                                                             tmp%39#0
         v-store tmp%39#0
         v-load tmp%39#0                                                                                tmp%39#0
+        assert // application log value is not the result of an ABI return
+        v-load awst_tmp%2#0                                                                            awst_tmp%2#0
+        extract 4 0                                                                                    tmp%40#0
+        v-store tmp%40#0
+        v-load tmp%40#0                                                                                tmp%40#0
         len                                                                                            tuple_len%6#0
         v-store tuple_len%6#0
-        v-load tmp%39#0                                                                                tmp%39#0
-        int 0                                                                                          tmp%39#0,0
+        v-load tmp%40#0                                                                                tmp%40#0
+        int 0                                                                                          tmp%40#0,0
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%10#0
         v-store extract_uint16%10#0
         v-load extract_uint16%10#0                                                                     extract_uint16%10#0
@@ -4615,9 +4579,9 @@ subroutine test_nested_tuples:
         v-store eq%12#0
         v-load eq%12#0                                                                                 eq%12#0
         assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) 
-        v-load tmp%39#0                                                                                tmp%39#0
-        v-load extract_uint16%10#0                                                                     tmp%39#0,extract_uint16%10#0
-        v-load tuple_len%6#0                                                                           tmp%39#0,extract_uint16%10#0,tuple_len%6#0
+        v-load tmp%40#0                                                                                tmp%40#0
+        v-load extract_uint16%10#0                                                                     tmp%40#0,extract_uint16%10#0
+        v-load tuple_len%6#0                                                                           tmp%40#0,extract_uint16%10#0,tuple_len%6#0
         substring3                                                                                     substring3%10#0
         v-store substring3%10#0
         v-load substring3%10#0                                                                         substring3%10#0
@@ -4677,8 +4641,8 @@ subroutine test_nested_tuples:
         v-load add%19#0                                                                                4,add%19#0
         +                                                                                              add%20#0
         v-store add%20#0
-        v-load tmp%39#0                                                                                tmp%39#0
-        int 2                                                                                          tmp%39#0,2
+        v-load tmp%40#0                                                                                tmp%40#0
+        int 2                                                                                          tmp%40#0,2
         extract_uint16 // on error: invalid tuple encoding                                             extract_uint16%13#0
         v-store extract_uint16%13#0
         v-load extract_uint16%13#0                                                                     extract_uint16%13#0
@@ -4687,9 +4651,9 @@ subroutine test_nested_tuples:
         v-store eq%15#0
         v-load eq%15#0                                                                                 eq%15#0
         assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) 
-        v-load tmp%39#0                                                                                tmp%39#0
-        v-load extract_uint16%13#0                                                                     tmp%39#0,extract_uint16%13#0
-        v-load tuple_len%6#0                                                                           tmp%39#0,extract_uint16%13#0,tuple_len%6#0
+        v-load tmp%40#0                                                                                tmp%40#0
+        v-load extract_uint16%13#0                                                                     tmp%40#0,extract_uint16%13#0
+        v-load tuple_len%6#0                                                                           tmp%40#0,extract_uint16%13#0,tuple_len%6#0
         substring3                                                                                     substring3%13#0
         v-store substring3%13#0
         v-load substring3%13#0                                                                         substring3%13#0
@@ -4728,9 +4692,9 @@ subroutine test_nested_tuples:
         v-store eq%17#0
         v-load eq%17#0                                                                                 eq%17#0
         assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>> 
-        v-load tmp%39#0                                                                                tmp%39#0
-        v-load extract_uint16%10#0                                                                     tmp%39#0,extract_uint16%10#0
-        v-load extract_uint16%13#0                                                                     tmp%39#0,extract_uint16%10#0,extract_uint16%13#0
+        v-load tmp%40#0                                                                                tmp%40#0
+        v-load extract_uint16%10#0                                                                     tmp%40#0,extract_uint16%10#0
+        v-load extract_uint16%13#0                                                                     tmp%40#0,extract_uint16%10#0,extract_uint16%13#0
         substring3                                                                                     aggregate%substring3%10#0
         v-store aggregate%substring3%10#0
         v-load aggregate%substring3%10#0                                                               aggregate%substring3%10#0
@@ -4771,41 +4735,41 @@ subroutine test_nested_tuples:
         // assert s1 == "echo: s1b"
         v-load result.0.0#0                                                                            result.0.0#0
         byte "echo: s1b"                                                                               result.0.0#0,"echo: s1b"
-        ==                                                                                             tmp%45#0
-        v-store tmp%45#0
-        v-load tmp%45#0                                                                                tmp%45#0
+        ==                                                                                             tmp%46#0
+        v-store tmp%46#0
+        v-load tmp%46#0                                                                                tmp%46#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:417
         // assert s2 == "echo: s2b"
         v-load result.0.1#0                                                                            result.0.1#0
         byte 0x00096563686f3a20733262                                                                  result.0.1#0,0x00096563686f3a20733262
-        ==                                                                                             tmp%47#0
-        v-store tmp%47#0
-        v-load tmp%47#0                                                                                tmp%47#0
+        ==                                                                                             tmp%48#0
+        v-store tmp%48#0
+        v-load tmp%48#0                                                                                tmp%48#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:418
         // assert u64_1 == 12
         v-load result.1.0#0                                                                            result.1.0#0
         int 12                                                                                         result.1.0#0,12
-        ==                                                                                             tmp%48#0
-        v-store tmp%48#0
-        v-load tmp%48#0                                                                                tmp%48#0
+        ==                                                                                             tmp%49#0
+        v-store tmp%49#0
+        v-load tmp%49#0                                                                                tmp%49#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:419
         // assert u64_2 == 22
         v-load result.1.1#0                                                                            result.1.1#0
         byte 0x0000000000000016                                                                        result.1.1#0,0x0000000000000016
-        b==                                                                                            tmp%49#0
-        v-store tmp%49#0
-        v-load tmp%49#0                                                                                tmp%49#0
+        b==                                                                                            tmp%50#0
+        v-store tmp%50#0
+        v-load tmp%50#0                                                                                tmp%50#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:420
         // assert bytez == b"echo: 3b"
         v-load result.1.2#0                                                                            result.1.2#0
         byte 0x6563686f3a203362                                                                        result.1.2#0,0x6563686f3a203362
-        ==                                                                                             tmp%50#0
-        v-store tmp%50#0
-        v-load tmp%50#0                                                                                tmp%50#0
+        ==                                                                                             tmp%51#0
+        v-store tmp%51#0
+        v-load tmp%51#0                                                                                tmp%51#0
         assert
         // typed_itxn_abi_call/typed_c2c.py:364
         // @arc4.abimethod()
@@ -5693,14 +5657,8 @@ subroutine test_resource_encoding:
         itxn_field Applications
         v-load acc#0                                                                                   acc#0
         itxn_field Accounts
-        // typed_itxn_abi_call/typed_c2c.py:502-508
-        // itxn.abi_call[tuple[Asset, Application, Account]](
-        //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
-        //     asset,
-        //     app,
-        //     acc,
-        //     app_id=app_to_call,
-        // )
+        // typed_itxn_abi_call/typed_c2c.py:503
+        // "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
         method echo_resource_by_index(asset,application,account)(uint64,uint64,address)                Method(echo_resource_by_index(asset,application,account)(uint64,uint64,address))
         itxn_field ApplicationArgs
         // typed_itxn_abi_call/typed_c2c.py:504
@@ -5817,14 +5775,8 @@ subroutine test_resource_encoding:
         itxn_begin
         v-load app_to_call#0                                                                           app_to_call#0
         itxn_field ApplicationID
-        // typed_itxn_abi_call/typed_c2c.py:515-521
-        // itxn.abi_call[tuple[Asset, Application, Account]](
-        //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
-        //     asset,
-        //     app,
-        //     acc,
-        //     app_id=app_to_call,
-        // )
+        // typed_itxn_abi_call/typed_c2c.py:516
+        // "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
         method echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)                    Method(echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address))
         itxn_field ApplicationArgs
         v-load tmp%2#0                                                                                 tmp%2#0
@@ -5833,6 +5785,14 @@ subroutine test_resource_encoding:
         itxn_field ApplicationArgs
         v-load acc#0                                                                                   acc#0
         itxn_field ApplicationArgs
+        // typed_itxn_abi_call/typed_c2c.py:515-521
+        // itxn.abi_call[tuple[Asset, Application, Account]](
+        //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
+        //     asset,
+        //     app,
+        //     acc,
+        //     app_id=app_to_call,
+        // )
         int 6                                                                                          6
         itxn_field TypeEnum
         int 0                                                                                          0
