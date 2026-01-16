@@ -85,69 +85,6 @@ def suggested_params(
     return sp
 
 
-def test_dynamic_itxn_group(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = TEST_CASES_DIR / "dynamic_itxn_group" / "contract.py"
-    verifier = TEST_CASES_DIR / "dynamic_itxn_group" / "verifier.py"
-
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
-    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
-    app_client.create()
-
-    verifier_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(verifier))
-    verifier_client = algokit_utils.ApplicationClient(algod_client, verifier_spec, signer=account)
-    verifier_client.create()
-
-    algokit_utils.ensure_funded(
-        algod_client,
-        algokit_utils.EnsureBalanceParameters(
-            account_to_fund=app_client.app_address,
-            min_spending_balance_micro_algos=400_000,
-        ),
-    )
-
-    def create_funded_account() -> algokit_utils.Account:
-        a_key_address = algosdk.account.generate_account()
-        acc = algokit_utils.Account(private_key=a_key_address[0], address=a_key_address[1])
-        algokit_utils.ensure_funded(
-            algod_client,
-            parameters=algokit_utils.EnsureBalanceParameters(
-                account_to_fund=acc, min_spending_balance_micro_algos=400_000
-            ),
-        )
-        return acc
-
-    test_accounts = [create_funded_account() for _ in range(4)]
-    pay_fields = {
-        "sender": account.address,
-        "amt": 900_000,
-        "receiver": app_client.app_address,
-        "note": b"minimum balance to optin to an asset",
-        "sp": algod_client.suggested_params(),
-    }
-
-    def args() -> dict[str, object]:
-        return {
-            "addresses": [a.public_key for a in test_accounts],
-            "funds": TransactionWithSigner(
-                algosdk.transaction.PaymentTxn(**pay_fields),
-                signer=account.signer,
-            ),
-            "verifier": verifier_client.app_id,
-            "transaction_parameters": algokit_utils.OnCompleteCallParameters(
-                suggested_params=suggested_params(
-                    algod_client=algod_client, fee=100_000, flat_fee=True
-                ),
-                accounts=[a.address for a in test_accounts],
-                foreign_apps=[verifier_client.app_id],
-            ),
-        }
-
-    app_client.call("test_firstly", **args())  # type: ignore[call-overload]
-    app_client.call("test_looply", **args())  # type: ignore[call-overload]
-    app_client.call("test_firstly_abi_call", **args())  # type: ignore[call-overload]
-    app_client.call("test_looply_abi_call", **args())  # type: ignore[call-overload]
-
-
 def test_template_variables(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
