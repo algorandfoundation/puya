@@ -1,12 +1,9 @@
-import re
 from collections.abc import Sequence
 
-from puya import log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.errors import CodeError
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import (
     TMP_VAR_INDICATOR,
@@ -21,11 +18,6 @@ from puya.ir.op_utils import assign_targets, convert_constants, mktemp
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType, TupleIRType, ir_type_to_ir_types, wtype_to_abi_name
 from puya.parse import SourceLocation
-
-logger = log.get_logger(__name__)
-
-_VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
-_ARRAY_PATTERN = re.compile(r"^\[[0-9]*]$")
 
 
 def assign(
@@ -141,51 +133,3 @@ def method_signature_to_abi_signature(value: awst_nodes.MethodSignature) -> str:
     return_ = wtype_to_abi_name(value.return_type, source_location=value.source_location)
     signature = f"{name}({args}){return_}"
     return signature
-
-
-def split_signature(
-    signature: str, location: SourceLocation
-) -> tuple[str, str | None, str | None]:
-    """Splits signature into name, args and returns"""
-    level = 0
-    last_idx = 0
-    name: str = ""
-    args: str | None = None
-    returns: str | None = None
-    for idx, tok in enumerate(signature):
-        if tok == "(":
-            level += 1
-            if level == 1:
-                if not name:
-                    name = signature[:idx]
-                last_idx = idx + 1
-        elif tok == ")":
-            level -= 1
-            if level == 0:
-                if args is None:
-                    args = signature[last_idx:idx]
-                elif returns is None:
-                    returns = signature[last_idx - 1 : idx + 1]
-                last_idx = idx + 1
-    if last_idx < len(signature):
-        remaining = signature[last_idx:]
-        if remaining:
-            if returns is not None and _ARRAY_PATTERN.match(remaining):
-                returns += remaining
-            elif not name:
-                name = remaining
-            elif args is None:
-                raise CodeError(
-                    f"invalid signature, args not well defined: {name=}, {remaining=}", location
-                )
-            elif returns:
-                raise CodeError(
-                    f"invalid signature, text after returns:"
-                    f" {name=}, {args=}, {returns=}, {remaining=}",
-                    location,
-                )
-            else:
-                returns = remaining
-    if not name or not _VALID_NAME_PATTERN.match(name):
-        logger.error(f"invalid signature: {name=}", location=location)
-    return name, args, returns

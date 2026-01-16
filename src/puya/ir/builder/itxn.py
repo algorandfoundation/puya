@@ -16,11 +16,7 @@ from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import (
-    assign,
-    method_signature_to_abi_signature,
-    split_signature,
-)
+from puya.ir.builder._utils import assign, method_signature_to_abi_signature
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.builder.flow_control import process_conditional
 from puya.ir.context import IRFunctionBuildContext
@@ -41,10 +37,8 @@ from puya.ir.ssa import BraunSSA
 from puya.ir.types_ import (
     PrimitiveIRType,
     TupleIRType,
-    abi_name_to_wtype,
     get_wtype_arity,
     ir_type_to_ir_types,
-    split_tuple_types,
     sum_wtypes_arity,
     wtype_to_ir_type,
     wtype_to_ir_types,
@@ -712,7 +706,7 @@ class InnerTransactionBuilder:
             ),
         }
 
-        method_signature = _get_method_signature(call)
+        method_signature = call.target
 
         arc4_args = _get_arc4_args(method_signature, call.args)
         array_fields, itxn_group = _parse_args(method_signature, arc4_args)
@@ -746,42 +740,6 @@ class InnerTransactionBuilder:
         return (fields, itxn_group)
 
 
-def _get_method_signature(call: awst_nodes.ABICall) -> awst_nodes.MethodSignature:
-    match call.target:
-        case awst_nodes.MethodSignature() as sig:
-            return sig
-        case awst_nodes.MethodSignatureString(value=sig_str, source_location=loc):
-            name, maybe_args_str, maybe_returns = split_signature(sig_str, loc)
-            if maybe_args_str is None:
-                maybe_args = None
-            elif maybe_args_str:
-                maybe_args = tuple(split_tuple_types(maybe_args_str))
-            else:
-                maybe_args = ()
-
-            if maybe_args is None:
-                arg_wtypes = [arg.wtype for arg in call.args]
-            else:
-                arg_wtypes = [abi_name_to_wtype(arg) for arg in maybe_args]
-
-            if maybe_returns is None:
-                return_wtype = wtypes.void_wtype
-                if isinstance(call.wtype, wtypes.WABICallInnerTransactionFields):
-                    return_wtype = call.wtype.result_type
-            else:
-                return_wtype = abi_name_to_wtype(maybe_returns)
-
-            return awst_nodes.MethodSignature(
-                name=name,
-                arg_types=arg_wtypes,
-                return_type=return_wtype,
-                source_location=call.source_location,
-                resource_encoding="index",
-            )
-        case never:
-            typing.assert_never(never)
-
-
 def _get_arc4_args(
     signature: awst_nodes.MethodSignature, args: Sequence[awst_nodes.Expression]
 ) -> Sequence[awst_nodes.Expression]:
@@ -813,6 +771,7 @@ def _get_arc4_args(
                     error_message = f"expected type {arc4_wtype}, got type {arg_in.wtype}"
                 else:
                     error_message = f"cannot encode {arg_in.wtype} to {arc4_wtype}"
+
                 result.append(
                     awst_nodes.ARC4Encode(
                         value=arg_in,
