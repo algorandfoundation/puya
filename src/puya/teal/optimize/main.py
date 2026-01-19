@@ -24,6 +24,9 @@ logger = log.get_logger(__name__)
 def optimize_teal_program(
     context: ArtifactCompileContext, teal_program: models.TealProgram
 ) -> None:
+    # Note: at optimization level O0, this function still applies the minimal
+    # transformations required to ensure the program is valid and functional
+
     # O0 will still remove some redundant ops to ensure a feasible program size
     for teal_sub in teal_program.all_subroutines:
         _optimize_subroutine_ops(context, teal_sub)
@@ -40,6 +43,8 @@ def optimize_teal_program(
             _optimize_subroutine_blocks(context, teal_sub, branchable_subroutine_entry_blocks)
         maybe_output_intermediate_teal(context, teal_program, qualifier="block")
 
+    # O0 still needs to gather template vars into constant blocks
+    # to compute pc offset according to arc56
     gather_program_constants(teal_program)
     if context.options.optimization_level > 0:
         combine_pushes(teal_program)
@@ -61,23 +66,22 @@ def _optimize_subroutine_blocks(
         f"optimizing TEAL subroutine blocks {teal_sub.signature}",
         location=teal_sub.source_location,
     )
-    if context.options.optimization_level > 0:
-        # at this point, blocks should still be almost "basic"
-        # - control flow should only enter at the start of a block.
-        # - control flow should only leave at the end of the block (although this might be
-        #   spread over multiple ops in the case of say a switch or match)
-        # - the final op must be an unconditional control flow op (e.g. retusb, b, return, err)
-        _inline_jump_chains(teal_sub)
-        # now all blocks that are just a b should have been inlined/removed.
-        # any single-op blocks left must be non-branching control ops, ie ops
-        # that terminate either exit the program or the subroutine.
-        # inlining these are only possible when they are unconditionally branched to,
-        # thus this still maintains the "almost basic" structure as outlined above.
-        _inline_single_op_blocks(teal_sub)
-        _inline_singly_referenced_blocks(teal_sub, level=context.options.optimization_level)
-        if branchable_subroutines:
-            _replace_callsubs_with_branch(teal_sub, branchable_subroutines)
-        _inline_jump_chains(teal_sub)
+    # at this point, blocks should still be almost "basic"
+    # - control flow should only enter at the start of a block.
+    # - control flow should only leave at the end of the block (although this might be
+    #   spread over multiple ops in the case of say a switch or match)
+    # - the final op must be an unconditional control flow op (e.g. retusb, b, return, err)
+    _inline_jump_chains(teal_sub)
+    # now all blocks that are just a b should have been inlined/removed.
+    # any single-op blocks left must be non-branching control ops, ie ops
+    # that terminate either exit the program or the subroutine.
+    # inlining these are only possible when they are unconditionally branched to,
+    # thus this still maintains the "almost basic" structure as outlined above.
+    _inline_single_op_blocks(teal_sub)
+    _inline_singly_referenced_blocks(teal_sub, level=context.options.optimization_level)
+    if branchable_subroutines:
+        _replace_callsubs_with_branch(teal_sub, branchable_subroutines)
+    _inline_jump_chains(teal_sub)
     _remove_jump_fallthroughs(teal_sub)
 
 
@@ -282,15 +286,19 @@ def _inline_singly_referenced_blocks(teal_sub: models.TealSubroutine, *, level: 
 def _remove_jump_fallthroughs(teal_sub: models.TealSubroutine) -> None:
     for block, next_block in zip(teal_sub.blocks, teal_sub.blocks[1:], strict=False):
         match block.ops[-1]:
-            # we guard against having stack manipulations but only one op, thus nowhere to put
-            # them, but this should only occur in O0 as in higher levels, blocks with just a b
-            # will already be inlined
+            # If there are stack manipulations, we require somewhere to put them within the same
+            # block, ie at least one remaining op.
+            # In theory, we could change the way we store stack manipulations to allow attaching
+            # them to block entry/exit, but in practice  this optimisation is only running at O1
+            # and above, and currently that means inlining of jump chains also occurs (and thus in
+            # theory there should not be any blocks with just a branch here), making such a change
+            # redundant.
             case models.Branch(
                 target=target_label, stack_manipulations=sm
             ) if target_label == next_block.label and (len(block.ops) > 1 or not sm):
                 logger.debug(f"removing explicit jump to fall-through block {next_block.label}")
                 block.ops.pop()
-                if block.ops:  # guard is only for O0 case
+                if block.ops:
                     block.ops[-1] = attrs.evolve(
                         block.ops[-1],
                         stack_manipulations=(*block.ops[-1].stack_manipulations, *sm),
