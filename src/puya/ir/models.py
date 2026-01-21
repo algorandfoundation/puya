@@ -439,6 +439,30 @@ class ArrayLength(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
+class ArrayPop(ValueProvider):
+    base: Value = attrs.field()
+    base_type: EncodedType = attrs.field(repr=lambda x: x.name)
+    array_encoding: ArrayEncoding = attrs.field(init=False)
+
+    @array_encoding.default
+    def _array_encoding_factory(self) -> ArrayEncoding:
+        encoding = self.base_type.encoding
+        if not isinstance(encoding, ArrayEncoding):
+            raise InternalError("can only pop from arrays", self.source_location)
+        return encoding
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.base_type,)
+
+    def _frozen_data(self) -> object:
+        return self.base_type, self.base
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_pop(self)
+
+
+@attrs.define(eq=False, kw_only=True)
 class _Aggregate(ValueProvider, abc.ABC):
     base: Value = attrs.field()
     # we retain the original type of the aggregate, in case this is lost during optimisations
