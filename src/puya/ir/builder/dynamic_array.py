@@ -212,21 +212,36 @@ class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        element_encoding = self.array_encoding.element
-        if self.array_encoding.length_header:
-            invoke = invoke_puya_lib_subroutine(
-                self.context,
-                full_name=PuyaLibIR.dynamic_array_pop_fixed_size,
-                args=[array, element_encoding.checked_num_bytes],
+        array_len = self.factory.materialise_single(
+            get_length(
+                self.array_encoding,
+                array,
+                self.loc,
+            )
+        )
+        last_index = self.factory.sub(array_len, 1)
+        array_type = types.EncodedType(self.array_encoding)
+        if self.array_encoding.element.is_bit:
+            ir_type: types.IRType = types.bool_
+        else:
+            ir_type = types.EncodedType(self.array_encoding.element)
+        encoded_item = self.factory.materialise_single(
+            ir.ExtractValue(
+                base=array,
+                base_type=array_type,
+                ir_type=ir_type,
+                check_bounds=False,
+                indexes=(last_index,),
                 source_location=self.loc,
             )
-            popped, data = self.factory.materialise_values(invoke)
-        else:
-            array_bytes_len = self.factory.len(array)
-            start_offset = self.factory.sub(array_bytes_len, element_encoding.checked_num_bytes)
-            data = self.factory.extract3(array, 0, start_offset)
-            popped = self.factory.extract_to_end(array, start_offset)
-        return data, self._decode_popped_element(popped)
+        )
+        popped_array = ir.ArrayPop(
+            base=array,
+            base_type=array_type,
+            source_location=self.loc,
+        )
+        popped = self._decode_popped_element(encoded_item)
+        return self.factory.materialise_single(popped_array), popped
 
 
 class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
