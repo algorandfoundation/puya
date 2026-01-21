@@ -39,3 +39,4 @@ class LabelsValidator(FunctionTraverser):
                     f"block has duplicate label {block.label}", location=block.source_location
                 )
                 logger.info("label first seen here", location=first_seen.source_location)
+        super().visit_block(block)
