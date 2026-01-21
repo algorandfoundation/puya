@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 8 0 2
-    bytecblock 0x151f7c75 "asa" 0x01040023 0x07 "local_uint" "local_bytes" 0x00000000000001c8 "abc"
+    bytecblock 0x151f7c75 "asa" 0x01040023 0x09 "local_uint" "local_bytes" 0x00000000000001c8 "abc"
     b main_block@0
 
 main_block@0:
@@ -1502,12 +1502,14 @@ __init___block@0:
     app_global_put
     // abi_routing/contract.py:28
     // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
+    bytec_3 // 0x09
     pushbytes 0x
-    bytec_3 // 0x07
     concat
     pushbytes 0x08
+    uncover 1
     concat
-    pushbytes 0x09
+    pushbytes 0x07
+    uncover 1
     concat
     pushbytes "some_bytes"
     uncover 1
@@ -1938,7 +1940,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     uncover 1
     intc_0 // 1
     extract3 // on error: index access is out of bounds
-    bytec_3 // 0x07
+    pushbytes 0x07
     b==
     assert // wrong 0th byte from storage
     // abi_routing/contract.py:182
@@ -1962,7 +1964,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     uncover 1
     intc_0 // 1
     extract3 // on error: index access is out of bounds
-    pushbytes 0x09
+    bytec_3 // 0x09
     b==
     assert // wrong 2nd byte from storage
     // abi_routing/contract.py:184

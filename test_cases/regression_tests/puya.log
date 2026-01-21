@@ -3095,13 +3095,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0
 debug: selected aggregate%val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: aggregate%head%0#0, aggregate%as_Encoded(uint64[])%0#0, tmp%2#0
-debug: selected aggregate%head%0#0 from equivalence set
+debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded(uint64[])%0#0, tmp%2#0
+debug: selected aggregate%concat%0#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x aggregate%val_as_bytes%0#0) to aggregate%val_as_bytes%0#0
+debug: Simplified (concat aggregate%val_as_bytes%0#0 0x) to aggregate%val_as_bytes%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -3141,7 +3141,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%head%0#0
+debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%concat%0#0
 debug: selected aggregate%val_as_bytes%0#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -7485,13 +7485,13 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%head%0#0, aggregate%as_Encoded(uint64)%0#0, my_struct#0
+debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded(uint64)%0#0, my_struct#0
 debug: selected my_struct#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x 0x00000000000000c8) to 0x00000000000000c8
+debug: Simplified (concat 0x00000000000000c8 0x) to 0x00000000000000c8
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9911,12 +9911,12 @@ debug: Found equivalence set: aggregate%array_length%1#0, tmp%3#0
 debug: selected aggregate%array_length%1#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%5#0
 debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded(bool1,(len+utf8[]))%0#0, tmp%6#0
-debug: selected aggregate%concat%0#0 from equivalence set
+debug: Found equivalence set: aggregate%concat%2#0, aggregate%as_Encoded(bool1,(len+utf8[]))%0#0, tmp%6#0
+debug: selected aggregate%concat%2#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(len+utf8[])%1#0, tmp%7#0
 debug: selected aggregate%encoded_value%1#0 from equivalence set
-debug: Found equivalence set: aggregate%concat%1#0, aggregate%as_Encoded(bool1,(len+utf8[]))%1#0, tmp%8#0
-debug: selected aggregate%concat%1#0 from equivalence set
+debug: Found equivalence set: aggregate%concat%5#0, aggregate%as_Encoded(bool1,(len+utf8[]))%1#0, tmp%8#0
+debug: selected aggregate%concat%5#0 from equivalence set
 debug: Copy propagation made 9 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -9928,15 +9928,15 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (len "") to 0u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0000
 debug: Simplified (concat 0x0000 "") to 0x0000
-debug: Simplified (concat 0x val1#0) to val1#0
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0003
-debug: Simplified (concat aggregate%head%1#0 0x0000) to (concat val1#0 0x00030000)
+debug: Simplified (concat 0x0000 0x) to 0x0000
+debug: Simplified (concat 0x0003 0x0000) to 0x00030000
 debug: Simplified (len "") to 0u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0000
 debug: Simplified (concat 0x0000 "") to 0x0000
-debug: Simplified (concat 0x val1#0) to val1#0
 debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0003
-debug: Simplified (concat aggregate%head%3#0 0x0000) to (concat val1#0 0x00030000)
+debug: Simplified (concat 0x0000 0x) to 0x0000
+debug: Simplified (concat 0x0003 0x0000) to 0x00030000
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9947,8 +9947,6 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 values#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=regression_tests/issue_118.py:7:5-14, ir_type=uint64, name='aggregate%array_length%0', version=0)]
 debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: val1#0, aggregate%head%0#0, aggregate%head%2#0
-debug: selected val1#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -9990,14 +9988,16 @@ debug: Removing unused variable aggregate%length_uint16%0#0
 debug: Removing unused variable aggregate%encoded_value%0#0
 debug: Removing unused variable aggregate%as_bytes%1#0
 debug: Removing unused variable aggregate%offset_as_uint16%0#0
-debug: Removing unused variable aggregate%head%1#0
+debug: Removing unused variable aggregate%concat%0#0
+debug: Removing unused variable aggregate%concat%1#0
 debug: Removing unused variable aggregate%length%1#0
 debug: Removing unused variable aggregate%as_bytes%2#0
 debug: Removing unused variable aggregate%length_uint16%1#0
 debug: Removing unused variable aggregate%encoded_value%1#0
 debug: Removing unused variable aggregate%as_bytes%3#0
 debug: Removing unused variable aggregate%offset_as_uint16%1#0
-debug: Removing unused variable aggregate%head%3#0
+debug: Removing unused variable aggregate%concat%3#0
+debug: Removing unused variable aggregate%concat%4#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -10157,10 +10157,10 @@ debug: Inserted verify_block@0.ops[4]: 'l-store-copy values#0 0'
 debug: Replaced verify_block@0.ops[19]: 'v-load values#0' with 'l-load values#0'
 debug: Inserted verify_block@0.ops[10]: 'l-store-copy aggregate%array_length%0#0 1'
 debug: Replaced verify_block@0.ops[44]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
-debug: Inserted verify_if_body@2.ops[3]: 'l-store-copy aggregate%concat%0#0 0'
-debug: Replaced verify_if_body@2.ops[5]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
-debug: Inserted verify_after_if_else@3.ops[3]: 'l-store-copy aggregate%concat%1#0 0'
-debug: Replaced verify_after_if_else@3.ops[5]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
+debug: Inserted verify_if_body@2.ops[3]: 'l-store-copy aggregate%concat%2#0 0'
+debug: Replaced verify_if_body@2.ops[5]: 'v-load aggregate%concat%2#0' with 'l-load aggregate%concat%2#0'
+debug: Inserted verify_after_if_else@3.ops[3]: 'l-store-copy aggregate%concat%5#0 0'
+debug: Replaced verify_after_if_else@3.ops[5]: 'v-load aggregate%concat%5#0' with 'l-load aggregate%concat%5#0'
 debug: Inserted verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4.ops[3]: 'l-store-copy tmp%2#0 0'
 debug: Replaced verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4.ops[5]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Found 2 edge set/s for algopy.arc4.ARC4Contract.approval_program
@@ -10637,8 +10637,8 @@ debug: Found equivalence set: aggregate%array_length%2#0, length%2#0
 debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+uint8[])%0#0
 debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded((len+uint8[]),bool1)%0#0, tmp%8#0
-debug: selected aggregate%concat%0#0 from equivalence set
+debug: Found equivalence set: aggregate%concat%2#0, aggregate%as_Encoded((len+uint8[]),bool1)%0#0, tmp%8#0
+debug: selected aggregate%concat%2#0 from equivalence set
 debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -10646,7 +10646,8 @@ debug: Removing unused variable aggregate%current_tail_offset%0#0
 debug: Removing unused variable aggregate%data_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0003
-debug: Simplified (concat 0x 0x0003) to 0x0003
+debug: Simplified (concat aggregate%encoded_value%0#0 0x) to aggregate%encoded_value%0#0
+debug: Simplified (concat 0x151f7c75 aggregate%concat%2#0) to (concat 0x151f7c750003 aggregate%concat%1#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -10686,11 +10687,13 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%concat%0#0
+debug: selected aggregate%encoded_value%0#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%as_bytes%1#0
 debug: Removing unused variable aggregate%offset_as_uint16%0#0
-debug: Removing unused variable aggregate%head%0#0
+debug: Removing unused variable aggregate%concat%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -10885,18 +10888,16 @@ debug: Inserted verify_after_while@7.ops[13]: 'l-store-copy aggregate%as_bytes%0
 debug: Replaced verify_after_while@7.ops[15]: 'v-load aggregate%as_bytes%0#0' with 'l-load aggregate%as_bytes%0#0'
 debug: Inserted verify_after_while@7.ops[17]: 'l-store-copy aggregate%length_uint16%0#0 0'
 debug: Replaced verify_after_while@7.ops[19]: 'v-load aggregate%length_uint16%0#0' with 'l-load aggregate%length_uint16%0#0'
-debug: Inserted verify_after_while@7.ops[31]: 'l-store-copy aggregate%head%1#0 0'
-debug: Replaced verify_after_while@7.ops[33]: 'v-load aggregate%head%1#0' with 'l-load aggregate%head%1#0'
-debug: Inserted verify_after_while@7.ops[40]: 'l-store-copy tmp%9#0 0'
-debug: Replaced verify_after_while@7.ops[42]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
 debug: Inserted verify_after_while@7.ops[27]: 'l-store-copy aggregate%encoded_bool%0#0 0'
-debug: Replaced verify_after_while@7.ops[30]: 'v-load aggregate%encoded_bool%0#0' with 'l-load aggregate%encoded_bool%0#0'
-debug: Inserted verify_after_while@7.ops[37]: 'l-store-copy aggregate%concat%0#0 0'
-debug: Replaced verify_after_while@7.ops[40]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
+debug: Replaced verify_after_while@7.ops[29]: 'v-load aggregate%encoded_bool%0#0' with 'l-load aggregate%encoded_bool%0#0'
+debug: Inserted verify_after_while@7.ops[36]: 'l-store-copy tmp%9#0 0'
+debug: Replaced verify_after_while@7.ops[38]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
+debug: Inserted verify_after_while@7.ops[32]: 'l-store-copy aggregate%concat%1#0 0'
+debug: Replaced verify_after_while@7.ops[35]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
+debug: Inserted verify_after_while@7.ops[22]: 'l-store-copy aggregate%encoded_value%0#0 0'
+debug: Replaced verify_after_while@7.ops[31]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
 debug: Inserted verify_after_while@7.ops[8]: 'l-store-copy tmp%0#0 0'
 debug: Replaced verify_after_while@7.ops[21]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted verify_after_while@7.ops[23]: 'l-store-copy aggregate%encoded_value%0#0 0'
-debug: Replaced verify_after_while@7.ops[37]: 'v-load aggregate%encoded_value%0#0' with 'l-load aggregate%encoded_value%0#0'
 debug: Inserted verify_after_while@7.ops[4]: 'l-store-copy tmp%1#1 1'
 debug: Replaced verify_after_while@7.ops[28]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Found 2 edge set/s for algopy.arc4.ARC4Contract.approval_program

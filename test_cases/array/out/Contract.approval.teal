@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8 0 5 512
-    bytecblock 0x 0x0000000000000000 0x0000000000000004
+    intcblock 1 8 0 5
+    bytecblock 0x 0x000000000000000100000000000000020000000000000003 0x0000000000000003 0x0000000000000000 0x0000000000000004
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
     // array/uint64.py:13
@@ -372,13 +372,10 @@ test_array:
     // array/uint64.py:16
     // arr = ReferenceArray[UInt64]()
     callsub _puya_lib.mem.new_slot
-    dup
+    dupn 2
     // array/uint64.py:19
     // arr.append(UInt64(42))
-    pushint 42
-    itob
-    dig 1
-    swap
+    pushbytes 0x000000000000002a
     stores
     // array/uint64.py:23
     // add_x(arr, UInt64(5))
@@ -493,8 +490,7 @@ test_array_after_for@4:
     assert
     // array/uint64.py:31
     // arr.append(UInt64(43))
-    pushint 43
-    itob
+    pushbytes 0x000000000000002b
     concat // on error: max array length exceeded
     dup2
     stores
@@ -558,8 +554,7 @@ test_array_after_for@4:
     assert
     // array/uint64.py:40
     // arr.append(UInt64(44))
-    pushint 44
-    itob
+    pushbytes 0x000000000000002c
     concat // on error: max array length exceeded
     // array/uint64.py:41
     // assert arr.length == 15
@@ -583,16 +578,11 @@ test_array_after_for@4:
     pushint 44
     ==
     assert
-    // array/uint64.py:272
+    // array/uint64.py:272-273
     // arr.append(UInt64(99))
-    pushint 99
-    itob
-    concat // on error: max array length exceeded
-    // array/uint64.py:273
     // arr2.append(UInt64(100))
-    pushint 100
-    itob
-    concat // on error: max array length exceeded
+    pushbytes 0x00000000000000630000000000000064
+    concat
     // array/uint64.py:44
     // return_ref(arr, arr)[0] += 2
     dup
@@ -671,7 +661,7 @@ test_array_extend:
     loads
     // array/uint64.py:57
     // arr2.append(UInt64(3))
-    pushbytes 0x000000000000000100000000000000020000000000000003
+    bytec_1 // 0x000000000000000100000000000000020000000000000003
     // array/uint64.py:59
     // arr.extend(arr2)
     concat // on error: max array length exceeded
@@ -709,19 +699,14 @@ test_array_multiple_append:
     // arr.append(UInt64(1))
     dup
     loads
-    intc_0 // 1
-    itob
-    concat // on error: max array length exceeded
-    // array/uint64.py:67
+    // array/uint64.py:66-68
+    // arr.append(UInt64(1))
     // arr.append(UInt64(2))
-    pushint 2
-    itob
-    concat // on error: max array length exceeded
+    // arr.append(UInt64(3))
+    bytec_1 // 0x000000000000000100000000000000020000000000000003
+    concat
     // array/uint64.py:68
     // arr.append(UInt64(3))
-    pushint 3
-    itob
-    concat // on error: max array length exceeded
     swap
     dig 1
     stores
@@ -752,7 +737,7 @@ test_array_too_long_for_header@2:
     // array/uint64.py:78
     // for i in urange(512):
     dup
-    intc 4 // 512
+    pushint 512
     <
     bz test_array_too_long_after_for@5
     // array/uint64.py:79
@@ -778,13 +763,12 @@ test_array_too_long_after_for@5:
     len
     intc_1 // 8
     /
-    intc 4 // 512
+    pushint 512
     ==
     assert // array is expected length
     // array/uint64.py:82
     // array.append(UInt64(512))  # this will fail
-    intc 4 // 512
-    itob
+    pushbytes 0x0000000000000200
     concat // on error: max array length exceeded
     pop
     // array/uint64.py:75
@@ -829,8 +813,7 @@ test_array_copy_and_extend_after_for@5:
     dup
     // array/uint64.py:91
     // array.append(UInt64(5))
-    intc_3 // 5
-    itob
+    pushbytes 0x0000000000000005
     concat // on error: max array length exceeded
     // array/uint64.py:92
     // assert array.length == 6
@@ -946,10 +929,8 @@ test_array_evaluation_order:
     callsub _puya_lib.mem.new_slot
     // array/uint64.py:109
     // arr.append(UInt64(3))
-    pushint 3
-    itob
-    dig 1
-    swap
+    dup
+    bytec_2 // 0x0000000000000003
     stores
     // array/uint64.py:110
     // append_length_and_return(arr).extend(append_length_and_return(arr))
@@ -1096,10 +1077,8 @@ test_array_assignment_maximum_cursage:
     callsub _puya_lib.mem.new_slot
     // array/uint64.py:128
     // arr.append(UInt64(3))
-    pushint 3
-    itob
-    dig 1
-    swap
+    dup
+    bytec_2 // 0x0000000000000003
     stores
     // array/uint64.py:129
     // append_length_and_return(arr)[0] = UInt64(42)
@@ -1422,27 +1401,27 @@ test_iteration_after_for@21:
     // assert combined_arr[0] == 0
     dup
     extract 2 8
-    bytec_1 // 0x0000000000000000
+    bytec_3 // 0x0000000000000000
     b==
     assert
     // array/uint64.py:170
     // assert combined_arr[4] == 4
     dup
     extract 34 8
-    bytec_2 // 0x0000000000000004
+    bytec 4 // 0x0000000000000004
     b==
     assert
     // array/uint64.py:171
     // assert combined_arr[5] == 0
     dup
     extract 42 8
-    bytec_1 // 0x0000000000000000
+    bytec_3 // 0x0000000000000000
     b==
     assert
     // array/uint64.py:172
     // assert combined_arr[9] == 4
     extract 74 8
-    bytec_2 // 0x0000000000000004
+    bytec 4 // 0x0000000000000004
     b==
     assert
     // array/uint64.py:140

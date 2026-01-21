@@ -4,7 +4,7 @@
 // test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
 main:
     intcblock 0 8 1 2
-    bytecblock 0x 0x00 0x000000083cfbf217 0x000000230384b842 0x000000000000007b
+    bytecblock 0x 0x00 0x000000230384b842 0x000000083cfbf217 0x000000000000007b
     intc_0 // 0
     intc_0 // 0
     b main_block@0
@@ -12,18 +12,20 @@ main:
 main_block@0:
     // arc4_types/structs.py:40
     // coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
+    bytec_2 // 0x000000230384b842
     bytec_0 // 0x
-    bytec_2 // 0x000000083cfbf217
     concat
-    bytec_3 // 0x000000230384b842
+    bytec_3 // 0x000000083cfbf217
+    uncover 1
     concat
     dup
     // arc4_types/structs.py:41
     // coord_2 = Vector(y=Decimal("150.382884930"), x=Decimal("35.382882839"))
+    bytec_2 // 0x000000230384b842
     bytec_0 // 0x
-    bytec_2 // 0x000000083cfbf217
     concat
-    bytec_3 // 0x000000230384b842
+    bytec_3 // 0x000000083cfbf217
+    uncover 1
     concat
     // arc4_types/structs.py:42
     // coord_3 = add(coord_1.copy(), coord_2.copy())
@@ -101,7 +103,6 @@ main_after_for@4:
     uncover 2
     setbit
     bytec_0 // 0x
-    uncover 1
     concat
     // arc4_types/structs.py:47
     // check(flags.copy())
@@ -121,10 +122,9 @@ main_after_for@4:
     assert
     // arc4_types/structs.py:51
     // nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
+    uncover 1
     bytec_0 // 0x
-    uncover 1
     concat
-    uncover 1
     concat
     callsub nested_decode
     bury 7
@@ -139,10 +139,9 @@ main_after_for@4:
     intc_3 // 2
     itob
     extract 6 2
+    uncover 1
     bytec_0 // 0x
-    uncover 1
     concat
-    uncover 1
     concat
     // arc4_types/structs.py:54
     // copy = mutable.copy()
@@ -159,8 +158,8 @@ main_after_for@4:
     uncover 3
     uncover 3
     substring3
-    bytec_0 // 0x
     pushbytes 0x2a
+    bytec_0 // 0x
     concat
     dig 1
     uncover 1
@@ -191,10 +190,11 @@ main_after_for@4:
     assert // expected copy is different
     // arc4_types/structs.py:58
     // immutable = FrozenAndImmutable(arc4.UInt64(12), arc4.UInt64(34))
-    bytec_0 // 0x
-    pushbytes 0x000000000000000c
-    concat
     pushbytes 0x0000000000000022
+    bytec_0 // 0x
+    concat
+    pushbytes 0x000000000000000c
+    uncover 1
     concat
     // arc4_types/structs.py:59
     // no_copy = immutable
@@ -220,10 +220,9 @@ main_after_for@4:
     intc_0 // 0
     intc_1 // 8
     extract3
-    bytec_0 // 0x
-    uncover 1
-    concat
     bytec 4 // 0x000000000000007b
+    bytec_0 // 0x
+    concat
     concat
     // arc4_types/structs.py:65
     // assert immutable2.two == 123
@@ -303,9 +302,7 @@ add_block@0:
     //     y=add_decimal(v1.y, v2.y),
     // )
     bytec_0 // 0x
-    uncover 2
     concat
-    uncover 1
     concat
     frame_dig -2
     frame_dig -1

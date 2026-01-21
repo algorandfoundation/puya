@@ -28,14 +28,17 @@ mutating_copies:
 mutating_copies_block@0:
     // arc4_types/mutable_params.py:35
     // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+    pushbytes 0x04
     bytec_3 // 0x
-    pushbytes 0x01
-    concat
-    pushbytes 0x02
     concat
     pushbytes 0x03
+    uncover 1
     concat
-    pushbytes 0x04
+    pushbytes 0x02
+    uncover 1
+    concat
+    pushbytes 0x01
+    uncover 1
     concat
     // arc4_types/mutable_params.py:37
     // b_val=Bool(True),
@@ -51,7 +54,6 @@ mutating_copies_block@0:
     extract 6 2
     bytec_0 // "Happy"
     concat
-    cover 1
     // arc4_types/mutable_params.py:40
     // s_val_2=String("Days"),
     bytec 4 // "Days"
@@ -60,7 +62,6 @@ mutating_copies_block@0:
     extract 6 2
     bytec 4 // "Days"
     concat
-    cover 2
     // arc4_types/mutable_params.py:36-41
     // my_struct = TestStruct(
     //     b_val=Bool(True),
@@ -68,8 +69,23 @@ mutating_copies_block@0:
     //     s_val_1=String("Happy"),
     //     s_val_2=String("Days"),
     // )
-    bytec_3 // 0x
+    pushint 6
+    itob
+    extract 6 2
+    cover 2
+    dig 1
+    len
+    pushint 6
+    +
+    itob
+    extract 6 2
     uncover 1
+    bytec_3 // 0x
+    concat
+    uncover 2
+    uncover 1
+    concat
+    concat
     concat
     // arc4_types/mutable_params.py:38
     // u_val=UInt8(50),
@@ -81,21 +97,8 @@ mutating_copies_block@0:
     //     s_val_1=String("Happy"),
     //     s_val_2=String("Days"),
     // )
-    concat
-    pushint 6
-    itob
-    extract 6 2
-    concat
-    dig 1
-    len
-    pushint 6
-    +
-    itob
-    extract 6 2
-    concat
     uncover 1
     concat
-    uncover 1
     concat
     // arc4_types/mutable_params.py:43
     // my_array_copy = my_array.copy()
@@ -566,7 +569,6 @@ mutating_copies_block@0:
     // # Nested array items should still require a copy
     // nested = StructWithArray(test_array=my_array.copy())
     bytec_3 // 0x
-    uncover 1
     concat
     // arc4_types/mutable_params.py:122
     // self.other_routine_2(nested.test_array.copy())
