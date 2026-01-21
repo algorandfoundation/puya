@@ -76,20 +76,15 @@ def read_aggregate_index_and_decode(
     )
     element_wtype = _get_nested_element_wtype(aggregate_wtype, indexes, loc)
     element_ir_type = types.wtype_to_ir_type(element_wtype, loc, allow_tuple=True)
-    values = context.materialise_value_provider(
+    factory = OpFactory(context, loc)
+    return factory.materialise_multi_value(
         ir.DecodeBytes.maybe(
             value=tuple_item,
             encoding=element_encoding,
             ir_type=element_ir_type,
             source_location=loc,
         ),
-        "values",
     )
-    if not isinstance(element_ir_type, types.TupleIRType):
-        (value,) = values
-        return value
-    else:
-        return ir.ValueTuple(values=values, ir_type=element_ir_type, source_location=loc)
 
 
 def encode_and_write_aggregate_index(
