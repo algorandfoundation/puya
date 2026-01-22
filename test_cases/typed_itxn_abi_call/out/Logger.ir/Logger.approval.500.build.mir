@@ -287,10 +287,10 @@ subroutine echo:
         v-store value#0
         v-load value#0                                                                           value#0
         int 0                                                                                    value#0,0
-        extract_uint16 // on error: invalid array length header                                  aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                        aggregate%array_length%0#0
-        int 2                                                                                    aggregate%array_length%0#0,2
+        extract_uint16 // on error: invalid array length header                                  new_items_count#0
+        v-store new_items_count#0
+        v-load new_items_count#0                                                                 new_items_count#0
+        int 2                                                                                    new_items_count#0,2
         +                                                                                        add%0#0
         v-store add%0#0
         v-load value#0                                                                           value#0
@@ -305,32 +305,32 @@ subroutine echo:
         // typed_itxn_abi_call/logger.py:39
         // return "echo: " + value
         v-load value#0                                                                           value#0
-        extract 2 0                                                                              extract_to_end%0#0
-        v-store extract_to_end%0#0
+        extract 2 0                                                                              new_items_bytes#0
+        v-store new_items_bytes#0
+        int 6                                                                                    6
+        v-load new_items_count#0                                                                 6,new_items_count#0
+        +                                                                                        new_array_length#0
+        v-store new_array_length#0
+        v-load new_array_length#0                                                                new_array_length#0
+        itob                                                                                     tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                           tmp%2#0
+        extract 6 0                                                                              new_len_u16#0
+        v-store new_len_u16#0
+        // typed_itxn_abi_call/logger.py:39
+        // return "echo: " + value
         byte 0x00066563686f3a20                                                                  0x00066563686f3a20
-        v-load extract_to_end%0#0                                                                0x00066563686f3a20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                            concat%0#0
-        v-store concat%0#0
-        v-load concat%0#0                                                                        concat%0#0
-        extract 2 0                                                                              extract_to_end%1#0
-        v-store extract_to_end%1#0
-        v-load extract_to_end%1#0                                                                extract_to_end%1#0
-        len                                                                                      len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                           len%0#0
-        itob                                                                                     as_bytes%0#0
-        v-store as_bytes%0#0
-        v-load as_bytes%0#0                                                                      as_bytes%0#0
-        extract 6 2                                                                              as_u16_bytes%0#0
-        v-store as_u16_bytes%0#0
-        v-load concat%0#0                                                                        concat%0#0
-        v-load as_u16_bytes%0#0                                                                  concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                               replace%0#0
-        v-store replace%0#0
+        v-load new_len_u16#0                                                                     0x00066563686f3a20,new_len_u16#0
+        replace2 0                                                                               result#0
+        v-store result#0
+        v-load result#0                                                                          result#0
+        v-load new_items_bytes#0                                                                 result#0,new_items_bytes#0
+        concat                                                                                   tmp%5#0
+        v-store tmp%5#0
         // typed_itxn_abi_call/logger.py:37
         // @arc4.abimethod
         byte 0x151f7c75                                                                          0x151f7c75
-        v-load replace%0#0                                                                       0x151f7c75,replace%0#0
+        v-load tmp%5#0                                                                           0x151f7c75,tmp%5#0
         concat                                                                                   tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                           tmp%2#0
@@ -1420,34 +1420,38 @@ subroutine echo_nested_tuple:
         concat                                                                                   tmp%0#0
         v-store tmp%0#0
         v-load tuple_of_tuples.0.1#0                                                             tuple_of_tuples.0.1#0
-        extract 2 0                                                                              extract_to_end%0#0
-        v-store extract_to_end%0#0
+        extract 2 0                                                                              new_items_bytes#0
+        v-store new_items_bytes#0
+        v-load tuple_of_tuples.0.1#0                                                             tuple_of_tuples.0.1#0
+        int 0                                                                                    tuple_of_tuples.0.1#0,0
+        extract_uint16 // on error: invalid array length header                                  new_items_count#0
+        v-store new_items_count#0
+        int 6                                                                                    6
+        v-load new_items_count#0                                                                 6,new_items_count#0
+        +                                                                                        new_array_length#0
+        v-store new_array_length#0
+        v-load new_array_length#0                                                                new_array_length#0
+        itob                                                                                     tmp%2#2
+        v-store tmp%2#2
+        v-load tmp%2#2                                                                           tmp%2#2
+        extract 6 0                                                                              new_len_u16#0
+        v-store new_len_u16#0
+        // typed_itxn_abi_call/logger.py:128
+        // return ("echo: " + string, "echo: " + arc4_string), (
         byte 0x00066563686f3a20                                                                  0x00066563686f3a20
-        v-load extract_to_end%0#0                                                                0x00066563686f3a20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                            concat%0#0
-        v-store concat%0#0
-        v-load concat%0#0                                                                        concat%0#0
-        extract 2 0                                                                              extract_to_end%1#0
-        v-store extract_to_end%1#0
-        v-load extract_to_end%1#0                                                                extract_to_end%1#0
-        len                                                                                      len%0#1
-        v-store len%0#1
-        v-load len%0#1                                                                           len%0#1
-        itob                                                                                     as_bytes%0#0
-        v-store as_bytes%0#0
-        v-load as_bytes%0#0                                                                      as_bytes%0#0
-        extract 6 2                                                                              as_u16_bytes%0#0
-        v-store as_u16_bytes%0#0
-        v-load concat%0#0                                                                        concat%0#0
-        v-load as_u16_bytes%0#0                                                                  concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                               replace%0#0
-        v-store replace%0#0
+        v-load new_len_u16#0                                                                     0x00066563686f3a20,new_len_u16#0
+        replace2 0                                                                               result#0
+        v-store result#0
+        v-load result#0                                                                          result#0
+        v-load new_items_bytes#0                                                                 result#0,new_items_bytes#0
+        concat                                                                                   tmp%5#2
+        v-store tmp%5#2
         // typed_itxn_abi_call/logger.py:129
         // u64 + 1,
         v-load tuple_of_tuples.1.0#0                                                             tuple_of_tuples.1.0#0
         int 1                                                                                    tuple_of_tuples.1.0#0,1
-        +                                                                                        tmp%2#1
-        v-store tmp%2#1
+        +                                                                                        tmp%4#1
+        v-store tmp%4#1
         // typed_itxn_abi_call/logger.py:130
         // arc4.UInt64(arc4_u64.as_uint64() + 1),
         v-load substring3%3#0                                                                    substring3%3#0
@@ -1456,21 +1460,21 @@ subroutine echo_nested_tuple:
         int 8                                                                                    substring3%3#0,8
         // typed_itxn_abi_call/logger.py:130
         // arc4.UInt64(arc4_u64.as_uint64() + 1),
-        extract_uint64                                                                           tmp%3#1
-        v-store tmp%3#1
-        v-load tmp%3#1                                                                           tmp%3#1
-        int 1                                                                                    tmp%3#1,1
-        +                                                                                        tmp%4#1
-        v-store tmp%4#1
-        v-load tmp%4#1                                                                           tmp%4#1
+        extract_uint64                                                                           tmp%5#1
+        v-store tmp%5#1
+        v-load tmp%5#1                                                                           tmp%5#1
+        int 1                                                                                    tmp%5#1,1
+        +                                                                                        tmp%6#1
+        v-store tmp%6#1
+        v-load tmp%6#1                                                                           tmp%6#1
         itob                                                                                     aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
         // typed_itxn_abi_call/logger.py:131
         // b"echo: " + bytez,
         byte 0x6563686f3a20                                                                      0x6563686f3a20
         v-load tuple_of_tuples.1.2#0                                                             0x6563686f3a20,tuple_of_tuples.1.2#0
-        concat                                                                                   tmp%6#1
-        v-store tmp%6#1
+        concat                                                                                   tmp%8#1
+        v-store tmp%8#1
         // typed_itxn_abi_call/logger.py:123
         // @arc4.abimethod
         v-load tmp%0#0                                                                           tmp%0#0
@@ -1508,7 +1512,7 @@ subroutine echo_nested_tuple:
         concat                                                                                   aggregate%concat%0#0
         v-store aggregate%concat%0#0
         v-load aggregate%concat%0#0                                                              aggregate%concat%0#0
-        v-load replace%0#0                                                                       aggregate%concat%0#0,replace%0#0
+        v-load tmp%5#2                                                                           aggregate%concat%0#0,tmp%5#2
         concat                                                                                   aggregate%concat%1#0
         v-store aggregate%concat%1#0
         v-load aggregate%concat%1#0                                                              aggregate%concat%1#0
@@ -1518,14 +1522,14 @@ subroutine echo_nested_tuple:
         v-load aggregate%data_length%2#0                                                         4,aggregate%data_length%2#0
         +                                                                                        aggregate%current_tail_offset%2#0
         v-store aggregate%current_tail_offset%2#0
-        v-load tmp%2#1                                                                           tmp%2#1
+        v-load tmp%4#1                                                                           tmp%4#1
         itob                                                                                     aggregate%val_as_bytes%1#0
         v-store aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%1#0                                                        aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%0#0                                                        aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
         concat                                                                                   aggregate%head%4#0
         v-store aggregate%head%4#0
-        v-load tmp%6#1                                                                           tmp%6#1
+        v-load tmp%8#1                                                                           tmp%8#1
         len                                                                                      aggregate%length%2#0
         v-store aggregate%length%2#0
         v-load aggregate%length%2#0                                                              aggregate%length%2#0
@@ -1535,7 +1539,7 @@ subroutine echo_nested_tuple:
         extract 6 2                                                                              aggregate%length_uint16%2#0
         v-store aggregate%length_uint16%2#0
         v-load aggregate%length_uint16%2#0                                                       aggregate%length_uint16%2#0
-        v-load tmp%6#1                                                                           aggregate%length_uint16%2#0,tmp%6#1
+        v-load tmp%8#1                                                                           aggregate%length_uint16%2#0,tmp%8#1
         concat                                                                                   aggregate%encoded_value%2#0
         v-store aggregate%encoded_value%2#0
         v-load aggregate%head%4#0                                                                aggregate%head%4#0

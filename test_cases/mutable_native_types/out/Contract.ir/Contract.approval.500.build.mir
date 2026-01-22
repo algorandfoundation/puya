@@ -1036,10 +1036,10 @@ subroutine test_arr:
         v-store arr#0
         v-load arr#0                                                                                       arr#0
         int 0                                                                                              arr#0,0
-        extract_uint16 // on error: invalid array length header                                            aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                                  aggregate%array_length%0#0
-        int 16                                                                                             aggregate%array_length%0#0,16
+        extract_uint16 // on error: invalid array length header                                            array_length#0
+        v-store array_length#0
+        v-load array_length#0                                                                              array_length#0
+        int 16                                                                                             array_length#0,16
         *                                                                                                  mul%0#0
         v-store mul%0#0
         v-load mul%0#0                                                                                     mul%0#0
@@ -1057,7 +1057,7 @@ subroutine test_arr:
         assert // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> 
         // mutable_native_types/contract.py:199
         // assert arr.length == 0, "expected empty array"
-        v-load aggregate%array_length%0#0                                                                  aggregate%array_length%0#0
+        v-load array_length#0                                                                              array_length#0
         !                                                                                                  tmp%1#1
         v-store tmp%1#1
         v-load tmp%1#1                                                                                     tmp%1#1
@@ -1076,11 +1076,11 @@ subroutine test_arr:
         int 16                                                                                             aggregate%bytes_len%0#0,16
         /                                                                                                  aggregate%array_len%0#0
         v-store aggregate%array_len%0#0
-        v-load aggregate%array_length%0#0                                                                  aggregate%array_length%0#0
-        v-load aggregate%array_len%0#0                                                                     aggregate%array_length%0#0,aggregate%array_len%0#0
-        ==                                                                                                 tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                                                     tmp%6#0
+        v-load array_length#0                                                                              array_length#0
+        v-load aggregate%array_len%0#0                                                                     array_length#0,aggregate%array_len%0#0
+        ==                                                                                                 tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%8#0                                                                                     tmp%8#0
         assert // expected arrays to be the same length
         // mutable_native_types/contract.py:211
         // arr5 = Array(arr4)
@@ -1098,90 +1098,90 @@ subroutine test_arr:
         // assert arr == arr5, "expected arrays to be the same"
         v-load arr#0                                                                                       arr#0
         v-load arr5#0                                                                                      arr#0,arr5#0
-        ==                                                                                                 tmp%8#0
-        v-store tmp%8#0
-        v-load tmp%8#0                                                                                     tmp%8#0
+        ==                                                                                                 tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%10#0                                                                                    tmp%10#0
         assert // expected arrays to be the same
         // mutable_native_types/contract.py:218
         // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
-        txn NumAppArgs                                                                                     tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                                    tmp%12#0
-        int 1                                                                                              tmp%12#0,1
-        +                                                                                                  tmp%13#0
-        v-store tmp%13#0
         txn NumAppArgs                                                                                     tmp%14#0
         v-store tmp%14#0
         v-load tmp%14#0                                                                                    tmp%14#0
-        int 2                                                                                              tmp%14#0,2
+        int 1                                                                                              tmp%14#0,1
         +                                                                                                  tmp%15#0
         v-store tmp%15#0
-        v-load tmp%13#0                                                                                    tmp%13#0
+        txn NumAppArgs                                                                                     tmp%16#0
+        v-store tmp%16#0
+        v-load tmp%16#0                                                                                    tmp%16#0
+        int 2                                                                                              tmp%16#0,2
+        +                                                                                                  tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%15#0                                                                                    tmp%15#0
         itob                                                                                               aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
-        v-load tmp%15#0                                                                                    tmp%15#0
+        v-load tmp%17#0                                                                                    tmp%17#0
         itob                                                                                               aggregate%val_as_bytes%1#0
         v-store aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%0#0                                                                  aggregate%val_as_bytes%0#0
         v-load aggregate%val_as_bytes%1#0                                                                  aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                             fixed_struct#0
         v-store fixed_struct#0
+        v-load array_length#0                                                                              array_length#0
         // mutable_native_types/contract.py:219
         // arr2.append(fixed_struct)
+        int 1                                                                                              array_length#0,1
+        +                                                                                                  new_array_length#0
+        v-store new_array_length#0
+        v-load new_array_length#0                                                                          new_array_length#0
+        itob                                                                                               tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                                     tmp%2#0
+        extract 6 0                                                                                        new_len_u16#0
+        v-store new_len_u16#0
         v-load arr#0                                                                                       arr#0
-        v-load fixed_struct#0                                                                              arr#0,fixed_struct#0
-        concat // on error: max array length exceeded                                                      concat%1#0
-        v-store concat%1#0
-        v-load aggregate%array_length%0#0                                                                  aggregate%array_length%0#0
-        int 1                                                                                              aggregate%array_length%0#0,1
-        +                                                                                                  add%0#0
-        v-store add%0#0
-        v-load add%0#0                                                                                     add%0#0
-        itob                                                                                               as_bytes%1#0
-        v-store as_bytes%1#0
-        v-load as_bytes%1#0                                                                                as_bytes%1#0
-        extract 6 2                                                                                        as_u16_bytes%1#0
-        v-store as_u16_bytes%1#0
-        v-load concat%1#0                                                                                  concat%1#0
-        v-load as_u16_bytes%1#0                                                                            concat%1#0,as_u16_bytes%1#0
-        replace2 0                                                                                         arr2#1
+        v-load new_len_u16#0                                                                               arr#0,new_len_u16#0
+        replace2 0                                                                                         result#0
+        v-store result#0
+        v-load result#0                                                                                    result#0
+        v-load fixed_struct#0                                                                              result#0,fixed_struct#0
+        concat                                                                                             arr2#1
         v-store arr2#1
         // mutable_native_types/contract.py:220
         // assert arr2.length == 1, "expected array to have 1 item"
         v-load arr2#1                                                                                      arr2#1
         int 0                                                                                              arr2#1,0
-        extract_uint16 // on error: invalid array length header                                            aggregate%array_length%3#0
-        v-store aggregate%array_length%3#0
-        v-load aggregate%array_length%3#0                                                                  aggregate%array_length%3#0
-        int 1                                                                                              aggregate%array_length%3#0,1
-        ==                                                                                                 tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                                                    tmp%19#0
+        extract_uint16 // on error: invalid array length header                                            new_items_count#0
+        v-store new_items_count#0
+        v-load new_items_count#0                                                                           new_items_count#0
+        int 1                                                                                              new_items_count#0,1
+        ==                                                                                                 tmp%22#0
+        v-store tmp%22#0
+        v-load tmp%22#0                                                                                    tmp%22#0
         assert // expected array to have 1 item
         // mutable_native_types/contract.py:221
         // assert sum_frozen_arr(arr2.freeze()) == 7, "expected sum to be 7"
         v-load arr2#1                                                                                      arr2#1
-        callsub sum_frozen_arr                                                                             tmp%21#0
-        v-store tmp%21#0
-        v-load tmp%21#0                                                                                    tmp%21#0
-        int 7                                                                                              tmp%21#0,7
-        ==                                                                                                 tmp%22#0
-        v-store tmp%22#0
-        v-load tmp%22#0                                                                                    tmp%22#0
+        callsub sum_frozen_arr                                                                             tmp%24#0
+        v-store tmp%24#0
+        v-load tmp%24#0                                                                                    tmp%24#0
+        int 7                                                                                              tmp%24#0,7
+        ==                                                                                                 tmp%25#0
+        v-store tmp%25#0
+        v-load tmp%25#0                                                                                    tmp%25#0
         assert // expected sum to be 7
         // mutable_native_types/contract.py:222
         // assert arr != arr2, "expected arrays to be different"
         v-load arr#0                                                                                       arr#0
         v-load arr2#1                                                                                      arr#0,arr2#1
-        !=                                                                                                 tmp%23#0
-        v-store tmp%23#0
-        v-load tmp%23#0                                                                                    tmp%23#0
+        !=                                                                                                 tmp%26#0
+        v-store tmp%26#0
+        v-load tmp%26#0                                                                                    tmp%26#0
         assert // expected arrays to be different
         // mutable_native_types/contract.py:224
         // arr7 = Array[FixedStruct]((arr2[0],))
         v-load arr2#1                                                                                      arr2#1
-        extract 2 0                                                                                        aggregate%array_trimmed%0#0
-        v-store aggregate%array_trimmed%0#0
+        extract 2 0                                                                                        new_items_bytes#0
+        v-store new_items_bytes#0
         v-load arr2#1                                                                                      arr2#1
         extract 2 16                                                                                       aggregate%encoded_element%0#0
         v-store aggregate%encoded_element%0#0
@@ -1193,47 +1193,37 @@ subroutine test_arr:
         // assert arr2 == arr7, "expected arrays to be the same"
         v-load arr2#1                                                                                      arr2#1
         v-load arr7#0                                                                                      arr2#1,arr7#0
-        ==                                                                                                 tmp%24#0
-        v-store tmp%24#0
-        v-load tmp%24#0                                                                                    tmp%24#0
+        ==                                                                                                 tmp%27#0
+        v-store tmp%27#0
+        v-load tmp%27#0                                                                                    tmp%27#0
         assert // expected arrays to be the same
         // mutable_native_types/contract.py:227
         // arr8 = Array[FixedStruct]()
         byte 0x0000                                                                                        0x0000
         v-store arr8#0
+        v-load new_items_count#0                                                                           new_items_count#0
+        itob                                                                                               tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                                     tmp%2#0
+        extract 6 0                                                                                        new_len_u16#0
+        v-store new_len_u16#0
+        // mutable_native_types/contract.py:227
+        // arr8 = Array[FixedStruct]()
         byte 0x0000                                                                                        0x0000
-        // mutable_native_types/contract.py:228
-        // arr8 += arr2
-        v-load aggregate%array_trimmed%0#0                                                                 0x0000,aggregate%array_trimmed%0#0
-        concat // on error: max array length exceeded                                                      concat%2#0
-        v-store concat%2#0
-        v-load concat%2#0                                                                                  concat%2#0
-        extract 2 0                                                                                        extract_to_end%2#0
-        v-store extract_to_end%2#0
-        v-load extract_to_end%2#0                                                                          extract_to_end%2#0
-        len                                                                                                len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                                     len%0#0
-        int 16                                                                                             len%0#0,16
-        /                                                                                                  div_floor%0#0
-        v-store div_floor%0#0
-        v-load div_floor%0#0                                                                               div_floor%0#0
-        itob                                                                                               as_bytes%2#0
-        v-store as_bytes%2#0
-        v-load as_bytes%2#0                                                                                as_bytes%2#0
-        extract 6 2                                                                                        as_u16_bytes%2#0
-        v-store as_u16_bytes%2#0
-        v-load concat%2#0                                                                                  concat%2#0
-        v-load as_u16_bytes%2#0                                                                            concat%2#0,as_u16_bytes%2#0
-        replace2 0                                                                                         arr8#1
+        v-load new_len_u16#0                                                                               0x0000,new_len_u16#0
+        replace2 0                                                                                         result#0
+        v-store result#0
+        v-load result#0                                                                                    result#0
+        v-load new_items_bytes#0                                                                           result#0,new_items_bytes#0
+        concat                                                                                             arr8#1
         v-store arr8#1
         // mutable_native_types/contract.py:229
         // assert arr2 == arr8, "expected arrays to be the same"
         v-load arr2#1                                                                                      arr2#1
         v-load arr8#1                                                                                      arr2#1,arr8#1
-        ==                                                                                                 tmp%25#0
-        v-store tmp%25#0
-        v-load tmp%25#0                                                                                    tmp%25#0
+        ==                                                                                                 tmp%30#0
+        v-store tmp%30#0
+        v-load tmp%30#0                                                                                    tmp%30#0
         assert // expected arrays to be the same
         // mutable_native_types/contract.py:236
         // for _i in urange(3):
@@ -1256,29 +1246,29 @@ subroutine test_arr:
         bz test_arr_after_for@7 ; b test_arr_for_body@5
 
     test_arr_for_body@5:
-        // mutable_native_types/contract.py:237
-        // arr2.append(fixed_struct)
-        v-load arr2#1                                                                                      arr2#1
-        v-load fixed_struct#0                                                                              arr2#1,fixed_struct#0
-        concat // on error: max array length exceeded                                                      concat%3#0
-        v-store concat%3#0
         v-load arr2#1                                                                                      arr2#1
         int 0                                                                                              arr2#1,0
-        extract_uint16                                                                                     extract_uint16%1#0
-        v-store extract_uint16%1#0
-        v-load extract_uint16%1#0                                                                          extract_uint16%1#0
-        int 1                                                                                              extract_uint16%1#0,1
-        +                                                                                                  add%1#0
-        v-store add%1#0
-        v-load add%1#0                                                                                     add%1#0
-        itob                                                                                               as_bytes%3#0
-        v-store as_bytes%3#0
-        v-load as_bytes%3#0                                                                                as_bytes%3#0
-        extract 6 2                                                                                        as_u16_bytes%3#0
-        v-store as_u16_bytes%3#0
-        v-load concat%3#0                                                                                  concat%3#0
-        v-load as_u16_bytes%3#0                                                                            concat%3#0,as_u16_bytes%3#0
-        replace2 0                                                                                         arr2#1
+        extract_uint16                                                                                     array_length#0
+        v-store array_length#0
+        v-load array_length#0                                                                              array_length#0
+        // mutable_native_types/contract.py:237
+        // arr2.append(fixed_struct)
+        int 1                                                                                              array_length#0,1
+        +                                                                                                  new_array_length#0
+        v-store new_array_length#0
+        v-load new_array_length#0                                                                          new_array_length#0
+        itob                                                                                               tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                                     tmp%2#0
+        extract 6 0                                                                                        new_len_u16#0
+        v-store new_len_u16#0
+        v-load arr2#1                                                                                      arr2#1
+        v-load new_len_u16#0                                                                               arr2#1,new_len_u16#0
+        replace2 0                                                                                         result#0
+        v-store result#0
+        v-load result#0                                                                                    result#0
+        v-load fixed_struct#0                                                                              result#0,fixed_struct#0
+        concat                                                                                             arr2#1
         v-store arr2#1
         // mutable_native_types/contract.py:236
         // for _i in urange(3):
@@ -1295,24 +1285,24 @@ subroutine test_arr:
         // assert arr2.length == 3, "expected 3 elements"
         v-load arr2#1                                                                                      arr2#1
         int 0                                                                                              arr2#1,0
-        extract_uint16 // on error: invalid array length header                                            aggregate%array_length%4#0
-        v-store aggregate%array_length%4#0
-        v-load aggregate%array_length%4#0                                                                  aggregate%array_length%4#0
-        int 3                                                                                              aggregate%array_length%4#0,3
-        ==                                                                                                 tmp%32#0
-        v-store tmp%32#0
-        v-load tmp%32#0                                                                                    tmp%32#0
+        extract_uint16 // on error: invalid array length header                                            aggregate%array_length%6#0
+        v-store aggregate%array_length%6#0
+        v-load aggregate%array_length%6#0                                                                  aggregate%array_length%6#0
+        int 3                                                                                              aggregate%array_length%6#0,3
+        ==                                                                                                 tmp%38#0
+        v-store tmp%38#0
+        v-load tmp%38#0                                                                                    tmp%38#0
         assert // expected 3 elements
         // mutable_native_types/contract.py:242
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
         v-load arr2#1                                                                                      arr2#1
-        callsub sum_frozen_arr                                                                             tmp%34#0
-        v-store tmp%34#0
-        v-load tmp%34#0                                                                                    tmp%34#0
-        int 21                                                                                             tmp%34#0,21
-        ==                                                                                                 tmp%35#0
-        v-store tmp%35#0
-        v-load tmp%35#0                                                                                    tmp%35#0
+        callsub sum_frozen_arr                                                                             tmp%40#0
+        v-store tmp%40#0
+        v-load tmp%40#0                                                                                    tmp%40#0
+        int 21                                                                                             tmp%40#0,21
+        ==                                                                                                 tmp%41#0
+        v-store tmp%41#0
+        v-load tmp%41#0                                                                                    tmp%41#0
         assert // expected sum to be 21
         v-load arr2#1                                                                                      arr2#1
         len                                                                                                tmp%0#3
@@ -1349,64 +1339,62 @@ subroutine test_arr:
         // mutable_native_types/contract.py:246
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
         v-load arr2#1                                                                                      arr2#1
-        callsub sum_frozen_arr                                                                             tmp%40#0
-        v-store tmp%40#0
-        v-load tmp%40#0                                                                                    tmp%40#0
-        int 21                                                                                             tmp%40#0,21
-        ==                                                                                                 tmp%41#0
-        v-store tmp%41#0
-        v-load tmp%41#0                                                                                    tmp%41#0
+        callsub sum_frozen_arr                                                                             tmp%46#0
+        v-store tmp%46#0
+        v-load tmp%46#0                                                                                    tmp%46#0
+        int 21                                                                                             tmp%46#0,21
+        ==                                                                                                 tmp%47#0
+        v-store tmp%47#0
+        v-load tmp%47#0                                                                                    tmp%47#0
         assert // expected sum to be 21
         // mutable_native_types/contract.py:247
         // assert sum_frozen_arr(frozen2) == 14, "expected sum to be 14"
         v-load arr2#6                                                                                      arr2#6
-        callsub sum_frozen_arr                                                                             tmp%42#0
-        v-store tmp%42#0
-        v-load tmp%42#0                                                                                    tmp%42#0
-        int 14                                                                                             tmp%42#0,14
-        ==                                                                                                 tmp%43#0
-        v-store tmp%43#0
-        v-load tmp%43#0                                                                                    tmp%43#0
+        callsub sum_frozen_arr                                                                             tmp%48#0
+        v-store tmp%48#0
+        v-load tmp%48#0                                                                                    tmp%48#0
+        int 14                                                                                             tmp%48#0,14
+        ==                                                                                                 tmp%49#0
+        v-store tmp%49#0
+        v-load tmp%49#0                                                                                    tmp%49#0
         assert // expected sum to be 14
         // mutable_native_types/contract.py:248
         // frozen2 += frozen2
         v-load arr2#6                                                                                      arr2#6
-        extract 2 0                                                                                        extract_to_end%3#0
-        v-store extract_to_end%3#0
+        extract 2 0                                                                                        new_items_bytes#0
+        v-store new_items_bytes#0
         v-load arr2#6                                                                                      arr2#6
-        v-load extract_to_end%3#0                                                                          arr2#6,extract_to_end%3#0
-        concat // on error: max array length exceeded                                                      concat%4#0
-        v-store concat%4#0
-        v-load concat%4#0                                                                                  concat%4#0
-        extract 2 0                                                                                        extract_to_end%4#0
-        v-store extract_to_end%4#0
-        v-load extract_to_end%4#0                                                                          extract_to_end%4#0
-        len                                                                                                len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                                     len%1#0
-        int 16                                                                                             len%1#0,16
-        /                                                                                                  div_floor%1#0
-        v-store div_floor%1#0
-        v-load div_floor%1#0                                                                               div_floor%1#0
-        itob                                                                                               as_bytes%4#0
-        v-store as_bytes%4#0
-        v-load as_bytes%4#0                                                                                as_bytes%4#0
-        extract 6 2                                                                                        as_u16_bytes%4#0
-        v-store as_u16_bytes%4#0
-        v-load concat%4#0                                                                                  concat%4#0
-        v-load as_u16_bytes%4#0                                                                            concat%4#0,as_u16_bytes%4#0
-        replace2 0                                                                                         frozen2#1
+        int 0                                                                                              arr2#6,0
+        extract_uint16 // on error: invalid array length header                                            new_items_count#0
+        v-store new_items_count#0
+        v-load new_items_count#0                                                                           new_items_count#0
+        v-load new_items_count#0                                                                           new_items_count#0,new_items_count#0
+        +                                                                                                  new_array_length#0
+        v-store new_array_length#0
+        v-load new_array_length#0                                                                          new_array_length#0
+        itob                                                                                               tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                                     tmp%2#0
+        extract 6 0                                                                                        new_len_u16#0
+        v-store new_len_u16#0
+        v-load arr2#6                                                                                      arr2#6
+        v-load new_len_u16#0                                                                               arr2#6,new_len_u16#0
+        replace2 0                                                                                         result#0
+        v-store result#0
+        v-load result#0                                                                                    result#0
+        v-load new_items_bytes#0                                                                           result#0,new_items_bytes#0
+        concat                                                                                             frozen2#1
         v-store frozen2#1
         // mutable_native_types/contract.py:249
         // assert sum_frozen_arr(frozen2) == 28, "and the sum shall be 41"
         v-load frozen2#1                                                                                   frozen2#1
-        callsub sum_frozen_arr                                                                             tmp%44#0
-        v-store tmp%44#0
-        v-load tmp%44#0                                                                                    tmp%44#0
-        int 28                                                                                             tmp%44#0,28
-        ==                                                                                                 tmp%45#0
-        v-store tmp%45#0
-        v-load tmp%45#0                                                                                    tmp%45#0
+        callsub sum_frozen_arr                                                                             tmp%52#0
+        v-store tmp%52#0
+        v-load tmp%52#0                                                                                    tmp%52#0
+        int 28                                                                                             tmp%52#0,28
+        ==                                                                                                 tmp%53#0
+        v-store tmp%53#0
+        v-load tmp%53#0                                                                                    tmp%53#0
         assert // and the sum shall be 41
         // mutable_native_types/contract.py:251
         // self.arr = arr2.copy()

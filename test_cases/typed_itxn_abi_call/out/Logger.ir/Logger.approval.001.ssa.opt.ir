@@ -88,6 +88,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         test_cases.typed_itxn_abi_call.logger.Logger.__algopy_default_create()
         exit 1u
 
+subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+    block@0: // L133
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
+        return tmp%5#0
+
 subroutine test_cases.typed_itxn_abi_call.logger.Logger.is_a_b[routing]() -> void:
     block@0: // L32
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
@@ -122,14 +132,9 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo[routing]() -> void:
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%0#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("echo: ")
         let extract_to_end%0#0: bytes = ((extract 2 0) value#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%0#1 extract_to_end%0#0) // on error: max array length exceeded
-        let total_length%1#0: uint64 = (len concat%0#0)
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
-        let len%0#1: uint64 = (len extract_to_end%1#0)
-        let as_bytes%0#0: bytes[8] = (itob len%0#1)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 replace%0#0)
+        let tmp%1#1: uint64 = array_len(value#0)
+        let tmp%2#1: Encoded(len+utf8[]) = array_concat(tmp%0#1, extract_to_end%0#0, tmp%1#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%2#1)
         (log tmp%2#0)
         exit 1u
 
@@ -444,19 +449,14 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple[routin
         let tmp%1#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("echo: ")
         let total_length%0#0: uint64 = (len tuple_of_tuples.0.1#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) tuple_of_tuples.0.1#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%1#1 extract_to_end%0#0) // on error: max array length exceeded
-        let total_length%1#0: uint64 = (len concat%0#0)
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
-        let len%0#1: uint64 = (len extract_to_end%1#0)
-        let as_bytes%0#0: bytes[8] = (itob len%0#1)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let tmp%2#1: uint64 = (+ tuple_of_tuples.1.0#0 1u)
-        let tmp%3#1: uint64 = decode_bytes<uint64>(tuple_of_tuples.1.1#0)
-        let tmp%4#1: uint64 = (+ tmp%3#1 1u)
-        let tmp%5#1: Encoded(uint64) = bytes_encode<uint64>(tmp%4#1)
-        let tmp%6#1: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
-        let tmp%11#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = bytes_encode<(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))>(tmp%0#1, replace%0#0, tmp%2#1, tmp%5#1, tmp%6#1)
+        let tmp%2#1: uint64 = array_len(tuple_of_tuples.0.1#0)
+        let tmp%3#1: Encoded(len+utf8[]) = array_concat(tmp%1#1, extract_to_end%0#0, tmp%2#1)
+        let tmp%4#1: uint64 = (+ tuple_of_tuples.1.0#0 1u)
+        let tmp%5#1: uint64 = decode_bytes<uint64>(tuple_of_tuples.1.1#0)
+        let tmp%6#1: uint64 = (+ tmp%5#1 1u)
+        let tmp%7#1: Encoded(uint64) = bytes_encode<uint64>(tmp%6#1)
+        let tmp%8#1: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
+        let tmp%11#0: Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))) = bytes_encode<(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))>(tmp%0#1, tmp%3#1, tmp%4#1, tmp%7#1, tmp%8#1)
         let tmp%12#0: bytes = (concat 0x151f7c75 tmp%11#0)
         (log tmp%12#0)
         exit 1u

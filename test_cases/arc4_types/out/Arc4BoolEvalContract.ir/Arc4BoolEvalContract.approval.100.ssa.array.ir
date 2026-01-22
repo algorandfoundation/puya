@@ -33,12 +33,18 @@ main test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program:
         let aggregate%head%0#0: bytes = (concat 0x 0x0000000000000000)
         let aggregate%as_Encoded(uint64[])%0#0: Encoded(uint64[]) = aggregate%head%0#0
         let tmp%40#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#0
-        let concat%0#0: Encoded(len+uint64[]) = (concat dynamic_arr#0 tmp%40#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 dynamic_arr#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let dynamic_arr#1: Encoded(len+uint64[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let tmp%41#0: bool = (!= dynamic_arr#1 dynamic_arr#0)
-        (assert tmp%41#0)
+        let aggregate%as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = _puya_lib.arc4.dynamic_array_concat_fixed(dynamic_arr#0, tmp%40#0, 1u)
+        let dynamic_arr#1: Encoded(len+uint64[]) = aggregate%as_Encoded(len+uint64[])%1#0
+        let tmp%42#0: bool = (!= dynamic_arr#1 dynamic_arr#0)
+        (assert tmp%42#0)
         return 1u
+
+subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+    block@0: // L133
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
+        return tmp%5#0

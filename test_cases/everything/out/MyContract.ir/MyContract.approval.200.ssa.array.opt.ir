@@ -97,28 +97,30 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
         let aggregate%length%1#0: uint64 = 7u
         let aggregate%as_bytes%1#0: bytes[8] = (itob 7u)
         let aggregate%length_uint16%1#0: bytes = 0x0007
-        let aggregate%encoded_value%1#0: bytes = 0x000748656c6c6f2c20
-        let extract_to_end%0#0: bytes = ((extract 2 0) name#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat 0x000748656c6c6f2c20 extract_to_end%0#0) // on error: max array length exceeded
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
-        let len%0#0: uint64 = (len extract_to_end%1#0)
-        let as_bytes%0#0: bytes[8] = (itob len%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let array#0: bytes = 0x000748656c6c6f2c20
+        let new_items_bytes#0: bytes = ((extract 2 0) name#0)
+        let new_items_count#0: uint64 = (extract_uint16 name#0 0u) // on error: invalid array length header
+        let array_length#0: uint64 = 7u
+        let new_array_length#0: uint64 = (+ 7u new_items_count#0)
+        let tmp%2#2: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#2)
+        let result#0: bytes = ((replace2 0) 0x000748656c6c6f2c20 new_len_u16#0)
+        let array#1: bytes = (concat result#0 new_items_bytes#0)
         let aggregate%length%2#0: uint64 = 1u
         let aggregate%as_bytes%2#0: bytes[8] = (itob 1u)
         let aggregate%length_uint16%2#0: bytes = 0x0001
         let aggregate%encoded_value%2#0: bytes = 0x000121
-        let extract_to_end%2#0: bytes = 0x21
-        let concat%1#0: Encoded(len+utf8[]) = (concat replace%0#0 0x21) // on error: max array length exceeded
-        let extract_to_end%3#0: bytes = ((extract 2 0) concat%1#0)
-        let len%1#0: uint64 = (len extract_to_end%3#0)
-        let as_bytes%1#0: bytes[8] = (itob len%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
+        let new_items_bytes#1: bytes = 0x21
+        let new_items_count#1: uint64 = 1u
+        let array_length#1: uint64 = (extract_uint16 array#1 0u)
+        let new_array_length#1: uint64 = (+ array_length#1 1u)
+        let tmp%2#3: bytes = (itob new_array_length#1)
+        let new_len_u16#1: bytes = ((extract 6 0) tmp%2#3)
+        let result#1: bytes = ((replace2 0) array#1 new_len_u16#1)
+        let tmp%5#2: bytes = (concat result#1 0x21)
         goto block@4
     block@4: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
-        let tmp%0#0: Encoded(len+utf8[]) = φ(aggregate%encoded_value%0#0 <- block@2, replace%1#0 <- block@3)
+        let tmp%0#0: Encoded(len+utf8[]) = φ(aggregate%encoded_value%0#0 <- block@2, tmp%5#2 <- block@3)
         let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
         (log tmp%1#0)
         exit 1u

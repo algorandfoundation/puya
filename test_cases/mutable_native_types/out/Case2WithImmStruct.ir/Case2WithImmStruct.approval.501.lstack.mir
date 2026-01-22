@@ -815,24 +815,26 @@ subroutine get_all_tups:
         l-load box%box_extract%2#0 1                                                                i#0,aggregate%bytes_offset%0#0,box%box_extract%2#0
         l-load aggregate%bytes_offset%0#0 1                                                         i#0,box%box_extract%2#0,aggregate%bytes_offset%0#0
         int 16                                                                                      i#0,box%box_extract%2#0,aggregate%bytes_offset%0#0,16
-        extract3 // on error: index access is out of bounds                                         i#0,aggregate%encoded_element%0#0
-        v-load result#0                                                                             i#0,aggregate%encoded_element%0#0,result#0
-        l-store-copy result#0 1                                                                     i#0,result#0,aggregate%encoded_element%0#0,result#0 (copy)
-        l-load aggregate%encoded_element%0#0 1                                                      i#0,result#0,result#0 (copy),aggregate%encoded_element%0#0
-        concat // on error: max array length exceeded                                               i#0,result#0,concat%0#0
-        l-load result#0 1                                                                           i#0,concat%0#0,result#0
-        int 0                                                                                       i#0,concat%0#0,result#0,0
-        extract_uint16                                                                              i#0,concat%0#0,extract_uint16%0#0
-        l-load extract_uint16%0#0 0                                                                 i#0,concat%0#0,extract_uint16%0#0
-        int 1                                                                                       i#0,concat%0#0,extract_uint16%0#0,1
-        +                                                                                           i#0,concat%0#0,add%0#0
-        l-load add%0#0 0                                                                            i#0,concat%0#0,add%0#0
-        itob                                                                                        i#0,concat%0#0,as_bytes%0#0
-        l-load as_bytes%0#0 0                                                                       i#0,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                                 i#0,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                         i#0,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                   i#0,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                                  i#0,result#0
+        extract3 // on error: index access is out of bounds                                         i#0,new_items_bytes#0
+        v-load result#0                                                                             i#0,new_items_bytes#0,result#0
+        l-store-copy result#0 0                                                                     i#0,new_items_bytes#0,result#0,result#0 (copy)
+        int 0                                                                                       i#0,new_items_bytes#0,result#0,result#0 (copy),0
+        extract_uint16                                                                              i#0,new_items_bytes#0,result#0,array_length#0
+        l-load array_length#0 0                                                                     i#0,new_items_bytes#0,result#0,array_length#0
+        // mutable_native_types/case2_with_immutable_struct.py:113
+        // result.append(items[i])
+        int 1                                                                                       i#0,new_items_bytes#0,result#0,array_length#0,1
+        +                                                                                           i#0,new_items_bytes#0,result#0,new_array_length#0
+        l-load new_array_length#0 0                                                                 i#0,new_items_bytes#0,result#0,new_array_length#0
+        itob                                                                                        i#0,new_items_bytes#0,result#0,tmp%2#0
+        l-load tmp%2#0 0                                                                            i#0,new_items_bytes#0,result#0,tmp%2#0
+        extract 6 0                                                                                 i#0,new_items_bytes#0,result#0,new_len_u16#0
+        l-load result#0 1                                                                           i#0,new_items_bytes#0,new_len_u16#0,result#0
+        l-load new_len_u16#0 1                                                                      i#0,new_items_bytes#0,result#0,new_len_u16#0
+        replace2 0                                                                                  i#0,new_items_bytes#0,result#0
+        l-load result#0 0                                                                           i#0,new_items_bytes#0,result#0
+        l-load new_items_bytes#0 1                                                                  i#0,result#0,new_items_bytes#0
+        concat                                                                                      i#0,result#0
         v-store result#0                                                                            i#0
         // mutable_native_types/case2_with_immutable_struct.py:112
         // for i in urange(self.tup_bag.value.count):

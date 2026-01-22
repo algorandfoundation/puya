@@ -62,6 +62,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%17#0)
         exit 1u
 
+subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+    block@0: // L133
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
+        return tmp%5#0
+
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap[routing]() -> void:
     block@0: // L23
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
@@ -88,13 +98,8 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tup
         (assert maybe_exists%0#0) // check self.tup exists
         let (tmp%0#1: Encoded(len+uint64[]), tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
-        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#1 tmp%2#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%1#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_concat(tmp%0#1, tmp%2#0, 1u)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(tmp%3#0, tmp%1#0)
         (app_global_put "tup" encoded_for_storage%0#0)
         exit 1u
 
@@ -107,13 +112,8 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box
         let storage_value%0#0: bytes = box_read("box")
         let (tmp%0#1: Encoded(len+uint64[]), tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(storage_value%0#0)
         let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
-        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#1 tmp%2#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%1#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_concat(tmp%0#1, tmp%2#0, 1u)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(tmp%3#0, tmp%1#0)
         box_write("box", encoded_for_storage%0#0)
         exit 1u
 
@@ -127,13 +127,8 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_glo
         (assert maybe_exists%0#0) // check self.glob exists
         let (tmp%0#1: Encoded(len+uint64[]), tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
-        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#1 tmp%2#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%1#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_concat(tmp%0#1, tmp%2#0, 1u)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(tmp%3#0, tmp%1#0)
         (app_global_put "glob" encoded_for_storage%0#0)
         exit 1u
 
@@ -148,12 +143,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_loc
         (assert maybe_exists%0#0) // check self.loc exists for account
         let (tmp%1#0: Encoded(len+uint64[]), tmp%2#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let tmp%3#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
-        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%1#0 tmp%3#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%2#0)
+        let tmp%4#0: Encoded(len+uint64[]) = array_concat(tmp%1#0, tmp%3#0, 1u)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(tmp%4#0, tmp%2#0)
         (app_local_put tmp%0#1 "loc" encoded_for_storage%0#0)
         exit 1u

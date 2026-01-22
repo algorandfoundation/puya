@@ -292,49 +292,59 @@ subroutine say_hello:
         // everything/contract.py:62
         // return "Hello, " + name + "!"
         v-load name#0                                                                   name#0
-        extract 2 0                                                                     extract_to_end%0#0
-        v-store extract_to_end%0#0
+        extract 2 0                                                                     new_items_bytes#0
+        v-store new_items_bytes#0
+        v-load name#0                                                                   name#0
+        int 0                                                                           name#0,0
+        extract_uint16 // on error: invalid array length header                         new_items_count#0
+        v-store new_items_count#0
+        int 7                                                                           7
+        v-load new_items_count#0                                                        7,new_items_count#0
+        +                                                                               new_array_length#0
+        v-store new_array_length#0
+        v-load new_array_length#0                                                       new_array_length#0
+        itob                                                                            tmp%2#2
+        v-store tmp%2#2
+        v-load tmp%2#2                                                                  tmp%2#2
+        extract 6 0                                                                     new_len_u16#0
+        v-store new_len_u16#0
+        // everything/contract.py:62
+        // return "Hello, " + name + "!"
         byte 0x000748656c6c6f2c20                                                       0x000748656c6c6f2c20
-        v-load extract_to_end%0#0                                                       0x000748656c6c6f2c20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                   concat%0#0
-        v-store concat%0#0
-        v-load concat%0#0                                                               concat%0#0
-        extract 2 0                                                                     extract_to_end%1#0
-        v-store extract_to_end%1#0
-        v-load extract_to_end%1#0                                                       extract_to_end%1#0
-        len                                                                             len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                  len%0#0
-        itob                                                                            as_bytes%0#0
-        v-store as_bytes%0#0
-        v-load as_bytes%0#0                                                             as_bytes%0#0
-        extract 6 2                                                                     as_u16_bytes%0#0
-        v-store as_u16_bytes%0#0
-        v-load concat%0#0                                                               concat%0#0
-        v-load as_u16_bytes%0#0                                                         concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                      replace%0#0
-        v-store replace%0#0
-        v-load replace%0#0                                                              replace%0#0
-        byte 0x21                                                                       replace%0#0,0x21
-        concat // on error: max array length exceeded                                   concat%1#0
-        v-store concat%1#0
-        v-load concat%1#0                                                               concat%1#0
-        extract 2 0                                                                     extract_to_end%3#0
-        v-store extract_to_end%3#0
-        v-load extract_to_end%3#0                                                       extract_to_end%3#0
-        len                                                                             len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                  len%1#0
-        itob                                                                            as_bytes%1#0
-        v-store as_bytes%1#0
-        v-load as_bytes%1#0                                                             as_bytes%1#0
-        extract 6 2                                                                     as_u16_bytes%1#0
-        v-store as_u16_bytes%1#0
-        v-load concat%1#0                                                               concat%1#0
-        v-load as_u16_bytes%1#0                                                         concat%1#0,as_u16_bytes%1#0
-        replace2 0                                                                      replace%1#0
-        v-store replace%1#0
-        v-load replace%1#0                                                              replace%1#0
+        v-load new_len_u16#0                                                            0x000748656c6c6f2c20,new_len_u16#0
+        replace2 0                                                                      result#0
+        v-store result#0
+        v-load result#0                                                                 result#0
+        v-load new_items_bytes#0                                                        result#0,new_items_bytes#0
+        concat                                                                          array#1
+        v-store array#1
+        v-load array#1                                                                  array#1
+        int 0                                                                           array#1,0
+        extract_uint16                                                                  array_length#1
+        v-store array_length#1
+        v-load array_length#1                                                           array_length#1
+        // everything/contract.py:62
+        // return "Hello, " + name + "!"
+        int 1                                                                           array_length#1,1
+        +                                                                               new_array_length#0
+        v-store new_array_length#0
+        v-load new_array_length#0                                                       new_array_length#0
+        itob                                                                            tmp%2#2
+        v-store tmp%2#2
+        v-load tmp%2#2                                                                  tmp%2#2
+        extract 6 0                                                                     new_len_u16#0
+        v-store new_len_u16#0
+        v-load array#1                                                                  array#1
+        v-load new_len_u16#0                                                            array#1,new_len_u16#0
+        replace2 0                                                                      result#0
+        v-store result#0
+        v-load result#0                                                                 result#0
+        // everything/contract.py:62
+        // return "Hello, " + name + "!"
+        byte 0x21                                                                       result#0,0x21
+        concat                                                                          tmp%5#2
+        v-store tmp%5#2
+        v-load tmp%5#2                                                                  tmp%5#2
         v-store tmp%0#0
         // everything/contract.py:56
         // @abimethod

@@ -87,24 +87,29 @@ echo:
     dup
     intc_2 // 0
     extract_uint16 // on error: invalid array length header
+    dup
     intc_3 // 2
     +
-    dig 1
+    dig 2
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     // typed_itxn_abi_call/logger.py:39
     // return "echo: " + value
+    swap
     extract 2 0
+    pushint 6
+    uncover 2
+    +
+    itob
+    extract 6 0
+    // typed_itxn_abi_call/logger.py:39
+    // return "echo: " + value
     bytec_2 // 0x00066563686f3a20
     swap
-    concat // on error: max array length exceeded
-    dup
-    extract 2 0
-    len
-    itob
-    extract 6 2
     replace2 0
+    swap
+    concat
     // typed_itxn_abi_call/logger.py:37
     // @arc4.abimethod
     bytec_0 // 0x151f7c75
@@ -787,17 +792,22 @@ echo_nested_tuple:
     bytec_1 // "echo: "
     uncover 4
     concat
-    uncover 3
+    dig 3
     extract 2 0
+    uncover 4
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 6
+    +
+    itob
+    extract 6 0
+    // typed_itxn_abi_call/logger.py:128
+    // return ("echo: " + string, "echo: " + arc4_string), (
     bytec_2 // 0x00066563686f3a20
     swap
-    concat // on error: max array length exceeded
-    dup
-    extract 2 0
-    len
-    itob
-    extract 6 2
     replace2 0
+    swap
+    concat
     // typed_itxn_abi_call/logger.py:129
     // u64 + 1,
     uncover 3

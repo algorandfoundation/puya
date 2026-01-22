@@ -41,27 +41,27 @@ subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_
 
 subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[routing]() -> void:
     block@0: // L41
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 5u)
+        let new_items_bytes#1: bytes = (itob 5u)
         let arr#2: Encoded(len+uint64[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005, 8u)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
-        let tmp%9#0: bool = (== aggregate%array_length%1#0 4u)
-        goto tmp%9#0 ? block@2 : block@7
+        let array_length#8: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
+        let tmp%10#0: bool = (== array_length#8 4u)
+        goto tmp%10#0 ? block@2 : block@7
     block@2: // and_contd_L46
-        let tmp%10#0: uint64 = (extract_uint64 arr#2 2u)
-        let tmp%11#0: bool = (== tmp%10#0 1u)
-        goto tmp%11#0 ? block@3 : block@7
+        let tmp%11#0: uint64 = (extract_uint64 arr#2 2u)
+        let tmp%12#0: bool = (== tmp%11#0 1u)
+        goto tmp%12#0 ? block@3 : block@7
     block@3: // and_contd_L46
-        let tmp%12#0: uint64 = (extract_uint64 arr#2 10u)
-        let tmp%13#0: bool = (== tmp%12#0 2u)
-        goto tmp%13#0 ? block@4 : block@7
+        let tmp%13#0: uint64 = (extract_uint64 arr#2 10u)
+        let tmp%14#0: bool = (== tmp%13#0 2u)
+        goto tmp%14#0 ? block@4 : block@7
     block@4: // and_contd_L46
-        let tmp%14#0: uint64 = (extract_uint64 arr#2 18u)
-        let tmp%15#0: bool = (== tmp%14#0 3u)
-        goto tmp%15#0 ? block@5 : block@7
+        let tmp%15#0: uint64 = (extract_uint64 arr#2 18u)
+        let tmp%16#0: bool = (== tmp%15#0 3u)
+        goto tmp%16#0 ? block@5 : block@7
     block@5: // and_contd_L46
-        let tmp%16#0: uint64 = (extract_uint64 arr#2 26u)
-        let tmp%17#0: bool = (== tmp%16#0 4u)
-        goto tmp%17#0 ? block@6 : block@7
+        let tmp%17#0: uint64 = (extract_uint64 arr#2 26u)
+        let tmp%18#0: bool = (== tmp%17#0 4u)
+        goto tmp%18#0 ? block@6 : block@7
     block@6: // bool_true_L46
         let and_result%0#0: bool = 1u
         goto block@8
@@ -71,42 +71,42 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
     block@8: // bool_merge_L46
         (assert and_result%0#0) // assert target is match for conditions
         let aggregate%array_trimmed%5#0: bytes = ((extract 2 0) arr#2)
-        let tmp%18#0: uint64 = (extract_uint64 arr#2 2u)
-        let tmp%19#0: bool = (== tmp%18#0 1u)
-        (assert tmp%19#0)
-        let tmp%21#0: uint64 = (- aggregate%array_length%1#0 1u)
-        let aggregate%bytes_offset%6#0: uint64 = (* tmp%21#0 8u)
-        let tmp%22#0: uint64 = (extract_uint64 aggregate%array_trimmed%5#0 aggregate%bytes_offset%6#0)
-        let tmp%23#0: bool = (== tmp%22#0 4u)
-        (assert tmp%23#0)
-        let concat%1#0: Encoded(len+uint64[]) = (concat arr#2 aggregate%val_as_bytes%0#0) // on error: max array length exceeded
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob add%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let arr#2: Encoded(len+uint64[]) = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
+        let tmp%19#0: uint64 = (extract_uint64 arr#2 2u)
+        let tmp%20#0: bool = (== tmp%19#0 1u)
+        (assert tmp%20#0)
+        let tmp%22#0: uint64 = (- array_length#8 1u)
+        let aggregate%bytes_offset%6#0: uint64 = (* tmp%22#0 8u)
+        let tmp%23#0: uint64 = (extract_uint64 aggregate%array_trimmed%5#0 aggregate%bytes_offset%6#0)
+        let tmp%24#0: bool = (== tmp%23#0 4u)
+        (assert tmp%24#0)
+        let new_array_length#0: uint64 = (+ array_length#8 1u)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) arr#2 new_len_u16#0)
+        let arr#2: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#1)
         let aggregate%array_length%3#0: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
-        let tmp%27#0: bool = (== aggregate%array_length%3#0 5u)
-        goto tmp%27#0 ? block@9 : block@15
+        let tmp%29#0: bool = (== aggregate%array_length%3#0 5u)
+        goto tmp%29#0 ? block@9 : block@15
     block@9: // and_contd_L55
-        let tmp%28#0: uint64 = (extract_uint64 arr#2 2u)
-        let tmp%29#0: bool = (== tmp%28#0 1u)
-        goto tmp%29#0 ? block@10 : block@15
+        let tmp%30#0: uint64 = (extract_uint64 arr#2 2u)
+        let tmp%31#0: bool = (== tmp%30#0 1u)
+        goto tmp%31#0 ? block@10 : block@15
     block@10: // and_contd_L55
-        let tmp%30#0: uint64 = (extract_uint64 arr#2 10u)
-        let tmp%31#0: bool = (== tmp%30#0 2u)
-        goto tmp%31#0 ? block@11 : block@15
+        let tmp%32#0: uint64 = (extract_uint64 arr#2 10u)
+        let tmp%33#0: bool = (== tmp%32#0 2u)
+        goto tmp%33#0 ? block@11 : block@15
     block@11: // and_contd_L55
-        let tmp%32#0: uint64 = (extract_uint64 arr#2 18u)
-        let tmp%33#0: bool = (== tmp%32#0 3u)
-        goto tmp%33#0 ? block@12 : block@15
+        let tmp%34#0: uint64 = (extract_uint64 arr#2 18u)
+        let tmp%35#0: bool = (== tmp%34#0 3u)
+        goto tmp%35#0 ? block@12 : block@15
     block@12: // and_contd_L55
-        let tmp%34#0: uint64 = (extract_uint64 arr#2 26u)
-        let tmp%35#0: bool = (== tmp%34#0 4u)
-        goto tmp%35#0 ? block@13 : block@15
+        let tmp%36#0: uint64 = (extract_uint64 arr#2 26u)
+        let tmp%37#0: bool = (== tmp%36#0 4u)
+        goto tmp%37#0 ? block@13 : block@15
     block@13: // and_contd_L55
-        let tmp%36#0: uint64 = (extract_uint64 arr#2 34u)
-        let tmp%37#0: bool = (== tmp%36#0 5u)
-        goto tmp%37#0 ? block@14 : block@15
+        let tmp%38#0: uint64 = (extract_uint64 arr#2 34u)
+        let tmp%39#0: bool = (== tmp%38#0 5u)
+        goto tmp%39#0 ? block@14 : block@15
     block@14: // bool_true_L55
         let and_result%1#0: bool = 1u
         goto block@16
@@ -120,15 +120,15 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let aggregate%bytes_offset%12#0: uint64 = (* sub%1#0 8u)
         let top#0: uint64 = (extract_uint64 aggregate%array_trimmed%12#0 aggregate%bytes_offset%12#0)
         let arr#2: Encoded(len+uint64[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#2, 8u)
-        let tmp%42#0: bool = (== top#0 5u)
-        (assert tmp%42#0)
+        let tmp%44#0: bool = (== top#0 5u)
+        (assert tmp%44#0)
         let aggregate%array_length%5#0: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
-        let tmp%44#0: bool = (== aggregate%array_length%5#0 1u)
-        goto tmp%44#0 ? block@17 : block@19
+        let tmp%46#0: bool = (== aggregate%array_length%5#0 1u)
+        goto tmp%46#0 ? block@17 : block@19
     block@17: // and_contd_L61
-        let tmp%45#0: uint64 = (extract_uint64 arr#2 2u)
-        let tmp%46#0: bool = (== tmp%45#0 1u)
-        goto tmp%46#0 ? block@18 : block@19
+        let tmp%47#0: uint64 = (extract_uint64 arr#2 2u)
+        let tmp%48#0: bool = (== tmp%47#0 1u)
+        goto tmp%48#0 ? block@18 : block@19
     block@18: // bool_true_L61
         let and_result%2#0: bool = 1u
         goto block@20
@@ -139,75 +139,73 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         (assert and_result%2#0) // assert target is match for conditions
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 10u)
         let arr#2: Encoded(len+uint64[]) = ((replace2 10) arr#2 aggregate%val_as_bytes%1#0) // on error: index access is out of bounds
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#2)
-        let concat%2#0: Encoded(len+uint64[]) = (concat arr#2 extract_to_end%0#0) // on error: max array length exceeded
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%2#0)
-        let len%0#0: uint64 = (len extract_to_end%1#0)
-        let div_floor%0#0: uint64 = (/ len%0#0 8u)
-        let as_bytes%2#0: bytes[8] = (itob div_floor%0#0)
-        let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let replace%2#0: bytes = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
-        let aggregate%val_as_bytes%4#0: bytes[8] = (itob 11u)
-        let concat%3#0: Encoded(len+uint64[]) = (concat replace%2#0 aggregate%val_as_bytes%4#0) // on error: max array length exceeded
-        let extract_uint16%2#0: uint64 = (extract_uint16 replace%2#0 0u)
-        let add%2#0: uint64 = (+ extract_uint16%2#0 1u)
-        let as_bytes%3#0: bytes[8] = (itob add%2#0)
-        let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let replace%3#0: bytes = ((replace2 0) concat%3#0 as_u16_bytes%3#0)
-        let concat%4#0: Encoded(len+uint64[]) = (concat replace%3#0 0x000000000000000c000000000000000d) // on error: max array length exceeded
-        let extract_to_end%3#0: bytes = ((extract 2 0) concat%4#0)
-        let len%1#0: uint64 = (len extract_to_end%3#0)
-        let div_floor%1#0: uint64 = (/ len%1#0 8u)
-        let as_bytes%4#0: bytes[8] = (itob div_floor%1#0)
-        let as_u16_bytes%4#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let arr#2: Encoded(len+uint64[]) = ((replace2 0) concat%4#0 as_u16_bytes%4#0)
-        let aggregate%array_length%6#0: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
-        let tmp%52#0: bool = (== aggregate%array_length%6#0 11u)
-        goto tmp%52#0 ? block@21 : block@33
+        let new_items_bytes#1: bytes = ((extract 2 0) arr#2)
+        let new_items_count#1: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
+        let new_array_length#0: uint64 = (+ new_items_count#1 new_items_count#1)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) arr#2 new_len_u16#0)
+        let array#8: bytes = (concat result#0 new_items_bytes#1)
+        let new_items_bytes#1: bytes = (itob 11u)
+        let array_length#8: uint64 = (extract_uint16 array#8 0u)
+        let new_array_length#0: uint64 = (+ array_length#8 1u)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) array#8 new_len_u16#0)
+        let array#8: bytes = (concat result#0 new_items_bytes#1)
+        let array_length#8: uint64 = (extract_uint16 array#8 0u)
+        let new_array_length#0: uint64 = (+ array_length#8 2u)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) array#8 new_len_u16#0)
+        let arr#2: Encoded(len+uint64[]) = (concat result#0 0x000000000000000c000000000000000d)
+        let new_items_count#1: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
+        let tmp%59#0: bool = (== new_items_count#1 11u)
+        goto tmp%59#0 ? block@21 : block@33
     block@21: // and_contd_L74
-        let tmp%53#0: uint64 = (extract_uint64 arr#2 2u)
-        let tmp%54#0: bool = (== tmp%53#0 1u)
-        goto tmp%54#0 ? block@22 : block@33
+        let tmp%60#0: uint64 = (extract_uint64 arr#2 2u)
+        let tmp%61#0: bool = (== tmp%60#0 1u)
+        goto tmp%61#0 ? block@22 : block@33
     block@22: // and_contd_L74
-        let tmp%55#0: uint64 = (extract_uint64 arr#2 10u)
-        let tmp%56#0: bool = (== tmp%55#0 10u)
-        goto tmp%56#0 ? block@23 : block@33
+        let tmp%62#0: uint64 = (extract_uint64 arr#2 10u)
+        let tmp%63#0: bool = (== tmp%62#0 10u)
+        goto tmp%63#0 ? block@23 : block@33
     block@23: // and_contd_L74
-        let tmp%57#0: uint64 = (extract_uint64 arr#2 18u)
-        let tmp%58#0: bool = (== tmp%57#0 3u)
-        goto tmp%58#0 ? block@24 : block@33
+        let tmp%64#0: uint64 = (extract_uint64 arr#2 18u)
+        let tmp%65#0: bool = (== tmp%64#0 3u)
+        goto tmp%65#0 ? block@24 : block@33
     block@24: // and_contd_L74
-        let tmp%59#0: uint64 = (extract_uint64 arr#2 26u)
-        let tmp%60#0: bool = (== tmp%59#0 4u)
-        goto tmp%60#0 ? block@25 : block@33
+        let tmp%66#0: uint64 = (extract_uint64 arr#2 26u)
+        let tmp%67#0: bool = (== tmp%66#0 4u)
+        goto tmp%67#0 ? block@25 : block@33
     block@25: // and_contd_L74
-        let tmp%61#0: uint64 = (extract_uint64 arr#2 34u)
-        let tmp%62#0: bool = (== tmp%61#0 1u)
-        goto tmp%62#0 ? block@26 : block@33
+        let tmp%68#0: uint64 = (extract_uint64 arr#2 34u)
+        let tmp%69#0: bool = (== tmp%68#0 1u)
+        goto tmp%69#0 ? block@26 : block@33
     block@26: // and_contd_L74
-        let tmp%63#0: uint64 = (extract_uint64 arr#2 42u)
-        let tmp%64#0: bool = (== tmp%63#0 10u)
-        goto tmp%64#0 ? block@27 : block@33
+        let tmp%70#0: uint64 = (extract_uint64 arr#2 42u)
+        let tmp%71#0: bool = (== tmp%70#0 10u)
+        goto tmp%71#0 ? block@27 : block@33
     block@27: // and_contd_L74
-        let tmp%65#0: uint64 = (extract_uint64 arr#2 50u)
-        let tmp%66#0: bool = (== tmp%65#0 3u)
-        goto tmp%66#0 ? block@28 : block@33
+        let tmp%72#0: uint64 = (extract_uint64 arr#2 50u)
+        let tmp%73#0: bool = (== tmp%72#0 3u)
+        goto tmp%73#0 ? block@28 : block@33
     block@28: // and_contd_L74
-        let tmp%67#0: uint64 = (extract_uint64 arr#2 58u)
-        let tmp%68#0: bool = (== tmp%67#0 4u)
-        goto tmp%68#0 ? block@29 : block@33
+        let tmp%74#0: uint64 = (extract_uint64 arr#2 58u)
+        let tmp%75#0: bool = (== tmp%74#0 4u)
+        goto tmp%75#0 ? block@29 : block@33
     block@29: // and_contd_L74
-        let tmp%69#0: uint64 = (extract_uint64 arr#2 66u)
-        let tmp%70#0: bool = (== tmp%69#0 11u)
-        goto tmp%70#0 ? block@30 : block@33
+        let tmp%76#0: uint64 = (extract_uint64 arr#2 66u)
+        let tmp%77#0: bool = (== tmp%76#0 11u)
+        goto tmp%77#0 ? block@30 : block@33
     block@30: // and_contd_L74
-        let tmp%71#0: uint64 = (extract_uint64 arr#2 74u)
-        let tmp%72#0: bool = (== tmp%71#0 12u)
-        goto tmp%72#0 ? block@31 : block@33
+        let tmp%78#0: uint64 = (extract_uint64 arr#2 74u)
+        let tmp%79#0: bool = (== tmp%78#0 12u)
+        goto tmp%79#0 ? block@31 : block@33
     block@31: // and_contd_L74
-        let tmp%73#0: uint64 = (extract_uint64 arr#2 82u)
-        let tmp%74#0: bool = (== tmp%73#0 13u)
-        goto tmp%74#0 ? block@32 : block@33
+        let tmp%80#0: uint64 = (extract_uint64 arr#2 82u)
+        let tmp%81#0: bool = (== tmp%80#0 13u)
+        goto tmp%81#0 ? block@32 : block@33
     block@32: // bool_true_L74
         let and_result%3#0: bool = 1u
         goto block@34
@@ -216,73 +214,71 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         goto block@34
     block@34: // bool_merge_L74
         (assert and_result%3#0) // assert target is match for conditions
-        let extract_to_end%11#0: bytes = ((extract 2 0) arr#2)
-        let concat%10#0: Encoded(len+uint64[]) = (concat 0x00040000000000000000000000000000000000000000000000000000000000000000 extract_to_end%11#0) // on error: max array length exceeded
-        let extract_to_end%12#0: bytes = ((extract 2 0) concat%10#0)
-        let len%6#0: uint64 = (len extract_to_end%12#0)
-        let div_floor%6#0: uint64 = (/ len%6#0 8u)
-        let as_bytes%13#0: bytes[8] = (itob div_floor%6#0)
-        let as_u16_bytes%13#0: bytes = ((extract 6 2) as_bytes%13#0)
-        let arr8#0: Encoded(len+uint64[]) = ((replace2 0) concat%10#0 as_u16_bytes%13#0)
-        let aggregate%array_length%11#0: uint64 = (extract_uint16 arr8#0 0u) // on error: invalid array length header
-        let tmp%176#0: bool = (== aggregate%array_length%11#0 15u)
-        goto tmp%176#0 ? block@89 : block@105
+        let new_items_bytes#1: bytes = ((extract 2 0) arr#2)
+        let new_array_length#0: uint64 = (+ 4u new_items_count#1)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) 0x00040000000000000000000000000000000000000000000000000000000000000000 new_len_u16#0)
+        let arr8#0: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#1)
+        let aggregate%array_length%17#0: uint64 = (extract_uint16 arr8#0 0u) // on error: invalid array length header
+        let tmp%194#0: bool = (== aggregate%array_length%17#0 15u)
+        goto tmp%194#0 ? block@89 : block@105
     block@89: // and_contd_L93
-        let tmp%177#0: uint64 = (extract_uint64 arr8#0 2u)
-        goto tmp%177#0 ? block@105 : block@90
+        let tmp%195#0: uint64 = (extract_uint64 arr8#0 2u)
+        goto tmp%195#0 ? block@105 : block@90
     block@90: // and_contd_L93
-        let tmp%179#0: uint64 = (extract_uint64 arr8#0 10u)
-        goto tmp%179#0 ? block@105 : block@91
+        let tmp%197#0: uint64 = (extract_uint64 arr8#0 10u)
+        goto tmp%197#0 ? block@105 : block@91
     block@91: // and_contd_L93
-        let tmp%181#0: uint64 = (extract_uint64 arr8#0 18u)
-        goto tmp%181#0 ? block@105 : block@92
+        let tmp%199#0: uint64 = (extract_uint64 arr8#0 18u)
+        goto tmp%199#0 ? block@105 : block@92
     block@92: // and_contd_L93
-        let tmp%183#0: uint64 = (extract_uint64 arr8#0 26u)
-        goto tmp%183#0 ? block@105 : block@93
+        let tmp%201#0: uint64 = (extract_uint64 arr8#0 26u)
+        goto tmp%201#0 ? block@105 : block@93
     block@93: // and_contd_L93
-        let tmp%185#0: uint64 = (extract_uint64 arr8#0 34u)
-        let tmp%186#0: bool = (== tmp%185#0 1u)
-        goto tmp%186#0 ? block@94 : block@105
+        let tmp%203#0: uint64 = (extract_uint64 arr8#0 34u)
+        let tmp%204#0: bool = (== tmp%203#0 1u)
+        goto tmp%204#0 ? block@94 : block@105
     block@94: // and_contd_L93
-        let tmp%187#0: uint64 = (extract_uint64 arr8#0 42u)
-        let tmp%188#0: bool = (== tmp%187#0 10u)
-        goto tmp%188#0 ? block@95 : block@105
+        let tmp%205#0: uint64 = (extract_uint64 arr8#0 42u)
+        let tmp%206#0: bool = (== tmp%205#0 10u)
+        goto tmp%206#0 ? block@95 : block@105
     block@95: // and_contd_L93
-        let tmp%189#0: uint64 = (extract_uint64 arr8#0 50u)
-        let tmp%190#0: bool = (== tmp%189#0 3u)
-        goto tmp%190#0 ? block@96 : block@105
+        let tmp%207#0: uint64 = (extract_uint64 arr8#0 50u)
+        let tmp%208#0: bool = (== tmp%207#0 3u)
+        goto tmp%208#0 ? block@96 : block@105
     block@96: // and_contd_L93
-        let tmp%191#0: uint64 = (extract_uint64 arr8#0 58u)
-        let tmp%192#0: bool = (== tmp%191#0 4u)
-        goto tmp%192#0 ? block@97 : block@105
+        let tmp%209#0: uint64 = (extract_uint64 arr8#0 58u)
+        let tmp%210#0: bool = (== tmp%209#0 4u)
+        goto tmp%210#0 ? block@97 : block@105
     block@97: // and_contd_L93
-        let tmp%193#0: uint64 = (extract_uint64 arr8#0 66u)
-        let tmp%194#0: bool = (== tmp%193#0 1u)
-        goto tmp%194#0 ? block@98 : block@105
+        let tmp%211#0: uint64 = (extract_uint64 arr8#0 66u)
+        let tmp%212#0: bool = (== tmp%211#0 1u)
+        goto tmp%212#0 ? block@98 : block@105
     block@98: // and_contd_L93
-        let tmp%195#0: uint64 = (extract_uint64 arr8#0 74u)
-        let tmp%196#0: bool = (== tmp%195#0 10u)
-        goto tmp%196#0 ? block@99 : block@105
+        let tmp%213#0: uint64 = (extract_uint64 arr8#0 74u)
+        let tmp%214#0: bool = (== tmp%213#0 10u)
+        goto tmp%214#0 ? block@99 : block@105
     block@99: // and_contd_L93
-        let tmp%197#0: uint64 = (extract_uint64 arr8#0 82u)
-        let tmp%198#0: bool = (== tmp%197#0 3u)
-        goto tmp%198#0 ? block@100 : block@105
+        let tmp%215#0: uint64 = (extract_uint64 arr8#0 82u)
+        let tmp%216#0: bool = (== tmp%215#0 3u)
+        goto tmp%216#0 ? block@100 : block@105
     block@100: // and_contd_L93
-        let tmp%199#0: uint64 = (extract_uint64 arr8#0 90u)
-        let tmp%200#0: bool = (== tmp%199#0 4u)
-        goto tmp%200#0 ? block@101 : block@105
+        let tmp%217#0: uint64 = (extract_uint64 arr8#0 90u)
+        let tmp%218#0: bool = (== tmp%217#0 4u)
+        goto tmp%218#0 ? block@101 : block@105
     block@101: // and_contd_L93
-        let tmp%201#0: uint64 = (extract_uint64 arr8#0 98u)
-        let tmp%202#0: bool = (== tmp%201#0 11u)
-        goto tmp%202#0 ? block@102 : block@105
+        let tmp%219#0: uint64 = (extract_uint64 arr8#0 98u)
+        let tmp%220#0: bool = (== tmp%219#0 11u)
+        goto tmp%220#0 ? block@102 : block@105
     block@102: // and_contd_L93
-        let tmp%203#0: uint64 = (extract_uint64 arr8#0 106u)
-        let tmp%204#0: bool = (== tmp%203#0 12u)
-        goto tmp%204#0 ? block@103 : block@105
+        let tmp%221#0: uint64 = (extract_uint64 arr8#0 106u)
+        let tmp%222#0: bool = (== tmp%221#0 12u)
+        goto tmp%222#0 ? block@103 : block@105
     block@103: // and_contd_L93
-        let tmp%205#0: uint64 = (extract_uint64 arr8#0 114u)
-        let tmp%206#0: bool = (== tmp%205#0 13u)
-        goto tmp%206#0 ? block@104 : block@105
+        let tmp%223#0: uint64 = (extract_uint64 arr8#0 114u)
+        let tmp%224#0: bool = (== tmp%223#0 13u)
+        goto tmp%224#0 ? block@104 : block@105
     block@104: // bool_true_L93
         let and_result%9#0: bool = 1u
         goto block@106
@@ -291,80 +287,78 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         goto block@106
     block@106: // bool_merge_L93
         (assert and_result%9#0) // assert target is match for conditions
-        let concat%11#0: Encoded(len+uint64[]) = (concat 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005 extract_to_end%11#0) // on error: max array length exceeded
-        let extract_to_end%14#0: bytes = ((extract 2 0) concat%11#0)
-        let len%7#0: uint64 = (len extract_to_end%14#0)
-        let div_floor%7#0: uint64 = (/ len%7#0 8u)
-        let as_bytes%14#0: bytes[8] = (itob div_floor%7#0)
-        let as_u16_bytes%14#0: bytes = ((extract 6 2) as_bytes%14#0)
-        let arr5#0: Encoded(len+uint64[]) = ((replace2 0) concat%11#0 as_u16_bytes%14#0)
-        let aggregate%array_length%12#0: uint64 = (extract_uint16 arr5#0 0u) // on error: invalid array length header
-        let tmp%210#0: bool = (== aggregate%array_length%12#0 16u)
-        goto tmp%210#0 ? block@107 : block@124
+        let new_array_length#0: uint64 = (+ 5u new_items_count#1)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005 new_len_u16#0)
+        let arr5#0: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#1)
+        let aggregate%array_length%19#0: uint64 = (extract_uint16 arr5#0 0u) // on error: invalid array length header
+        let tmp%230#0: bool = (== aggregate%array_length%19#0 16u)
+        goto tmp%230#0 ? block@107 : block@124
     block@107: // and_contd_L96
-        let tmp%211#0: uint64 = (extract_uint64 arr5#0 2u)
-        let tmp%212#0: bool = (== tmp%211#0 1u)
-        goto tmp%212#0 ? block@108 : block@124
+        let tmp%231#0: uint64 = (extract_uint64 arr5#0 2u)
+        let tmp%232#0: bool = (== tmp%231#0 1u)
+        goto tmp%232#0 ? block@108 : block@124
     block@108: // and_contd_L96
-        let tmp%213#0: uint64 = (extract_uint64 arr5#0 10u)
-        let tmp%214#0: bool = (== tmp%213#0 2u)
-        goto tmp%214#0 ? block@109 : block@124
+        let tmp%233#0: uint64 = (extract_uint64 arr5#0 10u)
+        let tmp%234#0: bool = (== tmp%233#0 2u)
+        goto tmp%234#0 ? block@109 : block@124
     block@109: // and_contd_L96
-        let tmp%215#0: uint64 = (extract_uint64 arr5#0 18u)
-        let tmp%216#0: bool = (== tmp%215#0 3u)
-        goto tmp%216#0 ? block@110 : block@124
+        let tmp%235#0: uint64 = (extract_uint64 arr5#0 18u)
+        let tmp%236#0: bool = (== tmp%235#0 3u)
+        goto tmp%236#0 ? block@110 : block@124
     block@110: // and_contd_L96
-        let tmp%217#0: uint64 = (extract_uint64 arr5#0 26u)
-        let tmp%218#0: bool = (== tmp%217#0 4u)
-        goto tmp%218#0 ? block@111 : block@124
+        let tmp%237#0: uint64 = (extract_uint64 arr5#0 26u)
+        let tmp%238#0: bool = (== tmp%237#0 4u)
+        goto tmp%238#0 ? block@111 : block@124
     block@111: // and_contd_L96
-        let tmp%219#0: uint64 = (extract_uint64 arr5#0 34u)
-        let tmp%220#0: bool = (== tmp%219#0 5u)
-        goto tmp%220#0 ? block@112 : block@124
+        let tmp%239#0: uint64 = (extract_uint64 arr5#0 34u)
+        let tmp%240#0: bool = (== tmp%239#0 5u)
+        goto tmp%240#0 ? block@112 : block@124
     block@112: // and_contd_L96
-        let tmp%221#0: uint64 = (extract_uint64 arr5#0 42u)
-        let tmp%222#0: bool = (== tmp%221#0 1u)
-        goto tmp%222#0 ? block@113 : block@124
+        let tmp%241#0: uint64 = (extract_uint64 arr5#0 42u)
+        let tmp%242#0: bool = (== tmp%241#0 1u)
+        goto tmp%242#0 ? block@113 : block@124
     block@113: // and_contd_L96
-        let tmp%223#0: uint64 = (extract_uint64 arr5#0 50u)
-        let tmp%224#0: bool = (== tmp%223#0 10u)
-        goto tmp%224#0 ? block@114 : block@124
+        let tmp%243#0: uint64 = (extract_uint64 arr5#0 50u)
+        let tmp%244#0: bool = (== tmp%243#0 10u)
+        goto tmp%244#0 ? block@114 : block@124
     block@114: // and_contd_L96
-        let tmp%225#0: uint64 = (extract_uint64 arr5#0 58u)
-        let tmp%226#0: bool = (== tmp%225#0 3u)
-        goto tmp%226#0 ? block@115 : block@124
+        let tmp%245#0: uint64 = (extract_uint64 arr5#0 58u)
+        let tmp%246#0: bool = (== tmp%245#0 3u)
+        goto tmp%246#0 ? block@115 : block@124
     block@115: // and_contd_L96
-        let tmp%227#0: uint64 = (extract_uint64 arr5#0 66u)
-        let tmp%228#0: bool = (== tmp%227#0 4u)
-        goto tmp%228#0 ? block@116 : block@124
+        let tmp%247#0: uint64 = (extract_uint64 arr5#0 66u)
+        let tmp%248#0: bool = (== tmp%247#0 4u)
+        goto tmp%248#0 ? block@116 : block@124
     block@116: // and_contd_L96
-        let tmp%229#0: uint64 = (extract_uint64 arr5#0 74u)
-        let tmp%230#0: bool = (== tmp%229#0 1u)
-        goto tmp%230#0 ? block@117 : block@124
+        let tmp%249#0: uint64 = (extract_uint64 arr5#0 74u)
+        let tmp%250#0: bool = (== tmp%249#0 1u)
+        goto tmp%250#0 ? block@117 : block@124
     block@117: // and_contd_L96
-        let tmp%231#0: uint64 = (extract_uint64 arr5#0 82u)
-        let tmp%232#0: bool = (== tmp%231#0 10u)
-        goto tmp%232#0 ? block@118 : block@124
+        let tmp%251#0: uint64 = (extract_uint64 arr5#0 82u)
+        let tmp%252#0: bool = (== tmp%251#0 10u)
+        goto tmp%252#0 ? block@118 : block@124
     block@118: // and_contd_L96
-        let tmp%233#0: uint64 = (extract_uint64 arr5#0 90u)
-        let tmp%234#0: bool = (== tmp%233#0 3u)
-        goto tmp%234#0 ? block@119 : block@124
+        let tmp%253#0: uint64 = (extract_uint64 arr5#0 90u)
+        let tmp%254#0: bool = (== tmp%253#0 3u)
+        goto tmp%254#0 ? block@119 : block@124
     block@119: // and_contd_L96
-        let tmp%235#0: uint64 = (extract_uint64 arr5#0 98u)
-        let tmp%236#0: bool = (== tmp%235#0 4u)
-        goto tmp%236#0 ? block@120 : block@124
+        let tmp%255#0: uint64 = (extract_uint64 arr5#0 98u)
+        let tmp%256#0: bool = (== tmp%255#0 4u)
+        goto tmp%256#0 ? block@120 : block@124
     block@120: // and_contd_L96
-        let tmp%237#0: uint64 = (extract_uint64 arr5#0 106u)
-        let tmp%238#0: bool = (== tmp%237#0 11u)
-        goto tmp%238#0 ? block@121 : block@124
+        let tmp%257#0: uint64 = (extract_uint64 arr5#0 106u)
+        let tmp%258#0: bool = (== tmp%257#0 11u)
+        goto tmp%258#0 ? block@121 : block@124
     block@121: // and_contd_L96
-        let tmp%239#0: uint64 = (extract_uint64 arr5#0 114u)
-        let tmp%240#0: bool = (== tmp%239#0 12u)
-        goto tmp%240#0 ? block@122 : block@124
+        let tmp%259#0: uint64 = (extract_uint64 arr5#0 114u)
+        let tmp%260#0: bool = (== tmp%259#0 12u)
+        goto tmp%260#0 ? block@122 : block@124
     block@122: // and_contd_L96
-        let tmp%241#0: uint64 = (extract_uint64 arr5#0 122u)
-        let tmp%242#0: bool = (== tmp%241#0 13u)
-        goto tmp%242#0 ? block@123 : block@124
+        let tmp%261#0: uint64 = (extract_uint64 arr5#0 122u)
+        let tmp%262#0: bool = (== tmp%261#0 13u)
+        goto tmp%262#0 ? block@123 : block@124
     block@123: // bool_true_L96
         let and_result%10#0: bool = 1u
         goto block@125

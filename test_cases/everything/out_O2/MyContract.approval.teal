@@ -3,9 +3,9 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 8 2
+    intcblock 0 1 8 2
     bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
-    intc_1 // 0
+    intc_0 // 0
     pushbytess 0xbd6099e5 0x1658aa2f // method "register(string)void", method "close_out()void"
     txna ApplicationArgs 0
     match main_register_route@4 main_close_out_route@5
@@ -45,7 +45,7 @@ main_calculate_route@9:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_say_hello_route@8:
@@ -53,7 +53,7 @@ main_say_hello_route@8:
     bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
     !=
     assert // You are banned, goodbye
-    intc_1 // 0
+    intc_0 // 0
     dup
     bytec_2 // "name"
     app_local_get_ex
@@ -67,29 +67,34 @@ main_after_inlined_test_cases.everything.contract.Everything.say_hello@22:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_after_if_else@21:
-    dup
+    dupn 2
     extract 2 0
+    swap
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 7
+    +
+    itob
+    extract 6 0
     pushbytes 0x000748656c6c6f2c20
     swap
-    concat // on error: max array length exceeded
+    replace2 0
+    swap
+    concat
     dup
-    extract 2 0
-    len
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
-    extract 6 2
+    extract 6 0
     replace2 0
     pushbytes 0x21
-    concat // on error: max array length exceeded
-    dup
-    extract 2 0
-    len
-    itob
-    extract 6 2
-    replace2 0
+    concat
     b main_after_inlined_test_cases.everything.contract.Everything.say_hello@22
 
 main_create_NoOp@11:
@@ -107,9 +112,9 @@ main_create_route@12:
     txn Sender
     app_global_put
     bytec_0 // "counter"
-    intc_1 // 0
+    intc_0 // 0
     app_global_put
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_close_out_route@5:
@@ -119,20 +124,20 @@ main_close_out_route@5:
     txn ApplicationID
     &&
     assert
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    intc_0 // 1
+    intc_1 // 1
     -
     bytec_0 // "counter"
     swap
     app_global_put
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_register_route@4:
-    intc_0 // 1
+    intc_1 // 1
     txn OnCompletion
     shl
     pushint 3
@@ -144,7 +149,7 @@ main_register_route@4:
     dup
     bury 2
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
@@ -157,29 +162,29 @@ main_register_route@4:
     !=
     assert // You are banned, goodbye
     txn OnCompletion
-    intc_0 // OptIn
+    intc_1 // OptIn
     ==
     bz main_after_if_else@29
-    intc_1 // 0
+    intc_0 // 0
     dup
     bytec_2 // "name"
     app_local_get_ex
     bury 1
     bnz main_after_if_else@29
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
-    intc_0 // 1
+    intc_1 // 1
     +
     bytec_0 // "counter"
     swap
     app_global_put
 
 main_after_if_else@29:
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "name"
     dig 2
     app_local_put
-    intc_0 // 1
+    intc_1 // 1
     return
