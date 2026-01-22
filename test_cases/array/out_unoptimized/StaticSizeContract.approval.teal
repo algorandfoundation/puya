@@ -235,6 +235,21 @@ dynamic_array_concat_bits_after_while@5:
     retsub
 
 
+// _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
+dynamic_assert_index:
+    proto 2 0
+    b dynamic_assert_index_block@0
+
+dynamic_assert_index_block@0:
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    >
+    assert // index out of bounds
+    retsub
+
+
 // test_cases.array.static_size.path_length(path: uint64) -> uint64:
 path_length:
     // array/static_size.py:167-168
@@ -1684,10 +1699,7 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_block@0:
     // assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
     dup
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 0
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     intc_0 // 0
     intc_3 // 16
     +
@@ -1708,11 +1720,8 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_block@0:
     // array/static_size.py:151
     // assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     intc_1 // 1
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     intc_1 // 1
     intc_3 // 16
     +
