@@ -46,6 +46,7 @@ contract ItxnNamedTuple
 contract itxn_loop
 {
   method_resolution_order: (
+    algopy.arc4.ARC4Contract,
     algopy._base_contract.BaseContract,
   )
   
@@ -77,6 +78,20 @@ contract itxn_loop
   }
   
   subroutine test_cases.inner_transactions.itxn_loop.MyContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  baremethod test_cases.inner_transactions.itxn_loop.MyContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
   {
     return true
   }
@@ -156,6 +171,7 @@ contract FieldTupleContract
 contract MyContract
 {
   method_resolution_order: (
+    algopy.arc4.ARC4Contract,
     algopy._base_contract.BaseContract,
   )
   globals {
@@ -308,6 +324,20 @@ contract MyContract
     assert(app_1.ApprovalProgramPages[1u] == approval_2[-3:] + approval_2, comment="expected approval page 1")
     assert(app_1.NumClearStateProgramPages == 1u, comment="clear_state_pages == 1")
     assert(app_1.ClearStateProgramPages[0u] == hex<"098101">, comment="expected clear_state_pages")
+  }
+  
+  baremethod test_cases.inner_transactions.contract.MyContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
   }
   
   subroutine algopy._base_contract.BaseContract.__init__(): void
