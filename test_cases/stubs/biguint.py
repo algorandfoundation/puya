@@ -1,7 +1,7 @@
-from algopy import BaseContract, BigUInt, Txn, UInt64, op, subroutine
+from algopy import BigUInt, Contract, Txn, UInt64, op, subroutine
 
 
-class BigUIntContract(BaseContract):
+class BigUIntContract(Contract):
     def approval_program(self) -> bool:
         one = BigUInt(1)
         compare_biguints(one, BigUInt(2))

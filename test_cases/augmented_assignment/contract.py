@@ -1,8 +1,8 @@
 from algopy import (
     Account,
-    BaseContract,
     BigUInt,
     Bytes,
+    Contract,
     LocalState,
     OnCompleteAction,
     UInt64,
@@ -11,7 +11,7 @@ from algopy import (
 )
 
 
-class Augmented(BaseContract):
+class Augmented(Contract):
     def __init__(self) -> None:
         self.my_uint = LocalState(UInt64)
         self.my_bytes = LocalState(Bytes)

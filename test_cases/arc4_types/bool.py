@@ -1,6 +1,6 @@
 import typing as t
 
-from algopy import BaseContract, Bytes, Txn, subroutine
+from algopy import Bytes, Contract, Txn, subroutine
 from algopy.arc4 import (
     Bool as ARC4Bool,
     DynamicArray,
@@ -8,7 +8,7 @@ from algopy.arc4 import (
 )
 
 
-class Arc4BoolTypeContract(BaseContract):
+class Arc4BoolTypeContract(Contract):
     def approval_program(self) -> bool:
         self.test_stuff(ARC4Bool(True), ARC4Bool(False))
         assert ARC4Bool(
