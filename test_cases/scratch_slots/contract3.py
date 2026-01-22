@@ -1,7 +1,7 @@
-from algopy import BaseContract, urange
+from algopy import Contract, urange
 
 
-class MyOtherContract(BaseContract, scratch_slots=urange(0, -1, -1)):
+class MyOtherContract(Contract, scratch_slots=urange(0, -1, -1)):
     def approval_program(self) -> bool:
         return True
 

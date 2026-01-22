@@ -1,7 +1,7 @@
-from algopy import BaseContract, UInt64
+from algopy import Contract, UInt64
 
 
-class Issue194(BaseContract):
+class Issue194(Contract):
     # ref: https://github.com/algorandfoundation/puya/issues/194
     def approval_program(self) -> bool:
         assert bool(UInt64(1)) == bool(UInt64(2))

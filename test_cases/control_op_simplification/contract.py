@@ -1,7 +1,7 @@
-from algopy import BaseContract, UInt64, log, op
+from algopy import Contract, UInt64, log, op
 
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def approval_program(self) -> bool:
         do_log = False
         match op.Txn.num_app_args:

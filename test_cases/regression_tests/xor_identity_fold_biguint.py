@@ -1,7 +1,7 @@
-from algopy import BaseContract, BigUInt, op, subroutine
+from algopy import BigUInt, Contract, op, subroutine
 
 
-class XorIdentityFoldBigUInt(BaseContract):
+class XorIdentityFoldBigUInt(Contract):
     def approval_program(self) -> bool:
         x = BigUInt(2**32 - 1)  # 4 bytes: 0xffffffff
         result = self_xor(x)

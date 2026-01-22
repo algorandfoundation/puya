@@ -1,4 +1,4 @@
-from algopy import BaseContract, Bytes, Txn, UInt64
+from algopy import Bytes, Contract, Txn, UInt64
 from algopy.arc4 import (
     Byte,
     DynamicBytes,
@@ -6,7 +6,7 @@ from algopy.arc4 import (
 )
 
 
-class Arc4DynamicBytesContract(BaseContract):
+class Arc4DynamicBytesContract(Contract):
     def approval_program(self) -> bool:
         total = UInt64(0)
         dynamic_bytes = DynamicBytes(Byte(2), UInt8(3), 1)

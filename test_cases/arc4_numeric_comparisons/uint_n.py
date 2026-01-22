@@ -1,10 +1,10 @@
 # ruff: noqa: SIM201, SIM202, SIM300, PLR0124
 import typing as t
 
-from algopy import BaseContract, BigUInt, UInt64, arc4, subroutine
+from algopy import BigUInt, Contract, UInt64, arc4, subroutine
 
 
-class UIntNOrdering(BaseContract):
+class UIntNOrdering(Contract):
     def approval_program(self) -> bool:
         check_both_uint_n(arc4.Byte(1), arc4.UInt64(2))
         check_mixed(arc4.Byte(1), arc4.BigUIntN[t.Literal[264]](2))

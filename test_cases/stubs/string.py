@@ -1,7 +1,7 @@
-from algopy import BaseContract, String, Txn
+from algopy import Contract, String, Txn
 
 
-class StringContract(BaseContract):
+class StringContract(Contract):
     def approval_program(self) -> bool:
         empty = String()
         assert not empty, "Empty bytes should be False"

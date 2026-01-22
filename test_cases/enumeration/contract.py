@@ -1,7 +1,7 @@
-from algopy import BaseContract, Bytes, UInt64, subroutine, uenumerate, urange
+from algopy import Bytes, Contract, UInt64, subroutine, uenumerate, urange
 
 
-class EnumerationContract(BaseContract):
+class EnumerationContract(Contract):
     def approval_program(self) -> bool:
         iteration_count, item_sum, index_sum = enumerate_urange(UInt64(10), UInt64(21), UInt64(5))
 

@@ -1,6 +1,6 @@
 from algopy import (
-    BaseContract,
     Bytes,
+    Contract,
     OnCompleteAction,
     itxn,
     op,
@@ -19,7 +19,7 @@ ALWAYS_APPROVE = (
 )
 
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def __init__(self) -> None:
         self.name = Bytes(b"")
 

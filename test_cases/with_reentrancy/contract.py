@@ -1,7 +1,7 @@
-from algopy import BaseContract, Bytes, UInt64, log, op, subroutine
+from algopy import Bytes, Contract, UInt64, log, op, subroutine
 
 
-class WithReentrancy(BaseContract):
+class WithReentrancy(Contract):
     """My re-entrant contract"""
 
     def approval_program(self) -> bool:

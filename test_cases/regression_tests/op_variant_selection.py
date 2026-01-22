@@ -1,7 +1,7 @@
-from algopy import BaseContract, UInt64, logicsig, op
+from algopy import BaseContract, Contract, UInt64, logicsig, op
 
 
-class ReplaceOpSelection(BaseContract):
+class ReplaceOpSelection(Contract):
     def approval_program(self) -> bool:
         assert op.replace(b"\x01" * 259, 256, b"abc") == b"\x01" * 256 + b"abc"
         return True
@@ -10,7 +10,7 @@ class ReplaceOpSelection(BaseContract):
         return True
 
 
-class ExtractOpSelection(BaseContract):
+class ExtractOpSelection(Contract):
     def approval_program(self) -> bool:
         # start > 255 forces extract3 (uint64 stack args) over extract (uint8 immediates)
         assert op.extract(b"\xab" * 260, 256, 3) == b"\xab\xab\xab"
@@ -22,7 +22,7 @@ class ExtractOpSelection(BaseContract):
         return True
 
 
-class SubstringOpSelection(BaseContract):
+class SubstringOpSelection(Contract):
     def approval_program(self) -> bool:
         # end > 255 forces substring3 (uint64 stack args) over substring (uint8 immediates)
         assert op.substring(b"\xab" * 300, 0, 300) == b"\xab" * 300
@@ -66,7 +66,7 @@ class GloadIOpSelection(BaseContract):
         return True
 
 
-class TxnArrayOpSelection(BaseContract):
+class TxnArrayOpSelection(Contract):
     def approval_program(self) -> bool:
         # I > 255 forces txnas (uint64 stack arg) over txna (uint8 immediate).
         # Compile-only: runtime would fail since 256 is beyond the txn's ApplicationArgs array.
@@ -87,7 +87,7 @@ class GTxnOpSelection(BaseContract):
         return True
 
 
-class GTxnArrayGroupOpSelection(BaseContract):
+class GTxnArrayGroupOpSelection(Contract):
     def approval_program(self) -> bool:
         # T > 255, I <= 255 forces gtxnsas (both on stack) -> gtxnsa (I immediate, T on stack).
         # Compile-only: runtime would fail since 256 is beyond the txn group.
@@ -98,7 +98,7 @@ class GTxnArrayGroupOpSelection(BaseContract):
         return True
 
 
-class GTxnArrayIndexOpSelection(BaseContract):
+class GTxnArrayIndexOpSelection(Contract):
     def approval_program(self) -> bool:
         # T <= 255, I > 255 forces gtxnsas -> gtxnas (T immediate, I on stack).
         # Compile-only: runtime would fail since 256 is beyond ApplicationArgs.

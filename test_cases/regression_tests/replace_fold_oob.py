@@ -1,7 +1,7 @@
-from algopy import BaseContract, op
+from algopy import Contract, op
 
 
-class ReplaceFoldOOB(BaseContract):
+class ReplaceFoldOOB(Contract):
     def approval_program(self) -> bool:
         assert op.replace(b"", 0, b"abc") == b"abc"
         return True

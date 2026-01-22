@@ -1,7 +1,7 @@
-from algopy import BaseContract, BigUInt, Bytes, Global, Txn, UInt64, log, op, subroutine
+from algopy import BigUInt, Bytes, Contract, Global, Txn, UInt64, log, op, subroutine
 
 
-class StaticallyFailingOps(BaseContract, scratch_slots=(0,)):
+class StaticallyFailingOps(Contract, scratch_slots=(0,)):
     def approval_program(self) -> bool:
         runtime_bytes = Txn.application_args(0)
         runtime_uint64 = Global.round

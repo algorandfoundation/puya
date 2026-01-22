@@ -4,10 +4,10 @@
 
 ## case: test_cant_instantiate_inner_transaction
 
-from algopy import BaseContract, itxn
+from algopy import Contract, itxn
 
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def approval_program(self) -> bool:
         txn = (
             itxn.InnerTransactionResult()  ## E: algopy.itxn.InnerTransactionResult cannot be instantiated directly, create a algopy.itxn.InnerTransaction and submit instead
@@ -20,10 +20,10 @@ class MyContract(BaseContract):
 
 ## case: test_inner_txn_cant_be_aliased
 
-from algopy import BaseContract, TransactionType, itxn, subroutine
+from algopy import Contract, TransactionType, itxn, subroutine
 
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def approval_program(self) -> bool:
         params = itxn.InnerTransaction(type=TransactionType.Payment)
         txn = params.submit()
@@ -113,10 +113,10 @@ def box_foo_map(bm: BoxMap[String, itxn.InnerTransactionResult]) -> None:
 
 ## case: test_inner_txn_param_cant_be_aliased
 
-from algopy import BaseContract, TransactionType, itxn, subroutine
+from algopy import Contract, TransactionType, itxn, subroutine
 
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def approval_program(self) -> bool:
         params = itxn.InnerTransaction(type=TransactionType.Payment)
         self.cant_pass_inner_txn_params( ## E: inner transactions cannot be used as a subroutine argument or return value
@@ -155,9 +155,9 @@ class MyContract(BaseContract):
 
 
 ## case: test_inner_txn_param_loop_modified
-from algopy import BaseContract, TransactionType, itxn, subroutine
+from algopy import Contract, TransactionType, itxn, subroutine
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def approval_program(self) -> bool:  ## E: Missing return statement  [return]
         params = itxn.InnerTransaction(type=TransactionType.Payment)
         while True:

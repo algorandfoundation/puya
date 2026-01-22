@@ -1,7 +1,7 @@
-from algopy import BaseContract, Bytes, Txn, log
+from algopy import Bytes, Contract, Txn, log
 
 
-class ConcatFoldOverflow(BaseContract):
+class ConcatFoldOverflow(Contract):
     def approval_program(self) -> bool:
         log(Bytes(b"\x00" * 3000) + Bytes(b"\x00" * 2000))
         log(Txn.sender.bytes + Bytes(b"\x00" * 3000) + Bytes(b"\x00" * 2000))

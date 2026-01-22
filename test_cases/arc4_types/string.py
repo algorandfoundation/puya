@@ -1,9 +1,9 @@
-from algopy import BaseContract, String, Txn, arc4
+from algopy import Contract, String, Txn, arc4
 
 HELLO_WORLD = b"Hello World!"
 
 
-class Arc4StringTypesContract(BaseContract):
+class Arc4StringTypesContract(Contract):
     def approval_program(self) -> bool:
         some_bytes_as_string = arc4.String(String.from_bytes(HELLO_WORLD))
 

@@ -1,9 +1,9 @@
 import abc
 
-from algopy import BaseContract, Bytes, UInt64, log, subroutine
+from algopy import Bytes, Contract, UInt64, log, subroutine
 
 
-class IterationTestBase(BaseContract, abc.ABC):
+class IterationTestBase(Contract, abc.ABC):
     def approval_program(self) -> bool:
         log("test_forwards")
         self.test_forwards()

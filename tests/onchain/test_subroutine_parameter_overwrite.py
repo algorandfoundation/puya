@@ -5,9 +5,9 @@ from tests.utils.deployer import Deployer
 
 def test_subroutine_parameter_overwrite(deployer: Deployer, optimization_level: int) -> None:
     def contract() -> None:
-        from algopy import BaseContract, Bytes, log, op, subroutine
+        from algopy import Bytes, Contract, log, op, subroutine
 
-        class Exclaimer(BaseContract):
+        class Exclaimer(Contract):
             def approval_program(self) -> bool:
                 num_args = op.Txn.num_app_args
                 assert num_args == 1, "expected one arg"
