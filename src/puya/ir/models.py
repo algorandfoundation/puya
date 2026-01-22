@@ -463,6 +463,42 @@ class ArrayPop(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
+class ArrayConcat(ValueProvider):
+    base: Value = attrs.field()
+    base_type: EncodedType = attrs.field(repr=lambda x: x.name)
+    array_encoding: ArrayEncoding = attrs.field(init=False)
+    items: Value
+    num_items: Value = attrs.field()
+
+    @array_encoding.default
+    def _array_encoding_factory(self) -> ArrayEncoding:
+        encoding = self.base_type.encoding
+        if not isinstance(encoding, ArrayEncoding):
+            raise InternalError("can only concat arrays", self.source_location)
+        return encoding
+
+    @num_items.validator
+    def _validate_num_items(self, _: object, num_items: Value) -> None:
+        if num_items.ir_type != PrimitiveIRType.uint64:
+            raise InternalError("expected uint64 type for num_items")
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.base_type,)
+
+    def _frozen_data(self) -> object:
+        return (
+            self.base_type,
+            self.base,
+            self.items,
+            self.num_items,
+        )
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_concat(self)
+
+
+@attrs.define(eq=False, kw_only=True)
 class _Aggregate(ValueProvider, abc.ABC):
     base: Value = attrs.field()
     # we retain the original type of the aggregate, in case this is lost during optimisations
