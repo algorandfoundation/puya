@@ -107,10 +107,18 @@ def _get_builder(
         if array_encoding.size is None and not array_encoding.length_header:
             raise InternalError("unsupported scenario: bit packed bools in reference array", loc)
         builder_typ = _BitPackedBoolArrayBuilder
-    elif array_encoding.element.is_dynamic:
-        builder_typ = _DynamicElementArrayBuilder
-    else:
+    elif array_encoding.element.is_fixed:
         builder_typ = _FixedElementArrayBuilder
+    elif (
+        isinstance(array_encoding.element, ArrayEncoding)
+        and (inner_element_size := array_encoding.element.element.num_bytes) is not None
+    ):
+        if inner_element_size == 1:
+            builder_typ = _ByteLengthDynamicElementArrayBuilder
+        else:
+            builder_typ = _MultiByteLengthDynamicElementArrayBuilder
+    else:
+        builder_typ = _DynamicElementArrayBuilder
     return builder_typ(
         context,
         array_encoding=array_encoding,
@@ -142,14 +150,24 @@ class _ArrayBuilderImpl(_SequenceBuilder, abc.ABC):
         ):
             logger.error("index access is out of bounds", location=self.loc)
 
-        array_length = self._length(array)
-        index_is_in_bounds = self.factory.lt(index, array_length)
-        assert_value(
-            self.context,
-            index_is_in_bounds,
-            error_message="index access is out of bounds",
-            source_location=self.loc,
-        )
+        if self.array_encoding.length_header:
+            invoke = invoke_puya_lib_subroutine(
+                self.context,
+                full_name=PuyaLibIR.dynamic_assert_index,
+                args=[array, index],
+                source_location=self.loc,
+            )
+            self.context.add_op(invoke)
+        else:
+            # TODO: templated subroutine for each length header?
+            array_length = self._length(array)
+            index_is_in_bounds = self.factory.lt(index, array_length)
+            assert_value(
+                self.context,
+                index_is_in_bounds,
+                error_message="index access is out of bounds",
+                source_location=self.loc,
+            )
 
     @typing.final
     def _length(self, array: ir.Value) -> ir.Value:
@@ -229,109 +247,32 @@ class _FixedElementArrayBuilder(_ArrayBuilderImpl):
 
 @attrs.define
 class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
-    inner_element_size: int | None = attrs.field(init=False)
-
-    @inner_element_size.default
-    def _inner_element_size_factory(self) -> int | None:
-        element_encoding = self.array_encoding.element
-        assert element_encoding.is_dynamic
-        if isinstance(element_encoding, ArrayEncoding):
-            return element_encoding.element.num_bytes
-        else:
-            return None
+    """
+    Default builder for arrays with dynamic elements, this works for any dynamic element
+    some more efficient methods are used for specific element types
+    """
 
     @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
-        array_head_and_tail = array
+        # no _assert_index_in_bounds here as end offset calculation implicitly checks
         if self.array_encoding.length_header:
-            array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
-        # TODO: maybe split DynamicElementArrayBuilder into two builders
-        if self.inner_element_size is not None:
-            self._maybe_bounds_check(array, index)
-            item = self._read_item_from_array_length_and_fixed_size(
-                self.factory, self.inner_element_size, array_head_and_tail, index
-            )
+            method = PuyaLibIR.dynamic_array_read_dynamic_element
+            args = [array, index]
         else:
-            # no _assert_index_in_bounds here as end offset calculation implicitly checks
+            method = PuyaLibIR.static_array_read_dynamic_element
             length = self._length(array)
-            item = self._read_item_using_next_offset(
-                self.factory,
-                array_length=length,
-                array_head_and_tail=array_head_and_tail,
-                index=index,
-            )
-        return self.factory.materialise_single(item)
-
-    @staticmethod
-    def _read_item_from_array_length_and_fixed_size(
-        factory: OpFactory, inner_element_size: int, array_head_and_tail: ir.Value, index: ir.Value
-    ) -> ir.ValueProvider:
-        """ "
-        Reads an item that has a dynamic size computable from a length and known inner element size
-        e.g. len+<inner_element_size>[]
-        """
-        item_offset_offset = factory.mul(index, 2, "item_offset_offset")
-        item_start_offset = factory.extract_uint16(
-            array_head_and_tail, item_offset_offset, "item_offset"
+            args = [array, index, length]
+        invoke = invoke_puya_lib_subroutine(
+            self.context,
+            full_name=method,
+            args=args,
+            source_location=self.loc,
         )
-        item_length = factory.extract_uint16(array_head_and_tail, item_start_offset, "item_length")
-        item_length_in_bytes = factory.mul(item_length, inner_element_size, "item_length_in_bytes")
-        item_total_length = factory.add(item_length_in_bytes, 2, "item_head_tail_length")
-        return factory.extract3(array_head_and_tail, item_start_offset, item_total_length, "item")
-
-    @staticmethod
-    def _read_item_using_next_offset(
-        factory: OpFactory,
-        array_head_and_tail: ir.Value,
-        array_length: ir.Value,
-        index: ir.Value,
-    ) -> ir.ValueProvider:
-        """ "
-        Reads an item by using its offset and the next items offset
-        """
-        item_offset_offset = factory.mul(index, 2, "item_offset_offset")
-        item_start_offset = factory.extract_uint16(
-            array_head_and_tail, item_offset_offset, "item_offset"
-        )
-
-        next_item_index = factory.add(index, 1, "next_index")
-        # three possible outcomes of this op will determine the end offset
-        # next_item_index < array_length -> has_next is true, use next_item_offset
-        # next_item_index == array_length -> has_next is false, use array_length
-        # next_item_index > array_length -> op will fail, comment provides context to error
-        has_next = factory.sub(
-            array_length,
-            next_item_index,
-            "has_next",
-            error_message="index access is out of bounds",
-        )
-        end_of_array = factory.len(array_head_and_tail, "end_of_array")
-        next_item_offset_offset = factory.mul(next_item_index, 2, "next_item_offset_offset")
-        # next_item_offset_offset will be past the array head when has_next is false,
-        # but this is ok as the value will not be used.
-        # Additionally, next_item_offset_offset will always be a valid offset of the overall array
-        # This is because there will be at least 1 element (see has_next comments)
-        # and this element will have at least one u16 due to being dynamically sized
-        # e.g. reading here...   has at least one u16 ........
-        #                    v                               v
-        # ArrayHead(u16, u16) ArrayTail(DynamicItemHead(... u16, ...), ..., DynamicItemTail, ...)
-        next_item_offset = factory.extract_uint16(
-            array_head_and_tail, next_item_offset_offset, "next_item_offset"
-        )
-
-        item_end_offset = factory.select(
-            false=end_of_array,
-            true=next_item_offset,
-            condition=has_next,
-            temp_desc="end_offset",
-            ir_type=types.uint64,
-        )
-        return factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
+        return self.factory.materialise_single(invoke, "item")
 
     @typing.override
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
-        self._maybe_bounds_check(array, index)
-
+        # no _assert_index_in_bounds here as end offset calculation implicitly checks
         if self.array_encoding.size is None:
             array_type = "dynamic"
             args: list[ir.Value | int] = [array, value, index]
@@ -350,3 +291,83 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
         target = PuyaLibIR[f"{array_type}_array_replace_{element_type}"]
         invoke = self.factory.invoke(target, args)
         return self.factory.materialise_single(invoke, "updated_array")
+
+
+@attrs.define
+class _ByteLengthDynamicElementArrayBuilder(_ArrayBuilderImpl):
+    """
+    Builder for arrays with elements where their length header is also their size in bytes
+    e.g. string, byte[], uint8[]
+    """
+
+    @typing.override
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
+        self._maybe_bounds_check(array, index)
+
+        if self.array_encoding.length_header:
+            method = PuyaLibIR.dynamic_array_read_byte_length_element
+        else:
+            method = PuyaLibIR.static_array_read_byte_length_element
+        invoke = invoke_puya_lib_subroutine(
+            self.context,
+            full_name=method,
+            args=[array, index],
+            source_location=self.loc,
+        )
+        return self.factory.materialise_single(invoke, "item")
+
+    @typing.override
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
+        self._maybe_bounds_check(array, index)
+
+        if self.array_encoding.length_header:
+            target = PuyaLibIR.dynamic_array_replace_byte_length_head
+            args: list[ir.Value | int] = [array, value, index]
+        else:
+            target = PuyaLibIR.static_array_replace_byte_length_head
+            assert self.array_encoding.size is not None, "expected static array"
+            args = [array, value, index, self.array_encoding.size]
+
+        invoke = invoke_puya_lib_subroutine(
+            self.context,
+            full_name=target,
+            args=args,
+            source_location=self.loc,
+        )
+        return self.factory.materialise_single(invoke, "updated_array")
+
+
+@attrs.define
+class _MultiByteLengthDynamicElementArrayBuilder(_DynamicElementArrayBuilder):
+    inner_element_size: int = attrs.field(init=False)
+
+    @inner_element_size.default
+    def _inner_element_size_factory(self) -> int | None:
+        element_encoding = self.array_encoding.element
+        assert isinstance(element_encoding, ArrayEncoding)
+        assert element_encoding.element.num_bytes is not None
+        return element_encoding.element.num_bytes
+
+    @typing.override
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
+        self._maybe_bounds_check(array, index)
+        array_head_and_tail = array
+
+        # TODO: make a subroutine
+        if self.array_encoding.length_header:
+            array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
+        item_offset_offset = self.factory.mul(index, 2, "item_offset_offset")
+        item_start_offset = self.factory.extract_uint16(
+            array_head_and_tail, item_offset_offset, "item_offset"
+        )
+        item_length = self.factory.extract_uint16(
+            array_head_and_tail, item_start_offset, "item_length"
+        )
+        item_length_in_bytes = self.factory.mul(
+            item_length, self.inner_element_size, "item_length_in_bytes"
+        )
+        item_total_length = self.factory.add(item_length_in_bytes, 2, "item_head_tail_length")
+        item = self.factory.extract3(
+            array_head_and_tail, item_start_offset, item_total_length, "item"
+        )
+        return self.factory.materialise_single(item)
