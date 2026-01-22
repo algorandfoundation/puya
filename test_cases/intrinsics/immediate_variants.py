@@ -1,6 +1,6 @@
 from algopy import (
-    BaseContract,
     Bytes,
+    Contract,
     OnCompleteAction,
     TransactionType,
     UInt64,
@@ -14,7 +14,7 @@ from algopy.op import (
 )
 
 
-class ImmediateVariants(BaseContract):
+class ImmediateVariants(Contract):
     def approval_program(self) -> bool:
         num_app_args = Txn.num_app_args
         assert GTxn.num_app_args(0) == num_app_args

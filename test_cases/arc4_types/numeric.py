@@ -1,7 +1,7 @@
 import typing
 import typing as t
 
-from algopy import BaseContract, BigUInt, Bytes, OnCompleteAction, Txn, UInt64, op
+from algopy import BigUInt, Bytes, Contract, OnCompleteAction, Txn, UInt64, op
 from algopy.arc4 import (
     BigUFixedNxM,
     BigUIntN,
@@ -26,7 +26,7 @@ ARC4BiggieSmalls: t.TypeAlias = BigUIntN[t.Literal[32]]
 sixty_four_byte_num = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF  # noqa: E501
 
 
-class Arc4NumericTypesContract(BaseContract):
+class Arc4NumericTypesContract(Contract):
     def approval_program(self) -> bool:
         uint8 = UInt64(255)
 

@@ -1,7 +1,7 @@
-from algopy import BaseContract, UInt64, subroutine
+from algopy import Contract, UInt64, subroutine
 
 
-class Literals(BaseContract):
+class Literals(Contract):
     def approval_program(self) -> bool:
         self.with_variable_condition(condition=False)
         self.with_variable_condition(condition=True)

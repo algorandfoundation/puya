@@ -1,7 +1,7 @@
-from algopy import BaseContract, Txn
+from algopy import Contract, Txn
 
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def approval_program(self) -> bool:
         a = Txn.application_args(0)
         b = Txn.application_args(1)

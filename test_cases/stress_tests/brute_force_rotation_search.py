@@ -1,7 +1,7 @@
-from algopy import BaseContract, UInt64, subroutine
+from algopy import Contract, UInt64, subroutine
 
 
-class BruteForceRotationSearch(BaseContract):
+class BruteForceRotationSearch(Contract):
     def approval_program(self) -> bool:
         (
             a,

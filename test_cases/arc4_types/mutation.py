@@ -1,7 +1,7 @@
 import typing
 import typing as t
 
-from algopy import BaseContract, Bytes, subroutine
+from algopy import Bytes, Contract, subroutine
 from algopy.arc4 import (
     Bool,
     DynamicArray,
@@ -30,7 +30,7 @@ class StructWithArray(Struct):
     d_array: DynamicArray[String]
 
 
-class Arc4MutationContract(BaseContract):
+class Arc4MutationContract(Contract):
     def approval_program(self) -> bool:
         self.dynamic_array_fixed_size()
         self.dynamic_array_bool()

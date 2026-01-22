@@ -90,7 +90,7 @@ def tuples() -> None:
     assert (1, 2) == tuple((1, 2))
 
 
-class LiteralFolding(BaseContract):
+class LiteralFolding(Contract):
     def approval_program(self) -> bool:
         unary_str()
         compare_str()

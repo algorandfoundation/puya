@@ -1,9 +1,9 @@
-from algopy import BaseContract, Global, Txn, arc4
+from algopy import Contract, Global, Txn, arc4
 
 SOME_ADDRESS = "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"
 
 
-class Arc4AddressContract(BaseContract):
+class Arc4AddressContract(Contract):
     def approval_program(self) -> bool:
         address = arc4.Address(Txn.sender)
         assert address == Txn.sender

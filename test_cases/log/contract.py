@@ -1,7 +1,7 @@
-from algopy import BaseContract, BigUInt, Bytes, log, op
+from algopy import BigUInt, Bytes, Contract, log, op
 
 
-class MyContract(BaseContract):
+class MyContract(Contract):
     def approval_program(self) -> bool:
         log(0)
         log(b"1")

@@ -1,7 +1,7 @@
 import algopy as a
 
 
-class TealSwitchInlining(a.BaseContract):
+class TealSwitchInlining(a.Contract):
     """Test for an issue introduced by TEAL block optimizations,
     whereby a target that is referenced multiple times by the same source block
     might be incorrectly inlined, when it should remain a labelled destination.

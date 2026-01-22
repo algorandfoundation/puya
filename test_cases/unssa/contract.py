@@ -1,7 +1,7 @@
-from algopy import BaseContract, UInt64, log, op, subroutine, urange
+from algopy import Contract, UInt64, log, op, subroutine, urange
 
 
-class UnSSAContract(BaseContract):
+class UnSSAContract(Contract):
     def approval_program(self) -> bool:
         test_self_ref_phi()
         result1 = test_swap(UInt64(1))

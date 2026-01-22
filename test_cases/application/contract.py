@@ -1,7 +1,7 @@
 from algopy import (
     Application,
-    BaseContract,
     Bytes,
+    Contract,
     LocalState,
     Txn,
     UInt64,
@@ -10,7 +10,7 @@ from algopy import (
 )
 
 
-class Reference(BaseContract):
+class Reference(Contract):
     def __init__(self) -> None:
         self.int_1 = UInt64(0)
         self.bytes_1 = Bytes(b"")
