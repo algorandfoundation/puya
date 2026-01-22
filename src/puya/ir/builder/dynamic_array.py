@@ -59,6 +59,7 @@ def get_builder(
             isinstance(array_encoding, encodings.ArrayEncoding) and array_encoding.size is None
         ), "expected DynamicArray encoding"
         element_encoding = array_encoding.element
+        # we don't allow pop for UTF8 encodings since there are no UTF8 primitives in the AVM
         if type(element_encoding) is encodings.UTF8Encoding:
             pop_element_ir_type: types.IRType | types.TupleIRType | None = None
         else:
@@ -167,6 +168,39 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
     def _as_array_type(self, value: ir.ValueProvider) -> ir.Value:
         return self.factory.as_ir_type(value, types.EncodedType(self.array_encoding))
 
+    @typing.override
+    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
+        array_len = self.factory.materialise_single(
+            get_length(
+                self.array_encoding,
+                array,
+                self.loc,
+            )
+        )
+        last_index = self.factory.sub(array_len, 1)
+        array_type = types.EncodedType(self.array_encoding)
+        if self.array_encoding.element.is_bit:
+            ir_type: types.IRType = types.bool_
+        else:
+            ir_type = types.EncodedType(self.array_encoding.element)
+        encoded_item = self.factory.materialise_single(
+            ir.ExtractValue(
+                base=array,
+                base_type=array_type,
+                ir_type=ir_type,
+                check_bounds=False,
+                indexes=(last_index,),
+                source_location=self.loc,
+            )
+        )
+        popped_array = ir.ArrayPop(
+            base=array,
+            base_type=array_type,
+            source_location=self.loc,
+        )
+        popped = self._decode_popped_element(encoded_item)
+        return self.factory.materialise_single(popped_array), popped
+
     def _decode_popped_element(self, encoded_item: ir.Value) -> ir.MultiValue:
         if self.pop_element_ir_type is None:
             raise CodeError("unsupported pop operation", self.loc)
@@ -209,39 +243,6 @@ class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             array_len_u16 = self.factory.as_u16_bytes(array_len)
             updated_array = self.factory.replace(updated_array, 0, array_len_u16)
         return self._as_array_type(updated_array)
-
-    @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        array_len = self.factory.materialise_single(
-            get_length(
-                self.array_encoding,
-                array,
-                self.loc,
-            )
-        )
-        last_index = self.factory.sub(array_len, 1)
-        array_type = types.EncodedType(self.array_encoding)
-        if self.array_encoding.element.is_bit:
-            ir_type: types.IRType = types.bool_
-        else:
-            ir_type = types.EncodedType(self.array_encoding.element)
-        encoded_item = self.factory.materialise_single(
-            ir.ExtractValue(
-                base=array,
-                base_type=array_type,
-                ir_type=ir_type,
-                check_bounds=False,
-                indexes=(last_index,),
-                source_location=self.loc,
-            )
-        )
-        popped_array = ir.ArrayPop(
-            base=array,
-            base_type=array_type,
-            source_location=self.loc,
-        )
-        popped = self._decode_popped_element(encoded_item)
-        return self.factory.materialise_single(popped_array), popped
 
 
 class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -289,17 +290,6 @@ class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         )
         return self._as_array_type(invoke)
 
-    @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_byte_length_head,
-            args=[array],
-            source_location=self.loc,
-        )
-        popped, data = self.factory.materialise_values(invoke)
-        return data, self._decode_popped_element(popped)
-
 
 class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
@@ -324,17 +314,6 @@ class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             source_location=self.loc,
         )
         return self._as_array_type(invoke)
-
-    @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_dynamic_element,
-            args=[array],
-            source_location=self.loc,
-        )
-        popped, data = self.factory.materialise_values(invoke)
-        return data, self._decode_popped_element(popped)
 
 
 class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -375,14 +354,3 @@ class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             source_location=self.loc,
         )
         return self._as_array_type(invoke)
-
-    @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_bit,
-            args=[array],
-            source_location=self.loc,
-        )
-        popped, data = self.factory.materialise_values(invoke)
-        return data, self._decode_popped_element(popped)
