@@ -247,33 +247,35 @@ subroutine echo:
         txna ApplicationArgs 1                                                                   value#0
         l-load-copy value#0 0                                                                    value#0,value#0 (copy)
         int 0                                                                                    value#0,value#0 (copy),0
-        extract_uint16 // on error: invalid array length header                                  value#0,aggregate%array_length%0#0
-        int 2                                                                                    value#0,aggregate%array_length%0#0,2
-        +                                                                                        value#0,add%0#0
-        l-load-copy value#0 1                                                                    value#0,add%0#0,value#0 (copy)
-        len                                                                                      value#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                         value#0,len%0#0,add%0#0
-        ==                                                                                       value#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     value#0
+        extract_uint16 // on error: invalid array length header                                  value#0,new_items_count#0
+        l-load-copy new_items_count#0 0                                                          value#0,new_items_count#0,new_items_count#0 (copy)
+        int 2                                                                                    value#0,new_items_count#0,new_items_count#0 (copy),2
+        +                                                                                        value#0,new_items_count#0,add%0#0
+        l-load-copy value#0 2                                                                    value#0,new_items_count#0,add%0#0,value#0 (copy)
+        len                                                                                      value#0,new_items_count#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                         value#0,new_items_count#0,len%0#0,add%0#0
+        ==                                                                                       value#0,new_items_count#0,eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>                     value#0,new_items_count#0
         // typed_itxn_abi_call/logger.py:39
         // return "echo: " + value
-        l-load value#0 0                                                                         value#0
-        extract 2 0                                                                              extract_to_end%0#0
-        byte 0x00066563686f3a20                                                                  extract_to_end%0#0,0x00066563686f3a20
-        l-load extract_to_end%0#0 1                                                              0x00066563686f3a20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                            concat%0#0
-        l-load-copy concat%0#0 0                                                                 concat%0#0,concat%0#0 (copy)
-        extract 2 0                                                                              concat%0#0,extract_to_end%1#0
-        len                                                                                      concat%0#0,len%0#0
-        itob                                                                                     concat%0#0,as_bytes%0#0
-        extract 6 2                                                                              concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                      as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                               replace%0#0
+        l-load value#0 1                                                                         new_items_count#0,value#0
+        extract 2 0                                                                              new_items_count#0,new_items_bytes#0
+        int 6                                                                                    new_items_count#0,new_items_bytes#0,6
+        l-load new_items_count#0 2                                                               new_items_bytes#0,6,new_items_count#0
+        +                                                                                        new_items_bytes#0,new_array_length#0
+        itob                                                                                     new_items_bytes#0,tmp%2#0
+        extract 6 0                                                                              new_items_bytes#0,new_len_u16#0
+        // typed_itxn_abi_call/logger.py:39
+        // return "echo: " + value
+        byte 0x00066563686f3a20                                                                  new_items_bytes#0,new_len_u16#0,0x00066563686f3a20
+        l-load new_len_u16#0 1                                                                   new_items_bytes#0,0x00066563686f3a20,new_len_u16#0
+        replace2 0                                                                               new_items_bytes#0,result#0
+        l-load new_items_bytes#0 1                                                               result#0,new_items_bytes#0
+        concat                                                                                   tmp%5#0
         // typed_itxn_abi_call/logger.py:37
         // @arc4.abimethod
-        byte 0x151f7c75                                                                          replace%0#0,0x151f7c75
-        l-load replace%0#0 1                                                                     0x151f7c75,replace%0#0
+        byte 0x151f7c75                                                                          tmp%5#0,0x151f7c75
+        l-load tmp%5#0 1                                                                         0x151f7c75,tmp%5#0
         concat                                                                                   tmp%2#0
         log
         int 1                                                                                    1
@@ -1019,77 +1021,81 @@ subroutine echo_nested_tuple:
         byte "echo: "                                                                            substring3%3#0,tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,"echo: "
         l-load tuple_of_tuples.0.0#0 4                                                           substring3%3#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,"echo: ",tuple_of_tuples.0.0#0
         concat                                                                                   substring3%3#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0
-        l-load tuple_of_tuples.0.1#0 3                                                           substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,tuple_of_tuples.0.1#0
-        extract 2 0                                                                              substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,extract_to_end%0#0
-        byte 0x00066563686f3a20                                                                  substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,extract_to_end%0#0,0x00066563686f3a20
-        l-load extract_to_end%0#0 1                                                              substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,0x00066563686f3a20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                            substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0
-        l-load-copy concat%0#0 0                                                                 substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,concat%0#0 (copy)
-        extract 2 0                                                                              substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,extract_to_end%1#0
-        len                                                                                      substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,len%0#1
-        itob                                                                                     substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                              substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                      substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                               substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0
+        l-load-copy tuple_of_tuples.0.1#0 3                                                      substring3%3#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,tuple_of_tuples.0.1#0 (copy)
+        extract 2 0                                                                              substring3%3#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0
+        l-load tuple_of_tuples.0.1#0 4                                                           substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,tuple_of_tuples.0.1#0
+        int 0                                                                                    substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,tuple_of_tuples.0.1#0,0
+        extract_uint16 // on error: invalid array length header                                  substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,new_items_count#0
+        int 6                                                                                    substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,new_items_count#0,6
+        l-load new_items_count#0 1                                                               substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,6,new_items_count#0
+        +                                                                                        substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,new_array_length#0
+        itob                                                                                     substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,tmp%2#2
+        extract 6 0                                                                              substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,new_len_u16#0
+        // typed_itxn_abi_call/logger.py:128
+        // return ("echo: " + string, "echo: " + arc4_string), (
+        byte 0x00066563686f3a20                                                                  substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,new_len_u16#0,0x00066563686f3a20
+        l-load new_len_u16#0 1                                                                   substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,0x00066563686f3a20,new_len_u16#0
+        replace2 0                                                                               substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,new_items_bytes#0,result#0
+        l-load new_items_bytes#0 1                                                               substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,result#0,new_items_bytes#0
+        concat                                                                                   substring3%3#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2
         // typed_itxn_abi_call/logger.py:129
         // u64 + 1,
-        l-load tuple_of_tuples.1.0#0 3                                                           substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0
-        int 1                                                                                    substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0,1
-        +                                                                                        substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1
+        l-load tuple_of_tuples.1.0#0 3                                                           substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tuple_of_tuples.1.0#0
+        int 1                                                                                    substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tuple_of_tuples.1.0#0,1
+        +                                                                                        substring3%3#0,tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1
         // typed_itxn_abi_call/logger.py:130
         // arc4.UInt64(arc4_u64.as_uint64() + 1),
-        l-load substring3%3#0 4                                                                  tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,substring3%3#0
+        l-load substring3%3#0 4                                                                  tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1,substring3%3#0
         // typed_itxn_abi_call/logger.py:123
         // @arc4.abimethod
-        int 8                                                                                    tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,substring3%3#0,8
+        int 8                                                                                    tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1,substring3%3#0,8
         // typed_itxn_abi_call/logger.py:130
         // arc4.UInt64(arc4_u64.as_uint64() + 1),
-        extract_uint64                                                                           tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,tmp%3#1
-        int 1                                                                                    tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,tmp%3#1,1
-        +                                                                                        tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,tmp%4#1
-        itob                                                                                     tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0
+        extract_uint64                                                                           tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1,tmp%5#1
+        int 1                                                                                    tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1,tmp%5#1,1
+        +                                                                                        tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1,tmp%6#1
+        itob                                                                                     tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0
         // typed_itxn_abi_call/logger.py:131
         // b"echo: " + bytez,
-        byte 0x6563686f3a20                                                                      tuple_of_tuples.1.2#0,tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,0x6563686f3a20
-        l-load tuple_of_tuples.1.2#0 5                                                           tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,0x6563686f3a20,tuple_of_tuples.1.2#0
-        concat                                                                                   tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1
+        byte 0x6563686f3a20                                                                      tuple_of_tuples.1.2#0,tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,0x6563686f3a20
+        l-load tuple_of_tuples.1.2#0 5                                                           tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,0x6563686f3a20,tuple_of_tuples.1.2#0
+        concat                                                                                   tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1
         // typed_itxn_abi_call/logger.py:123
         // @arc4.abimethod
-        l-load-copy tmp%0#0 4                                                                    tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,tmp%0#0 (copy)
-        len                                                                                      tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%length%1#0
-        itob                                                                                     tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%as_bytes%1#0
-        extract 6 2                                                                              tmp%0#0,replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%length_uint16%1#0
-        l-load tmp%0#0 5                                                                         replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%length_uint16%1#0,tmp%0#0
-        concat                                                                                   replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0
-        l-load-copy aggregate%encoded_value%1#0 0                                                replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%encoded_value%1#0 (copy)
-        len                                                                                      replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%data_length%0#0
-        int 4                                                                                    replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%data_length%0#0,4
-        l-load aggregate%data_length%0#0 1                                                       replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,4,aggregate%data_length%0#0
-        +                                                                                        replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%current_tail_offset%0#0
-        itob                                                                                     replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%as_bytes%3#0
-        extract 6 2                                                                              replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0
-        byte 0x0004                                                                              replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0,0x0004
-        l-load aggregate%offset_as_uint16%1#0 1                                                  replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,0x0004,aggregate%offset_as_uint16%1#0
-        concat                                                                                   replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%encoded_value%1#0,aggregate%head%1#0
-        l-load aggregate%encoded_value%1#0 1                                                     replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%head%1#0,aggregate%encoded_value%1#0
-        concat                                                                                   replace%0#0,tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%0#0
-        l-load replace%0#0 4                                                                     tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%0#0,replace%0#0
-        concat                                                                                   tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0
-        l-load-copy aggregate%concat%1#0 0                                                       tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0,aggregate%concat%1#0 (copy)
-        len                                                                                      tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0,aggregate%data_length%2#0
-        int 4                                                                                    tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0,aggregate%data_length%2#0,4
-        l-load aggregate%data_length%2#0 1                                                       tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0,4,aggregate%data_length%2#0
-        +                                                                                        tmp%2#1,aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0
-        l-load tmp%2#1 4                                                                         aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,tmp%2#1
-        itob                                                                                     aggregate%val_as_bytes%0#0,tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%0#0 4                                                      tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
-        concat                                                                                   tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0
-        l-load-copy tmp%6#1 3                                                                    tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,tmp%6#1 (copy)
-        len                                                                                      tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%length%2#0
-        itob                                                                                     tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%as_bytes%5#0
-        extract 6 2                                                                              tmp%6#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%length_uint16%2#0
-        l-load tmp%6#1 4                                                                         aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%length_uint16%2#0,tmp%6#1
+        l-load-copy tmp%0#0 4                                                                    tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,tmp%0#0 (copy)
+        len                                                                                      tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%length%1#0
+        itob                                                                                     tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%as_bytes%1#0
+        extract 6 2                                                                              tmp%0#0,tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%length_uint16%1#0
+        l-load tmp%0#0 5                                                                         tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%length_uint16%1#0,tmp%0#0
+        concat                                                                                   tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0
+        l-load-copy aggregate%encoded_value%1#0 0                                                tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%encoded_value%1#0 (copy)
+        len                                                                                      tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%data_length%0#0
+        int 4                                                                                    tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%data_length%0#0,4
+        l-load aggregate%data_length%0#0 1                                                       tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,4,aggregate%data_length%0#0
+        +                                                                                        tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%current_tail_offset%0#0
+        itob                                                                                     tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%as_bytes%3#0
+        extract 6 2                                                                              tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0
+        byte 0x0004                                                                              tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%offset_as_uint16%1#0,0x0004
+        l-load aggregate%offset_as_uint16%1#0 1                                                  tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,0x0004,aggregate%offset_as_uint16%1#0
+        concat                                                                                   tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%encoded_value%1#0,aggregate%head%1#0
+        l-load aggregate%encoded_value%1#0 1                                                     tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%head%1#0,aggregate%encoded_value%1#0
+        concat                                                                                   tmp%5#2,tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%0#0
+        l-load tmp%5#2 4                                                                         tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%0#0,tmp%5#2
+        concat                                                                                   tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0
+        l-load-copy aggregate%concat%1#0 0                                                       tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0,aggregate%concat%1#0 (copy)
+        len                                                                                      tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0,aggregate%data_length%2#0
+        int 4                                                                                    tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0,aggregate%data_length%2#0,4
+        l-load aggregate%data_length%2#0 1                                                       tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0,4,aggregate%data_length%2#0
+        +                                                                                        tmp%4#1,aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0
+        l-load tmp%4#1 4                                                                         aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,tmp%4#1
+        itob                                                                                     aggregate%val_as_bytes%0#0,tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 4                                                      tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        concat                                                                                   tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0
+        l-load-copy tmp%8#1 3                                                                    tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,tmp%8#1 (copy)
+        len                                                                                      tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%length%2#0
+        itob                                                                                     tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%as_bytes%5#0
+        extract 6 2                                                                              tmp%8#1,aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%length_uint16%2#0
+        l-load tmp%8#1 4                                                                         aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%length_uint16%2#0,tmp%8#1
         concat                                                                                   aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%head%4#0,aggregate%encoded_value%2#0
         l-load aggregate%head%4#0 1                                                              aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%encoded_value%2#0,aggregate%head%4#0
         byte 0x0012                                                                              aggregate%concat%1#0,aggregate%current_tail_offset%2#0,aggregate%encoded_value%2#0,aggregate%head%4#0,0x0012

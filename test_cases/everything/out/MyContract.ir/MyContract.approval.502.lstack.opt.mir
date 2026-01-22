@@ -241,28 +241,39 @@ subroutine say_hello:
         // everything/contract.py:62
         // return "Hello, " + name + "!"
         v-load name#0                                                                   name#0
-        extract 2 0                                                                     extract_to_end%0#0
-        byte 0x000748656c6c6f2c20                                                       extract_to_end%0#0,0x000748656c6c6f2c20
-        l-load extract_to_end%0#0 1                                                     0x000748656c6c6f2c20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                   concat%0#0
-        l-load-copy concat%0#0 0                                                        concat%0#0,concat%0#0 (copy)
-        extract 2 0                                                                     concat%0#0,extract_to_end%1#0
-        len                                                                             concat%0#0,len%0#0
-        itob                                                                            concat%0#0,as_bytes%0#0
-        extract 6 2                                                                     concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                             as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                       concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                      replace%0#0
-        byte 0x21                                                                       replace%0#0,0x21
-        concat // on error: max array length exceeded                                   concat%1#0
-        l-load-copy concat%1#0 0                                                        concat%1#0,concat%1#0 (copy)
-        extract 2 0                                                                     concat%1#0,extract_to_end%3#0
-        len                                                                             concat%1#0,len%1#0
-        itob                                                                            concat%1#0,as_bytes%1#0
-        extract 6 2                                                                     concat%1#0,as_u16_bytes%1#0
-        l-load concat%1#0 1                                                             as_u16_bytes%1#0,concat%1#0
-        l-load as_u16_bytes%1#0 1                                                       concat%1#0,as_u16_bytes%1#0
-        replace2 0                                                                      replace%1#0
+        l-store-copy name#0 0                                                           name#0,name#0 (copy)
+        extract 2 0                                                                     name#0,new_items_bytes#0
+        l-load name#0 1                                                                 new_items_bytes#0,name#0
+        int 0                                                                           new_items_bytes#0,name#0,0
+        extract_uint16 // on error: invalid array length header                         new_items_bytes#0,new_items_count#0
+        int 7                                                                           new_items_bytes#0,new_items_count#0,7
+        l-load new_items_count#0 1                                                      new_items_bytes#0,7,new_items_count#0
+        +                                                                               new_items_bytes#0,new_array_length#0
+        itob                                                                            new_items_bytes#0,tmp%2#2
+        extract 6 0                                                                     new_items_bytes#0,new_len_u16#0
+        // everything/contract.py:62
+        // return "Hello, " + name + "!"
+        byte 0x000748656c6c6f2c20                                                       new_items_bytes#0,new_len_u16#0,0x000748656c6c6f2c20
+        l-load new_len_u16#0 1                                                          new_items_bytes#0,0x000748656c6c6f2c20,new_len_u16#0
+        replace2 0                                                                      new_items_bytes#0,result#0
+        l-load new_items_bytes#0 1                                                      result#0,new_items_bytes#0
+        concat                                                                          array#1
+        l-load-copy array#1 0                                                           array#1,array#1 (copy)
+        int 0                                                                           array#1,array#1 (copy),0
+        extract_uint16                                                                  array#1,array_length#1
+        // everything/contract.py:62
+        // return "Hello, " + name + "!"
+        int 1                                                                           array#1,array_length#1,1
+        +                                                                               array#1,new_array_length#0
+        itob                                                                            array#1,tmp%2#2
+        extract 6 0                                                                     array#1,new_len_u16#0
+        l-load array#1 1                                                                new_len_u16#0,array#1
+        l-load new_len_u16#0 1                                                          array#1,new_len_u16#0
+        replace2 0                                                                      result#0
+        // everything/contract.py:62
+        // return "Hello, " + name + "!"
+        byte 0x21                                                                       result#0,0x21
+        concat                                                                          tmp%5#2
         v-store tmp%0#0
         // everything/contract.py:56
         // @abimethod

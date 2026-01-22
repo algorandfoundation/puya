@@ -84,6 +84,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%11#0)
         exit 1u
 
+subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+    block@0: // L133
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
+        return tmp%5#0
+
 subroutine test_cases.typed_itxn_abi_call.logger.Logger.is_a_b[routing]() -> void:
     block@0: // L32
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
@@ -124,13 +134,11 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo[routing]() -> void:
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let tmp%0#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
         let extract_to_end%0#0: bytes = ((extract 2 0) value#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%0#1 extract_to_end%0#0) // on error: max array length exceeded
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
-        let len%0#1: uint64 = (len extract_to_end%1#0)
-        let as_bytes%0#0: bytes[8] = (itob len%0#1)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 replace%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let tmp%1#1: uint64 = aggregate%array_length%1#0
+        let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = _puya_lib.arc4.dynamic_array_concat_fixed(tmp%0#1, extract_to_end%0#0, tmp%1#1)
+        let tmp%2#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#0
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%2#1)
         (log tmp%2#0)
         exit 1u
 
@@ -540,50 +548,48 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple[routin
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
         let tmp%1#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
         let extract_to_end%0#0: bytes = ((extract 2 0) tuple_of_tuples.0.1#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%1#1 extract_to_end%0#0) // on error: max array length exceeded
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
-        let len%0#1: uint64 = (len extract_to_end%1#0)
-        let as_bytes%0#0: bytes[8] = (itob len%0#1)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let tmp%2#1: uint64 = (+ tuple_of_tuples.1.0#0 1u)
-        let tmp%3#1: uint64 = (btoi tuple_of_tuples.1.1#0)
-        let tmp%4#1: uint64 = (+ tmp%3#1 1u)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%4#1)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 tuple_of_tuples.0.1#0 0u) // on error: invalid array length header
+        let tmp%2#1: uint64 = aggregate%array_length%3#0
+        let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = _puya_lib.arc4.dynamic_array_concat_fixed(tmp%1#1, extract_to_end%0#0, tmp%2#1)
+        let tmp%3#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#0
+        let tmp%4#1: uint64 = (+ tuple_of_tuples.1.0#0 1u)
+        let tmp%5#1: uint64 = (btoi tuple_of_tuples.1.1#0)
+        let tmp%6#1: uint64 = (+ tmp%5#1 1u)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%6#1)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
-        let tmp%5#1: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
-        let tmp%6#1: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
+        let tmp%7#1: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%8#1: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
         let aggregate%length%1#0: uint64 = (len tmp%0#1)
         let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%length%1#0)
         let aggregate%length_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
         let aggregate%encoded_value%1#0: bytes = (concat aggregate%length_uint16%1#0 tmp%0#1)
-        let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = aggregate%encoded_value%1#0
+        let aggregate%as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = aggregate%encoded_value%1#0
         let aggregate%as_bytes%2#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
         let aggregate%head%0#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
-        let aggregate%data_length%0#0: uint64 = (len aggregate%as_Encoded(len+utf8[])%1#0)
+        let aggregate%data_length%0#0: uint64 = (len aggregate%as_Encoded(len+utf8[])%2#0)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 4u aggregate%data_length%0#0)
         let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%offset_as_uint16%1#0)
-        let aggregate%data_length%1#0: uint64 = (len replace%0#0)
+        let aggregate%data_length%1#0: uint64 = (len tmp%3#1)
         let aggregate%current_tail_offset%1#0: uint64 = (+ aggregate%current_tail_offset%0#0 aggregate%data_length%1#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(len+utf8[])%1#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 replace%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(len+utf8[])%2#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 tmp%3#1)
         let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%1#0
         let aggregate%as_bytes%4#0: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
         let aggregate%head%2#0: bytes = (concat 0x aggregate%offset_as_uint16%2#0)
         let aggregate%data_length%2#0: uint64 = (len aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0)
         let aggregate%current_tail_offset%2#0: uint64 = (+ 4u aggregate%data_length%2#0)
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#1)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%4#1)
         let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
         let aggregate%head%3#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%1#0)
-        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 tmp%5#1)
-        let aggregate%length%2#0: uint64 = (len tmp%6#1)
+        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 tmp%7#1)
+        let aggregate%length%2#0: uint64 = (len tmp%8#1)
         let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%length%2#0)
         let aggregate%length_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%5#0)
-        let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 tmp%6#1)
+        let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 tmp%8#1)
         let aggregate%as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = aggregate%encoded_value%2#0
         let aggregate%as_bytes%6#0: bytes[8] = (itob 18u)
         let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)

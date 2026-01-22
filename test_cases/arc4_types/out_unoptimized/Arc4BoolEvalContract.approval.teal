@@ -5,6 +5,7 @@
 main:
     intcblock 0 1
     bytecblock 0x 0x00 "." 0x0000000000000000
+    intc_0 // 0
     b main_block@0
 
 main_block@0:
@@ -226,20 +227,31 @@ main_block@0:
     bytec_0 // 0x
     bytec_3 // 0x0000000000000000
     concat
+    b main_block@1
+
+main_block@1:
     dig 1
-    uncover 1
-    concat // on error: max array length exceeded
-    cover 1
+    dup
     intc_0 // 0
     extract_uint16
+    // arc4_types/bool_eval.py:53
+    // dynamic_arr.append(arc4.UInt64(0))
     intc_1 // 1
     +
     itob
-    extract 6 2
-    uncover 1
-    intc_0 // 0
-    uncover 2
-    replace3
+    extract 6 0
+    replace2 0
+    dig 1
+    concat
+    bury 3
+    // arc4_types/bool_eval.py:53
+    // dynamic_arr.append(arc4.UInt64(0))
+    b main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@2
+
+main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@2:
+    // arc4_types/bool_eval.py:53
+    // dynamic_arr.append(arc4.UInt64(0))
+    dig 2
     // arc4_types/bool_eval.py:54
     // assert dynamic_arr
     intc_0 // 0

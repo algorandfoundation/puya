@@ -63,7 +63,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%1#0
 
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
-    block@0: // L204
+    block@0: // L227
         let new_head#0: bytes = 0x
         let tmp%0#0: uint64 = (* new_items_count#0 2u)
         let item_offset_adjustment#0: uint64 = tmp%0#0
@@ -71,10 +71,10 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         (assert 2u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L215
+    block@1: // for_header_L238
         let continue_looping%0#0: bool = (< value_internal%0#0 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L216
+    block@2: // for_body_L239
         let head_offset#0: uint64 = value_internal%0#0
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
         let item_offset#0: uint64 = tmp%2#0
@@ -84,20 +84,20 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let tmp%6#0: bytes = (concat new_head#0 tmp%5#0)
         let new_head#0: bytes = tmp%6#0
         goto block@3
-    block@3: // for_footer_L215
+    block@3: // for_footer_L238
         let value_internal%0#0: uint64 = (+ value_internal%0#0 2u)
         goto block@1
-    block@4: // after_for_L215
+    block@4: // after_for_L238
         let tmp%7#0: uint64 = (len array_head_and_tail#0)
         let head_and_tail_length#0: uint64 = tmp%7#0
         let tmp%8#0: uint64 = (* new_items_count#0 2u)
         (assert 2u) // Step cannot be zero
         let value_internal%1#0: uint64 = 0u
         goto block@5
-    block@5: // for_header_L220
+    block@5: // for_header_L243
         let continue_looping%1#0: bool = (< value_internal%1#0 tmp%8#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L221
+    block@6: // for_body_L244
         let head_offset#0: uint64 = value_internal%1#0
         let tmp%9#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let item_offset#0: uint64 = tmp%9#0
@@ -107,10 +107,10 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let tmp%13#0: bytes = (concat new_head#0 tmp%12#0)
         let new_head#0: bytes = tmp%13#0
         goto block@7
-    block@7: // for_footer_L220
+    block@7: // for_footer_L243
         let value_internal%1#0: uint64 = (+ value_internal%1#0 2u)
         goto block@5
-    block@8: // after_for_L220
+    block@8: // after_for_L243
         let tmp%14#0: uint64 = (+ array_items_count#0 new_items_count#0)
         let tmp%15#0: bytes = (itob tmp%14#0)
         let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
@@ -125,7 +125,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         return tmp%24#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L255
+    block@0: // L278
         let tmp%0#0: bytes = ((substring 0 2) source#0)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
@@ -136,7 +136,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L268
+    block@0: // L291
         let tmp%0#0: uint64 = (* index#0 2u)
         let tmp%1#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
         let original_offset#0: uint64 = tmp%1#0
@@ -166,10 +166,10 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         (assert 2u) // Step cannot be zero
         let value_internal%0#0: uint64 = tmp%17#0
         goto block@1
-    block@1: // for_header_L286
+    block@1: // for_header_L309
         let continue_looping%0#0: bool = (< value_internal%0#0 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L287
+    block@2: // for_body_L310
         let head_offset#0: uint64 = value_internal%0#0
         let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let tail_offset#0: uint64 = tmp%18#0
@@ -183,10 +183,10 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%23#0: bytes = (replace3 new_head_and_tail#0 head_offset#0 tail_offset_bytes#0)
         let new_head_and_tail#0: bytes = tmp%23#0
         goto block@3
-    block@3: // for_footer_L286
+    block@3: // for_footer_L309
         let value_internal%0#0: uint64 = (+ value_internal%0#0 2u)
         goto block@1
-    block@4: // after_for_L286
+    block@4: // after_for_L309
         return new_head_and_tail#0
 
 subroutine test_cases.state_mutations.contract.get_struct() -> Encoded(uint64,(len+utf8[])):

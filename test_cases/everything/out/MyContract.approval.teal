@@ -192,25 +192,36 @@ say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4:
 say_hello_after_if_else@3:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    dup
+    dupn 2
     extract 2 0
+    swap
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 7
+    +
+    itob
+    extract 6 0
+    // everything/contract.py:62
+    // return "Hello, " + name + "!"
     pushbytes 0x000748656c6c6f2c20
     swap
-    concat // on error: max array length exceeded
-    dup
-    extract 2 0
-    len
-    itob
-    extract 6 2
     replace2 0
+    swap
+    concat
+    dup
+    intc_1 // 0
+    extract_uint16
+    // everything/contract.py:62
+    // return "Hello, " + name + "!"
+    intc_0 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    // everything/contract.py:62
+    // return "Hello, " + name + "!"
     pushbytes 0x21
-    concat // on error: max array length exceeded
-    dup
-    extract 2 0
-    len
-    itob
-    extract 6 2
-    replace2 0
+    concat
     // everything/contract.py:56
     // @abimethod
     b say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4

@@ -43,6 +43,16 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@14: // after_if_else_L37
         fail
 
+subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+    block@0: // L133
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#0)
+        let result#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
+        return tmp%5#0
+
 subroutine test_cases.everything.contract.Everything.create[routing]() -> void:
     block@0: // L41
         test_cases.everything.contract.Everything._check_ban_list()
@@ -87,23 +97,15 @@ subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> voi
     block@3: // after_if_else_L60
         let tmp%1#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Hello, ")
         let extract_to_end%0#0: bytes = ((extract 2 0) name#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%1#1 extract_to_end%0#0) // on error: max array length exceeded
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
-        let len%0#0: uint64 = (len extract_to_end%1#0)
-        let as_bytes%0#0: bytes[8] = (itob len%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("!")
-        let extract_to_end%2#0: bytes = ((extract 2 0) tmp%2#0)
-        let concat%1#0: Encoded(len+utf8[]) = (concat replace%0#0 extract_to_end%2#0) // on error: max array length exceeded
-        let extract_to_end%3#0: bytes = ((extract 2 0) concat%1#0)
-        let len%1#0: uint64 = (len extract_to_end%3#0)
-        let as_bytes%1#0: bytes[8] = (itob len%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
+        let tmp%2#0: uint64 = array_len(name#0)
+        let tmp%3#0: Encoded(len+utf8[]) = array_concat(tmp%1#1, extract_to_end%0#0, tmp%2#0)
+        let tmp%4#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("!")
+        let extract_to_end%1#0: bytes = ((extract 2 0) tmp%4#0)
+        let tmp%5#0: uint64 = array_len(tmp%4#0)
+        let tmp%6#0: Encoded(len+utf8[]) = array_concat(tmp%3#0, extract_to_end%1#0, tmp%5#0)
         goto block@4
     block@4: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
-        let tmp%0#0: Encoded(len+utf8[]) = φ(tmp%0#1 <- block@2, replace%1#0 <- block@3)
+        let tmp%0#0: Encoded(len+utf8[]) = φ(tmp%0#1 <- block@2, tmp%6#0 <- block@3)
         let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
         (log tmp%1#0)
         exit 1u

@@ -160,6 +160,9 @@ debug: Replacing trivial Phi node: let popped#1: bytes = φ(popped#0 <- block@0,
 debug: Deleting Phi assignment: let popped#1: bytes = φ(popped#0 <- block@0, popped#1 <- block@3)
 debug: Replaced trivial Phi node: let popped#1: bytes = φ(popped#0 <- block@0, popped#1 <- block@3) (popped#1) with popped#0 in current definition for 3 blocks
 debug: Terminated block@4
+debug: Building IR for function _puya_lib.arc4.dynamic_array_concat_fixed
+debug: Sealing block@0
+debug: Terminated block@0
 debug: Building IR for function _puya_lib.arc4.dynamic_array_concat_bits
 debug: Sealing block@0
 debug: Terminated block@0
@@ -631,6 +634,7 @@ debug: removing unused subroutine _puya_lib.arc4.r_trim
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_byte_length_head
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element
+debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_fixed
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_bits
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element
@@ -1021,6 +1025,7 @@ debug: removing unused subroutine _puya_lib.arc4.r_trim
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_byte_length_head
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element
+debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_fixed
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_bits
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element
@@ -1042,6 +1047,7 @@ debug: removing unused subroutine _puya_lib.arc4.r_trim
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_byte_length_head
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element
+debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_fixed
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_bits
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element
@@ -1153,6 +1159,35 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_concat_fixed
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: tmp%0#0, array_length#0
+debug: selected array_length#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, new_array_length#0
+debug: selected new_array_length#0 from equivalence set
+debug: Found equivalence set: tmp%3#0, new_len_u16#0
+debug: selected new_len_u16#0 from equivalence set
+debug: Found equivalence set: tmp%4#0, result#0
+debug: selected result#0 from equivalence set
+debug: Copy propagation made 4 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__
 debug: Optimizer: Perform Subroutine Inlining
 debug: inlining call to test_cases.typed_abi_call.logger.Logger.__algopy_default_create in test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__
@@ -1230,17 +1265,14 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tmp%0#0, as_Encoded(len+utf8[])%0#0, value#0
 debug: selected value#0 from equivalence set
-debug: Found equivalence set: replace%0#0, as_Encoded(len+utf8[])%0#1, tmp%1#0
-debug: selected replace%0#0 from equivalence set
+debug: Found equivalence set: tmp%2#1, tmp%1#0
+debug: selected tmp%2#1 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Simplified (substring3 value#0 2u total_length%0#0) to ((extract 2 0) value#0)
-debug: Simplified (substring3 concat%0#0 2u total_length%1#0) to ((extract 2 0) concat%0#0)
-debug: Simplified (/ len%0#1 1u) to len%0#1
-debug: Simplified (replace3 concat%0#0 0u as_u16_bytes%0#0) to ((replace2 0) concat%0#0 as_u16_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1256,8 +1288,6 @@ debug: Found equivalence set: length%0#0, mul%0#0
 debug: selected length%0#0 from equivalence set
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
-debug: Found equivalence set: len%0#1, div_floor%0#0
-debug: selected len%0#1 from equivalence set
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1772,17 +1802,17 @@ debug: Found equivalence set: tmp%4#0, tuple_of_tuples.1.1#0, arc4_u64#0
 debug: selected tuple_of_tuples.1.1#0 from equivalence set
 debug: Found equivalence set: tmp%5#0, tuple_of_tuples.1.2#0, bytez#0
 debug: selected tuple_of_tuples.1.2#0 from equivalence set
-debug: Found equivalence set: replace%0#0, as_Encoded(len+utf8[])%0#0, tmp%7#0
-debug: selected replace%0#0 from equivalence set
 debug: Found equivalence set: tmp%0#1, tmp%6#0
 debug: selected tmp%0#1 from equivalence set
-debug: Found equivalence set: tmp%2#1, tmp%8#0
-debug: selected tmp%2#1 from equivalence set
-debug: Found equivalence set: tmp%5#1, tmp%9#0
-debug: selected tmp%5#1 from equivalence set
-debug: Found equivalence set: tmp%6#1, tmp%10#0
-debug: selected tmp%6#1 from equivalence set
-debug: Copy propagation made 17 modifications
+debug: Found equivalence set: tmp%3#1, tmp%7#0
+debug: selected tmp%3#1 from equivalence set
+debug: Found equivalence set: tmp%4#1, tmp%8#0
+debug: selected tmp%4#1 from equivalence set
+debug: Found equivalence set: tmp%7#1, tmp%9#0
+debug: selected tmp%7#1 from equivalence set
+debug: Found equivalence set: tmp%8#1, tmp%10#0
+debug: selected tmp%8#1 from equivalence set
+debug: Copy propagation made 18 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1792,9 +1822,6 @@ debug: Simplified (* length%1#0 1u) to length%1#0
 debug: Simplified (* length%2#0 1u) to length%2#0
 debug: Simplified (+ 18u add%5#0) to (+ length%2#0 20u)
 debug: Simplified (substring3 tuple_of_tuples.0.1#0 2u total_length%0#0) to ((extract 2 0) tuple_of_tuples.0.1#0)
-debug: Simplified (substring3 concat%0#0 2u total_length%1#0) to ((extract 2 0) concat%0#0)
-debug: Simplified (/ len%0#1 1u) to len%0#1
-debug: Simplified (replace3 concat%0#0 0u as_u16_bytes%0#0) to ((replace2 0) concat%0#0 as_u16_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1814,8 +1841,6 @@ debug: Found equivalence set: length%2#0, mul%2#0
 debug: selected length%2#0 from equivalence set
 debug: Found equivalence set: tuple_len%0#0, len%0#0
 debug: selected tuple_len%0#0 from equivalence set
-debug: Found equivalence set: len%0#1, div_floor%0#0
-debug: selected len%0#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -2017,16 +2042,10 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: replace%0#0, as_Encoded(len+utf8[])%0#0
-debug: selected replace%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (substring3 value#0 2u total_length%0#0) to ((extract 2 0) value#0)
-debug: Simplified (substring3 concat%0#0 2u total_length%1#0) to ((extract 2 0) concat%0#0)
-debug: Simplified (/ len%0#0 1u) to len%0#0
-debug: Simplified (replace3 concat%0#0 0u as_u16_bytes%0#0) to ((replace2 0) concat%0#0 as_u16_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -2370,16 +2389,11 @@ debug: Found equivalence set: tuple_of_tuples.1.1#0, arc4_u64#0
 debug: selected tuple_of_tuples.1.1#0 from equivalence set
 debug: Found equivalence set: tuple_of_tuples.1.2#0, bytez#0
 debug: selected tuple_of_tuples.1.2#0 from equivalence set
-debug: Found equivalence set: replace%0#0, as_Encoded(len+utf8[])%0#0
-debug: selected replace%0#0 from equivalence set
 debug: Copy propagation made 7 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (substring3 tuple_of_tuples.0.1#0 2u total_length%0#0) to ((extract 2 0) tuple_of_tuples.0.1#0)
-debug: Simplified (substring3 concat%0#0 2u total_length%1#0) to ((extract 2 0) concat%0#0)
-debug: Simplified (/ len%0#0 1u) to len%0#0
-debug: Simplified (replace3 concat%0#0 0u as_u16_bytes%0#0) to ((replace2 0) concat%0#0 as_u16_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -2551,6 +2565,26 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_concat_fixed
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.typed_abi_call.logger.Logger.is_a_b[routing]
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -2582,7 +2616,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable total_length%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2922,7 +2955,6 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable add%0#0
 debug: Removing unused variable add%5#0
 debug: Removing unused variable total_length%0#0
-debug: Removing unused variable total_length%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3024,6 +3056,26 @@ debug: Unused subroutines removed
 debug: Output IR to typed_abi_call/out/Logger.ir/Logger.approval.002.ssa.opt.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_concat_fixed
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
@@ -3513,6 +3565,26 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_concat_fixed
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.typed_abi_call.logger.Logger.is_a_b[routing]
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -3540,27 +3612,42 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.typed_abi_call.logger.Logger.echo[routing]
 debug: Optimizer: Perform Subroutine Inlining
+typed_abi_call/logger.py:39:16 debug: inlining call to _puya_lib.arc4.dynamic_array_concat_fixed in test_cases.typed_abi_call.logger.Logger.echo[routing]
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%0#1
-debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%0#1, array#0
+debug: selected array#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%1#0, tmp%1#1, new_items_count#0
+debug: selected new_items_count#0 from equivalence set
+debug: Found equivalence set: extract_to_end%0#0, new_items_bytes#0
+debug: selected new_items_bytes#0 from equivalence set
+debug: Found equivalence set: tmp%5#0, aggregate%as_Encoded(len+utf8[])%1#0, tmp%2#1
+debug: selected tmp%5#0 from equivalence set
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (len "echo: ") to 6u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0006
 debug: Simplified (concat 0x0006 "echo: ") to 0x00066563686f3a20
+debug: Simplified (extract_uint16 0x00066563686f3a20 0u) to 6u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
+debug: Replaced predecessor block@1 with block@0 in block@2
+debug: Merged linear block@1 into block@0
+debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let new_items_count#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=typed_abi_call/logger.py:37:5-19, ir_type=uint64, name='aggregate%array_length%0', version=0)]
+debug: Found equivalence set: aggregate%array_length%0#0, new_items_count#0
+debug: selected new_items_count#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -3943,6 +4030,7 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.typed_abi_call.logger.Logger.echo_nested_tuple[routing]
 debug: Optimizer: Perform Subroutine Inlining
+typed_abi_call/logger.py:128:36 debug: inlining call to _puya_lib.arc4.dynamic_array_concat_fixed in test_cases.typed_abi_call.logger.Logger.echo_nested_tuple[routing]
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -3962,11 +4050,17 @@ debug: Found equivalence set: aggregate%extract%1#0, tuple_of_tuples.1.1#0
 debug: selected tuple_of_tuples.1.1#0 from equivalence set
 debug: Found equivalence set: aggregate%item2%0#0, tuple_of_tuples.1.2#0
 debug: selected tuple_of_tuples.1.2#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%1#1
-debug: selected aggregate%encoded_value%0#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0, tmp%5#1
+debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%1#1, array#0
+debug: selected array#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%3#0, tmp%2#1, new_items_count#0
+debug: selected new_items_count#0 from equivalence set
+debug: Found equivalence set: extract_to_end%0#0, new_items_bytes#0
+debug: selected new_items_bytes#0 from equivalence set
+debug: Found equivalence set: tmp%5#2, aggregate%as_Encoded(len+utf8[])%1#0, tmp%3#1
+debug: selected tmp%5#2 from equivalence set
+debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%as_Encoded(uint64)%0#0, tmp%7#1
 debug: selected aggregate%val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(len+utf8[])%1#0
+debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(len+utf8[])%2#0
 debug: selected aggregate%encoded_value%1#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%1#0, aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#0
 debug: selected aggregate%concat%1#0 from equivalence set
@@ -3978,7 +4072,7 @@ debug: Found equivalence set: aggregate%concat%2#0, aggregate%as_Encoded(uint64,
 debug: selected aggregate%concat%2#0 from equivalence set
 debug: Found equivalence set: aggregate%concat%4#0, aggregate%as_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))%0#0, tmp%11#0
 debug: selected aggregate%concat%4#0 from equivalence set
-debug: Copy propagation made 20 modifications
+debug: Copy propagation made 24 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%current_tail_offset%1#0
@@ -3992,6 +4086,7 @@ debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 aggregate%subs
 debug: Simplified (len "echo: ") to 6u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0006
 debug: Simplified (concat 0x0006 "echo: ") to 0x00066563686f3a20
+debug: Simplified (extract_uint16 0x00066563686f3a20 0u) to 6u
 debug: Simplified (btoi tuple_of_tuples.1.1#0) to (extract_uint64 aggregate%substring3%3#0 8u)
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
@@ -4005,6 +4100,9 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
+debug: Replaced predecessor block@1 with block@0 in block@2
+debug: Merged linear block@1 into block@0
+debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
@@ -4173,6 +4271,8 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_fixed
+debug: Unused subroutines removed
 debug: Output IR to typed_abi_call/out/Logger.ir/Logger.approval.200.ssa.array.opt.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
@@ -4225,7 +4325,8 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
-debug: Removing unused variable aggregate%encoded_value%0#0
+debug: Removing unused variable array#0
+debug: Removing unused variable array_length#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4560,7 +4661,8 @@ debug: Removing unused variable tuple_of_tuples.1.1#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
-debug: Removing unused variable aggregate%encoded_value%0#0
+debug: Removing unused variable array#0
+debug: Removing unused variable array_length#0
 debug: Removing unused variable aggregate%as_bytes%2#0
 debug: Removing unused variable aggregate%offset_as_uint16%0#0
 debug: Removing unused variable aggregate%head%0#0
@@ -5590,7 +5692,7 @@ debug: Performing SSA IR destructuring for test_cases.typed_abi_call.logger.Logg
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.typed_abi_call.logger.Logger.echo[routing] using strategy 'root_operand'
-debug: Coalescing len%0#0 with [len%0#1]
+debug: Coalescing tmp%2#0 with [tmp%2#2]
 debug: Coalescing resulted in 2 replacement/s
 debug: Sequentializing parallel copies in test_cases.typed_abi_call.logger.Logger.echo[routing]
 debug: Performing post-SSA optimizations at level 1
@@ -5793,36 +5895,34 @@ debug: Inserted is_a_b_block@0.ops[28]: 'l-store-copy a#0 0'
 debug: Replaced is_a_b_block@0.ops[60]: 'v-load a#0' with 'l-load a#0'
 debug: Inserted echo_block@0.ops[1]: 'l-store-copy value#0 0'
 debug: Replaced echo_block@0.ops[3]: 'v-load value#0' with 'l-load value#0'
-debug: Inserted echo_block@0.ops[6]: 'l-store-copy aggregate%array_length%0#0 0'
-debug: Replaced echo_block@0.ops[8]: 'v-load aggregate%array_length%0#0' with 'l-load aggregate%array_length%0#0'
+debug: Inserted echo_block@0.ops[6]: 'l-store-copy new_items_count#0 0'
+debug: Replaced echo_block@0.ops[8]: 'v-load new_items_count#0' with 'l-load new_items_count#0'
 debug: Inserted echo_block@0.ops[14]: 'l-store-copy len%0#0 0'
 debug: Replaced echo_block@0.ops[16]: 'v-load len%0#0' with 'l-load len%0#0'
 debug: Inserted echo_block@0.ops[19]: 'l-store-copy eq%0#0 0'
 debug: Replaced echo_block@0.ops[21]: 'v-load eq%0#0' with 'l-load eq%0#0'
-debug: Inserted echo_block@0.ops[29]: 'l-store-copy concat%0#0 0'
-debug: Replaced echo_block@0.ops[31]: 'v-load concat%0#0' with 'l-load concat%0#0'
-debug: Inserted echo_block@0.ops[33]: 'l-store-copy extract_to_end%1#0 0'
-debug: Replaced echo_block@0.ops[35]: 'v-load extract_to_end%1#0' with 'l-load extract_to_end%1#0'
-debug: Inserted echo_block@0.ops[37]: 'l-store-copy len%0#0 0'
-debug: Replaced echo_block@0.ops[39]: 'v-load len%0#0' with 'l-load len%0#0'
-debug: Inserted echo_block@0.ops[41]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced echo_block@0.ops[43]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted echo_block@0.ops[53]: 'l-store-copy tmp%2#0 0'
-debug: Replaced echo_block@0.ops[55]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted echo_block@0.ops[25]: 'l-store-copy extract_to_end%0#0 0'
-debug: Replaced echo_block@0.ops[28]: 'v-load extract_to_end%0#0' with 'l-load extract_to_end%0#0'
-debug: Inserted echo_block@0.ops[46]: 'l-store-copy as_u16_bytes%0#0 0'
-debug: Replaced echo_block@0.ops[49]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
-debug: Inserted echo_block@0.ops[51]: 'l-store-copy replace%0#0 0'
-debug: Replaced echo_block@0.ops[54]: 'v-load replace%0#0' with 'l-load replace%0#0'
+debug: Inserted echo_block@0.ops[29]: 'l-store-copy new_array_length#0 0'
+debug: Replaced echo_block@0.ops[31]: 'v-load new_array_length#0' with 'l-load new_array_length#0'
+debug: Inserted echo_block@0.ops[33]: 'l-store-copy tmp%2#0 0'
+debug: Replaced echo_block@0.ops[35]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted echo_block@0.ops[41]: 'l-store-copy result#0 0'
+debug: Replaced echo_block@0.ops[43]: 'v-load result#0' with 'l-load result#0'
+debug: Inserted echo_block@0.ops[50]: 'l-store-copy tmp%2#0 0'
+debug: Replaced echo_block@0.ops[52]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted echo_block@0.ops[37]: 'l-store-copy new_len_u16#0 0'
+debug: Replaced echo_block@0.ops[40]: 'v-load new_len_u16#0' with 'l-load new_len_u16#0'
+debug: Inserted echo_block@0.ops[47]: 'l-store-copy tmp%5#0 0'
+debug: Replaced echo_block@0.ops[50]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
 debug: Inserted echo_block@0.ops[11]: 'l-store-copy add%0#0 0'
 debug: Replaced echo_block@0.ops[18]: 'v-load add%0#0' with 'l-load add%0#0'
 debug: Inserted echo_block@0.ops[4]: 'l-store-copy value#0 0'
 debug: Replaced echo_block@0.ops[14]: 'v-load value#0' with 'l-load value#0'
 debug: Inserted echo_block@0.ops[15]: 'l-store-copy value#0 1'
 debug: Replaced echo_block@0.ops[26]: 'v-load value#0' with 'l-load value#0'
-debug: Inserted echo_block@0.ops[36]: 'l-store-copy concat%0#0 0'
-debug: Replaced echo_block@0.ops[52]: 'v-load concat%0#0' with 'l-load concat%0#0'
+debug: Inserted echo_block@0.ops[28]: 'l-store-copy new_items_bytes#0 0'
+debug: Replaced echo_block@0.ops[49]: 'v-load new_items_bytes#0' with 'l-load new_items_bytes#0'
+debug: Inserted echo_block@0.ops[10]: 'l-store-copy new_items_count#0 1'
+debug: Replaced echo_block@0.ops[32]: 'v-load new_items_count#0' with 'l-load new_items_count#0'
 debug: Inserted log_uint64_block@0.ops[1]: 'l-store-copy value#0 0'
 debug: Replaced log_uint64_block@0.ops[3]: 'v-load value#0' with 'l-load value#0'
 debug: Inserted log_uint64_block@0.ops[5]: 'l-store-copy len%0#0 0'
@@ -6321,54 +6421,52 @@ debug: Inserted echo_nested_tuple_block@0.ops[152]: 'l-store-copy aggregate%subs
 debug: Replaced echo_nested_tuple_block@0.ops[154]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[166]: 'l-store-copy aggregate%substring3%1#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[168]: 'v-load aggregate%substring3%1#0' with 'l-load aggregate%substring3%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[196]: 'l-store-copy concat%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[198]: 'v-load concat%0#0' with 'l-load concat%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[200]: 'l-store-copy extract_to_end%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[202]: 'v-load extract_to_end%1#0' with 'l-load extract_to_end%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[204]: 'l-store-copy len%0#1 0'
-debug: Replaced echo_nested_tuple_block@0.ops[206]: 'v-load len%0#1' with 'l-load len%0#1'
-debug: Inserted echo_nested_tuple_block@0.ops[208]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[210]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[224]: 'l-store-copy tmp%3#1 0'
-debug: Replaced echo_nested_tuple_block@0.ops[226]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
-debug: Inserted echo_nested_tuple_block@0.ops[229]: 'l-store-copy tmp%4#1 0'
-debug: Replaced echo_nested_tuple_block@0.ops[231]: 'v-load tmp%4#1' with 'l-load tmp%4#1'
-debug: Inserted echo_nested_tuple_block@0.ops[240]: 'l-store-copy aggregate%length%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[242]: 'v-load aggregate%length%1#0' with 'l-load aggregate%length%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[244]: 'l-store-copy aggregate%as_bytes%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[246]: 'v-load aggregate%as_bytes%1#0' with 'l-load aggregate%as_bytes%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[248]: 'l-store-copy aggregate%length_uint16%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[250]: 'v-load aggregate%length_uint16%1#0' with 'l-load aggregate%length_uint16%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[253]: 'l-store-copy aggregate%encoded_value%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[255]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[261]: 'l-store-copy aggregate%current_tail_offset%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[263]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[265]: 'l-store-copy aggregate%as_bytes%3#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[267]: 'v-load aggregate%as_bytes%3#0' with 'l-load aggregate%as_bytes%3#0'
-debug: Inserted echo_nested_tuple_block@0.ops[273]: 'l-store-copy aggregate%head%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[275]: 'v-load aggregate%head%1#0' with 'l-load aggregate%head%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[278]: 'l-store-copy aggregate%concat%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[280]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[283]: 'l-store-copy aggregate%concat%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[285]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[294]: 'l-store-copy aggregate%val_as_bytes%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[296]: 'v-load aggregate%val_as_bytes%1#0' with 'l-load aggregate%val_as_bytes%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[302]: 'l-store-copy aggregate%length%2#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[304]: 'v-load aggregate%length%2#0' with 'l-load aggregate%length%2#0'
-debug: Inserted echo_nested_tuple_block@0.ops[306]: 'l-store-copy aggregate%as_bytes%5#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[308]: 'v-load aggregate%as_bytes%5#0' with 'l-load aggregate%as_bytes%5#0'
-debug: Inserted echo_nested_tuple_block@0.ops[310]: 'l-store-copy aggregate%length_uint16%2#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[312]: 'v-load aggregate%length_uint16%2#0' with 'l-load aggregate%length_uint16%2#0'
-debug: Inserted echo_nested_tuple_block@0.ops[319]: 'l-store-copy aggregate%head%5#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[321]: 'v-load aggregate%head%5#0' with 'l-load aggregate%head%5#0'
-debug: Inserted echo_nested_tuple_block@0.ops[327]: 'l-store-copy aggregate%as_bytes%7#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[329]: 'v-load aggregate%as_bytes%7#0' with 'l-load aggregate%as_bytes%7#0'
-debug: Inserted echo_nested_tuple_block@0.ops[335]: 'l-store-copy aggregate%head%6#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[337]: 'v-load aggregate%head%6#0' with 'l-load aggregate%head%6#0'
-debug: Inserted echo_nested_tuple_block@0.ops[340]: 'l-store-copy aggregate%concat%3#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[342]: 'v-load aggregate%concat%3#0' with 'l-load aggregate%concat%3#0'
-debug: Inserted echo_nested_tuple_block@0.ops[349]: 'l-store-copy tmp%12#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[351]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
+debug: Inserted echo_nested_tuple_block@0.ops[200]: 'l-store-copy new_array_length#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[202]: 'v-load new_array_length#0' with 'l-load new_array_length#0'
+debug: Inserted echo_nested_tuple_block@0.ops[204]: 'l-store-copy tmp%2#2 0'
+debug: Replaced echo_nested_tuple_block@0.ops[206]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
+debug: Inserted echo_nested_tuple_block@0.ops[212]: 'l-store-copy result#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[214]: 'v-load result#0' with 'l-load result#0'
+debug: Inserted echo_nested_tuple_block@0.ops[225]: 'l-store-copy tmp%5#1 0'
+debug: Replaced echo_nested_tuple_block@0.ops[227]: 'v-load tmp%5#1' with 'l-load tmp%5#1'
+debug: Inserted echo_nested_tuple_block@0.ops[230]: 'l-store-copy tmp%6#1 0'
+debug: Replaced echo_nested_tuple_block@0.ops[232]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
+debug: Inserted echo_nested_tuple_block@0.ops[241]: 'l-store-copy aggregate%length%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[243]: 'v-load aggregate%length%1#0' with 'l-load aggregate%length%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[245]: 'l-store-copy aggregate%as_bytes%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[247]: 'v-load aggregate%as_bytes%1#0' with 'l-load aggregate%as_bytes%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[249]: 'l-store-copy aggregate%length_uint16%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[251]: 'v-load aggregate%length_uint16%1#0' with 'l-load aggregate%length_uint16%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[254]: 'l-store-copy aggregate%encoded_value%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[256]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[262]: 'l-store-copy aggregate%current_tail_offset%0#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[264]: 'v-load aggregate%current_tail_offset%0#0' with 'l-load aggregate%current_tail_offset%0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[266]: 'l-store-copy aggregate%as_bytes%3#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[268]: 'v-load aggregate%as_bytes%3#0' with 'l-load aggregate%as_bytes%3#0'
+debug: Inserted echo_nested_tuple_block@0.ops[274]: 'l-store-copy aggregate%head%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[276]: 'v-load aggregate%head%1#0' with 'l-load aggregate%head%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[279]: 'l-store-copy aggregate%concat%0#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[281]: 'v-load aggregate%concat%0#0' with 'l-load aggregate%concat%0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[284]: 'l-store-copy aggregate%concat%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[286]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[295]: 'l-store-copy aggregate%val_as_bytes%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[297]: 'v-load aggregate%val_as_bytes%1#0' with 'l-load aggregate%val_as_bytes%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[303]: 'l-store-copy aggregate%length%2#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[305]: 'v-load aggregate%length%2#0' with 'l-load aggregate%length%2#0'
+debug: Inserted echo_nested_tuple_block@0.ops[307]: 'l-store-copy aggregate%as_bytes%5#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[309]: 'v-load aggregate%as_bytes%5#0' with 'l-load aggregate%as_bytes%5#0'
+debug: Inserted echo_nested_tuple_block@0.ops[311]: 'l-store-copy aggregate%length_uint16%2#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[313]: 'v-load aggregate%length_uint16%2#0' with 'l-load aggregate%length_uint16%2#0'
+debug: Inserted echo_nested_tuple_block@0.ops[320]: 'l-store-copy aggregate%head%5#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[322]: 'v-load aggregate%head%5#0' with 'l-load aggregate%head%5#0'
+debug: Inserted echo_nested_tuple_block@0.ops[328]: 'l-store-copy aggregate%as_bytes%7#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[330]: 'v-load aggregate%as_bytes%7#0' with 'l-load aggregate%as_bytes%7#0'
+debug: Inserted echo_nested_tuple_block@0.ops[336]: 'l-store-copy aggregate%head%6#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[338]: 'v-load aggregate%head%6#0' with 'l-load aggregate%head%6#0'
+debug: Inserted echo_nested_tuple_block@0.ops[341]: 'l-store-copy aggregate%concat%3#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[343]: 'v-load aggregate%concat%3#0' with 'l-load aggregate%concat%3#0'
+debug: Inserted echo_nested_tuple_block@0.ops[350]: 'l-store-copy tmp%12#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[352]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
 debug: Inserted echo_nested_tuple_block@0.ops[80]: 'l-store-copy add%2#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[83]: 'v-load add%2#0' with 'l-load add%2#0'
 debug: Inserted echo_nested_tuple_block@0.ops[85]: 'l-store-copy add%3#0 0'
@@ -6377,20 +6475,20 @@ debug: Inserted echo_nested_tuple_block@0.ops[138]: 'l-store-copy add%6#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[141]: 'v-load add%6#0' with 'l-load add%6#0'
 debug: Inserted echo_nested_tuple_block@0.ops[143]: 'l-store-copy add%7#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[146]: 'v-load add%7#0' with 'l-load add%7#0'
-debug: Inserted echo_nested_tuple_block@0.ops[196]: 'l-store-copy extract_to_end%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[199]: 'v-load extract_to_end%0#0' with 'l-load extract_to_end%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[217]: 'l-store-copy as_u16_bytes%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[220]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[263]: 'l-store-copy aggregate%data_length%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[266]: 'v-load aggregate%data_length%0#0' with 'l-load aggregate%data_length%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[276]: 'l-store-copy aggregate%offset_as_uint16%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[279]: 'v-load aggregate%offset_as_uint16%1#0' with 'l-load aggregate%offset_as_uint16%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[295]: 'l-store-copy aggregate%data_length%2#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[298]: 'v-load aggregate%data_length%2#0' with 'l-load aggregate%data_length%2#0'
-debug: Inserted echo_nested_tuple_block@0.ops[340]: 'l-store-copy aggregate%offset_as_uint16%4#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[343]: 'v-load aggregate%offset_as_uint16%4#0' with 'l-load aggregate%offset_as_uint16%4#0'
-debug: Inserted echo_nested_tuple_block@0.ops[355]: 'l-store-copy aggregate%concat%4#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[358]: 'v-load aggregate%concat%4#0' with 'l-load aggregate%concat%4#0'
+debug: Inserted echo_nested_tuple_block@0.ops[200]: 'l-store-copy new_items_count#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[203]: 'v-load new_items_count#0' with 'l-load new_items_count#0'
+debug: Inserted echo_nested_tuple_block@0.ops[213]: 'l-store-copy new_len_u16#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[216]: 'v-load new_len_u16#0' with 'l-load new_len_u16#0'
+debug: Inserted echo_nested_tuple_block@0.ops[264]: 'l-store-copy aggregate%data_length%0#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[267]: 'v-load aggregate%data_length%0#0' with 'l-load aggregate%data_length%0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[277]: 'l-store-copy aggregate%offset_as_uint16%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[280]: 'v-load aggregate%offset_as_uint16%1#0' with 'l-load aggregate%offset_as_uint16%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[296]: 'l-store-copy aggregate%data_length%2#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[299]: 'v-load aggregate%data_length%2#0' with 'l-load aggregate%data_length%2#0'
+debug: Inserted echo_nested_tuple_block@0.ops[341]: 'l-store-copy aggregate%offset_as_uint16%4#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[344]: 'v-load aggregate%offset_as_uint16%4#0' with 'l-load aggregate%offset_as_uint16%4#0'
+debug: Inserted echo_nested_tuple_block@0.ops[356]: 'l-store-copy aggregate%concat%4#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[359]: 'v-load aggregate%concat%4#0' with 'l-load aggregate%concat%4#0'
 debug: Inserted echo_nested_tuple_block@0.ops[4]: 'l-store-copy tmp%0#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[7]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[26]: 'l-store-copy substring3%0#0 0'
@@ -6403,6 +6501,8 @@ debug: Inserted echo_nested_tuple_block@0.ops[180]: 'l-store-copy aggregate%subs
 debug: Replaced echo_nested_tuple_block@0.ops[183]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[182]: 'l-store-copy aggregate%len%0#0 1'
 debug: Replaced echo_nested_tuple_block@0.ops[186]: 'v-load aggregate%len%0#0' with 'l-load aggregate%len%0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[201]: 'l-store-copy tuple_of_tuples.0.1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[204]: 'v-load tuple_of_tuples.0.1#0' with 'l-load tuple_of_tuples.0.1#0'
 debug: Inserted echo_nested_tuple_block@0.ops[162]: 'l-store-copy aggregate%substring3%0#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[166]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[167]: 'l-store-copy aggregate%substring3%0#0 0'
@@ -6413,8 +6513,8 @@ debug: Inserted echo_nested_tuple_block@0.ops[93]: 'l-store-copy add%4#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[101]: 'v-load add%4#0' with 'l-load add%4#0'
 debug: Inserted echo_nested_tuple_block@0.ops[167]: 'l-store-copy aggregate%extract_uint16%2#0 1'
 debug: Replaced echo_nested_tuple_block@0.ops[176]: 'v-load aggregate%extract_uint16%2#0' with 'l-load aggregate%extract_uint16%2#0'
-debug: Inserted echo_nested_tuple_block@0.ops[335]: 'l-store-copy aggregate%encoded_value%2#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[343]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
+debug: Inserted echo_nested_tuple_block@0.ops[337]: 'l-store-copy aggregate%encoded_value%2#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[345]: 'v-load aggregate%encoded_value%2#0' with 'l-load aggregate%encoded_value%2#0'
 debug: Inserted echo_nested_tuple_block@0.ops[13]: 'l-store-copy extract_uint16%0#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[21]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[36]: 'l-store-copy extract_uint16%1#0 0'
@@ -6439,14 +6539,12 @@ debug: Inserted echo_nested_tuple_block@0.ops[126]: 'l-store-copy substring3%3#0
 debug: Replaced echo_nested_tuple_block@0.ops[139]: 'v-load substring3%3#0' with 'l-load substring3%3#0'
 debug: Inserted echo_nested_tuple_block@0.ops[189]: 'l-store-copy aggregate%extract_uint16%3#0 3'
 debug: Replaced echo_nested_tuple_block@0.ops[202]: 'v-load aggregate%extract_uint16%3#0' with 'l-load aggregate%extract_uint16%3#0'
-debug: Inserted echo_nested_tuple_block@0.ops[268]: 'l-store-copy tmp%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[281]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[334]: 'l-store-copy tmp%6#1 0'
-debug: Replaced echo_nested_tuple_block@0.ops[347]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
+debug: Inserted echo_nested_tuple_block@0.ops[270]: 'l-store-copy tmp%0#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[283]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[336]: 'l-store-copy tmp%8#1 0'
+debug: Replaced echo_nested_tuple_block@0.ops[349]: 'v-load tmp%8#1' with 'l-load tmp%8#1'
 debug: Inserted echo_nested_tuple_block@0.ops[205]: 'l-store-copy tuple_of_tuples.0.1#0 0'
 debug: Replaced echo_nested_tuple_block@0.ops[218]: 'v-load tuple_of_tuples.0.1#0' with 'l-load tuple_of_tuples.0.1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[228]: 'l-store-copy concat%0#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[244]: 'v-load concat%0#0' with 'l-load concat%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[6]: 'l-store-copy tuple_len%0#0 1'
 debug: Replaced echo_nested_tuple_block@0.ops[24]: 'v-load tuple_len%0#0' with 'l-load tuple_len%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[31]: 'l-store-copy tuple_len%1#0 1'
@@ -6455,50 +6553,52 @@ debug: Inserted echo_nested_tuple_block@0.ops[48]: 'l-store-copy substring3%0#0 
 debug: Replaced echo_nested_tuple_block@0.ops[64]: 'v-load substring3%0#0' with 'l-load substring3%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[127]: 'l-store-copy tuple_len%2#0 1'
 debug: Replaced echo_nested_tuple_block@0.ops[145]: 'v-load tuple_len%2#0' with 'l-load tuple_len%2#0'
-debug: Inserted echo_nested_tuple_block@0.ops[338]: 'l-store-copy aggregate%head%4#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[358]: 'v-load aggregate%head%4#0' with 'l-load aggregate%head%4#0'
-debug: Inserted echo_nested_tuple_block@0.ops[366]: 'l-store-copy aggregate%concat%2#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[387]: 'v-load aggregate%concat%2#0' with 'l-load aggregate%concat%2#0'
+debug: Inserted echo_nested_tuple_block@0.ops[339]: 'l-store-copy aggregate%head%4#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[359]: 'v-load aggregate%head%4#0' with 'l-load aggregate%head%4#0'
+debug: Inserted echo_nested_tuple_block@0.ops[367]: 'l-store-copy aggregate%concat%2#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[388]: 'v-load aggregate%concat%2#0' with 'l-load aggregate%concat%2#0'
 debug: Inserted echo_nested_tuple_block@0.ops[199]: 'l-store-copy tuple_of_tuples.0.0#0 2'
 debug: Replaced echo_nested_tuple_block@0.ops[220]: 'v-load tuple_of_tuples.0.0#0' with 'l-load tuple_of_tuples.0.0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[73]: 'l-store-copy add%1#0 3'
 debug: Replaced echo_nested_tuple_block@0.ops[95]: 'v-load add%1#0' with 'l-load add%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[294]: 'l-store-copy aggregate%encoded_value%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[317]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[295]: 'l-store-copy aggregate%encoded_value%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[318]: 'v-load aggregate%encoded_value%1#0' with 'l-load aggregate%encoded_value%1#0'
+debug: Inserted echo_nested_tuple_block@0.ops[227]: 'l-store-copy new_items_bytes#0 1'
+debug: Replaced echo_nested_tuple_block@0.ops[253]: 'v-load new_items_bytes#0' with 'l-load new_items_bytes#0'
 debug: Inserted echo_nested_tuple_block@0.ops[51]: 'l-store-copy tuple_len%1#0 3'
 debug: Replaced echo_nested_tuple_block@0.ops[82]: 'v-load tuple_len%1#0' with 'l-load tuple_len%1#0'
-debug: Inserted echo_nested_tuple_block@0.ops[334]: 'l-store-copy aggregate%current_tail_offset%2#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[373]: 'v-load aggregate%current_tail_offset%2#0' with 'l-load aggregate%current_tail_offset%2#0'
-debug: Inserted echo_nested_tuple_block@0.ops[217]: 'l-store-copy tuple_of_tuples.1.0#0 2'
-debug: Replaced echo_nested_tuple_block@0.ops[256]: 'v-load tuple_of_tuples.1.0#0' with 'l-load tuple_of_tuples.1.0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[336]: 'l-store-copy aggregate%current_tail_offset%2#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[375]: 'v-load aggregate%current_tail_offset%2#0' with 'l-load aggregate%current_tail_offset%2#0'
 debug: Inserted echo_nested_tuple_block@0.ops[123]: 'l-store-copy tuple_len%0#0 2'
 debug: Replaced echo_nested_tuple_block@0.ops[167]: 'v-load tuple_len%0#0' with 'l-load tuple_len%0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[218]: 'l-store-copy tuple_of_tuples.1.0#0 2'
+debug: Replaced echo_nested_tuple_block@0.ops[259]: 'v-load tuple_of_tuples.1.0#0' with 'l-load tuple_of_tuples.1.0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[115]: 'l-store-copy add%4#0 3'
 debug: Replaced echo_nested_tuple_block@0.ops[163]: 'v-load add%4#0' with 'l-load add%4#0'
 debug: Inserted echo_nested_tuple_block@0.ops[217]: 'l-store-copy substring3%3#0 2'
-debug: Replaced echo_nested_tuple_block@0.ops[263]: 'v-load substring3%3#0' with 'l-load substring3%3#0'
+debug: Replaced echo_nested_tuple_block@0.ops[265]: 'v-load substring3%3#0' with 'l-load substring3%3#0'
 debug: Inserted echo_nested_tuple_block@0.ops[122]: 'l-store-copy tmp%0#0 2'
 debug: Replaced echo_nested_tuple_block@0.ops[176]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[124]: 'l-store-copy extract_uint16%3#0 3'
 debug: Replaced echo_nested_tuple_block@0.ops[179]: 'v-load extract_uint16%3#0' with 'l-load extract_uint16%3#0'
 debug: Inserted echo_nested_tuple_block@0.ops[230]: 'l-store-copy tmp%0#0 3'
-debug: Replaced echo_nested_tuple_block@0.ops[283]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Replaced echo_nested_tuple_block@0.ops[285]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[226]: 'l-store-copy tuple_of_tuples.1.2#0 4'
-debug: Replaced echo_nested_tuple_block@0.ops[281]: 'v-load tuple_of_tuples.1.2#0' with 'l-load tuple_of_tuples.1.2#0'
-debug: Inserted echo_nested_tuple_block@0.ops[336]: 'l-store-copy aggregate%concat%1#0 0'
-debug: Replaced echo_nested_tuple_block@0.ops[396]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
+debug: Replaced echo_nested_tuple_block@0.ops[283]: 'v-load tuple_of_tuples.1.2#0' with 'l-load tuple_of_tuples.1.2#0'
+debug: Inserted echo_nested_tuple_block@0.ops[338]: 'l-store-copy aggregate%concat%1#0 0'
+debug: Replaced echo_nested_tuple_block@0.ops[398]: 'v-load aggregate%concat%1#0' with 'l-load aggregate%concat%1#0'
 debug: Inserted echo_nested_tuple_block@0.ops[156]: 'l-store-copy substring3%4#0 4'
 debug: Replaced echo_nested_tuple_block@0.ops[225]: 'v-load substring3%4#0' with 'l-load substring3%4#0'
 debug: Inserted echo_nested_tuple_block@0.ops[150]: 'l-store-copy substring3%3#0 6'
 debug: Replaced echo_nested_tuple_block@0.ops[220]: 'v-load substring3%3#0' with 'l-load substring3%3#0'
-debug: Inserted echo_nested_tuple_block@0.ops[285]: 'l-store-copy tmp%6#1 1'
-debug: Replaced echo_nested_tuple_block@0.ops[357]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
-debug: Inserted echo_nested_tuple_block@0.ops[281]: 'l-store-copy aggregate%val_as_bytes%0#0 2'
-debug: Replaced echo_nested_tuple_block@0.ops[354]: 'v-load aggregate%val_as_bytes%0#0' with 'l-load aggregate%val_as_bytes%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[264]: 'l-store-copy replace%0#0 4'
-debug: Replaced echo_nested_tuple_block@0.ops[336]: 'v-load replace%0#0' with 'l-load replace%0#0'
-debug: Inserted echo_nested_tuple_block@0.ops[269]: 'l-store-copy tmp%2#1 4'
-debug: Replaced echo_nested_tuple_block@0.ops[351]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted echo_nested_tuple_block@0.ops[287]: 'l-store-copy tmp%8#1 1'
+debug: Replaced echo_nested_tuple_block@0.ops[359]: 'v-load tmp%8#1' with 'l-load tmp%8#1'
+debug: Inserted echo_nested_tuple_block@0.ops[283]: 'l-store-copy aggregate%val_as_bytes%0#0 2'
+debug: Replaced echo_nested_tuple_block@0.ops[356]: 'v-load aggregate%val_as_bytes%0#0' with 'l-load aggregate%val_as_bytes%0#0'
+debug: Inserted echo_nested_tuple_block@0.ops[266]: 'l-store-copy tmp%5#2 4'
+debug: Replaced echo_nested_tuple_block@0.ops[338]: 'v-load tmp%5#2' with 'l-load tmp%5#2'
+debug: Inserted echo_nested_tuple_block@0.ops[271]: 'l-store-copy tmp%4#1 4'
+debug: Replaced echo_nested_tuple_block@0.ops[353]: 'v-load tmp%4#1' with 'l-load tmp%4#1'
 debug: Inserted echo_nested_tuple_block@0.ops[23]: 'l-store-copy tmp%0#0 2'
 debug: Replaced echo_nested_tuple_block@0.ops[107]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted echo_nested_tuple_block@0.ops[26]: 'l-store-copy tuple_len%0#0 3'
