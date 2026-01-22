@@ -1,5 +1,5 @@
 from algopy import (
-    BaseContract,
+    Contract,
     ReferenceArray,
     Txn,
     UInt64,
@@ -9,7 +9,7 @@ from algopy import (
 )
 
 
-class SlotAllocationInlining(BaseContract):
+class SlotAllocationInlining(Contract):
     def approval_program(self) -> bool:
         ensure_budget(800)
         do_something_with_array()
