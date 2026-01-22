@@ -211,6 +211,9 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.dynamic_array_pop_fixed_size,
         )
 
+    def visit_array_concat(self, _: models.ArrayConcat) -> None:
+        self.referenced_libs |= (PuyaLibIR.dynamic_array_concat_fixed,)
+
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         self.visit_subroutine(callsub.target)
 
@@ -236,6 +239,7 @@ _PureValueProviders = (
     | models.BytesEncode
     | models.ArrayLength
     | models.ArrayPop
+    | models.ArrayConcat
 )
 
 

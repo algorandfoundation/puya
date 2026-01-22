@@ -128,6 +128,16 @@ class IRMutator(IRVisitor[typing.Any]):
         return None
 
     @typing.override
+    def visit_array_concat(self, concat: ir.ArrayConcat) -> ir.ValueProvider | None:
+        if replacement := concat.base.accept(self):
+            concat.base = replacement
+        if replacement := concat.items.accept(self):
+            concat.items = replacement
+        if replacement := concat.num_items.accept(self):
+            concat.num_items = replacement
+        return None
+
+    @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.ValueProvider | None:
         if replacement := read.base.accept(self):
             read.base = replacement
