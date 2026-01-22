@@ -25,22 +25,21 @@ UINT16_OFFSET = UINT64_SIZE - UINT16_SIZE
 
 @__pure
 @subroutine
-def dynamic_array_pop_bit(array: Bytes) -> tuple[bool, Bytes]:
+def dynamic_array_pop_bit(array: Bytes) -> Bytes:
     """
     Pop the last item from an arc4 dynamic array of arc4 encoded boolean items
 
     array: The bytes for the source array
 
-    returns: tuple of (The popped item, The updated bytes for the source array)
+    returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
     result = replace(array, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
     popped_location = length_minus_1 + UINT16_SIZE * 8
-    popped = getbit(result, popped_location)
     result = setbit_bytes(result, popped_location, False)  # noqa: FBT003
     result = substring(result, 0, UINT16_SIZE + ((length_minus_1 + 7) // 8))
-    return popped, result
+    return result
 
 
 @__pure
@@ -68,14 +67,14 @@ def dynamic_array_pop_fixed_size(array: Bytes, fixed_byte_size: UInt64) -> Bytes
 
 @__pure
 @subroutine
-def dynamic_array_pop_byte_length_head(array: Bytes) -> tuple[Bytes, Bytes]:
+def dynamic_array_pop_byte_length_head(array: Bytes) -> Bytes:
     """
     Pop the last item from an arc4 dynamic array of items that are prefixed with their length in
     bytes, e.g. arc4.String, arc4.DynamicBytes
 
     source: The bytes for the source array
 
-    returns: tuple of (The popped item, The updated bytes for the source array)
+    returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
@@ -83,7 +82,6 @@ def dynamic_array_pop_byte_length_head(array: Bytes) -> tuple[Bytes, Bytes]:
     head_and_tail = extract(array, UINT16_SIZE, 0)
     popped_offset = extract_uint16(head_and_tail, popped_header_offset)
 
-    popped = substring(head_and_tail, popped_offset, head_and_tail.length)
     head_and_tail = substring(head_and_tail, 0, popped_header_offset) + substring(
         head_and_tail, popped_header_offset + 2, popped_offset
     )
@@ -94,26 +92,24 @@ def dynamic_array_pop_byte_length_head(array: Bytes) -> tuple[Bytes, Bytes]:
         array_head_and_tail=head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
     )
 
-    return popped, updated
+    return updated
 
 
 @__pure
 @subroutine
-def dynamic_array_pop_dynamic_element(array: Bytes) -> tuple[Bytes, Bytes]:
+def dynamic_array_pop_dynamic_element(array: Bytes) -> Bytes:
     """
     Pop the last item from an arc4 dynamic array of dynamically sized items
 
     array: The bytes for the source array
 
-    returns: tuple of (The popped item, The updated bytes for the source array)
+    returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
     popped_header_offset = length_minus_1 * UINT16_SIZE
     head_and_tail = extract(array, UINT16_SIZE, 0)
     popped_offset = extract_uint16(head_and_tail, popped_header_offset)
-
-    popped = substring(head_and_tail, popped_offset, head_and_tail.length)
 
     new_head = Bytes()
     for head_offset in urange(0, length_minus_1 * UINT16_SIZE, UINT16_SIZE):
@@ -127,7 +123,48 @@ def dynamic_array_pop_dynamic_element(array: Bytes) -> tuple[Bytes, Bytes]:
         + substring(head_and_tail, popped_header_offset + UINT16_SIZE, popped_offset)
     )
 
-    return popped, updated
+    return updated
+
+
+@__pure
+@subroutine
+def dynamic_array_read_dynamic_element(*, array: Bytes, index: UInt64) -> Bytes:
+    return static_array_read_dynamic_element(
+        array_head_and_tail=extract(array, UINT16_SIZE, 0),
+        index=index,
+        array_length=extract_uint16(array, 0),
+    )
+
+
+@__pure
+@subroutine
+def static_array_read_dynamic_element(
+    *, array_head_and_tail: Bytes, index: UInt64, array_length: UInt64
+) -> Bytes:
+    item_start_offset = extract_uint16(array_head_and_tail, index * 2)
+    next_index = index + 1
+    next_item_offset = extract_uint16(array_head_and_tail, next_index * 2)
+    end_of_tail = array_head_and_tail.length
+    is_before_end = array_length - next_index  # this will error if index is beyond the length
+    item_end_offset = select_uint64(end_of_tail, next_item_offset, is_before_end)
+    return substring(array_head_and_tail, item_start_offset, item_end_offset)
+
+
+@__pure
+@subroutine
+def dynamic_array_read_byte_length_element(*, array: Bytes, index: UInt64) -> Bytes:
+    array_head_and_tail = extract(array, UINT16_SIZE, 0)
+    item_start_offset = extract_uint16(array_head_and_tail, index * 2)
+    item_length = extract_uint16(array_head_and_tail, item_start_offset)
+    return extract(array_head_and_tail, item_start_offset, item_length + 2)
+
+
+@__pure
+@subroutine
+def static_array_read_byte_length_element(*, array: Bytes, index: UInt64) -> Bytes:
+    item_start_offset = extract_uint16(array, index * 2)
+    item_length = extract_uint16(array, item_start_offset)
+    return extract(array, item_start_offset, item_length + 2)
 
 
 @__pure
@@ -331,7 +368,6 @@ def static_array_replace_byte_length_head(
 
     returns: The updated bytes for the source array
     """
-    assert index < array_length, "Index out of bounds"
     offset_for_index = extract_uint16(array_head_and_tail, index * UINT16_SIZE)
     old_item_length = extract_uint16(array_head_and_tail, offset_for_index)
     old_item_end = offset_for_index + old_item_length + UINT16_SIZE
@@ -372,3 +408,10 @@ def _recalculate_head_for_elements_with_byte_length_head(
         tail_offset += extract_uint16(array_head_and_tail, tail_offset) + UINT16_SIZE
         head_offset += UINT16_SIZE
     return array_head_and_tail
+
+
+@__pure
+@subroutine
+def dynamic_assert_index(array: Bytes, index: UInt64) -> None:
+    length = extract_uint16(array, 0)
+    assert index < length, "index out of bounds"

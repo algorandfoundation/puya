@@ -198,18 +198,35 @@ class SubroutineCollector(visitor.IRTraverser):
             self.subroutines.add(subroutine)
             self.visit_all_blocks(subroutine.body)
 
+    def visit_extract_value(self, _: models.ExtractValue) -> None:
+        self.referenced_libs |= (
+            PuyaLibIR.static_array_read_dynamic_element,
+            PuyaLibIR.static_array_read_byte_length_element,
+            PuyaLibIR.dynamic_array_read_dynamic_element,
+            PuyaLibIR.dynamic_array_read_byte_length_element,
+            PuyaLibIR.dynamic_assert_index,
+        )
+
     def visit_replace_value(self, _: models.ReplaceValue) -> None:
         self.referenced_libs |= (
             PuyaLibIR.dynamic_array_replace_byte_length_head,
             PuyaLibIR.dynamic_array_replace_dynamic_element,
             PuyaLibIR.static_array_replace_byte_length_head,
             PuyaLibIR.static_array_replace_dynamic_element,
+            PuyaLibIR.static_array_read_dynamic_element,
+            PuyaLibIR.static_array_read_byte_length_element,
+            PuyaLibIR.dynamic_array_read_dynamic_element,
+            PuyaLibIR.dynamic_array_read_byte_length_element,
+            PuyaLibIR.dynamic_assert_index,
         )
 
     def visit_array_pop(self, _: models.ArrayPop) -> None:
         self.referenced_libs |= (
+            PuyaLibIR.dynamic_array_pop_bit,
             PuyaLibIR.r_trim,
             PuyaLibIR.dynamic_array_pop_fixed_size,
+            PuyaLibIR.dynamic_array_pop_byte_length_head,
+            PuyaLibIR.dynamic_array_pop_dynamic_element,
             PuyaLibIR.box_dynamic_array_pop_fixed_size,
             PuyaLibIR.box_update_offset_dec,
         )
