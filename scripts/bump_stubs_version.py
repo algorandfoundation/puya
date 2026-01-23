@@ -50,6 +50,7 @@ def main() -> int:
         replacement=f'MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("{next_minor_version}")',
     )
     subprocess.run(["uv", "lock"], cwd=STUBS_DIR, check=True)
+    subprocess.run(["uv", "lock"], cwd=VCS_ROOT, check=True)
     print(f"Updated version to {new_version}")
 
     return 0
