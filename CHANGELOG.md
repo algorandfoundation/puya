@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.7.1'></a>
+## v5.7.1 (2026-01-23)
+
+### Fixed
+
+- Updated puyapy to algorand-python 3.4.0.
+
 <a id='changelog-v5.7.0'></a>
 ## v5.7.0 (2026-01-23)
 
