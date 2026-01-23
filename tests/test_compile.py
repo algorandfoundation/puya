@@ -1,4 +1,3 @@
-import json
 import os
 import shutil
 import typing
@@ -16,7 +15,7 @@ from tests.utils import (
     PuyaTestCase,
     load_template_vars,
 )
-from tests.utils.compile import compile_src_from_options, log_to_str
+from tests.utils.compile import compile_src_from_options, log_to_str, normalize_arc56
 from tests.utils.git import check_for_diff
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
@@ -64,9 +63,7 @@ def _compile_test_case(
             encoding="utf8",
         )
 
-    # normalize ARC-56 output
-    for arc56_file in dst_out_dir.rglob("*.arc56.json"):
-        _normalize_arc56(arc56_file)
+    normalize_arc56(dst_out_dir)
 
 
 def _normalize_path(path: Path | str) -> str:
@@ -138,12 +135,3 @@ def _remove_output(path: Path) -> None:
                 shutil.rmtree(prev_out_file)
             elif prev_out_file.suffix != ".log":  # execution log
                 prev_out_file.unlink()
-
-
-def _normalize_arc56(path: Path) -> None:
-    arc56 = json.loads(path.read_text(encoding="utf8"))
-    compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
-    compiler_version["major"] = 99
-    compiler_version["minor"] = 99
-    compiler_version["patch"] = 99
-    path.write_text(json.dumps(arc56, indent=4), encoding="utf8")

@@ -14,6 +14,7 @@ from puya.options import PuyaOptions
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import unique
 from tests import VCS_ROOT
+from tests.utils.compile import normalize_arc56
 from tests.utils.git import check_for_diff
 
 logger = log.get_logger(__name__)
@@ -52,6 +53,9 @@ def compile_contract(
         awst_to_teal(log_ctx, options, compilation_set_validated, {}, awst)
     # note: needs to be outside the with block
     log_ctx.exit_if_errors()
+
+    for out_dir in out_dirs:
+        normalize_arc56(out_dir)
 
     for out_dir in out_dirs:
         diff = check_for_diff(out_dir, VCS_ROOT)
