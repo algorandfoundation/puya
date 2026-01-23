@@ -77,6 +77,38 @@ jobs:
           file-path: sizes.md
           github-token: ${{ steps.app_token.outputs.token }}
 
+  check-stub-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+
+      - name: Generate comment
+        shell: bash # pipefile
+        run: poe -q check_stubs --branch=origin/${{ github.head_ref }} | tee stubs_check.md
+
+      - name: Upsert comment
+        uses: thollander/actions-comment-pull-request@v3
+        if: success() || failure() # always update comment
+        with:
+          comment-tag: stubs_check
+          mode: upsert
+          file-path: stubs_check.md
+          github-token: ${{ steps.app_token.outputs.token }}
+
+
   check-python:
     runs-on: "ubuntu-latest"
     steps:
@@ -230,7 +262,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flags: ["-O0", "-O1", "-O2"]
+        flags: [ "-O0", "-O1", "-O2" ]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -258,7 +290,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flags: ["-O0", "-O1", "-O2"]
+        flags: [ "-O0", "-O1", "-O2" ]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -280,7 +312,7 @@ jobs:
     strategy:
       fail-fast: false # Continue with other matrix jobs even if one fails
       matrix:
-        shell: [cmd, pwsh, bash]
+        shell: [ cmd, pwsh, bash ]
     defaults:
       run:
         shell: ${{ matrix.shell }}
@@ -325,7 +357,7 @@ jobs:
   build-and-test-binaries:
     name: Build and test binaries
     uses: ./.github/workflows/build-binaries.yaml
-    secrets: {}
+    secrets: { }
     with:
       package_prefix: puya-${{ format('pr{0}', github.event.number) }}
       allow_signing: false
