@@ -3,7 +3,7 @@ import algopy as algo
 from test_cases.simple import pkg_a, subs
 
 
-class MyContract(algo.Contract):
+class MyContract(algo.BaseContract):
     """My contract"""
 
     def approval_program(self) -> algo.UInt64:

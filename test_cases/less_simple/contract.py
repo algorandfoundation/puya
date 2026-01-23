@@ -2,7 +2,7 @@
 from algopy import *  # note: star import here to explicitly test that
 
 
-class MyContract(Contract):
+class MyContract(BaseContract):
     """My contract"""
 
     def approval_program(self) -> UInt64:
