@@ -6,6 +6,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.7.0'></a>
+## v5.7.0 (2026-01-23)
+
+### Added
+
+- A new compiler flag, `-treat-warnings-as-errors` or `-Werror`, which causes compilation to fail
+  if any
+  warnings are emitted (disabled by default).
+
+-   Added `itxn.abi_call` method that returns an application call inner transaction, which can be staged as part of a dynamic group via the `.stage()` method.
+
+### Changed
+
+- Binary operations involving booleans now allow `UInt64` and `BigUInt` on
+  their complementary side.
+
+### Fixed
+
+- Source locations for function references now use the location of their _reference_ instead of the
+  location for their _definition_. This also allows these locations to have the correct source file
+  attached to them.
+
+- Removed language server output from console.
+
 <a id='changelog-v5.6.0'></a>
 ## v5.6.0 (2025-12-23)
 
