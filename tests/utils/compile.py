@@ -1,5 +1,6 @@
 import functools
 import inspect
+import json
 import tempfile
 import textwrap
 import typing
@@ -251,3 +252,13 @@ def log_to_str(log: Log, root_dir: Path) -> str:
     else:
         location = ""
     return f"{location}{log.level}: {log.message}"
+
+
+def normalize_arc56(directory: Path) -> None:
+    for arc56_file in directory.rglob("*.arc56.json"):
+        arc56 = json.loads(arc56_file.read_text(encoding="utf8"))
+        compiler_version = arc56.get("compilerInfo", {}).get("compilerVersion", {})
+        compiler_version["major"] = 99
+        compiler_version["minor"] = 99
+        compiler_version["patch"] = 99
+        arc56_file.write_text(json.dumps(arc56, indent=4), encoding="utf8")
