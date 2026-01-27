@@ -131,6 +131,29 @@ def dynamic_array_pop_dynamic_element(array: Bytes) -> tuple[Bytes, Bytes]:
 
 
 @__pure
+@subroutine(inline=True)  # inline=True matches historical behaviour of puya
+def dynamic_array_concat_fixed(
+    *,
+    array: Bytes,
+    new_items_bytes: Bytes,
+    new_items_count: UInt64,
+) -> Bytes:
+    """
+    Concat data to an arc4 dynamic array of fixed size elements
+
+    array: The bytes for the source array
+    new_items_count: The count of new items being added (N)
+    new_items_bytes: THe concatenated bytes of N array elements
+    returns: The updated bytes for the source array
+    """
+    array_length = extract_uint16(array, 0)
+    new_array_length = array_length + new_items_count
+    new_len_u16 = extract(itob(new_array_length), UINT16_OFFSET, 0)
+    result = replace(array, 0, new_len_u16)
+    return result + new_items_bytes
+
+
+@__pure
 @subroutine
 def dynamic_array_concat_bits(
     *, array: Bytes, new_items_bytes: Bytes, new_items_count: UInt64, read_step: UInt64
