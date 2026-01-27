@@ -64,6 +64,10 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
         array_encoding = pop.array_encoding
         element_encoding = array_encoding.element
+        if not element_encoding.is_fixed or element_encoding.is_bit:
+            raise InternalError(
+                "ir.ArrayPop only supports fixed size elements currently", pop.source_location
+            )
         if array_encoding.length_header:
             pop_method = PuyaLibIR.dynamic_array_pop_fixed_size
         else:
