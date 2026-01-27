@@ -235,11 +235,11 @@ subroutine get_tup:
         int 8                                                                                 index#0,"tup_bag",0,8
         box_extract                                                                           index#0,box%box_extract%0#0
         l-load box%box_extract%0#0 0                                                          index#0,box%box_extract%0#0
-        btoi                                                                                  index#0,values%0#0
-        l-load-copy index#0 1                                                                 index#0,values%0#0,index#0 (copy)
-        l-load values%0#0 1                                                                   index#0,index#0 (copy),values%0#0
-        <                                                                                     index#0,tmp%0#1
-        l-load tmp%0#1 0                                                                      index#0,tmp%0#1
+        btoi                                                                                  index#0,tmp%0#1
+        l-load-copy index#0 1                                                                 index#0,tmp%0#1,index#0 (copy)
+        l-load tmp%0#1 1                                                                      index#0,index#0 (copy),tmp%0#1
+        <                                                                                     index#0,tmp%1#1
+        l-load tmp%1#1 0                                                                      index#0,tmp%1#1
         assert // index out of bounds                                                         index#0
         // mutable_native_types/case1_with_tups.py:66
         // return self.tup_bag.value.items[index]
@@ -279,8 +279,8 @@ subroutine sum:
         int 8                                                                                 "tup_bag",0,8
         box_extract                                                                           box%box_extract%0#0
         l-load box%box_extract%0#0 0                                                          box%box_extract%0#0
-        btoi                                                                                  values%0#0
-        v-store values%0#0
+        btoi                                                                                  tmp%0#1
+        v-store tmp%0#1
         int 0                                                                                 0
         l-store value_internal%0#0 0                                                          value_internal%0#0
         l-load value_internal%0#0 0                                                           value_internal%0#0
@@ -291,7 +291,7 @@ subroutine sum:
         // mutable_native_types/case1_with_tups.py:71
         // for i in urange(self.tup_bag.value.count):
         v-load i#0                                                                            i#0
-        v-load values%0#0                                                                     i#0,values%0#0
+        v-load tmp%0#1                                                                        i#0,tmp%0#1
         <                                                                                     continue_looping%0#0
         l-load continue_looping%0#0 0                                                         continue_looping%0#0
         bz sum_after_for@5 ; b sum_for_body@3
@@ -516,8 +516,8 @@ subroutine set_a:
         int 8                                                                                 "tup_bag",0,8
         box_extract                                                                           box%box_extract%0#0
         l-load box%box_extract%0#0 0                                                          box%box_extract%0#0
-        btoi                                                                                  values%0#0
-        v-store values%0#0
+        btoi                                                                                  tmp%0#1
+        v-store tmp%0#1
         int 0                                                                                 0
         l-store value_internal%0#0 0                                                          value_internal%0#0
         l-load value_internal%0#0 0                                                           value_internal%0#0
@@ -528,7 +528,7 @@ subroutine set_a:
         // mutable_native_types/case1_with_tups.py:90
         // for i in urange(self.tup_bag.value.count):
         v-load i#0                                                                            i#0
-        v-load values%0#0                                                                     i#0,values%0#0
+        v-load tmp%0#1                                                                        i#0,tmp%0#1
         <                                                                                     continue_looping%0#0
         l-load continue_looping%0#0 0                                                         continue_looping%0#0
         bz set_a_after_for@5 ; b set_a_for_body@3
@@ -611,8 +611,8 @@ subroutine set_b:
         int 8                                                                                 "tup_bag",0,8
         box_extract                                                                           box%box_extract%0#0
         l-load box%box_extract%0#0 0                                                          box%box_extract%0#0
-        btoi                                                                                  values%0#0
-        v-store values%0#0
+        btoi                                                                                  tmp%0#1
+        v-store tmp%0#1
         int 0                                                                                 0
         l-store value_internal%0#0 0                                                          value_internal%0#0
         l-load value_internal%0#0 0                                                           value_internal%0#0
@@ -623,7 +623,7 @@ subroutine set_b:
         // mutable_native_types/case1_with_tups.py:97
         // for i in urange(self.tup_bag.value.count):
         v-load i#0                                                                            i#0
-        v-load values%0#0                                                                     i#0,values%0#0
+        v-load tmp%0#1                                                                        i#0,tmp%0#1
         <                                                                                     continue_looping%0#0
         l-load continue_looping%0#0 0                                                         continue_looping%0#0
         bz set_b_after_for@5 ; b set_b_for_body@3
@@ -702,14 +702,14 @@ subroutine get_3_tups:
         int 8                                                                                 start#0,"tup_bag",0,8
         box_extract                                                                           start#0,box%box_extract%0#0
         l-load box%box_extract%0#0 0                                                          start#0,box%box_extract%0#0
-        btoi                                                                                  start#0,values%0#0
-        l-load-copy start#0 1                                                                 start#0,values%0#0,start#0 (copy)
-        int 3                                                                                 start#0,values%0#0,start#0 (copy),3
-        +                                                                                     start#0,values%0#0,tmp%0#1
-        l-load values%0#0 1                                                                   start#0,tmp%0#1,values%0#0
-        l-load tmp%0#1 1                                                                      start#0,values%0#0,tmp%0#1
-        >=                                                                                    start#0,tmp%1#1
-        l-load tmp%1#1 0                                                                      start#0,tmp%1#1
+        btoi                                                                                  start#0,tmp%0#1
+        l-load-copy start#0 1                                                                 start#0,tmp%0#1,start#0 (copy)
+        int 3                                                                                 start#0,tmp%0#1,start#0 (copy),3
+        +                                                                                     start#0,tmp%0#1,tmp%1#1
+        l-load tmp%0#1 1                                                                      start#0,tmp%1#1,tmp%0#1
+        l-load tmp%1#1 1                                                                      start#0,tmp%0#1,tmp%1#1
+        >=                                                                                    start#0,tmp%2#1
+        l-load tmp%2#1 0                                                                      start#0,tmp%2#1
         assert // not enough items                                                            start#0
         // mutable_native_types/case1_with_tups.py:104
         // items = self.tup_bag.value.items.copy()
@@ -734,9 +734,9 @@ subroutine get_3_tups:
         // items[start + 1],
         l-load-copy start#0 3                                                                 start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,start#0 (copy)
         int 1                                                                                 start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,start#0 (copy),1
-        +                                                                                     start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%2#1
-        l-load tmp%2#1 0                                                                      start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%2#1
-        int 16                                                                                start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%2#1,16
+        +                                                                                     start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%5#0
+        l-load tmp%5#0 0                                                                      start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%5#0
+        int 16                                                                                start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%5#0,16
         *                                                                                     start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%bytes_offset%1#0
         l-load-copy box%box_extract%2#0 3                                                     start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%bytes_offset%1#0,box%box_extract%2#0 (copy)
         l-load aggregate%bytes_offset%1#0 1                                                   start#0,box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,box%box_extract%2#0 (copy),aggregate%bytes_offset%1#0
@@ -750,9 +750,9 @@ subroutine get_3_tups:
         // items[start + 2],
         l-load start#0 5                                                                      box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,start#0
         int 2                                                                                 box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,start#0,2
-        +                                                                                     box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%3#1
-        l-load tmp%3#1 0                                                                      box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%3#1
-        int 16                                                                                box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%3#1,16
+        +                                                                                     box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%8#0
+        l-load tmp%8#0 0                                                                      box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%8#0
+        int 16                                                                                box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%8#0,16
         *                                                                                     box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%bytes_offset%2#0
         l-load box%box_extract%2#0 5                                                          aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%bytes_offset%2#0,box%box_extract%2#0
         l-load aggregate%bytes_offset%2#0 1                                                   aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,box%box_extract%2#0,aggregate%bytes_offset%2#0
@@ -810,8 +810,8 @@ subroutine get_all_tups:
         int 8                                                                                 "tup_bag",0,8
         box_extract                                                                           box%box_extract%1#0
         l-load box%box_extract%1#0 0                                                          box%box_extract%1#0
-        btoi                                                                                  values%0#0
-        v-store values%0#0
+        btoi                                                                                  tmp%0#1
+        v-store tmp%0#1
         int 0                                                                                 0
         l-store value_internal%0#0 0                                                          value_internal%0#0
         l-load value_internal%0#0 0                                                           value_internal%0#0
@@ -822,7 +822,7 @@ subroutine get_all_tups:
         // mutable_native_types/case1_with_tups.py:119
         // for i in urange(self.tup_bag.value.count):
         v-load i#0                                                                            i#0
-        v-load values%0#0                                                                     i#0,values%0#0
+        v-load tmp%0#1                                                                        i#0,tmp%0#1
         <                                                                                     continue_looping%0#0
         l-load continue_looping%0#0 0                                                         continue_looping%0#0
         bz get_all_tups_after_for@5 ; b get_all_tups_for_body@3
@@ -903,23 +903,23 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         int 8                                                                                 (𝕡) tup.a#0,tup.b#0 | "tup_bag",0,8
         box_extract                                                                           (𝕡) tup.a#0,tup.b#0 | box%box_extract%0#0
         l-load box%box_extract%0#0 0                                                          (𝕡) tup.a#0,tup.b#0 | box%box_extract%0#0
-        btoi                                                                                  (𝕡) tup.a#0,tup.b#0 | values%0#0
-        l-load-copy values%0#0 0                                                              (𝕡) tup.a#0,tup.b#0 | values%0#0,values%0#0 (copy)
-        int 8                                                                                 (𝕡) tup.a#0,tup.b#0 | values%0#0,values%0#0 (copy),8
-        <                                                                                     (𝕡) tup.a#0,tup.b#0 | values%0#0,tmp%0#0
-        l-load tmp%0#0 0                                                                      (𝕡) tup.a#0,tup.b#0 | values%0#0,tmp%0#0
-        assert // too many tups                                                               (𝕡) tup.a#0,tup.b#0 | values%0#0
+        btoi                                                                                  (𝕡) tup.a#0,tup.b#0 | tmp%0#0
+        l-load-copy tmp%0#0 0                                                                 (𝕡) tup.a#0,tup.b#0 | tmp%0#0,tmp%0#0 (copy)
+        int 8                                                                                 (𝕡) tup.a#0,tup.b#0 | tmp%0#0,tmp%0#0 (copy),8
+        <                                                                                     (𝕡) tup.a#0,tup.b#0 | tmp%0#0,tmp%1#0
+        l-load tmp%1#0 0                                                                      (𝕡) tup.a#0,tup.b#0 | tmp%0#0,tmp%1#0
+        assert // too many tups                                                               (𝕡) tup.a#0,tup.b#0 | tmp%0#0
         // mutable_native_types/case1_with_tups.py:60
         // self.tup_bag.value.items[self.tup_bag.value.count] = tup
-        p-load tup.a#0                                                                        (𝕡) tup.a#0,tup.b#0 | values%0#0,tup.a#0 (copy)
-        itob                                                                                  (𝕡) tup.a#0,tup.b#0 | values%0#0,aggregate%val_as_bytes%0#0
-        p-load tup.b#0                                                                        (𝕡) tup.a#0,tup.b#0 | values%0#0,aggregate%val_as_bytes%0#0,tup.b#0 (copy)
-        itob                                                                                  (𝕡) tup.a#0,tup.b#0 | values%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%0#0 1                                                   (𝕡) tup.a#0,tup.b#0 | values%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                   (𝕡) tup.a#0,tup.b#0 | values%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                                (𝕡) tup.a#0,tup.b#0 | values%0#0,aggregate%head%1#0
-        l-load values%0#0 1                                                                   (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,values%0#0
-        int 16                                                                                (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,values%0#0,16
+        p-load tup.a#0                                                                        (𝕡) tup.a#0,tup.b#0 | tmp%0#0,tup.a#0 (copy)
+        itob                                                                                  (𝕡) tup.a#0,tup.b#0 | tmp%0#0,aggregate%val_as_bytes%0#0
+        p-load tup.b#0                                                                        (𝕡) tup.a#0,tup.b#0 | tmp%0#0,aggregate%val_as_bytes%0#0,tup.b#0 (copy)
+        itob                                                                                  (𝕡) tup.a#0,tup.b#0 | tmp%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                   (𝕡) tup.a#0,tup.b#0 | tmp%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                   (𝕡) tup.a#0,tup.b#0 | tmp%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                (𝕡) tup.a#0,tup.b#0 | tmp%0#0,aggregate%head%1#0
+        l-load tmp%0#0 1                                                                      (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,tmp%0#0
+        int 16                                                                                (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,tmp%0#0,16
         *                                                                                     (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%element_offset%0#0
         int 8                                                                                 (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%element_offset%0#0,8
         l-load box%element_offset%0#0 1                                                       (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,8,box%element_offset%0#0
@@ -935,11 +935,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         int 8                                                                                 (𝕡) tup.a#0,tup.b#0 | "tup_bag",0,8
         box_extract                                                                           (𝕡) tup.a#0,tup.b#0 | box%box_extract%2#0
         l-load box%box_extract%2#0 0                                                          (𝕡) tup.a#0,tup.b#0 | box%box_extract%2#0
-        btoi                                                                                  (𝕡) tup.a#0,tup.b#0 | values%2#0
-        l-load values%2#0 0                                                                   (𝕡) tup.a#0,tup.b#0 | values%2#0
-        int 1                                                                                 (𝕡) tup.a#0,tup.b#0 | values%2#0,1
-        +                                                                                     (𝕡) tup.a#0,tup.b#0 | tmp%1#0
-        l-load tmp%1#0 0                                                                      (𝕡) tup.a#0,tup.b#0 | tmp%1#0
+        btoi                                                                                  (𝕡) tup.a#0,tup.b#0 | tmp%3#0
+        l-load tmp%3#0 0                                                                      (𝕡) tup.a#0,tup.b#0 | tmp%3#0
+        int 1                                                                                 (𝕡) tup.a#0,tup.b#0 | tmp%3#0,1
+        +                                                                                     (𝕡) tup.a#0,tup.b#0 | tmp%4#0
+        l-load tmp%4#0 0                                                                      (𝕡) tup.a#0,tup.b#0 | tmp%4#0
         itob                                                                                  (𝕡) tup.a#0,tup.b#0 | aggregate%val_as_bytes%2#0
         byte "tup_bag"                                                                        (𝕡) tup.a#0,tup.b#0 | aggregate%val_as_bytes%2#0,"tup_bag"
         int 0                                                                                 (𝕡) tup.a#0,tup.b#0 | aggregate%val_as_bytes%2#0,"tup_bag",0
@@ -968,11 +968,11 @@ subroutine _check_owner:
         int 136                                                                               "tup_bag",136
         int 32                                                                                "tup_bag",136,32
         box_extract                                                                           box%box_extract%1#0
-        txn Sender                                                                            box%box_extract%1#0,tmp%0#0
-        l-load box%box_extract%1#0 1                                                          tmp%0#0,box%box_extract%1#0
-        l-load tmp%0#0 1                                                                      box%box_extract%1#0,tmp%0#0
-        ==                                                                                    tmp%1#0
-        l-load tmp%1#0 0                                                                      tmp%1#0
+        txn Sender                                                                            box%box_extract%1#0,tmp%2#0
+        l-load box%box_extract%1#0 1                                                          tmp%2#0,box%box_extract%1#0
+        l-load tmp%2#0 1                                                                      box%box_extract%1#0,tmp%2#0
+        ==                                                                                    tmp%3#0
+        l-load tmp%3#0 0                                                                      tmp%3#0
         assert // sender not authorized
         // mutable_native_types/case1_with_tups.py:128
         // self.tup_bag.value.app == Global.current_application_id
@@ -981,16 +981,16 @@ subroutine _check_owner:
         int 8                                                                                 "tup_bag",168,8
         box_extract                                                                           box%box_extract%2#0
         l-load box%box_extract%2#0 0                                                          box%box_extract%2#0
-        btoi                                                                                  values%2#0
-        global CurrentApplicationID                                                           values%2#0,tmp%2#0
-        l-load values%2#0 1                                                                   tmp%2#0,values%2#0
-        l-load tmp%2#0 1                                                                      values%2#0,tmp%2#0
-        ==                                                                                    tmp%3#0
+        btoi                                                                                  tmp%4#0
+        global CurrentApplicationID                                                           tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                                      tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                                      tmp%4#0,tmp%5#0
+        ==                                                                                    tmp%6#0
         // mutable_native_types/case1_with_tups.py:127-129
         // assert (
         //     self.tup_bag.value.app == Global.current_application_id
         // ), "this error should be impossible"
-        l-load tmp%3#0 0                                                                      tmp%3#0
+        l-load tmp%6#0 0                                                                      tmp%6#0
         assert // this error should be impossible
         retsub
 

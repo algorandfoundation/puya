@@ -32,30 +32,25 @@ main___algots__.defaultCreate@9:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
-    proto 2 2
+    proto 2 1
     frame_dig -2
+    len
+    frame_dig -1
+    -
+    frame_dig -2
+    intc_1 // 0
+    uncover 2
+    substring3
+    dup
     intc_1 // 0
     extract_uint16
     intc_0 // 1
     -
     itob
     extract 6 0
-    frame_dig -2
-    swap
     replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    uncover 2
-    intc_1 // 0
-    uncover 3
-    substring3
     retsub
 
 
@@ -63,17 +58,13 @@ dynamic_array_pop_fixed_size:
 doThings:
     intc_1 // 0
     dupn 2
+    pushbytes ""
     pushint 5
     itob
     bytec_0 // 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005
     pushint 8
     callsub dynamic_array_pop_fixed_size
     dup
-    uncover 2
-    btoi
-    pushint 5
-    ==
-    assert
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     dup
@@ -141,6 +132,8 @@ doThings_bool_merge@8:
     bury 3
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
+    dup
+    bury 5
     pushint 5
     ==
     bz doThings_bool_false@15
@@ -178,13 +171,23 @@ doThings_bool_merge@8:
 
 doThings_bool_merge@16:
     assert // assert target is match for conditions
-    dig 1
+    dig 3
+    intc_0 // 1
+    -
+    dig 2
+    dup
+    cover 2
+    extract 2 0
+    swap
+    pushint 8
+    *
+    extract_uint64
+    swap
     pushint 8
     callsub dynamic_array_pop_fixed_size
     dup
     cover 2
     bury 4
-    btoi
     pushint 5
     ==
     assert
@@ -322,113 +325,9 @@ doThings_bool_merge@34:
     dig 1
     extract 2 0
     dup
-    bury 5
+    bury 6
     pushbytes 0x00040000000000000000000000000000000000000000000000000000000000000000
     swap
-    concat // on error: max array length exceeded
-    dup
-    extract 2 0
-    len
-    pushint 8
-    /
-    itob
-    extract 6 2
-    replace2 0
-    dup
-    bury 6
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 15
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 2
-    extract_uint64
-    bnz doThings_bool_false@105
-    dig 4
-    intc_2 // 10
-    extract_uint64
-    bnz doThings_bool_false@105
-    dig 4
-    pushint 18
-    extract_uint64
-    bnz doThings_bool_false@105
-    dig 4
-    pushint 26
-    extract_uint64
-    bnz doThings_bool_false@105
-    dig 4
-    pushint 34
-    extract_uint64
-    intc_0 // 1
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 42
-    extract_uint64
-    intc_2 // 10
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 50
-    extract_uint64
-    pushint 3
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 58
-    extract_uint64
-    intc_3 // 4
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 66
-    extract_uint64
-    intc_0 // 1
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 74
-    extract_uint64
-    intc_2 // 10
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 82
-    extract_uint64
-    pushint 3
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 90
-    extract_uint64
-    intc_3 // 4
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 98
-    extract_uint64
-    pushint 11
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 106
-    extract_uint64
-    pushint 12
-    ==
-    bz doThings_bool_false@105
-    dig 4
-    pushint 114
-    extract_uint64
-    pushint 13
-    ==
-    bz doThings_bool_false@105
-    intc_0 // 1
-
-doThings_bool_merge@106:
-    assert // assert target is match for conditions
-    bytec_0 // 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005
-    dig 4
     concat // on error: max array length exceeded
     dup
     extract 2 0
@@ -442,100 +341,204 @@ doThings_bool_merge@106:
     bury 7
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
+    pushint 15
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 2
+    extract_uint64
+    bnz doThings_bool_false@105
+    dig 5
+    intc_2 // 10
+    extract_uint64
+    bnz doThings_bool_false@105
+    dig 5
+    pushint 18
+    extract_uint64
+    bnz doThings_bool_false@105
+    dig 5
+    pushint 26
+    extract_uint64
+    bnz doThings_bool_false@105
+    dig 5
+    pushint 34
+    extract_uint64
+    intc_0 // 1
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 42
+    extract_uint64
+    intc_2 // 10
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 50
+    extract_uint64
+    pushint 3
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 58
+    extract_uint64
+    intc_3 // 4
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 66
+    extract_uint64
+    intc_0 // 1
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 74
+    extract_uint64
+    intc_2 // 10
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 82
+    extract_uint64
+    pushint 3
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 90
+    extract_uint64
+    intc_3 // 4
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 98
+    extract_uint64
+    pushint 11
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 106
+    extract_uint64
+    pushint 12
+    ==
+    bz doThings_bool_false@105
+    dig 5
+    pushint 114
+    extract_uint64
+    pushint 13
+    ==
+    bz doThings_bool_false@105
+    intc_0 // 1
+
+doThings_bool_merge@106:
+    assert // assert target is match for conditions
+    bytec_0 // 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005
+    dig 5
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    pushint 8
+    /
+    itob
+    extract 6 2
+    replace2 0
+    dup
+    bury 8
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
     pushint 16
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 2
     extract_uint64
     intc_0 // 1
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     intc_2 // 10
     extract_uint64
     pushint 2
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 18
     extract_uint64
     pushint 3
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 26
     extract_uint64
     intc_3 // 4
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 34
     extract_uint64
     pushint 5
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 42
     extract_uint64
     intc_0 // 1
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 50
     extract_uint64
     intc_2 // 10
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 58
     extract_uint64
     pushint 3
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 66
     extract_uint64
     intc_3 // 4
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 74
     extract_uint64
     intc_0 // 1
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 82
     extract_uint64
     intc_2 // 10
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 90
     extract_uint64
     pushint 3
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 98
     extract_uint64
     intc_3 // 4
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 106
     extract_uint64
     pushint 11
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 114
     extract_uint64
     pushint 12
     ==
     bz doThings_bool_false@124
-    dig 5
+    dig 6
     pushint 122
     extract_uint64
     pushint 13

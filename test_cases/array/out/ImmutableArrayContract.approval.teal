@@ -28,30 +28,25 @@ main___algopy_default_create@31:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
-    proto 2 2
+    proto 2 1
     frame_dig -2
+    len
+    frame_dig -1
+    -
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    substring3
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     -
     itob
     extract 6 0
-    frame_dig -2
-    swap
     replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    uncover 2
-    intc_0 // 0
-    uncover 3
-    substring3
     retsub
 
 
@@ -622,8 +617,7 @@ test_uint64_array_for_header@2:
     dig 1
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
-    bury 3
-    pop
+    bury 2
     // array/immutable.py:505
     // for _i in urange(x):
     dup
@@ -1262,7 +1256,6 @@ test_fixed_size_tuple_array_after_for@5:
     // arr = arr.pop()
     pushint 16
     callsub dynamic_array_pop_fixed_size
-    bury 1
     // array/immutable.py:192
     // assert arr.length == 4
     dup
