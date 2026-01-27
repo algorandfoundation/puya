@@ -463,9 +463,9 @@ subroutine deposit:
         // deposited=existing.deposited + xfer.asset_amount,
         l-load existing#0 4                                                                           tmp%9#0,box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,existing#0
         int 0                                                                                         tmp%9#0,box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,existing#0,0
-        extract_uint64                                                                                tmp%9#0,box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,values%4#0
-        l-load tmp%9#0 6                                                                              box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,values%4#0,tmp%9#0
-        +                                                                                             box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%12#0
+        extract_uint64                                                                                tmp%9#0,box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%15#0
+        l-load tmp%9#0 6                                                                              box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%15#0,tmp%9#0
+        +                                                                                             box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%17#0
         // marketplace_demo/marketplace_with_mutable_struct.py:129-135
         // self.listings[key] = ListingValue(
         //     bid=existing.bid,
@@ -683,30 +683,30 @@ subroutine buy:
         // marketplace_demo/marketplace_with_mutable_struct.py:74
         // assert _quotient_high == 0
         l-load _quotient_high#0 0                                                                     owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,_quotient_high#0
-        !                                                                                             owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%8#1
+        !                                                                                             owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%8#2
         assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_mutable_struct.py:165
         // assert buy_pay.sender == Txn.sender
         l-load-copy buy_pay#0 5                                                                       owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,buy_pay#0 (copy)
-        gtxns Sender                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%2#1
-        txn Sender                                                                                    owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%2#1,tmp%3#1
-        l-load tmp%2#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1,tmp%2#1
-        l-load tmp%3#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%2#1,tmp%3#1
-        ==                                                                                            owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%4#1
+        gtxns Sender                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1
+        txn Sender                                                                                    owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1,tmp%4#1
+        l-load tmp%3#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%4#1,tmp%3#1
+        l-load tmp%4#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1,tmp%4#1
+        ==                                                                                            owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%5#1
         assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_mutable_struct.py:166
         // assert buy_pay.receiver == owner
         l-load-copy buy_pay#0 5                                                                       owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,buy_pay#0 (copy)
-        gtxns Receiver                                                                                owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%5#1
-        l-load owner#0 8                                                                              asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%5#1,owner#0
-        ==                                                                                            asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%6#1
+        gtxns Receiver                                                                                owner#0,asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%6#1
+        l-load owner#0 8                                                                              asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%6#1,owner#0
+        ==                                                                                            asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%7#1
         assert                                                                                        asset#0,buy_pay#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_mutable_struct.py:167
         // assert buy_pay.amount == amount_to_be_paid
         l-load buy_pay#0 5                                                                            asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,buy_pay#0
-        gtxns Amount                                                                                  asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%7#1
-        l-load amount_to_be_paid#1 1                                                                  asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,tmp%7#1,amount_to_be_paid#1
-        ==                                                                                            asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,tmp%8#1
+        gtxns Amount                                                                                  asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%8#1
+        l-load amount_to_be_paid#1 1                                                                  asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,tmp%8#1,amount_to_be_paid#1
+        ==                                                                                            asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0,tmp%9#0
         assert                                                                                        asset#0,quantity#0,box_prefixed_key%0#0,listing#0,price#0
         // marketplace_demo/marketplace_with_mutable_struct.py:170
         // bid=listing.bid,
@@ -724,9 +724,9 @@ subroutine buy:
         // deposited=listing.deposited - quantity,
         l-load listing#0 4                                                                            asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,listing#0
         int 0                                                                                         asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,listing#0,0
-        extract_uint64                                                                                asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,values%5#0
-        l-load-copy quantity#0 6                                                                      asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,values%5#0,quantity#0 (copy)
-        -                                                                                             asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%9#0
+        extract_uint64                                                                                asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%14#0
+        l-load-copy quantity#0 6                                                                      asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%14#0,quantity#0 (copy)
+        -                                                                                             asset#0,quantity#0,box_prefixed_key%0#0,price#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%15#0
         // marketplace_demo/marketplace_with_mutable_struct.py:169-175
         // self.listings[key] = ListingValue(
         //     bid=listing.bid,
@@ -837,10 +837,10 @@ subroutine withdraw:
         extract 16 32                                                                                 aggregate%extract%0#0
         l-store-copy aggregate%extract%0#0 0                                                          aggregate%extract%0#0,aggregate%extract%0#0 (copy)
         v-store aggregate%extract%0#0                                                                 aggregate%extract%0#0
-        global ZeroAddress                                                                            aggregate%extract%0#0,tmp%2#1
-        l-load aggregate%extract%0#0 1                                                                tmp%2#1,aggregate%extract%0#0
-        l-load tmp%2#1 1                                                                              aggregate%extract%0#0,tmp%2#1
-        !=                                                                                            tmp%3#1
+        global ZeroAddress                                                                            aggregate%extract%0#0,tmp%3#1
+        l-load aggregate%extract%0#0 1                                                                tmp%3#1,aggregate%extract%0#0
+        l-load tmp%3#1 1                                                                              aggregate%extract%0#0,tmp%3#1
+        !=                                                                                            tmp%4#0
         bz withdraw_after_if_else@4 ; b withdraw_if_body@2
 
     withdraw_if_body@2:
@@ -952,7 +952,7 @@ subroutine withdraw:
         txn Sender                                                                                    inner_txn_params%2%%param_AssetReceiver_idx_0#0
         v-load listing#0                                                                              inner_txn_params%2%%param_AssetReceiver_idx_0#0,listing#0
         int 0                                                                                         inner_txn_params%2%%param_AssetReceiver_idx_0#0,listing#0,0
-        extract_uint64                                                                                inner_txn_params%2%%param_AssetReceiver_idx_0#0,values%4#0
+        extract_uint64                                                                                inner_txn_params%2%%param_AssetReceiver_idx_0#0,tmp%9#0
         itxn_field AssetAmount                                                                        inner_txn_params%2%%param_AssetReceiver_idx_0#0
         l-load inner_txn_params%2%%param_AssetReceiver_idx_0#0 0                                      inner_txn_params%2%%param_AssetReceiver_idx_0#0
         itxn_field AssetReceiver
@@ -1064,10 +1064,10 @@ subroutine bid:
         extract 16 32                                                                                 aggregate%extract%0#0
         l-store-copy aggregate%extract%0#0 0                                                          aggregate%extract%0#0,aggregate%extract%0#0 (copy)
         v-store aggregate%extract%0#0                                                                 aggregate%extract%0#0
-        global ZeroAddress                                                                            aggregate%extract%0#0,tmp%1#1
-        l-load aggregate%extract%0#0 1                                                                tmp%1#1,aggregate%extract%0#0
-        l-load tmp%1#1 1                                                                              aggregate%extract%0#0,tmp%1#1
-        !=                                                                                            tmp%2#1
+        global ZeroAddress                                                                            aggregate%extract%0#0,tmp%2#1
+        l-load aggregate%extract%0#0 1                                                                tmp%2#1,aggregate%extract%0#0
+        l-load tmp%2#1 1                                                                              aggregate%extract%0#0,tmp%2#1
+        !=                                                                                            tmp%3#1
         bz bid_after_if_else@4 ; b bid_if_body@2
 
     bid_if_body@2:
@@ -1079,7 +1079,7 @@ subroutine bid:
         extract_uint64                                                                                listing#0,price#1
         v-load unitary_price#0                                                                        listing#0,price#1,unitary_price#0
         l-load-copy price#1 1                                                                         listing#0,price#1,unitary_price#0,price#1 (copy)
-        >                                                                                             listing#0,price#1,tmp%3#1
+        >                                                                                             listing#0,price#1,tmp%5#1
         assert                                                                                        listing#0,price#1
         // marketplace_demo/marketplace_with_mutable_struct.py:217
         // listing.bid, listing.bidUnitaryPrice, asset.decimals
@@ -1115,7 +1115,7 @@ subroutine bid:
         // marketplace_demo/marketplace_with_mutable_struct.py:74
         // assert _quotient_high == 0
         l-load _quotient_high#0 0                                                                     amount_to_be_paid#0,_quotient_high#0
-        !                                                                                             amount_to_be_paid#0,tmp%8#1
+        !                                                                                             amount_to_be_paid#0,tmp%8#0
         assert                                                                                        amount_to_be_paid#0
         // marketplace_demo/marketplace_with_mutable_struct.py:220
         // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
@@ -1165,33 +1165,33 @@ subroutine bid:
         // marketplace_demo/marketplace_with_mutable_struct.py:74
         // assert _quotient_high == 0
         l-load _quotient_high#0 0                                                                     unitary_price#0,quantity#0,amount_to_be_paid#0,_quotient_high#0
-        !                                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,tmp%8#1
+        !                                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,tmp%8#0
         assert                                                                                        unitary_price#0,quantity#0,amount_to_be_paid#0
         // marketplace_demo/marketplace_with_mutable_struct.py:224
         // assert bid_pay.sender == Txn.sender
         v-load bid_pay#0                                                                              unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0
         l-store-copy bid_pay#0 0                                                                      unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,bid_pay#0 (copy)
-        gtxns Sender                                                                                  unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%6#1
-        txn Sender                                                                                    unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%6#1,tmp%7#1
-        l-load tmp%6#1 1                                                                              unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%7#1,tmp%6#1
-        l-load tmp%7#1 1                                                                              unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%6#1,tmp%7#1
-        ==                                                                                            unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%8#1
+        gtxns Sender                                                                                  unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%11#0
+        txn Sender                                                                                    unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%11#0,tmp%12#0
+        l-load tmp%11#0 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%12#0,tmp%11#0
+        l-load tmp%12#0 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%11#0,tmp%12#0
+        ==                                                                                            unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%13#0
         assert                                                                                        unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0
         // marketplace_demo/marketplace_with_mutable_struct.py:225
         // assert bid_pay.receiver == Global.current_application_address
         l-load-copy bid_pay#0 0                                                                       unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,bid_pay#0 (copy)
-        gtxns Receiver                                                                                unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%9#1
-        global CurrentApplicationAddress                                                              unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%9#1,tmp%10#1
-        l-load tmp%9#1 1                                                                              unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%10#1,tmp%9#1
-        l-load tmp%10#1 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%9#1,tmp%10#1
-        ==                                                                                            unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%11#0
+        gtxns Receiver                                                                                unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%14#0
+        global CurrentApplicationAddress                                                              unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%14#0,tmp%15#0
+        l-load tmp%14#0 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%15#0,tmp%14#0
+        l-load tmp%15#0 1                                                                             unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%14#0,tmp%15#0
+        ==                                                                                            unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0,tmp%16#0
         assert                                                                                        unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0
         // marketplace_demo/marketplace_with_mutable_struct.py:226
         // assert bid_pay.amount == amount_to_be_bid
         l-load bid_pay#0 0                                                                            unitary_price#0,quantity#0,amount_to_be_paid#0,bid_pay#0
-        gtxns Amount                                                                                  unitary_price#0,quantity#0,amount_to_be_paid#0,tmp%12#0
-        l-load amount_to_be_paid#0 1                                                                  unitary_price#0,quantity#0,tmp%12#0,amount_to_be_paid#0
-        ==                                                                                            unitary_price#0,quantity#0,tmp%13#0
+        gtxns Amount                                                                                  unitary_price#0,quantity#0,amount_to_be_paid#0,tmp%17#0
+        l-load amount_to_be_paid#0 1                                                                  unitary_price#0,quantity#0,tmp%17#0,amount_to_be_paid#0
+        ==                                                                                            unitary_price#0,quantity#0,tmp%18#0
         assert                                                                                        unitary_price#0,quantity#0
         // marketplace_demo/marketplace_with_mutable_struct.py:229
         // deposited=listing.deposited,
@@ -1204,7 +1204,7 @@ subroutine bid:
         extract 8 8                                                                                   unitary_price#0,quantity#0,aggregate%extract%3#0,aggregate%extract%4#0
         // marketplace_demo/marketplace_with_mutable_struct.py:231
         // bidder=Txn.sender,
-        txn Sender                                                                                    unitary_price#0,quantity#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%14#0
+        txn Sender                                                                                    unitary_price#0,quantity#0,aggregate%extract%3#0,aggregate%extract%4#0,tmp%21#0
         // marketplace_demo/marketplace_with_mutable_struct.py:228-234
         // self.listings[key] = ListingValue(
         //     deposited=listing.deposited,
@@ -1213,10 +1213,10 @@ subroutine bid:
         //     bid=quantity,
         //     bidUnitaryPrice=unitary_price,
         // )
-        l-load aggregate%extract%3#0 2                                                                unitary_price#0,quantity#0,aggregate%extract%4#0,tmp%14#0,aggregate%extract%3#0
-        l-load aggregate%extract%4#0 2                                                                unitary_price#0,quantity#0,tmp%14#0,aggregate%extract%3#0,aggregate%extract%4#0
-        concat                                                                                        unitary_price#0,quantity#0,tmp%14#0,aggregate%head%4#0
-        l-load tmp%14#0 1                                                                             unitary_price#0,quantity#0,aggregate%head%4#0,tmp%14#0
+        l-load aggregate%extract%3#0 2                                                                unitary_price#0,quantity#0,aggregate%extract%4#0,tmp%21#0,aggregate%extract%3#0
+        l-load aggregate%extract%4#0 2                                                                unitary_price#0,quantity#0,tmp%21#0,aggregate%extract%3#0,aggregate%extract%4#0
+        concat                                                                                        unitary_price#0,quantity#0,tmp%21#0,aggregate%head%4#0
+        l-load tmp%21#0 1                                                                             unitary_price#0,quantity#0,aggregate%head%4#0,tmp%21#0
         concat                                                                                        unitary_price#0,quantity#0,aggregate%head%5#0
         l-load quantity#0 1                                                                           unitary_price#0,aggregate%head%5#0,quantity#0
         itob                                                                                          unitary_price#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
@@ -1293,35 +1293,35 @@ subroutine accept_bid:
         extract 16 32                                                                                 listing#0,aggregate%extract%0#0
         l-store-copy aggregate%extract%0#0 0                                                          listing#0,aggregate%extract%0#0,aggregate%extract%0#0 (copy)
         v-store aggregate%extract%0#0                                                                 listing#0,aggregate%extract%0#0
-        global ZeroAddress                                                                            listing#0,aggregate%extract%0#0,tmp%2#1
-        l-load aggregate%extract%0#0 1                                                                listing#0,tmp%2#1,aggregate%extract%0#0
-        l-load tmp%2#1 1                                                                              listing#0,aggregate%extract%0#0,tmp%2#1
-        !=                                                                                            listing#0,tmp%3#1
+        global ZeroAddress                                                                            listing#0,aggregate%extract%0#0,tmp%3#1
+        l-load aggregate%extract%0#0 1                                                                listing#0,tmp%3#1,aggregate%extract%0#0
+        l-load tmp%3#1 1                                                                              listing#0,aggregate%extract%0#0,tmp%3#1
+        !=                                                                                            listing#0,tmp%4#0
         assert                                                                                        listing#0
         // marketplace_demo/marketplace_with_mutable_struct.py:243
         // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
         l-load-copy listing#0 0                                                                       listing#0,listing#0 (copy)
         int 0                                                                                         listing#0,listing#0 (copy),0
-        extract_uint64                                                                                listing#0,values%1#0
-        l-store-copy values%1#0 1                                                                     values%1#0,listing#0,values%1#0 (copy)
-        v-store values%1#0                                                                            values%1#0,listing#0
-        l-load listing#0 0                                                                            values%1#0,listing#0
-        int 48                                                                                        values%1#0,listing#0,48
-        extract_uint64                                                                                values%1#0,values%2#0
-        l-store-copy values%2#0 0                                                                     values%1#0,values%2#0,values%2#0 (copy)
-        v-store values%2#0                                                                            values%1#0,values%2#0
-        l-load values%1#0 1                                                                           values%2#0,values%1#0
-        l-load values%2#0 1                                                                           values%1#0,values%2#0
-        <                                                                                             tmp%4#0
+        extract_uint64                                                                                listing#0,tmp%5#0
+        l-store-copy tmp%5#0 1                                                                        tmp%5#0,listing#0,tmp%5#0 (copy)
+        v-store tmp%5#0                                                                               tmp%5#0,listing#0
+        l-load listing#0 0                                                                            tmp%5#0,listing#0
+        int 48                                                                                        tmp%5#0,listing#0,48
+        extract_uint64                                                                                tmp%5#0,tmp%6#0
+        l-store-copy tmp%6#0 0                                                                        tmp%5#0,tmp%6#0,tmp%6#0 (copy)
+        v-store tmp%6#0                                                                               tmp%5#0,tmp%6#0
+        l-load tmp%5#0 1                                                                              tmp%6#0,tmp%5#0
+        l-load tmp%6#0 1                                                                              tmp%5#0,tmp%6#0
+        <                                                                                             tmp%7#0
         bz accept_bid_ternary_false@3 ; b accept_bid_ternary_true@2
 
     accept_bid_ternary_true@2:
-        v-load values%1#0                                                                             values%1#0
+        v-load tmp%5#0                                                                                tmp%5#0
         v-store min_quantity#0
         b accept_bid_ternary_merge@4
 
     accept_bid_ternary_false@3:
-        v-load values%2#0                                                                             values%2#0
+        v-load tmp%6#0                                                                                tmp%6#0
         v-store min_quantity#0
         b accept_bid_ternary_merge@4
 
@@ -1363,7 +1363,7 @@ subroutine accept_bid:
         // marketplace_demo/marketplace_with_mutable_struct.py:74
         // assert _quotient_high == 0
         l-load _quotient_high#0 0                                                                     listing#0,asset#0,price#0,min_quantity#0,amount_to_be_paid#0,_quotient_high#0
-        !                                                                                             listing#0,asset#0,price#0,min_quantity#0,amount_to_be_paid#0,tmp%8#1
+        !                                                                                             listing#0,asset#0,price#0,min_quantity#0,amount_to_be_paid#0,tmp%8#0
         assert                                                                                        listing#0,asset#0,price#0,min_quantity#0,amount_to_be_paid#0
         // marketplace_demo/marketplace_with_mutable_struct.py:249
         // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
@@ -1407,14 +1407,14 @@ subroutine accept_bid:
         extract 8 8                                                                                   price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0
         // marketplace_demo/marketplace_with_mutable_struct.py:259
         // deposited=listing.deposited - min_quantity,
-        v-load values%1#0                                                                             price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,values%1#0
-        l-load-copy min_quantity#0 2                                                                  price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,values%1#0,min_quantity#0 (copy)
-        -                                                                                             price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,tmp%6#0
+        v-load tmp%5#0                                                                                price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,tmp%5#0
+        l-load-copy min_quantity#0 2                                                                  price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,tmp%5#0,min_quantity#0 (copy)
+        -                                                                                             price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,tmp%17#0
         // marketplace_demo/marketplace_with_mutable_struct.py:260
         // bid=listing.bid - min_quantity,
-        v-load values%2#0                                                                             price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,tmp%6#0,values%2#0
-        l-load min_quantity#0 3                                                                       price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%6#0,values%2#0,min_quantity#0
-        -                                                                                             price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%6#0,tmp%7#0
+        v-load tmp%6#0                                                                                price#0,aggregate%extract%0#0,min_quantity#0,aggregate%extract%4#0,tmp%17#0,tmp%6#0
+        l-load min_quantity#0 3                                                                       price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%17#0,tmp%6#0,min_quantity#0
+        -                                                                                             price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%17#0,tmp%19#0
         // marketplace_demo/marketplace_with_mutable_struct.py:255-261
         // self.listings[key] = ListingValue(
         //     bidder=listing.bidder,
@@ -1423,13 +1423,13 @@ subroutine accept_bid:
         //     deposited=listing.deposited - min_quantity,
         //     bid=listing.bid - min_quantity,
         // )
-        l-load tmp%6#0 1                                                                              price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%7#0,tmp%6#0
-        itob                                                                                          price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%7#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%extract%4#0 2                                                                price#0,aggregate%extract%0#0,tmp%7#0,aggregate%val_as_bytes%2#0,aggregate%extract%4#0
-        concat                                                                                        price#0,aggregate%extract%0#0,tmp%7#0,aggregate%head%4#0
-        l-load aggregate%extract%0#0 2                                                                price#0,tmp%7#0,aggregate%head%4#0,aggregate%extract%0#0
-        concat                                                                                        price#0,tmp%7#0,aggregate%head%5#0
-        l-load tmp%7#0 1                                                                              price#0,aggregate%head%5#0,tmp%7#0
+        l-load tmp%17#0 1                                                                             price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%19#0,tmp%17#0
+        itob                                                                                          price#0,aggregate%extract%0#0,aggregate%extract%4#0,tmp%19#0,aggregate%val_as_bytes%2#0
+        l-load aggregate%extract%4#0 2                                                                price#0,aggregate%extract%0#0,tmp%19#0,aggregate%val_as_bytes%2#0,aggregate%extract%4#0
+        concat                                                                                        price#0,aggregate%extract%0#0,tmp%19#0,aggregate%head%4#0
+        l-load aggregate%extract%0#0 2                                                                price#0,tmp%19#0,aggregate%head%4#0,aggregate%extract%0#0
+        concat                                                                                        price#0,tmp%19#0,aggregate%head%5#0
+        l-load tmp%19#0 1                                                                             price#0,aggregate%head%5#0,tmp%19#0
         itob                                                                                          price#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
         l-load aggregate%head%5#0 1                                                                   price#0,aggregate%val_as_bytes%4#0,aggregate%head%5#0
         l-load aggregate%val_as_bytes%4#0 1                                                           price#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0

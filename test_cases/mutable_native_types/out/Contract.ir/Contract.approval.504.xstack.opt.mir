@@ -295,17 +295,17 @@ subroutine sum_frozen_arr:
         int 0                                                                                              (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),0
         // mutable_native_types/contract.py:274
         // total += element.a
-        extract_uint64                                                                                     (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,values%0#0
-        v-load total#0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,values%0#0,total#0
-        l-load values%0#0 1                                                                                (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,total#0,values%0#0
+        extract_uint64                                                                                     (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,tmp%0#0
+        v-load total#0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,tmp%0#0,total#0
+        l-load tmp%0#0 1                                                                                   (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,total#0,tmp%0#0
         +                                                                                                  (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,total#0
         // mutable_native_types/contract.py:275
         // total += element.b
         l-load aggregate%encoded_element%0#0 1                                                             (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%0#0
         int 8                                                                                              (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%0#0,8
-        extract_uint64                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,values%1#0
-        l-load total#0 1                                                                                   (𝕡) arr#0 | item_index_internal%0#0,values%1#0,total#0
-        l-load values%1#0 1                                                                                (𝕡) arr#0 | item_index_internal%0#0,total#0,values%1#0
+        extract_uint64                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,tmp%2#0
+        l-load total#0 1                                                                                   (𝕡) arr#0 | item_index_internal%0#0,tmp%2#0,total#0
+        l-load tmp%2#0 1                                                                                   (𝕡) arr#0 | item_index_internal%0#0,total#0,tmp%2#0
         +                                                                                                  (𝕡) arr#0 | item_index_internal%0#0,total#0
         v-store total#0                                                                                    (𝕡) arr#0 | item_index_internal%0#0
         l-load item_index_internal%0#0 0                                                                   (𝕡) arr#0 | item_index_internal%0#0
@@ -429,9 +429,9 @@ subroutine increment_payment:
         extract3 // on error: index access is out of bounds                                                amt#0,maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
         l-load-copy aggregate%encoded_element%0#0 0                                                        amt#0,maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy)
         int 40                                                                                             amt#0,maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),40
-        extract_uint64                                                                                     amt#0,maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,values%0#0
-        l-load amt#0 4                                                                                     maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,values%0#0,amt#0
-        +                                                                                                  maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,tmp%1#1
+        extract_uint64                                                                                     amt#0,maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,tmp%1#1
+        l-load amt#0 4                                                                                     maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,tmp%1#1,amt#0
+        +                                                                                                  maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,tmp%2#1
         itob                                                                                               maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%val_as_bytes%0#0
         l-load aggregate%encoded_element%0#0 1                                                             maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%encoded_element%0#0
         l-load aggregate%val_as_bytes%0#0 1                                                                maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%val_as_bytes%0#0
@@ -533,10 +533,10 @@ subroutine local_struct:
         extract_uint64                                                                                     a#0,foo#0,bar#0,baz#0
         // mutable_native_types/contract.py:155
         // assert foo, "use foo"
-        global ZeroAddress                                                                                 a#0,foo#0,bar#0,baz#0,tmp%2#0
-        l-load foo#0 3                                                                                     a#0,bar#0,baz#0,tmp%2#0,foo#0
-        l-load tmp%2#0 1                                                                                   a#0,bar#0,baz#0,foo#0,tmp%2#0
-        !=                                                                                                 a#0,bar#0,baz#0,tmp%3#0
+        global ZeroAddress                                                                                 a#0,foo#0,bar#0,baz#0,tmp%5#0
+        l-load foo#0 3                                                                                     a#0,bar#0,baz#0,tmp%5#0,foo#0
+        l-load tmp%5#0 1                                                                                   a#0,bar#0,baz#0,foo#0,tmp%5#0
+        !=                                                                                                 a#0,bar#0,baz#0,tmp%6#0
         assert // use foo                                                                                  a#0,bar#0,baz#0
         // mutable_native_types/contract.py:156
         // assert bar, "use bar"
@@ -743,26 +743,26 @@ subroutine calculate_sum:
         // return val.a + val.b
         l-load-copy fixed_a#0 1                                                                            fixed_a#0,fixed_b#0,fixed_a#0 (copy)
         int 0                                                                                              fixed_a#0,fixed_b#0,fixed_a#0 (copy),0
-        extract_uint64                                                                                     fixed_a#0,fixed_b#0,values%0#0
-        l-load fixed_a#0 2                                                                                 fixed_b#0,values%0#0,fixed_a#0
-        int 8                                                                                              fixed_b#0,values%0#0,fixed_a#0,8
-        extract_uint64                                                                                     fixed_b#0,values%0#0,values%1#0
-        l-load values%0#0 1                                                                                fixed_b#0,values%1#0,values%0#0
-        l-load values%1#0 1                                                                                fixed_b#0,values%0#0,values%1#0
-        +                                                                                                  fixed_b#0,tmp%0#2
-        l-load-copy fixed_b#0 1                                                                            fixed_b#0,tmp%0#2,fixed_b#0 (copy)
-        int 0                                                                                              fixed_b#0,tmp%0#2,fixed_b#0 (copy),0
-        extract_uint64                                                                                     fixed_b#0,tmp%0#2,values%0#0
-        l-load fixed_b#0 2                                                                                 tmp%0#2,values%0#0,fixed_b#0
-        int 8                                                                                              tmp%0#2,values%0#0,fixed_b#0,8
-        extract_uint64                                                                                     tmp%0#2,values%0#0,values%1#0
-        l-load values%0#0 1                                                                                tmp%0#2,values%1#0,values%0#0
-        l-load values%1#0 1                                                                                tmp%0#2,values%0#0,values%1#0
-        +                                                                                                  tmp%0#2,tmp%0#3
+        extract_uint64                                                                                     fixed_a#0,fixed_b#0,tmp%0#2
+        l-load fixed_a#0 2                                                                                 fixed_b#0,tmp%0#2,fixed_a#0
+        int 8                                                                                              fixed_b#0,tmp%0#2,fixed_a#0,8
+        extract_uint64                                                                                     fixed_b#0,tmp%0#2,tmp%1#2
+        l-load tmp%0#2 1                                                                                   fixed_b#0,tmp%1#2,tmp%0#2
+        l-load tmp%1#2 1                                                                                   fixed_b#0,tmp%0#2,tmp%1#2
+        +                                                                                                  fixed_b#0,tmp%2#1
+        l-load-copy fixed_b#0 1                                                                            fixed_b#0,tmp%2#1,fixed_b#0 (copy)
+        int 0                                                                                              fixed_b#0,tmp%2#1,fixed_b#0 (copy),0
+        extract_uint64                                                                                     fixed_b#0,tmp%2#1,tmp%0#2
+        l-load fixed_b#0 2                                                                                 tmp%2#1,tmp%0#2,fixed_b#0
+        int 8                                                                                              tmp%2#1,tmp%0#2,fixed_b#0,8
+        extract_uint64                                                                                     tmp%2#1,tmp%0#2,tmp%1#2
+        l-load tmp%0#2 1                                                                                   tmp%2#1,tmp%1#2,tmp%0#2
+        l-load tmp%1#2 1                                                                                   tmp%2#1,tmp%0#2,tmp%1#2
+        +                                                                                                  tmp%2#1,tmp%2#2
         // mutable_native_types/contract.py:190
         // result = add(fixed_a) + add(fixed_b)
-        l-load tmp%0#2 1                                                                                   tmp%0#3,tmp%0#2
-        l-load tmp%0#3 1                                                                                   tmp%0#2,tmp%0#3
+        l-load tmp%2#1 1                                                                                   tmp%2#2,tmp%2#1
+        l-load tmp%2#2 1                                                                                   tmp%2#1,tmp%2#2
         +                                                                                                  result#0
         l-store-copy result#0 0                                                                            result#0,result#0
         x-store result#0                                                                                   (𝕏) result#0 | result#0
@@ -1004,89 +1004,90 @@ subroutine test_arr:
         v-load arr2#1                                                                                      arr2#1
         l-store-copy arr2#1 0                                                                              arr2#1,arr2#1 (copy)
         int 0                                                                                              arr2#1,arr2#1 (copy),0
-        extract_uint16 // on error: invalid array length header                                            arr2#1,array_length#0
-        l-load-copy array_length#0 0                                                                       arr2#1,array_length#0,array_length#0 (copy)
-        int 3                                                                                              arr2#1,array_length#0,array_length#0 (copy),3
-        ==                                                                                                 arr2#1,array_length#0,tmp%32#0
-        assert // expected 3 elements                                                                      arr2#1,array_length#0
+        extract_uint16 // on error: invalid array length header                                            arr2#1,aggregate%array_length%4#0
+        int 3                                                                                              arr2#1,aggregate%array_length%4#0,3
+        ==                                                                                                 arr2#1,tmp%32#0
+        assert // expected 3 elements                                                                      arr2#1
         // mutable_native_types/contract.py:242
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
-        l-load-copy arr2#1 1                                                                               arr2#1,array_length#0,arr2#1 (copy)
-        callsub sum_frozen_arr                                                                             arr2#1,array_length#0,tmp%34#0
-        int 21                                                                                             arr2#1,array_length#0,tmp%34#0,21
-        ==                                                                                                 arr2#1,array_length#0,tmp%35#0
-        assert // expected sum to be 21                                                                    arr2#1,array_length#0
-        l-load array_length#0 0                                                                            arr2#1,array_length#0
-        int 1                                                                                              arr2#1,array_length#0,1
-        -                                                                                                  arr2#1,length_minus_1#0
-        itob                                                                                               arr2#1,tmp%2#0
-        extract 6 0                                                                                        arr2#1,tmp%3#1
-        l-load-copy arr2#1 1                                                                               arr2#1,tmp%3#1,arr2#1 (copy)
-        l-load tmp%3#1 1                                                                                   arr2#1,arr2#1 (copy),tmp%3#1
-        replace2 0                                                                                         arr2#1,result#0
-        l-load-copy result#0 0                                                                             arr2#1,result#0,result#0 (copy)
-        len                                                                                                arr2#1,result#0,tmp%5#1
+        l-load-copy arr2#1 0                                                                               arr2#1,arr2#1 (copy)
+        callsub sum_frozen_arr                                                                             arr2#1,tmp%34#0
+        int 21                                                                                             arr2#1,tmp%34#0,21
+        ==                                                                                                 arr2#1,tmp%35#0
+        assert // expected sum to be 21                                                                    arr2#1
+        l-load-copy arr2#1 0                                                                               arr2#1,arr2#1 (copy)
+        len                                                                                                arr2#1,tmp%0#3
         // mutable_native_types/contract.py:244
         // arr2.pop()
-        int 16                                                                                             arr2#1,result#0,tmp%5#1,16
-        -                                                                                                  arr2#1,result#0,item_location#0
-        l-load result#0 1                                                                                  arr2#1,item_location#0,result#0
-        int 0                                                                                              arr2#1,item_location#0,result#0,0
-        l-load item_location#0 2                                                                           arr2#1,result#0,0,item_location#0
+        int 16                                                                                             arr2#1,tmp%0#3,16
+        -                                                                                                  arr2#1,tmp%1#3
+        l-load-copy arr2#1 1                                                                               arr2#1,tmp%1#3,arr2#1 (copy)
+        int 0                                                                                              arr2#1,tmp%1#3,arr2#1 (copy),0
+        l-load tmp%1#3 2                                                                                   arr2#1,arr2#1 (copy),0,tmp%1#3
         substring3                                                                                         arr2#1,result#0
+        l-load-copy result#0 0                                                                             arr2#1,result#0,result#0 (copy)
+        int 0                                                                                              arr2#1,result#0,result#0 (copy),0
+        extract_uint16                                                                                     arr2#1,result#0,array_length#0
+        int 1                                                                                              arr2#1,result#0,array_length#0,1
+        -                                                                                                  arr2#1,result#0,length_minus_1#0
+        itob                                                                                               arr2#1,result#0,tmp%3#0
+        extract 6 0                                                                                        arr2#1,result#0,tmp%4#1
+        l-load result#0 1                                                                                  arr2#1,tmp%4#1,result#0
+        l-load tmp%4#1 1                                                                                   arr2#1,result#0,tmp%4#1
+        replace2 0                                                                                         arr2#1,arr2#6
         // mutable_native_types/contract.py:246
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
-        l-load arr2#1 1                                                                                    result#0,arr2#1
-        callsub sum_frozen_arr                                                                             result#0,tmp%39#0
-        int 21                                                                                             result#0,tmp%39#0,21
-        ==                                                                                                 result#0,tmp%40#0
-        assert // expected sum to be 21                                                                    result#0
+        l-load arr2#1 1                                                                                    arr2#6,arr2#1
+        callsub sum_frozen_arr                                                                             arr2#6,tmp%40#0
+        int 21                                                                                             arr2#6,tmp%40#0,21
+        ==                                                                                                 arr2#6,tmp%41#0
+        assert // expected sum to be 21                                                                    arr2#6
         // mutable_native_types/contract.py:247
         // assert sum_frozen_arr(frozen2) == 14, "expected sum to be 14"
-        l-load-copy result#0 0                                                                             result#0,result#0 (copy)
-        callsub sum_frozen_arr                                                                             result#0,tmp%41#0
-        int 14                                                                                             result#0,tmp%41#0,14
-        ==                                                                                                 result#0,tmp%42#0
-        assert // expected sum to be 14                                                                    result#0
+        l-load-copy arr2#6 0                                                                               arr2#6,arr2#6 (copy)
+        callsub sum_frozen_arr                                                                             arr2#6,tmp%42#0
+        int 14                                                                                             arr2#6,tmp%42#0,14
+        ==                                                                                                 arr2#6,tmp%43#0
+        assert // expected sum to be 14                                                                    arr2#6
         // mutable_native_types/contract.py:248
         // frozen2 += frozen2
-        l-load-copy result#0 0                                                                             result#0,result#0 (copy)
-        extract 2 0                                                                                        result#0,extract_to_end%3#0
-        l-load-copy result#0 1                                                                             result#0,extract_to_end%3#0,result#0 (copy)
-        l-load extract_to_end%3#0 1                                                                        result#0,result#0 (copy),extract_to_end%3#0
-        concat // on error: max array length exceeded                                                      result#0,concat%4#0
-        l-load-copy concat%4#0 0                                                                           result#0,concat%4#0,concat%4#0 (copy)
-        extract 2 0                                                                                        result#0,concat%4#0,extract_to_end%4#0
-        len                                                                                                result#0,concat%4#0,len%1#0
-        int 16                                                                                             result#0,concat%4#0,len%1#0,16
-        /                                                                                                  result#0,concat%4#0,div_floor%1#0
-        itob                                                                                               result#0,concat%4#0,as_bytes%4#0
-        extract 6 2                                                                                        result#0,concat%4#0,as_u16_bytes%4#0
-        l-load concat%4#0 1                                                                                result#0,as_u16_bytes%4#0,concat%4#0
-        l-load as_u16_bytes%4#0 1                                                                          result#0,concat%4#0,as_u16_bytes%4#0
-        replace2 0                                                                                         result#0,frozen2#1
+        l-load-copy arr2#6 0                                                                               arr2#6,arr2#6 (copy)
+        extract 2 0                                                                                        arr2#6,extract_to_end%3#0
+        l-load-copy arr2#6 1                                                                               arr2#6,extract_to_end%3#0,arr2#6 (copy)
+        l-load extract_to_end%3#0 1                                                                        arr2#6,arr2#6 (copy),extract_to_end%3#0
+        concat // on error: max array length exceeded                                                      arr2#6,concat%4#0
+        l-load-copy concat%4#0 0                                                                           arr2#6,concat%4#0,concat%4#0 (copy)
+        extract 2 0                                                                                        arr2#6,concat%4#0,extract_to_end%4#0
+        len                                                                                                arr2#6,concat%4#0,len%1#0
+        int 16                                                                                             arr2#6,concat%4#0,len%1#0,16
+        /                                                                                                  arr2#6,concat%4#0,div_floor%1#0
+        itob                                                                                               arr2#6,concat%4#0,as_bytes%4#0
+        extract 6 2                                                                                        arr2#6,concat%4#0,as_u16_bytes%4#0
+        l-load concat%4#0 1                                                                                arr2#6,as_u16_bytes%4#0,concat%4#0
+        l-load as_u16_bytes%4#0 1                                                                          arr2#6,concat%4#0,as_u16_bytes%4#0
+        replace2 0                                                                                         arr2#6,frozen2#1
         // mutable_native_types/contract.py:249
         // assert sum_frozen_arr(frozen2) == 28, "and the sum shall be 41"
-        callsub sum_frozen_arr                                                                             result#0,tmp%43#0
-        int 28                                                                                             result#0,tmp%43#0,28
-        ==                                                                                                 result#0,tmp%44#0
-        assert // and the sum shall be 41                                                                  result#0
+        callsub sum_frozen_arr                                                                             arr2#6,tmp%44#0
+        int 28                                                                                             arr2#6,tmp%44#0,28
+        ==                                                                                                 arr2#6,tmp%45#0
+        assert // and the sum shall be 41                                                                  arr2#6
         // mutable_native_types/contract.py:251
         // self.arr = arr2.copy()
-        byte "arr"                                                                                         result#0,"arr"
-        l-load-copy result#0 1                                                                             result#0,"arr",result#0 (copy)
-        app_global_put                                                                                     result#0
+        byte "arr"                                                                                         arr2#6,"arr"
+        l-load-copy arr2#6 1                                                                               arr2#6,"arr",arr2#6 (copy)
+        app_global_put                                                                                     arr2#6
         // mutable_native_types/contract.py:257
         // assert arr11
-        v-load fixed_struct#0                                                                              result#0,fixed_struct#0
-        len                                                                                                result#0,aggregate%bytes_len%3#0
-        int 16                                                                                             result#0,aggregate%bytes_len%3#0,16
-        /                                                                                                  result#0,aggregate%array_len%3#0
-        assert                                                                                             result#0
+        v-load fixed_struct#0                                                                              arr2#6,fixed_struct#0
+        len                                                                                                arr2#6,aggregate%bytes_len%3#0
+        int 16                                                                                             arr2#6,aggregate%bytes_len%3#0,16
+        /                                                                                                  arr2#6,aggregate%array_len%3#0
+        assert                                                                                             arr2#6
         // mutable_native_types/contract.py:197
         // @arc4.abimethod()
-        byte 0x151f7c75                                                                                    result#0,0x151f7c75
-        l-load result#0 1                                                                                  0x151f7c75,result#0
+        byte 0x151f7c75                                                                                    arr2#6,0x151f7c75
+        l-load arr2#6 1                                                                                    0x151f7c75,arr2#6
         concat                                                                                             tmp%2#0
         log
         int 1                                                                                              1

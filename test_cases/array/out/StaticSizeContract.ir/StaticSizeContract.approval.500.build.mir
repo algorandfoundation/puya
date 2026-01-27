@@ -498,13 +498,13 @@ subroutine test_array:
         v-store aggregate%item1%1#0
         v-load i#0                                                                                i#0
         int 1                                                                                     i#0,1
-        +                                                                                         tmp%15#0
-        v-store tmp%15#0
+        +                                                                                         tmp%22#0
+        v-store tmp%22#0
         v-load aggregate%item1%1#0                                                                aggregate%item1%1#0
-        v-load tmp%15#0                                                                           aggregate%item1%1#0,tmp%15#0
-        ==                                                                                        tmp%16#0
-        v-store tmp%16#0
-        v-load tmp%16#0                                                                           tmp%16#0
+        v-load tmp%22#0                                                                           aggregate%item1%1#0,tmp%22#0
+        ==                                                                                        tmp%23#0
+        v-store tmp%23#0
+        v-load tmp%23#0                                                                           tmp%23#0
         assert
         // array/static_size.py:53
         // assert path[i].other.d.foo == i + 2
@@ -516,36 +516,36 @@ subroutine test_array:
         v-store aggregate%extract%16#0
         v-load i#0                                                                                i#0
         int 2                                                                                     i#0,2
-        +                                                                                         tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                                           tmp%17#0
-        itob                                                                                      tmp%18#0
-        v-store tmp%18#0
+        +                                                                                         tmp%31#0
+        v-store tmp%31#0
+        v-load tmp%31#0                                                                           tmp%31#0
+        itob                                                                                      tmp%32#0
+        v-store tmp%32#0
         v-load aggregate%extract%16#0                                                             aggregate%extract%16#0
-        v-load tmp%18#0                                                                           aggregate%extract%16#0,tmp%18#0
-        b==                                                                                       tmp%19#0
-        v-store tmp%19#0
-        v-load tmp%19#0                                                                           tmp%19#0
+        v-load tmp%32#0                                                                           aggregate%extract%16#0,tmp%32#0
+        b==                                                                                       tmp%33#0
+        v-store tmp%33#0
+        v-load tmp%33#0                                                                           tmp%33#0
         assert
         // array/static_size.py:54
         // assert path[i].other.d.bar == (i + 1) * (i + 1)
         v-load aggregate%extract%14#0                                                             aggregate%extract%14#0
         extract 8 8                                                                               aggregate%extract%25#0
         v-store aggregate%extract%25#0
-        v-load tmp%15#0                                                                           tmp%15#0
-        v-load tmp%15#0                                                                           tmp%15#0,tmp%15#0
-        *                                                                                         tmp%22#0
-        v-store tmp%22#0
         v-load tmp%22#0                                                                           tmp%22#0
-        itob                                                                                      tmp%23#0
-        v-store tmp%23#0
+        v-load tmp%22#0                                                                           tmp%22#0,tmp%22#0
+        *                                                                                         tmp%43#0
+        v-store tmp%43#0
+        v-load tmp%43#0                                                                           tmp%43#0
+        itob                                                                                      tmp%44#0
+        v-store tmp%44#0
         v-load aggregate%extract%25#0                                                             aggregate%extract%25#0
-        v-load tmp%23#0                                                                           aggregate%extract%25#0,tmp%23#0
-        b==                                                                                       tmp%24#0
-        v-store tmp%24#0
-        v-load tmp%24#0                                                                           tmp%24#0
+        v-load tmp%44#0                                                                           aggregate%extract%25#0,tmp%44#0
+        b==                                                                                       tmp%45#0
+        v-store tmp%45#0
+        v-load tmp%45#0                                                                           tmp%45#0
         assert
-        v-load tmp%15#0                                                                           tmp%15#0
+        v-load tmp%22#0                                                                           tmp%22#0
         v-store i#0
         b test_array_for_header@2
 
@@ -636,9 +636,9 @@ subroutine test_array:
         // if point.x < last_point.x:
         v-load point.x#0                                                                          point.x#0
         v-load last_point.x#0                                                                     point.x#0,last_point.x#0
-        b<                                                                                        tmp%1#2
-        v-store tmp%1#2
-        v-load tmp%1#2                                                                            tmp%1#2
+        b<                                                                                        tmp%15#1
+        v-store tmp%15#1
+        v-load tmp%15#1                                                                           tmp%15#1
         bz test_array_else_body@10 ; b test_array_if_body@9
 
     test_array_if_body@9:
@@ -650,18 +650,18 @@ subroutine test_array:
         int 0                                                                                     aggregate%encoded_element%3#0,0
         // array/static_size.py:174
         // dx = last_point.x.as_uint64() - point.x.as_uint64()
-        extract_uint64                                                                            tmp%2#2
-        v-store tmp%2#2
+        extract_uint64                                                                            tmp%16#1
+        v-store tmp%16#1
         v-load aggregate%encoded_element%4#0                                                      aggregate%encoded_element%4#0
         // array/static_size.py:172
         // point = path[point_idx]
         int 0                                                                                     aggregate%encoded_element%4#0,0
         // array/static_size.py:174
         // dx = last_point.x.as_uint64() - point.x.as_uint64()
-        extract_uint64                                                                            tmp%3#2
-        v-store tmp%3#2
-        v-load tmp%2#2                                                                            tmp%2#2
-        v-load tmp%3#2                                                                            tmp%2#2,tmp%3#2
+        extract_uint64                                                                            tmp%17#1
+        v-store tmp%17#1
+        v-load tmp%16#1                                                                           tmp%16#1
+        v-load tmp%17#1                                                                           tmp%16#1,tmp%17#1
         -                                                                                         dx#0
         v-store dx#0
         b test_array_after_if_else@11
@@ -675,18 +675,18 @@ subroutine test_array:
         int 0                                                                                     aggregate%encoded_element%4#0,0
         // array/static_size.py:176
         // dx = point.x.as_uint64() - last_point.x.as_uint64()
-        extract_uint64                                                                            tmp%5#1
-        v-store tmp%5#1
+        extract_uint64                                                                            tmp%19#1
+        v-store tmp%19#1
         v-load aggregate%encoded_element%3#0                                                      aggregate%encoded_element%3#0
         // array/static_size.py:169
         // last_point = path[0]
         int 0                                                                                     aggregate%encoded_element%3#0,0
         // array/static_size.py:176
         // dx = point.x.as_uint64() - last_point.x.as_uint64()
-        extract_uint64                                                                            tmp%6#1
-        v-store tmp%6#1
-        v-load tmp%5#1                                                                            tmp%5#1
-        v-load tmp%6#1                                                                            tmp%5#1,tmp%6#1
+        extract_uint64                                                                            tmp%20#1
+        v-store tmp%20#1
+        v-load tmp%19#1                                                                           tmp%19#1
+        v-load tmp%20#1                                                                           tmp%19#1,tmp%20#1
         -                                                                                         dx#0
         v-store dx#0
         b test_array_after_if_else@11
@@ -696,9 +696,9 @@ subroutine test_array:
         // if point.y < last_point.y:
         v-load point.y#0                                                                          point.y#0
         v-load last_point.y#0                                                                     point.y#0,last_point.y#0
-        <                                                                                         tmp%8#2
-        v-store tmp%8#2
-        v-load tmp%8#2                                                                            tmp%8#2
+        <                                                                                         tmp%22#1
+        v-store tmp%22#1
+        v-load tmp%22#1                                                                           tmp%22#1
         bz test_array_else_body@13 ; b test_array_if_body@12
 
     test_array_if_body@12:
@@ -724,21 +724,21 @@ subroutine test_array:
         // length += op.sqrt(dx * dx + dy * dy)
         v-load dx#0                                                                               dx#0
         v-load dx#0                                                                               dx#0,dx#0
-        *                                                                                         tmp%11#0
-        v-store tmp%11#0
+        *                                                                                         tmp%25#1
+        v-store tmp%25#1
         v-load dy#0                                                                               dy#0
         v-load dy#0                                                                               dy#0,dy#0
-        *                                                                                         tmp%12#1
-        v-store tmp%12#1
-        v-load tmp%11#0                                                                           tmp%11#0
-        v-load tmp%12#1                                                                           tmp%11#0,tmp%12#1
-        +                                                                                         tmp%13#1
-        v-store tmp%13#1
-        v-load tmp%13#1                                                                           tmp%13#1
-        sqrt                                                                                      tmp%14#1
-        v-store tmp%14#1
+        *                                                                                         tmp%26#1
+        v-store tmp%26#1
+        v-load tmp%25#1                                                                           tmp%25#1
+        v-load tmp%26#1                                                                           tmp%25#1,tmp%26#1
+        +                                                                                         tmp%27#1
+        v-store tmp%27#1
+        v-load tmp%27#1                                                                           tmp%27#1
+        sqrt                                                                                      tmp%28#1
+        v-store tmp%28#1
         v-load length#0                                                                           length#0
-        v-load tmp%14#1                                                                           length#0,tmp%14#1
+        v-load tmp%28#1                                                                           length#0,tmp%28#1
         +                                                                                         length#0
         v-store length#0
         // array/static_size.py:171
@@ -1498,19 +1498,19 @@ subroutine test_arc4_bool:
         int 0                                                                                     aggregate%encoded_bool%2#0,0
         getbit                                                                                    aggregate%get_bit%1#0
         v-store aggregate%get_bit%1#0
-        txn Sender                                                                                tmp%16#0
-        v-store tmp%16#0
-        txn Receiver                                                                              tmp%17#0
+        txn Sender                                                                                tmp%17#0
         v-store tmp%17#0
-        v-load tmp%16#0                                                                           tmp%16#0
-        v-load tmp%17#0                                                                           tmp%16#0,tmp%17#0
-        ==                                                                                        tmp%18#0
+        txn Receiver                                                                              tmp%18#0
         v-store tmp%18#0
-        v-load aggregate%get_bit%1#0                                                              aggregate%get_bit%1#0
-        v-load tmp%18#0                                                                           aggregate%get_bit%1#0,tmp%18#0
+        v-load tmp%17#0                                                                           tmp%17#0
+        v-load tmp%18#0                                                                           tmp%17#0,tmp%18#0
         ==                                                                                        tmp%19#0
         v-store tmp%19#0
-        v-load tmp%19#0                                                                           tmp%19#0
+        v-load aggregate%get_bit%1#0                                                              aggregate%get_bit%1#0
+        v-load tmp%19#0                                                                           aggregate%get_bit%1#0,tmp%19#0
+        ==                                                                                        tmp%20#0
+        v-store tmp%20#0
+        v-load tmp%20#0                                                                           tmp%20#0
         assert // expected correct value at 0
         // array/static_size.py:151
         // assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
@@ -1533,19 +1533,19 @@ subroutine test_arc4_bool:
         int 0                                                                                     aggregate%encoded_bool%3#0,0
         getbit                                                                                    aggregate%get_bit%3#0
         v-store aggregate%get_bit%3#0
-        txn Sender                                                                                tmp%21#0
-        v-store tmp%21#0
-        txn Receiver                                                                              tmp%22#0
-        v-store tmp%22#0
-        v-load tmp%21#0                                                                           tmp%21#0
-        v-load tmp%22#0                                                                           tmp%21#0,tmp%22#0
-        !=                                                                                        tmp%23#0
+        txn Sender                                                                                tmp%23#0
         v-store tmp%23#0
-        v-load aggregate%get_bit%3#0                                                              aggregate%get_bit%3#0
-        v-load tmp%23#0                                                                           aggregate%get_bit%3#0,tmp%23#0
-        ==                                                                                        tmp%24#0
+        txn Receiver                                                                              tmp%24#0
         v-store tmp%24#0
-        v-load tmp%24#0                                                                           tmp%24#0
+        v-load tmp%23#0                                                                           tmp%23#0
+        v-load tmp%24#0                                                                           tmp%23#0,tmp%24#0
+        !=                                                                                        tmp%25#0
+        v-store tmp%25#0
+        v-load aggregate%get_bit%3#0                                                              aggregate%get_bit%3#0
+        v-load tmp%25#0                                                                           aggregate%get_bit%3#0,tmp%25#0
+        ==                                                                                        tmp%26#0
+        v-store tmp%26#0
+        v-load tmp%26#0                                                                           tmp%26#0
         assert // expected correct value at 1
         // array/static_size.py:153
         // arr2 = arr.copy()
@@ -1607,9 +1607,9 @@ subroutine test_arc4_bool:
         v-store aggregate%bytes_len%1#0
         v-load aggregate%bytes_len%1#0                                                            aggregate%bytes_len%1#0
         int 4                                                                                     aggregate%bytes_len%1#0,4
-        ==                                                                                        tmp%27#0
-        v-store tmp%27#0
-        v-load tmp%27#0                                                                           tmp%27#0
+        ==                                                                                        tmp%30#0
+        v-store tmp%30#0
+        v-load tmp%30#0                                                                           tmp%30#0
         assert // expected correct length
         // array/static_size.py:159
         // assert arr2[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
@@ -1620,19 +1620,19 @@ subroutine test_arc4_bool:
         int 0                                                                                     aggregate%encoded_element%0#0,0
         getbit                                                                                    aggregate%get_bit%5#0
         v-store aggregate%get_bit%5#0
-        txn Sender                                                                                tmp%29#0
-        v-store tmp%29#0
-        txn Receiver                                                                              tmp%30#0
-        v-store tmp%30#0
-        v-load tmp%29#0                                                                           tmp%29#0
-        v-load tmp%30#0                                                                           tmp%29#0,tmp%30#0
-        ==                                                                                        tmp%31#0
-        v-store tmp%31#0
-        v-load aggregate%get_bit%5#0                                                              aggregate%get_bit%5#0
-        v-load tmp%31#0                                                                           aggregate%get_bit%5#0,tmp%31#0
-        ==                                                                                        tmp%32#0
+        txn Sender                                                                                tmp%32#0
         v-store tmp%32#0
+        txn Receiver                                                                              tmp%33#0
+        v-store tmp%33#0
         v-load tmp%32#0                                                                           tmp%32#0
+        v-load tmp%33#0                                                                           tmp%32#0,tmp%33#0
+        ==                                                                                        tmp%34#0
+        v-store tmp%34#0
+        v-load aggregate%get_bit%5#0                                                              aggregate%get_bit%5#0
+        v-load tmp%34#0                                                                           aggregate%get_bit%5#0,tmp%34#0
+        ==                                                                                        tmp%35#0
+        v-store tmp%35#0
+        v-load tmp%35#0                                                                           tmp%35#0
         assert // expected correct value at 0
         // array/static_size.py:160
         // assert arr2[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
@@ -1643,19 +1643,19 @@ subroutine test_arc4_bool:
         int 0                                                                                     aggregate%encoded_element%1#0,0
         getbit                                                                                    aggregate%get_bit%6#0
         v-store aggregate%get_bit%6#0
-        txn Sender                                                                                tmp%34#0
-        v-store tmp%34#0
-        txn Receiver                                                                              tmp%35#0
-        v-store tmp%35#0
-        v-load tmp%34#0                                                                           tmp%34#0
-        v-load tmp%35#0                                                                           tmp%34#0,tmp%35#0
-        !=                                                                                        tmp%36#0
-        v-store tmp%36#0
-        v-load aggregate%get_bit%6#0                                                              aggregate%get_bit%6#0
-        v-load tmp%36#0                                                                           aggregate%get_bit%6#0,tmp%36#0
-        ==                                                                                        tmp%37#0
+        txn Sender                                                                                tmp%37#0
         v-store tmp%37#0
+        txn Receiver                                                                              tmp%38#0
+        v-store tmp%38#0
         v-load tmp%37#0                                                                           tmp%37#0
+        v-load tmp%38#0                                                                           tmp%37#0,tmp%38#0
+        !=                                                                                        tmp%39#0
+        v-store tmp%39#0
+        v-load aggregate%get_bit%6#0                                                              aggregate%get_bit%6#0
+        v-load tmp%39#0                                                                           aggregate%get_bit%6#0,tmp%39#0
+        ==                                                                                        tmp%40#0
+        v-store tmp%40#0
+        v-load tmp%40#0                                                                           tmp%40#0
         assert // expected correct value at 1
         // array/static_size.py:161
         // assert arr2[2] == (Txn.sender == Txn.receiver), "expected correct value at 2"
@@ -1666,19 +1666,19 @@ subroutine test_arc4_bool:
         int 0                                                                                     aggregate%encoded_element%2#0,0
         getbit                                                                                    aggregate%get_bit%7#0
         v-store aggregate%get_bit%7#0
-        txn Sender                                                                                tmp%39#0
-        v-store tmp%39#0
-        txn Receiver                                                                              tmp%40#0
-        v-store tmp%40#0
-        v-load tmp%39#0                                                                           tmp%39#0
-        v-load tmp%40#0                                                                           tmp%39#0,tmp%40#0
-        ==                                                                                        tmp%41#0
-        v-store tmp%41#0
-        v-load aggregate%get_bit%7#0                                                              aggregate%get_bit%7#0
-        v-load tmp%41#0                                                                           aggregate%get_bit%7#0,tmp%41#0
-        ==                                                                                        tmp%42#0
+        txn Sender                                                                                tmp%42#0
         v-store tmp%42#0
+        txn Receiver                                                                              tmp%43#0
+        v-store tmp%43#0
         v-load tmp%42#0                                                                           tmp%42#0
+        v-load tmp%43#0                                                                           tmp%42#0,tmp%43#0
+        ==                                                                                        tmp%44#0
+        v-store tmp%44#0
+        v-load aggregate%get_bit%7#0                                                              aggregate%get_bit%7#0
+        v-load tmp%44#0                                                                           aggregate%get_bit%7#0,tmp%44#0
+        ==                                                                                        tmp%45#0
+        v-store tmp%45#0
+        v-load tmp%45#0                                                                           tmp%45#0
         assert // expected correct value at 2
         // array/static_size.py:162
         // assert arr2[3] == (Txn.sender != Txn.receiver), "expected correct value at 3"
@@ -1689,19 +1689,19 @@ subroutine test_arc4_bool:
         int 0                                                                                     aggregate%encoded_element%3#0,0
         getbit                                                                                    aggregate%get_bit%8#0
         v-store aggregate%get_bit%8#0
-        txn Sender                                                                                tmp%44#0
-        v-store tmp%44#0
-        txn Receiver                                                                              tmp%45#0
-        v-store tmp%45#0
-        v-load tmp%44#0                                                                           tmp%44#0
-        v-load tmp%45#0                                                                           tmp%44#0,tmp%45#0
-        !=                                                                                        tmp%46#0
-        v-store tmp%46#0
-        v-load aggregate%get_bit%8#0                                                              aggregate%get_bit%8#0
-        v-load tmp%46#0                                                                           aggregate%get_bit%8#0,tmp%46#0
-        ==                                                                                        tmp%47#0
+        txn Sender                                                                                tmp%47#0
         v-store tmp%47#0
+        txn Receiver                                                                              tmp%48#0
+        v-store tmp%48#0
         v-load tmp%47#0                                                                           tmp%47#0
+        v-load tmp%48#0                                                                           tmp%47#0,tmp%48#0
+        !=                                                                                        tmp%49#0
+        v-store tmp%49#0
+        v-load aggregate%get_bit%8#0                                                              aggregate%get_bit%8#0
+        v-load tmp%49#0                                                                           aggregate%get_bit%8#0,tmp%49#0
+        ==                                                                                        tmp%50#0
+        v-store tmp%50#0
+        v-load tmp%50#0                                                                           tmp%50#0
         assert // expected correct value at 3
         v-load slot%0                                                                             slot%0
         // array/static_size.py:164

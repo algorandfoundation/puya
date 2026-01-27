@@ -44,17 +44,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         fail
 
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
-    block@0: // L200
+    block@0: // L204
         let new_head#0: bytes = 0x
         let item_offset_adjustment#0: uint64 = (* new_items_count#0 2u)
         let tmp%1#0: uint64 = (* array_items_count#0 2u)
         let value_internal%0#0: uint64 = 0u
         let head_offset#0: uint64 = value_internal%0#0
         goto block@1
-    block@1: // for_header_L211
+    block@1: // for_header_L215
         let continue_looping%0#0: bool = (< head_offset#0 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L212
+    block@2: // for_body_L216
         let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
         let tmp%3#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
         let tmp%4#0: bytes = (itob tmp%3#0)
@@ -63,15 +63,15 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let value_internal%0#0: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%0#0
         goto block@1
-    block@4: // after_for_L211
+    block@4: // after_for_L215
         let head_and_tail_length#0: uint64 = (len array_head_and_tail#0)
         let value_internal%1#0: uint64 = 0u
         let head_offset#0: uint64 = value_internal%1#0
         goto block@5
-    block@5: // for_header_L216
+    block@5: // for_header_L220
         let continue_looping%1#0: bool = (< head_offset#0 item_offset_adjustment#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L217
+    block@6: // for_body_L221
         let item_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let tmp%10#0: uint64 = (+ head_and_tail_length#0 item_offset#0)
         let tmp%11#0: bytes = (itob tmp%10#0)
@@ -80,7 +80,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let value_internal%1#0: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%1#0
         goto block@5
-    block@8: // after_for_L216
+    block@8: // after_for_L220
         let tmp%14#0: uint64 = (+ array_items_count#0 new_items_count#0)
         let tmp%15#0: bytes = (itob tmp%14#0)
         let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
@@ -93,7 +93,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         return tmp%24#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L251
+    block@0: // L255
         let size_b#0: bytes = ((substring 0 2) source#0)
         let array_length#0: uint64 = (btoi size_b#0)
         let array_head_and_tail#0: bytes = ((extract 2 0) source#0)
@@ -115,10 +115,10 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%15#0: uint64 = (* array_length#0 2u)
         let head_offset#0: uint64 = tmp%3#1
         goto block@2
-    block@2: // for_header_L282
+    block@2: // for_header_L286
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
-    block@3: // for_body_L283
+    block@3: // for_body_L287
         let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let tail_offset#0: uint64 = (+ tail_offset#0 new_item_length#0)
         let tail_offset#0: uint64 = (- tail_offset#0 original_item_length#0)
@@ -128,7 +128,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%0#2
         goto block@2
-    block@5: // after_for_L282
+    block@5: // after_for_L286
         let tmp%4#0: bytes = (concat size_b#0 new_head_and_tail#0)
         return tmp%4#0
 

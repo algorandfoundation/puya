@@ -40,17 +40,17 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let aggregate%get_bit%10#0: bool = (getbit static_boolean_array#0 0u)
         let array_item%0#0: bool = aggregate%get_bit%10#0
         let aggregate%encoded_bool%2#0: bytes[1] = (setbit 0x00 0u array_item%0#0)
-        let values%0#0: Encoded(bool8) = aggregate%encoded_bool%2#0
-        let tmp%20#0: bool = (== values%0#0 true#0)
-        (assert tmp%20#0) // Single boolean can be unpacked
+        let tmp%19#0: Encoded(bool8) = aggregate%encoded_bool%2#0
+        let tmp%21#0: bool = (== tmp%19#0 true#0)
+        (assert tmp%21#0) // Single boolean can be unpacked
         let aggregate%lt%1#0: bool = (< 11u 12u)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%get_bit%11#0: bool = (getbit static_boolean_array#0 11u)
         let array_item%1#0: bool = aggregate%get_bit%11#0
         let aggregate%encoded_bool%3#0: bytes[1] = (setbit 0x00 0u array_item%1#0)
-        let values%1#0: Encoded(bool8) = aggregate%encoded_bool%3#0
-        let tmp%23#0: bool = (== values%1#0 true#0)
-        (assert tmp%23#0) // Single boolean can be unpacked
+        let tmp%23#0: Encoded(bool8) = aggregate%encoded_bool%3#0
+        let tmp%25#0: bool = (== tmp%23#0 true#0)
+        (assert tmp%25#0) // Single boolean can be unpacked
         let aggregate%as_bytes%0#0: bytes[8] = (itob 3u)
         let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%get_bit%12#0: bool = (getbit false#0 0u)
@@ -60,8 +60,8 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let aggregate%head%2#0: bytes = (concat aggregate%len_u16%0#0 aggregate%set_bit%11#0)
         let aggregate%as_Encoded(len+bool1[])%0#0: Encoded(len+bool1[]) = aggregate%head%2#0
         let dynamic_boolean_array#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%0#0
-        let tmp%27#0: bool = (== dynamic_boolean_array#0 0x0003a0)
-        (assert tmp%27#0)
+        let tmp%29#0: bool = (== dynamic_boolean_array#0 0x0003a0)
+        (assert tmp%29#0)
         let dynamic_boolean_array#1: Encoded(len+bool1[]) = test_cases.arc4_types.bool.get_arr()
         let aggregate%head%3#0: bytes = (concat 0x true#0)
         let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 false#0)
@@ -81,32 +81,32 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let required_bytes#0: uint64 = (/ tmp%7#2 8u)
         let tmp%9#2: bool = (< current_bytes#0 required_bytes#0)
         goto tmp%9#2 ? block@4 : block@5
-    block@4: // if_body_L154
+    block@4: // if_body_L158
         let tmp%10#1: uint64 = (- required_bytes#0 current_bytes#0)
         let tmp%11#1: bytes = (bzero tmp%10#1)
         let result#1: bytes = (concat result#0 tmp%11#1)
         goto block@5
-    block@5: // after_if_else_L153
+    block@5: // after_if_else_L157
         let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@4)
         let read_offset#0: uint64 = 0u
         let write_offset#0: uint64 = (+ array_length#0 16u)
         let write_end#0: uint64 = (+ write_offset#0 5u)
         goto block@6
-    block@6: // while_top_L159
+    block@6: // while_top_L163
         let write_offset#1: uint64 = φ(write_offset#0 <- block@5, write_offset#2 <- block@7)
         let result#2: bytes = φ(result#4 <- block@5, result#3 <- block@7)
         let read_offset#1: uint64 = φ(read_offset#0 <- block@5, read_offset#2 <- block@7)
         let tmp%15#1: bool = (< write_offset#1 write_end#0)
         goto tmp%15#1 ? block@7 : block@8
-    block@7: // while_body_L160
+    block@7: // while_body_L164
         let tmp%16#1: bool = (getbit new_items_bytes#0 read_offset#1)
         let result#3: bytes = (setbit result#2 write_offset#1 tmp%16#1)
         let write_offset#2: uint64 = (+ write_offset#1 1u)
         let read_offset#2: uint64 = (+ read_offset#1 8u)
         goto block@6
-    block@8: // after_while_L159
-        let tmp%35#0: bool = (== result#2 0x0005a8)
-        (assert tmp%35#0)
+    block@8: // after_while_L163
+        let tmp%37#0: bool = (== result#2 0x0005a8)
+        (assert tmp%37#0)
         return 1u
 
 subroutine test_cases.arc4_types.bool.get_arr() -> Encoded(len+bool1[]):

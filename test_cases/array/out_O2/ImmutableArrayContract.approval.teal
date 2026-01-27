@@ -2112,7 +2112,6 @@ main_after_for@155:
     assert
     pushint 16
     callsub dynamic_array_pop_fixed_size
-    bury 1
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -2562,8 +2561,7 @@ main_for_header@184:
     dig 48
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
-    bury 50
-    pop
+    bury 49
     dig 34
     intc_1 // 1
     +
@@ -2670,30 +2668,25 @@ main___algopy_default_create@31:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
-    proto 2 2
+    proto 2 1
     frame_dig -2
+    len
+    frame_dig -1
+    -
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    substring3
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     -
     itob
     extract 6 0
-    frame_dig -2
-    swap
     replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    uncover 2
-    intc_0 // 0
-    uncover 3
-    substring3
     retsub
 
 

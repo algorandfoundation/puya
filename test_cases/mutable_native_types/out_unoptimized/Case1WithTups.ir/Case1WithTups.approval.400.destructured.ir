@@ -243,8 +243,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tup
         let box%offset%0#0: uint64 = (+ 0u 0u)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
-        return values%0#0
+        let tmp%0#0: uint64 = (btoi tuple_item%0#0)
+        return tmp%0#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a: uint64, tup.b: uint64) -> void:
     block@0: // L56
@@ -252,13 +252,13 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let box%offset%0#0: uint64 = (+ 0u 0u)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
-        let tmp%0#0: bool = (< values%0#0 8u)
-        (assert tmp%0#0) // too many tups
+        let tmp%0#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%1#0: bool = (< tmp%0#0 8u)
+        (assert tmp%1#0) // too many tups
         let box%offset%1#0: uint64 = (+ 0u 0u)
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u)
         let tuple_item%1#0: Encoded(uint64) = box%box_extract%1#0
-        let values%1#0: uint64 = (btoi tuple_item%1#0)
+        let tmp%2#0: uint64 = (btoi tuple_item%1#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tup.a#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
@@ -268,17 +268,17 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let aggregate%as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = aggregate%head%1#0
         let encoded_value%0#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%0#0
         let box%offset%2#0: uint64 = (+ 0u 8u)
-        let box%index_ok%0#0: bool = (< values%1#0 8u)
+        let box%index_ok%0#0: bool = (< tmp%2#0 8u)
         (assert box%index_ok%0#0) // index out of bounds
-        let box%element_offset%0#0: uint64 = (* values%1#0 16u)
+        let box%element_offset%0#0: uint64 = (* tmp%2#0 16u)
         let box%offset%3#0: uint64 = (+ box%offset%2#0 box%element_offset%0#0)
         (box_replace "tup_bag" box%offset%3#0 encoded_value%0#0)
         let box%offset%4#0: uint64 = (+ 0u 0u)
         let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%4#0 8u)
         let tuple_item%2#0: Encoded(uint64) = box%box_extract%2#0
-        let values%2#0: uint64 = (btoi tuple_item%2#0)
-        let tmp%1#0: uint64 = (+ values%2#0 1u)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%1#0)
+        let tmp%3#0: uint64 = (btoi tuple_item%2#0)
+        let tmp%4#0: uint64 = (+ tmp%3#0 1u)
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%4#0)
         let aggregate%as_Encoded(uint64)%2#0: Encoded(uint64) = aggregate%val_as_bytes%2#0
         let encoded_value%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%2#0
         let box%offset%5#0: uint64 = (+ 0u 0u)
@@ -290,9 +290,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
         let box%offset%0#0: uint64 = (+ 0u 0u)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
-        let tmp%0#0: bool = (< index#0 values%0#0)
-        (assert tmp%0#0) // index out of bounds
+        let tmp%0#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%1#0: bool = (< index#0 tmp%0#0)
+        (assert tmp%1#0) // index out of bounds
         let box%offset%2#0: uint64 = (+ 0u 8u)
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%2#0 128u)
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 16u)
@@ -302,9 +302,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
         let aggregate%extract%1#0: bytes = (extract3 array_item%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
-        let values%1#0: uint64 = aggregate%item0%0#0
-        let values%2#0: uint64 = aggregate%item1%0#0
-        return values%1#0 values%2#0
+        let tmp%2#0: uint64 = aggregate%item0%0#0
+        let tmp%3#0: uint64 = aggregate%item1%0#0
+        return tmp%2#0 tmp%3#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -> uint64:
     block@0: // L68
@@ -312,12 +312,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         let box%offset%0#0: uint64 = (+ 0u 0u)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L71
-        let continue_looping%0#0: bool = (< value_internal%0#0 values%0#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L72
         let i#0: uint64 = value_internal%0#0
@@ -330,14 +330,14 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
         let aggregate%extract%1#0: bytes = (extract3 array_item%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
-        let values%1#0: uint64 = aggregate%item0%0#0
-        let values%2#0: uint64 = aggregate%item1%0#0
-        let tup.a#0: uint64 = values%1#0
-        let tup.b#0: uint64 = values%2#0
-        let tmp%0#0: uint64 = (+ total#0 tup.a#0)
-        let total#0: uint64 = tmp%0#0
-        let tmp%1#0: uint64 = (+ total#0 tup.b#0)
-        let total#0: uint64 = tmp%1#0
+        let tmp%1#0: uint64 = aggregate%item0%0#0
+        let tmp%2#0: uint64 = aggregate%item1%0#0
+        let tup.a#0: uint64 = tmp%1#0
+        let tup.b#0: uint64 = tmp%2#0
+        let tmp%3#0: uint64 = (+ total#0 tup.a#0)
+        let total#0: uint64 = tmp%3#0
+        let tmp%4#0: uint64 = (+ total#0 tup.b#0)
+        let total#0: uint64 = tmp%4#0
         goto block@3
     block@3: // for_footer_L71
         let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
@@ -364,10 +364,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_man
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
         let aggregate%extract%1#0: bytes = (extract3 array_item%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
-        let values%0#0: uint64 = aggregate%item0%0#0
-        let values%1#0: uint64 = aggregate%item1%0#0
-        let tup.a#0: uint64 = values%0#0
-        let tup.b#0: uint64 = values%1#0
+        let tmp%0#0: uint64 = aggregate%item0%0#0
+        let tmp%1#0: uint64 = aggregate%item1%0#0
+        let tup.a#0: uint64 = tmp%0#0
+        let tup.b#0: uint64 = tmp%1#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#0)
         goto block@3
     block@3: // for_footer_L79
@@ -391,10 +391,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fix
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
         let aggregate%extract%1#0: bytes = (extract3 array_item%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
-        let values%0#0: uint64 = aggregate%item0%0#0
-        let values%1#0: uint64 = aggregate%item1%0#0
-        let tup.a#0: uint64 = values%0#0
-        let tup.b#0: uint64 = values%1#0
+        let tmp%0#0: uint64 = aggregate%item0%0#0
+        let tmp%1#0: uint64 = aggregate%item1%0#0
+        let tup.a#0: uint64 = tmp%0#0
+        let tup.b#0: uint64 = tmp%1#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#0)
         goto block@3
     block@3: // for_footer_L84
@@ -409,12 +409,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let box%offset%0#0: uint64 = (+ 0u 0u)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L90
-        let continue_looping%0#0: bool = (< value_internal%0#0 values%0#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L91
         let i#0: uint64 = value_internal%0#0
@@ -425,8 +425,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
         let aggregate%extract%1#0: bytes = (extract3 array_item%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
-        let values%2#0: uint64 = aggregate%item1%0#0
-        let tup.b#0: uint64 = values%2#0
+        let tmp%2#0: uint64 = aggregate%item1%0#0
+        let tup.b#0: uint64 = tmp%2#0
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob a#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
@@ -454,12 +454,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let box%offset%0#0: uint64 = (+ 0u 0u)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L97
-        let continue_looping%0#0: bool = (< value_internal%0#0 values%0#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L98
         let i#0: uint64 = value_internal%0#0
@@ -470,8 +470,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
         let aggregate%extract%0#0: bytes = (extract3 array_item%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
-        let values%1#0: uint64 = aggregate%item0%0#0
-        let tup.a#0: uint64 = values%1#0
+        let tmp%1#0: uint64 = aggregate%item0%0#0
+        let tup.a#0: uint64 = tmp%1#0
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tup.a#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
@@ -498,10 +498,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let box%offset%0#0: uint64 = (+ 0u 0u)
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
-        let tmp%0#0: uint64 = (+ start#0 3u)
-        let tmp%1#0: bool = (>= values%0#0 tmp%0#0)
-        (assert tmp%1#0) // not enough items
+        let tmp%0#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%1#0: uint64 = (+ start#0 3u)
+        let tmp%2#0: bool = (>= tmp%0#0 tmp%1#0)
+        (assert tmp%2#0) // not enough items
         let box%offset%1#0: uint64 = (+ 0u 8u)
         let box%box_extract%1#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%1#0 128u)
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = box%box_extract%1#0
@@ -513,48 +513,48 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
         let aggregate%extract%1#0: bytes = (extract3 array_item%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
-        let values%1#0: uint64 = aggregate%item0%0#0
-        let values%2#0: uint64 = aggregate%item1%0#0
-        let tmp%2#0: uint64 = (+ start#0 1u)
-        let aggregate%bytes_offset%1#0: uint64 = (* tmp%2#0 16u)
+        let tmp%3#0: uint64 = aggregate%item0%0#0
+        let tmp%4#0: uint64 = aggregate%item1%0#0
+        let tmp%5#0: uint64 = (+ start#0 1u)
+        let aggregate%bytes_offset%1#0: uint64 = (* tmp%5#0 16u)
         let aggregate%encoded_element%1#0: bytes = (extract3 items#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint64,uint64) = aggregate%encoded_element%1#0
         let aggregate%extract%2#0: bytes = (extract3 array_item%1#0 0u 8u)
         let aggregate%item0%1#0: uint64 = (btoi aggregate%extract%2#0)
         let aggregate%extract%3#0: bytes = (extract3 array_item%1#0 8u 8u)
         let aggregate%item1%1#0: uint64 = (btoi aggregate%extract%3#0)
-        let values%3#0: uint64 = aggregate%item0%1#0
-        let values%4#0: uint64 = aggregate%item1%1#0
-        let tmp%3#0: uint64 = (+ start#0 2u)
-        let aggregate%bytes_offset%2#0: uint64 = (* tmp%3#0 16u)
+        let tmp%6#0: uint64 = aggregate%item0%1#0
+        let tmp%7#0: uint64 = aggregate%item1%1#0
+        let tmp%8#0: uint64 = (+ start#0 2u)
+        let aggregate%bytes_offset%2#0: uint64 = (* tmp%8#0 16u)
         let aggregate%encoded_element%2#0: bytes = (extract3 items#0 aggregate%bytes_offset%2#0 16u) // on error: index access is out of bounds
         let array_item%2#0: Encoded(uint64,uint64) = aggregate%encoded_element%2#0
         let aggregate%extract%4#0: bytes = (extract3 array_item%2#0 0u 8u)
         let aggregate%item0%2#0: uint64 = (btoi aggregate%extract%4#0)
         let aggregate%extract%5#0: bytes = (extract3 array_item%2#0 8u 8u)
         let aggregate%item1%2#0: uint64 = (btoi aggregate%extract%5#0)
-        let values%5#0: uint64 = aggregate%item0%2#0
-        let values%6#0: uint64 = aggregate%item1%2#0
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob values%1#0)
+        let tmp%9#0: uint64 = aggregate%item0%2#0
+        let tmp%10#0: uint64 = aggregate%item1%2#0
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%3#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob values%2#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%4#0)
         let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%as_Encoded(uint64)%1#0)
         let aggregate%as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = aggregate%head%1#0
         let aggregate%head%2#0: bytes = (concat 0x aggregate%as_Encoded(uint64,uint64)%0#0)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob values%3#0)
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%6#0)
         let aggregate%as_Encoded(uint64)%2#0: Encoded(uint64) = aggregate%val_as_bytes%2#0
         let aggregate%head%3#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%2#0)
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob values%4#0)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%7#0)
         let aggregate%as_Encoded(uint64)%3#0: Encoded(uint64) = aggregate%val_as_bytes%3#0
         let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 aggregate%as_Encoded(uint64)%3#0)
         let aggregate%as_Encoded(uint64,uint64)%1#0: Encoded(uint64,uint64) = aggregate%head%4#0
         let aggregate%head%5#0: bytes = (concat aggregate%head%2#0 aggregate%as_Encoded(uint64,uint64)%1#0)
-        let aggregate%val_as_bytes%4#0: bytes[8] = (itob values%5#0)
+        let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%9#0)
         let aggregate%as_Encoded(uint64)%4#0: Encoded(uint64) = aggregate%val_as_bytes%4#0
         let aggregate%head%6#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%4#0)
-        let aggregate%val_as_bytes%5#0: bytes[8] = (itob values%6#0)
+        let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%10#0)
         let aggregate%as_Encoded(uint64)%5#0: Encoded(uint64) = aggregate%val_as_bytes%5#0
         let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%as_Encoded(uint64)%5#0)
         let aggregate%as_Encoded(uint64,uint64)%2#0: Encoded(uint64,uint64) = aggregate%head%7#0
@@ -577,12 +577,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let box%offset%1#0: uint64 = (+ 0u 0u)
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u)
         let tuple_item%1#0: Encoded(uint64) = box%box_extract%1#0
-        let values%0#0: uint64 = (btoi tuple_item%1#0)
+        let tmp%0#0: uint64 = (btoi tuple_item%1#0)
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L119
-        let continue_looping%0#0: bool = (< value_internal%0#0 values%0#0)
+        let continue_looping%0#0: bool = (< value_internal%0#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L120
         let i#0: uint64 = value_internal%0#0
@@ -593,19 +593,19 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
         let aggregate%extract%1#0: bytes = (extract3 array_item%0#0 8u 8u)
         let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
-        let values%1#0: uint64 = aggregate%item0%0#0
-        let values%2#0: uint64 = aggregate%item1%0#0
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob values%1#0)
+        let tmp%1#0: uint64 = aggregate%item0%0#0
+        let tmp%2#0: uint64 = aggregate%item1%0#0
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob values%2#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
         let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%as_Encoded(uint64)%1#0)
         let aggregate%as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = aggregate%head%1#0
         let aggregate%head%2#0: bytes = (concat 0x aggregate%as_Encoded(uint64,uint64)%0#0)
         let aggregate%as_Encoded((uint64,uint64)[])%0#0: Encoded((uint64,uint64)[]) = aggregate%head%2#0
-        let tmp%0#0: Encoded((uint64,uint64)[]) = aggregate%as_Encoded((uint64,uint64)[])%0#0
-        let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#0 tmp%0#0) // on error: max array length exceeded
+        let tmp%3#0: Encoded((uint64,uint64)[]) = aggregate%as_Encoded((uint64,uint64)[])%0#0
+        let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#0 tmp%3#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 result#0 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
@@ -630,20 +630,20 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%get_bit%0#0: bool = (getbit box%box_extract%0#0 box%element_bit_offset%0#0)
         let tuple_item%0#0: bool = aggregate%get_bit%0#0
-        let values%0#0: bool = tuple_item%0#0
-        (assert values%0#0) // app not bootstrapped
+        let tmp%0#0: bool = tuple_item%0#0
+        (assert tmp%0#0) // app not bootstrapped
         let box%offset%0#0: uint64 = (+ 0u 136u)
         let box%box_extract%1#0: Encoded(uint8[32]) = (box_extract "tup_bag" box%offset%0#0 32u)
         let tuple_item%1#0: Encoded(uint8[32]) = box%box_extract%1#0
-        let values%1#0: account = tuple_item%1#0
-        let tmp%0#0: account = (txn Sender)
-        let tmp%1#0: bool = (== values%1#0 tmp%0#0)
-        (assert tmp%1#0) // sender not authorized
+        let tmp%1#0: account = tuple_item%1#0
+        let tmp%2#0: account = (txn Sender)
+        let tmp%3#0: bool = (== tmp%1#0 tmp%2#0)
+        (assert tmp%3#0) // sender not authorized
         let box%offset%1#0: uint64 = (+ 0u 168u)
         let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u)
         let tuple_item%2#0: Encoded(uint64) = box%box_extract%2#0
-        let values%2#0: uint64 = (btoi tuple_item%2#0)
-        let tmp%2#0: uint64 = (global CurrentApplicationID)
-        let tmp%3#0: bool = (== values%2#0 tmp%2#0)
-        (assert tmp%3#0) // this error should be impossible
+        let tmp%4#0: uint64 = (btoi tuple_item%2#0)
+        let tmp%5#0: uint64 = (global CurrentApplicationID)
+        let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
+        (assert tmp%6#0) // this error should be impossible
         return 

@@ -1284,9 +1284,9 @@ subroutine indirect_extract_and_replace:
         box_extract                                                                                                                    box%box_extract%0#0
         // box_storage/contract.py:204
         // large.e += 1
-        btoi                                                                                                                           values%0#0
-        int 1                                                                                                                          values%0#0,1
-        +                                                                                                                              tmp%0#0
+        btoi                                                                                                                           tmp%0#0
+        int 1                                                                                                                          tmp%0#0,1
+        +                                                                                                                              tmp%1#0
         itob                                                                                                                           aggregate%val_as_bytes%0#0
         // box_storage/contract.py:205
         // self.box_large.value = large.copy()
@@ -1340,31 +1340,31 @@ subroutine read_boxes:
         int 4096                                                                                                                       tmp%1#1,tmp%2#1,aggregate%box_get%4#0,"box_large",4096
         int 8                                                                                                                          tmp%1#1,tmp%2#1,aggregate%box_get%4#0,"box_large",4096,8
         box_extract                                                                                                                    tmp%1#1,tmp%2#1,aggregate%box_get%4#0,box%box_extract%0#0
-        btoi                                                                                                                           tmp%1#1,tmp%2#1,aggregate%box_get%4#0,values%0#0
+        btoi                                                                                                                           tmp%1#1,tmp%2#1,aggregate%box_get%4#0,tmp%3#1
         // box_storage/contract.py:207
         // @arc4.abimethod
-        l-load tmp%1#1 3                                                                                                               tmp%2#1,aggregate%box_get%4#0,values%0#0,tmp%1#1
-        itob                                                                                                                           tmp%2#1,aggregate%box_get%4#0,values%0#0,aggregate%val_as_bytes%0#0
-        l-load-copy tmp%2#1 3                                                                                                          tmp%2#1,aggregate%box_get%4#0,values%0#0,aggregate%val_as_bytes%0#0,tmp%2#1 (copy)
-        len                                                                                                                            tmp%2#1,aggregate%box_get%4#0,values%0#0,aggregate%val_as_bytes%0#0,aggregate%length%0#0
-        itob                                                                                                                           tmp%2#1,aggregate%box_get%4#0,values%0#0,aggregate%val_as_bytes%0#0,aggregate%as_bytes%0#0
-        extract 6 2                                                                                                                    tmp%2#1,aggregate%box_get%4#0,values%0#0,aggregate%val_as_bytes%0#0,aggregate%length_uint16%0#0
-        l-load tmp%2#1 4                                                                                                               aggregate%box_get%4#0,values%0#0,aggregate%val_as_bytes%0#0,aggregate%length_uint16%0#0,tmp%2#1
-        concat                                                                                                                         aggregate%box_get%4#0,values%0#0,aggregate%val_as_bytes%0#0,aggregate%encoded_value%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                                                                            aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0
-        byte 0x0014                                                                                                                    aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0,0x0014
-        concat                                                                                                                         aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0
-        l-load-copy aggregate%encoded_value%0#0 1                                                                                      aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%encoded_value%0#0 (copy)
-        len                                                                                                                            aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%data_length%0#0
-        int 20                                                                                                                         aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%data_length%0#0,20
-        l-load aggregate%data_length%0#0 1                                                                                             aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,20,aggregate%data_length%0#0
-        +                                                                                                                              aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%current_tail_offset%0#0
-        itob                                                                                                                           aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%as_bytes%2#0
-        extract 6 2                                                                                                                    aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%offset_as_uint16%1#0
-        l-load aggregate%head%1#0 1                                                                                                    aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%offset_as_uint16%1#0,aggregate%head%1#0
-        l-load aggregate%offset_as_uint16%1#0 1                                                                                        aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%offset_as_uint16%1#0
-        concat                                                                                                                         aggregate%box_get%4#0,values%0#0,aggregate%encoded_value%0#0,aggregate%head%2#0
-        l-load values%0#0 2                                                                                                            aggregate%box_get%4#0,aggregate%encoded_value%0#0,aggregate%head%2#0,values%0#0
+        l-load tmp%1#1 3                                                                                                               tmp%2#1,aggregate%box_get%4#0,tmp%3#1,tmp%1#1
+        itob                                                                                                                           tmp%2#1,aggregate%box_get%4#0,tmp%3#1,aggregate%val_as_bytes%0#0
+        l-load-copy tmp%2#1 3                                                                                                          tmp%2#1,aggregate%box_get%4#0,tmp%3#1,aggregate%val_as_bytes%0#0,tmp%2#1 (copy)
+        len                                                                                                                            tmp%2#1,aggregate%box_get%4#0,tmp%3#1,aggregate%val_as_bytes%0#0,aggregate%length%0#0
+        itob                                                                                                                           tmp%2#1,aggregate%box_get%4#0,tmp%3#1,aggregate%val_as_bytes%0#0,aggregate%as_bytes%0#0
+        extract 6 2                                                                                                                    tmp%2#1,aggregate%box_get%4#0,tmp%3#1,aggregate%val_as_bytes%0#0,aggregate%length_uint16%0#0
+        l-load tmp%2#1 4                                                                                                               aggregate%box_get%4#0,tmp%3#1,aggregate%val_as_bytes%0#0,aggregate%length_uint16%0#0,tmp%2#1
+        concat                                                                                                                         aggregate%box_get%4#0,tmp%3#1,aggregate%val_as_bytes%0#0,aggregate%encoded_value%0#0
+        l-load aggregate%val_as_bytes%0#0 1                                                                                            aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0
+        byte 0x0014                                                                                                                    aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0,0x0014
+        concat                                                                                                                         aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0
+        l-load-copy aggregate%encoded_value%0#0 1                                                                                      aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%encoded_value%0#0 (copy)
+        len                                                                                                                            aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%data_length%0#0
+        int 20                                                                                                                         aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%data_length%0#0,20
+        l-load aggregate%data_length%0#0 1                                                                                             aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,20,aggregate%data_length%0#0
+        +                                                                                                                              aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%current_tail_offset%0#0
+        itob                                                                                                                           aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%as_bytes%2#0
+        extract 6 2                                                                                                                    aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%offset_as_uint16%1#0
+        l-load aggregate%head%1#0 1                                                                                                    aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%offset_as_uint16%1#0,aggregate%head%1#0
+        l-load aggregate%offset_as_uint16%1#0 1                                                                                        aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%1#0,aggregate%offset_as_uint16%1#0
+        concat                                                                                                                         aggregate%box_get%4#0,tmp%3#1,aggregate%encoded_value%0#0,aggregate%head%2#0
+        l-load tmp%3#1 2                                                                                                               aggregate%box_get%4#0,aggregate%encoded_value%0#0,aggregate%head%2#0,tmp%3#1
         itob                                                                                                                           aggregate%box_get%4#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0
         l-load aggregate%head%2#0 1                                                                                                    aggregate%box_get%4#0,aggregate%encoded_value%0#0,aggregate%val_as_bytes%1#0,aggregate%head%2#0
         l-load aggregate%val_as_bytes%1#0 1                                                                                            aggregate%box_get%4#0,aggregate%encoded_value%0#0,aggregate%head%2#0,aggregate%val_as_bytes%1#0
@@ -1505,9 +1505,9 @@ subroutine append_dynamic_arr_struct:
         int 10                                                                                                                         (𝕗) times#0 | times#0,"dynamic_arr_struct",10
         int 8                                                                                                                          (𝕗) times#0 | times#0,"dynamic_arr_struct",10,8
         box_extract                                                                                                                    (𝕗) times#0 | times#0,box%box_extract%0#0
-        btoi                                                                                                                           (𝕗) times#0 | times#0,values%0#0
-        int 2                                                                                                                          (𝕗) times#0 | times#0,values%0#0,2
-        ==                                                                                                                             (𝕗) times#0 | times#0,tmp%0#1
+        btoi                                                                                                                           (𝕗) times#0 | times#0,tmp%0#1
+        int 2                                                                                                                          (𝕗) times#0 | times#0,tmp%0#1,2
+        ==                                                                                                                             (𝕗) times#0 | times#0,tmp%1#1
         assert // expected 2                                                                                                           (𝕗) times#0 | times#0
         // box_storage/contract.py:238
         // arr_len = self.dynamic_arr_struct.value.arr.length
@@ -1538,66 +1538,66 @@ subroutine append_dynamic_arr_struct:
         // box_storage/contract.py:527
         // dyn_arr_index = size_of(arc4.UInt16) + index * size_of(UInt64)
         int 8                                                                                                                          (𝕗) times#0,arr_len#0 | times#0,arr_len#0,arr2_len#0,arr_size#1,8
-        *                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,arr2_len#0,tmp%3#2
+        *                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,arr2_len#0,tmp%3#1
         // box_storage/contract.py:527-528
         // dyn_arr_index = size_of(arc4.UInt16) + index * size_of(UInt64)
         // return head + dyn_arr_index
-        int 22                                                                                                                         (𝕗) times#0,arr_len#0 | times#0,arr_len#0,arr2_len#0,tmp%3#2,22
+        int 22                                                                                                                         (𝕗) times#0,arr_len#0 | times#0,arr_len#0,arr2_len#0,tmp%3#1,22
         +                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,arr2_len#0,head_and_dyn_arr#1
         // box_storage/contract.py:534
         // dyn_arr2_index = size_of(arc4.UInt16) + arr2_index * size_of(UInt64)
         l-load arr2_len#0 1                                                                                                            (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,arr2_len#0
         int 8                                                                                                                          (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,arr2_len#0,8
-        *                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,tmp%1#1
-        int 2                                                                                                                          (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,tmp%1#1,2
-        l-load tmp%1#1 1                                                                                                               (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,2,tmp%1#1
+        *                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,tmp%1#3
+        int 2                                                                                                                          (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,tmp%1#3,2
+        l-load tmp%1#3 1                                                                                                               (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,2,tmp%1#3
         +                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,dyn_arr2_index#1
         // box_storage/contract.py:535
         // return head_and_dyn_arr + dyn_arr2_index
         l-load head_and_dyn_arr#1 1                                                                                                    (𝕗) times#0,arr_len#0 | times#0,arr_len#0,dyn_arr2_index#1,head_and_dyn_arr#1
         l-load dyn_arr2_index#1 1                                                                                                      (𝕗) times#0,arr_len#0 | times#0,arr_len#0,head_and_dyn_arr#1,dyn_arr2_index#1
-        +                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,tmp%3#2
+        +                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,arr_len#0,tmp%3#1
         // box_storage/contract.py:242
         // self.dynamic_arr_struct.resize(
-        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,arr_len#0 | times#0,arr_len#0,tmp%3#2,"dynamic_arr_struct"
+        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,arr_len#0 | times#0,arr_len#0,tmp%3#1,"dynamic_arr_struct"
         // box_storage/contract.py:242-244
         // self.dynamic_arr_struct.resize(
         //     get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len)
         // )
-        l-load tmp%3#2 1                                                                                                               (𝕗) times#0,arr_len#0 | times#0,arr_len#0,"dynamic_arr_struct",tmp%3#2
+        l-load tmp%3#1 1                                                                                                               (𝕗) times#0,arr_len#0 | times#0,arr_len#0,"dynamic_arr_struct",tmp%3#1
         box_resize                                                                                                                     (𝕗) times#0,arr_len#0 | times#0,arr_len#0
         // box_storage/contract.py:527
         // dyn_arr_index = size_of(arc4.UInt16) + index * size_of(UInt64)
         l-load arr_len#0 0                                                                                                             (𝕗) times#0,arr_len#0 | times#0,arr_len#0
         int 8                                                                                                                          (𝕗) times#0,arr_len#0 | times#0,arr_len#0,8
-        *                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,tmp%3#2
+        *                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,tmp%3#1
         // box_storage/contract.py:527-528
         // dyn_arr_index = size_of(arc4.UInt16) + index * size_of(UInt64)
         // return head + dyn_arr_index
-        int 22                                                                                                                         (𝕗) times#0,arr_len#0 | times#0,tmp%3#2,22
+        int 22                                                                                                                         (𝕗) times#0,arr_len#0 | times#0,tmp%3#1,22
         +                                                                                                                              (𝕗) times#0,arr_len#0 | times#0,tmp%5#1
         // box_storage/contract.py:247
         // get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         l-load times#0 1                                                                                                               (𝕗) times#0,arr_len#0 | tmp%5#1,times#0
         int 8                                                                                                                          (𝕗) times#0,arr_len#0 | tmp%5#1,times#0,8
-        *                                                                                                                              (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%6#0
-        bzero                                                                                                                          (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%7#0
+        *                                                                                                                              (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%7#0
+        bzero                                                                                                                          (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%8#0
         // box_storage/contract.py:246
         // self.dynamic_arr_struct.splice(
-        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%7#0,"dynamic_arr_struct"
+        byte "dynamic_arr_struct"                                                                                                      (𝕗) times#0,arr_len#0 | tmp%5#1,tmp%8#0,"dynamic_arr_struct"
         // box_storage/contract.py:246-248
         // self.dynamic_arr_struct.splice(
         //     get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         // )
-        l-load tmp%5#1 2                                                                                                               (𝕗) times#0,arr_len#0 | tmp%7#0,"dynamic_arr_struct",tmp%5#1
+        l-load tmp%5#1 2                                                                                                               (𝕗) times#0,arr_len#0 | tmp%8#0,"dynamic_arr_struct",tmp%5#1
         // box_storage/contract.py:247
         // get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
-        int 0                                                                                                                          (𝕗) times#0,arr_len#0 | tmp%7#0,"dynamic_arr_struct",tmp%5#1,0
+        int 0                                                                                                                          (𝕗) times#0,arr_len#0 | tmp%8#0,"dynamic_arr_struct",tmp%5#1,0
         // box_storage/contract.py:246-248
         // self.dynamic_arr_struct.splice(
         //     get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         // )
-        l-load tmp%7#0 3                                                                                                               (𝕗) times#0,arr_len#0 | "dynamic_arr_struct",tmp%5#1,0,tmp%7#0
+        l-load tmp%8#0 3                                                                                                               (𝕗) times#0,arr_len#0 | "dynamic_arr_struct",tmp%5#1,0,tmp%8#0
         box_splice                                                                                                                     (𝕗) times#0,arr_len#0 |
         // box_storage/contract.py:251
         // for i in urange(times):
@@ -1673,14 +1673,14 @@ subroutine append_dynamic_arr_struct:
         // dyn_arr_index = size_of(arc4.UInt16) + index * size_of(UInt64)
         l-load-copy arr_len#0 0                                                                                                        (𝕗) times#0,arr_len#0,i#0 | arr_len#0,arr_len#0 (copy)
         int 8                                                                                                                          (𝕗) times#0,arr_len#0,i#0 | arr_len#0,arr_len#0 (copy),8
-        *                                                                                                                              (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#2
+        *                                                                                                                              (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#1
         // box_storage/contract.py:535
         // return head_and_dyn_arr + dyn_arr2_index
-        int 24                                                                                                                         (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#2,24
-        +                                                                                                                              (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#2
+        int 24                                                                                                                         (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#1,24
+        +                                                                                                                              (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#1
         // box_storage/contract.py:256
         // arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
-        int 2                                                                                                                          (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#2,2
+        int 2                                                                                                                          (𝕗) times#0,arr_len#0,i#0 | arr_len#0,tmp%3#1,2
         -                                                                                                                              (𝕗) times#0,arr_len#0,i#0 | arr_len#0,arr2_offset#0
         // box_storage/contract.py:257
         // box.value.arr2_offset = arc4.UInt16(arr2_offset)
@@ -1709,7 +1709,7 @@ subroutine append_dynamic_arr_struct:
         btoi                                                                                                                           (𝕗) times#0,arr_len#0,i#0 | arr_len#0,box%array_length%2#0
         l-load-copy box%array_length%2#0 0                                                                                             (𝕗) times#0,arr_len#0,i#0 | arr_len#0,box%array_length%2#0,box%array_length%2#0 (copy)
         l-load arr_len#0 2                                                                                                             (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,box%array_length%2#0 (copy),arr_len#0
-        ==                                                                                                                             (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,tmp%14#0
+        ==                                                                                                                             (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,tmp%15#0
         // box_storage/contract.py:259-261
         // assert (
         //     self.dynamic_arr_struct.value.arr.length == arr_len
@@ -1727,7 +1727,7 @@ subroutine append_dynamic_arr_struct:
         int 2                                                                                                                          (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,"dynamic_arr_struct",box%btoi%1#0,2
         box_extract                                                                                                                    (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,box%box_extract%6#0
         btoi                                                                                                                           (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,box%array_length%3#0
-        !                                                                                                                              (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,tmp%16#0
+        !                                                                                                                              (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0,tmp%17#0
         assert // expected arr2 length to be correct                                                                                   (𝕗) times#0,arr_len#0,i#0 | box%array_length%2#0
         // box_storage/contract.py:233
         // @arc4.abimethod
@@ -2157,7 +2157,7 @@ subroutine set_nested_struct:
         // assert struct.a, "struct.a is truthy"
         f-load struct#0                                                                                                                (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct#0
         int 0                                                                                                                          (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct#0,0
-        extract_uint64                                                                                                                 (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | values%0#0
+        extract_uint64                                                                                                                 (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | tmp%0#1
         assert // struct.a is truthy                                                                                                   (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 |
         // box_storage/contract.py:291
         // struct_bytes = Txn.application_args(1)
@@ -2172,13 +2172,13 @@ subroutine set_nested_struct:
         // box_storage/contract.py:295
         // box.create(size=tail_offset + struct_size)
         l-load struct_size#0 1                                                                                                         (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,4098,struct_size#0
-        +                                                                                                                              (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,tmp%3#0
+        +                                                                                                                              (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,tmp%4#0
         // box_storage/contract.py:289
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                                                     (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,tmp%3#0,"box"
+        byte "box"                                                                                                                     (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,tmp%4#0,"box"
         // box_storage/contract.py:295
         // box.create(size=tail_offset + struct_size)
-        l-load tmp%3#0 1                                                                                                               (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,"box",tmp%3#0
+        l-load tmp%4#0 1                                                                                                               (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,"box",tmp%4#0
         box_create                                                                                                                     (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0,{box_create}
         pop 1                                                                                                                          (𝕗) array_data%1#0,array_data%2#0,add%2#0,aggregate%array_length%2#0,aggregate%array_length%3#0,index%1#0,index%2#0,num_bytes%2#0,num_bytes%3#0,struct#0,tuple_len%0#0,aggregate%array_length%0#0,num_bytes%0#0,array_data%0#0,index%0#0 | struct_bytes#0
         // box_storage/contract.py:289
@@ -2698,15 +2698,15 @@ subroutine nested_read:
         // return a + b + arr_arr + c + d + woah_arr_arr
         l-load a#0 5                                                                                                                   b#0,arr_arr#0,c#0,d#0,woah_arr_arr#0,a#0
         l-load b#0 5                                                                                                                   arr_arr#0,c#0,d#0,woah_arr_arr#0,a#0,b#0
-        +                                                                                                                              arr_arr#0,c#0,d#0,woah_arr_arr#0,tmp%0#1
-        l-load arr_arr#0 4                                                                                                             c#0,d#0,woah_arr_arr#0,tmp%0#1,arr_arr#0
-        +                                                                                                                              c#0,d#0,woah_arr_arr#0,tmp%1#1
-        l-load c#0 3                                                                                                                   d#0,woah_arr_arr#0,tmp%1#1,c#0
-        +                                                                                                                              d#0,woah_arr_arr#0,tmp%2#1
-        l-load d#0 2                                                                                                                   woah_arr_arr#0,tmp%2#1,d#0
-        +                                                                                                                              woah_arr_arr#0,tmp%3#1
-        l-load woah_arr_arr#0 1                                                                                                        tmp%3#1,woah_arr_arr#0
-        +                                                                                                                              tmp%4#1
+        +                                                                                                                              arr_arr#0,c#0,d#0,woah_arr_arr#0,tmp%6#1
+        l-load arr_arr#0 4                                                                                                             c#0,d#0,woah_arr_arr#0,tmp%6#1,arr_arr#0
+        +                                                                                                                              c#0,d#0,woah_arr_arr#0,tmp%7#1
+        l-load c#0 3                                                                                                                   d#0,woah_arr_arr#0,tmp%7#1,c#0
+        +                                                                                                                              d#0,woah_arr_arr#0,tmp%8#1
+        l-load d#0 2                                                                                                                   woah_arr_arr#0,tmp%8#1,d#0
+        +                                                                                                                              woah_arr_arr#0,tmp%9#0
+        l-load woah_arr_arr#0 1                                                                                                        tmp%9#0,woah_arr_arr#0
+        +                                                                                                                              tmp%10#0
         // box_storage/contract.py:311
         // @arc4.abimethod()
         itob                                                                                                                           aggregate%val_as_bytes%0#0
@@ -2728,26 +2728,26 @@ subroutine sum_dynamic_arr_struct:
         int 0                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | "dynamic_arr_struct",0
         int 8                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | "dynamic_arr_struct",0,8
         box_extract                                                                                                                    (𝕗) box%array_length%1#0,item_index_internal%1#0 | box%box_extract%0#0
-        btoi                                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0
-        l-load-copy values%0#0 0                                                                                                       (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%0#0 (copy)
-        int 1                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%0#0 (copy),1
-        ==                                                                                                                             (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,tmp%0#1
-        assert // expected 1                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0
+        btoi                                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1
+        l-load-copy tmp%0#1 0                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%0#1 (copy)
+        int 1                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%0#1 (copy),1
+        ==                                                                                                                             (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%1#1
+        assert // expected 1                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1
         // box_storage/contract.py:326
         // assert self.dynamic_arr_struct.value.b == 2, "expected 2"
-        byte "dynamic_arr_struct"                                                                                                      (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,"dynamic_arr_struct"
-        int 10                                                                                                                         (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,"dynamic_arr_struct",10
-        int 8                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,"dynamic_arr_struct",10,8
-        box_extract                                                                                                                    (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,box%box_extract%1#0
-        btoi                                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%1#0
-        l-load-copy values%1#0 0                                                                                                       (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%1#0,values%1#0 (copy)
-        int 2                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%1#0,values%1#0 (copy),2
-        ==                                                                                                                             (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%1#0,tmp%1#1
-        assert // expected 2                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%1#0
+        byte "dynamic_arr_struct"                                                                                                      (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,"dynamic_arr_struct"
+        int 10                                                                                                                         (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,"dynamic_arr_struct",10
+        int 8                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,"dynamic_arr_struct",10,8
+        box_extract                                                                                                                    (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,box%box_extract%1#0
+        btoi                                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%2#1
+        l-load-copy tmp%2#1 0                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%2#1,tmp%2#1 (copy)
+        int 2                                                                                                                          (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%2#1,tmp%2#1 (copy),2
+        ==                                                                                                                             (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%2#1,tmp%3#0
+        assert // expected 2                                                                                                           (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%2#1
         // box_storage/contract.py:327
         // total = self.dynamic_arr_struct.value.a + self.dynamic_arr_struct.value.b
-        l-load values%0#0 1                                                                                                            (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%1#0,values%0#0
-        l-load values%1#0 1                                                                                                            (𝕗) box%array_length%1#0,item_index_internal%1#0 | values%0#0,values%1#0
+        l-load tmp%0#1 1                                                                                                               (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%2#1,tmp%0#1
+        l-load tmp%2#1 1                                                                                                               (𝕗) box%array_length%1#0,item_index_internal%1#0 | tmp%0#1,tmp%2#1
         +                                                                                                                              (𝕗) box%array_length%1#0,item_index_internal%1#0 | total#0
         f-store total#0                                                                                                                (𝕗) box%array_length%1#0,item_index_internal%1#0,total#0 |
         // box_storage/contract.py:328
@@ -3003,7 +3003,7 @@ subroutine sum_bools:
         // if total == stop_at_total:
         f-load total#0                                                                                                                 (𝕗) stop_at_total#0,total#0,item_index_internal%0#0 | total#0
         f-load stop_at_total#0                                                                                                         (𝕗) stop_at_total#0,total#0,item_index_internal%0#0 | total#0,stop_at_total#0
-        ==                                                                                                                             (𝕗) stop_at_total#0,total#0,item_index_internal%0#0 | tmp%1#1
+        ==                                                                                                                             (𝕗) stop_at_total#0,total#0,item_index_internal%0#0 | tmp%2#1
         bz sum_bools_after_if_else@7 ; b sum_bools_after_for@9                                                                         (𝕗) stop_at_total#0,total#0,item_index_internal%0#0 |
 
     sum_bools_after_if_else@7:                                                                                                         (𝕗) stop_at_total#0,total#0,item_index_internal%0#0 |

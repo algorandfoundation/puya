@@ -39,7 +39,7 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
         return 
 
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L227
+    block@0: // L231
         let tmp%0#0: bytes = ((substring 0 2) array#0)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
@@ -50,7 +50,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L251
+    block@0: // L255
         let tmp%0#0: bytes = ((substring 0 2) source#0)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
@@ -61,7 +61,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L264
+    block@0: // L268
         let tmp%0#0: uint64 = (* index#0 2u)
         let tmp%1#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
         let original_offset#0: uint64 = tmp%1#0
@@ -91,12 +91,12 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         (assert 2u) // Step cannot be zero
         let value_internal%0#0: uint64 = tmp%17#0
         goto block@1
-    block@1: // for_header_L282
+    block@1: // for_header_L286
         let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< value_internal%0#1 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L283
+    block@2: // for_body_L287
         let head_offset#0: uint64 = value_internal%0#1
         let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#0)
         let tail_offset#0: uint64 = tmp%18#0
@@ -110,14 +110,14 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%23#0: bytes = (replace3 new_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
         let new_head_and_tail#2: bytes = tmp%23#0
         goto block@3
-    block@3: // for_footer_L282
+    block@3: // for_footer_L286
         let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
         goto block@1
-    block@4: // after_for_L282
+    block@4: // after_for_L286
         return new_head_and_tail#1
 
 subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L291
+    block@0: // L295
         let tmp%0#0: bool = (< index#0 array_length#0)
         (assert tmp%0#0) // Index out of bounds
         let tmp%1#0: uint64 = (* index#0 2u)
@@ -137,7 +137,7 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
         return tmp%11#0
 
 subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
-    block@0: // L320
+    block@0: // L324
         let tmp%0#0: uint64 = (* length#0 2u)
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
@@ -148,13 +148,13 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         (assert 2u) // Step cannot be zero
         let value_internal%0#0: uint64 = tmp%5#0
         goto block@1
-    block@1: // for_header_L342
+    block@1: // for_header_L346
         let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< value_internal%0#1 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L343
+    block@2: // for_body_L347
         let head_offset#0: uint64 = value_internal%0#1
         let tmp%6#0: bytes = (itob tail_offset#1)
         let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
@@ -168,10 +168,10 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tmp%12#0: uint64 = (+ head_offset#0 2u)
         let head_offset#1: uint64 = tmp%12#0
         goto block@3
-    block@3: // for_footer_L342
+    block@3: // for_footer_L346
         let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
         goto block@1
-    block@4: // after_for_L342
+    block@4: // after_for_L346
         return array_head_and_tail#1
 
 subroutine examples.box_storage.contract.get_box_value_plus_1(box: bytes) -> uint64:
@@ -1256,10 +1256,10 @@ subroutine examples.box_storage.contract.BoxContract.sum_many_ints() -> uint64:
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L185
         let array_item%0#0: Encoded(uint64) = extract_value(storage_value%0#0, item_index_internal%0#1)
-        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
-        let val#0: uint64 = values%0#0
-        let tmp%0#0: uint64 = (+ total#1 val#0)
-        let total#2: uint64 = tmp%0#0
+        let tmp%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
+        let val#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (+ total#1 val#0)
+        let total#2: uint64 = tmp%1#0
         goto block@3
     block@3: // for_footer_L184
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -1305,9 +1305,9 @@ subroutine examples.box_storage.contract.BoxContract.indirect_extract_and_replac
         let storage_value%0#0: bytes = box_read("box_large")
         let large#0: Encoded(uint8[1024],uint8[1024],uint8[1024],uint8[1024],uint64,uint8[1024],uint8[1024],uint64) = storage_value%0#0
         let tuple_item%0#0: Encoded(uint64) = extract_value(large#0, 4)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let tmp%0#0: uint64 = (+ values%0#0 1u)
-        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%1#0: uint64 = (+ tmp%0#0 1u)
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#0)
         let updated_tuple%0#0: Encoded(uint8[1024],uint8[1024],uint8[1024],uint8[1024],uint64,uint8[1024],uint8[1024],uint64) = replace_value(large#0, 4, encoded_value%0#0)
         let large#1: Encoded(uint8[1024],uint8[1024],uint8[1024],uint8[1024],uint64,uint8[1024],uint8[1024],uint64) = updated_tuple%0#0
         box_write("box_large", large#1)
@@ -1322,8 +1322,8 @@ subroutine examples.box_storage.contract.BoxContract.read_boxes() -> <uint64, by
         let storage_value%1#0: bytes = box_read(0x424f585f43)
         let storage_value%2#0: bytes = box_read("box_large")
         let tuple_item%0#0: Encoded(uint64) = extract_value(storage_value%2#0, 4)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        return tmp%1#0 tmp%2#0 storage_value%1#0 values%0#0
+        let tmp%3#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        return tmp%1#0 tmp%2#0 storage_value%1#0 tmp%3#0
 
 subroutine examples.box_storage.contract.BoxContract.boxes_exist() -> <bool, bool, bool, bool>:
     block@0: // L216
@@ -1353,24 +1353,24 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
     block@0: // L233
         let storage_value%0#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%0#0: Encoded(uint64) = extract_value(storage_value%0#0, 2)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let tmp%0#0: bool = (== values%0#0 2u)
-        (assert tmp%0#0) // expected 2
+        let tmp%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%1#0: bool = (== tmp%0#0 2u)
+        (assert tmp%1#0) // expected 2
         let storage_value%1#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%1#0: Encoded(len+uint64[]) = extract_value(storage_value%1#0, 1)
-        let tmp%1#0: uint64 = array_len(tuple_item%1#0)
-        let arr_len#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = array_len(tuple_item%1#0)
+        let arr_len#0: uint64 = tmp%2#0
         let storage_value%2#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%2#0: Encoded(len+uint64[]) = extract_value(storage_value%2#0, 3)
-        let tmp%2#0: uint64 = array_len(tuple_item%2#0)
-        let arr2_len#0: uint64 = tmp%2#0
-        let tmp%3#0: uint64 = (+ arr_len#0 times#0)
-        let tmp%4#0: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(tmp%3#0, arr2_len#0)
-        (box_resize "dynamic_arr_struct" tmp%4#0)
-        let tmp%5#0: uint64 = examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len#0)
-        let tmp%6#0: uint64 = (* times#0 8u)
-        let tmp%7#0: bytes = (bzero tmp%6#0)
-        (box_splice "dynamic_arr_struct" tmp%5#0 0u tmp%7#0)
+        let tmp%3#0: uint64 = array_len(tuple_item%2#0)
+        let arr2_len#0: uint64 = tmp%3#0
+        let tmp%4#0: uint64 = (+ arr_len#0 times#0)
+        let tmp%5#0: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(tmp%4#0, arr2_len#0)
+        (box_resize "dynamic_arr_struct" tmp%5#0)
+        let tmp%6#0: uint64 = examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len#0)
+        let tmp%7#0: uint64 = (* times#0 8u)
+        let tmp%8#0: bytes = (bzero tmp%7#0)
+        (box_splice "dynamic_arr_struct" tmp%6#0 0u tmp%8#0)
         let box#0: bytes = "dynamic_arr_struct"
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 0u
@@ -1386,38 +1386,38 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(i#0)
         let updated_tuple%0#0: Encoded(uint64,uint16,uint64,uint16,(uint16,uint64[4095])) = replace_value(storage_value%3#0, 4, 1, arr_len#1, encoded_value%0#0)
         box_write(box#0, updated_tuple%0#0)
-        let tmp%8#0: uint64 = (+ arr_len#1 1u)
-        let arr_len#2: uint64 = tmp%8#0
+        let tmp%9#0: uint64 = (+ arr_len#1 1u)
+        let arr_len#2: uint64 = tmp%9#0
         goto block@3
     block@3: // for_footer_L251
         let value_internal%0#2: uint64 = (+ value_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L251
-        let tmp%9#0: Encoded(uint16) = bytes_encode<uint16>(arr_len#1)
+        let tmp%10#0: Encoded(uint16) = bytes_encode<uint16>(arr_len#1)
         let storage_value%4#0: bytes = box_read(box#0)
-        let updated_tuple%1#0: Encoded(uint64,uint16,uint64,uint16,(uint16,uint64[4095])) = replace_value(storage_value%4#0, 4, 0, tmp%9#0)
+        let updated_tuple%1#0: Encoded(uint64,uint16,uint64,uint16,(uint16,uint64[4095])) = replace_value(storage_value%4#0, 4, 0, tmp%10#0)
         box_write(box#0, updated_tuple%1#0)
-        let tmp%10#0: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len#1, 0u)
-        let tmp%11#0: uint64 = (- tmp%10#0 2u)
-        let arr2_offset#0: uint64 = tmp%11#0
-        let tmp%12#0: Encoded(uint16) = bytes_encode<uint16>(arr2_offset#0)
+        let tmp%11#0: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len#1, 0u)
+        let tmp%12#0: uint64 = (- tmp%11#0 2u)
+        let arr2_offset#0: uint64 = tmp%12#0
+        let tmp%13#0: Encoded(uint16) = bytes_encode<uint16>(arr2_offset#0)
         let storage_value%5#0: bytes = box_read(box#0)
-        let updated_tuple%2#0: Encoded(uint64,uint16,uint64,uint16,(uint16,uint64[4095])) = replace_value(storage_value%5#0, 3, tmp%12#0)
+        let updated_tuple%2#0: Encoded(uint64,uint16,uint64,uint16,(uint16,uint64[4095])) = replace_value(storage_value%5#0, 3, tmp%13#0)
         box_write(box#0, updated_tuple%2#0)
         let storage_value%6#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%3#0: Encoded(len+uint64[]) = extract_value(storage_value%6#0, 1)
-        let tmp%13#0: uint64 = array_len(tuple_item%3#0)
-        let tmp%14#0: bool = (== tmp%13#0 arr_len#1)
-        (assert tmp%14#0) // expected arr length to be correct
+        let tmp%14#0: uint64 = array_len(tuple_item%3#0)
+        let tmp%15#0: bool = (== tmp%14#0 arr_len#1)
+        (assert tmp%15#0) // expected arr length to be correct
         let storage_value%7#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%4#0: Encoded(len+uint64[]) = extract_value(storage_value%7#0, 3)
-        let tmp%15#0: uint64 = array_len(tuple_item%4#0)
-        let tmp%16#0: bool = (== tmp%15#0 0u)
-        (assert tmp%16#0) // expected arr2 length to be correct
+        let tmp%16#0: uint64 = array_len(tuple_item%4#0)
+        let tmp%17#0: bool = (== tmp%16#0 0u)
+        (assert tmp%17#0) // expected arr2 length to be correct
         let storage_value%8#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%5#0: Encoded(len+uint64[]) = extract_value(storage_value%8#0, 1)
-        let tmp%17#0: uint64 = array_len(tuple_item%5#0)
-        return tmp%17#0
+        let tmp%18#0: uint64 = array_len(tuple_item%5#0)
+        return tmp%18#0
 
 subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(times: uint64) -> uint64:
     block@0: // L265
@@ -1458,19 +1458,19 @@ subroutine examples.box_storage.contract.BoxContract.set_nested_struct(struct: E
     block@0: // L287
         let box#0: bytes = "box"
         let tuple_item%0#0: Encoded(uint64) = extract_value(struct#0, 0)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let tmp%0#0: bool = (!= values%0#0 0u)
-        (assert tmp%0#0) // struct.a is truthy
-        let tmp%1#0: bytes = (txna ApplicationArgs 1)
-        let struct_bytes#0: bytes = tmp%1#0
-        let tmp%2#0: uint64 = (len struct_bytes#0)
-        let struct_size#0: uint64 = tmp%2#0
+        let tmp%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        (assert tmp%1#0) // struct.a is truthy
+        let tmp%2#0: bytes = (txna ApplicationArgs 1)
+        let struct_bytes#0: bytes = tmp%2#0
+        let tmp%3#0: uint64 = (len struct_bytes#0)
+        let struct_size#0: uint64 = tmp%3#0
         let tail_offset#0: uint64 = 4098u
-        let tmp%3#0: uint64 = (+ tail_offset#0 struct_size#0)
-        (box_create box#0 tmp%3#0)
-        let tmp%4#0: uint64 = (- tail_offset#0 2u)
-        let tmp%5#0: Encoded(uint16) = bytes_encode<uint16>(tail_offset#0)
-        (box_replace box#0 tmp%4#0 tmp%5#0)
+        let tmp%4#0: uint64 = (+ tail_offset#0 struct_size#0)
+        (box_create box#0 tmp%4#0)
+        let tmp%5#0: uint64 = (- tail_offset#0 2u)
+        let tmp%6#0: Encoded(uint16) = bytes_encode<uint16>(tail_offset#0)
+        (box_replace box#0 tmp%5#0 tmp%6#0)
         (box_replace box#0 tail_offset#0 struct_bytes#0)
         return 
 
@@ -1514,33 +1514,33 @@ subroutine examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2:
         let storage_value%0#0: bytes = box_read(box#0)
         let tuple_item%0#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = extract_value(storage_value%0#0, 1)
         let tuple_item%1#0: Encoded(uint64) = extract_value(tuple_item%0#0, 0)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
-        let a#0: uint64 = values%0#0
+        let tmp%0#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
+        let a#0: uint64 = tmp%0#0
         let storage_value%1#0: bytes = box_read(box#0)
         let tuple_item%2#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = extract_value(storage_value%1#0, 1)
         let tuple_item%3#0: Encoded(uint64) = extract_value(tuple_item%2#0, 3)
-        let values%1#0: uint64 = decode_bytes<uint64>(tuple_item%3#0)
-        let b#0: uint64 = values%1#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(tuple_item%3#0)
+        let b#0: uint64 = tmp%1#0
         let storage_value%2#0: bytes = box_read(box#0)
         let tuple_item%4#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = extract_value(storage_value%2#0, 1)
         let tuple_item%5#0: Encoded(uint64,(len+(len+uint64[])[]),uint64) = extract_value(tuple_item%4#0, 1)
         let tuple_item%6#0: Encoded(len+(len+uint64[])[]) = extract_value(tuple_item%5#0, 1)
         let array_item%0#0: Encoded(len+uint64[]) = extract_value(tuple_item%6#0, i1#0)
         let array_item%1#0: Encoded(uint64) = extract_value(array_item%0#0, i2#0)
-        let values%2#0: uint64 = decode_bytes<uint64>(array_item%1#0)
-        let arr_arr#0: uint64 = values%2#0
+        let tmp%2#0: uint64 = decode_bytes<uint64>(array_item%1#0)
+        let arr_arr#0: uint64 = tmp%2#0
         let storage_value%3#0: bytes = box_read(box#0)
         let tuple_item%7#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = extract_value(storage_value%3#0, 1)
         let tuple_item%8#0: Encoded(uint64,(len+(len+uint64[])[]),uint64) = extract_value(tuple_item%7#0, 1)
         let tuple_item%9#0: Encoded(uint64) = extract_value(tuple_item%8#0, 0)
-        let values%3#0: uint64 = decode_bytes<uint64>(tuple_item%9#0)
-        let c#0: uint64 = values%3#0
+        let tmp%3#0: uint64 = decode_bytes<uint64>(tuple_item%9#0)
+        let c#0: uint64 = tmp%3#0
         let storage_value%4#0: bytes = box_read(box#0)
         let tuple_item%10#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = extract_value(storage_value%4#0, 1)
         let tuple_item%11#0: Encoded(uint64,(len+(len+uint64[])[]),uint64) = extract_value(tuple_item%10#0, 1)
         let tuple_item%12#0: Encoded(uint64) = extract_value(tuple_item%11#0, 2)
-        let values%4#0: uint64 = decode_bytes<uint64>(tuple_item%12#0)
-        let d#0: uint64 = values%4#0
+        let tmp%4#0: uint64 = decode_bytes<uint64>(tuple_item%12#0)
+        let d#0: uint64 = tmp%4#0
         let storage_value%5#0: bytes = box_read(box#0)
         let tuple_item%13#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = extract_value(storage_value%5#0, 1)
         let tuple_item%14#0: Encoded(len+(uint64,(len+(len+uint64[])[]),uint64)[]) = extract_value(tuple_item%13#0, 2)
@@ -1548,35 +1548,35 @@ subroutine examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2:
         let tuple_item%15#0: Encoded(len+(len+uint64[])[]) = extract_value(array_item%2#0, 1)
         let array_item%3#0: Encoded(len+uint64[]) = extract_value(tuple_item%15#0, i2#0)
         let array_item%4#0: Encoded(uint64) = extract_value(array_item%3#0, i3#0)
-        let values%5#0: uint64 = decode_bytes<uint64>(array_item%4#0)
-        let woah_arr_arr#0: uint64 = values%5#0
-        let tmp%0#0: uint64 = (+ a#0 b#0)
-        let tmp%1#0: uint64 = (+ tmp%0#0 arr_arr#0)
-        let tmp%2#0: uint64 = (+ tmp%1#0 c#0)
-        let tmp%3#0: uint64 = (+ tmp%2#0 d#0)
-        let tmp%4#0: uint64 = (+ tmp%3#0 woah_arr_arr#0)
-        return tmp%4#0
+        let tmp%5#0: uint64 = decode_bytes<uint64>(array_item%4#0)
+        let woah_arr_arr#0: uint64 = tmp%5#0
+        let tmp%6#0: uint64 = (+ a#0 b#0)
+        let tmp%7#0: uint64 = (+ tmp%6#0 arr_arr#0)
+        let tmp%8#0: uint64 = (+ tmp%7#0 c#0)
+        let tmp%9#0: uint64 = (+ tmp%8#0 d#0)
+        let tmp%10#0: uint64 = (+ tmp%9#0 woah_arr_arr#0)
+        return tmp%10#0
 
 subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct() -> uint64:
     block@0: // L323
         let storage_value%0#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%0#0: Encoded(uint64) = extract_value(storage_value%0#0, 0)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let tmp%0#0: bool = (== values%0#0 1u)
-        (assert tmp%0#0) // expected 1
+        let tmp%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%1#0: bool = (== tmp%0#0 1u)
+        (assert tmp%1#0) // expected 1
         let storage_value%1#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%1#0: Encoded(uint64) = extract_value(storage_value%1#0, 2)
-        let values%1#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
-        let tmp%1#0: bool = (== values%1#0 2u)
-        (assert tmp%1#0) // expected 2
+        let tmp%2#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
+        let tmp%3#0: bool = (== tmp%2#0 2u)
+        (assert tmp%3#0) // expected 2
         let storage_value%2#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%2#0: Encoded(uint64) = extract_value(storage_value%2#0, 0)
-        let values%2#0: uint64 = decode_bytes<uint64>(tuple_item%2#0)
+        let tmp%4#0: uint64 = decode_bytes<uint64>(tuple_item%2#0)
         let storage_value%3#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%3#0: Encoded(uint64) = extract_value(storage_value%3#0, 2)
-        let values%3#0: uint64 = decode_bytes<uint64>(tuple_item%3#0)
-        let tmp%2#0: uint64 = (+ values%2#0 values%3#0)
-        let total#0: uint64 = tmp%2#0
+        let tmp%5#0: uint64 = decode_bytes<uint64>(tuple_item%3#0)
+        let tmp%6#0: uint64 = (+ tmp%4#0 tmp%5#0)
+        let total#0: uint64 = tmp%6#0
         let storage_value%4#0: bytes = box_read("dynamic_arr_struct")
         let tuple_item%4#0: Encoded(len+uint64[]) = extract_value(storage_value%4#0, 1)
         let array_length%0#0: uint64 = array_len(tuple_item%4#0)
@@ -1590,10 +1590,10 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct() ->
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L329
         let array_item%0#0: Encoded(uint64) = extract_value(tuple_item%4#0, item_index_internal%0#1)
-        let values%4#0: uint64 = decode_bytes<uint64>(array_item%0#0)
-        let val#0: uint64 = values%4#0
-        let tmp%3#0: uint64 = (+ total#1 val#0)
-        let total#2: uint64 = tmp%3#0
+        let tmp%7#0: uint64 = decode_bytes<uint64>(array_item%0#0)
+        let val#0: uint64 = tmp%7#0
+        let tmp%8#0: uint64 = (+ total#1 val#0)
+        let total#2: uint64 = tmp%8#0
         goto block@3
     block@3: // for_footer_L328
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -1612,10 +1612,10 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct() ->
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L331
         let array_item%1#0: Encoded(uint64) = extract_value(tuple_item%5#0, item_index_internal%1#1)
-        let values%5#0: uint64 = decode_bytes<uint64>(array_item%1#0)
-        let val#1: uint64 = values%5#0
-        let tmp%4#0: uint64 = (+ total#3 val#1)
-        let total#4: uint64 = tmp%4#0
+        let tmp%9#0: uint64 = decode_bytes<uint64>(array_item%1#0)
+        let val#1: uint64 = tmp%9#0
+        let tmp%10#0: uint64 = (+ total#3 val#1)
+        let total#4: uint64 = tmp%10#0
         goto block@7
     block@7: // for_footer_L330
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
@@ -1651,17 +1651,17 @@ subroutine examples.box_storage.contract.BoxContract.sum_bools(stop_at_total: ui
         goto continue_looping%0#0 ? block@2 : block@8
     block@2: // for_body_L346
         let array_item%0#0: bool = extract_value(storage_value%0#0, item_index_internal%0#1)
-        let values%0#0: bool = decode_bytes<bool>(array_item%0#0)
-        let value#0: bool = values%0#0
+        let tmp%0#0: bool = decode_bytes<bool>(array_item%0#0)
+        let value#0: bool = tmp%0#0
         goto value#0 ? block@3 : block@4
     block@3: // if_body_L347
-        let tmp%0#0: uint64 = (+ total#1 1u)
-        let total#2: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (+ total#1 1u)
+        let total#2: uint64 = tmp%1#0
         goto block@4
     block@4: // after_if_else_L346
         let total#3: uint64 = φ(total#1 <- block@2, total#2 <- block@3)
-        let tmp%1#0: bool = (== total#3 stop_at_total#0)
-        goto tmp%1#0 ? block@5 : block@6
+        let tmp%2#0: bool = (== total#3 stop_at_total#0)
+        goto tmp%2#0 ? block@5 : block@6
     block@5: // if_body_L349
         goto block@8
     block@6: // after_if_else_L348
@@ -1758,10 +1758,10 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_box() -> uint64
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L390
         let array_item%0#0: Encoded(uint64) = extract_value(storage_value%0#0, item_index_internal%0#1)
-        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
-        let val#0: uint64 = values%0#0
-        let tmp%0#0: uint64 = (+ total#1 val#0)
-        let total#2: uint64 = tmp%0#0
+        let tmp%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
+        let val#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (+ total#1 val#0)
+        let total#2: uint64 = tmp%1#0
         goto block@3
     block@3: // for_footer_L389
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
