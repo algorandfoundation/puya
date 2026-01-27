@@ -14,6 +14,7 @@ class PuyaLibIR(enum.StrEnum):
     dynamic_array_pop_fixed_size = "_puya_lib.arc4.dynamic_array_pop_fixed_size"
     dynamic_array_pop_byte_length_head = "_puya_lib.arc4.dynamic_array_pop_byte_length_head"
     dynamic_array_pop_dynamic_element = "_puya_lib.arc4.dynamic_array_pop_dynamic_element"
+    dynamic_array_concat_fixed = "_puya_lib.arc4.dynamic_array_concat_fixed"
     dynamic_array_concat_bits = "_puya_lib.arc4.dynamic_array_concat_bits"
     dynamic_array_concat_byte_length_head = "_puya_lib.arc4.dynamic_array_concat_byte_length_head"
     dynamic_array_concat_dynamic_element = "_puya_lib.arc4.dynamic_array_concat_dynamic_element"
