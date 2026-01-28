@@ -357,6 +357,8 @@ class NamedTupleType(TupleType, RuntimeType):
     mro: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
     desc: str | None = None
     wtype: wtypes.WTuple = attrs.field(init=False)
+    methods: dict[str, FuncType] = attrs.field(eq=False, factory=dict)
+    static_methods: dict[str, FuncType] = attrs.field(eq=False, factory=dict)
 
     @items.default
     def _items(self) -> tuple[PyType, ...]:
@@ -476,6 +478,8 @@ class StructType(RuntimeType):
     source_location: SourceLocation | None = attrs.field(eq=False)
     generic: None = None
     desc: str | None = None
+    methods: dict[str, FuncType] = attrs.field(eq=False, factory=dict)
+    static_methods: dict[str, FuncType] = attrs.field(eq=False, factory=dict)
 
     @cached_property
     def names(self) -> tuple[str, ...]:

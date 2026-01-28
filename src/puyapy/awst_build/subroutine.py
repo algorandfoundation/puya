@@ -76,7 +76,10 @@ from puyapy.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puyapy.awst_build.eb.logicsig import LogicSigExpressionBuilder
-from puyapy.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
+from puyapy.awst_build.eb.subroutine import (
+    BoundSubroutineInvokerExpressionBuilder,
+    SubroutineInvokerExpressionBuilder,
+)
 from puyapy.awst_build.utils import (
     extract_bytes_literal_from_mypy,
     get_decorators_by_fullname,
@@ -556,6 +559,7 @@ class FunctionASTConverter(
         contract_method_info: ContractMethodInfo | None,
         source_location: SourceLocation,
         *,
+        is_method: bool,
         inline: bool | None,
         pure: bool | None,
     ):
@@ -587,7 +591,7 @@ class FunctionASTConverter(
         # check & convert the arguments
         mypy_args = func_def.arguments
         mypy_arg_types = type_info.arg_types
-        if contract_method_info is not None:
+        if is_method and not func_def.is_static:
             # function is a method
             if not mypy_args:
                 logger.error("method declaration is missing 'self' argument", location=func_loc)
@@ -597,18 +601,29 @@ class FunctionASTConverter(
                     "if function is a method, first variable should be self-like",
                     func_loc,
                 )
-                mypy_args = mypy_args[1:]
-                mypy_arg_types = mypy_arg_types[1:]
+                if contract_method_info is not None:
+                    mypy_args = mypy_args[1:]
+                    mypy_arg_types = mypy_arg_types[1:]
         elif mypy_args:
             self._precondition(
-                not mypy_args[0].variable.is_self,
-                "if function is not a method, first variable should be self-like",
+                contract_method_info is None,
+                "if a function is not a method, it shouldn't be bound to a contract",
                 func_loc,
             )
+            self._precondition(
+                not mypy_args[0].variable.is_self,
+                "if function is not a method, first variable should not be self-like",
+                func_loc,
+            )
+        self._self_var_name: str | None = None
         self._symtable = dict[str, pytypes.PyType]()
         args = list[SubroutineArgument]()
         for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
-            arg_loc = context.node_location(arg)
+            if arg.variable.is_self:
+                arg_loc = source_location
+                self._self_var_name = arg.variable.name
+            else:
+                arg_loc = context.node_location(arg)
             if arg.kind.is_star():
                 raise CodeError("variadic functions are not supported", arg_loc)
             if arg.initializer is not None:
@@ -659,6 +674,7 @@ class FunctionASTConverter(
         func_def: mypy.nodes.FuncDef,
         source_location: SourceLocation,
         *,
+        is_method: bool,
         inline: bool | None,
         pure: bool = False,
     ) -> Subroutine: ...
@@ -672,6 +688,7 @@ class FunctionASTConverter(
         source_location: SourceLocation,
         contract_method_info: ContractMethodInfo,
         *,
+        is_method: bool,
         inline: bool | None,
     ) -> ContractMethod: ...
 
@@ -683,6 +700,7 @@ class FunctionASTConverter(
         source_location: SourceLocation,
         contract_method_info: ContractMethodInfo | None = None,
         *,
+        is_method: bool,
         inline: bool | None,
         pure: bool | None = None,
     ) -> Subroutine | ContractMethod:
@@ -692,18 +710,33 @@ class FunctionASTConverter(
             contract_method_info=contract_method_info,
             inline=inline,
             pure=pure,
+            is_method=is_method,
             source_location=source_location,
         ).result
 
     @typing.override
     def builder_for_self(self, expr_loc: SourceLocation) -> NodeBuilder:
-        if self.contract_method_info is None:
-            raise InternalError("variable is inferred as self outside of contract scope", expr_loc)
-        return ContractSelfExpressionBuilder(
-            fragment=self.contract_method_info.fragment,
-            pytype=self.contract_method_info.contract_type,
-            location=expr_loc,
+        if self.contract_method_info is not None:
+            return ContractSelfExpressionBuilder(
+                fragment=self.contract_method_info.fragment,
+                pytype=self.contract_method_info.contract_type,
+                location=expr_loc,
+            )
+
+        # NOTE: If we want to allow __init__ then we should special case it in some way :)
+        if self._self_var_name is None:
+            raise InternalError("tried to resolve self on method with no detected self variable")
+
+        self_type = self.resolve_local_type(self._self_var_name, expr_loc)
+        if self_type is None:
+            raise InternalError("could not resolve type of self variable", expr_loc)
+
+        var_expr = VarExpression(
+            name=self._self_var_name,
+            wtype=self_type.checked_wtype(expr_loc),
+            source_location=expr_loc,
         )
+        return builder_for_instance(self_type, var_expr)
 
     @typing.override
     def resolve_local_type(self, var_name: str, expr_loc: SourceLocation) -> pytypes.PyType | None:
@@ -773,8 +806,14 @@ class FunctionASTConverter(
             )
 
         super_target = InstanceSuperMethodTarget(member_name=super_expr.name)
-        return SubroutineInvokerExpressionBuilder(
-            target=super_target, func_type=func_type, location=super_loc
+        super_self = self.builder_for_self(super_loc)
+        return BoundSubroutineInvokerExpressionBuilder(
+            target=super_target,
+            func_type=func_type,
+            location=super_loc,
+            args=[super_self],
+            arg_names=[None],
+            arg_kinds=[models.ArgKind.ARG_POS],
         )
 
     # statements
