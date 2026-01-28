@@ -3,8 +3,9 @@ import typing
 import attrs
 
 from puya import log
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir import (
+    encodings,
     models as ir,
     types_ as types,
 )
@@ -63,15 +64,34 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
     @typing.override
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
         array_encoding = pop.array_encoding
+        assert array_encoding.size is None, "expected DynamicArray encoding"
         element_encoding = array_encoding.element
-        if array_encoding.length_header:
-            pop_method = PuyaLibIR.dynamic_array_pop_fixed_size
-        else:
-            pop_method = PuyaLibIR.r_trim
+        pop_method: PuyaLibIR
+        args: list[ir.Value | int] = [pop.base]
+        match element_encoding:
+            # BitPackedBool is a more specific match than FixedElement so do that first
+            case encodings.BoolEncoding() if array_encoding.length_header:
+                pop_method = PuyaLibIR.dynamic_array_pop_bit
+            case encodings.ArrayEncoding(
+                element=encodings.Encoding(num_bytes=1), length_header=True, size=None
+            ):
+                pop_method = PuyaLibIR.dynamic_array_pop_byte_length_head
+            case encodings.Encoding(is_dynamic=False):
+                if array_encoding.length_header:
+                    pop_method = PuyaLibIR.dynamic_array_pop_fixed_size
+                else:
+                    pop_method = PuyaLibIR.r_trim
+                args.append(element_encoding.checked_num_bytes)
+            case encodings.Encoding(is_dynamic=True) if array_encoding.length_header:
+                pop_method = PuyaLibIR.dynamic_array_pop_dynamic_element
+            case _:
+                raise CodeError(
+                    f"unsupported dynamic array type {array_encoding}", pop.source_location
+                )
         return invoke_puya_lib_subroutine(
             self,
             full_name=pop_method,
-            args=[pop.base, element_encoding.checked_num_bytes],
+            args=args,
             source_location=pop.source_location,
         )
 

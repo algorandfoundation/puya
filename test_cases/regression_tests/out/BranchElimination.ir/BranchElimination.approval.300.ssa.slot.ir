@@ -122,8 +122,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2[ro
 subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]() -> void:
     block@0: // L29
         let nested_list#0: Encoded(len+(len+uint64[])[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 nested_list#0 0u) // on error: invalid array length header
-        let num_bytes%0#0: uint64 = (* aggregate%array_length%0#0 2u)
+        let length#2: uint64 = (extract_uint16 nested_list#0 0u) // on error: invalid array length header
+        let num_bytes%0#0: uint64 = (* length#2 2u)
         let total_length%0#0: uint64 = (len nested_list#0)
         let array_data%0#0: bytes = ((extract 2 0) nested_list#0)
         let index%0#0: uint64 = 0u
@@ -131,7 +131,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
     block@1: // for_header_L29
         let index%0#1: uint64 = φ(index%0#0 <- block@0, index%0#2 <- block@2)
         let num_bytes%0#1: uint64 = φ(num_bytes%0#0 <- block@0, num_bytes%0#2 <- block@2)
-        let continue_looping%0#0: bool = (< index%0#1 aggregate%array_length%0#0)
+        let continue_looping%0#0: bool = (< index%0#1 length#2)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L29
         let head_offset_bytes%0#0: uint64 = (* index%0#1 2u)
@@ -162,25 +162,25 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let i#0: uint64 = φ(value_internal%0#0 <- block@4, value_internal%0#2 <- block@17)
         let total#4: uint64 = φ(total#0 <- block@4, total#1 <- block@17)
         let num_boosts#3: uint64 = φ(num_boosts#0 <- block@4, num_boosts#1 <- block@17)
-        let continue_looping%0#1: bool = (< i#0 aggregate%array_length%0#0)
+        let continue_looping%0#1: bool = (< i#0 length#2)
         goto continue_looping%0#1 ? block@7 : block@19
     block@7: // for_body_L39
-        (assert continue_looping%0#1) // index access is out of bounds
+        (assert continue_looping%0#1) // index out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* i#0 2u)
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset_offset%0#0)
         let aggregate%item_length%0#0: uint64 = (extract_uint16 array_data%0#0 aggregate%item_offset%0#0)
         let aggregate%item_length_in_bytes%0#0: uint64 = (* aggregate%item_length%0#0 8u)
         let aggregate%item_head_tail_length%0#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u)
         let inner_list#0: Encoded(len+uint64[]) = (extract3 array_data%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0)
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 inner_list#0 0u) // on error: invalid array length header
-        let last_inner_list_index#0: uint64 = (- aggregate%array_length%4#0 1u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 inner_list#0 0u) // on error: invalid array length header
+        let last_inner_list_index#0: uint64 = (- aggregate%array_length%3#0 1u)
         let value_internal%1#0: uint64 = 0u
         goto block@8
     block@8: // for_header_L41
         let j#0: uint64 = φ(value_internal%1#0 <- block@7, value_internal%1#2 <- block@15)
         let total#1: uint64 = φ(total#4 <- block@7, total#5 <- block@15)
         let num_boosts#1: uint64 = φ(num_boosts#3 <- block@7, num_boosts#4 <- block@15)
-        let continue_looping%1#0: bool = (< j#0 aggregate%array_length%4#0)
+        let continue_looping%1#0: bool = (< j#0 aggregate%array_length%3#0)
         goto continue_looping%1#0 ? block@9 : block@17
     block@9: // for_body_L42
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) inner_list#0)

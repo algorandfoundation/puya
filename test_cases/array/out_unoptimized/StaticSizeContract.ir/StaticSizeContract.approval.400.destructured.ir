@@ -68,7 +68,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%1#0
 
 subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
-    block@0: // L133
+    block@0: // L170
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (+ array_length#0 new_items_count#0)
@@ -87,14 +87,14 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%9#0: bool = (< current_bytes#0 required_bytes#0)
         let result#4: bytes = result#0
         goto tmp%9#0 ? block@1 : block@2
-    block@1: // if_body_L158
+    block@1: // if_body_L195
         let tmp%10#0: uint64 = (- required_bytes#0 current_bytes#0)
         let tmp%11#0: bytes = (bzero tmp%10#0)
         let tmp%12#0: bytes = (concat result#0 tmp%11#0)
         let result#0: bytes = tmp%12#0
         let result#4: bytes = result#0
         goto block@2
-    block@2: // after_if_else_L157
+    block@2: // after_if_else_L194
         let read_offset#0: uint64 = 0u
         let tmp%13#0: uint64 = (+ array_length#0 16u)
         let write_offset#0: uint64 = tmp%13#0
@@ -102,10 +102,10 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let write_end#0: uint64 = tmp%14#0
         let result#0: bytes = result#4
         goto block@3
-    block@3: // while_top_L163
+    block@3: // while_top_L200
         let tmp%15#0: bool = (< write_offset#0 write_end#0)
         goto tmp%15#0 ? block@4 : block@5
-    block@4: // while_body_L164
+    block@4: // while_body_L201
         let tmp%16#0: bool = (getbit new_items_bytes#0 read_offset#0)
         let tmp%17#0: bytes = (setbit result#0 write_offset#0 tmp%16#0)
         let result#0: bytes = tmp%17#0
@@ -114,8 +114,16 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%19#0: uint64 = (+ read_offset#0 read_step#0)
         let read_offset#0: uint64 = tmp%19#0
         goto block@3
-    block@5: // after_while_L163
+    block@5: // after_while_L200
         return result#0
+
+subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
+    block@0: // L390
+        let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
+        let length#0: uint64 = tmp%0#0
+        let tmp%1#0: bool = (< index#0 length#0)
+        (assert tmp%1#0) // index out of bounds
+        return 
 
 subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[])*) -> uint64:
     block@0: // L167
@@ -826,9 +834,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let tmp%13#0: uint64 = (len dyn_arr#0)
         let tmp%14#0: bool = (== tmp%13#0 3u)
         (assert tmp%14#0) // expected 3 bytes
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 dyn_arr#0 0u) // on error: invalid array length header
-        let aggregate%lt%0#0: bool = (< 0u aggregate%array_length%1#0)
-        (assert aggregate%lt%0#0) // index access is out of bounds
+        _puya_lib.arc4.dynamic_assert_index(dyn_arr#0, 0u)
         let aggregate%add%0#0: uint64 = (+ 0u 16u)
         let aggregate%get_bit%0#0: bool = (getbit dyn_arr#0 aggregate%add%0#0)
         let array_item%0#0: bool = aggregate%get_bit%0#0
@@ -841,9 +847,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let tmp%19#0: bool = (== tmp%17#0 tmp%18#0)
         let tmp%20#0: bool = (== tmp%16#0 tmp%19#0)
         (assert tmp%20#0) // expected correct value at 0
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 dyn_arr#0 0u) // on error: invalid array length header
-        let aggregate%lt%1#0: bool = (< 1u aggregate%array_length%2#0)
-        (assert aggregate%lt%1#0) // index access is out of bounds
+        _puya_lib.arc4.dynamic_assert_index(dyn_arr#0, 1u)
         let aggregate%add%1#0: uint64 = (+ 1u 16u)
         let aggregate%get_bit%2#0: bool = (getbit dyn_arr#0 aggregate%add%1#0)
         let array_item%1#0: bool = aggregate%get_bit%2#0
@@ -860,8 +864,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let slot_contents%3#0: Encoded(bool8[]) = load(arr#0)
         store(slot%1#0, slot_contents%3#0)
         let arr2#0: Encoded(bool8[])* = slot%1#0
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 dyn_arr#0 0u) // on error: invalid array length header
-        let array_length%0#0: uint64 = aggregate%array_length%3#0
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 dyn_arr#0 0u) // on error: invalid array length header
+        let array_length%0#0: uint64 = aggregate%array_length%1#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L156

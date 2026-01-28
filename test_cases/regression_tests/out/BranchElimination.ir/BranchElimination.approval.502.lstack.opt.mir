@@ -216,11 +216,11 @@ subroutine calculate:
         txna ApplicationArgs 1                                    nested_list#0
         l-load-copy nested_list#0 0                               nested_list#0,nested_list#0 (copy)
         int 0                                                     nested_list#0,nested_list#0 (copy),0
-        extract_uint16 // on error: invalid array length header   nested_list#0,aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                 nested_list#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                        nested_list#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                       nested_list#0,aggregate%array_length%0#0
-        int 2                                                     nested_list#0,aggregate%array_length%0#0,2
+        extract_uint16 // on error: invalid array length header   nested_list#0,length#2
+        l-store-copy length#2 0                                   nested_list#0,length#2,length#2 (copy)
+        v-store length#2                                          nested_list#0,length#2
+        l-load length#2 0                                         nested_list#0,length#2
+        int 2                                                     nested_list#0,length#2,2
         *                                                         nested_list#0,num_bytes%0#0
         v-store num_bytes%0#0                                     nested_list#0
         l-load-copy nested_list#0 0                               nested_list#0,nested_list#0 (copy)
@@ -237,7 +237,7 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
         v-load index%0#0                                          index%0#0
-        v-load aggregate%array_length%0#0                         index%0#0,aggregate%array_length%0#0
+        v-load length#2                                           index%0#0,length#2
         <                                                         continue_looping%0#0
         bz calculate_after_for@4 ; b calculate_for_body@2
 
@@ -315,7 +315,7 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                i#0
-        v-load aggregate%array_length%0#0                         i#0,aggregate%array_length%0#0
+        v-load length#2                                           i#0,length#2
         <                                                         continue_looping%0#0
         l-store-copy continue_looping%0#0 0                       continue_looping%0#0,continue_looping%0#0 (copy)
         v-store continue_looping%0#0                              continue_looping%0#0
@@ -323,10 +323,10 @@ subroutine calculate:
         bz calculate_after_for@19 ; b calculate_for_body@7
 
     calculate_for_body@7:
+        v-load continue_looping%0#0                               continue_looping%0#0
+        assert // index out of bounds
         // regression_tests/leftover_branch.py:39
         // inner_list = nested_list[i].copy()
-        v-load continue_looping%0#0                               continue_looping%0#0
-        assert // index access is out of bounds
         v-load i#0                                                i#0
         int 2                                                     i#0,2
         *                                                         aggregate%item_offset_offset%0#0
@@ -351,11 +351,11 @@ subroutine calculate:
         // last_inner_list_index = inner_list.length - 1
         l-load inner_list#0 0                                     inner_list#0
         int 0                                                     inner_list#0,0
-        extract_uint16 // on error: invalid array length header   aggregate%array_length%4#0
-        l-store-copy aggregate%array_length%4#0 0                 aggregate%array_length%4#0,aggregate%array_length%4#0 (copy)
-        v-store aggregate%array_length%4#0                        aggregate%array_length%4#0
-        l-load aggregate%array_length%4#0 0                       aggregate%array_length%4#0
-        int 1                                                     aggregate%array_length%4#0,1
+        extract_uint16 // on error: invalid array length header   aggregate%array_length%3#0
+        l-store-copy aggregate%array_length%3#0 0                 aggregate%array_length%3#0,aggregate%array_length%3#0 (copy)
+        v-store aggregate%array_length%3#0                        aggregate%array_length%3#0
+        l-load aggregate%array_length%3#0 0                       aggregate%array_length%3#0
+        int 1                                                     aggregate%array_length%3#0,1
         -                                                         last_inner_list_index#0
         v-store last_inner_list_index#0
         // regression_tests/leftover_branch.py:41
@@ -368,7 +368,7 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                j#0
-        v-load aggregate%array_length%4#0                         j#0,aggregate%array_length%4#0
+        v-load aggregate%array_length%3#0                         j#0,aggregate%array_length%3#0
         <                                                         continue_looping%1#0
         bz calculate_after_for@17 ; b calculate_for_body@9
 
