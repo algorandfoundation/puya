@@ -10,6 +10,7 @@ from mypy.build import (
     BuildManager,
     State as MypyState,
     dispatch,
+    order_ascc,
     sorted_components,
 )
 from mypy.errors import Errors
@@ -176,7 +177,11 @@ def _mypy_build(
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=options)
     sccs = sorted_components(graph)
-    return {module_name: graph[module_name] for scc in sccs for module_name in sorted(scc.mod_ids)}
+    return {
+        module_name: graph[module_name]
+        for scc in sccs
+        for module_name in order_ascc(graph, scc.mod_ids)
+    }
 
 
 def _log_mypy_message(message: log.Log | None, related_lines: list[str]) -> None:
