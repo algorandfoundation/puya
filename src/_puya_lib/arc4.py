@@ -265,11 +265,12 @@ def dynamic_array_concat_byte_length_head(
 @subroutine
 def dynamic_array_concat_dynamic_element(
     *,
-    array_items_count: UInt64,
-    array_head_and_tail: Bytes,
-    new_items_count: UInt64,
+    array: Bytes,
     new_head_and_tail: Bytes,
+    new_items_count: UInt64,
 ) -> Bytes:
+    array_items_count = extract_uint16(array, 0)
+    array_head_and_tail = extract(array, UINT16_SIZE, 0)
     new_head = Bytes()
     item_offset_adjustment = new_items_count * UINT16_SIZE
     for head_offset in urange(0, array_items_count * UINT16_SIZE, UINT16_SIZE):

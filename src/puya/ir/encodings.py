@@ -325,3 +325,12 @@ def wtype_to_encoding(wtype: wtypes.WType, loc: SourceLocation | None) -> Encodi
 
 def wtype_to_encoding(wtype: wtypes.WType, loc: SourceLocation | None) -> Encoding:
     return wtype.accept(_WTypeToEncoding(loc))
+
+
+def is_byte_length_dynamic_array(encoding: Encoding) -> bool:
+    return (
+        isinstance(encoding, ArrayEncoding)
+        and encoding.element.num_bytes == 1
+        and encoding.size is None
+        and encoding.length_header
+    )
