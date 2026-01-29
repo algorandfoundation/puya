@@ -311,7 +311,9 @@ class _BigUIntCodec(_ScalarCodec):
         loc: SourceLocation,
     ) -> ir.ValueProvider | None:
         match encoding:
-            case encodings.UIntEncoding():
+            case encodings.UIntEncoding(n=bits):
+                if isinstance(value, ir.BigUIntConstant) and value.value >= (1 << bits):
+                    return None
                 factory = OpFactory(context, loc)
                 return factory.to_fixed_size(
                     value,

@@ -155,9 +155,7 @@ class MyContract(Contract):
 
 
 ## case: test_inner_txn_param_loop_modified
-
 from algopy import Contract, TransactionType, itxn, subroutine
-
 
 class MyContract(Contract):
     def approval_program(self) -> bool:  ## E: Missing return statement  [return]
@@ -201,9 +199,9 @@ def wrong_arg_type2() -> None:
 
 
 @subroutine
-def wrong_arg_type5() -> None:
-    arc4.abi_call("foo", 2**64 + 1, app_id=1) ## E: type information is needed when passing a literal value
-    arc4.abi_call("foo", 256, app_id=1)  ## E: type information is needed when passing a literal value
+def literal_arg_type5() -> None:
+    arc4.abi_call("foo", 2**64 + 1, app_id=1) ## W: type information should be provided when passing a literal value
+    arc4.abi_call("foo", 256, app_id=1)  ## W: type information should be provided when passing a literal value
 
 
 @subroutine
@@ -252,9 +250,9 @@ def wrong_arg_type2() -> None:
     ).submit()
 
 @subroutine
-def wrong_arg_type5() -> None:
-    itxn.abi_call("foo", 2**64 + 1, app_id=1).submit() ## E: type information is needed when passing a literal value
-    itxn.abi_call("foo", 256, app_id=1).submit()  ## E: type information is needed when passing a literal value
+def literal_arg_type5() -> None:
+    itxn.abi_call("foo", 2**64 + 1, app_id=1).submit() ## W: type information should be provided when passing a literal value
+    itxn.abi_call("foo", 256, app_id=1).submit()  ## W: type information should be provided when passing a literal value
 
 @subroutine
 def allowed_coercions() -> None:
@@ -311,8 +309,6 @@ def caller() -> None:
 
 
 ## case: test_abi_call_errors_from_ir_layer
-
-import typing
 from algopy import *
 
 @subroutine
@@ -324,7 +320,6 @@ def method_selector_mismatch() -> None:
     )
 
 ## case: test_itxn_abi_call_errors_from_ir_layer
-import typing
 from algopy import *
 
 @subroutine
@@ -335,9 +330,8 @@ def method_selector_mismatch() -> None:
         app_id=1,
     ).submit()
 
-## case: test_abi_call_errors_from_lowering_ir
 
-import typing
+## case: test_abi_call_errors_from_lowering_ir
 from algopy import *
 
 class MyContract(arc4.ARC4Contract):
@@ -353,8 +347,15 @@ class MyContract(arc4.ARC4Contract):
         arc4.abi_call("foo(uint8)void", 256, app_id=1) ## E: cannot encode uint64 to arc4.uint8
 
 
+    @arc4.abimethod
+    def wrong_arg_type5(self) -> None:
+        arc4.abi_call("foo(uint64)uint64", 2**64, app_id=1) ## E: cannot encode biguint to arc4.uint64
+
+    @arc4.abimethod
+    def explicitly_typed_arg_value(self) -> None:
+        arc4.abi_call("foo", BigUInt(2**64), app_id=1) ## ok, type information provided
+
 ## case: test_itxn_abi_call_errors_from_lowering_ir
-import typing
 from algopy import *
 
 class MyContract(arc4.ARC4Contract):
@@ -368,7 +369,6 @@ class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def wrong_arg_type4(self) -> None:
         itxn.abi_call("foo(uint8)void", 256, app_id=1).submit() ## E: cannot encode uint64 to arc4.uint8
-
 
 
 ## case: abi_call_struct_member_ordering
@@ -385,13 +385,22 @@ class Client(arc4.ARC4Client, typing.Protocol):
         raise NotImplementedError
 
 @subroutine
-def correct_array_positional() -> None:
+def correct_array_positional_itxn() -> None:
     itxn.abi_call(Client.array_check, ImmutableArray(((UInt64(), True),)), app_id=1234).submit()
+
+@subroutine
+def correct_array_positional() -> None:
+    arc4.abi_call(Client.array_check, ImmutableArray(((UInt64(), True),)), app_id=1234)
 
 class Caller(arc4.ARC4Contract):
     @arc4.abimethod
-    def incorrect_array_positional(self) -> None:
+    def incorrect_array_positional_itxn(self) -> None:
         itxn.abi_call(Client.array_check, ImmutableArray(((True, UInt64()),)), app_id=1234).submit() ## E: expected type arc4.dynamic_array<abi_call_struct_member_ordering.MyStruct>, got type arc4.dynamic_array<tuple<bool,uint64>>
+    
+    @arc4.abimethod
+    def incorrect_array_positional(self) -> None:
+        arc4.abi_call(Client.array_check, ImmutableArray(((True, UInt64()),)), app_id=1234) ## E: expected type arc4.dynamic_array<abi_call_struct_member_ordering.MyStruct>, got type arc4.dynamic_array<tuple<bool,uint64>>
+
 
 
 ## case: array_encoding
