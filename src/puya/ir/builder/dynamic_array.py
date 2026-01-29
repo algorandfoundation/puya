@@ -1,4 +1,3 @@
-import abc
 import typing
 
 import attrs
@@ -11,331 +10,256 @@ from puya.ir import (
     models as ir,
     types_ as types,
 )
-from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder.sequence import get_length
+from puya.ir.models import ValueProvider
 from puya.ir.op_utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
+from puya.ir.types_ import EncodedType
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
-class DynamicArrayBuilder(abc.ABC):
-    # TODO: allow insert?
-
-    @abc.abstractmethod
-    def concat(
-        self,
-        array: ir.Value,
-        iterable: ir.MultiValue,
-        iterable_ir_type: types.IRType | types.TupleIRType,
-    ) -> ir.Value:
-        """Returns the concatenation of an array and iterable"""
-
-    # TODO: allow pop by index?
-    @abc.abstractmethod
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        """
-        Removes the last item of an array
-
-        Returns the updated array and the removed item
-        """
-
-
-def get_builder(
+def concat(
     context: IRRegisterContext,
+    *,
     wtype: wtypes.WType,
+    array: ir.Value,
+    iterable: ir.MultiValue,
+    iterable_ir_type: types.IRType | types.TupleIRType,
     loc: SourceLocation,
-) -> DynamicArrayBuilder:
-    if isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray):
-        array_ir_type = types.wtype_to_ir_type(wtype, source_location=loc)
-        # only concerned with actual encoding of arrays, not where they are stored
-        if isinstance(array_ir_type, types.SlotType):
-            array_ir_type = array_ir_type.contents
-        assert isinstance(array_ir_type, types.EncodedType), "expected EncodedType"
-        array_encoding = array_ir_type.encoding
-        assert (
-            isinstance(array_encoding, encodings.ArrayEncoding) and array_encoding.size is None
-        ), "expected DynamicArray encoding"
-        element_encoding = array_encoding.element
-        # we don't allow pop for UTF8 encodings since there are no UTF8 primitives in the AVM
-        if type(element_encoding) is encodings.UTF8Encoding:
-            pop_element_ir_type: types.IRType | types.TupleIRType | None = None
-        else:
-            pop_element_ir_type = types.wtype_to_ir_type(
-                wtype.element_type, source_location=loc, allow_tuple=True
-            )
-        builder_typ: type[_DynamicArrayBuilderImpl]
-        match element_encoding:
-            # BitPackedBool is a more specific match than FixedElement so do that first
-            case encodings.BoolEncoding() if array_encoding.length_header:
-                builder_typ = _BitPackedBoolDynamicArrayBuilder
-            case encodings.ArrayEncoding(
-                element=encodings.Encoding(num_bytes=1), length_header=True, size=None
-            ):
-                builder_typ = _DynamicByteLengthElementDynamicArrayBuilder
-            case encodings.Encoding(is_dynamic=False):
-                builder_typ = _FixedElementDynamicArrayBuilder
-            case encodings.Encoding(is_dynamic=True) if array_encoding.length_header:
-                builder_typ = _DynamicElementDynamicArrayBuilder
-            case _:
-                raise CodeError(f"unsupported dynamic array type {wtype}", loc)
-        return builder_typ(
-            context,
-            array_encoding=array_encoding,
-            pop_element_ir_type=pop_element_ir_type,
-            loc=loc,
-        )
+) -> ir.Value:
+    if not isinstance(iterable_ir_type, types.EncodedType | types.TupleIRType):
+        raise InternalError("expected encoded type or tuple type for concatenation", loc)
 
-    raise InternalError(f"unsupported array type: {wtype!s}", loc)
+    array_encoding = _get_array_encoding(wtype, loc)
+    encoded_iterable = _get_encoded_items(context, array_encoding, iterable, iterable_ir_type, loc)
+    result = ir.ArrayConcat(
+        base=array,
+        base_type=types.EncodedType(array_encoding),
+        items=encoded_iterable.items,
+        num_items=encoded_iterable.num_items,
+        item_encoding=encoded_iterable.item_encoding,
+        source_location=loc,
+    )
+    factory = OpFactory(context, loc)
+    return factory.materialise_single(result)
 
 
-@attrs.define
-class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
-    context: IRRegisterContext
-    array_encoding: encodings.ArrayEncoding
-    pop_element_ir_type: types.IRType | types.TupleIRType | None
-    """Should only be None if pop is not supported"""
-    loc: SourceLocation
-    factory: OpFactory = attrs.field(init=False)
-
-    @factory.default
-    def _factory_factory(self) -> OpFactory:
-        return OpFactory(self.context, self.loc)
-
-    def _get_iterable_length_and_head_tail(
-        self,
-        iterable: ir.ValueProvider,
-        iterable_ir_type: types.IRType | types.TupleIRType,
-        element_encoding: encodings.Encoding | None = None,
-    ) -> tuple[ir.ValueProvider, ir.ValueProvider]:
-        element_encoding = element_encoding or self.array_encoding.element
-        # iterable is already encoded
-        if isinstance(iterable_ir_type, types.EncodedType):
-            iterable_encoding = iterable_ir_type.encoding
-            # array of element
-            if (
-                isinstance(iterable_encoding, encodings.ArrayEncoding)
-                and iterable_encoding.element == element_encoding
-            ):
-                materialised_iterable = self.factory.materialise_single(iterable)
-                iterable_length: ir.ValueProvider = get_length(
-                    iterable_encoding, materialised_iterable, self.loc
-                )
-                if iterable_encoding.length_header:
-                    iterable = self.factory.extract_to_end(materialised_iterable, 2)
-            # homogenous tuple of element
-            elif isinstance(iterable_encoding, encodings.TupleEncoding) and (
-                set(iterable_encoding.elements) == {element_encoding}
-            ):
-                iterable_length = ir.UInt64Constant(
-                    value=len(iterable_encoding.elements), source_location=self.loc
-                )
-            else:
-                iterable_length = ir.Undefined(ir_type=types.uint64, source_location=self.loc)
-                logger.error(
-                    f"cannot concat {self.array_encoding} and {iterable_encoding}",
-                    location=self.loc,
-                )
-
-            encoded_iterable = iterable
-        # iterable is an unencoded or tuple type
-        else:
-            if not isinstance(iterable_ir_type, types.TupleIRType):
-                raise InternalError("expected tuple type for concatenation", self.loc)
-            # the iterable could be either
-            # a tuple of compatible native elements
-            # a tuple of compatible encoded elements
-            if len(set(iterable_ir_type.elements)) != 1:
-                raise InternalError("expected homogenous tuple for concatenation", self.loc)
-            # all of which can be encoded as a dynamic array of the element
-            iterable_length = ir.UInt64Constant(
-                value=len(iterable_ir_type.elements), source_location=self.loc
-            )
-
-            encoded_iterable = ir.BytesEncode.maybe(
-                values=self.factory.materialise_values(iterable),
-                values_type=iterable_ir_type,
-                encoding=encodings.ArrayEncoding.dynamic(
-                    element=element_encoding, length_header=False
-                ),
-                source_location=self.loc,
-            )
-
-        return iterable_length, encoded_iterable
-
-    def _as_array_type(self, value: ir.ValueProvider) -> ir.Value:
-        return self.factory.as_ir_type(value, types.EncodedType(self.array_encoding))
-
-    @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        array_len = self.factory.materialise_single(
-            get_length(
-                self.array_encoding,
-                array,
-                self.loc,
-            )
-        )
-        last_index = self.factory.sub(array_len, 1)
-        array_type = types.EncodedType(self.array_encoding)
-        if self.array_encoding.element.is_bit:
-            ir_type: types.IRType = types.bool_
-        else:
-            ir_type = types.EncodedType(self.array_encoding.element)
-        encoded_item = self.factory.materialise_single(
-            ir.ExtractValue(
-                base=array,
-                base_type=array_type,
-                ir_type=ir_type,
-                check_bounds=False,
-                indexes=(last_index,),
-                source_location=self.loc,
-            )
-        )
-        popped_array = ir.ArrayPop(
+def pop(
+    context: IRRegisterContext,
+    *,
+    wtype: wtypes.WType,
+    array: ir.Value,
+    loc: SourceLocation,
+) -> tuple[ir.Value, ir.MultiValue]:
+    array_encoding = _get_array_encoding(wtype, loc)
+    assert isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray)
+    element_encoding = array_encoding.element
+    # we don't allow pop for UTF8 encodings since there are no UTF8 primitives in the AVM
+    if type(element_encoding) is encodings.UTF8Encoding:
+        raise CodeError("unsupported pop operation", loc)
+    pop_element_ir_type = types.wtype_to_ir_type(
+        wtype.element_type, source_location=loc, allow_tuple=True
+    )
+    factory = OpFactory(context, loc)
+    array_len = factory.materialise_single(get_length(array_encoding, array, loc))
+    last_index = factory.sub(array_len, 1)
+    array_type = types.EncodedType(array_encoding)
+    if array_encoding.element.is_bit:
+        ir_type: types.IRType = types.bool_
+    else:
+        ir_type = types.EncodedType(array_encoding.element)
+    encoded_item = factory.materialise_single(
+        ir.ExtractValue(
             base=array,
             base_type=array_type,
-            source_location=self.loc,
+            ir_type=ir_type,
+            check_bounds=False,
+            indexes=(last_index,),
+            source_location=loc,
         )
-        popped = self._decode_popped_element(encoded_item)
-        return self.factory.materialise_single(popped_array), popped
+    )
+    popped_array = ir.ArrayPop(base=array, base_type=array_type, source_location=loc)
+    popped = factory.materialise_multi_value(
+        ir.DecodeBytes.maybe(
+            value=encoded_item,
+            encoding=array_encoding.element,
+            ir_type=pop_element_ir_type,
+            source_location=loc,
+        )
+    )
+    return factory.materialise_single(popped_array), popped
 
-    def _decode_popped_element(self, encoded_item: ir.Value) -> ir.MultiValue:
-        if self.pop_element_ir_type is None:
-            raise CodeError("unsupported pop operation", self.loc)
-        return self.factory.materialise_multi_value(
-            ir.DecodeBytes.maybe(
-                value=encoded_item,
-                encoding=self.array_encoding.element,
-                ir_type=self.pop_element_ir_type,
-                source_location=self.loc,
+
+def _get_array_encoding(wtype: wtypes.WType, loc: SourceLocation) -> encodings.ArrayEncoding:
+    if not isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray):
+        raise InternalError(f"unsupported array type: {wtype!s}", loc)
+    array_ir_type = types.wtype_to_ir_type(wtype, source_location=loc)
+    # only concerned with actual encoding of arrays, not where they are stored
+    if isinstance(array_ir_type, types.SlotType):
+        array_ir_type = array_ir_type.contents
+    assert isinstance(array_ir_type, types.EncodedType), "expected EncodedType"
+    array_encoding = array_ir_type.encoding
+    assert (
+        isinstance(array_encoding, encodings.ArrayEncoding) and array_encoding.size is None
+    ), "expected DynamicArray encoding"
+    return array_encoding
+
+
+@attrs.frozen
+class _EncodedItems:
+    items: ir.Value
+    num_items: ir.Value
+    item_encoding: encodings.Encoding
+
+
+def _get_encoded_items(
+    context: IRRegisterContext,
+    array_encoding: encodings.ArrayEncoding,
+    iterable: ir.ValueProvider,
+    iterable_ir_type: types.EncodedType | types.TupleIRType,
+    loc: SourceLocation,
+) -> _EncodedItems:
+    """
+    Given an iterable and type, returns an encoded iterable suitable for use
+    with the ir.ArrayConcat node
+    """
+    if isinstance(iterable_ir_type, types.EncodedType):
+        if encodings.is_byte_length_dynamic_array(array_encoding.element):
+            return _get_encoded_byte_length_items_from_encoded_type(
+                context, array_encoding, iterable, iterable_ir_type, loc
             )
-        )
-
-
-class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
-    @typing.override
-    def concat(
-        self,
-        array: ir.Value,
-        iterable: ir.ValueProvider,
-        iterable_ir_type: types.IRType | types.TupleIRType,
-    ) -> ir.Value:
-        iter_len, iter_head_and_tail = self._get_iterable_length_and_head_tail(
-            iterable, iterable_ir_type
-        )
-        iter_head_and_tail = self.factory.materialise_single(iter_head_and_tail)
-        iter_len = self.factory.materialise_single(iter_len)
-        concat = ir.ArrayConcat(
-            base=array,
-            base_type=types.EncodedType(self.array_encoding),
-            items=iter_head_and_tail,
-            num_items=iter_len,
-            source_location=self.loc,
-        )
-        return self.factory.materialise_single(concat)
-
-
-class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
-    @typing.override
-    def concat(
-        self,
-        array: ir.Value,
-        iterable: ir.MultiValue,
-        iterable_ir_type: types.IRType | types.TupleIRType,
-    ) -> ir.Value:
-        if isinstance(iterable_ir_type, types.TupleIRType):
-            tuple_size = len(iterable_ir_type.elements)
-            r_count: ir.Value = self.factory.constant(tuple_size)
-            # only need to construct the tail, so iterate and concat
-            r_tail: ir.Value = self.factory.constant(b"")
-            values = self.factory.materialise_values(iterable)
-            (element_ir_type,) = set(iterable_ir_type.elements)
-            element_encoding = self.array_encoding.element
-            for _ in range(tuple_size):
-                encoded_element_vp = ir.BytesEncode.maybe(
-                    values=values[: element_ir_type.arity],
-                    encoding=element_encoding,
-                    values_type=element_ir_type,
-                    source_location=self.loc,
-                )
-                encoded_element = self.factory.materialise_single(encoded_element_vp)
-                r_tail = self.factory.concat(r_tail, encoded_element)
-                values = values[element_ir_type.arity :]
-            assert not values, "too many values to encode"
         else:
-            # existing iterable, get head and tail and remove head
-            r_count_vp, r_head_and_tail = self._get_iterable_length_and_head_tail(
-                iterable, iterable_ir_type
+            return _get_encoded_items_from_encoded_type(
+                context, array_encoding, iterable, iterable_ir_type, loc
             )
-            r_count = self.factory.materialise_single(r_count_vp)
-            r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
-            start_of_tail = self.factory.mul(r_count, 2, "start_of_tail")
-            r_tail = self.factory.extract_to_end(r_head_and_tail, start_of_tail, "data")
+    else:
+        typing.assert_type(iterable_ir_type, types.TupleIRType)
+        if encodings.is_byte_length_dynamic_array(array_encoding.element):
+            return _get_encoded_byte_length_items_from_tuple_type(
+                context, array_encoding, iterable, iterable_ir_type, loc
+            )
+        else:
+            return _get_encoded_items_from_tuple_type(
+                context, array_encoding, iterable, iterable_ir_type, loc
+            )
 
-        invoke = self.factory.invoke(
-            PuyaLibIR.dynamic_array_concat_byte_length_head,
-            [array, r_tail, r_count],
+
+def _get_encoded_items_from_encoded_type(
+    context: IRRegisterContext,
+    array_encoding: encodings.ArrayEncoding,
+    iterable: ValueProvider,
+    iterable_ir_type: EncodedType,
+    loc: SourceLocation,
+) -> _EncodedItems:
+    factory = OpFactory(context, loc)
+    iterable = factory.materialise_single(iterable)
+    iterable_encoding = iterable_ir_type.encoding
+    match iterable_encoding:
+        case encodings.ArrayEncoding():
+            length = get_length(iterable_encoding, iterable, factory.source_location)
+            if iterable_encoding.length_header:
+                iterable = factory.extract_to_end(iterable, 2)
+            return _EncodedItems(
+                items=iterable,
+                num_items=factory.materialise_single(length),
+                item_encoding=iterable_encoding.element,
+            )
+        case encodings.TupleEncoding() if len(set(iterable_encoding.elements)) == 1:
+            return _EncodedItems(
+                items=iterable,
+                num_items=factory.constant(len(iterable_encoding.elements)),
+                item_encoding=iterable_encoding.elements[0],
+            )
+        case _:
+            logger.error(
+                f"cannot concat {array_encoding} and {iterable_encoding}",
+                location=loc,
+            )
+            return _EncodedItems(
+                items=iterable,
+                num_items=ir.Undefined(ir_type=types.uint64, source_location=loc),
+                item_encoding=iterable_encoding,
+            )
+
+
+def _get_encoded_byte_length_items_from_encoded_type(
+    context: IRRegisterContext,
+    array_encoding: encodings.ArrayEncoding,
+    iterable: ValueProvider,
+    iterable_ir_type: EncodedType,
+    loc: SourceLocation,
+) -> _EncodedItems:
+    encoded_iterable = _get_encoded_items_from_encoded_type(
+        context, array_encoding, iterable, iterable_ir_type, loc
+    )
+    factory = OpFactory(context, loc)
+    # existing encoded items, byte length items should just be the tail portion
+    start_of_tail = factory.mul(encoded_iterable.num_items, 2, "start_of_tail")
+    r_tail = factory.extract_to_end(encoded_iterable.items, start_of_tail, "data")
+    return _EncodedItems(
+        num_items=encoded_iterable.num_items,
+        items=r_tail,
+        item_encoding=array_encoding.element,
+    )
+
+
+def _get_encoded_items_from_tuple_type(
+    context: IRRegisterContext,
+    array_encoding: encodings.ArrayEncoding,
+    iterable: ir.ValueProvider,
+    iterable_ir_type: types.TupleIRType,
+    loc: SourceLocation,
+) -> _EncodedItems:
+    if len(set(iterable_ir_type.elements)) != 1:
+        raise InternalError("expected homogenous tuple for concatenation", loc)
+    factory = OpFactory(context, loc)
+    # the iterable could be either
+    # a tuple of compatible native elements
+    # a tuple of compatible encoded elements
+    # all of which can be encoded as a dynamic array of the element
+    element_encoding = array_encoding.element
+    encoded_iterable = ir.BytesEncode.maybe(
+        values=factory.materialise_values(iterable),
+        values_type=iterable_ir_type,
+        encoding=encodings.ArrayEncoding.dynamic(element=element_encoding, length_header=False),
+        source_location=loc,
+    )
+    return _EncodedItems(
+        num_items=factory.constant(len(iterable_ir_type.elements)),
+        items=factory.materialise_single(encoded_iterable),
+        item_encoding=element_encoding,
+    )
+
+
+def _get_encoded_byte_length_items_from_tuple_type(
+    context: IRRegisterContext,
+    array_encoding: encodings.ArrayEncoding,
+    iterable: ir.ValueProvider,
+    iterable_ir_type: types.TupleIRType,
+    loc: SourceLocation,
+) -> _EncodedItems:
+    factory = OpFactory(context, loc)
+    tuple_size = len(iterable_ir_type.elements)
+    # only need to construct the tail, so iterate and concat
+    r_tail = factory.constant(b"")
+    values = factory.materialise_values(iterable)
+    (element_ir_type,) = set(iterable_ir_type.elements)
+    element_encoding = array_encoding.element
+    for _ in range(tuple_size):
+        encoded_element_vp = ir.BytesEncode.maybe(
+            values=values[: element_ir_type.arity],
+            encoding=element_encoding,
+            values_type=element_ir_type,
+            source_location=loc,
         )
-        return self._as_array_type(invoke)
-
-
-class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
-    @typing.override
-    def concat(
-        self,
-        array: ir.Value,
-        iterable: ir.ValueProvider,
-        iterable_ir_type: types.IRType | types.TupleIRType,
-    ) -> ir.Value:
-        assert self.array_encoding.length_header, "expected array to have a length header"
-        l_count = self.factory.extract_uint16(array, 0)
-        l_head_and_tail = self.factory.extract_to_end(array, 2)
-        r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
-            iterable, iterable_ir_type
-        )
-        r_count = self.factory.materialise_single(r_count)
-        r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
-        invoke = self.factory.invoke(
-            PuyaLibIR.dynamic_array_concat_dynamic_element,
-            [l_count, l_head_and_tail, r_count, r_head_and_tail],
-        )
-        return self._as_array_type(invoke)
-
-
-class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
-    @typing.override
-    def concat(
-        self,
-        array: ir.Value,
-        iterable: ir.ValueProvider,
-        iterable_ir_type: types.IRType | types.TupleIRType,
-    ) -> ir.Value:
-        assert self.array_encoding.length_header, "expected array to have a length header"
-        # iterable may not be packed
-        match iterable_ir_type:
-            case types.EncodedType(
-                encoding=(
-                    encodings.ArrayEncoding(element=iter_element_encoding)
-                    # if tuple is non-homogenous, _get_iterable_length_and_head_tail will error
-                    | encodings.TupleEncoding(elements=[iter_element_encoding, *_])
-                )
-            ):
-                pass
-            case _:
-                # assume each bit is in its own byte,
-                # will error in _get_iterable_length_and_head_tail if unsupported
-                iter_element_encoding = encodings.Bool8Encoding()
-
-        r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
-            iterable, iterable_ir_type, element_encoding=iter_element_encoding
-        )
-        r_count = self.factory.materialise_single(r_count)
-        r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
-        element_bits = iter_element_encoding.num_bits
-        assert element_bits in (1, 8)
-        invoke = self.factory.invoke(
-            PuyaLibIR.dynamic_array_concat_bits,
-            [array, r_head_and_tail, r_count, element_bits],
-        )
-        return self._as_array_type(invoke)
+        encoded_element = factory.materialise_single(encoded_element_vp)
+        r_tail = factory.concat(r_tail, encoded_element)
+        values = values[element_ir_type.arity :]
+    assert not values, "too many values to encode"
+    return _EncodedItems(
+        num_items=factory.constant(tuple_size),
+        items=r_tail,
+        item_encoding=element_encoding,
+    )
