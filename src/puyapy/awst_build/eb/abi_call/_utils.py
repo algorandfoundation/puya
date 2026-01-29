@@ -68,14 +68,13 @@ def maybe_resolve_literal(
     operand: InstanceBuilder,
     *,
     expected_type: pytypes.PyType | None = None,
-    allow_literal: bool = True,
 ) -> InstanceBuilder:
     if isinstance(operand, TupleLiteralBuilder):
         item_types = list[pytypes.PyType]()
         if expected_type is not None and isinstance(expected_type, pytypes.TupleType):
             item_types.extend(expected_type.items)
         resolved_items = [
-            maybe_resolve_literal(elem, expected_type=item_type, allow_literal=allow_literal)
+            maybe_resolve_literal(elem, expected_type=item_type)
             for elem, item_type in zip_longest(operand.iterate_static(), item_types)
         ]
         return TupleLiteralBuilder(resolved_items, operand.source_location)
@@ -102,11 +101,6 @@ def maybe_resolve_literal(
                 )
             case _:
                 typ = operand.pytype
-        if (typ != operand.pytype) and not allow_literal:
-            logger.error(
-                "type information is needed when passing a literal value",
-                location=operand.source_location,
-            )
     else:
         typ = expected_type
 
@@ -177,7 +171,6 @@ class ParsedMethod:
     return_type: pytypes.PyType
     declared_return_type: pytypes.PyType | None
     abi_config: ARC4MethodConfig | None
-    allow_literal_args: bool
 
 
 def parse_method(
@@ -275,9 +268,7 @@ def parse_abi_call_args(
         declared_return_type = parsed_method.return_type or pytypes.NoneType
 
     abi_call_args = [
-        maybe_resolve_literal(
-            arg, expected_type=arg_type, allow_literal=parsed_method.allow_literal_args
-        ).resolve()
+        maybe_resolve_literal(arg, expected_type=arg_type).resolve()
         for arg, arg_type in zip_longest(abi_args, parsed_method.arg_types)
     ]
     if parsed_method.target:
@@ -339,7 +330,6 @@ def parse_contract_fragment_method(
         return_type=return_type,
         declared_return_type=return_type_annotation,
         abi_config=abi_config,
-        allow_literal_args=True,
     )
 
 
@@ -349,7 +339,6 @@ def parse_signature_string(
 ) -> ParsedMethod:
     method_str = expect.simple_string_literal(method, default=expect.default_raise)
     target = MethodSignatureString(value=method_str, source_location=method.source_location)
-    allow_literal_args = "(" in method_str
 
     return ParsedMethod(
         target=target,
@@ -357,7 +346,6 @@ def parse_signature_string(
         return_type=return_type_annotation or pytypes.NoneType,
         declared_return_type=return_type_annotation,
         abi_config=None,
-        allow_literal_args=allow_literal_args,
     )
 
 
@@ -391,5 +379,4 @@ def parse_abi_method_data(data: models.ARC4MethodData, location: SourceLocation)
         return_type=return_type,
         declared_return_type=pytypes.NoneType,
         abi_config=config,
-        allow_literal_args=True,
     )

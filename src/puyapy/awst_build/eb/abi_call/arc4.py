@@ -210,9 +210,7 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
 
         abi_args = [expect.instance_builder(arg, default=expect.default_raise) for arg in pos_args]
         abi_call_args = [
-            maybe_resolve_literal(
-                arg, expected_type=arg_type, allow_literal=parsed_method.allow_literal_args
-            ).resolve()
+            maybe_resolve_literal(arg, expected_type=arg_type).resolve()
             for arg, arg_type in zip(abi_args, parsed_method.arg_types, strict=True)
         ]
         pytype = pytypes.GenericABIApplicationCall.parameterise(
