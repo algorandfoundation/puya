@@ -123,23 +123,39 @@ def parse_python(
     ]
     mypy_options = _get_mypy_options()
     typeshed_path, mypy_ext_path = _typeshed_paths()
-    algopy_typeshed = typeshed_path / "algopy"
-    stub_package_paths: tuple[str, ...] = ()
+    algopy_stubs = typeshed_path / "algopy"
     # TODO: remove below hack once mypy migration is complete
-    if not algopy_typeshed.exists():
+    if not algopy_stubs.exists():
         logger.info("algopy-stubs not installed in typeshed, assuming puyapy development mode")
         puyapy_dir = Path(__file__).parent
         vcs_root = puyapy_dir.parent.parent
         stubs_dir = vcs_root / "stubs"
-        stub_package_paths = (str(stubs_dir),)
+        algopy_stubs = stubs_dir / "algopy-stubs"
+    if not algopy_stubs.is_dir():
+        raise InternalError("puyapy install is corrupted - algopy stubs not a directory")
+    algopy_sources = list[BuildSource]()
+    for algopy_stub_file in sorted(algopy_stubs.glob("*.pyi")):
+        if algopy_stub_file.stem == "__init__":
+            module_name = "algopy"
+        else:
+            module_name = f"algopy.{algopy_stub_file.stem}"
+        algopy_sources.append(
+            BuildSource(
+                path=str(algopy_stub_file),
+                module=module_name,
+                followed=True,
+            )
+        )
 
     mypy_search_paths = SearchPaths(
         python_path=(),
-        package_path=stub_package_paths,
+        package_path=(),
         typeshed_path=tuple(map(str, (typeshed_path, mypy_ext_path))),
         mypy_path=(),
     )
-    manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
+    manager, graph = _mypy_build(
+        mypy_build_sources, mypy_options, mypy_search_paths, fs_cache, algopy_sources
+    )
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
@@ -820,6 +836,7 @@ def _mypy_build(
     options: MypyOptions,
     search_paths: SearchPaths,
     fscache: FileSystemCache,
+    algopy_sources: list[BuildSource],
 ) -> tuple[BuildManager, Graph]:
     """
     Our own implementation of mypy.build.build which handles errors via logging,
@@ -837,7 +854,7 @@ def _mypy_build(
     ) -> None:
         all_messages.extend(msg for msg in new_messages if os.devnull not in msg)
 
-    source_set = BuildSourceSet(sources)
+    source_set = BuildSourceSet(sources + algopy_sources)
     cached_read = fscache.read
     errors = Errors(options, read_source=lambda path: read_py_file(path, cached_read))
     plugin = DefaultPlugin(options)
