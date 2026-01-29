@@ -1,6 +1,8 @@
 import functools
 from collections.abc import Callable
 
+import puyapy.awst_build.eb.abi_call.arc4 as arc4_abi_call
+import puyapy.awst_build.eb.abi_call.itxn as itxn_abi_call
 from puya.awst.nodes import Expression
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -46,12 +48,12 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy.arc4.emit": arc4.EmitBuilder,
     "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
     "algopy.itxn.submit_staged": transaction.SubmitStagedInnerTransactionsExpressionBuilder,
-    "algopy.itxn.abi_call": transaction.ABICallGenericTypeBuilder,
+    "algopy.itxn.abi_call": itxn_abi_call.ABICallGenericTypeBuilder,
     "algopy._compiled.compile_contract": compiled.CompileContractFunctionBuilder,
     "algopy._compiled.compile_logicsig": compiled.CompileLogicSigFunctionBuilder,
-    "algopy.arc4.arc4_create": arc4.ARC4CreateFunctionBuilder,
-    "algopy.arc4.arc4_update": arc4.ARC4UpdateFunctionBuilder,
-    constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericTypeBuilder,
+    "algopy.arc4.arc4_create": arc4_abi_call.ARC4CreateFunctionBuilder,
+    "algopy.arc4.arc4_update": arc4_abi_call.ARC4UpdateFunctionBuilder,
+    constants.CLS_ARC4_ABI_CALL: arc4_abi_call.ABICallGenericTypeBuilder,
     "algopy._template_variables.TemplateVar": (
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
@@ -147,8 +149,8 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
         lambda _, loc: unsigned_builtins.ReversedFunctionExpressionBuilder(loc)
     ),
     pytypes.GenericTemplateVarType: template_variables.TemplateVariableExpressionBuilder,
-    pytypes.GenericABICallWithReturnType: arc4.ABICallTypeBuilder,
-    pytypes.GenericITxnABICallWithReturnType: transaction.ABICallTypeBuilder,
+    pytypes.GenericABICallWithReturnType: arc4_abi_call.ABICallTypeBuilder,
+    pytypes.GenericITxnABICallWithReturnType: itxn_abi_call.ABICallTypeBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateTypeBuilder,
     pytypes.GenericGlobalStateType: storage.GlobalStateTypeBuilder,
     pytypes.GenericBoxType: storage.BoxTypeBuilder,
@@ -253,9 +255,9 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericGlobalStateType: storage.GlobalStateExpressionBuilder,
     pytypes.GenericLocalStateType: storage.LocalStateExpressionBuilder,
     pytypes.GenericFixedBytesType: fixed_bytes.FixedBytesExpressionBuilder,
-    pytypes.GenericABIApplicationCall: transaction.ABIApplicationCallExpressionBuilder,
+    pytypes.GenericABIApplicationCall: itxn_abi_call.ABIApplicationCallExpressionBuilder,
     pytypes.GenericABIApplicationCallInnerTransaction: (
-        transaction.ABIApplicationCallInnerTransactionExpressionBuilder
+        itxn_abi_call.ABIApplicationCallInnerTransactionExpressionBuilder
     ),
 }
 

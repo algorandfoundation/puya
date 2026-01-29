@@ -382,7 +382,7 @@ class ContractA(arc4.ARC4Contract):
     )
     diag = await harness.wait_for_diagnostic(unique_uri, 1)
 
-    assert diag.diagnostics[0].message == "cannot encode algopy.UInt64 to algopy.arc4.String"
+    assert diag.diagnostics[0].message == "cannot encode uint64 to arc4.dynamic_array<arc4.uint8>"
 
 
 async def test_non_puyapy_code_is_ignored(

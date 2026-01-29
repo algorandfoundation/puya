@@ -549,7 +549,7 @@ class MethodSignatureString(Node):
 
 @attrs.frozen
 class MethodSignature(Node):
-    name: str = attrs.field()
+    name: str
     arg_types: Sequence[wtypes.WType] = attrs.field(converter=tuple[wtypes.WType, ...])
     return_type: wtypes.WType
     resource_encoding: typing.Literal["index", "value"] = "value"
@@ -1752,7 +1752,7 @@ class ABICall(Expression):
     or submitted with SubmitInnerTransaction.
     """
 
-    target: MethodSignature | MethodSignatureString
+    target: MethodSignature | MethodSignatureString | None
     args: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: wtypes.WABICallInnerTransactionFields
