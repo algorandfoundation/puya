@@ -8,7 +8,6 @@ from puya.ir import (
     models as ir,
     types_ as types,
 )
-from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder import mem
 from puya.ir.builder._utils import undefined_value
 from puya.ir.op_utils import OpFactory, assert_value
@@ -190,20 +189,25 @@ def convert_array(
             )
             return undefined_value(target_ir_type, loc)
         case (
-            encodings.Bool8Encoding(),
+            encodings.Bool8Encoding() as src_item_encoding,
             encodings.BoolEncoding(),
         ):
             assert not source_encoding.length_header, "expected ReferenceArray"
             empty_header = factory.constant(b"\0" * 2)
-            bitpacked_source_provider = factory.invoke(
-                PuyaLibIR.dynamic_array_concat_bits,
-                [empty_header, source, source_length, 8],
+
+            source_encoding = encodings.ArrayEncoding.dynamic(
+                target_encoding.element, length_header=True
             )
             (source,) = context.materialise_value_provider(
-                bitpacked_source_provider, description="bit_packed_source"
-            )
-            source_encoding = encodings.ArrayEncoding.dynamic(
-                encodings.BoolEncoding(), length_header=True
+                ir.ArrayConcat(
+                    base_type=types.EncodedType(source_encoding),
+                    base=empty_header,
+                    items=source,
+                    num_items=source_length,
+                    item_encoding=src_item_encoding,
+                    source_location=loc,
+                ),
+                description="bit_packed_source",
             )
 
     if target_encoding.element != source_encoding.element:

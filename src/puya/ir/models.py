@@ -468,6 +468,7 @@ class ArrayConcat(ValueProvider):
     base_type: EncodedType = attrs.field(repr=lambda x: x.name)
     array_encoding: ArrayEncoding = attrs.field(init=False)
     items: Value
+    item_encoding: Encoding
     num_items: Value = attrs.field()
 
     @array_encoding.default
