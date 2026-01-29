@@ -43,6 +43,8 @@ _UNSTABLE_LOG_PREFIXES = {
     LogLevel.info: (
         # ignore platform specific paths
         "using python search path: ",
+        # dev notes
+        "algopy-stubs not installed in typeshed, assuming puyapy development mode",
     ),
 }
 
