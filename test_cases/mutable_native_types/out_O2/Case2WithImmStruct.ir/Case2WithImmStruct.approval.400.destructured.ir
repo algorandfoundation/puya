@@ -14,16 +14,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#17: bool = (box_create "tup_bag" 4273u)
         (assert tmp%0#17) // box already exists
         let tmp%1#15: account = (txn Sender)
-        (box_replace "tup_bag" 136u tmp%1#15)
+        (box_replace "tup_bag" 136u tmp%1#15) // on error: index out of bounds
         let tmp%2#0: uint64 = (global CurrentApplicationID)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
-        (box_replace "tup_bag" 168u aggregate%val_as_bytes%0#0)
+        (box_replace "tup_bag" 168u aggregate%val_as_bytes%0#0) // on error: index out of bounds
         let box%box_extract%0#1: bytes = (box_extract "tup_bag" 4272u 1u)
         let aggregate%updated_target%0#0: Encoded(bool1[8]) = (setbit box%box_extract%0#1 0u 1u)
-        (box_replace "tup_bag" 4272u aggregate%updated_target%0#0)
+        (box_replace "tup_bag" 4272u aggregate%updated_target%0#0) // on error: index out of bounds
         exit 1u
     block@7: // num_tups_route_L45
-        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%2#5: bytes = (concat 0x151f7c75 box%box_extract%0#1)
         (log tmp%2#5)
         exit 1u
@@ -40,11 +40,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let index#0: uint64 = (btoi tmp%0#4)
-        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
         let tmp%1#13: bool = (< index#0 tmp%0#1)
         (assert tmp%1#13) // index out of bounds
-        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u) // on error: index out of bounds
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tmp%3#1: bytes = (concat 0x151f7c75 aggregate%encoded_element%0#0)
@@ -52,7 +52,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@10: // sum_route_L61
         let total#0: uint64 = 0u
-        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
         let value_internal%0#0: uint64 = 0u
         let i#0: uint64 = value_internal%0#0
@@ -61,7 +61,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 tmp%0#1)
         goto continue_looping%0#0 ? block@52 : block@53
     block@52: // for_body_L65
-        let box%box_extract%3#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%3#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u) // on error: index out of bounds
         let aggregate%bytes_offset%1#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%1#0: bytes = (extract3 box%box_extract%3#1 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
         let tmp%1#5: uint64 = (extract_uint64 aggregate%encoded_element%1#0 0u)
@@ -121,7 +121,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let a#0: uint64 = (btoi tmp%0#4)
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
-        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
         let value_internal%0#0: uint64 = 0u
         let i#0: uint64 = value_internal%0#0
@@ -130,7 +130,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 tmp%0#1)
         goto continue_looping%0#0 ? block@37 : block@48
     block@37: // for_body_L84
-        let box%box_extract%3#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%3#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u) // on error: index out of bounds
         let aggregate%bytes_offset%5#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%5#0: bytes = (extract3 box%box_extract%3#1 aggregate%bytes_offset%5#0 16u) // on error: index access is out of bounds
         let aggregate%extract%2#0: bytes = ((extract 8 8) aggregate%encoded_element%5#0)
@@ -139,7 +139,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let box%index_ok%0#0: bool = (< i#0 8u)
         (assert box%index_ok%0#0) // index out of bounds
         let box%offset%5#0: uint64 = (+ 8u aggregate%bytes_offset%5#0)
-        (box_replace "tup_bag" box%offset%5#0 aggregate%head%1#0)
+        (box_replace "tup_bag" box%offset%5#0 aggregate%head%1#0) // on error: index out of bounds
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
         goto block@36
@@ -150,7 +150,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let b#0: uint64 = (btoi tmp%0#4)
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
-        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
         let value_internal%0#0: uint64 = 0u
         let i#0: uint64 = value_internal%0#0
@@ -159,7 +159,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 tmp%0#1)
         goto continue_looping%0#0 ? block@32 : block@48
     block@32: // for_body_L91
-        let box%box_extract%3#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%3#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u) // on error: index out of bounds
         let aggregate%bytes_offset%6#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%6#0: bytes = (extract3 box%box_extract%3#1 aggregate%bytes_offset%6#0 16u) // on error: index access is out of bounds
         let aggregate%extract%3#0: bytes = ((extract 0 8) aggregate%encoded_element%6#0)
@@ -168,7 +168,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let box%index_ok%0#0: bool = (< i#0 8u)
         (assert box%index_ok%0#0) // index out of bounds
         let box%offset%5#0: uint64 = (+ 8u aggregate%bytes_offset%6#0)
-        (box_replace "tup_bag" box%offset%5#0 aggregate%head%3#0)
+        (box_replace "tup_bag" box%offset%5#0 aggregate%head%3#0) // on error: index out of bounds
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
         goto block@31
@@ -178,12 +178,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let start#0: uint64 = (btoi tmp%0#4)
-        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
         let tmp%1#5: uint64 = (+ start#0 3u)
         let tmp%2#2: bool = (>= tmp%0#1 tmp%1#5)
         (assert tmp%2#2) // not enough items
-        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u) // on error: index out of bounds
         let aggregate%bytes_offset%7#0: uint64 = (* start#0 16u)
         let aggregate%encoded_element%7#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%7#0 16u) // on error: index access is out of bounds
         let tmp%3#2: uint64 = (+ start#0 1u)
@@ -199,7 +199,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@16: // get_all_tups_route_L107
         let result#0: bytes = 0x0000
-        let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%1#0)
         let value_internal%0#0: uint64 = 0u
         let i#0: uint64 = value_internal%0#0
@@ -208,7 +208,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 tmp%0#1)
         goto continue_looping%0#0 ? block@25 : block@26
     block@25: // for_body_L113
-        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u) // on error: index out of bounds
         let aggregate%bytes_offset%10#0: uint64 = (* i#0 16u)
         let new_items_bytes#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%10#0 16u) // on error: index access is out of bounds
         let array_length#0: uint64 = (extract_uint16 result#0 0u)
@@ -238,30 +238,30 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup: Encoded(uint64,uint64)) -> void:
     block@0: // L49
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%1#0: bool = (< tmp%0#0 8u)
         (assert tmp%1#0) // too many tups
         let box%element_offset%0#0: uint64 = (* tmp%0#0 16u)
         let box%offset%3#0: uint64 = (+ 8u box%element_offset%0#0)
-        (box_replace "tup_bag" box%offset%3#0 tup#0)
-        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
+        (box_replace "tup_bag" box%offset%3#0 tup#0) // on error: index out of bounds
+        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%3#0: uint64 = (btoi box%box_extract%2#0)
         let tmp%4#0: uint64 = (+ tmp%3#0 1u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%4#0)
-        (box_replace "tup_bag" 0u aggregate%val_as_bytes%0#0)
+        (box_replace "tup_bag" 0u aggregate%val_as_bytes%0#0) // on error: index out of bounds
         return 
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner() -> void:
     block@0: // L116
-        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" 4272u 1u)
+        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" 4272u 1u) // on error: index out of bounds
         let aggregate%get_bit%0#0: bool = (getbit box%box_extract%0#0 0u)
         (assert aggregate%get_bit%0#0) // app not bootstrapped
-        let box%box_extract%1#0: Encoded(uint8[32]) = (box_extract "tup_bag" 136u 32u)
+        let box%box_extract%1#0: Encoded(uint8[32]) = (box_extract "tup_bag" 136u 32u) // on error: index out of bounds
         let tmp%2#0: account = (txn Sender)
         let tmp%3#0: bool = (== box%box_extract%1#0 tmp%2#0)
         (assert tmp%3#0) // sender not authorized
-        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" 168u 8u)
+        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" 168u 8u) // on error: index out of bounds
         let tmp%4#0: uint64 = (btoi box%box_extract%2#0)
         let tmp%5#0: uint64 = (global CurrentApplicationID)
         let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)

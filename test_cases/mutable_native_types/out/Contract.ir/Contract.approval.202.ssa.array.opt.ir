@@ -198,7 +198,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage[rout
         let aggregate%extract%0#0: bytes = ((extract 0 16) maybe_value%1#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        (box_replace box_prefixed_key%0#0 0u aggregate%extract%0#0)
+        (box_replace box_prefixed_key%0#0 0u aggregate%extract%0#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routing]() -> void:
@@ -261,10 +261,10 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]
         (assert maybe_exists%2#0) // check self.nested_local exists for account
         let aggregate%updated_data%2#0: bytes = ((replace2 0) maybe_value%2#0 a#0)
         (app_local_put tmp%0#1 0x6c aggregate%updated_data%2#0)
-        (box_replace "box" 0u a#0)
+        (box_replace "box" 0u a#0) // on error: index out of bounds
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        (box_replace box_prefixed_key%0#0 0u a#0)
+        (box_replace box_prefixed_key%0#0 0u a#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return[routing]() -> void:

@@ -1,0 +1,346 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 2 1 0
+    bytecblock "box" 0x151f7c75
+    // large_box_operations/array_uint64.py:10
+    // class ArrayUInt64(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@16
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xbec76d87 0x3428ffea 0x5949ce5d 0xb825a142 0xb4369c36 0xced1bdc6 0x317a3e03 // method "bootstrap()void", method "append(uint64)void", method "concat(uint64[])void", method "pop()uint64", method "get(uint64)uint64", method "set(uint64,uint64)void", method "verify(uint64[])void"
+    txna ApplicationArgs 0
+    match bootstrap append concat pop get set verify
+    err
+
+main___algopy_default_create@16:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+box_dynamic_array_concat_fixed:
+    proto 5 0
+    frame_dig -5
+    frame_dig -4
+    intc_1 // 2
+    box_extract
+    btoi
+    frame_dig -5
+    box_len
+    pop
+    frame_dig -2
+    frame_dig -1
+    *
+    +
+    frame_dig -5
+    swap
+    box_resize
+    dup
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig -5
+    frame_dig -4
+    uncover 2
+    box_replace
+    frame_dig -4
+    intc_1 // 2
+    +
+    swap
+    frame_dig -1
+    *
+    +
+    frame_dig -5
+    swap
+    intc_3 // 0
+    frame_dig -3
+    box_splice
+    retsub
+
+
+// test_cases.large_box_operations.array_uint64.ArrayUInt64.bootstrap[routing]() -> void:
+bootstrap:
+    // large_box_operations/array_uint64.py:16
+    // self.box.value = ArrayU64()
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    pushbytes 0x0000
+    box_put
+    // large_box_operations/array_uint64.py:14
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.array_uint64.ArrayUInt64.append[routing]() -> void:
+append:
+    // large_box_operations/array_uint64.py:18
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_box_operations/array_uint64.py:20
+    // self.box.value.append(value)
+    itob
+    bytec_0 // "box"
+    intc_3 // 0
+    uncover 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/array_uint64.py:18
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.array_uint64.ArrayUInt64.concat[routing]() -> void:
+concat:
+    // large_box_operations/array_uint64.py:22
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // large_box_operations/array_uint64.py:24
+    // self.box.value.extend(array)
+    swap
+    extract 2 0
+    bytec_0 // "box"
+    intc_3 // 0
+    uncover 2
+    uncover 3
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/array_uint64.py:22
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.array_uint64.ArrayUInt64.pop[routing]() -> void:
+pop:
+    // large_box_operations/array_uint64.py:28
+    // return self.box.value.pop()
+    bytec_0 // "box"
+    intc_3 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_2 // 1
+    -
+    dup
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_0 // "box"
+    dig 1
+    intc_0 // 8
+    box_extract // on error: index out of bounds
+    uncover 2
+    itob
+    extract 6 2
+    // large_box_operations/array_uint64.py:28
+    // return self.box.value.pop()
+    bytec_0 // "box"
+    intc_3 // 0
+    uncover 2
+    box_replace
+    // large_box_operations/array_uint64.py:28
+    // return self.box.value.pop()
+    bytec_0 // "box"
+    uncover 2
+    // large_box_operations/array_uint64.py:28
+    // return self.box.value.pop()
+    intc_0 // 8
+    pushbytes 0x
+    box_splice
+    // large_box_operations/array_uint64.py:28
+    // return self.box.value.pop()
+    bytec_0 // "box"
+    box_len
+    pop
+    // large_box_operations/array_uint64.py:28
+    // return self.box.value.pop()
+    intc_0 // 8
+    -
+    // large_box_operations/array_uint64.py:28
+    // return self.box.value.pop()
+    bytec_0 // "box"
+    swap
+    box_resize
+    // large_box_operations/array_uint64.py:26
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.array_uint64.ArrayUInt64.get[routing]() -> void:
+get:
+    // large_box_operations/array_uint64.py:30
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_box_operations/array_uint64.py:32
+    // return self.box.value[idx]
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_0 // "box"
+    swap
+    intc_0 // 8
+    box_extract // on error: index out of bounds
+    // large_box_operations/array_uint64.py:30
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.array_uint64.ArrayUInt64.set[routing]() -> void:
+set:
+    // large_box_operations/array_uint64.py:34
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // large_box_operations/array_uint64.py:36
+    // self.box.value[idx] = value
+    swap
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_0 // "box"
+    swap
+    uncover 2
+    box_replace // on error: index out of bounds
+    // large_box_operations/array_uint64.py:34
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.array_uint64.ArrayUInt64.verify[routing]() -> void:
+verify:
+    // large_box_operations/array_uint64.py:38
+    // @public
+    txna ApplicationArgs 1
+    dupn 2
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    dup
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // large_box_operations/array_uint64.py:40-42
+    // # rather than asserting box.value directly (which would attempt to load the whole box)
+    // # assert the length and individual items
+    // assert self.box.value.length == expected.length
+    bytec_0 // "box"
+    intc_3 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    ==
+    assert
+    // large_box_operations/array_uint64.py:43
+    // for i in urange(expected.length):
+    intc_3 // 0
+
+verify_for_header@2:
+    // large_box_operations/array_uint64.py:43
+    // for i in urange(expected.length):
+    dup
+    dig 2
+    <
+    bz verify_after_for@5
+    // large_box_operations/array_uint64.py:44
+    // assert self.box.value[i] == expected[i]
+    dupn 2
+    intc_0 // 8
+    *
+    intc_1 // 2
+    dig 1
+    +
+    bytec_0 // "box"
+    swap
+    intc_0 // 8
+    box_extract // on error: index out of bounds
+    btoi
+    dig 5
+    extract 2 0
+    uncover 2
+    extract_uint64
+    ==
+    assert
+    // large_box_operations/array_uint64.py:43
+    // for i in urange(expected.length):
+    intc_2 // 1
+    +
+    bury 1
+    b verify_for_header@2
+
+verify_after_for@5:
+    // large_box_operations/array_uint64.py:38
+    // @public
+    intc_2 // 1
+    return

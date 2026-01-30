@@ -1,0 +1,647 @@
+contract StructMultipleArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.struct_multiple_array_uint64.StructWithMultipleArrays
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.struct_multiple_array_uint64.StructWithMultipleArrays = new test_cases.large_box_operations.struct_multiple_array_uint64.StructWithMultipleArrays(a=1u, arr1=new arc4.dynamic_array<uint64>(), arr2=new arc4.dynamic_array<uint64>(), arr3=new arc4.dynamic_array<uint64>(), b=2u, padding=new arc4.dynamic_array<bytes[4096]>())
+    Box['box'].padding.extend((bzero(4096u)))
+    this::verify(new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.append(value: uint64): void
+  {
+    Box['box'].arr1.extend((value))
+    Box['box'].arr2.extend((value + 1u))
+    Box['box'].arr3.extend((value + 2u))
+  }
+  
+  abimethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.concat(array: arc4.dynamic_array<uint64>): void
+  {
+    Box['box'].arr1.extend(array)
+    Box['box'].arr2.extend(test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(array, 1u))
+    Box['box'].arr3.extend(test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(array, 2u))
+  }
+  
+  abimethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.pop(): uint64
+  {
+    result: uint64 = Box['box'].arr1.pop()
+    assert(Box['box'].arr2.pop() == result + 1u)
+    assert(Box['box'].arr3.pop() == result + 2u)
+    return result
+  }
+  
+  abimethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.get(idx: uint64): uint64
+  {
+    result: uint64 = Box['box'].arr1[idx]
+    assert(Box['box'].arr2[idx] == result + 1u)
+    assert(Box['box'].arr3[idx] == result + 2u)
+    return result
+  }
+  
+  abimethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.set(idx: uint64, value: uint64): void
+  {
+    Box['box'].arr1[idx]: uint64 = value
+    Box['box'].arr2[idx]: uint64 = value + 1u
+    Box['box'].arr3[idx]: uint64 = value + 2u
+  }
+  
+  abimethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify(expected: arc4.dynamic_array<uint64>): void
+  {
+    _puya_lib.util.ensure_budget(required_budget=2000u, fee_source=0u)
+    assert(Box['box'].arr1 == expected)
+    assert(Box['box'].arr2 == test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(expected, 1u))
+    assert(Box['box'].arr3 == test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(expected, 2u))
+    assert(Box['box'].a == 1u)
+    assert(Box['box'].b == 2u)
+    assert(Box['box'].padding.length == 1u)
+    assert(checked_maybe(box_len('box')) > 4096u, comment="expected box length >4096")
+  }
+  
+  baremethod test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine inc_array(arr: arc4.dynamic_array<uint64>, inc: uint64): arc4.dynamic_array<uint64>
+{
+  new: arc4.dynamic_array<uint64> = arr.copy()
+  for idx in range(0u, new.length, 1u) {
+    new[idx] += inc
+  }
+  return new
+}
+
+contract StructArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.struct_array_uint64.StructWithArrayU64
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.struct_array_uint64.StructWithArrayU64 = new test_cases.large_box_operations.struct_array_uint64.StructWithArrayU64(a=1u, arr=new arc4.dynamic_array<uint64>(), b=2u, padding=new arc4.dynamic_array<bytes[4096]>())
+    Box['box'].padding.extend((bzero(4096u)))
+    this::verify(new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.append(value: uint64): void
+  {
+    Box['box'].arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.concat(array: arc4.dynamic_array<uint64>): void
+  {
+    Box['box'].arr.extend(array)
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.pop(): uint64
+  {
+    return Box['box'].arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.get(idx: uint64): uint64
+  {
+    return Box['box'].arr[idx]
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.set(idx: uint64, value: uint64): void
+  {
+    Box['box'].arr[idx]: uint64 = value
+  }
+  
+  abimethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.verify(expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box['box'].arr == expected)
+    assert(Box['box'].a == 1u)
+    assert(Box['box'].b == 2u)
+    assert(Box['box'].padding.length == 1u)
+    assert(checked_maybe(box_len('box')) > 4096u, comment="expected box length >4096")
+  }
+  
+  baremethod test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract NestedItemArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.nested_item.StructWithNestedArray
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.nested_item.StructWithNestedArray = new test_cases.large_box_operations.nested_item.StructWithNestedArray(grand=new test_cases.large_box_operations.nested_item.GrandParent(a=1u, arr=new arc4.dynamic_array<test_cases.large_box_operations.nested_item.Parent>(new test_cases.large_box_operations.nested_item.Parent(child=new test_cases.large_box_operations.nested_item.Child(uint=42u, bool_=true), bar=123u)), b=2u), padding=new arc4.dynamic_array<bytes[4096]>(), items=new arc4.dynamic_array<test_cases.large_box_operations.nested_item.ItemWithArray>())
+    Box['box'].items.extend((new test_cases.large_box_operations.nested_item.ItemWithArray(arr=new arc4.dynamic_array<uint64>())))
+    Box['box'].padding.extend((bzero(4096u)))
+    assert(checked_maybe(box_len('box')) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.append(value: test_cases.large_box_operations.nested_item.Parent): void
+  {
+    Box['box'].grand.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.pop(): test_cases.large_box_operations.nested_item.Parent
+  {
+    return Box['box'].grand.arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_uint(idx: uint64): uint64
+  {
+    return Box['box'].grand.arr[idx].child.uint
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_bool(idx: uint64): bool
+  {
+    return Box['box'].grand.arr[idx].child.bool_
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_arr_append(item_idx: uint64, value: uint64): void
+  {
+    Box['box'].items[item_idx].arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_arr_pop(item_idx: uint64): uint64
+  {
+    return Box['box'].items[item_idx].arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.clear_padding(): void
+  {
+    _discarded: bytes[4096] = Box['box'].padding.pop()
+  }
+  
+  baremethod test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract NestedArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.nested.StructWithNestedArray
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.nested.NestedArrayUInt64.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.nested.StructWithNestedArray = new test_cases.large_box_operations.nested.StructWithNestedArray(nested=new test_cases.large_box_operations.nested.GrandParent(a=1u, arr=new arc4.dynamic_array<test_cases.large_box_operations.nested.Parent>(), b=2u), padding=new arc4.dynamic_array<bytes[4096]>())
+    Box['box'].padding.extend((bzero(4096u)))
+    this::verify(new arc4.dynamic_array<test_cases.large_box_operations.nested.Parent>())
+  }
+  
+  abimethod test_cases.large_box_operations.nested.NestedArrayUInt64.append(value: test_cases.large_box_operations.nested.Parent): void
+  {
+    Box['box'].nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.nested.NestedArrayUInt64.concat(array: arc4.dynamic_array<test_cases.large_box_operations.nested.Parent>): void
+  {
+    Box['box'].nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_box_operations.nested.NestedArrayUInt64.pop(): test_cases.large_box_operations.nested.Parent
+  {
+    return Box['box'].nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.nested.NestedArrayUInt64.get(idx: uint64): test_cases.large_box_operations.nested.Parent
+  {
+    return Box['box'].nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_box_operations.nested.NestedArrayUInt64.set(idx: uint64, value: test_cases.large_box_operations.nested.Parent): void
+  {
+    Box['box'].nested.arr[idx]: test_cases.large_box_operations.nested.Parent = value
+  }
+  
+  abimethod test_cases.large_box_operations.nested.NestedArrayUInt64.verify(expected: arc4.dynamic_array<test_cases.large_box_operations.nested.Parent>): void
+  {
+    assert(Box['box'].nested.arr == expected)
+    assert(Box['box'].nested.a == 1u)
+    assert(Box['box'].nested.b == 2u)
+    assert(Box['box'].padding.length == 1u)
+    assert(checked_maybe(box_len('box')) > 4096u, comment="expected box length >4096")
+  }
+  
+  baremethod test_cases.large_box_operations.nested.NestedArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract DynamicOffsetMiddle
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsets
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsets = new test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsets(nested=new test_cases.large_box_operations.dynamic_offset_middle.Parent(baz=1u, nested=new test_cases.large_box_operations.dynamic_offset_middle.Child(foo=2u, arr=new arc4.dynamic_array<uint64>(), bar=3u), buz=4u), pad1=new arc4.dynamic_array<bytes[4096]>(), pad2=new arc4.dynamic_array<bytes[4096]>())
+    Box['box'].pad1.extend((bzero(4096u)))
+    this::verify(new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.concat(array: arc4.dynamic_array<uint64>): void
+  {
+    Box['box'].nested.nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.append(value: uint64): void
+  {
+    Box['box'].nested.nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.pop(): uint64
+  {
+    return Box['box'].nested.nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.verify(expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box['box'].nested.baz == 1u)
+    assert(Box['box'].nested.nested.foo == 2u)
+    assert(Box['box'].nested.nested.bar == 3u)
+    assert(Box['box'].nested.buz == 4u)
+    assert(Box['box'].nested.nested.arr == expected)
+    assert(Box['box'].pad1.length == 1u)
+    assert(Box['box'].pad2.length == 0u)
+    assert(checked_maybe(box_len('box')) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.get(idx: uint64): uint64
+  {
+    return Box['box'].nested.nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.set(idx: uint64, value: uint64): void
+  {
+    Box['box'].nested.nested.arr[idx]: uint64 = value
+  }
+  
+  baremethod test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract DynamicOffsetLast
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.dynamic_offset_last.DynamicOffsets
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.dynamic_offset_last.DynamicOffsets = new test_cases.large_box_operations.dynamic_offset_last.DynamicOffsets(nested=new test_cases.large_box_operations.dynamic_offset_last.Parent(baz=1u, nested=new test_cases.large_box_operations.dynamic_offset_last.Child(foo=2u, arr=new arc4.dynamic_array<uint64>(), bar=3u), buz=4u), pad1=new arc4.dynamic_array<bytes[4096]>(), pad2=new arc4.dynamic_array<bytes[4096]>())
+    Box['box'].pad1.extend((bzero(4096u)))
+    this::verify(new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.concat(array: arc4.dynamic_array<uint64>): void
+  {
+    Box['box'].nested.nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append(value: uint64): void
+  {
+    Box['box'].nested.nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.pop(): uint64
+  {
+    return Box['box'].nested.nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box['box'].nested.baz == 1u)
+    assert(Box['box'].nested.nested.foo == 2u)
+    assert(Box['box'].nested.nested.bar == 3u)
+    assert(Box['box'].nested.buz == 4u)
+    assert(Box['box'].nested.nested.arr == expected)
+    assert(Box['box'].pad1.length == 1u)
+    assert(Box['box'].pad2.length == 0u)
+    assert(checked_maybe(box_len('box')) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.get(idx: uint64): uint64
+  {
+    return Box['box'].nested.nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.set(idx: uint64, value: uint64): void
+  {
+    Box['box'].nested.nested.arr[idx]: uint64 = value
+  }
+  
+  baremethod test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract DynamicOffsetFirst
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: test_cases.large_box_operations.dynamic_offset_first.DynamicOffsets
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.bootstrap(): void
+  {
+    Box['box']: test_cases.large_box_operations.dynamic_offset_first.DynamicOffsets = new test_cases.large_box_operations.dynamic_offset_first.DynamicOffsets(nested=new test_cases.large_box_operations.dynamic_offset_first.Parent(baz=1u, nested=new test_cases.large_box_operations.dynamic_offset_first.Child(foo=2u, arr=new arc4.dynamic_array<uint64>(), bar=3u), buz=4u), pad1=new arc4.dynamic_array<bytes[4096]>(), pad2=new arc4.dynamic_array<bytes[4096]>())
+    Box['box'].pad1.extend((bzero(4096u)))
+    this::verify(new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.concat(array: arc4.dynamic_array<uint64>): void
+  {
+    Box['box'].nested.nested.arr.extend(array)
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.append(value: uint64): void
+  {
+    Box['box'].nested.nested.arr.extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.pop(): uint64
+  {
+    return Box['box'].nested.nested.arr.pop()
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.verify(expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box['box'].nested.baz == 1u)
+    assert(Box['box'].nested.nested.foo == 2u)
+    assert(Box['box'].nested.nested.bar == 3u)
+    assert(Box['box'].nested.buz == 4u)
+    assert(Box['box'].nested.nested.arr == expected)
+    assert(Box['box'].pad1.length == 1u)
+    assert(Box['box'].pad2.length == 0u)
+    assert(checked_maybe(box_len('box')) > 4096u, comment="expected box length >4096")
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.get(idx: uint64): uint64
+  {
+    return Box['box'].nested.nested.arr[idx]
+  }
+  
+  abimethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.set(idx: uint64, value: uint64): void
+  {
+    Box['box'].nested.nested.arr[idx]: uint64 = value
+  }
+  
+  baremethod test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ArrayUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['box']: arc4.dynamic_array<uint64>
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.large_box_operations.array_uint64.ArrayUInt64.bootstrap(): void
+  {
+    Box['box']: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>()
+  }
+  
+  abimethod test_cases.large_box_operations.array_uint64.ArrayUInt64.append(value: uint64): void
+  {
+    Box['box'].extend((value))
+  }
+  
+  abimethod test_cases.large_box_operations.array_uint64.ArrayUInt64.concat(array: arc4.dynamic_array<uint64>): void
+  {
+    Box['box'].extend(array)
+  }
+  
+  abimethod test_cases.large_box_operations.array_uint64.ArrayUInt64.pop(): uint64
+  {
+    return Box['box'].pop()
+  }
+  
+  abimethod test_cases.large_box_operations.array_uint64.ArrayUInt64.get(idx: uint64): uint64
+  {
+    return Box['box'][idx]
+  }
+  
+  abimethod test_cases.large_box_operations.array_uint64.ArrayUInt64.set(idx: uint64, value: uint64): void
+  {
+    Box['box'][idx]: uint64 = value
+  }
+  
+  abimethod test_cases.large_box_operations.array_uint64.ArrayUInt64.verify(expected: arc4.dynamic_array<uint64>): void
+  {
+    assert(Box['box'].length == expected.length)
+    for i in range(0u, expected.length, 1u) {
+      assert(Box['box'][i] == expected[i])
+    }
+  }
+  
+  baremethod test_cases.large_box_operations.array_uint64.ArrayUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}

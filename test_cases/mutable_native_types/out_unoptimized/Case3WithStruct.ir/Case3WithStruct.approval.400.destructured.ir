@@ -204,13 +204,13 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let aggregate%as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%1#0
         let encoded_value%0#0: Encoded(uint8[32]) = aggregate%as_Encoded(uint8[32])%0#0
         let box%offset%0#0: uint64 = (+ 0u 136u)
-        (box_replace "tup_bag" box%offset%0#0 encoded_value%0#0)
+        (box_replace "tup_bag" box%offset%0#0 encoded_value%0#0) // on error: index out of bounds
         let tmp%2#0: uint64 = (global CurrentApplicationID)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let encoded_value%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let box%offset%1#0: uint64 = (+ 0u 168u)
-        (box_replace "tup_bag" box%offset%1#0 encoded_value%1#0)
+        (box_replace "tup_bag" box%offset%1#0 encoded_value%1#0) // on error: index out of bounds
         let box%element_byte_offset%0#0: uint64 = (/ 34176u 8u)
         let box%byte_containing_bit_offset%0#0: uint64 = (+ 0u box%element_byte_offset%0#0)
         let box%element_bit_offset%0#0: uint64 = (% 34176u 8u)
@@ -221,13 +221,13 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%updated_target%0#0: Encoded(bool1[8]) = (setbit box%box_extract%0#0 box%element_bit_offset%0#0 1u)
         let box%tmp%0#0: Encoded(bool1[8]) = aggregate%updated_target%0#0
-        (box_replace "tup_bag" box%byte_containing_bit_offset%0#0 box%tmp%0#0)
+        (box_replace "tup_bag" box%byte_containing_bit_offset%0#0 box%tmp%0#0) // on error: index out of bounds
         return 
 
 subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups() -> uint64:
     block@0: // L45
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u) // on error: index out of bounds
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         return tmp%0#0
@@ -237,13 +237,13 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let tup%out#0: Encoded(uint64,uint64) = tup#0
         test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner()
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u) // on error: index out of bounds
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%1#0: bool = (< tmp%0#0 8u)
         (assert tmp%1#0) // too many tups
         let box%offset%1#0: uint64 = (+ 0u 0u)
-        let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u)
+        let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u) // on error: index out of bounds
         let tuple_item%1#0: Encoded(uint64) = box%box_extract%1#0
         let tmp%2#0: uint64 = (btoi tuple_item%1#0)
         let box%offset%2#0: uint64 = (+ 0u 8u)
@@ -251,9 +251,9 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         (assert box%index_ok%0#0) // index out of bounds
         let box%element_offset%0#0: uint64 = (* tmp%2#0 16u)
         let box%offset%3#0: uint64 = (+ box%offset%2#0 box%element_offset%0#0)
-        (box_replace "tup_bag" box%offset%3#0 tup#0)
+        (box_replace "tup_bag" box%offset%3#0 tup#0) // on error: index out of bounds
         let box%offset%4#0: uint64 = (+ 0u 0u)
-        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%4#0 8u)
+        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%4#0 8u) // on error: index out of bounds
         let tuple_item%2#0: Encoded(uint64) = box%box_extract%2#0
         let tmp%3#0: uint64 = (btoi tuple_item%2#0)
         let tmp%4#0: uint64 = (+ tmp%3#0 1u)
@@ -261,19 +261,19 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let box%offset%5#0: uint64 = (+ 0u 0u)
-        (box_replace "tup_bag" box%offset%5#0 encoded_value%0#0)
+        (box_replace "tup_bag" box%offset%5#0 encoded_value%0#0) // on error: index out of bounds
         return tup%out#0
 
 subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup(index: uint64) -> Encoded(uint64,uint64):
     block@0: // L56
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u) // on error: index out of bounds
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%1#0: bool = (< index#0 tmp%0#0)
         (assert tmp%1#0) // index out of bounds
         let box%offset%2#0: uint64 = (+ 0u 8u)
-        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%2#0 128u)
+        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%2#0 128u) // on error: index out of bounds
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
@@ -283,7 +283,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
     block@0: // L61
         let total#0: uint64 = 0u
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u) // on error: index out of bounds
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
@@ -295,7 +295,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
     block@2: // for_body_L65
         let i#0: uint64 = value_internal%0#0
         let box%offset%2#0: uint64 = (+ 0u 8u)
-        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%2#0 128u)
+        let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%2#0 128u) // on error: index out of bounds
         let aggregate%bytes_offset%0#0: uint64 = (* i#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
@@ -367,7 +367,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
     block@0: // L80
         test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner()
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u) // on error: index out of bounds
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
@@ -387,7 +387,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let box%element_offset%0#0: uint64 = (* i#0 16u)
         let box%offset%2#0: uint64 = (+ box%offset%1#0 box%element_offset%0#0)
         let box%offset%3#0: uint64 = (+ box%offset%2#0 0u)
-        (box_replace "tup_bag" box%offset%3#0 encoded_value%0#0)
+        (box_replace "tup_bag" box%offset%3#0 encoded_value%0#0) // on error: index out of bounds
         goto block@3
     block@3: // for_footer_L83
         let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
@@ -399,7 +399,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
     block@0: // L86
         test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner()
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u) // on error: index out of bounds
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
@@ -419,7 +419,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let box%element_offset%0#0: uint64 = (* i#0 16u)
         let box%offset%2#0: uint64 = (+ box%offset%1#0 box%element_offset%0#0)
         let box%offset%3#0: uint64 = (+ box%offset%2#0 8u)
-        (box_replace "tup_bag" box%offset%3#0 encoded_value%0#0)
+        (box_replace "tup_bag" box%offset%3#0 encoded_value%0#0) // on error: index out of bounds
         goto block@3
     block@3: // for_footer_L89
         let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
@@ -430,14 +430,14 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
 subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups(start: uint64) -> Encoded((uint64,uint64)[3]):
     block@0: // L92
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u)
+        let box%box_extract%0#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%0#0 8u) // on error: index out of bounds
         let tuple_item%0#0: Encoded(uint64) = box%box_extract%0#0
         let tmp%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%1#0: uint64 = (+ start#0 3u)
         let tmp%2#0: bool = (>= tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // not enough items
         let box%offset%1#0: uint64 = (+ 0u 8u)
-        let box%box_extract%1#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%1#0 128u)
+        let box%box_extract%1#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%1#0 128u) // on error: index out of bounds
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = box%box_extract%1#0
         let items#0: Encoded((uint64,uint64)[8]) = tuple_item%1#0
         let aggregate%bytes_offset%0#0: uint64 = (* start#0 16u)
@@ -466,11 +466,11 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let encoded_array%0#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%0#0
         let result#0: bytes = encoded_array%0#0
         let box%offset%0#0: uint64 = (+ 0u 8u)
-        let box%box_extract%0#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%0#0 128u)
+        let box%box_extract%0#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" box%offset%0#0 128u) // on error: index out of bounds
         let tuple_item%0#0: Encoded((uint64,uint64)[8]) = box%box_extract%0#0
         let items#0: Encoded((uint64,uint64)[8]) = tuple_item%0#0
         let box%offset%1#0: uint64 = (+ 0u 0u)
-        let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u)
+        let box%box_extract%1#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u) // on error: index out of bounds
         let tuple_item%1#0: Encoded(uint64) = box%box_extract%1#0
         let tmp%0#0: uint64 = (btoi tuple_item%1#0)
         (assert 1u) // Step cannot be zero
@@ -518,7 +518,7 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let box%element_byte_offset%0#0: uint64 = (/ 34176u 8u)
         let box%byte_containing_bit_offset%0#0: uint64 = (+ 0u box%element_byte_offset%0#0)
         let box%element_bit_offset%0#0: uint64 = (% 34176u 8u)
-        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" box%byte_containing_bit_offset%0#0 1u)
+        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" box%byte_containing_bit_offset%0#0 1u) // on error: index out of bounds
         let aggregate%lt%0#0: bool = (< box%element_bit_offset%0#0 8u)
         (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%get_bit%0#0: bool = (getbit box%box_extract%0#0 box%element_bit_offset%0#0)
@@ -526,14 +526,14 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let tmp%0#0: bool = tuple_item%0#0
         (assert tmp%0#0) // app not bootstrapped
         let box%offset%0#0: uint64 = (+ 0u 136u)
-        let box%box_extract%1#0: Encoded(uint8[32]) = (box_extract "tup_bag" box%offset%0#0 32u)
+        let box%box_extract%1#0: Encoded(uint8[32]) = (box_extract "tup_bag" box%offset%0#0 32u) // on error: index out of bounds
         let tuple_item%1#0: Encoded(uint8[32]) = box%box_extract%1#0
         let tmp%1#0: account = tuple_item%1#0
         let tmp%2#0: account = (txn Sender)
         let tmp%3#0: bool = (== tmp%1#0 tmp%2#0)
         (assert tmp%3#0) // sender not authorized
         let box%offset%1#0: uint64 = (+ 0u 168u)
-        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u)
+        let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" box%offset%1#0 8u) // on error: index out of bounds
         let tuple_item%2#0: Encoded(uint64) = box%box_extract%2#0
         let tmp%4#0: uint64 = (btoi tuple_item%2#0)
         let tmp%5#0: uint64 = (global CurrentApplicationID)

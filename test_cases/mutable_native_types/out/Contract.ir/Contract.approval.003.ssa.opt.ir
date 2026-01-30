@@ -122,7 +122,7 @@ subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, arr
         return 
 
 subroutine _puya_lib.box_arc4.box_update_offset_dec(box_key: bytes, offset: uint64, value: uint64) -> void:
-    block@0: // L65
+    block@0: // L64
         let arr_len_bytes#0: bytes = (box_extract box_key#0 offset#0 2u)
         let offset_value#0: uint64 = (btoi arr_len_bytes#0)
         let new_offset_value#0: uint64 = (- offset_value#0 value#0)
@@ -132,7 +132,7 @@ subroutine _puya_lib.box_arc4.box_update_offset_dec(box_key: bytes, offset: uint
         return 
 
 subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint64, value: uint64) -> void:
-    block@0: // L81
+    block@0: // L80
         let arr_len_bytes#0: bytes = (box_extract box_key#0 offset#0 2u)
         let offset_value#0: uint64 = (btoi arr_len_bytes#0)
         let new_offset_value#0: uint64 = (+ offset_value#0 value#0)
@@ -474,7 +474,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage[rout
         let tuple_item%0#0: Encoded(uint64,uint64) = extract_value(maybe_value%2#0, 0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        (box_replace box_prefixed_key%0#0 0u tuple_item%0#0)
+        (box_replace box_prefixed_key%0#0 0u tuple_item%0#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routing]() -> void:
@@ -537,10 +537,10 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]
         (assert maybe_exists%2#0) // check self.nested_local exists for account
         let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%2#0, 0, a#0)
         (app_local_put tmp%0#1 0x6c updated_tuple%2#0)
-        (box_replace "box" 0u a#0)
+        (box_replace "box" 0u a#0) // on error: index out of bounds
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        (box_replace box_prefixed_key%0#0 0u a#0)
+        (box_replace box_prefixed_key%0#0 0u a#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return[routing]() -> void:
