@@ -1,0 +1,535 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__init__()
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%1#0: bool = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__puya_arc4_router__()
+        return tmp%1#0
+
+subroutine _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size(box_key: bytes, array_offset: uint64, fixed_byte_size: uint64) -> void:
+    block@0: // L4
+        let tmp%0#0: uint64 = _puya_lib.box_arc4._box_extract_u16(box_key#0, array_offset#0)
+        let arr_len#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (- arr_len#0 1u)
+        let new_arr_len#0: uint64 = tmp%1#0
+        let index#0: uint64 = new_arr_len#0
+        let tmp%2#0: bytes = _puya_lib.box_arc4._as_uint16(new_arr_len#0)
+        let new_arr_len_u16#0: bytes = tmp%2#0
+        (box_replace box_key#0 array_offset#0 new_arr_len_u16#0)
+        let tmp%3#0: uint64 = (+ array_offset#0 2u)
+        let tmp%4#0: uint64 = (* index#0 fixed_byte_size#0)
+        let tmp%5#0: uint64 = (+ tmp%3#0 tmp%4#0)
+        let popped_item_offset#0: uint64 = tmp%5#0
+        (box_splice box_key#0 popped_item_offset#0 fixed_byte_size#0 0x)
+        let (tmp%6#0: uint64, tmp%7#0: bool) = (box_len box_key#0)
+        let box_size#0: uint64 = tmp%6#0
+        let _exists#0: bool = tmp%7#0
+        let tmp%8#0: uint64 = (- box_size#0 fixed_byte_size#0)
+        let new_size#0: uint64 = tmp%8#0
+        (box_resize box_key#0 new_size#0)
+        return 
+
+subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+    block@0: // L33
+        let tmp%0#0: uint64 = _puya_lib.box_arc4._box_extract_u16(box_key#0, array_offset#0)
+        let arr_len#0: uint64 = tmp%0#0
+        let (tmp%1#0: uint64, tmp%2#0: bool) = (box_len box_key#0)
+        let box_size#0: uint64 = tmp%1#0
+        let _exists#0: bool = tmp%2#0
+        let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
+        let tmp%4#0: uint64 = (+ box_size#0 tmp%3#0)
+        let new_box_size#0: uint64 = tmp%4#0
+        (box_resize box_key#0 new_box_size#0)
+        let tmp%5#0: uint64 = (+ arr_len#0 new_items_count#0)
+        let tmp%6#0: bytes = _puya_lib.box_arc4._as_uint16(tmp%5#0)
+        let new_arr_len#0: bytes = tmp%6#0
+        (box_replace box_key#0 array_offset#0 new_arr_len#0)
+        let tmp%7#0: uint64 = (+ array_offset#0 2u)
+        let tmp%8#0: uint64 = (* arr_len#0 fixed_element_size#0)
+        let tmp%9#0: uint64 = (+ tmp%7#0 tmp%8#0)
+        let end_of_array_offset#0: uint64 = tmp%9#0
+        (box_splice box_key#0 end_of_array_offset#0 0u new_items_bytes#0)
+        return 
+
+subroutine _puya_lib.box_arc4.box_update_offset_dec(box_key: bytes, offset: uint64, value: uint64) -> void:
+    block@0: // L64
+        let tmp%0#0: uint64 = _puya_lib.box_arc4._box_extract_u16(box_key#0, offset#0)
+        let offset_value#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (- offset_value#0 value#0)
+        let new_offset_value#0: uint64 = tmp%1#0
+        let tmp%2#0: bytes = _puya_lib.box_arc4._as_uint16(new_offset_value#0)
+        let new_offset_value_u16#0: bytes = tmp%2#0
+        (box_replace box_key#0 offset#0 new_offset_value_u16#0)
+        return 
+
+subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint64, value: uint64) -> void:
+    block@0: // L80
+        let tmp%0#0: uint64 = _puya_lib.box_arc4._box_extract_u16(box_key#0, offset#0)
+        let offset_value#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (+ offset_value#0 value#0)
+        let new_offset_value#0: uint64 = tmp%1#0
+        let tmp%2#0: bytes = _puya_lib.box_arc4._as_uint16(new_offset_value#0)
+        let new_offset_value_u16#0: bytes = tmp%2#0
+        (box_replace box_key#0 offset#0 new_offset_value_u16#0)
+        return 
+
+subroutine _puya_lib.box_arc4._box_extract_u16(box_key: bytes, offset: uint64) -> uint64:
+    block@0: // L96
+        let tmp%0#0: bytes = (box_extract box_key#0 offset#0 2u)
+        let arr_len_bytes#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (btoi arr_len_bytes#0)
+        return tmp%1#0
+
+subroutine _puya_lib.box_arc4._as_uint16(value: uint64) -> bytes:
+    block@0: // L102
+        let tmp%0#0: bytes = (itob value#0)
+        let value_bytes#0: bytes = tmp%0#0
+        let tmp%1#0: bytes = ((extract 6 2) value_bytes#0)
+        return tmp%1#0
+
+subroutine _puya_lib.arc4.r_trim(b: bytes, n: uint64) -> bytes:
+    block@0: // L46
+        let tmp%0#0: uint64 = (len b#0)
+        let tmp%1#0: uint64 = (- tmp%0#0 n#0)
+        let tmp%2#0: bytes = (substring3 b#0 0u tmp%1#0)
+        return tmp%2#0
+
+subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
+    block@0: // L53
+        let tmp%0#0: bytes = _puya_lib.arc4.r_trim(array#0, fixed_byte_size#0)
+        let result#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (extract_uint16 result#0 0u)
+        let array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = (- array_length#0 1u)
+        let length_minus_1#0: uint64 = tmp%2#0
+        let tmp%3#0: bytes = (itob length_minus_1#0)
+        let tmp%4#0: bytes = ((extract 6 0) tmp%3#0)
+        let tmp%5#0: bytes = ((replace2 0) result#0 tmp%4#0)
+        return tmp%5#0
+
+subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+    block@0: // L133
+        let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
+        let array_length#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (+ array_length#0 new_items_count#0)
+        let new_array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: bytes = (itob new_array_length#0)
+        let tmp%3#0: bytes = ((extract 6 0) tmp%2#0)
+        let new_len_u16#0: bytes = tmp%3#0
+        let tmp%4#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let result#0: bytes = tmp%4#0
+        let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
+        return tmp%5#0
+
+subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
+    block@0: // L254
+        let tmp%0#0: bytes = ((substring 0 2) array#0)
+        let size_b#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (btoi size_b#0)
+        let array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: bytes = ((extract 2 0) array#0)
+        let tmp%3#0: bytes = _puya_lib.arc4.static_array_replace_byte_length_head(tmp%2#0, new_item#0, index#0, array_length#0)
+        let tmp%4#0: bytes = (concat size_b#0 tmp%3#0)
+        return tmp%4#0
+
+subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
+    block@0: // L278
+        let tmp%0#0: bytes = ((substring 0 2) source#0)
+        let size_b#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (btoi size_b#0)
+        let array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: bytes = ((extract 2 0) source#0)
+        let tmp%3#0: bytes = _puya_lib.arc4.static_array_replace_dynamic_element(tmp%2#0, new_item#0, index#0, array_length#0)
+        let tmp%4#0: bytes = (concat size_b#0 tmp%3#0)
+        return tmp%4#0
+
+subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+    block@0: // L291
+        let tmp%0#0: uint64 = (* index#0 2u)
+        let tmp%1#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
+        let original_offset#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = (+ index#0 1u)
+        let tmp%3#0: uint64 = (* tmp%2#0 2u)
+        let tmp%4#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%3#0)
+        let next_item_offset#0: uint64 = tmp%4#0
+        let tmp%5#0: uint64 = (len array_head_and_tail#0)
+        let end_of_tail#0: uint64 = tmp%5#0
+        let tmp%6#0: uint64 = (- array_length#0 index#0)
+        let tmp%7#0: uint64 = (- tmp%6#0 1u)
+        let is_before_end#0: uint64 = tmp%7#0
+        let tmp%8#0: uint64 = (select end_of_tail#0 next_item_offset#0 is_before_end#0)
+        let end_offset#0: uint64 = tmp%8#0
+        let tmp%9#0: uint64 = (- end_offset#0 original_offset#0)
+        let original_item_length#0: uint64 = tmp%9#0
+        let tmp%10#0: uint64 = (len new_item#0)
+        let new_item_length#0: uint64 = tmp%10#0
+        let tmp%11#0: bytes = (substring3 array_head_and_tail#0 0u original_offset#0)
+        let tmp%12#0: bytes = (concat tmp%11#0 new_item#0)
+        let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
+        let tmp%14#0: bytes = (concat tmp%12#0 tmp%13#0)
+        let new_head_and_tail#0: bytes = tmp%14#0
+        let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (+ index#0 1u)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
+        (assert 2u) // Step cannot be zero
+        let value_internal%0#0: uint64 = tmp%17#0
+        goto block@1
+    block@1: // for_header_L309
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%15#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L310
+        let head_offset#0: uint64 = value_internal%0#1
+        let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#0)
+        let tail_offset#0: uint64 = tmp%18#0
+        let tmp%19#0: uint64 = (+ tail_offset#0 new_item_length#0)
+        let tail_offset#1: uint64 = tmp%19#0
+        let tmp%20#0: uint64 = (- tail_offset#1 original_item_length#0)
+        let tail_offset#2: uint64 = tmp%20#0
+        let tmp%21#0: bytes = (itob tail_offset#2)
+        let tmp%22#0: bytes = ((extract 6 2) tmp%21#0)
+        let tail_offset_bytes#0: bytes = tmp%22#0
+        let tmp%23#0: bytes = (replace3 new_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
+        let new_head_and_tail#2: bytes = tmp%23#0
+        goto block@3
+    block@3: // for_footer_L309
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
+        goto block@1
+    block@4: // after_for_L309
+        return new_head_and_tail#1
+
+subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+    block@0: // L318
+        let tmp%0#0: bool = (< index#0 array_length#0)
+        (assert tmp%0#0) // Index out of bounds
+        let tmp%1#0: uint64 = (* index#0 2u)
+        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
+        let offset_for_index#0: uint64 = tmp%2#0
+        let tmp%3#0: uint64 = (extract_uint16 array_head_and_tail#0 offset_for_index#0)
+        let old_item_length#0: uint64 = tmp%3#0
+        let tmp%4#0: uint64 = (+ offset_for_index#0 old_item_length#0)
+        let tmp%5#0: uint64 = (+ tmp%4#0 2u)
+        let old_item_end#0: uint64 = tmp%5#0
+        let tmp%6#0: bytes = (substring3 array_head_and_tail#0 0u offset_for_index#0)
+        let tmp%7#0: bytes = (concat tmp%6#0 new_item#0)
+        let tmp%8#0: uint64 = (len array_head_and_tail#0)
+        let tmp%9#0: bytes = (substring3 array_head_and_tail#0 old_item_end#0 tmp%8#0)
+        let tmp%10#0: bytes = (concat tmp%7#0 tmp%9#0)
+        let tmp%11#0: bytes = _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(tmp%10#0, array_length#0, index#0)
+        return tmp%11#0
+
+subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
+    block@0: // L347
+        let tmp%0#0: uint64 = (* length#0 2u)
+        let tmp%1#0: uint64 = (* start_at_index#0 2u)
+        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
+        let tmp%3#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
+        let tail_offset#0: uint64 = tmp%3#0
+        let tmp%4#0: uint64 = (* length#0 2u)
+        let tmp%5#0: uint64 = (* start_at_index#0 2u)
+        (assert 2u) // Step cannot be zero
+        let value_internal%0#0: uint64 = tmp%5#0
+        goto block@1
+    block@1: // for_header_L369
+        let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
+        let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@3)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%4#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L370
+        let head_offset#0: uint64 = value_internal%0#1
+        let tmp%6#0: bytes = (itob tail_offset#1)
+        let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
+        let tail_offset_bytes#0: bytes = tmp%7#0
+        let tmp%8#0: bytes = (replace3 array_head_and_tail#1 head_offset#0 tail_offset_bytes#0)
+        let array_head_and_tail#2: bytes = tmp%8#0
+        let tmp%9#0: uint64 = (extract_uint16 array_head_and_tail#2 tail_offset#1)
+        let tmp%10#0: uint64 = (+ tmp%9#0 2u)
+        let tmp%11#0: uint64 = (+ tail_offset#1 tmp%10#0)
+        let tail_offset#2: uint64 = tmp%11#0
+        let tmp%12#0: uint64 = (+ head_offset#0 2u)
+        let head_offset#1: uint64 = tmp%12#0
+        goto block@3
+    block@3: // for_footer_L369
+        let value_internal%0#2: uint64 = (+ value_internal%0#1 2u)
+        goto block@1
+    block@4: // after_for_L369
+        return array_head_and_tail#1
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__puya_arc4_router__() -> bool:
+    block@0: // L28
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@13
+    block@1: // abi_routing_L28
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@2 : block@11
+    block@2: // call_NoOp_L28
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "bootstrap()void" => block@3, method "concat(uint64[])void" => block@4, method "append(uint64)void" => block@5, method "pop()uint64" => block@6, method "verify(uint64[])void" => block@7, method "get(uint64)uint64" => block@8, method "set(uint64,uint64)void" => block@9, * => block@10}
+    block@3: // bootstrap_route_L32
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.bootstrap[routing]()
+        goto block@10
+    block@4: // concat_route_L50
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.concat[routing]()
+        goto block@10
+    block@5: // append_route_L54
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append[routing]()
+        goto block@10
+    block@6: // pop_route_L58
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.pop[routing]()
+        goto block@10
+    block@7: // verify_route_L62
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify[routing]()
+        goto block@10
+    block@8: // get_route_L73
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.get[routing]()
+        goto block@10
+    block@9: // set_route_L77
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.set[routing]()
+        goto block@10
+    block@10: // switch_case_next_L28
+        goto block@12
+    block@11: // create_NoOp_L28
+        goto block@12
+    block@12: // after_if_else_L28
+        goto block@14
+    block@13: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__algopy_default_create()
+        exit 1u
+    block@14: // after_if_else_L28
+        exit 0u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.bootstrap[routing]() -> void:
+    block@0: // L32
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.bootstrap()
+        exit 1u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.concat[routing]() -> void:
+    block@0: // L50
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.concat(as_Encoded(len+uint64[])%0#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append[routing]() -> void:
+    block@0: // L54
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append(tmp%1#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.pop[routing]() -> void:
+    block@0: // L58
+        let tmp%0#0: uint64 = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.pop()
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify[routing]() -> void:
+    block@0: // L62
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(tmp%0#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
+        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(as_Encoded(len+uint64[])%0#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.get[routing]() -> void:
+    block@0: // L73
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: uint64 = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.get(tmp%1#0)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.set[routing]() -> void:
+    block@0: // L77
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
+        let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
+        test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.set(tmp%1#0, tmp%3#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__init__() -> void:
+    block@0: // L29
+        return 
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.bootstrap() -> void:
+    block@0: // L32
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>()
+        let tmp%0#0: Encoded(uint64,(len+uint64[]),uint64) = bytes_encode<(uint64,(len+uint64[]),uint64)>(2u, encoded_array%0#0, 3u)
+        let tmp%1#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = bytes_encode<(uint64,(uint64,(len+uint64[]),uint64),uint64)>(1u, tmp%0#0, 4u)
+        let encoded_array%1#0: Encoded(len+uint8[4096][]) = bytes_encode<(len+uint8[4096][])>()
+        let encoded_array%2#0: Encoded(len+uint8[4096][]) = bytes_encode<(len+uint8[4096][])>()
+        let tmp%2#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = bytes_encode<((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64))>(encoded_array%1#0, encoded_array%2#0, tmp%1#0)
+        box_write("box", tmp%2#0)
+        let storage_value%0#0: bytes = box_read("box")
+        let tuple_item%0#0: Encoded(len+uint8[4096][]) = extract_value(storage_value%0#0, 0)
+        let tmp%3#0: bytes[4096] = (bzero 4096u)
+        let tmp%4#0: Encoded(uint8[4096][]) = bytes_encode<uint8[4096][]>(tmp%3#0)
+        let tmp%5#0: Encoded(len+uint8[4096][]) = array_concat(tuple_item%0#0, tmp%4#0, 1u)
+        let updated_tuple%0#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = replace_value(storage_value%0#0, 0, tmp%5#0)
+        box_write("box", updated_tuple%0#0)
+        let encoded_array%3#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>()
+        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(encoded_array%3#0)
+        return 
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.concat(array: Encoded(len+uint64[])) -> void:
+    block@0: // L50
+        let storage_value%0#0: bytes = box_read("box")
+        let tuple_item%0#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%0#0, 2)
+        let tuple_item%1#0: Encoded(uint64,(len+uint64[]),uint64) = extract_value(tuple_item%0#0, 1)
+        let tuple_item%2#0: Encoded(len+uint64[]) = extract_value(tuple_item%1#0, 1)
+        let total_length%0#0: uint64 = (len array#0)
+        let extract_to_end%0#0: bytes = (substring3 array#0 2u total_length%0#0)
+        let tmp%0#0: uint64 = array_len(array#0)
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(tuple_item%2#0, extract_to_end%0#0, tmp%0#0)
+        let updated_tuple%0#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = replace_value(storage_value%0#0, 2, 1, 1, tmp%1#0)
+        box_write("box", updated_tuple%0#0)
+        return 
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append(value: uint64) -> void:
+    block@0: // L54
+        let storage_value%0#0: bytes = box_read("box")
+        let tuple_item%0#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%0#0, 2)
+        let tuple_item%1#0: Encoded(uint64,(len+uint64[]),uint64) = extract_value(tuple_item%0#0, 1)
+        let tuple_item%2#0: Encoded(len+uint64[]) = extract_value(tuple_item%1#0, 1)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(value#0)
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(tuple_item%2#0, tmp%0#0, 1u)
+        let updated_tuple%0#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = replace_value(storage_value%0#0, 2, 1, 1, tmp%1#0)
+        box_write("box", updated_tuple%0#0)
+        return 
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.pop() -> uint64:
+    block@0: // L58
+        let storage_value%0#0: bytes = box_read("box")
+        let tuple_item%0#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%0#0, 2)
+        let tuple_item%1#0: Encoded(uint64,(len+uint64[]),uint64) = extract_value(tuple_item%0#0, 1)
+        let tuple_item%2#0: Encoded(len+uint64[]) = extract_value(tuple_item%1#0, 1)
+        let tmp%0#0: uint64 = array_len(tuple_item%2#0)
+        let sub%0#0: uint64 = (- tmp%0#0 1u)
+        let tmp%1#0: Encoded(uint64) = extract_value(tuple_item%2#0, sub%0#0)
+        let tmp%2#0: uint64 = decode_bytes<uint64>(tmp%1#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_pop(tuple_item%2#0)
+        let updated_tuple%0#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = replace_value(storage_value%0#0, 2, 1, 1, tmp%3#0)
+        box_write("box", updated_tuple%0#0)
+        return tmp%2#0
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(expected: Encoded(len+uint64[])) -> Encoded(len+uint64[]):
+    block@0: // L62
+        let expected%is_original#0: bool = 1u
+        let expected%out#0: Encoded(len+uint64[]) = expected#0
+        let storage_value%0#0: bytes = box_read("box")
+        let tuple_item%0#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%0#0, 2)
+        let tuple_item%1#0: Encoded(uint64) = extract_value(tuple_item%0#0, 0)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
+        let tmp%1#0: bool = (== tmp%0#0 1u)
+        (assert tmp%1#0)
+        let storage_value%1#0: bytes = box_read("box")
+        let tuple_item%2#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%1#0, 2)
+        let tuple_item%3#0: Encoded(uint64,(len+uint64[]),uint64) = extract_value(tuple_item%2#0, 1)
+        let tuple_item%4#0: Encoded(uint64) = extract_value(tuple_item%3#0, 0)
+        let tmp%2#0: uint64 = decode_bytes<uint64>(tuple_item%4#0)
+        let tmp%3#0: bool = (== tmp%2#0 2u)
+        (assert tmp%3#0)
+        let storage_value%2#0: bytes = box_read("box")
+        let tuple_item%5#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%2#0, 2)
+        let tuple_item%6#0: Encoded(uint64,(len+uint64[]),uint64) = extract_value(tuple_item%5#0, 1)
+        let tuple_item%7#0: Encoded(uint64) = extract_value(tuple_item%6#0, 2)
+        let tmp%4#0: uint64 = decode_bytes<uint64>(tuple_item%7#0)
+        let tmp%5#0: bool = (== tmp%4#0 3u)
+        (assert tmp%5#0)
+        let storage_value%3#0: bytes = box_read("box")
+        let tuple_item%8#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%3#0, 2)
+        let tuple_item%9#0: Encoded(uint64) = extract_value(tuple_item%8#0, 2)
+        let tmp%6#0: uint64 = decode_bytes<uint64>(tuple_item%9#0)
+        let tmp%7#0: bool = (== tmp%6#0 4u)
+        (assert tmp%7#0)
+        let storage_value%4#0: bytes = box_read("box")
+        let tuple_item%10#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%4#0, 2)
+        let tuple_item%11#0: Encoded(uint64,(len+uint64[]),uint64) = extract_value(tuple_item%10#0, 1)
+        let tuple_item%12#0: Encoded(len+uint64[]) = extract_value(tuple_item%11#0, 1)
+        let tmp%8#0: bool = (== tuple_item%12#0 expected#0)
+        (assert tmp%8#0)
+        let storage_value%5#0: bytes = box_read("box")
+        let tuple_item%13#0: Encoded(len+uint8[4096][]) = extract_value(storage_value%5#0, 0)
+        let tmp%9#0: uint64 = array_len(tuple_item%13#0)
+        let tmp%10#0: bool = (== tmp%9#0 1u)
+        (assert tmp%10#0)
+        let storage_value%6#0: bytes = box_read("box")
+        let tuple_item%14#0: Encoded(len+uint8[4096][]) = extract_value(storage_value%6#0, 1)
+        let tmp%11#0: uint64 = array_len(tuple_item%14#0)
+        let tmp%12#0: bool = (== tmp%11#0 0u)
+        (assert tmp%12#0)
+        let (value%0#0: uint64, check%0#0: bool) = (box_len "box")
+        (assert check%0#0) // check self.box exists
+        let tmp%13#0: bool = (> value%0#0 4096u)
+        (assert tmp%13#0) // expected box length >4096
+        return expected%out#0
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.get(idx: uint64) -> uint64:
+    block@0: // L73
+        let storage_value%0#0: bytes = box_read("box")
+        let tuple_item%0#0: Encoded(uint64,(uint64,(len+uint64[]),uint64),uint64) = extract_value(storage_value%0#0, 2)
+        let tuple_item%1#0: Encoded(uint64,(len+uint64[]),uint64) = extract_value(tuple_item%0#0, 1)
+        let tuple_item%2#0: Encoded(len+uint64[]) = extract_value(tuple_item%1#0, 1)
+        let array_item%0#0: Encoded(uint64) = extract_value(tuple_item%2#0, idx#0)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
+        return tmp%0#0
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.set(idx: uint64, value: uint64) -> void:
+    block@0: // L77
+        let storage_value%0#0: bytes = box_read("box")
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(value#0)
+        let updated_tuple%0#0: Encoded((len+uint8[4096][]),(len+uint8[4096][]),(uint64,(uint64,(len+uint64[]),uint64),uint64)) = replace_value(storage_value%0#0, 2, 1, 1, idx#0, encoded_value%0#0)
+        box_write("box", updated_tuple%0#0)
+        return 
+
+subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

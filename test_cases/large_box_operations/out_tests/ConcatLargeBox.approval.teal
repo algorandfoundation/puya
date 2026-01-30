@@ -1,0 +1,945 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 2 1 0 4010 4028 4032 4050
+    bytecblock "nested" "multiple" "struct" "array" 0x0000 0x000000000000
+    // large_box_operations/concat.py:36
+    // class ConcatLargeBox(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@16
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xbec76d87 0x5949ce5d 0x3428ffea 0xab10a777 0xe83e55a8 0x300012d3 0x69daaaef // method "bootstrap()void", method "concat(uint64[])void", method "append(uint64)void", method "verify_array()void", method "verify_struct()void", method "verify_multiple()void", method "verify_nested()void"
+    txna ApplicationArgs 0
+    match bootstrap concat append verify_array verify_struct verify_multiple verify_nested
+    err
+
+main___algopy_default_create@16:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+box_dynamic_array_concat_fixed:
+    proto 5 0
+    frame_dig -5
+    frame_dig -4
+    intc_1 // 2
+    box_extract
+    btoi
+    frame_dig -5
+    box_len
+    pop
+    frame_dig -2
+    frame_dig -1
+    *
+    +
+    frame_dig -5
+    swap
+    box_resize
+    dup
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig -5
+    frame_dig -4
+    uncover 2
+    box_replace
+    frame_dig -4
+    intc_1 // 2
+    +
+    swap
+    frame_dig -1
+    *
+    +
+    frame_dig -5
+    swap
+    intc_3 // 0
+    frame_dig -3
+    box_splice
+    retsub
+
+
+// _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint64, value: uint64) -> void:
+box_update_offset_inc:
+    proto 3 0
+    frame_dig -3
+    frame_dig -2
+    intc_1 // 2
+    box_extract
+    btoi
+    frame_dig -1
+    +
+    itob
+    extract 6 2
+    frame_dig -3
+    frame_dig -2
+    uncover 2
+    box_replace
+    retsub
+
+
+// test_cases.large_box_operations.concat._array_sum(arr: bytes) -> uint64, bytes:
+_array_sum:
+    // large_box_operations/concat.py:137-138
+    // @subroutine
+    // def _array_sum(arr: Array[UInt64]) -> UInt64:
+    proto 1 2
+    // large_box_operations/concat.py:139
+    // total = UInt64(0)
+    intc_3 // 0
+    // large_box_operations/concat.py:140
+    // for item in arr:
+    frame_dig -1
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 0
+
+_array_sum_for_header@1:
+    // large_box_operations/concat.py:140
+    // for item in arr:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz _array_sum_after_for@4
+    frame_dig -1
+    extract 2 0
+    frame_dig 2
+    dup
+    cover 2
+    intc_0 // 8
+    *
+    extract_uint64
+    // large_box_operations/concat.py:141
+    // total += item
+    frame_dig 0
+    +
+    frame_bury 0
+    intc_2 // 1
+    +
+    frame_bury 2
+    b _array_sum_for_header@1
+
+_array_sum_after_for@4:
+    // large_box_operations/concat.py:142
+    // return total
+    frame_dig 0
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+
+// test_cases.large_box_operations.concat.ConcatLargeBox.bootstrap[routing]() -> void:
+bootstrap:
+    // large_box_operations/concat.py:45
+    // self.array.value = Array[UInt64]()
+    bytec_3 // "array"
+    box_del
+    pop
+    bytec_3 // "array"
+    bytec 4 // 0x0000
+    box_put
+    // large_box_operations/concat.py:50
+    // large=LargeBytes(),
+    intc 4 // 4010
+    bzero
+    // large_box_operations/concat.py:46-51
+    // self.struct.value = StructWithArray(
+    //     a=UInt64(1),
+    //     arr=Array[UInt64](),
+    //     b=UInt64(2),
+    //     large=LargeBytes(),
+    // )
+    pushbytes 0x00000000000000010fbc0000000000000002
+    dig 1
+    concat
+    // large_box_operations/concat.py:45
+    // self.array.value = Array[UInt64]()
+    bytec 4 // 0x0000
+    // large_box_operations/concat.py:46-51
+    // self.struct.value = StructWithArray(
+    //     a=UInt64(1),
+    //     arr=Array[UInt64](),
+    //     b=UInt64(2),
+    //     large=LargeBytes(),
+    // )
+    concat
+    // large_box_operations/concat.py:46
+    // self.struct.value = StructWithArray(
+    bytec_2 // "struct"
+    // large_box_operations/concat.py:46-51
+    // self.struct.value = StructWithArray(
+    //     a=UInt64(1),
+    //     arr=Array[UInt64](),
+    //     b=UInt64(2),
+    //     large=LargeBytes(),
+    // )
+    box_del
+    pop
+    // large_box_operations/concat.py:46
+    // self.struct.value = StructWithArray(
+    bytec_2 // "struct"
+    // large_box_operations/concat.py:46-51
+    // self.struct.value = StructWithArray(
+    //     a=UInt64(1),
+    //     arr=Array[UInt64](),
+    //     b=UInt64(2),
+    //     large=LargeBytes(),
+    // )
+    swap
+    box_put
+    // large_box_operations/concat.py:52-59
+    // self.multiple.value = StructWithMultipleArrays(
+    //     c=UInt64(3),
+    //     arr1=Array[UInt64](),
+    //     arr2=Array[UInt64](),
+    //     arr3=Array[UInt64](),
+    //     d=UInt64(4),
+    //     large=LargeBytes(),
+    // )
+    pushbytes 0x00000000000000030fc00fc20fc40000000000000004
+    dig 1
+    concat
+    bytec 5 // 0x000000000000
+    concat
+    // large_box_operations/concat.py:52
+    // self.multiple.value = StructWithMultipleArrays(
+    bytec_1 // "multiple"
+    // large_box_operations/concat.py:52-59
+    // self.multiple.value = StructWithMultipleArrays(
+    //     c=UInt64(3),
+    //     arr1=Array[UInt64](),
+    //     arr2=Array[UInt64](),
+    //     arr3=Array[UInt64](),
+    //     d=UInt64(4),
+    //     large=LargeBytes(),
+    // )
+    box_del
+    pop
+    // large_box_operations/concat.py:52
+    // self.multiple.value = StructWithMultipleArrays(
+    bytec_1 // "multiple"
+    // large_box_operations/concat.py:52-59
+    // self.multiple.value = StructWithMultipleArrays(
+    //     c=UInt64(3),
+    //     arr1=Array[UInt64](),
+    //     arr2=Array[UInt64](),
+    //     arr3=Array[UInt64](),
+    //     d=UInt64(4),
+    //     large=LargeBytes(),
+    // )
+    swap
+    box_put
+    // large_box_operations/concat.py:62-69
+    // nested=StructWithMultipleArrays(
+    //     c=UInt64(6),
+    //     arr1=Array[UInt64](),
+    //     arr2=Array[UInt64](),
+    //     arr3=Array[UInt64](),
+    //     d=UInt64(7),
+    //     large=LargeBytes(),
+    // ),
+    pushbytes 0x00000000000000060fc00fc20fc40000000000000007
+    swap
+    concat
+    bytec 5 // 0x000000000000
+    concat
+    // large_box_operations/concat.py:60-71
+    // self.nested.value = StructWithNestedArray(
+    //     e=UInt64(5),
+    //     nested=StructWithMultipleArrays(
+    //         c=UInt64(6),
+    //         arr1=Array[UInt64](),
+    //         arr2=Array[UInt64](),
+    //         arr3=Array[UInt64](),
+    //         d=UInt64(7),
+    //         large=LargeBytes(),
+    //     ),
+    //     f=UInt64(8),
+    // )
+    pushbytes 0x000000000000000500120000000000000008
+    swap
+    concat
+    // large_box_operations/concat.py:60
+    // self.nested.value = StructWithNestedArray(
+    bytec_0 // "nested"
+    // large_box_operations/concat.py:60-71
+    // self.nested.value = StructWithNestedArray(
+    //     e=UInt64(5),
+    //     nested=StructWithMultipleArrays(
+    //         c=UInt64(6),
+    //         arr1=Array[UInt64](),
+    //         arr2=Array[UInt64](),
+    //         arr3=Array[UInt64](),
+    //         d=UInt64(7),
+    //         large=LargeBytes(),
+    //     ),
+    //     f=UInt64(8),
+    // )
+    box_del
+    pop
+    // large_box_operations/concat.py:60
+    // self.nested.value = StructWithNestedArray(
+    bytec_0 // "nested"
+    // large_box_operations/concat.py:60-71
+    // self.nested.value = StructWithNestedArray(
+    //     e=UInt64(5),
+    //     nested=StructWithMultipleArrays(
+    //         c=UInt64(6),
+    //         arr1=Array[UInt64](),
+    //         arr2=Array[UInt64](),
+    //         arr3=Array[UInt64](),
+    //         d=UInt64(7),
+    //         large=LargeBytes(),
+    //     ),
+    //     f=UInt64(8),
+    // )
+    swap
+    box_put
+    // large_box_operations/concat.py:43
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.concat.ConcatLargeBox.concat[routing]() -> void:
+concat:
+    // large_box_operations/concat.py:73
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    intc_0 // 8
+    *
+    dup
+    intc_1 // 2
+    +
+    dig 3
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // large_box_operations/concat.py:75
+    // self.array.value.extend(array)
+    uncover 2
+    extract 2 0
+    bytec_3 // "array"
+    intc_3 // 0
+    dig 2
+    dig 5
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:76
+    // self.struct.value.arr.extend(array)
+    bytec_2 // "struct"
+    intc 5 // 4028
+    dig 2
+    dig 5
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:77
+    // self.multiple.value.arr1.extend(array)
+    bytec_1 // "multiple"
+    pushint 10
+    dig 3
+    callsub box_update_offset_inc
+    bytec_1 // "multiple"
+    pushint 12
+    dig 3
+    callsub box_update_offset_inc
+    bytec_1 // "multiple"
+    intc 6 // 4032
+    dig 2
+    dig 5
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:78
+    // self.multiple.value.arr2.extend(array)
+    bytec_1 // "multiple"
+    pushint 10
+    intc_1 // 2
+    box_extract
+    btoi
+    bytec_1 // "multiple"
+    pushint 12
+    dig 4
+    callsub box_update_offset_inc
+    bytec_1 // "multiple"
+    swap
+    dig 2
+    dig 5
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:79
+    // self.multiple.value.arr3.extend(array)
+    bytec_1 // "multiple"
+    pushint 12
+    intc_1 // 2
+    box_extract
+    btoi
+    bytec_1 // "multiple"
+    swap
+    dig 2
+    dig 5
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:80
+    // self.nested.value.nested.arr1.extend(array)
+    bytec_0 // "nested"
+    pushint 28
+    dig 3
+    callsub box_update_offset_inc
+    bytec_0 // "nested"
+    pushint 30
+    dig 3
+    callsub box_update_offset_inc
+    bytec_0 // "nested"
+    intc 7 // 4050
+    dig 2
+    dig 5
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:81
+    // self.nested.value.nested.arr2.extend(array)
+    bytec_0 // "nested"
+    pushint 28
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    +
+    bytec_0 // "nested"
+    pushint 30
+    uncover 4
+    callsub box_update_offset_inc
+    bytec_0 // "nested"
+    swap
+    dig 2
+    dig 4
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:82
+    // self.nested.value.nested.arr3.extend(array)
+    bytec_0 // "nested"
+    pushint 30
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    +
+    bytec_0 // "nested"
+    swap
+    uncover 2
+    uncover 3
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:73
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.concat.ConcatLargeBox.append[routing]() -> void:
+append:
+    // large_box_operations/concat.py:84
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // large_box_operations/concat.py:86
+    // self.array.value.append(value)
+    itob
+    bytec_3 // "array"
+    intc_3 // 0
+    dig 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:87
+    // self.struct.value.arr.append(value)
+    bytec_2 // "struct"
+    intc 5 // 4028
+    dig 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:88
+    // self.multiple.value.arr1.append(value)
+    bytec_1 // "multiple"
+    pushint 10
+    intc_0 // 8
+    callsub box_update_offset_inc
+    bytec_1 // "multiple"
+    pushint 12
+    intc_0 // 8
+    callsub box_update_offset_inc
+    bytec_1 // "multiple"
+    intc 6 // 4032
+    dig 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:89
+    // self.multiple.value.arr2.append(value)
+    bytec_1 // "multiple"
+    pushint 10
+    intc_1 // 2
+    box_extract
+    btoi
+    bytec_1 // "multiple"
+    pushint 12
+    intc_0 // 8
+    callsub box_update_offset_inc
+    bytec_1 // "multiple"
+    swap
+    dig 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:90
+    // self.multiple.value.arr3.append(value)
+    bytec_1 // "multiple"
+    pushint 12
+    intc_1 // 2
+    box_extract
+    btoi
+    bytec_1 // "multiple"
+    swap
+    dig 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:91
+    // self.nested.value.nested.arr1.append(value)
+    bytec_0 // "nested"
+    pushint 28
+    intc_0 // 8
+    callsub box_update_offset_inc
+    bytec_0 // "nested"
+    pushint 30
+    intc_0 // 8
+    callsub box_update_offset_inc
+    bytec_0 // "nested"
+    intc 7 // 4050
+    dig 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:92
+    // self.nested.value.nested.arr2.append(value)
+    bytec_0 // "nested"
+    pushint 28
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    +
+    bytec_0 // "nested"
+    pushint 30
+    intc_0 // 8
+    callsub box_update_offset_inc
+    bytec_0 // "nested"
+    swap
+    dig 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:93
+    // self.nested.value.nested.arr3.append(value)
+    bytec_0 // "nested"
+    pushint 30
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    +
+    bytec_0 // "nested"
+    swap
+    uncover 2
+    intc_2 // 1
+    intc_0 // 8
+    callsub box_dynamic_array_concat_fixed
+    // large_box_operations/concat.py:84
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.concat.ConcatLargeBox.verify_array[routing]() -> void:
+verify_array:
+    // large_box_operations/concat.py:97
+    // length = self.array.value.length
+    bytec_3 // "array"
+    intc_3 // 0
+    intc_1 // 2
+    box_extract
+    btoi
+    // large_box_operations/concat.py:98
+    // assert _array_sum(self.array.value) == _series_sum(length)
+    bytec_3 // "array"
+    box_get
+    pop
+    callsub _array_sum
+    pop
+    swap
+    // large_box_operations/concat.py:134
+    // return n * (n + 1) // 2
+    dup
+    intc_2 // 1
+    +
+    *
+    intc_1 // 2
+    /
+    // large_box_operations/concat.py:98
+    // assert _array_sum(self.array.value) == _series_sum(length)
+    ==
+    assert
+    // large_box_operations/concat.py:95
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.concat.ConcatLargeBox.verify_struct[routing]() -> void:
+verify_struct:
+    // large_box_operations/concat.py:102
+    // assert self.struct.value.a == 1
+    bytec_2 // "struct"
+    intc_3 // 0
+    intc_0 // 8
+    box_extract
+    btoi
+    intc_2 // 1
+    ==
+    assert
+    // large_box_operations/concat.py:103
+    // assert self.struct.value.b == 2
+    bytec_2 // "struct"
+    pushint 10
+    intc_0 // 8
+    box_extract
+    btoi
+    intc_1 // 2
+    ==
+    assert
+    // large_box_operations/concat.py:104
+    // assert self.struct.value.large == LargeBytes()
+    bytec_2 // "struct"
+    pushint 18
+    intc 4 // 4010
+    box_extract
+    intc 4 // 4010
+    bzero
+    ==
+    assert
+    // large_box_operations/concat.py:105
+    // length = self.struct.value.arr.length
+    bytec_2 // "struct"
+    intc 5 // 4028
+    intc_1 // 2
+    box_extract
+    btoi
+    // large_box_operations/concat.py:106
+    // assert _array_sum(self.struct.value.arr) == _series_sum(length)
+    dup
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_2 // "struct"
+    intc 5 // 4028
+    uncover 2
+    box_extract
+    callsub _array_sum
+    pop
+    // large_box_operations/concat.py:134
+    // return n * (n + 1) // 2
+    dig 1
+    intc_2 // 1
+    +
+    uncover 2
+    *
+    intc_1 // 2
+    /
+    // large_box_operations/concat.py:106
+    // assert _array_sum(self.struct.value.arr) == _series_sum(length)
+    ==
+    assert
+    // large_box_operations/concat.py:100
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.concat.ConcatLargeBox.verify_multiple[routing]() -> void:
+verify_multiple:
+    // large_box_operations/concat.py:110
+    // assert self.multiple.value.c == 3
+    bytec_1 // "multiple"
+    intc_3 // 0
+    intc_0 // 8
+    box_extract
+    btoi
+    pushint 3
+    ==
+    assert
+    // large_box_operations/concat.py:111
+    // assert self.multiple.value.d == 4
+    bytec_1 // "multiple"
+    pushint 14
+    intc_0 // 8
+    box_extract
+    btoi
+    pushint 4
+    ==
+    assert
+    // large_box_operations/concat.py:112
+    // assert self.multiple.value.large == LargeBytes()
+    bytec_1 // "multiple"
+    pushint 22
+    intc 4 // 4010
+    box_extract
+    intc 4 // 4010
+    bzero
+    ==
+    assert
+    // large_box_operations/concat.py:113
+    // series_sum = _series_sum(self.multiple.value.arr1.length)
+    bytec_1 // "multiple"
+    intc 6 // 4032
+    intc_1 // 2
+    box_extract
+    btoi
+    // large_box_operations/concat.py:134
+    // return n * (n + 1) // 2
+    dup
+    intc_2 // 1
+    +
+    dig 1
+    *
+    intc_1 // 2
+    /
+    // large_box_operations/concat.py:114
+    // assert _array_sum(self.multiple.value.arr1) == series_sum
+    swap
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_1 // "multiple"
+    intc 6 // 4032
+    uncover 2
+    box_extract
+    callsub _array_sum
+    pop
+    dig 1
+    ==
+    assert
+    // large_box_operations/concat.py:115
+    // assert _array_sum(self.multiple.value.arr2) == series_sum
+    bytec_1 // "multiple"
+    pushint 10
+    intc_1 // 2
+    box_extract
+    btoi
+    bytec_1 // "multiple"
+    dig 1
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_1 // "multiple"
+    cover 2
+    box_extract
+    callsub _array_sum
+    pop
+    dig 1
+    ==
+    assert
+    // large_box_operations/concat.py:116
+    // assert _array_sum(self.multiple.value.arr3) == series_sum
+    bytec_1 // "multiple"
+    pushint 12
+    intc_1 // 2
+    box_extract
+    btoi
+    bytec_1 // "multiple"
+    dig 1
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_1 // "multiple"
+    cover 2
+    box_extract
+    callsub _array_sum
+    pop
+    ==
+    assert
+    // large_box_operations/concat.py:108
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.large_box_operations.concat.ConcatLargeBox.verify_nested[routing]() -> void:
+verify_nested:
+    // large_box_operations/concat.py:120
+    // assert self.nested.value.e == 5
+    bytec_0 // "nested"
+    intc_3 // 0
+    intc_0 // 8
+    box_extract
+    btoi
+    pushint 5
+    ==
+    assert
+    // large_box_operations/concat.py:121
+    // assert self.nested.value.nested.c == 6
+    bytec_0 // "nested"
+    pushint 18
+    intc_0 // 8
+    box_extract
+    btoi
+    pushint 6
+    ==
+    assert
+    // large_box_operations/concat.py:122
+    // assert self.nested.value.nested.d == 7
+    bytec_0 // "nested"
+    pushint 32
+    intc_0 // 8
+    box_extract
+    btoi
+    pushint 7
+    ==
+    assert
+    // large_box_operations/concat.py:123
+    // assert self.nested.value.f == 8
+    bytec_0 // "nested"
+    pushint 10
+    intc_0 // 8
+    box_extract
+    btoi
+    intc_0 // 8
+    ==
+    assert
+    // large_box_operations/concat.py:124
+    // assert self.nested.value.nested.large == LargeBytes()
+    bytec_0 // "nested"
+    pushint 40
+    intc 4 // 4010
+    box_extract
+    intc 4 // 4010
+    bzero
+    ==
+    assert
+    // large_box_operations/concat.py:125
+    // series_sum = _series_sum(self.nested.value.nested.arr1.length)
+    bytec_0 // "nested"
+    intc 7 // 4050
+    intc_1 // 2
+    box_extract
+    btoi
+    // large_box_operations/concat.py:134
+    // return n * (n + 1) // 2
+    dup
+    intc_2 // 1
+    +
+    dig 1
+    *
+    intc_1 // 2
+    /
+    // large_box_operations/concat.py:126
+    // assert _array_sum(self.nested.value.nested.arr1) == series_sum
+    swap
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_0 // "nested"
+    intc 7 // 4050
+    uncover 2
+    box_extract
+    callsub _array_sum
+    pop
+    dig 1
+    ==
+    assert
+    // large_box_operations/concat.py:127
+    // assert _array_sum(self.nested.value.nested.arr2) == series_sum
+    bytec_0 // "nested"
+    pushint 28
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    +
+    bytec_0 // "nested"
+    dig 1
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_0 // "nested"
+    cover 2
+    box_extract
+    callsub _array_sum
+    pop
+    dig 1
+    ==
+    assert
+    // large_box_operations/concat.py:128
+    // assert _array_sum(self.nested.value.nested.arr3) == series_sum
+    bytec_0 // "nested"
+    pushint 30
+    intc_1 // 2
+    box_extract
+    btoi
+    pushint 18
+    +
+    bytec_0 // "nested"
+    dig 1
+    intc_1 // 2
+    box_extract
+    btoi
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    bytec_0 // "nested"
+    cover 2
+    box_extract
+    callsub _array_sum
+    pop
+    ==
+    assert
+    // large_box_operations/concat.py:118
+    // @public
+    intc_2 // 1
+    return
