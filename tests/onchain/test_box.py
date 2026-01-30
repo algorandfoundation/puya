@@ -10,7 +10,7 @@ from tests.utils.deployer import Deployer
 _ALWAYS_APPROVE = b"\x06\x81\x01"  # #pragma version 6; int 1
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def box_client(
     localnet_clients: au.AlgoSdkClients, account: au.AddressWithSigners
 ) -> au.AppClient:
