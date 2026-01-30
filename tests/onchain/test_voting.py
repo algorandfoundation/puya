@@ -1,5 +1,6 @@
 import math
 import random
+import time
 
 import algokit_utils as au
 from algokit_common import public_key_from_address
@@ -22,12 +23,7 @@ def test_voting_app(deployer: Deployer) -> None:
     )
 
     private_key = SigningKey.generate()
-
-    # Get current block timestamp
-    status = algorand.client.algod.status()
-    block_response = algorand.client.algod.block(status.last_round)
-    block_ts = block_response.block.header.timestamp
-
+    epoch = int(time.time())
     quorum = math.ceil(random.randint(1, 9) * 1000)
     question_counts = [1] * 10
 
@@ -38,8 +34,8 @@ def test_voting_app(deployer: Deployer) -> None:
         args={
             "vote_id": "1",
             "metadata_ipfs_cid": "cid",
-            "start_time": int(block_ts),
-            "end_time": int(block_ts) + 1000,
+            "start_time": epoch,
+            "end_time": epoch + 1000,
             "quorum": quorum,
             "snapshot_public_key": private_key.verify_key.encode(),
             "nft_image_url": "ipfs://cid",
