@@ -320,7 +320,9 @@ class ReferenceArray(_WTypeInstance):
         if element_type == void_wtype:
             logger.error("array element type cannot be void", location=self.source_location)
         elif not element_type.immutable:
-            logger.error("arrays must have immutable elements", location=self.source_location)
+            logger.error(
+                "reference arrays must have immutable elements", location=self.source_location
+            )
 
     @name.default
     def _name(self) -> str:
