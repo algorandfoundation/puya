@@ -212,7 +212,10 @@ def wtype_to_arc4(
             return wtype.name
     maybe_arc4_wtype = maybe_wtype_to_arc4_wtype(wtype)
     if maybe_arc4_wtype is None:
-        raise CodeError("unsupported type for an ARC-4 method", loc)
+        error_msg = "unsupported type for an ARC-4 method"
+        if is_return:
+            error_msg = "unsupported return type for an ARC-4 method"
+        raise CodeError(error_msg, loc)
     return get_arc4_name(maybe_arc4_wtype, use_alias=True)
 
 

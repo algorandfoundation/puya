@@ -529,14 +529,7 @@ class MyContract(ARC4Contract): ## E: Non-abstract ARC-4 contract has no methods
     def b(self) -> None:
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.BoxRef
-    def c(self, box: BoxRef) -> None:
-        pass
-
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.BoxRef
-    def d(self, arg: Bytes) -> BoxRef:
-        return BoxRef(key=arg)
-
+    
     @arc4.baremethod # type: ignore[arg-type] ## E: bare methods should have no arguments or return values
     def e(self, x: UInt64) -> None:
         pass
@@ -545,6 +538,19 @@ class MyContract(ARC4Contract): ## E: Non-abstract ARC-4 contract has no methods
     def f(self) -> UInt64:
         return UInt64(0)
 
+
+## case: bad_signatures_from_ir_layer
+from algopy import *
+
+class MyContract(ARC4Contract): 
+    
+    @arc4.abimethod
+    def c(self, box: BoxRef) -> None: ## E: unsupported type for an ARC-4 method
+        pass
+
+    @arc4.abimethod ## E: unsupported return type for an ARC-4 method
+    def d(self, arg: Bytes) -> BoxRef: 
+        return BoxRef(key=arg)
 
 ## case: test_string
 from algopy import arc4, subroutine
