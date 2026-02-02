@@ -18,7 +18,6 @@ from puya.awst.nodes import (
     ContractMethod,
     StateTotals,
 )
-from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puyapy.awst_build import pytypes
@@ -51,25 +50,6 @@ class ARC4ABIMethodData:
     config: ARC4ABIMethodConfig
     is_bare: bool = attrs.field(default=False, init=False)
     _signature: dict[str, pytypes.PyType]
-    _arc4_signature: Mapping[str, pytypes.PyType] = attrs.field(init=False)
-
-    @_arc4_signature.default
-    def _arc4_signature_default(self) -> Mapping[str, pytypes.PyType]:
-        from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype  # TODO: resolve circularity
-
-        def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
-            raise CodeError(f"invalid type for an ARC-4 method: {bad_type}", loc)
-
-        pass_resources_by_value = self.config.resource_encoding == "value"
-        return {
-            k: pytype_to_arc4_pytype(
-                v,
-                on_error=on_error,
-                encode_resource_types=pass_resources_by_value or k == "output",
-                source_location=self.source_location,
-            )
-            for k, v in self._signature.items()
-        }
 
     @property
     def signature(self) -> Mapping[str, pytypes.PyType]:
@@ -80,18 +60,8 @@ class ARC4ABIMethodData:
         return self._signature["output"]
 
     @cached_property
-    def arc4_return_type(self) -> pytypes.PyType:
-        return self._arc4_signature["output"]
-
-    @cached_property
     def argument_types(self) -> Sequence[pytypes.PyType]:
         names, types = zip(*self._signature.items(), strict=True)
-        assert names[-1] == "output"
-        return tuple(types[:-1])
-
-    @cached_property
-    def arc4_argument_types(self) -> Sequence[pytypes.PyType]:
-        names, types = zip(*self._arc4_signature.items(), strict=True)
         assert names[-1] == "output"
         return tuple(types[:-1])
 

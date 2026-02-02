@@ -109,31 +109,43 @@ class ArrayContract(arc4.ARC4Contract):
     def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.gtxn.Transaction]
-    def arr_txn_arg(self, arr: ReferenceArray[gtxn.Transaction]) -> None:
-        pass
-
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.itxn.Payment]
-    def arr_itxn_arg(self, arr: ReferenceArray[itxn.Payment]) -> None:
-        pass
-
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.itxn.PaymentInnerTransaction]
-    def arr_itxn2_arg(self, arr: ReferenceArray[itxn.PaymentInnerTransaction]) -> None:
-        pass
-
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.Asset]
-    def arr_asset_arg(self, arr: ReferenceArray[Asset]) -> None:
-        pass
-
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.Account]
-    def arr_account_arg(self, arr: ReferenceArray[Account]) -> None:
-        pass
-
     @arc4.abimethod()
     def test_reference_array_extend_with_arc4_bool(self) -> None:
         arr = ReferenceArray[arc4.Bool]()
         dyn_arr = arc4.DynamicArray[arc4.Bool]()
         arr.extend(dyn_arr) ## E: extending a reference array with an ARC-4 encoded bool type is not supported
+
+## case: test_array_element_error_from_ir_layer
+import typing
+from algopy import *
+
+
+class ArrayContract(arc4.ARC4Contract):
+
+    @arc4.abimethod
+    def arr_txn_arg(self, arr: ReferenceArray[gtxn.Transaction]) -> None: ## E: unsupported type for an ARC-4 method
+        pass
+
+    @arc4.abimethod
+    def arr_itxn_arg(self, arr: ReferenceArray[itxn.Payment]) -> None: ## E: unsupported type for an ARC-4 method
+        pass
+
+    @arc4.abimethod
+    def arr_itxn2_arg(self, arr: ReferenceArray[itxn.PaymentInnerTransaction]) -> None: ## E: unsupported type for an ARC-4 method
+        pass
+
+    @arc4.abimethod
+    def arr_asset_arg(self, arr: ReferenceArray[Asset]) -> None: ## E: unsupported type for an ARC-4 method
+        pass
+
+    @arc4.abimethod
+    def arr_account_arg(self, arr: ReferenceArray[Account]) -> None: ## E: unsupported type for an ARC-4 method
+        pass
+
+    @arc4.abimethod ## E: unsupported return type for an ARC-4 method
+    def arr_account_return(self) -> ReferenceArray[Account]:
+        op.err("Not implemented")
+
 
 ## case: test_imm_array_txn
 from algopy import *
