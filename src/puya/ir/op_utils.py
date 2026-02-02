@@ -513,6 +513,7 @@ class OpFactory:
         offset: Value | int,
         length: Value | int,
         ir_type: IRType,
+        error_message: str | None = None,
         temp_desc: str = "box_extract",
     ) -> Register:
         result = assign_intrinsic_op(
@@ -521,6 +522,7 @@ class OpFactory:
             op=AVMOp.box_extract,
             args=[box_key, offset, length],
             return_type=ir_type,
+            error_message=error_message,
             source_location=self.source_location,
         )
         return result
@@ -534,12 +536,17 @@ class OpFactory:
         return self.btoi(u16_bytes)
 
     def box_replace(
-        self, box_key: Value | bytes, offset: Value | int, value: Value | bytes
+        self,
+        box_key: Value | bytes,
+        offset: Value | int,
+        value: Value | bytes,
+        error_message: str | None = None,
     ) -> Intrinsic:
         args = [box_key, offset, value]
         return Intrinsic(
             op=AVMOp.box_replace,
             args=[convert_constants(a, self.source_location) for a in args],
+            error_message=error_message,
             source_location=self.source_location,
         )
 
@@ -550,6 +557,17 @@ class OpFactory:
             args=[convert_constants(arg, self.source_location) for arg in args],
             source_location=self.source_location,
         )
+
+    def box_len(self, box_key: Value | bytes) -> tuple[Value, Value]:
+        box_len, exists = self.context.materialise_value_provider(
+            Intrinsic(
+                op=AVMOp.box_len,
+                args=[convert_constants(box_key, self.source_location)],
+                source_location=self.source_location,
+            ),
+            "box_len",
+        )
+        return box_len, exists
 
     def assert_value(self, value: Value, *, error_message: str) -> None:
         assert_value(
