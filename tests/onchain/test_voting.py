@@ -23,7 +23,18 @@ def test_voting_app(deployer: Deployer) -> None:
     )
 
     private_key = SigningKey.generate()
+
+    # "dev mode" does not have regular block generation, only "on demand".
+    # The max timestamp advancement between blocks is a consensus parameter which currently is 25s.
+    # So effectively, the current block timestamp could be any point in the past, and could
+    # rapidly advance in 25s increments - but cannot be in the future.
+    # So to ensure the voting window remains open for this test, we start at the current timestamp
+    # and use the actual time plus a voting window of a thousand seconds.
+    algod = algorand.client.algod
+    start_time = algod.block(algod.status().last_round).block.header.timestamp
     epoch = int(time.time())
+    end_time = epoch + 1000
+
     quorum = math.ceil(random.randint(1, 9) * 1000)
     question_counts = [1] * 10
 
@@ -34,8 +45,8 @@ def test_voting_app(deployer: Deployer) -> None:
         args={
             "vote_id": "1",
             "metadata_ipfs_cid": "cid",
-            "start_time": epoch,
-            "end_time": epoch + 1000,
+            "start_time": start_time,
+            "end_time": end_time,
             "quorum": quorum,
             "snapshot_public_key": private_key.verify_key.encode(),
             "nft_image_url": "ipfs://cid",
