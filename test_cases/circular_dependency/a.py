@@ -1,9 +1,20 @@
-from algopy import Application, ARC4Contract, String, arc4
+import typing
 
-from test_cases.circular_dependency.b import B
+from algopy import Application, String, arc4
+
+from test_cases.circular_dependency.b import B, PingPongBase
 
 
-class A(ARC4Contract):
+class MyInnerStruct(arc4.Struct):
+    value: arc4.UInt64
+
+
+class A(PingPongBase):
+    @typing.override
+    @arc4.abimethod
+    def name(self) -> String:
+        return String("A")
+
     @arc4.abimethod
     def ping(self, b: Application) -> String:
         result, _txn = arc4.abi_call(B.ping, app_id=b)
