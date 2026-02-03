@@ -9,6 +9,10 @@ import enum
 class PuyaLibIR(enum.StrEnum):
     ensure_budget = "_puya_lib.util.ensure_budget"
     is_substring = "_puya_lib.bytes_.is_substring"
+    box_dynamic_array_pop_fixed_size = "_puya_lib.box_arc4.box_dynamic_array_pop_fixed_size"
+    box_dynamic_array_concat_fixed = "_puya_lib.box_arc4.box_dynamic_array_concat_fixed"
+    box_update_offset_dec = "_puya_lib.box_arc4.box_update_offset_dec"
+    box_update_offset_inc = "_puya_lib.box_arc4.box_update_offset_inc"
     dynamic_array_pop_bit = "_puya_lib.arc4.dynamic_array_pop_bit"
     r_trim = "_puya_lib.arc4.r_trim"
     dynamic_array_pop_fixed_size = "_puya_lib.arc4.dynamic_array_pop_fixed_size"
