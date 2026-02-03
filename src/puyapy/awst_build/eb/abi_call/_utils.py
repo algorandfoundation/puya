@@ -104,7 +104,7 @@ def maybe_resolve_literal(
                 typ = operand.pytype
         if (typ != operand.pytype) and not allow_literal:
             logger.warning(
-                "type information should be provided when passing a literal value",
+                f"implicit conversion to {typ} will be attempted for {operand.pytype} argument",
                 location=operand.source_location,
             )
     else:
