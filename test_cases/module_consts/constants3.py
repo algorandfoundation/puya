@@ -1,5 +1,8 @@
+from . import constants2
+
 __all__ = [
     "USED_CONSTANTS3",
+    "constants2",
 ]
 
 
