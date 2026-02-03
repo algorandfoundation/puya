@@ -12,7 +12,6 @@ from puya.ir import (
     types_ as types,
 )
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.sequence import get_length
 from puya.ir.op_utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
@@ -273,21 +272,17 @@ class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             start_of_tail = self.factory.mul(r_count, 2, "start_of_tail")
             r_tail = self.factory.extract_to_end(r_head_and_tail, start_of_tail, "data")
 
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_concat_byte_length_head,
-            args=[array, r_tail, r_count],
-            source_location=self.loc,
+        invoke = self.factory.invoke(
+            PuyaLibIR.dynamic_array_concat_byte_length_head,
+            [array, r_tail, r_count],
         )
         return self._as_array_type(invoke)
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_byte_length_head,
-            args=[array],
-            source_location=self.loc,
+        invoke = self.factory.invoke(
+            PuyaLibIR.dynamic_array_pop_byte_length_head,
+            [array],
         )
         popped, data = self.factory.materialise_values(invoke)
         return data, self._decode_popped_element(popped)
@@ -309,21 +304,17 @@ class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         )
         r_count = self.factory.materialise_single(r_count)
         r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_concat_dynamic_element,
-            args=[l_count, l_head_and_tail, r_count, r_head_and_tail],
-            source_location=self.loc,
+        invoke = self.factory.invoke(
+            PuyaLibIR.dynamic_array_concat_dynamic_element,
+            [l_count, l_head_and_tail, r_count, r_head_and_tail],
         )
         return self._as_array_type(invoke)
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_dynamic_element,
-            args=[array],
-            source_location=self.loc,
+        invoke = self.factory.invoke(
+            PuyaLibIR.dynamic_array_pop_dynamic_element,
+            [array],
         )
         popped, data = self.factory.materialise_values(invoke)
         return data, self._decode_popped_element(popped)
@@ -360,21 +351,17 @@ class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
         element_bits = iter_element_encoding.num_bits
         assert element_bits in (1, 8)
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_concat_bits,
-            args=[array, r_head_and_tail, r_count, element_bits],
-            source_location=self.loc,
+        invoke = self.factory.invoke(
+            PuyaLibIR.dynamic_array_concat_bits,
+            [array, r_head_and_tail, r_count, element_bits],
         )
         return self._as_array_type(invoke)
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_bit,
-            args=[array],
-            source_location=self.loc,
+        invoke = self.factory.invoke(
+            PuyaLibIR.dynamic_array_pop_bit,
+            [array],
         )
         popped, data = self.factory.materialise_values(invoke)
         return data, self._decode_popped_element(popped)

@@ -4,11 +4,13 @@ from collections.abc import Sequence
 import attrs
 
 from puya.avm import AVMType
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import (
     Assert,
     BytesConstant,
     Intrinsic,
+    InvokeSubroutine,
     MultiValue,
     Register,
     UInt64Constant,
@@ -538,6 +540,14 @@ class OpFactory:
         return Intrinsic(
             op=AVMOp.box_replace,
             args=[convert_constants(a, self.source_location) for a in args],
+            source_location=self.source_location,
+        )
+
+    def invoke(self, puya_lib: PuyaLibIR, args: Sequence[int | bytes | Value]) -> InvokeSubroutine:
+        sub = self.context.resolve_embedded_func(puya_lib)
+        return InvokeSubroutine(
+            target=sub,
+            args=[convert_constants(arg, self.source_location) for arg in args],
             source_location=self.source_location,
         )
 

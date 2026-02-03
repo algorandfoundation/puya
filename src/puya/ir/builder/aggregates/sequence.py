@@ -12,7 +12,6 @@ from puya.ir import (
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder import mem
-from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.encodings import ArrayEncoding
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
@@ -349,7 +348,5 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
                 element_type = "dynamic_element"
 
         target = PuyaLibIR[f"{array_type}_array_replace_{element_type}"]
-        invoke = invoke_puya_lib_subroutine(
-            self.context, full_name=target, args=args, source_location=self.loc
-        )
+        invoke = self.factory.invoke(target, args)
         return self.factory.materialise_single(invoke, "updated_array")
