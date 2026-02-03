@@ -19,6 +19,34 @@ main test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program:
         (assert tmp%42#0)
         return 1u
 
+subroutine _puya_lib.box_arc4.box_dynamic_array_concat_fixed(box_key: bytes, array_offset: uint64, new_items_bytes: bytes, new_items_count: uint64, fixed_element_size: uint64) -> void:
+    block@0: // L33
+        let arr_len_bytes#0: bytes = (box_extract box_key#0 array_offset#0 2u)
+        let arr_len#0: uint64 = (btoi arr_len_bytes#0)
+        let (box_size#0: uint64, _exists#0: bool) = (box_len box_key#0)
+        let tmp%3#0: uint64 = (* new_items_count#0 fixed_element_size#0)
+        let new_box_size#0: uint64 = (+ box_size#0 tmp%3#0)
+        (box_resize box_key#0 new_box_size#0)
+        let value#0: uint64 = (+ arr_len#0 new_items_count#0)
+        let value_bytes#0: bytes = (itob value#0)
+        let new_arr_len#0: bytes = ((extract 6 2) value_bytes#0)
+        (box_replace box_key#0 array_offset#0 new_arr_len#0)
+        let tmp%7#0: uint64 = (+ array_offset#0 2u)
+        let tmp%8#0: uint64 = (* arr_len#0 fixed_element_size#0)
+        let end_of_array_offset#0: uint64 = (+ tmp%7#0 tmp%8#0)
+        (box_splice box_key#0 end_of_array_offset#0 0u new_items_bytes#0)
+        return 
+
+subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint64, value: uint64) -> void:
+    block@0: // L81
+        let arr_len_bytes#0: bytes = (box_extract box_key#0 offset#0 2u)
+        let offset_value#0: uint64 = (btoi arr_len_bytes#0)
+        let new_offset_value#0: uint64 = (+ offset_value#0 value#0)
+        let value_bytes#0: bytes = (itob new_offset_value#0)
+        let new_offset_value_u16#0: bytes = ((extract 6 2) value_bytes#0)
+        (box_replace box_key#0 offset#0 new_offset_value_u16#0)
+        return 
+
 subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
     block@0: // L133
         let array_length#0: uint64 = (extract_uint16 array#0 0u)
