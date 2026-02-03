@@ -210,10 +210,16 @@ class SubroutineCollector(visitor.IRTraverser):
         self.referenced_libs |= (
             PuyaLibIR.r_trim,
             PuyaLibIR.dynamic_array_pop_fixed_size,
+            PuyaLibIR.box_dynamic_array_pop_fixed_size,
+            PuyaLibIR.box_update_offset_dec,
         )
 
     def visit_array_concat(self, _: models.ArrayConcat) -> None:
-        self.referenced_libs |= (PuyaLibIR.dynamic_array_concat_fixed,)
+        self.referenced_libs |= (
+            PuyaLibIR.dynamic_array_concat_fixed,
+            PuyaLibIR.box_dynamic_array_concat_fixed,
+            PuyaLibIR.box_update_offset_inc,
+        )
 
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         self.visit_subroutine(callsub.target)

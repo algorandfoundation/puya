@@ -143,7 +143,7 @@ def dynamic_array_concat_fixed(
 
     array: The bytes for the source array
     new_items_count: The count of new items being added (N)
-    new_items_bytes: THe concatenated bytes of N array elements
+    new_items_bytes: The concatenated bytes of N array elements
     returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
