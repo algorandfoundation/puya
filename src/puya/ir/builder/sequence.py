@@ -10,7 +10,7 @@ from puya.ir import (
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder import mem
-from puya.ir.builder._utils import invoke_puya_lib_subroutine, undefined_value
+from puya.ir.builder._utils import undefined_value
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.parse import SourceLocation
@@ -195,11 +195,9 @@ def convert_array(
         ):
             assert not source_encoding.length_header, "expected ReferenceArray"
             empty_header = factory.constant(b"\0" * 2)
-            bitpacked_source_provider = invoke_puya_lib_subroutine(
-                context,
-                full_name=PuyaLibIR.dynamic_array_concat_bits,
-                args=[empty_header, source, source_length, 8],
-                source_location=loc,
+            bitpacked_source_provider = factory.invoke(
+                PuyaLibIR.dynamic_array_concat_bits,
+                [empty_header, source, source_length, 8],
             )
             (source,) = context.materialise_value_provider(
                 bitpacked_source_provider, description="bit_packed_source"

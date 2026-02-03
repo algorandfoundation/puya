@@ -10,7 +10,6 @@ from puya.ir import (
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
@@ -72,11 +71,10 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
             pop_method = PuyaLibIR.dynamic_array_pop_fixed_size
         else:
             pop_method = PuyaLibIR.r_trim
-        return invoke_puya_lib_subroutine(
-            self,
-            full_name=pop_method,
-            args=[pop.base, element_encoding.checked_num_bytes],
-            source_location=pop.source_location,
+        factory = OpFactory(self, pop.source_location)
+        return factory.invoke(
+            pop_method,
+            [pop.base, element_encoding.checked_num_bytes],
         )
 
     @typing.override
@@ -90,11 +88,9 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
             )
         factory = OpFactory(self, concat.source_location)
         if array_encoding.length_header:
-            updated_array: ir.ValueProvider = invoke_puya_lib_subroutine(
-                self,
-                full_name=PuyaLibIR.dynamic_array_concat_fixed,
-                args=[concat.base, concat.items, concat.num_items],
-                source_location=concat.source_location,
+            updated_array: ir.ValueProvider = factory.invoke(
+                PuyaLibIR.dynamic_array_concat_fixed,
+                [concat.base, concat.items, concat.num_items],
             )
         else:
             updated_array = factory.concat(

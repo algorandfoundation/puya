@@ -6,17 +6,15 @@ from puya.awst import (
     nodes as awst_nodes,
 )
 from puya.errors import CodeError
-from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import (
     TMP_VAR_INDICATOR,
-    InvokeSubroutine,
     Register,
     Undefined,
     Value,
     ValueProvider,
     ValueTuple,
 )
-from puya.ir.op_utils import assign_targets, convert_constants, mktemp
+from puya.ir.op_utils import assign_targets, mktemp
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType, TupleIRType, ir_type_to_ir_types, wtype_to_abi_name
 from puya.parse import SourceLocation
@@ -107,21 +105,6 @@ def undefined_value(typ: IRType | TupleIRType, loc: SourceLocation) -> Value | V
         ir_types = ir_type_to_ir_types(typ)
         values = [Undefined(ir_type=ir_type, source_location=loc) for ir_type in ir_types]
         return ValueTuple(values=values, ir_type=typ, source_location=loc)
-
-
-def invoke_puya_lib_subroutine(
-    context: IRRegisterContext,
-    *,
-    full_name: PuyaLibIR,
-    args: Sequence[Value | int | bytes],
-    source_location: SourceLocation | None,
-) -> InvokeSubroutine:
-    sub = context.resolve_embedded_func(full_name)
-    return InvokeSubroutine(
-        target=sub,
-        args=[convert_constants(arg, source_location) for arg in args],
-        source_location=source_location,
-    )
 
 
 def method_signature_to_abi_signature(value: awst_nodes.MethodSignature) -> str:
