@@ -15,7 +15,7 @@ from operator import itemgetter
 from pathlib import Path
 
 import attrs
-from mypy.build import BuildManager, Graph, dispatch, sorted_components
+from mypy.build import BuildManager, Graph, dispatch, order_ascc, sorted_components
 from mypy.errors import Errors
 from mypy.fscache import FileSystemCache
 from mypy.modulefinder import BuildSource, BuildSourceSet, SearchPaths
@@ -132,7 +132,7 @@ def parse_python(
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
     for scc in sorted_components(graph):
-        for module_name in sorted(scc.mod_ids):
+        for module_name in order_ascc(graph, scc.mod_ids):
             module = manager.modules[module_name]
             state = graph[module_name]
             assert (
