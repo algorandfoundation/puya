@@ -8,6 +8,11 @@ import algopy
 
 class A(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
+    def name(
+        self,
+    ) -> algopy.arc4.String: ...
+
+    @algopy.arc4.abimethod
     def ping(
         self,
         b: algopy.arc4.UIntN[typing.Literal[64]],

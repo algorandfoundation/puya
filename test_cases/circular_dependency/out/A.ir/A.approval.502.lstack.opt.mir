@@ -2,52 +2,61 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // circular_dependency/a.py:6
-        // class A(ARC4Contract):
+        // circular_dependency/a.py:12
+        // class A(PingPongBase):
         txn NumAppArgs                                                       tmp%0#1
-        bz main___algopy_default_create@10 ; b main_abi_routing@2
+        bz main___algopy_default_create@11 ; b main_abi_routing@2
 
     main_abi_routing@2:
-        // circular_dependency/a.py:6
-        // class A(ARC4Contract):
+        // circular_dependency/a.py:12
+        // class A(PingPongBase):
         txn OnCompletion                                                     tmp%2#0
         !                                                                    tmp%3#0
         assert
         txn ApplicationID                                                    tmp%4#0
         assert
         txna ApplicationArgs 0                                               tmp%6#0
-        method ping(uint64)string                                            tmp%6#0,Method(ping(uint64)string)
-        method pong()string                                                  tmp%6#0,Method(ping(uint64)string),Method(pong()string)
-        method create_b(uint64)uint64                                        tmp%6#0,Method(ping(uint64)string),Method(pong()string),Method(create_b(uint64)uint64)
-        l-load tmp%6#0 3                                                     Method(ping(uint64)string),Method(pong()string),Method(create_b(uint64)uint64),tmp%6#0
-        match main_ping_route@4 main_pong_route@5 main_create_b_route@6 ; b main_after_if_else@9 
+        method name()string                                                  tmp%6#0,Method(name()string)
+        method ping(uint64)string                                            tmp%6#0,Method(name()string),Method(ping(uint64)string)
+        method pong()string                                                  tmp%6#0,Method(name()string),Method(ping(uint64)string),Method(pong()string)
+        method create_b(uint64)uint64                                        tmp%6#0,Method(name()string),Method(ping(uint64)string),Method(pong()string),Method(create_b(uint64)uint64)
+        l-load tmp%6#0 4                                                     Method(name()string),Method(ping(uint64)string),Method(pong()string),Method(create_b(uint64)uint64),tmp%6#0
+        match main_name_route@4 main_ping_route@5 main_pong_route@6 main_create_b_route@7 ; b main_after_if_else@10 
 
-    main_ping_route@4:
-        // circular_dependency/a.py:7
+    main_name_route@4:
+        // circular_dependency/a.py:14
+        // @arc4.abimethod
+        byte 0x151f7c75000141                                                0x151f7c75000141
+        log
+        int 1                                                                1
+        return
+
+    main_ping_route@5:
+        // circular_dependency/a.py:18
         // @arc4.abimethod
         callsub ping
-        b main_after_if_else@9
+        b main_after_if_else@10
 
-    main_pong_route@5:
-        // circular_dependency/a.py:12
+    main_pong_route@6:
+        // circular_dependency/a.py:23
         // @arc4.abimethod()
         byte 0x151f7c750004706f6e67                                          0x151f7c750004706f6e67
         log
         int 1                                                                1
         return
 
-    main_create_b_route@6:
-        // circular_dependency/a.py:16
+    main_create_b_route@7:
+        // circular_dependency/a.py:27
         // @arc4.abimethod
         callsub create_b
-        b main_after_if_else@9
+        b main_after_if_else@10
 
-    main_after_if_else@9:
-        // circular_dependency/a.py:6
-        // class A(ARC4Contract):
+    main_after_if_else@10:
+        // circular_dependency/a.py:12
+        // class A(PingPongBase):
         err
 
-    main___algopy_default_create@10:
+    main___algopy_default_create@11:
         txn OnCompletion                                                     tmp%7#0
         !                                                                    tmp%8#0
         txn ApplicationID                                                    tmp%8#0,tmp%9#0
@@ -63,7 +72,7 @@ subroutine main:
 // test_cases.circular_dependency.a.A.ping[routing]() -> void:
 subroutine ping:
     ping_block@0:
-        // circular_dependency/a.py:7
+        // circular_dependency/a.py:18
         // @arc4.abimethod
         txna ApplicationArgs 1                                               tmp%0#0
         l-load-copy tmp%0#0 0                                                tmp%0#0,tmp%0#0 (copy)
@@ -73,7 +82,7 @@ subroutine ping:
         assert // invalid number of bytes for arc4.uint64                    tmp%0#0
         l-load tmp%0#0 0                                                     tmp%0#0
         btoi                                                                 b#0
-        // circular_dependency/a.py:9
+        // circular_dependency/a.py:20
         // result, _txn = arc4.abi_call(B.ping, app_id=b)
         itxn_begin                                                           b#0
         l-load b#0 0                                                         b#0
@@ -103,7 +112,7 @@ subroutine ping:
         l-load add%0#0 1                                                     tmp%2#1,len%0#0,add%0#0
         ==                                                                   tmp%2#1,eq%0#0
         assert // invalid number of bytes for string                         tmp%2#1
-        // circular_dependency/a.py:7
+        // circular_dependency/a.py:18
         // @arc4.abimethod
         byte 0x151f7c75                                                      tmp%2#1,0x151f7c75
         l-load tmp%2#1 1                                                     0x151f7c75,tmp%2#1
@@ -116,7 +125,7 @@ subroutine ping:
 // test_cases.circular_dependency.a.A.create_b[routing]() -> void:
 subroutine create_b:
     create_b_block@0:
-        // circular_dependency/a.py:16
+        // circular_dependency/a.py:27
         // @arc4.abimethod
         txna ApplicationArgs 1                                               tmp%0#0
         l-load-copy tmp%0#0 0                                                tmp%0#0,tmp%0#0 (copy)
@@ -126,7 +135,7 @@ subroutine create_b:
         assert // invalid number of bytes for arc4.uint64                    tmp%0#0
         l-load tmp%0#0 0                                                     tmp%0#0
         btoi                                                                 factory_id#0
-        // circular_dependency/a.py:20
+        // circular_dependency/a.py:31
         // result, _txn = arc4.abi_call(Factory.deploy_b, app_id=factory_id)
         itxn_begin                                                           factory_id#0
         l-load factory_id#0 0                                                factory_id#0
@@ -151,7 +160,7 @@ subroutine create_b:
         int 8                                                                tmp%2#1,len%0#0,8
         ==                                                                   tmp%2#1,eq%0#0
         assert // invalid number of bytes for application                    tmp%2#1
-        // circular_dependency/a.py:16
+        // circular_dependency/a.py:27
         // @arc4.abimethod
         byte 0x151f7c75                                                      tmp%2#1,0x151f7c75
         l-load tmp%2#1 1                                                     0x151f7c75,tmp%2#1

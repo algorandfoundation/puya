@@ -5,29 +5,37 @@
 main:
     intcblock 1 8 0 6
     bytecblock 0x151f7c75
-    // circular_dependency/b.py:6
-    // class B(ARC4Contract):
+    // circular_dependency/b.py:16
+    // class B(PingPongBase):
     txn NumAppArgs
-    bz main___algopy_default_create@10
+    bz main___algopy_default_create@11
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0xb132c056 0xf49e89c9 0x1519191e // method "ping()string", method "pong(uint64)string", method "create_a(uint64)uint64"
+    pushbytess 0x19750616 0xb132c056 0xf49e89c9 0x1519191e // method "name()string", method "ping()string", method "pong(uint64)string", method "create_a(uint64)uint64"
     txna ApplicationArgs 0
-    match main_ping_route@4 pong create_a
+    match main_name_route@4 main_ping_route@5 pong create_a
     err
 
-main_ping_route@4:
-    // circular_dependency/b.py:7
+main_ping_route@5:
+    // circular_dependency/b.py:22
     // @arc4.abimethod()
     pushbytes 0x151f7c75000470696e67
     log
     intc_0 // 1
     return
 
-main___algopy_default_create@10:
+main_name_route@4:
+    // circular_dependency/b.py:18
+    // @arc4.abimethod
+    pushbytes 0x151f7c75000142
+    log
+    intc_0 // 1
+    return
+
+main___algopy_default_create@11:
     txn OnCompletion
     !
     txn ApplicationID
@@ -38,7 +46,7 @@ main___algopy_default_create@10:
 
 // test_cases.circular_dependency.b.B.pong[routing]() -> void:
 pong:
-    // circular_dependency/b.py:11
+    // circular_dependency/b.py:26
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
@@ -47,7 +55,7 @@ pong:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // circular_dependency/b.py:13
+    // circular_dependency/b.py:30
     // result, _txn = arc4.abi_call(A.pong, app_id=a)
     itxn_begin
     itxn_field ApplicationID
@@ -74,7 +82,7 @@ pong:
     len
     ==
     assert // invalid number of bytes for string
-    // circular_dependency/b.py:11
+    // circular_dependency/b.py:26
     // @arc4.abimethod
     bytec_0 // 0x151f7c75
     swap
@@ -86,7 +94,7 @@ pong:
 
 // test_cases.circular_dependency.b.B.create_a[routing]() -> void:
 create_a:
-    // circular_dependency/b.py:16
+    // circular_dependency/b.py:33
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
@@ -95,7 +103,7 @@ create_a:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // circular_dependency/b.py:20
+    // circular_dependency/b.py:37
     // result, _txn = arc4.abi_call(Factory.deploy_a, app_id=factory_id)
     itxn_begin
     itxn_field ApplicationID
@@ -118,7 +126,7 @@ create_a:
     intc_1 // 8
     ==
     assert // invalid number of bytes for application
-    // circular_dependency/b.py:16
+    // circular_dependency/b.py:33
     // @arc4.abimethod
     bytec_0 // 0x151f7c75
     swap
