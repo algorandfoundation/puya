@@ -37,6 +37,7 @@ from puya.awst.nodes import (
     MethodDocumentation,
     ReturnStatement,
     Statement,
+    StringConstant,
     Subroutine,
     SubroutineArgument,
     SubroutineID,
@@ -76,6 +77,7 @@ from puyapy.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puyapy.awst_build.eb.logicsig import LogicSigExpressionBuilder
+from puyapy.awst_build.eb.string import StringExpressionBuilder
 from puyapy.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puyapy.awst_build.utils import (
     extract_bytes_literal_from_mypy,
@@ -1166,14 +1168,23 @@ class FunctionASTConverter(
         return LoopContinue(self._location(stmt))
 
     def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> ExpressionStatement:
-        error_message: str | None = None
+        error_message = None
         if stmt.msg is not None:
             msg = self.visit_expression(stmt.msg)
             match msg:
                 case LiteralBuilder(value=str(error_message)):
                     pass
+                case StringExpressionBuilder():
+                    error_message = msg.resolve()
+                    if not isinstance(error_message, StringConstant):
+                        self.context.warning("non-literal str() will be output as a log. Is this the intent?", stmt.expr)
+                        self.context.warning(
+                            "string expression used in assert error message is unknowable at compile time. " \
+                            "Arc56 support for this assert statement will be disabled",
+                            stmt.expr
+                        )
                 case _:
-                    self._error("only literal strings are supported as assertion messages", stmt)
+                    self._error("only strings are supported as assertion messages", stmt)
         condition = self.visit_expression(stmt.expr).bool_eval(self._location(stmt.expr))
         return ExpressionStatement(
             AssertExpression(
