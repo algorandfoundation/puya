@@ -777,13 +777,16 @@ def arc4_update(
 @typing.overload
 def emit(event: Struct, /) -> None: ...
 @typing.overload
+def emit(event: algopy.Struct, /) -> None: ...
+@typing.overload
 def emit(event: str, /, *args: object) -> None: ...
 @typing.overload
-def emit(event: str | Struct, /, *args: object) -> None:
+def emit(event: str | Struct | algopy.Struct, /, *args: object) -> None:
     """Emit an ARC-28 event for the provided event signature or name, and provided args.
 
-    :param event: Either an ARC-4 Struct, an event name, or event signature.
+    :param event: Either an ARC-4 Struct, a native Struct, an event name, or event signature.
         * If event is an ARC-4 Struct, the event signature will be determined from the Struct name and fields
+        * If event is a native Struct, its fields will be automatically converted to their ARC-4 equivalents
         * If event is a signature, then the following args will be typed checked to ensure they match.
         * If event is just a name, the event signature will be inferred from the name and following arguments
 
