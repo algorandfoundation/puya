@@ -10,7 +10,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
+from puya.awst.nodes import BigUIntBinaryOperator, StringConstant, UInt64BinaryOperator
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
@@ -1117,10 +1117,57 @@ class FunctionIRBuilder(
                 else:  # false constant, treat as fail/err
                     condition_value = None
 
-        if condition_value is None:
+        msg_str = None
+        msg_value = None
+        match expr.error_message:
+            case None:
+                pass
+            case str(msg_str):
+                pass
+            case StringConstant(value=str(msg_str)):
+                msg_value = self.visit_and_materialise_single(expr.error_message)
+            case _:
+                msg_value = self.visit_and_materialise_single(expr.error_message)
+                logger.warning("error message unknowable at compile time is incompatible with generated clients. It will be logged instead. Is this the intent?",
+                               location=expr.error_message.source_location)
+
+        if msg_value:
+            # TODO: can we check here for logicsig?
+            # how? what happens with "free" subroutines?
+            false, true = self.context.block_builder.mkblocks(
+                "logged_error_handling", "after_assert", source_location=loc
+            )
+            # model assert behavior as a conditional jump into a pushbytes X; log; err; pattern
+            if condition_value:
+                self.context.block_builder.terminate(
+                    ir.ConditionalBranch(
+                        condition=condition_value,
+                        non_zero=true,
+                        zero=false,
+                        source_location=loc,
+                    )
+                )
+                self.context.block_builder.activate_block(true)
+            self.context.block_builder.add(
+                ir.Intrinsic(
+                    op=AVMOp("log"),
+                    args=[msg_value],
+                    source_location=loc,
+                )
+            )
             self.context.block_builder.terminate(
                 ir.Fail(
-                    error_message=expr.error_message,
+                    error_message=msg_str,
+                    explicit=expr.explicit,
+                    source_location=loc,
+                )
+            )
+            self.context.block_builder.try_activate_block(false)
+
+        elif condition_value is None:
+            self.context.block_builder.terminate(
+                ir.Fail(
+                    error_message=msg_str,
                     explicit=expr.explicit,
                     source_location=loc,
                 )
@@ -1129,7 +1176,7 @@ class FunctionIRBuilder(
             self.context.block_builder.add(
                 ir.Assert(
                     condition=condition_value,
-                    message=expr.error_message,
+                    message=msg_str,
                     explicit=expr.explicit,
                     source_location=loc,
                 )
