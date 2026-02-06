@@ -1,3 +1,6 @@
+import typing
+from collections.abc import Mapping
+
 import attrs
 
 from puya import log
@@ -13,7 +16,7 @@ class PythonTxnField:
     type: pytypes.RuntimeType
 
 
-PYTHON_TXN_FIELDS = {
+PYTHON_TXN_FIELDS: typing.Final[Mapping[str, PythonTxnField]] = {
     "sender": PythonTxnField(TxnField.Sender, pytypes.AccountType),
     "fee": PythonTxnField(TxnField.Fee, pytypes.UInt64Type),
     "first_valid": PythonTxnField(TxnField.FirstValid, pytypes.UInt64Type),

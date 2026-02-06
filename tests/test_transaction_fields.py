@@ -1,20 +1,17 @@
+import ast
 import json
-from collections.abc import Iterable, Mapping
-from pathlib import Path
+from collections.abc import Mapping, Sequence
 
 import attrs
-import mypy.nodes
-import mypy.types
 import pytest
 
+from puya.avm import TransactionType
 from puya.awst.txn_fields import TxnField
-from puya.parse import SourceLocation
+from puyapy._stub_symtables import STUB_SYMTABLES
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.context import function_pytype, type_to_pytype
 from puyapy.awst_build.eb.transaction.itxn_args import PYTHON_ITXN_ARGUMENTS
 from puyapy.awst_build.eb.transaction.txn_fields import PYTHON_TXN_FIELDS
-from tests import EXAMPLES_DIR, VCS_ROOT
-from tests.utils.compile import get_awst_cache
+from tests import STUBS_DIR, VCS_ROOT
 
 # the need to use approval / clear_state pages is abstracted away by
 # allowing a tuple of pages in the stubs layer
@@ -30,22 +27,10 @@ _INTENTIONALLY_OMITTED_INNER_TXN_FIELDS = {
 
 
 @attrs.frozen
-class FieldType:
+class _ProtocolProperty:
+    name: str
     is_array: bool
-    field_type: pytypes.PyType
-
-
-def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
-    awst_cache = get_awst_cache(EXAMPLES_DIR)
-
-    for type_name in type_names:
-        module_id, symbol_name = type_name.rsplit(".", maxsplit=1)
-        module = awst_cache.parse_result.ordered_modules[module_id].node
-
-        symbol = module.names[symbol_name]
-        node = symbol.node
-        assert isinstance(node, mypy.nodes.TypeInfo), f"{type_name} not found in {module}"
-        yield node
+    result_type: pytypes.PyType
 
 
 @pytest.fixture(scope="session")
@@ -53,12 +38,204 @@ def builtins_registry() -> Mapping[str, pytypes.PyType]:
     return pytypes.builtins_registry()
 
 
-def test_group_transaction_members() -> None:
-    gtxn_types = [t.name for t in pytypes.GroupTransactionTypes.values()]
-    gtxn_types.append(pytypes.GroupTransactionBaseType.name)
-    for type_info in _get_type_infos(gtxn_types):
-        unknown = sorted(set(type_info.protocol_members) - PYTHON_TXN_FIELDS.keys())
-        assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
+def _parse_stub(name: str) -> ast.Module:
+    path = STUBS_DIR / f"{name}.pyi"
+    source = path.read_text("utf8")
+    result = ast.parse(source, str(path))
+    return result
+
+
+_TxnProtocolData = Mapping[str, Mapping[str, _ProtocolProperty]]
+
+
+@pytest.fixture(scope="session")
+def transaction_protocols(builtins_registry: Mapping[str, pytypes.PyType]) -> _TxnProtocolData:
+    fast = _parse_stub("_transaction")
+    algopy_names = dict[str, str]()
+    result = dict[str, Mapping[str, _ProtocolProperty]]()
+    for stmt in fast.body:
+        match stmt:
+            case ast.Import(names=[ast.alias(name="typing", asname=None)]):
+                pass
+            case ast.ImportFrom(module=str(module), names=names, level=0):
+                assert names is not None, "this test doesn't currently support import *"
+                module_syms = STUB_SYMTABLES[module]
+                for alias in names:
+                    algopy_names[alias.asname or alias.name] = module_syms[alias.name].fullname
+            case ast.ClassDef() as cdef:
+                (base,) = cdef.bases
+                assert _expand_name(base) == "typing.Protocol"
+                result[cdef.name] = _parse_transaction_protocol_body(
+                    cdef.body, algopy_names, builtins_registry
+                )
+            case other:
+                raise TypeError(
+                    f"test doesn't currently support this node type: {type(other).__name__}"
+                )
+    return result
+
+
+def _parse_transaction_protocol_body(
+    body: Sequence[ast.stmt],
+    algopy_names: Mapping[str, str],
+    registry: Mapping[str, pytypes.PyType],
+) -> dict[str, _ProtocolProperty]:
+    result = dict[str, _ProtocolProperty]()
+    for stmt in body:
+        assert isinstance(stmt, ast.FunctionDef), "expected function def / property"
+        func_def = stmt
+        match func_def.decorator_list, (func_def.args.posonlyargs + func_def.args.args)[1:]:
+            case [[d], []] if _expand_name(d) == "property":
+                is_array = False
+            case [[], [ast.arg(arg="index")]]:
+                is_array = True
+            case _:
+                raise AssertionError("expected a property getter or array index getter")
+        assert func_def.returns is not None, "expected return type annotation"
+        return_name = _expand_name(func_def.returns)
+        if return_name in algopy_names:  # noqa: SIM401
+            return_fullname = algopy_names[return_name]
+        else:
+            return_fullname = f"builtins.{return_name}"
+        result_type = registry[return_fullname]
+        assert func_def.name not in result
+        result[func_def.name] = _ProtocolProperty(
+            name=func_def.name, result_type=result_type, is_array=is_array
+        )
+    return result
+
+
+def _expand_name(expr: ast.expr) -> str:
+    match expr:
+        case ast.Name(id=value):
+            return value
+        case ast.Attribute(value=base, attr=attr):
+            base_name = _expand_name(base)
+            return f"{base_name}.{attr}"
+        case _:
+            raise ValueError(f"cannot expand name for node type {type(expr).__name__}")
+
+
+_ParamData = Mapping[str, Sequence[pytypes.PyType]]
+
+
+@attrs.frozen(kw_only=True)
+class _ITxnFieldSet:
+    name: str
+    init_params: _ParamData
+    set_params: _ParamData
+
+
+@pytest.fixture(scope="session")
+def itxn_builders(builtins_registry: Mapping[str, pytypes.PyType]) -> Sequence[_ITxnFieldSet]:
+    fast = _parse_stub("itxn")
+    algopy_names = dict[str, str]()
+    result = list[_ITxnFieldSet]()
+    for stmt in fast.body:
+        match stmt:
+            case ast.ImportFrom(module=str(module), names=names, level=0) if module.startswith(
+                "algopy"
+            ):
+                assert names is not None, "this test doesn't currently support import *"
+                module_syms = STUB_SYMTABLES[module]
+                for alias in names:
+                    algopy_names[alias.asname or alias.name] = module_syms[alias.name].fullname
+            case (
+                ast.ClassDef(
+                    name=name, bases=[ast.Subscript(value=ast.Name(id="_InnerTransaction"))]
+                ) as cdef
+            ) if name != "ABIApplicationCall":
+                result.append(_parse_itxn_builder_body(cdef, algopy_names, builtins_registry))
+
+    return result
+
+
+def _parse_itxn_builder_body(
+    cdef: ast.ClassDef,
+    algopy_names: Mapping[str, str],
+    registry: Mapping[str, pytypes.PyType],
+) -> _ITxnFieldSet:
+    init_params: _ParamData | None = None
+    set_params: _ParamData | None = None
+    for stmt in cdef.body:
+        match stmt:
+            case ast.FunctionDef(name="__init__"):
+                init_params = _map_param_annotations(stmt.args, algopy_names, registry)
+            case ast.FunctionDef(name="set"):
+                set_params = _map_param_annotations(stmt.args, algopy_names, registry)
+    assert init_params is not None, "missing __init__"
+    assert set_params is not None, "missing set"
+    return _ITxnFieldSet(name=cdef.name, init_params=init_params, set_params=set_params)
+
+
+def _map_param_annotations(
+    params: ast.arguments,
+    algopy_names: Mapping[str, str],
+    registry: Mapping[str, pytypes.PyType],
+) -> Mapping[str, tuple[pytypes.PyType, ...]]:
+    result = {}
+    for arg in params.kwonlyargs:
+        assert arg.annotation is not None
+        arg_types = tuple(
+            _annotation_to_pytype(registry, algopy_names, part)
+            for part in _flatten_union(arg.annotation)
+        )
+        result[arg.arg] = arg_types
+    return result
+
+
+def _annotation_to_pytype(
+    registry: Mapping[str, pytypes.PyType], algopy_names: Mapping[str, str], expr: ast.expr
+) -> pytypes.PyType:
+    match expr:
+        case ast.Name(id=name):
+            if name in algopy_names:  # noqa: SIM401
+                qualified_name = algopy_names[name]
+            else:
+                qualified_name = f"builtins.{name}"
+            return registry[qualified_name]
+        case ast.Subscript(
+            value=ast.Name(id="tuple"),
+            slice=ast.Tuple(elts=[ast.expr() as element_type, ast.Constant(value=maybe_ellipsis)]),
+        ) if maybe_ellipsis is Ellipsis:
+            inner = _annotation_to_pytype(registry, algopy_names, element_type)
+            return pytypes.VariadicTupleType(items=inner)
+        case other:
+            raise TypeError(f"couldn't transform annotation expression: {other}")
+
+
+def _flatten_union(expr: ast.expr) -> list[ast.expr]:
+    if isinstance(expr, ast.BinOp) and isinstance(expr.op, ast.BitOr):
+        return _flatten_union(expr.left) + _flatten_union(expr.right)
+    return [expr]
+
+
+def test_python_txn_fields_complete() -> None:
+    fields = set(TxnField)
+    for py_txn_field in PYTHON_TXN_FIELDS.values():
+        fields.remove(py_txn_field.field)
+    assert not fields, "unmapped field(s)"
+
+
+def test_python_itxn_fields_complete() -> None:
+    fields = {
+        tf
+        for tf in TxnField
+        if tf.is_inner_param and tf not in _INTENTIONALLY_OMITTED_INNER_TXN_FIELDS
+    }
+    for py_itxn_arg in PYTHON_ITXN_ARGUMENTS.values():
+        fields.remove(py_itxn_arg.field)
+    assert not fields, "unmapped field(s)"
+
+
+def test_field_getters(transaction_protocols: _TxnProtocolData) -> None:
+    unseen_fields = dict(PYTHON_TXN_FIELDS)
+    for proto_fields in transaction_protocols.values():
+        for field_name, field_data in proto_fields.items():
+            py_txn_field = unseen_fields.pop(field_name)
+            assert py_txn_field.type == field_data.result_type
+            assert py_txn_field.field.is_array == field_data.is_array
+    assert not unseen_fields, "some fields are not mapped"
 
 
 def test_field_vs_argument_name_consistency() -> None:
@@ -71,106 +248,36 @@ def test_field_vs_argument_name_consistency() -> None:
     assert not bad_itxn_args
 
 
-def test_inner_transaction_field_setters() -> None:
-    unmapped = {
-        tf for tf in TxnField if tf.is_inner_param
-    } - _INTENTIONALLY_OMITTED_INNER_TXN_FIELDS
-    for type_info in _get_type_infos(
-        t.name for t in pytypes.InnerTransactionFieldsetTypes.values()
-    ):
-        init_args: set[str] | None = None
-        for member in ("__init__", "set"):
-            func_def = type_info.names[member].node
-            assert isinstance(func_def, mypy.nodes.FuncDef)
-            arg_names = {a for a in func_def.arg_names if a is not None}
-            arg_names.remove("self")
-            unknown = sorted(arg_names - PYTHON_ITXN_ARGUMENTS.keys())
-            assert not unknown, f"{type_info.fullname}: Unknown TxnField param members: {unknown}"
-            unmapped -= {
-                PYTHON_ITXN_ARGUMENTS[arg_name].field
-                for arg_name in arg_names
-                if arg_name not in unknown
-            }
+def test_inner_transaction_field_setters(itxn_builders: Sequence[_ITxnFieldSet]) -> None:
+    # one for each transaction type plus one "generic" type
+    assert len(itxn_builders) == (len(TransactionType) + 1)
 
-            if init_args is None:
-                init_args = arg_names
+    seen_args = set[str]()
+    for itxn_builder in itxn_builders:
+        assert (
+            itxn_builder.init_params == itxn_builder.set_params
+        ), f"{itxn_builder.name} __init__ vs set field differences"
+        seen_args |= itxn_builder.init_params.keys()
+        for name, arg_types in itxn_builder.init_params.items():
+            txn_field_param = PYTHON_ITXN_ARGUMENTS[name]
+            assert set(txn_field_param.literal_overrides.keys()).issubset(arg_types)
+            txn_field = txn_field_param.field
+            if txn_field.is_array:
+                arg_types = tuple(
+                    vt.items for vt in arg_types if isinstance(vt, pytypes.VariadicTupleType)
+                )
+            if txn_field_param.auto_serialize_bytes:
+                assert arg_types == (pytypes.ObjectType,)
             else:
-                difference = init_args.symmetric_difference(arg_names)
-                assert (
-                    not difference
-                ), f"{type_info.fullname}.{member} field difference: {difference}"
-    assert not unmapped, f"Unmapped inner param fields: {sorted(f.immediate for f in unmapped)}"
-
-
-def test_inner_transaction_members() -> None:
-    for type_info in _get_type_infos(t.name for t in pytypes.InnerTransactionResultTypes.values()):
-        unknown = sorted(set(type_info.protocol_members) - PYTHON_TXN_FIELDS.keys())
-        assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
-
-
-_FAKE_SOURCE_LOCATION = SourceLocation(file=Path(__file__).resolve(), line=1)
-
-
-def test_txn_fields(builtins_registry: Mapping[str, pytypes.PyType]) -> None:
-    # collect all fields that are protocol members
-    txn_types = [t.name for t in pytypes.GroupTransactionTypes.values()]
-    txn_types.append(pytypes.GroupTransactionBaseType.name)
-    txn_types.extend(t.name for t in pytypes.InnerTransactionResultTypes.values())
-    seen_fields = set[str]()
-    invalid_types = ""
-    for type_info in _get_type_infos(txn_types):
-        for member in type_info.protocol_members:
-            seen_fields.add(member)
-            txn_field_data = PYTHON_TXN_FIELDS[member]
-            field_type = FieldType(
-                is_array=txn_field_data.field.is_array, field_type=txn_field_data.type
-            )
-            member_mypy_type = type_info[member].type
-            assert member_mypy_type is not None, f"Expected {type_info}.{member} to have a type"
-            member_type = _member_to_field_type(builtins_registry, member_mypy_type)
-            assert field_type == member_type
-
-    # add fields that are arguments
-    for type_info in _get_type_infos(
-        t.name for t in pytypes.InnerTransactionFieldsetTypes.values()
-    ):
-        for member in ("__init__", "set"):
-            func_def = type_info.names[member].node
-            assert isinstance(func_def, mypy.nodes.FuncDef)
-            func_type = function_pytype(builtins_registry, func_def, _FAKE_SOURCE_LOCATION)
-            for arg in func_type.args:
-                assert arg.name is not None
-                if arg.name == "self":
-                    continue
-                seen_fields.add(arg.name)
-                txn_field_param = PYTHON_ITXN_ARGUMENTS[arg.name]
-                txn_field = txn_field_param.field
-                if isinstance(arg.type, pytypes.UnionType):
-                    arg_types = arg.type.types
-                else:
-                    arg_types = (arg.type,)
-                assert set(txn_field_param.literal_overrides.keys()).issubset(arg_types)
-                if txn_field.is_array:
-                    arg_types = tuple(
-                        vt.items for vt in arg_types if isinstance(vt, pytypes.VariadicTupleType)
-                    )
-                if txn_field_param.auto_serialize_bytes:
-                    assert arg_types == (pytypes.ObjectType,)
-                else:
-                    non_literal_arg_types = {
-                        at for at in arg_types if not isinstance(at, pytypes.LiteralOnlyType)
-                    }
-                    assert non_literal_arg_types == {
-                        txn_field_param.type,
-                        *txn_field_param.additional_types,
-                    }
-
-    # anything missing is an error
-    missing_fields = sorted(PYTHON_TXN_FIELDS.keys() - seen_fields)
-    assert not missing_fields, f"Txn Fields not mapped: {missing_fields}"
-
-    # any invalid_types is an error
-    assert not invalid_types, f"Invalid field types: {invalid_types}"
+                non_literal_arg_types = {
+                    at for at in arg_types if not isinstance(at, pytypes.LiteralOnlyType)
+                }
+                assert non_literal_arg_types == {
+                    txn_field_param.type,
+                    *txn_field_param.additional_types,
+                }
+    # any difference is an error
+    assert seen_args == PYTHON_ITXN_ARGUMENTS.keys()
 
 
 def test_mismatched_langspec_txn_fields() -> None:
@@ -201,16 +308,3 @@ def test_mismatched_langspec_txn_fields() -> None:
 
 def _set_difference(expected: set[str], actual: list[str]) -> list[str]:
     return list(expected.symmetric_difference(actual))
-
-
-def _member_to_field_type(
-    builtins_registry: Mapping[str, pytypes.PyType], typ: mypy.types.Type
-) -> FieldType:
-    is_array = False
-    if isinstance(typ, mypy.types.CallableType):
-        is_array = len(typ.arg_names) > 1
-        typ = typ.ret_type
-
-    field_type = type_to_pytype(builtins_registry, typ, source_location=_FAKE_SOURCE_LOCATION)
-
-    return FieldType(is_array=is_array, field_type=field_type)
