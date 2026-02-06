@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Mapping
 
 import attrs
@@ -99,7 +100,7 @@ class PythonITxnArgument:
         )
 
 
-PYTHON_ITXN_ARGUMENTS = {
+PYTHON_ITXN_ARGUMENTS: typing.Final[Mapping[str, PythonITxnArgument]] = {
     # type(:) TransactionType = ...,
     "type": PythonITxnArgument(
         field=TxnField.TypeEnum,
