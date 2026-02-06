@@ -1,16 +1,16 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@9
-    block@2: // abi_routing_L11
+        goto tmp%0#1 ? block@2 : block@10
+    block@2: // abi_routing_L16
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0)
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "emit_swapped(uint64,uint64)void" => block@4, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@5, * => block@8}
-    block@4: // emit_swapped_route_L12
+        switch tmp%6#0 {method "emit_swapped(uint64,uint64)void" => block@4, method "emit_native_swapped(uint64,uint64)void" => block@5, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@6, * => block@9}
+    block@4: // emit_swapped_route_L17
         let a#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -25,7 +25,27 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log event%0#0)
         (log event%0#0)
         exit 1u
-    block@5: // emit_ufixed_route_L18
+    block@5: // emit_native_swapped_route_L23
+        let tmp%0#4: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#4)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let a#1: uint64 = (btoi tmp%0#4)
+        let tmp%2#1: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#1)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let b#1: uint64 = (btoi tmp%2#1)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob b#1)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob a#1)
+        let aggregate%head%3#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
+        let aggregate%extract%0#0: bytes = ((extract 0 8) aggregate%head%3#0)
+        let aggregate%extract%1#0: bytes = ((extract 8 8) aggregate%head%3#0)
+        let aggregate%head%5#0: bytes = (concat aggregate%extract%0#0 aggregate%extract%1#0)
+        let event%0#0: bytes = (concat method "NativeSwapped(uint64,uint64)" aggregate%head%5#0)
+        (log event%0#0)
+        exit 1u
+    block@6: // emit_ufixed_route_L27
         let a#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
         let eq%0#0: bool = (== len%0#0 32u)
@@ -34,13 +54,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let len%1#0: uint64 = (len b#0)
         let eq%1#0: bool = (== len%1#0 8u)
         (assert eq%1#0) // invalid number of bytes for arc4.ufixed64x2
-        let aggregate%head%3#0: bytes = (concat a#0 b#0)
-        let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" aggregate%head%3#0)
+        let aggregate%head%7#0: bytes = (concat a#0 b#0)
+        let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" aggregate%head%7#0)
         (log event%0#0)
         exit 1u
-    block@8: // after_if_else_L11
+    block@9: // after_if_else_L16
         fail
-    block@9: // __algopy_default_create_L1
+    block@10: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)

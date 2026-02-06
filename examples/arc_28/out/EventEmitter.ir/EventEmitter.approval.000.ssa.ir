@@ -4,33 +4,36 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%0#0
 
 subroutine examples.arc_28.contract.EventEmitter.__puya_arc4_router__() -> bool:
-    block@0: // L11
+    block@0: // L16
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@8
-    block@1: // abi_routing_L11
+        goto tmp%1#0 ? block@1 : block@9
+    block@1: // abi_routing_L16
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0)
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
-        goto tmp%5#0 ? block@2 : block@6
-    block@2: // call_NoOp_L11
+        goto tmp%5#0 ? block@2 : block@7
+    block@2: // call_NoOp_L16
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "emit_swapped(uint64,uint64)void" => block@3, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@4, * => block@5}
-    block@3: // emit_swapped_route_L12
+        switch tmp%6#0 {method "emit_swapped(uint64,uint64)void" => block@3, method "emit_native_swapped(uint64,uint64)void" => block@4, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@5, * => block@6}
+    block@3: // emit_swapped_route_L17
         examples.arc_28.contract.EventEmitter.emit_swapped[routing]()
-        goto block@5
-    block@4: // emit_ufixed_route_L18
+        goto block@6
+    block@4: // emit_native_swapped_route_L23
+        examples.arc_28.contract.EventEmitter.emit_native_swapped[routing]()
+        goto block@6
+    block@5: // emit_ufixed_route_L27
         examples.arc_28.contract.EventEmitter.emit_ufixed[routing]()
-        goto block@5
-    block@5: // switch_case_next_L11
-        goto block@7
-    block@6: // create_NoOp_L11
-        goto block@7
-    block@7: // after_if_else_L11
-        goto block@9
-    block@8: // __algopy_default_create_L1
+        goto block@6
+    block@6: // switch_case_next_L16
+        goto block@8
+    block@7: // create_NoOp_L16
+        goto block@8
+    block@8: // after_if_else_L16
+        goto block@10
+    block@9: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -39,11 +42,11 @@ subroutine examples.arc_28.contract.EventEmitter.__puya_arc4_router__() -> bool:
         (assert tmp%11#0)
         examples.arc_28.contract.EventEmitter.__algopy_default_create()
         exit 1u
-    block@9: // after_if_else_L11
+    block@10: // after_if_else_L16
         exit 0u
 
 subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:
-    block@0: // L12
+    block@0: // L17
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -57,8 +60,25 @@ subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void
         examples.arc_28.contract.EventEmitter.emit_swapped(as_Encoded(uint64)%0#0, as_Encoded(uint64)%1#0)
         exit 1u
 
+subroutine examples.arc_28.contract.EventEmitter.emit_native_swapped[routing]() -> void:
+    block@0: // L23
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let tmp%2#0: bytes = (txna ApplicationArgs 2)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 8u)
+        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
+        let tmp%3#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%1#0)
+        examples.arc_28.contract.EventEmitter.emit_native_swapped(tmp%1#0, tmp%3#0)
+        exit 1u
+
 subroutine examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
-    block@0: // L18
+    block@0: // L27
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)
@@ -73,7 +93,7 @@ subroutine examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
         exit 1u
 
 subroutine examples.arc_28.contract.EventEmitter.emit_swapped(a: Encoded(uint64), b: Encoded(uint64)) -> void:
-    block@0: // L12
+    block@0: // L17
         let tmp%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(b#0, a#0)
         let event%0#0: bytes = (concat method "Swapped(uint64,uint64)" tmp%0#0)
         (log event%0#0)
@@ -85,8 +105,22 @@ subroutine examples.arc_28.contract.EventEmitter.emit_swapped(a: Encoded(uint64)
         (log event%2#0)
         return 
 
+subroutine examples.arc_28.contract.EventEmitter.emit_native_swapped(a: uint64, b: uint64) -> void:
+    block@0: // L23
+        let tmp%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(b#0, a#0)
+        let tuple_item%0#0: Encoded(uint64) = extract_value(tmp%0#0, 0)
+        let tmp%1#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%2#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#0)
+        let tuple_item%1#0: Encoded(uint64) = extract_value(tmp%0#0, 1)
+        let tmp%3#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
+        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%3#0)
+        let tmp%5#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%2#0, tmp%4#0)
+        let event%0#0: bytes = (concat method "NativeSwapped(uint64,uint64)" tmp%5#0)
+        (log event%0#0)
+        return 
+
 subroutine examples.arc_28.contract.EventEmitter.emit_ufixed(a: Encoded(uint256), b: Encoded(uint64)) -> void:
-    block@0: // L18
+    block@0: // L27
         let tmp%0#0: Encoded(uint256,uint64) = bytes_encode<(uint256,uint64)>(a#0, b#0)
         let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" tmp%0#0)
         (log event%0#0)

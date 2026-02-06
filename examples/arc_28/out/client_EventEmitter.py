@@ -15,6 +15,13 @@ class EventEmitter(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def emit_native_swapped(
+        self,
+        a: algopy.arc4.UIntN[typing.Literal[64]],
+        b: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def emit_ufixed(
         self,
         a: algopy.arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]],
