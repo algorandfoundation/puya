@@ -1,5 +1,6 @@
 import typing
-from algopy import Bytes, BytesBacked, String, UInt64
+
+from algopy import Bytes, String, UInt64
 
 @typing.final
 class OpUpFeeSource(UInt64):
@@ -26,6 +27,6 @@ def log(*args: object, sep: String | str | Bytes | bytes = "") -> None:
 
 def size_of(type_or_expression: type | object, /) -> UInt64:
     """
-    Returns the number of bytes required to store the provided type object
-    or the type of provided expression
+    Returns the number of bytes required to store a statically sized type,
+    given as a type object or an expression of that type.
     """
