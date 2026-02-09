@@ -141,7 +141,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
         if name == "is_opted_in":
             return _IsOptedIn(self.resolve(), location)
         elif name == "validate":
-            return ValidateEncoding(self.resolve(), pytypes.ARC4AddressType, location)
+            return ValidateEncoding(self.resolve(), self.pytype, location)
         return super().member_access(name, location)
 
     @typing.override

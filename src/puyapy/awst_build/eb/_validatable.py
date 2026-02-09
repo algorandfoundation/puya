@@ -5,9 +5,7 @@ from collections.abc import Sequence
 import typing_extensions
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import ARC4FromBytes, Expression
-from puya.errors import InternalError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
@@ -47,8 +45,6 @@ class ValidateEncoding(FunctionBuilder):
     ) -> InstanceBuilder:
         expect.no_args(args, location)
         wtype = self.validate_type.checked_wtype(location)
-        if not isinstance(wtype, wtypes.ARC4Type):
-            raise InternalError("can only validate ARC-4 encoded types", location=location)
         from_bytes = ARC4FromBytes(
             value=self.expr,
             validate=True,

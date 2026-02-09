@@ -32,7 +32,6 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
-from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import (
@@ -376,13 +375,7 @@ class FixedBytesExpressionBuilder(
             case "length":
                 return self.length(location)
             case "validate":
-                arc4_pytype = pytype_to_arc4_pytype(
-                    self.pytype,
-                    on_error="fail",
-                    encode_resource_types=True,
-                    source_location=location,
-                )
-                return ValidateEncoding(self.resolve(), arc4_pytype, location)
+                return ValidateEncoding(self.resolve(), self.pytype, location)
             case _:
                 # Delegate to BytesBackedInstanceExpressionBuilder for .bytes property
                 return super().member_access(name, location)
