@@ -1128,12 +1128,20 @@ class FunctionIRBuilder(
                 msg_value = self.visit_and_materialise_single(expr.error_message)
             case _:
                 msg_value = self.visit_and_materialise_single(expr.error_message)
-                logger.warning("error message unknowable at compile time is incompatible with generated clients. It will be logged instead. Is this the intent?",
-                               location=expr.error_message.source_location)
+                logger.warning(
+                    "error message unknowable at compile time is incompatible "
+                    "with generated clients. It will be logged instead. "
+                    "Is this the intent?",
+                    location=expr.error_message.source_location,
+                )
 
         if msg_value:
-            # TODO: can we check here for logicsig?
-            # how? what happens with "free" subroutines?
+            # Logic Signatures can't use log ops.
+            if isinstance(self.context.root, awst_nodes.LogicSignature):
+                logger.error(
+                    "can't log an error string, logging is not supported in logicsigs",
+                    location=expr.source_location,
+                )
             false, true = self.context.block_builder.mkblocks(
                 "logged_error_handling", "after_assert", source_location=loc
             )

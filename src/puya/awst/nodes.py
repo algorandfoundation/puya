@@ -334,7 +334,9 @@ class AssertExpression(Expression):
 
     condition: Expression | None
     """The condition (if any) to be checked"""
-    error_message: str | Expression | None = attrs.field(validator=expression_has_wtype(wtypes.string_wtype))
+    error_message: str | Expression | None = attrs.field(
+        validator=expression_has_wtype(wtypes.string_wtype)
+    )
     """An error message to be associated with the assertion failure"""
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
     explicit: bool = True
