@@ -153,7 +153,7 @@ def test_fixed_bytes_ops(deployer_o: Deployer) -> None:
 
     with pytest.raises(
         au.LogicError,
-        match=r"invalid number of bytes for arc4\.static_array<arc4\.uint8, 3>\t\t<-- Error",
+        match=r"invalid number of bytes for bytes\[3\]\t\t<-- Error",
     ):
         client.send.bare.call(
             au.AppClientBareCallParams(args=[b"validate_fixed_bytes_3", b"1234"])
@@ -161,6 +161,6 @@ def test_fixed_bytes_ops(deployer_o: Deployer) -> None:
 
     with pytest.raises(
         au.LogicError,
-        match=r"invalid number of bytes for arc4\.static_array<arc4\.uint8, 3>\t\t<-- Error",
+        match=r"invalid number of bytes for bytes\[3\]\t\t<-- Error",
     ):
         client.send.bare.call(au.AppClientBareCallParams(args=[b"validate_fixed_bytes_3", b"12"]))
