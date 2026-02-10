@@ -187,9 +187,11 @@ class SubroutineCollector(visitor.IRTraverser):
     def collect(cls, program: models.Program) -> StableSet[models.Subroutine]:
         collector = cls()
         collector.visit_subroutine(program.main)
-        return collector.subroutines | [
-            s for s in program.subroutines if s.id in collector.referenced_libs
-        ]
+        # also include any referenced library functions
+        referenced_subs = [s for s in program.subroutines if s.id in collector.referenced_libs]
+        for referenced_sub in referenced_subs:
+            collector.visit_subroutine(referenced_sub)
+        return collector.subroutines
 
     def visit_subroutine(self, subroutine: models.Subroutine) -> None:
         if subroutine not in self.subroutines:
@@ -202,7 +204,6 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.dynamic_array_replace_dynamic_element,
             PuyaLibIR.static_array_replace_byte_length_head,
             PuyaLibIR.static_array_replace_dynamic_element,
-            PuyaLibIR.recalculate_head_for_elements_with_byte_length_head,
         )
 
     def visit_array_pop(self, _: models.ArrayPop) -> None:
