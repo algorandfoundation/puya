@@ -599,8 +599,8 @@ class ARC4Encode(Expression):
     """
 
     value: Expression
-    wtype: wtypes.ARC4Type | wtypes.BytesWType = attrs.field()
-    """Encoding is derived from this type when an ARC4Type, from value.wtype when bytes_wtype."""
+    wtype: wtypes.ARC4Type | wtypes.BytesWType = attrs.field(default=wtypes.bytes_wtype)
+    """When it is `bytes_wtype`, encoding is derived from `value` expression"""
     error_message: str | None = None
     """Custom error message for if encoding fails"""
 
@@ -609,11 +609,16 @@ class ARC4Encode(Expression):
 
     @wtype.validator
     def _wtype_validator(self, _attr: object, wtype: WType) -> None:
-        if not isinstance(wtype, wtypes.ARC4Type) and wtype != wtypes.bytes_wtype:
-            raise InternalError(
-                f"ARC4Encode.wtype: expected bytes_wtype or ARC4Type, got {wtype}",
-                self.source_location,
-            )
+        match wtype:
+            case wtypes.bytes_wtype:
+                pass
+            case wtypes.ARC4Type():
+                pass
+            case _:
+                raise InternalError(
+                    f"ARC4Encode.wtype: expected bytes_wtype or ARC4Type, got {wtype}",
+                    self.source_location,
+                )
 
 
 @attrs.frozen
