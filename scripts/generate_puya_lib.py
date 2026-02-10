@@ -35,7 +35,11 @@ def main() -> None:
         "",
         "@enum.unique",
         "class PuyaLibIR(enum.StrEnum):",
-        *(f'    {name} = "{full_name}"' for name, full_name in lib_name_ids.items()),
+        *(
+            f'    {name} = "{full_name}"'
+            for name, full_name in lib_name_ids.items()
+            if not name.startswith("_")  # only show public lib functions
+        ),
         "",
     ]
     enum_output_path.write_text("\n".join(lib_enum), encoding="utf8")

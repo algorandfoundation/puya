@@ -22,4 +22,3 @@ class PuyaLibIR(enum.StrEnum):
     dynamic_array_replace_dynamic_element = "_puya_lib.arc4.dynamic_array_replace_dynamic_element"
     static_array_replace_dynamic_element = "_puya_lib.arc4.static_array_replace_dynamic_element"
     static_array_replace_byte_length_head = "_puya_lib.arc4.static_array_replace_byte_length_head"
-    recalculate_head_for_elements_with_byte_length_head = "_puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head"

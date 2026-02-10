@@ -90,7 +90,7 @@ def dynamic_array_pop_byte_length_head(array: Bytes) -> tuple[Bytes, Bytes]:
 
     updated = extract(
         itob(length_minus_1), UINT16_OFFSET, UINT16_SIZE
-    ) + recalculate_head_for_elements_with_byte_length_head(
+    ) + _recalculate_head_for_elements_with_byte_length_head(
         array_head_and_tail=head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
     )
 
@@ -212,7 +212,7 @@ def dynamic_array_concat_byte_length_head(
 
     return extract(
         itob(new_length), UINT16_OFFSET, UINT16_SIZE
-    ) + recalculate_head_for_elements_with_byte_length_head(
+    ) + _recalculate_head_for_elements_with_byte_length_head(
         array_head_and_tail=(
             substring(array, 2, header_end)
             + bzero(new_items_count * UINT16_SIZE)
@@ -335,7 +335,7 @@ def static_array_replace_byte_length_head(
     offset_for_index = extract_uint16(array_head_and_tail, index * UINT16_SIZE)
     old_item_length = extract_uint16(array_head_and_tail, offset_for_index)
     old_item_end = offset_for_index + old_item_length + UINT16_SIZE
-    return recalculate_head_for_elements_with_byte_length_head(
+    return _recalculate_head_for_elements_with_byte_length_head(
         array_head_and_tail=substring(array_head_and_tail, 0, offset_for_index)
         + new_item
         + substring(array_head_and_tail, old_item_end, array_head_and_tail.length),
@@ -346,7 +346,7 @@ def static_array_replace_byte_length_head(
 
 @__pure
 @subroutine
-def recalculate_head_for_elements_with_byte_length_head(
+def _recalculate_head_for_elements_with_byte_length_head(
     array_head_and_tail: Bytes, length: UInt64, start_at_index: UInt64
 ) -> Bytes:
     """
