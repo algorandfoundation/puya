@@ -151,16 +151,16 @@ class FunctionIRBuilder(
 
         value_ir_type = types.wtype_to_ir_type(expr.value.wtype, loc, allow_tuple=True)
         if expr.wtype == wtypes.bytes_wtype:
-            encoded_ir_type = wtype_to_encoded_ir_type(expr.value.wtype, loc)
+            encoding = wtype_to_encoding(expr.value.wtype, loc)
         else:
-            encoded_ir_type = wtype_to_encoded_ir_type(expr.wtype, loc)
+            encoding = wtype_to_encoding(expr.wtype, loc)
 
         values = self.visit_and_materialise(expr.value)
 
         return ir.BytesEncode.maybe(
             values=values,
             values_type=value_ir_type,
-            encoding=encoded_ir_type.encoding,
+            encoding=encoding,
             error_message_override=expr.error_message,
             source_location=loc,
         )
