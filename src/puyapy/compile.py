@@ -18,7 +18,7 @@ from puyapy.awst_build.arc4_client_gen import write_arc4_client
 from puyapy.awst_build.main import transform_ast
 from puyapy.client_gen import parse_arc56
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import ParseResult, SourceDiscoveryMechanism, parse_python
+from puyapy.parse import ParseResult, SourceDiscoveryMechanism, fast_to_awst, parse_python
 
 logger = log.get_logger(__name__)
 
@@ -34,8 +34,12 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
         logger.info(f"using puyapy version {version('puyapy')}")
         logger.debug(puyapy_options)
         try:
-            parse_result = parse_python(puyapy_options.paths, package_search_paths="infer")
-            log_ctx.sources_by_path = parse_result.sources_by_path
+            module_data = parse_python(puyapy_options.paths, package_search_paths="infer")
+            log_ctx.sources_by_path = {
+                md.path: md.text.splitlines() for md in module_data.values()
+            }
+            log_ctx.exit_if_errors()
+            parse_result = fast_to_awst(module_data)
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result, puyapy_options)
         except mypy.errors.CompileError as err:

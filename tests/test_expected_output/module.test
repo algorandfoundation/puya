@@ -36,13 +36,8 @@ import typing
 class NotAllowed(typing.TypedDict): ## E: TypedDict classes are not supported
     an_int: UInt64
 
-## case: no_collections_namedtuple
-import collections
-
-from algopy import UInt64
-
-NotAllowed = collections.namedtuple("NotAllowed", ["x", "y"]) ## E: Module has no attribute "namedtuple"  [attr-defined] \
-                                                              ## E: unsupported statement type at module level
+## case: no_collections
+import collections ## E: imported module "collections" comes from an untyped package, or a package with separate type stubs
 
 
 ## case: empty_namedtuple
@@ -285,3 +280,47 @@ from algopy import Contract
 class IForgotToImplementClearState(Contract): ## W: Class implicitly_abstract_warning.IForgotToImplementClearState is implicitly abstract
     def approval_program(self) -> bool:
         return True
+
+
+## case: import_star_twice_removed
+
+## path: pkg1/__init__.py
+
+## path: pkg1/a.py
+from pkg1.b import *
+
+FOO2 = FOO
+
+## path: pkg1/b.py
+from pkg1.c import *
+
+## path: pkg1/c.py
+FOO = "bar"
+
+
+## case: builtins_call
+
+x = (1, 2) ## E: unsupported statement type at module level
+
+B = bytes.fromhex('00') ## E: unsupported statement type at module level
+
+
+## case: no_conditional_import_shadowing
+
+## path: pkg2/one.py
+ONE = 1
+
+## path: pkg2/__init__.py
+
+
+MAYBE = True
+
+if MAYBE:
+    one = 2
+
+## path: contract.py
+from pkg2 import one
+from pkg2.one import ONE
+
+if one == 2:
+    pass

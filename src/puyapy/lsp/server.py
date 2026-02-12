@@ -15,7 +15,7 @@ from pygls.lsp.server import LanguageServer
 from puya import log
 from puya.utils import StableSet
 from puyapy.lsp.analyse import URI, CodeAnalyser, DocumentAnalysis
-from puyapy.parse import get_sys_path
+from puyapy.package_path import get_sys_path
 
 logger = log.get_logger(__name__)
 

@@ -72,11 +72,8 @@ def _stabilise_logs(stdout: str) -> list[str]:
         if not line.startswith(
             (
                 "info: using puyapy version",
-                "debug: Skipping algopy stub ",
-                "debug: Skipping typeshed stub ",
-                "debug: Skipping stdlib stub ",
-                "debug: Building AWST for ",
-                "debug: Discovered user module ",
+                "debug: building AWST for ",
+                "debug: discovered user module ",
                 # ignore platform specific paths
                 "info: using python search path: ",
                 "debug: found algopy: ",
@@ -84,6 +81,8 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 "debug: no active python virtual env",
                 "debug: attempting to locate 'python",
                 "debug: using python search path from ",
+                # dev notes
+                "info: algopy-stubs not installed in typeshed, assuming puyapy development mode",
             )
         )
     ]

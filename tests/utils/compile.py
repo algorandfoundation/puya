@@ -22,17 +22,14 @@ from puya.utils import pushd
 from puyapy.awst_build.main import transform_ast
 from puyapy.compile import determine_out_dir, output_awst, write_arc4_clients
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import ParseResult, SourceDiscoveryMechanism, parse_python
+from puyapy.parse import ParseResult, SourceDiscoveryMechanism, fast_to_awst, parse_python
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import SUFFIX_O0, SUFFIX_O1, SUFFIX_O2
 
 _UNSTABLE_LOG_PREFIXES = {
     LogLevel.debug: (
-        "Building AWST for ",
-        "Skipping algopy stub ",
-        "Skipping typeshed stub ",
-        "Skipping stdlib stub ",
-        "Discovered user module ",
+        "building AWST for ",
+        "discovered user module ",
         # ignore platform specific paths
         "found algopy: ",
         "found active python virtual env: ",
@@ -43,6 +40,8 @@ _UNSTABLE_LOG_PREFIXES = {
     LogLevel.info: (
         # ignore platform specific paths
         "using python search path: ",
+        # dev notes
+        "algopy-stubs not installed in typeshed, assuming puyapy development mode",
     ),
 }
 
@@ -70,7 +69,8 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     with pushd(root_dir), logging_context() as log_ctx:
         # explicitly exclude out dirs as they can contain generated clients that get deleted
         out_dir_names = [f"out{suffix}" for suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2)]
-        parse_result = parse_python([root_dir], excluded_subdir_names=out_dir_names)
+        module_data = parse_python([root_dir], excluded_subdir_names=out_dir_names)
+        parse_result = fast_to_awst(module_data)
         awst, compilation_set = transform_ast(parse_result, PuyaPyOptions())
     return _CompileCache(parse_result, awst, compilation_set, log_ctx.logs)
 

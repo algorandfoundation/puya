@@ -21,7 +21,7 @@ from puya.utils import StableSet, coalesce, get_cwd, set_cwd
 from puyapy import code_fixes
 from puyapy.awst_build.main import transform_ast
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import SourceModule, parse_python
+from puyapy.parse import SourceModule, fast_to_awst, parse_python
 
 logger = get_logger(__name__)
 
@@ -87,11 +87,12 @@ class CodeAnalyser:
         )
         try:
             with logging_context() as parse_ctx:
-                parse_result = parse_python(
+                module_data = parse_python(
                     puyapy_options.paths,
                     package_search_paths=self._package_search_paths,
                     file_contents=self._get_file_contents(),
                 )
+                parse_result = fast_to_awst(module_data)
         except Exception as ex:
             # TODO: how should we recover if mypy has critical errors
             logger.debug(f"error during parsing: {ex}")
@@ -200,12 +201,12 @@ class CodeAnalyser:
         # TODO: how do we discover dependencies before they are opened in the workspace
         path_dependencies = defaultdict[Path, list[Path]](list)
         for module_id, module in modules.items():
-            if module.path.suffix.lower() != ".py":
+            if module.path.suffix != ".py":
                 continue
             non_stub_dependencies = [
                 dep.path
                 for dep_id in sorted(module.dependencies)
-                if (dep := modules.get(dep_id)) is not None and dep.path.suffix.lower() == ".py"
+                if (dep := modules.get(dep_id)) is not None and dep.path.suffix == ".py"
             ]
             if non_stub_dependencies:
                 logger.debug(
@@ -263,7 +264,7 @@ class _AlgopySymbolResolver:
     @classmethod
     def create(cls, module: SourceModule) -> typing.Self:
         module_symbols = dict[str, str]()
-        for name, sym in module.node.names.items():
+        for name, sym in module.mypy_module.names.items():
             fullname = sym.fullname or ""
             root_module, _, _ = fullname.partition(".")
             if root_module == "algopy":
@@ -272,7 +273,7 @@ class _AlgopySymbolResolver:
         import_block_end = max(
             (
                 coalesce(i.end_line, i.line) + 1
-                for i in module.node.imports
+                for i in module.mypy_module.imports
                 if i.is_top_level and not i.is_mypy_only and not i.is_unreachable
             ),
             default=1,

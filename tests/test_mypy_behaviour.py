@@ -11,7 +11,7 @@ import mypy.nodes
 import mypy.types
 import pytest
 
-from puyapy.parse import _get_mypy_options
+from puyapy.parse_mypy import _get_mypy_options
 
 
 def get_assignment_var_named(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.nodes.Var:
