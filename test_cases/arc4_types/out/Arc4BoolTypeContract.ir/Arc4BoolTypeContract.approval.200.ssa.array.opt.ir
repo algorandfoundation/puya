@@ -45,48 +45,52 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let dynamic_boolean_array#0: Encoded(len+bool1[]) = 0x0003a0
         let tmp%29#0: bool = 1u
         let dynamic_boolean_array#1: Encoded(len+bool1[]) = test_cases.arc4_types.bool.get_arr()
-        let aggregate%head%3#0: bytes = 0x80
-        let aggregate%head%4#0: bytes = 0x8000
-        let aggregate%head%5#0: bytes = 0x800080
-        let aggregate%head%6#0: bytes = 0x80008000
-        let new_items_bytes#0: bytes = 0x8000800080
+        let aggregate%get_bit%14#0: bool = 0u
+        let aggregate%set_bit%12#0: Encoded(bool8) = 0x80
+        let aggregate%get_bit%15#0: bool = 1u
+        let aggregate%set_bit%13#0: Encoded(bool8) = 0xa0
+        let aggregate%get_bit%16#0: bool = 0u
+        let aggregate%set_bit%14#0: Encoded(bool8) = 0xa0
+        let aggregate%get_bit%17#0: bool = 1u
+        let aggregate%set_bit%15#0: Encoded(bool8) = 0xa8
+        let new_items_bytes#0: bytes = 0xa8
         let array_length#0: uint64 = (extract_uint16 dynamic_boolean_array#1 0u)
         let new_array_length#0: uint64 = (+ array_length#0 5u)
-        let tmp%2#2: bytes = (itob new_array_length#0)
-        let new_array_length_b#0: bytes = ((extract 6 0) tmp%2#2)
+        let tmp%2#1: bytes = (itob new_array_length#0)
+        let new_array_length_b#0: bytes = ((extract 6 0) tmp%2#1)
         let result#0: bytes = ((replace2 0) dynamic_boolean_array#1 new_array_length_b#0)
-        let tmp%5#2: uint64 = (+ array_length#0 7u)
-        let current_bytes#0: uint64 = (/ tmp%5#2 8u)
-        let tmp%7#2: uint64 = (+ new_array_length#0 7u)
-        let required_bytes#0: uint64 = (/ tmp%7#2 8u)
-        let tmp%9#2: bool = (< current_bytes#0 required_bytes#0)
-        goto tmp%9#2 ? block@4 : block@5
-    block@4: // if_body_L181
-        let tmp%10#1: uint64 = (- required_bytes#0 current_bytes#0)
-        let tmp%11#1: bytes = (bzero tmp%10#1)
-        let result#1: bytes = (concat result#0 tmp%11#1)
-        goto block@5
-    block@5: // after_if_else_L180
-        let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@4)
+        let tmp%5#0: uint64 = (+ array_length#0 7u)
+        let current_bytes#0: uint64 = (/ tmp%5#0 8u)
+        let tmp%7#0: uint64 = (+ new_array_length#0 7u)
+        let required_bytes#0: uint64 = (/ tmp%7#0 8u)
+        let tmp%9#0: bool = (< current_bytes#0 required_bytes#0)
+        goto tmp%9#0 ? block@2 : block@3
+    block@2: // if_body_L218
+        let tmp%10#0: uint64 = (- required_bytes#0 current_bytes#0)
+        let tmp%11#0: bytes = (bzero tmp%10#0)
+        let result#1: bytes = (concat result#0 tmp%11#0)
+        goto block@3
+    block@3: // after_if_else_L217
+        let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@2)
         let read_offset#0: uint64 = 0u
         let write_offset#0: uint64 = (+ array_length#0 16u)
         let write_end#0: uint64 = (+ write_offset#0 5u)
-        goto block@6
-    block@6: // while_top_L186
-        let write_offset#1: uint64 = φ(write_offset#0 <- block@5, write_offset#2 <- block@7)
-        let result#2: bytes = φ(result#4 <- block@5, result#3 <- block@7)
-        let read_offset#1: uint64 = φ(read_offset#0 <- block@5, read_offset#2 <- block@7)
-        let tmp%15#1: bool = (< write_offset#1 write_end#0)
-        goto tmp%15#1 ? block@7 : block@8
-    block@7: // while_body_L187
-        let tmp%16#1: bool = (getbit 0x8000800080 read_offset#1)
-        let result#3: bytes = (setbit result#2 write_offset#1 tmp%16#1)
+        goto block@4
+    block@4: // while_top_L223
+        let write_offset#1: uint64 = φ(write_offset#0 <- block@3, write_offset#2 <- block@5)
+        let result#2: bytes = φ(result#4 <- block@3, result#3 <- block@5)
+        let read_offset#1: uint64 = φ(read_offset#0 <- block@3, read_offset#2 <- block@5)
+        let tmp%15#0: bool = (< write_offset#1 write_end#0)
+        goto tmp%15#0 ? block@5 : block@6
+    block@5: // while_body_L224
+        let tmp%16#0: bool = (getbit 0xa8 read_offset#1)
+        let result#3: bytes = (setbit result#2 write_offset#1 tmp%16#0)
         let write_offset#2: uint64 = (+ write_offset#1 1u)
-        let read_offset#2: uint64 = (+ read_offset#1 8u)
-        goto block@6
-    block@8: // after_while_L186
-        let tmp%37#0: bool = (== result#2 0x0005a8)
-        (assert tmp%37#0)
+        let read_offset#2: uint64 = (+ read_offset#1 1u)
+        goto block@4
+    block@6: // after_while_L223
+        let tmp%38#0: bool = (== result#2 0x0005a8)
+        (assert tmp%38#0)
         return 1u
 
 subroutine test_cases.arc4_types.bool.get_arr() -> Encoded(len+bool1[]):

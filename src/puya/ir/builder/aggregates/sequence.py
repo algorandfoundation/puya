@@ -151,11 +151,9 @@ class _ArrayBuilderImpl(_SequenceBuilder, abc.ABC):
             logger.error("index access is out of bounds", location=self.loc)
 
         if self.array_encoding.length_header:
-            invoke = invoke_puya_lib_subroutine(
-                self.context,
-                full_name=PuyaLibIR.dynamic_assert_index,
-                args=[array, index],
-                source_location=self.loc,
+            invoke = self.factory.invoke(
+                PuyaLibIR.dynamic_assert_index,
+                [array, index],
             )
             self.context.add_op(invoke)
         else:
@@ -262,11 +260,9 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
             method = PuyaLibIR.static_array_read_dynamic_element
             length = self._length(array)
             args = [array, index, length]
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=method,
-            args=args,
-            source_location=self.loc,
+        invoke = self.factory.invoke(
+            method,
+            args,
         )
         return self.factory.materialise_single(invoke, "item")
 
@@ -308,12 +304,7 @@ class _ByteLengthDynamicElementArrayBuilder(_ArrayBuilderImpl):
             method = PuyaLibIR.dynamic_array_read_byte_length_element
         else:
             method = PuyaLibIR.static_array_read_byte_length_element
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=method,
-            args=[array, index],
-            source_location=self.loc,
-        )
+        invoke = self.factory.invoke(method, [array, index])
         return self.factory.materialise_single(invoke, "item")
 
     @typing.override
@@ -328,12 +319,7 @@ class _ByteLengthDynamicElementArrayBuilder(_ArrayBuilderImpl):
             assert self.array_encoding.size is not None, "expected static array"
             args = [array, value, index, self.array_encoding.size]
 
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=target,
-            args=args,
-            source_location=self.loc,
-        )
+        invoke = self.factory.invoke(target, args)
         return self.factory.materialise_single(invoke, "updated_array")
 
 

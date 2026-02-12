@@ -48,6 +48,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = undefined
         return tmp%0#0
 
+subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
+    block@0: // L414
+        let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
+        let length#0: uint64 = tmp%0#0
+        let tmp%1#0: bool = (< index#0 length#0)
+        (assert tmp%1#0) // index out of bounds
+        return 
+
 subroutine test_cases.regression_tests.leftover_branch.hmm() -> bool:
     block@0: // L53
         return 0u
@@ -221,11 +229,9 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L39
         let i#0: uint64 = value_internal%0#0
+        _puya_lib.arc4.dynamic_assert_index(nested_list#0, i#0)
         let aggregate%total_length%0#0: uint64 = (len nested_list#0)
         let aggregate%array_head_and_tail%0#0: bytes = (substring3 nested_list#0 2u aggregate%total_length%0#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 nested_list#0 0u) // on error: invalid array length header
-        let aggregate%lt%0#0: bool = (< i#0 aggregate%array_length%1#0)
-        (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%item_offset_offset%0#0: uint64 = (* i#0 2u)
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset_offset%0#0)
         let aggregate%item_length%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0)
@@ -234,12 +240,12 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let aggregate%item%0#0: bytes = (extract3 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0)
         let array_item%0#0: Encoded(len+uint64[]) = aggregate%item%0#0
         let inner_list#0: Encoded(len+uint64[]) = array_item%0#0
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 inner_list#0 0u) // on error: invalid array length header
-        let tmp%1#0: uint64 = aggregate%array_length%2#0
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 inner_list#0 0u) // on error: invalid array length header
+        let tmp%1#0: uint64 = aggregate%array_length%1#0
         let tmp%2#0: uint64 = (- tmp%1#0 1u)
         let last_inner_list_index#0: uint64 = tmp%2#0
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 inner_list#0 0u) // on error: invalid array length header
-        let tmp%3#0: uint64 = aggregate%array_length%3#0
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 inner_list#0 0u) // on error: invalid array length header
+        let tmp%3#0: uint64 = aggregate%array_length%2#0
         (assert 1u) // Step cannot be zero
         let value_internal%1#0: uint64 = 0u
         goto block@3
