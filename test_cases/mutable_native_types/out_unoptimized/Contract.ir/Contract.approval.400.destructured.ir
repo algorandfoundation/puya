@@ -86,17 +86,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         return tmp%1#0
 
 subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
-    block@0: // L53
+    block@0: // L52
         let b#0: bytes = array#0
         let n#0: uint64 = fixed_byte_size#0
         goto block@1
-    block@1: // L46
+    block@1: // L45
         let tmp%0#1: uint64 = (len b#0)
         let tmp%1#0: uint64 = (- tmp%0#1 n#0)
         let tmp%2#1: bytes = (substring3 b#0 0u tmp%1#0)
         let tmp%0#0: bytes = tmp%2#1
         goto block@2
-    block@2: // after_inlined__puya_lib.arc4.r_trim_L53
+    block@2: // after_inlined__puya_lib.arc4.r_trim_L52
         let result#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (extract_uint16 result#0 0u)
         let array_length#0: uint64 = tmp%1#0
@@ -764,7 +764,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let slot_contents%0#0: Encoded((uint64,uint64)[]) = load(arr4#0)
         let total_length%0#0: uint64 = (len arr#0)
         let extract_to_end%0#0: bytes = (substring3 arr#0 2u total_length%0#0)
-        let aggregate%concat%0#0: Encoded((uint64,uint64)[]) = (concat slot_contents%0#0 extract_to_end%0#0) // on error: max array length exceeded
+        let aggregate%concat%0#0: bytes = (concat slot_contents%0#0 extract_to_end%0#0)
         let tmp%5#0: bytes = aggregate%concat%0#0
         store(arr4#0, tmp%5#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 arr#0 0u) // on error: invalid array length header
@@ -808,7 +808,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let array#0: bytes = arr2#0
         let new_items_bytes#0: bytes = tmp%19#0
         goto block@11
-    block@11: // L133
+    block@11: // L170
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#1: uint64 = (+ array_length#0 1u)
@@ -819,10 +819,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let tmp%4#1: bytes = ((replace2 0) array#0 new_len_u16#0)
         let result#0: bytes = tmp%4#1
         let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
+        let tmp%20#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
         goto block@12
     block@12: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L197
-        let tmp%20#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%0#0
         let arr2#0: Encoded(len+(uint64,uint64)[]) = tmp%20#0
         let aggregate%array_length%3#0: uint64 = (extract_uint16 arr2#0 0u) // on error: invalid array length header
         let tmp%21#0: uint64 = aggregate%array_length%3#0
@@ -841,15 +840,15 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%head%3#0: bytes = (concat aggregate%len_u16%0#0 array_item%0#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%1#0: Encoded(len+(uint64,uint64)[]) = aggregate%head%3#0
-        let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%1#0
+        let aggregate%as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = aggregate%head%3#0
+        let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%0#0
         let arr7#0: Encoded(len+(uint64,uint64)[]) = encoded_array%1#0
         let tmp%27#0: bool = (== arr2#0 arr7#0)
         (assert tmp%27#0) // expected arrays to be the same
         let aggregate%as_bytes%1#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%2#0: Encoded(len+(uint64,uint64)[]) = aggregate%len_u16%1#0
-        let encoded_array%2#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%2#0
+        let aggregate%as_Encoded(len+(uint64,uint64)[])%1#0: Encoded(len+(uint64,uint64)[]) = aggregate%len_u16%1#0
+        let encoded_array%2#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%1#0
         let arr8#0: Encoded(len+(uint64,uint64)[]) = encoded_array%2#0
         let total_length%1#0: uint64 = (len arr2#0)
         let extract_to_end%1#0: bytes = (substring3 arr2#0 2u total_length%1#0)
@@ -859,7 +858,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let new_items_bytes#0: bytes = extract_to_end%1#0
         let new_items_count#0: uint64 = tmp%28#0
         goto block@13
-    block@13: // L133
+    block@13: // L170
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#1: uint64 = (+ array_length#0 new_items_count#0)
@@ -870,22 +869,21 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let tmp%4#1: bytes = ((replace2 0) array#0 new_len_u16#0)
         let result#0: bytes = tmp%4#1
         let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%3#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
+        let tmp%29#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
         goto block@14
     block@14: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L197
-        let tmp%29#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%3#0
         let arr8#0: Encoded(len+(uint64,uint64)[]) = tmp%29#0
         let tmp%30#0: bool = (== arr2#0 arr8#0)
         (assert tmp%30#0) // expected arrays to be the same
         let aggregate%as_bytes%2#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%4#0: Encoded(len+(uint64,uint64)[]) = aggregate%len_u16%2#0
-        let encoded_array%3#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%4#0
+        let aggregate%as_Encoded(len+(uint64,uint64)[])%2#0: Encoded(len+(uint64,uint64)[]) = aggregate%len_u16%2#0
+        let encoded_array%3#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%2#0
         let arr2#0: Encoded(len+(uint64,uint64)[]) = encoded_array%3#0
         let aggregate%as_bytes%3#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%5#0: Encoded(len+(uint64,uint64)[]) = aggregate%len_u16%3#0
-        let encoded_array%4#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%5#0
+        let aggregate%as_Encoded(len+(uint64,uint64)[])%3#0: Encoded(len+(uint64,uint64)[]) = aggregate%len_u16%3#0
+        let encoded_array%4#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%3#0
         let tmp%31#0: bool = (!= arr2#0 encoded_array%4#0)
         goto tmp%31#0 ? block@1 : block@2
     block@1: // if_body_L234
@@ -910,7 +908,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let array#0: bytes = arr2#0
         let new_items_bytes#0: bytes = tmp%35#0
         goto block@9
-    block@9: // L133
+    block@9: // L170
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#1: uint64 = (+ array_length#0 1u)
@@ -921,10 +919,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let tmp%4#1: bytes = ((replace2 0) array#0 new_len_u16#0)
         let result#0: bytes = tmp%4#1
         let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%6#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
+        let tmp%36#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
         goto block@10
     block@10: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L237
-        let tmp%36#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%6#0
         let arr2#0: Encoded(len+(uint64,uint64)[]) = tmp%36#0
         goto block@5
     block@5: // for_footer_L236
@@ -956,7 +953,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let new_items_bytes#0: bytes = extract_to_end%2#0
         let new_items_count#0: uint64 = tmp%50#0
         goto block@7
-    block@7: // L133
+    block@7: // L170
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#1: uint64 = (+ array_length#0 new_items_count#0)
@@ -967,10 +964,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let tmp%4#1: bytes = ((replace2 0) array#0 new_len_u16#0)
         let result#0: bytes = tmp%4#1
         let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
-        let aggregate%as_Encoded(len+(uint64,uint64)[])%7#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
+        let tmp%51#0: Encoded(len+(uint64,uint64)[]) = tmp%5#0
         goto block@8
     block@8: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L236
-        let tmp%51#0: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%7#0
         let frozen2#0: Encoded(len+(uint64,uint64)[]) = tmp%51#0
         let tmp%52#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2#0)
         let tmp%53#0: bool = (== tmp%52#0 28u)
@@ -993,7 +989,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let aggregate%head%5#0: bytes = (concat 0x fixed_struct#0)
         let aggregate%as_Encoded((uint64,uint64)[])%4#0: Encoded((uint64,uint64)[]) = aggregate%head%5#0
         let tmp%57#0: Encoded((uint64,uint64)[]) = aggregate%as_Encoded((uint64,uint64)[])%4#0
-        let aggregate%concat%1#0: Encoded((uint64,uint64)[]) = (concat slot_contents%2#0 tmp%57#0) // on error: max array length exceeded
+        let aggregate%concat%1#0: bytes = (concat slot_contents%2#0 tmp%57#0)
         let tmp%58#0: Encoded((uint64,uint64)[]) = aggregate%concat%1#0
         store(arr11#0, tmp%58#0)
         let aggregate%slot_contents%2#0: Encoded((uint64,uint64)[]) = load(arr11#0)

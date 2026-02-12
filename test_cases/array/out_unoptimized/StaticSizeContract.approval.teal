@@ -235,6 +235,21 @@ dynamic_array_concat_bits_after_while@5:
     retsub
 
 
+// _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
+dynamic_assert_index:
+    proto 2 0
+    b dynamic_assert_index_block@0
+
+dynamic_assert_index_block@0:
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    >
+    assert // index out of bounds
+    retsub
+
+
 // test_cases.array.static_size.path_length(path: uint64) -> uint64:
 path_length:
     // array/static_size.py:167-168
@@ -933,7 +948,7 @@ test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple_block@0:
     concat
     frame_dig -1
     concat
-    concat // on error: max array length exceeded
+    concat
     dig 1
     uncover 1
     stores
@@ -1020,7 +1035,7 @@ test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple_bloc
     dup
     loads
     frame_dig -1
-    concat // on error: max array length exceeded
+    concat
     dig 1
     uncover 1
     stores
@@ -1108,7 +1123,7 @@ test_cases.array.static_size.StaticSizeContract.test_bool_array_for_body@2:
     bytec_0 // 0x
     uncover 1
     concat
-    concat // on error: max array length exceeded
+    concat
     stores
     b test_cases.array.static_size.StaticSizeContract.test_bool_array_for_footer@3
 
@@ -1149,7 +1164,7 @@ test_cases.array.static_size.StaticSizeContract.test_bool_array_after_for@4:
     dup
     loads
     uncover 2
-    concat // on error: max array length exceeded
+    concat
     dig 1
     uncover 1
     stores
@@ -1303,7 +1318,7 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_body@2:
     bytec_0 // 0x
     uncover 1
     concat
-    concat // on error: max array length exceeded
+    concat
     stores
     b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_for_footer@3
 
@@ -1407,14 +1422,14 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_for@1
     intc_2 // 8
     /
     uncover 2
-    frame_bury 1
+    frame_bury 0
     uncover 1
-    frame_bury 2
+    frame_bury 1
     frame_bury 7
     b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_block@11
 
 test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_block@11:
-    frame_dig 1
+    frame_dig 0
     dup
     intc_0 // 0
     extract_uint16
@@ -1423,16 +1438,20 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_block@11:
     itob
     extract 6 0
     replace2 0
-    frame_dig 2
+    frame_dig 1
     concat
-    frame_bury 0
+    frame_bury 2
     // array/static_size.py:110
     // arc4_arr.extend(arr)
     b test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@12
 
 test_cases.array.static_size.StaticSizeContract.test_arc4_conversion_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@12:
+    // array/static_size.py:110
+    // arc4_arr.extend(arr)
+    frame_dig 2
     // array/static_size.py:112
     // return arc4_arr
+    frame_bury 0
     retsub
 
 
@@ -1461,7 +1480,7 @@ test_cases.array.static_size.StaticSizeContract.sum_array_block@0:
     pushint 2
     uncover 2
     substring3
-    concat // on error: max array length exceeded
+    concat
     dig 1
     uncover 1
     stores
@@ -1637,7 +1656,7 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_block@0:
     bytec_0 // 0x
     uncover 1
     concat
-    concat // on error: max array length exceeded
+    concat
     dig 1
     uncover 1
     stores
@@ -1656,7 +1675,7 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_block@0:
     bytec_0 // 0x
     uncover 1
     concat
-    concat // on error: max array length exceeded
+    concat
     dig 1
     uncover 1
     stores
@@ -1699,10 +1718,7 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_block@0:
     // assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
     dup
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 0
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     intc_0 // 0
     intc_3 // 16
     +
@@ -1723,11 +1739,8 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_block@0:
     // array/static_size.py:151
     // assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     intc_1 // 1
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     intc_1 // 1
     intc_3 // 16
     +
@@ -1799,7 +1812,7 @@ test_cases.array.static_size.StaticSizeContract.test_arc4_bool_for_body@2:
     bytec_0 // 0x
     uncover 1
     concat
-    concat // on error: max array length exceeded
+    concat
     stores
     b test_cases.array.static_size.StaticSizeContract.test_arc4_bool_for_footer@3
 
