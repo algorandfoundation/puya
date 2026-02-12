@@ -62,8 +62,7 @@ class EmitBuilder(FunctionBuilder):
                 fields = {}
                 for field_name, field_pytype in struct_type.fields.items():
                     arc4_pytype = pytype_to_arc4_pytype(
-                        field_pytype, "fail",
-                        encode_resource_types=True, source_location=location
+                        field_pytype, "fail", encode_resource_types=True, source_location=location
                     )
                     arc4_value = implicit_arc4_conversion(
                         event_arg_eb.member_access(field_name, location), arc4_pytype
