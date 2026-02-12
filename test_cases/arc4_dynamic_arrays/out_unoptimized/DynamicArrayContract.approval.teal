@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 0 1 4
+    intcblock 0 2 1 4
     bytecblock 0x "a" "bee" "Hello World"
     b main_block@0
 
@@ -14,7 +14,7 @@ main_block@1:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn NumAppArgs
-    intc_1 // 0
+    intc_0 // 0
     !=
     bz main___algopy_default_create@13
     b main_abi_routing@2
@@ -23,11 +23,11 @@ main_abi_routing@2:
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     assert
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     !=
     bz main_create_NoOp@11
     b main_call_NoOp@3
@@ -98,10 +98,10 @@ main_create_NoOp@11:
 
 main___algopy_default_create@13:
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     ==
     &&
     assert
@@ -118,7 +118,7 @@ main_after_inlined_test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.
 // _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
     proto 2 1
-    intc_1 // 0
+    intc_0 // 0
     b dynamic_array_pop_fixed_size_block@0
 
 dynamic_array_pop_fixed_size_block@0:
@@ -133,7 +133,7 @@ dynamic_array_pop_fixed_size_block@1:
     frame_dig 2
     -
     uncover 1
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     substring3
     frame_bury 0
@@ -142,7 +142,7 @@ dynamic_array_pop_fixed_size_block@1:
 dynamic_array_pop_fixed_size_after_inlined__puya_lib.arc4.r_trim@2:
     frame_dig 0
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
     intc_2 // 1
     -
@@ -153,19 +153,19 @@ dynamic_array_pop_fixed_size_after_inlined__puya_lib.arc4.r_trim@2:
     retsub
 
 
-// _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> bytes:
 dynamic_array_pop_dynamic_element:
-    proto 1 2
+    proto 1 1
     b dynamic_array_pop_dynamic_element_block@0
 
 dynamic_array_pop_dynamic_element_block@0:
     frame_dig -1
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
     intc_2 // 1
     -
     dupn 2
-    intc_0 // 2
+    intc_1 // 2
     *
     dup
     cover 2
@@ -173,139 +173,189 @@ dynamic_array_pop_dynamic_element_block@0:
     extract 2 0
     dup
     cover 3
-    dup
-    uncover 2
-    extract_uint16
-    dup
-    cover 3
-    dig 1
-    len
-    cover 1
-    uncover 2
     uncover 1
-    uncover 2
-    substring3
+    extract_uint16
     cover 1
     bytec_0 // 0x
     cover 1
-    intc_0 // 2
+    intc_1 // 2
     *
-    intc_0 // 2
+    intc_1 // 2
     assert // Step cannot be zero
-    intc_1 // 0
+    intc_0 // 0
     b dynamic_array_pop_dynamic_element_for_header@1
 
 dynamic_array_pop_dynamic_element_for_header@1:
-    frame_dig 7
     frame_dig 6
+    frame_dig 5
     <
     bz dynamic_array_pop_dynamic_element_after_for@4
     b dynamic_array_pop_dynamic_element_for_body@2
 
 dynamic_array_pop_dynamic_element_for_body@2:
-    frame_dig 7
+    frame_dig 6
     frame_dig 2
     uncover 1
     extract_uint16
-    intc_0 // 2
+    intc_1 // 2
     -
     itob
     extract 6 2
-    frame_dig 5
+    frame_dig 4
     uncover 1
     concat
-    frame_bury 5
+    frame_bury 4
     b dynamic_array_pop_dynamic_element_for_footer@3
 
 dynamic_array_pop_dynamic_element_for_footer@3:
-    frame_dig 7
-    intc_0 // 2
+    frame_dig 6
+    intc_1 // 2
     +
-    frame_bury 7
+    frame_bury 6
     b dynamic_array_pop_dynamic_element_for_header@1
 
 dynamic_array_pop_dynamic_element_after_for@4:
     frame_dig 0
     itob
     extract 6 2
-    frame_dig 5
+    frame_dig 4
     concat
     frame_dig 1
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_dig 2
     uncover 1
     frame_dig 3
     substring3
     concat
-    frame_dig 4
-    uncover 1
-    frame_bury 1
     frame_bury 0
     retsub
 
 
-// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
+// _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_dynamic_element:
+    proto 2 1
+    b dynamic_array_read_dynamic_element_block@0
+
+dynamic_array_read_dynamic_element_block@0:
+    frame_dig -2
+    extract 2 0
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    uncover 1
+    frame_dig -1
+    uncover 2
+    callsub static_array_read_dynamic_element
+    retsub
+
+
+// _puya_lib.arc4.static_array_read_dynamic_element(array_head_and_tail: bytes, index: uint64, array_length: uint64) -> bytes:
+static_array_read_dynamic_element:
+    proto 3 1
+    b static_array_read_dynamic_element_block@0
+
+static_array_read_dynamic_element_block@0:
+    frame_dig -2
+    intc_1 // 2
+    *
+    frame_dig -3
+    uncover 1
+    extract_uint16
+    frame_dig -2
+    intc_2 // 1
+    +
+    dup
+    intc_1 // 2
+    *
+    frame_dig -3
+    uncover 1
+    extract_uint16
+    frame_dig -3
+    len
+    frame_dig -1
+    uncover 3
+    -
+    uncover 1
+    uncover 2
+    uncover 2
+    select
+    frame_dig -3
+    uncover 2
+    uncover 2
+    substring3
+    retsub
+
+
+// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new_head_and_tail: bytes, new_items_count: uint64) -> bytes:
 dynamic_array_concat_dynamic_element:
-    proto 4 1
+    proto 3 1
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
     b dynamic_array_concat_dynamic_element_block@0
 
 dynamic_array_concat_dynamic_element_block@0:
+    frame_dig -3
+    intc_0 // 0
+    extract_uint16
+    dup
+    frame_dig -3
+    extract 2 0
+    cover 1
     bytec_0 // 0x
-    frame_dig -2
-    intc_0 // 2
+    cover 1
+    frame_dig -1
+    intc_1 // 2
     *
-    frame_dig -4
-    intc_0 // 2
+    cover 1
+    intc_1 // 2
     *
-    intc_0 // 2
+    intc_1 // 2
     assert // Step cannot be zero
-    intc_1 // 0
+    intc_0 // 0
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_for_header@1:
-    frame_dig 6
-    frame_dig 5
+    frame_dig 8
+    frame_dig 7
     <
     bz dynamic_array_concat_dynamic_element_after_for@4
     b dynamic_array_concat_dynamic_element_for_body@2
 
 dynamic_array_concat_dynamic_element_for_body@2:
-    frame_dig 6
-    frame_dig -3
+    frame_dig 8
+    frame_dig 4
     uncover 1
     extract_uint16
-    frame_dig 4
+    frame_dig 6
     +
     itob
     extract 6 2
-    frame_dig 3
+    frame_dig 5
     uncover 1
     concat
-    frame_bury 3
+    frame_bury 5
     b dynamic_array_concat_dynamic_element_for_footer@3
 
 dynamic_array_concat_dynamic_element_for_footer@3:
-    frame_dig 6
-    intc_0 // 2
+    frame_dig 8
+    intc_1 // 2
     +
-    frame_bury 6
+    frame_bury 8
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_after_for@4:
-    frame_dig -3
+    frame_dig 4
     len
     frame_bury 0
-    frame_dig -2
-    intc_0 // 2
+    frame_dig -1
+    intc_1 // 2
     *
     frame_bury 1
-    intc_0 // 2
+    intc_1 // 2
     assert // Step cannot be zero
-    intc_1 // 0
+    intc_0 // 0
     frame_bury 2
     b dynamic_array_concat_dynamic_element_for_header@5
 
@@ -318,48 +368,49 @@ dynamic_array_concat_dynamic_element_for_header@5:
 
 dynamic_array_concat_dynamic_element_for_body@6:
     frame_dig 2
-    frame_dig -1
+    frame_dig -2
     uncover 1
     extract_uint16
     frame_dig 0
     +
     itob
     extract 6 2
-    frame_dig 3
+    frame_dig 5
     uncover 1
     concat
-    frame_bury 3
+    frame_bury 5
     b dynamic_array_concat_dynamic_element_for_footer@7
 
 dynamic_array_concat_dynamic_element_for_footer@7:
     frame_dig 2
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_bury 2
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_after_for@8:
-    frame_dig -4
-    frame_dig -2
+    frame_dig 3
+    dup
+    frame_dig -1
     +
     itob
     extract 6 2
-    frame_dig 3
+    frame_dig 5
     concat
-    frame_dig -4
-    intc_0 // 2
+    uncover 1
+    intc_1 // 2
     *
-    frame_dig -3
+    frame_dig 4
     uncover 1
     frame_dig 0
     substring3
     concat
-    frame_dig -2
-    intc_0 // 2
+    frame_dig -1
+    intc_1 // 2
     *
-    frame_dig -1
+    frame_dig -2
     len
-    frame_dig -1
+    frame_dig -2
     uncover 2
     uncover 2
     substring3
@@ -395,7 +446,7 @@ static_array_replace_dynamic_element:
 
 static_array_replace_dynamic_element_block@0:
     frame_dig -2
-    intc_0 // 2
+    intc_1 // 2
     *
     frame_dig -4
     uncover 1
@@ -403,7 +454,7 @@ static_array_replace_dynamic_element_block@0:
     frame_dig -2
     intc_2 // 1
     +
-    intc_0 // 2
+    intc_1 // 2
     *
     frame_dig -4
     uncover 1
@@ -427,7 +478,7 @@ static_array_replace_dynamic_element_block@0:
     len
     cover 3
     frame_dig -4
-    intc_1 // 0
+    intc_0 // 0
     uncover 4
     substring3
     frame_dig -3
@@ -438,14 +489,14 @@ static_array_replace_dynamic_element_block@0:
     substring3
     concat
     frame_dig -1
-    intc_0 // 2
+    intc_1 // 2
     *
     frame_dig -2
     intc_2 // 1
     +
-    intc_0 // 2
+    intc_1 // 2
     *
-    intc_0 // 2
+    intc_1 // 2
     assert // Step cannot be zero
     b static_array_replace_dynamic_element_for_header@1
 
@@ -478,7 +529,7 @@ static_array_replace_dynamic_element_for_body@2:
 
 static_array_replace_dynamic_element_for_footer@3:
     frame_dig 4
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_bury 4
     b static_array_replace_dynamic_element_for_header@1
@@ -760,7 +811,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     cover 1
     // arc4_dynamic_arrays/contract.py:46
     // array = arc4.DynamicArray(struct1.copy(), struct1.copy())
-    intc_0 // 2
+    intc_1 // 2
     itob
     extract 6 2
     dig 1
@@ -772,7 +823,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     intc_2 // 1
     pushint 10
     *
-    intc_0 // 2
+    intc_1 // 2
     +
     dig 3
     replace3 // on error: index access is out of bounds
@@ -786,10 +837,10 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     len
     cover 1
     dup
-    intc_0 // 2
+    intc_1 // 2
     uncover 3
     substring3
-    intc_1 // 0
+    intc_0 // 0
     pushint 10
     *
     pushint 10
@@ -801,7 +852,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     len
     cover 1
     dup
-    intc_0 // 2
+    intc_1 // 2
     uncover 3
     substring3
     intc_2 // 1
@@ -813,7 +864,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     // arc4_dynamic_arrays/contract.py:52
     // assert array.pop() == struct2
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 1
     -
@@ -821,7 +872,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     len
     cover 1
     dig 2
-    intc_0 // 2
+    intc_1 // 2
     uncover 3
     substring3
     uncover 1
@@ -839,7 +890,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     // arc4_dynamic_arrays/contract.py:53
     // assert array.pop() == struct1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 1
     -
@@ -847,7 +898,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_element
     len
     cover 1
     uncover 2
-    intc_0 // 2
+    intc_1 // 2
     uncover 3
     substring3
     uncover 1
@@ -918,7 +969,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elemen
     cover 1
     // arc4_dynamic_arrays/contract.py:59
     // array = arc4.DynamicArray(struct1.copy(), struct1.copy())
-    intc_0 // 2
+    intc_1 // 2
     itob
     extract 6 2
     intc_3 // 4
@@ -938,37 +989,18 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elemen
     concat
     // arc4_dynamic_arrays/contract.py:60
     // array.append(struct1.copy())
-    dup
-    intc_1 // 0
-    extract_uint16
-    cover 1
-    dup
-    len
-    cover 1
-    intc_0 // 2
-    uncover 2
-    substring3
-    intc_0 // 2
+    intc_1 // 2
     itob
     extract 6 2
     bytec_0 // 0x
     uncover 1
     concat
-    dig 3
+    dig 2
     concat
-    uncover 2
-    uncover 2
     intc_2 // 1
-    uncover 3
     callsub dynamic_array_concat_dynamic_element
     // arc4_dynamic_arrays/contract.py:61
     // array[1] = struct2.copy()  # replace
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 1
-    >
-    assert // index access is out of bounds
     dig 2
     intc_2 // 1
     callsub dynamic_array_replace_dynamic_element
@@ -979,140 +1011,32 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elemen
     // arc4_dynamic_arrays/contract.py:63
     // log(array[0])
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
-    intc_1 // 0
-    intc_0 // 2
-    *
-    dig 3
-    uncover 1
-    extract_uint16
-    cover 2
-    intc_1 // 0
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 4
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 5
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 3
-    uncover 3
-    uncover 2
-    substring3
+    intc_0 // 0
+    callsub dynamic_array_read_dynamic_element
     log
     // arc4_dynamic_arrays/contract.py:64
     // log(array[1])
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
     intc_2 // 1
-    intc_0 // 2
-    *
-    dig 3
-    uncover 1
-    extract_uint16
-    cover 2
-    intc_2 // 1
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 4
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 5
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 3
-    uncover 3
-    uncover 2
-    substring3
+    callsub dynamic_array_read_dynamic_element
     log
     // arc4_dynamic_arrays/contract.py:65
     // log(array[2])
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
-    intc_0 // 2
-    intc_0 // 2
-    *
-    dig 3
-    uncover 1
-    extract_uint16
-    cover 2
-    intc_0 // 2
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 4
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 5
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 3
-    uncover 3
-    uncover 2
-    substring3
+    intc_1 // 2
+    callsub dynamic_array_read_dynamic_element
     log
     // arc4_dynamic_arrays/contract.py:67
     // assert array.pop() == struct1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    -
+    dig 1
+    uncover 1
+    callsub dynamic_array_read_dynamic_element
+    cover 1
     callsub dynamic_array_pop_dynamic_element
     cover 1
     dig 2
@@ -1124,6 +1048,15 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elemen
     log
     // arc4_dynamic_arrays/contract.py:69
     // assert array.pop() == struct2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    -
+    dig 1
+    uncover 1
+    callsub dynamic_array_read_dynamic_element
+    cover 1
     callsub dynamic_array_pop_dynamic_element
     cover 1
     uncover 3
@@ -1135,6 +1068,15 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elemen
     log
     // arc4_dynamic_arrays/contract.py:71
     // assert array.pop() == struct1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    -
+    dig 1
+    uncover 1
+    callsub dynamic_array_read_dynamic_element
+    cover 1
     callsub dynamic_array_pop_dynamic_element
     cover 1
     uncover 2
@@ -1148,10 +1090,6 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elemen
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements() -> void:
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements:
-    // arc4_dynamic_arrays/contract.py:74-75
-    // @arc4.abimethod()
-    // def test_mixed_single_dynamic_elements(self) -> None:
-    proto 0 0
     b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements_block@0
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements_block@0:
@@ -1193,69 +1131,37 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_d
     concat
     // arc4_dynamic_arrays/contract.py:78
     // array = arc4.DynamicArray[MixedSingleStruct]()
-    intc_1 // 0
+    intc_0 // 0
     itob
     extract 6 2
     // arc4_dynamic_arrays/contract.py:79
     // array.append(struct2.copy())
-    dup
-    intc_1 // 0
-    extract_uint16
-    cover 1
-    dup
-    len
-    cover 1
-    intc_0 // 2
-    uncover 2
-    substring3
-    intc_0 // 2
+    intc_1 // 2
     itob
     extract 6 2
     bytec_0 // 0x
     uncover 1
     concat
-    dig 3
+    dig 2
     concat
-    uncover 2
-    uncover 2
     intc_2 // 1
-    uncover 3
     callsub dynamic_array_concat_dynamic_element
     // arc4_dynamic_arrays/contract.py:80
     // array.append(struct2.copy())
-    dup
-    intc_1 // 0
-    extract_uint16
-    cover 1
-    dup
-    len
-    cover 1
-    intc_0 // 2
-    uncover 2
-    substring3
-    intc_0 // 2
+    intc_1 // 2
     itob
     extract 6 2
     bytec_0 // 0x
     uncover 1
     concat
-    dig 3
+    dig 2
     concat
-    uncover 2
-    uncover 2
     intc_2 // 1
-    uncover 3
     callsub dynamic_array_concat_dynamic_element
     // arc4_dynamic_arrays/contract.py:81
     // array[0] = struct1.copy()  # replace
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 0
-    >
-    assert // index access is out of bounds
     dig 2
-    intc_1 // 0
+    intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
     // arc4_dynamic_arrays/contract.py:82
     // log(array)
@@ -1264,98 +1170,28 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_d
     // arc4_dynamic_arrays/contract.py:83
     // log(array[0])
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
-    intc_1 // 0
-    intc_0 // 2
-    *
-    dig 3
-    uncover 1
-    extract_uint16
-    cover 2
-    intc_1 // 0
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 4
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 5
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 3
-    uncover 3
-    uncover 2
-    substring3
+    intc_0 // 0
+    callsub dynamic_array_read_dynamic_element
     log
     // arc4_dynamic_arrays/contract.py:84
     // log(array[1])
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
     intc_2 // 1
-    intc_0 // 2
-    *
-    dig 3
-    uncover 1
-    extract_uint16
-    cover 2
-    intc_2 // 1
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 4
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 5
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 3
-    uncover 3
-    uncover 2
-    substring3
+    callsub dynamic_array_read_dynamic_element
     log
     // arc4_dynamic_arrays/contract.py:86
     // array2 = array.copy()
-    dup
+    dupn 2
     // arc4_dynamic_arrays/contract.py:88
     // assert array.pop() == struct2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    -
+    dig 1
+    uncover 1
+    callsub dynamic_array_read_dynamic_element
+    cover 1
     callsub dynamic_array_pop_dynamic_element
     cover 1
     dig 3
@@ -1363,52 +1199,44 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_d
     assert
     // arc4_dynamic_arrays/contract.py:89
     // assert array.pop() == struct1
-    callsub dynamic_array_pop_dynamic_element
-    cover 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    -
+    callsub dynamic_array_read_dynamic_element
     dig 3
     ==
     assert
     // arc4_dynamic_arrays/contract.py:91
     // assert array2.length == 2
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 2
+    intc_1 // 2
     ==
     assert
     // arc4_dynamic_arrays/contract.py:92
     // array2.extend(array2.copy())
     dup
-    intc_1 // 0
-    extract_uint16
-    cover 1
-    dup
     len
     cover 1
     dup
-    intc_0 // 2
+    intc_1 // 2
     uncover 3
     substring3
     cover 1
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    uncover 3
-    uncover 3
+    uncover 1
     uncover 2
-    uncover 3
+    uncover 2
     callsub dynamic_array_concat_dynamic_element
     // arc4_dynamic_arrays/contract.py:93
     // assert array2.length == 4
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 4
     ==
@@ -1416,105 +1244,24 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_d
     // arc4_dynamic_arrays/contract.py:94
     // assert array2[-1] == struct2
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 1
     -
-    cover 1
-    dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 2
-    dig 3
-    intc_0 // 2
-    *
-    dig 2
-    uncover 1
-    extract_uint16
-    cover 3
-    uncover 4
-    intc_2 // 1
-    +
-    uncover 3
     dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 3
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 4
     uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 2
-    uncover 3
-    uncover 2
-    substring3
+    callsub dynamic_array_read_dynamic_element
     uncover 2
     ==
     assert
     // arc4_dynamic_arrays/contract.py:95
     // assert array2[-2] == struct1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 2
+    intc_1 // 2
     -
-    cover 1
-    dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 2
-    dig 1
-    intc_0 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    cover 3
-    uncover 1
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 1
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 1
-    uncover 2
-    uncover 2
-    substring3
+    callsub dynamic_array_read_dynamic_element
     ==
     assert
     retsub
@@ -1522,10 +1269,6 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_d
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements() -> void:
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements:
-    // arc4_dynamic_arrays/contract.py:97-98
-    // @arc4.abimethod()
-    // def test_mixed_multiple_dynamic_elements(self) -> None:
-    proto 0 0
     b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements_block@0
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements_block@0:
@@ -1609,7 +1352,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple
     concat
     // arc4_dynamic_arrays/contract.py:105
     // array = arc4.DynamicArray(struct1.copy(), struct1.copy())
-    intc_0 // 2
+    intc_1 // 2
     itob
     extract 6 2
     intc_3 // 4
@@ -1629,12 +1372,6 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple
     concat
     // arc4_dynamic_arrays/contract.py:106
     // array[1] = struct2.copy()
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 1
-    >
-    assert // index access is out of bounds
     dig 1
     intc_2 // 1
     callsub dynamic_array_replace_dynamic_element
@@ -1645,95 +1382,26 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple
     // arc4_dynamic_arrays/contract.py:108
     // log(array[0])
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
-    intc_1 // 0
-    intc_0 // 2
-    *
-    dig 3
-    uncover 1
-    extract_uint16
-    cover 2
-    intc_1 // 0
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 4
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 5
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 3
-    uncover 3
-    uncover 2
-    substring3
+    intc_0 // 0
+    callsub dynamic_array_read_dynamic_element
     log
     // arc4_dynamic_arrays/contract.py:109
     // log(array[1])
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 2
-    uncover 3
-    substring3
-    cover 1
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    cover 1
     intc_2 // 1
-    intc_0 // 2
-    *
-    dig 3
-    uncover 1
-    extract_uint16
-    cover 2
-    intc_2 // 1
-    intc_2 // 1
-    +
-    uncover 2
-    dig 1
-    - // on error: index access is out of bounds
-    cover 2
-    dig 4
-    len
-    cover 2
-    intc_0 // 2
-    *
-    dig 5
-    uncover 1
-    extract_uint16
-    uncover 2
-    uncover 1
-    uncover 3
-    select
-    uncover 3
-    uncover 3
-    uncover 2
-    substring3
+    callsub dynamic_array_read_dynamic_element
     log
     // arc4_dynamic_arrays/contract.py:111
     // assert array.pop() == struct2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    -
+    dig 1
+    uncover 1
+    callsub dynamic_array_read_dynamic_element
+    cover 1
     callsub dynamic_array_pop_dynamic_element
     cover 1
     uncover 2
@@ -1741,8 +1409,12 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple
     assert
     // arc4_dynamic_arrays/contract.py:112
     // assert array.pop() == struct1
-    callsub dynamic_array_pop_dynamic_element
-    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    -
+    callsub dynamic_array_read_dynamic_element
     ==
     assert
     retsub
@@ -1990,7 +1662,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_
     pushint 10
     extract_uint16
     dig 1
-    intc_1 // 0
+    intc_0 // 0
     dig 2
     extract3
     dig 3
@@ -2053,7 +1725,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
     // @arc4.abimethod()
     // def test_nested_tuple_modification(self) -> None:
     proto 0 0
-    intc_1 // 0
+    intc_0 // 0
     b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_block@0
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_block@0:
@@ -2173,7 +1845,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_block@1:
     frame_dig 8
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
     // arc4_dynamic_arrays/contract.py:153
     // get_u16_arr1() + (arc4.UInt16(123),),  # noqa: RUF005
@@ -2190,9 +1862,6 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
     b test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@2
 
 test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@2:
-    // arc4_dynamic_arrays/contract.py:153
-    // get_u16_arr1() + (arc4.UInt16(123),),  # noqa: RUF005
-    frame_dig 0
     // arc4_dynamic_arrays/contract.py:154
     // get_uint1(),
     callsub get_uint1
@@ -2228,7 +1897,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
     concat
     uncover 1
     concat
-    uncover 1
+    frame_dig 0
     concat
     // arc4_dynamic_arrays/contract.py:156
     // five = DynamicStruct(get_string1(), get_string2())
@@ -2375,7 +2044,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
     uncover 2
     uncover 2
     substring3
-    intc_0 // 2
+    intc_1 // 2
     callsub dynamic_array_pop_fixed_size
     cover 1
     dup
@@ -2393,7 +2062,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
     pushint 18
     extract_uint16
     uncover 1
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     extract3
     uncover 2
@@ -2402,7 +2071,7 @@ test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_m
     pushint 22
     extract_uint16
     dig 2
-    intc_1 // 0
+    intc_0 // 0
     dig 2
     extract3
     dig 2

@@ -112,109 +112,156 @@ subroutine main:
         err
 
 
-// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
+// _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index: uint64) -> bytes:
+subroutine dynamic_array_read_dynamic_element:
+    dynamic_array_read_dynamic_element_block@0:                                         (𝕡) array#0,index#0 |
+        p-load array#0                                                                  (𝕡) array#0,index#0 | array#0 (copy)
+        extract 2 0                                                                     (𝕡) array#0,index#0 | array_head_and_tail#0
+        p-load array#0                                                                  (𝕡) array#0,index#0 | array_head_and_tail#0,array#0 (copy)
+        int 0                                                                           (𝕡) array#0,index#0 | array_head_and_tail#0,array#0 (copy),0
+        extract_uint16                                                                  (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0
+        p-load index#0                                                                  (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,index#0 (copy)
+        int 2                                                                           (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,index#0 (copy),2
+        *                                                                               (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,tmp%0#1
+        l-load-copy array_head_and_tail#0 2                                             (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,tmp%0#1,array_head_and_tail#0 (copy)
+        l-load tmp%0#1 1                                                                (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,array_head_and_tail#0 (copy),tmp%0#1
+        extract_uint16                                                                  (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0
+        p-load index#0                                                                  (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,index#0 (copy)
+        int 1                                                                           (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,index#0 (copy),1
+        +                                                                               (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0
+        l-load-copy next_index#0 0                                                      (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,next_index#0 (copy)
+        int 2                                                                           (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,next_index#0 (copy),2
+        *                                                                               (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,tmp%3#0
+        l-load-copy array_head_and_tail#0 4                                             (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,tmp%3#0,array_head_and_tail#0 (copy)
+        l-load tmp%3#0 1                                                                (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,array_head_and_tail#0 (copy),tmp%3#0
+        extract_uint16                                                                  (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,next_item_offset#0
+        l-load-copy array_head_and_tail#0 4                                             (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,next_item_offset#0,array_head_and_tail#0 (copy)
+        len                                                                             (𝕡) array#0,index#0 | array_head_and_tail#0,array_length#0,item_start_offset#0,next_index#0,next_item_offset#0,end_of_tail#0
+        l-load array_length#0 4                                                         (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,next_index#0,next_item_offset#0,end_of_tail#0,array_length#0
+        l-load next_index#0 3                                                           (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,next_item_offset#0,end_of_tail#0,array_length#0,next_index#0
+        -                                                                               (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,next_item_offset#0,end_of_tail#0,is_before_end#0
+        l-load end_of_tail#0 1                                                          (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,next_item_offset#0,is_before_end#0,end_of_tail#0
+        l-load next_item_offset#0 2                                                     (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,is_before_end#0,end_of_tail#0,next_item_offset#0
+        l-load is_before_end#0 2                                                        (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,end_of_tail#0,next_item_offset#0,is_before_end#0
+        select                                                                          (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,item_end_offset#0
+        l-load array_head_and_tail#0 2                                                  (𝕡) array#0,index#0 | item_start_offset#0,item_end_offset#0,array_head_and_tail#0
+        l-load item_start_offset#0 2                                                    (𝕡) array#0,index#0 | item_end_offset#0,array_head_and_tail#0,item_start_offset#0
+        l-load item_end_offset#0 2                                                      (𝕡) array#0,index#0 | array_head_and_tail#0,item_start_offset#0,item_end_offset#0
+        substring3                                                                      (𝕡) array#0,index#0 | tmp%8#0
+        retsub                                                                          tmp%8#0
+
+
+// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new_head_and_tail: bytes, new_items_count: uint64) -> bytes:
 subroutine dynamic_array_concat_dynamic_element:
     declare uint64 head_and_tail_length#0
-    dynamic_array_concat_dynamic_element_block@0:                                       (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0 |
-        byte 0x                                                                         (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0 | new_head#0
-        f-store new_head#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0 |
-        p-load new_items_count#0                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0 | new_items_count#0 (copy)
-        int 2                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0 | new_items_count#0 (copy),2
-        *                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0 | item_offset_adjustment#0
-        f-store item_offset_adjustment#0                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0 |
-        p-load array_items_count#0                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0 | array_items_count#0 (copy)
-        int 2                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0 | array_items_count#0 (copy),2
-        *                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0 | tmp%1#0
-        f-store tmp%1#0                                                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0 |
-        int 0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0 | head_offset#0
-        f-store head_offset#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        b dynamic_array_concat_dynamic_element_for_header@1                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
+    dynamic_array_concat_dynamic_element_block@0:                                       (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0 |
+        p-load array#0                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0 | array#0 (copy)
+        int 0                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0 | array#0 (copy),0
+        extract_uint16                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0 | array_items_count#0
+        l-store-copy array_items_count#0 0                                              (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0 | array_items_count#0,array_items_count#0
+        f-store array_items_count#0                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0 | array_items_count#0
+        p-load array#0                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0 | array_items_count#0,array#0 (copy)
+        extract 2 0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0 | array_items_count#0,array_head_and_tail#0
+        f-store array_head_and_tail#0                                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0 | array_items_count#0
+        byte 0x                                                                         (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0 | array_items_count#0,new_head#0
+        f-store new_head#0                                                              (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0 | array_items_count#0
+        p-load new_items_count#0                                                        (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0 | array_items_count#0,new_items_count#0 (copy)
+        int 2                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0 | array_items_count#0,new_items_count#0 (copy),2
+        *                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0 | array_items_count#0,item_offset_adjustment#0
+        f-store item_offset_adjustment#0                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0 | array_items_count#0
+        l-load array_items_count#0 0                                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0 | array_items_count#0
+        int 2                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0 | array_items_count#0,2
+        *                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0 | tmp%3#0
+        f-store tmp%3#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0 |
+        int 0                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0 | head_offset#0
+        f-store head_offset#0                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        b dynamic_array_concat_dynamic_element_for_header@1                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
 
-    dynamic_array_concat_dynamic_element_for_header@1:                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        f-load head_offset#0                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        f-load tmp%1#0                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%1#0
-        <                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | continue_looping%0#0
-        bz dynamic_array_concat_dynamic_element_after_for@4 ; b dynamic_array_concat_dynamic_element_for_body@2 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | 
+    dynamic_array_concat_dynamic_element_for_header@1:                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        f-load head_offset#0                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        f-load tmp%3#0                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%3#0
+        <                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | continue_looping%0#0
+        bz dynamic_array_concat_dynamic_element_after_for@4 ; b dynamic_array_concat_dynamic_element_for_body@2 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | 
 
-    dynamic_array_concat_dynamic_element_for_body@2:                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        p-load array_head_and_tail#0                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | array_head_and_tail#0 (copy)
-        f-load head_offset#0                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | array_head_and_tail#0 (copy),head_offset#0
-        l-store-copy head_offset#0 1                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,array_head_and_tail#0 (copy),head_offset#0 (copy)
-        extract_uint16                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,item_offset#0
-        f-load item_offset_adjustment#0                                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,item_offset#0,item_offset_adjustment#0
-        l-load item_offset#0 1                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,item_offset_adjustment#0,item_offset#0
-        +                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%3#0
-        itob                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%4#0
-        extract 6 2                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%5#0
-        f-load new_head#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%5#0,new_head#0
-        l-load tmp%5#0 1                                                                (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,new_head#0,tmp%5#0
-        concat                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,new_head#0
-        f-store new_head#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        l-load head_offset#0 0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        int 2                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,2
-        +                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        f-store head_offset#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        b dynamic_array_concat_dynamic_element_for_header@1                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
+    dynamic_array_concat_dynamic_element_for_body@2:                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        f-load array_head_and_tail#0                                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | array_head_and_tail#0
+        f-load head_offset#0                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | array_head_and_tail#0,head_offset#0
+        l-store-copy head_offset#0 1                                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,array_head_and_tail#0,head_offset#0 (copy)
+        extract_uint16                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,item_offset#0
+        f-load item_offset_adjustment#0                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,item_offset#0,item_offset_adjustment#0
+        l-load item_offset#0 1                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,item_offset_adjustment#0,item_offset#0
+        +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%5#0
+        itob                                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%6#0
+        extract 6 2                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%7#0
+        f-load new_head#0                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%7#0,new_head#0
+        l-load tmp%7#0 1                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,new_head#0,tmp%7#0
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,new_head#0
+        f-store new_head#0                                                              (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        l-load head_offset#0 0                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        int 2                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,2
+        +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        f-store head_offset#0                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        b dynamic_array_concat_dynamic_element_for_header@1                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
 
-    dynamic_array_concat_dynamic_element_after_for@4:                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        p-load array_head_and_tail#0                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | array_head_and_tail#0 (copy)
-        len                                                                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_and_tail_length#0
-        f-store head_and_tail_length#0                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        int 0                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        f-store head_offset#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        b dynamic_array_concat_dynamic_element_for_header@5                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
+    dynamic_array_concat_dynamic_element_after_for@4:                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        f-load array_head_and_tail#0                                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | array_head_and_tail#0
+        len                                                                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_and_tail_length#0
+        f-store head_and_tail_length#0                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        int 0                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        f-store head_offset#0                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        b dynamic_array_concat_dynamic_element_for_header@5                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
 
-    dynamic_array_concat_dynamic_element_for_header@5:                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        f-load head_offset#0                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        f-load item_offset_adjustment#0                                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,item_offset_adjustment#0
-        <                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | continue_looping%1#0
-        bz dynamic_array_concat_dynamic_element_after_for@8 ; b dynamic_array_concat_dynamic_element_for_body@6 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | 
+    dynamic_array_concat_dynamic_element_for_header@5:                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        f-load head_offset#0                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        f-load item_offset_adjustment#0                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,item_offset_adjustment#0
+        <                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | continue_looping%1#0
+        bz dynamic_array_concat_dynamic_element_after_for@8 ; b dynamic_array_concat_dynamic_element_for_body@6 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | 
 
-    dynamic_array_concat_dynamic_element_for_body@6:                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        p-load new_head_and_tail#0                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | new_head_and_tail#0 (copy)
-        f-load head_offset#0                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | new_head_and_tail#0 (copy),head_offset#0
-        l-store-copy head_offset#0 1                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,new_head_and_tail#0 (copy),head_offset#0 (copy)
-        extract_uint16                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,item_offset#0
-        f-load head_and_tail_length#0                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,item_offset#0,head_and_tail_length#0
-        l-load item_offset#0 1                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,head_and_tail_length#0,item_offset#0
-        +                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%10#0
-        itob                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%11#0
-        extract 6 2                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%12#0
-        f-load new_head#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,tmp%12#0,new_head#0
-        l-load tmp%12#0 1                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,new_head#0,tmp%12#0
-        concat                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,new_head#0
-        f-store new_head#0                                                              (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        l-load head_offset#0 0                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        int 2                                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0,2
-        +                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | head_offset#0
-        f-store head_offset#0                                                           (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        b dynamic_array_concat_dynamic_element_for_header@5                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
+    dynamic_array_concat_dynamic_element_for_body@6:                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        p-load new_head_and_tail#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | new_head_and_tail#0 (copy)
+        f-load head_offset#0                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | new_head_and_tail#0 (copy),head_offset#0
+        l-store-copy head_offset#0 1                                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,new_head_and_tail#0 (copy),head_offset#0 (copy)
+        extract_uint16                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,item_offset#0
+        f-load head_and_tail_length#0                                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,item_offset#0,head_and_tail_length#0
+        l-load item_offset#0 1                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,head_and_tail_length#0,item_offset#0
+        +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%12#0
+        itob                                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%13#0
+        extract 6 2                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%14#0
+        f-load new_head#0                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,tmp%14#0,new_head#0
+        l-load tmp%14#0 1                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,new_head#0,tmp%14#0
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,new_head#0
+        f-store new_head#0                                                              (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        l-load head_offset#0 0                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        int 2                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0,2
+        +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | head_offset#0
+        f-store head_offset#0                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        b dynamic_array_concat_dynamic_element_for_header@5                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
 
-    dynamic_array_concat_dynamic_element_after_for@8:                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 |
-        p-load array_items_count#0                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | array_items_count#0 (copy)
-        p-load new_items_count#0                                                        (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | array_items_count#0 (copy),new_items_count#0 (copy)
-        +                                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%14#0
-        itob                                                                            (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%15#0
-        extract 6 2                                                                     (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%16#0
-        f-load new_head#0                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%16#0,new_head#0
-        concat                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%17#0
-        p-load array_head_and_tail#0                                                    (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%17#0,array_head_and_tail#0 (copy)
-        f-load tmp%1#0                                                                  (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%17#0,array_head_and_tail#0 (copy),tmp%1#0
-        f-load head_and_tail_length#0                                                   (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%17#0,array_head_and_tail#0 (copy),tmp%1#0,head_and_tail_length#0
-        substring3                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%17#0,tmp%19#0
-        l-load tmp%17#0 1                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%19#0,tmp%17#0
-        l-load tmp%19#0 1                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%17#0,tmp%19#0
-        concat                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0
-        p-load new_head_and_tail#0                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0,new_head_and_tail#0 (copy)
-        len                                                                             (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0,tmp%22#0
-        p-load new_head_and_tail#0                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0,tmp%22#0,new_head_and_tail#0 (copy)
-        f-load item_offset_adjustment#0                                                 (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0,tmp%22#0,new_head_and_tail#0 (copy),item_offset_adjustment#0
-        l-load tmp%22#0 2                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0,new_head_and_tail#0 (copy),item_offset_adjustment#0,tmp%22#0
-        substring3                                                                      (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0,tmp%23#0
-        l-load tmp%20#0 1                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%23#0,tmp%20#0
-        l-load tmp%23#0 1                                                               (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%20#0,tmp%23#0
-        concat                                                                          (𝕡) array_items_count#0,array_head_and_tail#0,new_items_count#0,new_head_and_tail#0 | (𝕗) head_and_tail_length#0,new_head#0,item_offset_adjustment#0,tmp%1#0,head_offset#0 | tmp%24#0
-        retsub                                                                          tmp%24#0
+    dynamic_array_concat_dynamic_element_after_for@8:                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 |
+        f-load array_items_count#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | array_items_count#0
+        p-load new_items_count#0                                                        (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | array_items_count#0,new_items_count#0 (copy)
+        +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%16#0
+        itob                                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%17#0
+        extract 6 2                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%18#0
+        f-load new_head#0                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%18#0,new_head#0
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%19#0
+        f-load array_head_and_tail#0                                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%19#0,array_head_and_tail#0
+        f-load tmp%3#0                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%19#0,array_head_and_tail#0,tmp%3#0
+        f-load head_and_tail_length#0                                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%19#0,array_head_and_tail#0,tmp%3#0,head_and_tail_length#0
+        substring3                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%19#0,tmp%21#0
+        l-load tmp%19#0 1                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%21#0,tmp%19#0
+        l-load tmp%21#0 1                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%19#0,tmp%21#0
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0
+        p-load new_head_and_tail#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0,new_head_and_tail#0 (copy)
+        len                                                                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0,tmp%24#0
+        p-load new_head_and_tail#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0,tmp%24#0,new_head_and_tail#0 (copy)
+        f-load item_offset_adjustment#0                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0,tmp%24#0,new_head_and_tail#0 (copy),item_offset_adjustment#0
+        l-load tmp%24#0 2                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0,new_head_and_tail#0 (copy),item_offset_adjustment#0,tmp%24#0
+        substring3                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0,tmp%25#0
+        l-load tmp%22#0 1                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%25#0,tmp%22#0
+        l-load tmp%25#0 1                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%22#0,tmp%25#0
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | (𝕗) head_and_tail_length#0,array_items_count#0,array_head_and_tail#0,new_head#0,item_offset_adjustment#0,tmp%3#0,head_offset#0 | tmp%26#0
+        retsub                                                                          tmp%26#0
 
 
 // _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
@@ -327,69 +374,51 @@ subroutine append:
         byte "glob"                                                                     0,"glob"
         app_global_get_ex                                                               maybe_value%0#0,maybe_exists%0#0
         assert // check self.glob exists                                                maybe_value%0#0
-        l-load-copy maybe_value%0#0 0                                                   maybe_value%0#0,maybe_value%0#0 (copy)
-        int 0                                                                           maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint16                                                                  maybe_value%0#0,extract_uint16%0#0
-        l-load maybe_value%0#0 1                                                        extract_uint16%0#0,maybe_value%0#0
-        extract 2 0                                                                     extract_uint16%0#0,extract_to_end%0#0
-        l-load extract_uint16%0#0 1                                                     extract_to_end%0#0,extract_uint16%0#0
-        l-load extract_to_end%0#0 1                                                     extract_uint16%0#0,extract_to_end%0#0
-        int 1                                                                           extract_uint16%0#0,extract_to_end%0#0,1
-        byte 0x00020000000000000001000a000362617a                                       extract_uint16%0#0,extract_to_end%0#0,1,0x00020000000000000001000a000362617a
-        callsub dynamic_array_concat_dynamic_element                                    as_Encoded(len+(uint64,(len+utf8[]))[])%0#0
-        byte "glob"                                                                     as_Encoded(len+(uint64,(len+utf8[]))[])%0#0,"glob"
-        l-load as_Encoded(len+(uint64,(len+utf8[]))[])%0#0 1                            "glob",as_Encoded(len+(uint64,(len+utf8[]))[])%0#0
+        l-load maybe_value%0#0 0                                                        maybe_value%0#0
+        byte 0x00020000000000000001000a000362617a                                       maybe_value%0#0,0x00020000000000000001000a000362617a
+        int 1                                                                           maybe_value%0#0,0x00020000000000000001000a000362617a,1
+        callsub dynamic_array_concat_dynamic_element                                    tmp%2#0
+        byte "glob"                                                                     tmp%2#0,"glob"
+        l-load tmp%2#0 1                                                                "glob",tmp%2#0
         app_global_put
         // state_mutations/contract.py:40
         // self.loc[Txn.sender].append(struct.copy())
-        txn Sender                                                                      tmp%2#0
-        l-load-copy tmp%2#0 0                                                           tmp%2#0,tmp%2#0 (copy)
-        int 0                                                                           tmp%2#0,tmp%2#0 (copy),0
-        byte "loc"                                                                      tmp%2#0,tmp%2#0 (copy),0,"loc"
-        app_local_get_ex                                                                tmp%2#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.loc exists for account                                     tmp%2#0,maybe_value%1#0
-        l-load-copy maybe_value%1#0 0                                                   tmp%2#0,maybe_value%1#0,maybe_value%1#0 (copy)
-        int 0                                                                           tmp%2#0,maybe_value%1#0,maybe_value%1#0 (copy),0
-        extract_uint16                                                                  tmp%2#0,maybe_value%1#0,extract_uint16%1#0
-        l-load maybe_value%1#0 1                                                        tmp%2#0,extract_uint16%1#0,maybe_value%1#0
-        extract 2 0                                                                     tmp%2#0,extract_uint16%1#0,extract_to_end%1#0
-        l-load extract_uint16%1#0 1                                                     tmp%2#0,extract_to_end%1#0,extract_uint16%1#0
-        l-load extract_to_end%1#0 1                                                     tmp%2#0,extract_uint16%1#0,extract_to_end%1#0
-        int 1                                                                           tmp%2#0,extract_uint16%1#0,extract_to_end%1#0,1
+        txn Sender                                                                      tmp%3#0
+        l-load-copy tmp%3#0 0                                                           tmp%3#0,tmp%3#0 (copy)
+        int 0                                                                           tmp%3#0,tmp%3#0 (copy),0
+        byte "loc"                                                                      tmp%3#0,tmp%3#0 (copy),0,"loc"
+        app_local_get_ex                                                                tmp%3#0,maybe_value%1#0,maybe_exists%1#0
+        assert // check self.loc exists for account                                     tmp%3#0,maybe_value%1#0
+        l-load maybe_value%1#0 0                                                        tmp%3#0,maybe_value%1#0
         // state_mutations/contract.py:39
         // self.glob.value.append(struct.copy())
-        byte 0x00020000000000000001000a000362617a                                       tmp%2#0,extract_uint16%1#0,extract_to_end%1#0,1,0x00020000000000000001000a000362617a
+        byte 0x00020000000000000001000a000362617a                                       tmp%3#0,maybe_value%1#0,0x00020000000000000001000a000362617a
         // state_mutations/contract.py:40
         // self.loc[Txn.sender].append(struct.copy())
-        callsub dynamic_array_concat_dynamic_element                                    tmp%2#0,as_Encoded(len+(uint64,(len+utf8[]))[])%1#0
-        l-load tmp%2#0 1                                                                as_Encoded(len+(uint64,(len+utf8[]))[])%1#0,tmp%2#0
-        byte "loc"                                                                      as_Encoded(len+(uint64,(len+utf8[]))[])%1#0,tmp%2#0,"loc"
-        l-load as_Encoded(len+(uint64,(len+utf8[]))[])%1#0 2                            tmp%2#0,"loc",as_Encoded(len+(uint64,(len+utf8[]))[])%1#0
+        int 1                                                                           tmp%3#0,maybe_value%1#0,0x00020000000000000001000a000362617a,1
+        callsub dynamic_array_concat_dynamic_element                                    tmp%3#0,tmp%5#0
+        l-load tmp%3#0 1                                                                tmp%5#0,tmp%3#0
+        byte "loc"                                                                      tmp%5#0,tmp%3#0,"loc"
+        l-load tmp%5#0 2                                                                tmp%3#0,"loc",tmp%5#0
         app_local_put
         // state_mutations/contract.py:41
         // self.box.value.append(struct.copy())
         byte "box"                                                                      "box"
         box_get                                                                         aggregate%box_get%0#0,aggregate%box_get%1#0
         assert // check self.box exists                                                 aggregate%box_get%0#0
-        l-load-copy aggregate%box_get%0#0 0                                             aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
-        int 0                                                                           aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),0
-        extract_uint16                                                                  aggregate%box_get%0#0,extract_uint16%2#0
-        l-load aggregate%box_get%0#0 1                                                  extract_uint16%2#0,aggregate%box_get%0#0
-        extract 2 0                                                                     extract_uint16%2#0,extract_to_end%2#0
-        l-load extract_uint16%2#0 1                                                     extract_to_end%2#0,extract_uint16%2#0
-        l-load extract_to_end%2#0 1                                                     extract_uint16%2#0,extract_to_end%2#0
-        int 1                                                                           extract_uint16%2#0,extract_to_end%2#0,1
+        l-load aggregate%box_get%0#0 0                                                  aggregate%box_get%0#0
         // state_mutations/contract.py:39
         // self.glob.value.append(struct.copy())
-        byte 0x00020000000000000001000a000362617a                                       extract_uint16%2#0,extract_to_end%2#0,1,0x00020000000000000001000a000362617a
+        byte 0x00020000000000000001000a000362617a                                       aggregate%box_get%0#0,0x00020000000000000001000a000362617a
         // state_mutations/contract.py:41
         // self.box.value.append(struct.copy())
-        callsub dynamic_array_concat_dynamic_element                                    as_Encoded(len+(uint64,(len+utf8[]))[])%2#0
-        byte "box"                                                                      as_Encoded(len+(uint64,(len+utf8[]))[])%2#0,"box"
-        box_del                                                                         as_Encoded(len+(uint64,(len+utf8[]))[])%2#0,{box_del}
-        pop 1                                                                           as_Encoded(len+(uint64,(len+utf8[]))[])%2#0
-        byte "box"                                                                      as_Encoded(len+(uint64,(len+utf8[]))[])%2#0,"box"
-        l-load as_Encoded(len+(uint64,(len+utf8[]))[])%2#0 1                            "box",as_Encoded(len+(uint64,(len+utf8[]))[])%2#0
+        int 1                                                                           aggregate%box_get%0#0,0x00020000000000000001000a000362617a,1
+        callsub dynamic_array_concat_dynamic_element                                    tmp%7#0
+        byte "box"                                                                      tmp%7#0,"box"
+        box_del                                                                         tmp%7#0,{box_del}
+        pop 1                                                                           tmp%7#0
+        byte "box"                                                                      tmp%7#0,"box"
+        l-load tmp%7#0 1                                                                "box",tmp%7#0
         box_put
         // state_mutations/contract.py:42
         // self.map[Txn.sender].append(struct.copy())
@@ -400,25 +429,19 @@ subroutine append:
         l-load-copy box_prefixed_key%0#0 0                                              box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
         box_get                                                                         box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%3#0
         assert // check self.map entry exists                                           box_prefixed_key%0#0,aggregate%box_get%2#0
-        l-load-copy aggregate%box_get%2#0 0                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%2#0 (copy)
-        int 0                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%2#0 (copy),0
-        extract_uint16                                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,extract_uint16%3#0
-        l-load aggregate%box_get%2#0 1                                                  box_prefixed_key%0#0,extract_uint16%3#0,aggregate%box_get%2#0
-        extract 2 0                                                                     box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0
-        l-load extract_uint16%3#0 1                                                     box_prefixed_key%0#0,extract_to_end%3#0,extract_uint16%3#0
-        l-load extract_to_end%3#0 1                                                     box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0
-        int 1                                                                           box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0,1
+        l-load aggregate%box_get%2#0 0                                                  box_prefixed_key%0#0,aggregate%box_get%2#0
         // state_mutations/contract.py:39
         // self.glob.value.append(struct.copy())
-        byte 0x00020000000000000001000a000362617a                                       box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0,1,0x00020000000000000001000a000362617a
+        byte 0x00020000000000000001000a000362617a                                       box_prefixed_key%0#0,aggregate%box_get%2#0,0x00020000000000000001000a000362617a
         // state_mutations/contract.py:42
         // self.map[Txn.sender].append(struct.copy())
-        callsub dynamic_array_concat_dynamic_element                                    box_prefixed_key%0#0,as_Encoded(len+(uint64,(len+utf8[]))[])%3#0
-        l-load-copy box_prefixed_key%0#0 1                                              box_prefixed_key%0#0,as_Encoded(len+(uint64,(len+utf8[]))[])%3#0,box_prefixed_key%0#0 (copy)
-        box_del                                                                         box_prefixed_key%0#0,as_Encoded(len+(uint64,(len+utf8[]))[])%3#0,{box_del}
-        pop 1                                                                           box_prefixed_key%0#0,as_Encoded(len+(uint64,(len+utf8[]))[])%3#0
-        l-load box_prefixed_key%0#0 1                                                   as_Encoded(len+(uint64,(len+utf8[]))[])%3#0,box_prefixed_key%0#0
-        l-load as_Encoded(len+(uint64,(len+utf8[]))[])%3#0 1                            box_prefixed_key%0#0,as_Encoded(len+(uint64,(len+utf8[]))[])%3#0
+        int 1                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,0x00020000000000000001000a000362617a,1
+        callsub dynamic_array_concat_dynamic_element                                    box_prefixed_key%0#0,tmp%9#0
+        l-load-copy box_prefixed_key%0#0 1                                              box_prefixed_key%0#0,tmp%9#0,box_prefixed_key%0#0 (copy)
+        box_del                                                                         box_prefixed_key%0#0,tmp%9#0,{box_del}
+        pop 1                                                                           box_prefixed_key%0#0,tmp%9#0
+        l-load box_prefixed_key%0#0 1                                                   tmp%9#0,box_prefixed_key%0#0
+        l-load tmp%9#0 1                                                                box_prefixed_key%0#0,tmp%9#0
         box_put
         // state_mutations/contract.py:36
         // @arc4.abimethod
@@ -436,40 +459,17 @@ subroutine modify:
         app_global_get_ex                                                               maybe_value%0#0,maybe_exists%0#0
         assert // check self.glob exists                                                maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                   maybe_value%0#0,maybe_value%0#0 (copy)
-        extract 2 0                                                                     maybe_value%0#0,aggregate%array_head_and_tail%0#0
-        l-load-copy maybe_value%0#0 1                                                   maybe_value%0#0,aggregate%array_head_and_tail%0#0,maybe_value%0#0 (copy)
-        int 0                                                                           maybe_value%0#0,aggregate%array_head_and_tail%0#0,maybe_value%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                         maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0
-        l-load-copy aggregate%array_head_and_tail%0#0 1                                 maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%array_head_and_tail%0#0 (copy)
-        int 0                                                                           maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%array_head_and_tail%0#0 (copy),0
-        extract_uint16                                                                  maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0
-        l-load-copy aggregate%array_length%0#0 1                                        maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%array_length%0#0 (copy)
-        int 1                                                                           maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%array_length%0#0 (copy),1
-        - // on error: index access is out of bounds                                    maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0
-        l-load-copy aggregate%array_head_and_tail%0#0 3                                 maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%array_head_and_tail%0#0 (copy)
-        len                                                                             maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0
-        l-load-copy aggregate%array_head_and_tail%0#0 4                                 maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%array_head_and_tail%0#0 (copy)
-        int 2                                                                           maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%array_head_and_tail%0#0 (copy),2
-        extract_uint16                                                                  maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
-        l-load aggregate%end_of_array%0#0 1                                             maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%next_item_offset%0#0,aggregate%end_of_array%0#0
-        l-load aggregate%next_item_offset%0#0 1                                         maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
-        l-load aggregate%has_next%0#0 2                                                 maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
-        select                                                                          maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%end_offset%0#0
-        l-load aggregate%array_head_and_tail%0#0 3                                      maybe_value%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%end_offset%0#0,aggregate%array_head_and_tail%0#0
-        l-load aggregate%item_offset%0#0 2                                              maybe_value%0#0,aggregate%array_length%0#0,aggregate%end_offset%0#0,aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0
-        l-load aggregate%end_offset%0#0 2                                               maybe_value%0#0,aggregate%array_length%0#0,aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%end_offset%0#0
-        substring3                                                                      maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0
-        l-load-copy aggregate%substring3%0#0 0                                          maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy)
-        int 8                                                                           maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy),8
-        extract_uint16                                                                  maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,aggregate%item_offset%1#0
-        l-load aggregate%substring3%0#0 1                                               maybe_value%0#0,aggregate%array_length%0#0,aggregate%item_offset%1#0,aggregate%substring3%0#0
-        int 0                                                                           maybe_value%0#0,aggregate%array_length%0#0,aggregate%item_offset%1#0,aggregate%substring3%0#0,0
-        l-load aggregate%item_offset%1#0 2                                              maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,0,aggregate%item_offset%1#0
-        extract3                                                                        maybe_value%0#0,aggregate%array_length%0#0,aggregate%data_up_to_item%0#0
-        byte 0x00086d6f646966696564                                                     maybe_value%0#0,aggregate%array_length%0#0,aggregate%data_up_to_item%0#0,0x00086d6f646966696564
-        concat                                                                          maybe_value%0#0,aggregate%array_length%0#0,aggregate%updated_data%0#0
-        l-load aggregate%array_length%0#0 1                                             maybe_value%0#0,aggregate%updated_data%0#0,aggregate%array_length%0#0
-        assert // index access is out of bounds                                         maybe_value%0#0,aggregate%updated_data%0#0
+        int 0                                                                           maybe_value%0#0,maybe_value%0#0 (copy),0
+        callsub dynamic_array_read_dynamic_element                                      maybe_value%0#0,aggregate%item%0#0
+        l-load-copy aggregate%item%0#0 0                                                maybe_value%0#0,aggregate%item%0#0,aggregate%item%0#0 (copy)
+        int 8                                                                           maybe_value%0#0,aggregate%item%0#0,aggregate%item%0#0 (copy),8
+        extract_uint16                                                                  maybe_value%0#0,aggregate%item%0#0,aggregate%item_offset%0#0
+        l-load aggregate%item%0#0 1                                                     maybe_value%0#0,aggregate%item_offset%0#0,aggregate%item%0#0
+        int 0                                                                           maybe_value%0#0,aggregate%item_offset%0#0,aggregate%item%0#0,0
+        l-load aggregate%item_offset%0#0 2                                              maybe_value%0#0,aggregate%item%0#0,0,aggregate%item_offset%0#0
+        extract3                                                                        maybe_value%0#0,aggregate%data_up_to_item%0#0
+        byte 0x00086d6f646966696564                                                     maybe_value%0#0,aggregate%data_up_to_item%0#0,0x00086d6f646966696564
+        concat                                                                          maybe_value%0#0,aggregate%updated_data%0#0
         l-load maybe_value%0#0 1                                                        aggregate%updated_data%0#0,maybe_value%0#0
         l-load aggregate%updated_data%0#0 1                                             maybe_value%0#0,aggregate%updated_data%0#0
         int 0                                                                           maybe_value%0#0,aggregate%updated_data%0#0,0
@@ -486,44 +486,21 @@ subroutine modify:
         app_local_get_ex                                                                tmp%2#0,maybe_value%1#0,maybe_exists%1#0
         assert // check self.loc exists for account                                     tmp%2#0,maybe_value%1#0
         l-load-copy maybe_value%1#0 0                                                   tmp%2#0,maybe_value%1#0,maybe_value%1#0 (copy)
-        extract 2 0                                                                     tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0
-        l-load-copy maybe_value%1#0 1                                                   tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,maybe_value%1#0 (copy)
-        int 0                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,maybe_value%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                         tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0
-        l-load-copy aggregate%array_head_and_tail%1#0 1                                 tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%array_head_and_tail%1#0 (copy)
-        int 0                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%array_head_and_tail%1#0 (copy),0
-        extract_uint16                                                                  tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0
-        l-load-copy aggregate%array_length%2#0 1                                        tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%array_length%2#0 (copy)
-        int 1                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%array_length%2#0 (copy),1
-        - // on error: index access is out of bounds                                    tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0
-        l-load-copy aggregate%array_head_and_tail%1#0 3                                 tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%array_head_and_tail%1#0 (copy)
-        len                                                                             tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0
-        l-load-copy aggregate%array_head_and_tail%1#0 4                                 tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%array_head_and_tail%1#0 (copy)
-        int 2                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%array_head_and_tail%1#0 (copy),2
-        extract_uint16                                                                  tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%next_item_offset%1#0
-        l-load aggregate%end_of_array%1#0 1                                             tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%next_item_offset%1#0,aggregate%end_of_array%1#0
-        l-load aggregate%next_item_offset%1#0 1                                         tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%next_item_offset%1#0
-        l-load aggregate%has_next%1#0 2                                                 tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%end_of_array%1#0,aggregate%next_item_offset%1#0,aggregate%has_next%1#0
-        select                                                                          tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%end_offset%1#0
-        l-load aggregate%array_head_and_tail%1#0 3                                      tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%end_offset%1#0,aggregate%array_head_and_tail%1#0
-        l-load aggregate%item_offset%2#0 2                                              tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%end_offset%1#0,aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0
-        l-load aggregate%end_offset%1#0 2                                               tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0,aggregate%end_offset%1#0
-        substring3                                                                      tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0
-        l-load-copy aggregate%substring3%2#0 0                                          tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy)
-        int 8                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy),8
-        extract_uint16                                                                  tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,aggregate%item_offset%3#0
-        l-load aggregate%substring3%2#0 1                                               tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%item_offset%3#0,aggregate%substring3%2#0
-        int 0                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%item_offset%3#0,aggregate%substring3%2#0,0
-        l-load aggregate%item_offset%3#0 2                                              tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,0,aggregate%item_offset%3#0
-        extract3                                                                        tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%data_up_to_item%1#0
+        int 0                                                                           tmp%2#0,maybe_value%1#0,maybe_value%1#0 (copy),0
+        callsub dynamic_array_read_dynamic_element                                      tmp%2#0,maybe_value%1#0,aggregate%item%1#0
+        l-load-copy aggregate%item%1#0 0                                                tmp%2#0,maybe_value%1#0,aggregate%item%1#0,aggregate%item%1#0 (copy)
+        int 8                                                                           tmp%2#0,maybe_value%1#0,aggregate%item%1#0,aggregate%item%1#0 (copy),8
+        extract_uint16                                                                  tmp%2#0,maybe_value%1#0,aggregate%item%1#0,aggregate%item_offset%1#0
+        l-load aggregate%item%1#0 1                                                     tmp%2#0,maybe_value%1#0,aggregate%item_offset%1#0,aggregate%item%1#0
+        int 0                                                                           tmp%2#0,maybe_value%1#0,aggregate%item_offset%1#0,aggregate%item%1#0,0
+        l-load aggregate%item_offset%1#0 2                                              tmp%2#0,maybe_value%1#0,aggregate%item%1#0,0,aggregate%item_offset%1#0
+        extract3                                                                        tmp%2#0,maybe_value%1#0,aggregate%data_up_to_item%1#0
         // state_mutations/contract.py:46
         // self.glob.value[0].baz = arc4.String("modified")
-        byte 0x00086d6f646966696564                                                     tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%data_up_to_item%1#0,0x00086d6f646966696564
+        byte 0x00086d6f646966696564                                                     tmp%2#0,maybe_value%1#0,aggregate%data_up_to_item%1#0,0x00086d6f646966696564
         // state_mutations/contract.py:47
         // self.loc[Txn.sender][0].baz = arc4.String("modified")
-        concat                                                                          tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%updated_data%1#0
-        l-load aggregate%array_length%2#0 1                                             tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0,aggregate%array_length%2#0
-        assert // index access is out of bounds                                         tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0
+        concat                                                                          tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0
         l-load maybe_value%1#0 1                                                        tmp%2#0,aggregate%updated_data%1#0,maybe_value%1#0
         l-load aggregate%updated_data%1#0 1                                             tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0
         int 0                                                                           tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0,0
@@ -538,44 +515,21 @@ subroutine modify:
         box_get                                                                         aggregate%box_get%0#0,aggregate%box_get%1#0
         assert // check self.box exists                                                 aggregate%box_get%0#0
         l-load-copy aggregate%box_get%0#0 0                                             aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
-        extract 2 0                                                                     aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0
-        l-load-copy aggregate%box_get%0#0 1                                             aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%box_get%0#0 (copy)
-        int 0                                                                           aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%box_get%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                         aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0
-        l-load-copy aggregate%array_head_and_tail%2#0 1                                 aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%array_head_and_tail%2#0 (copy)
-        int 0                                                                           aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%array_head_and_tail%2#0 (copy),0
-        extract_uint16                                                                  aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0
-        l-load-copy aggregate%array_length%4#0 1                                        aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%array_length%4#0 (copy)
-        int 1                                                                           aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%array_length%4#0 (copy),1
-        - // on error: index access is out of bounds                                    aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0
-        l-load-copy aggregate%array_head_and_tail%2#0 3                                 aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%array_head_and_tail%2#0 (copy)
-        len                                                                             aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0
-        l-load-copy aggregate%array_head_and_tail%2#0 4                                 aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%array_head_and_tail%2#0 (copy)
-        int 2                                                                           aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%array_head_and_tail%2#0 (copy),2
-        extract_uint16                                                                  aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%next_item_offset%2#0
-        l-load aggregate%end_of_array%2#0 1                                             aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%next_item_offset%2#0,aggregate%end_of_array%2#0
-        l-load aggregate%next_item_offset%2#0 1                                         aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%next_item_offset%2#0
-        l-load aggregate%has_next%2#0 2                                                 aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%end_of_array%2#0,aggregate%next_item_offset%2#0,aggregate%has_next%2#0
-        select                                                                          aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%end_offset%2#0
-        l-load aggregate%array_head_and_tail%2#0 3                                      aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%end_offset%2#0,aggregate%array_head_and_tail%2#0
-        l-load aggregate%item_offset%4#0 2                                              aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%end_offset%2#0,aggregate%array_head_and_tail%2#0,aggregate%item_offset%4#0
-        l-load aggregate%end_offset%2#0 2                                               aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%array_head_and_tail%2#0,aggregate%item_offset%4#0,aggregate%end_offset%2#0
-        substring3                                                                      aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0
-        l-load-copy aggregate%substring3%4#0 0                                          aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,aggregate%substring3%4#0 (copy)
-        int 8                                                                           aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,aggregate%substring3%4#0 (copy),8
-        extract_uint16                                                                  aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,aggregate%item_offset%5#0
-        l-load aggregate%substring3%4#0 1                                               aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%item_offset%5#0,aggregate%substring3%4#0
-        int 0                                                                           aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%item_offset%5#0,aggregate%substring3%4#0,0
-        l-load aggregate%item_offset%5#0 2                                              aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,0,aggregate%item_offset%5#0
-        extract3                                                                        aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%data_up_to_item%2#0
+        int 0                                                                           aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),0
+        callsub dynamic_array_read_dynamic_element                                      aggregate%box_get%0#0,aggregate%item%2#0
+        l-load-copy aggregate%item%2#0 0                                                aggregate%box_get%0#0,aggregate%item%2#0,aggregate%item%2#0 (copy)
+        int 8                                                                           aggregate%box_get%0#0,aggregate%item%2#0,aggregate%item%2#0 (copy),8
+        extract_uint16                                                                  aggregate%box_get%0#0,aggregate%item%2#0,aggregate%item_offset%2#0
+        l-load aggregate%item%2#0 1                                                     aggregate%box_get%0#0,aggregate%item_offset%2#0,aggregate%item%2#0
+        int 0                                                                           aggregate%box_get%0#0,aggregate%item_offset%2#0,aggregate%item%2#0,0
+        l-load aggregate%item_offset%2#0 2                                              aggregate%box_get%0#0,aggregate%item%2#0,0,aggregate%item_offset%2#0
+        extract3                                                                        aggregate%box_get%0#0,aggregate%data_up_to_item%2#0
         // state_mutations/contract.py:46
         // self.glob.value[0].baz = arc4.String("modified")
-        byte 0x00086d6f646966696564                                                     aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%data_up_to_item%2#0,0x00086d6f646966696564
+        byte 0x00086d6f646966696564                                                     aggregate%box_get%0#0,aggregate%data_up_to_item%2#0,0x00086d6f646966696564
         // state_mutations/contract.py:48
         // self.box.value[0].baz = arc4.String("modified")
-        concat                                                                          aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%updated_data%2#0
-        l-load aggregate%array_length%4#0 1                                             aggregate%box_get%0#0,aggregate%updated_data%2#0,aggregate%array_length%4#0
-        assert // index access is out of bounds                                         aggregate%box_get%0#0,aggregate%updated_data%2#0
+        concat                                                                          aggregate%box_get%0#0,aggregate%updated_data%2#0
         l-load aggregate%box_get%0#0 1                                                  aggregate%updated_data%2#0,aggregate%box_get%0#0
         l-load aggregate%updated_data%2#0 1                                             aggregate%box_get%0#0,aggregate%updated_data%2#0
         int 0                                                                           aggregate%box_get%0#0,aggregate%updated_data%2#0,0
@@ -596,44 +550,21 @@ subroutine modify:
         box_get                                                                         box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%3#0
         assert // check self.map entry exists                                           box_prefixed_key%0#0,aggregate%box_get%2#0
         l-load-copy aggregate%box_get%2#0 0                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%2#0 (copy)
-        extract 2 0                                                                     box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0
-        l-load-copy aggregate%box_get%2#0 1                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%box_get%2#0 (copy)
-        int 0                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%box_get%2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                         box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0
-        l-load-copy aggregate%array_head_and_tail%3#0 1                                 box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%array_head_and_tail%3#0 (copy)
-        int 0                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%array_head_and_tail%3#0 (copy),0
-        extract_uint16                                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0
-        l-load-copy aggregate%array_length%6#0 1                                        box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%array_length%6#0 (copy)
-        int 1                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%array_length%6#0 (copy),1
-        - // on error: index access is out of bounds                                    box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0
-        l-load-copy aggregate%array_head_and_tail%3#0 3                                 box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%array_head_and_tail%3#0 (copy)
-        len                                                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0
-        l-load-copy aggregate%array_head_and_tail%3#0 4                                 box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%array_head_and_tail%3#0 (copy)
-        int 2                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%array_head_and_tail%3#0 (copy),2
-        extract_uint16                                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%next_item_offset%3#0
-        l-load aggregate%end_of_array%3#0 1                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%next_item_offset%3#0,aggregate%end_of_array%3#0
-        l-load aggregate%next_item_offset%3#0 1                                         box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%next_item_offset%3#0
-        l-load aggregate%has_next%3#0 2                                                 box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%end_of_array%3#0,aggregate%next_item_offset%3#0,aggregate%has_next%3#0
-        select                                                                          box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%end_offset%3#0
-        l-load aggregate%array_head_and_tail%3#0 3                                      box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%end_offset%3#0,aggregate%array_head_and_tail%3#0
-        l-load aggregate%item_offset%6#0 2                                              box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%end_offset%3#0,aggregate%array_head_and_tail%3#0,aggregate%item_offset%6#0
-        l-load aggregate%end_offset%3#0 2                                               box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%array_head_and_tail%3#0,aggregate%item_offset%6#0,aggregate%end_offset%3#0
-        substring3                                                                      box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0
-        l-load-copy aggregate%substring3%6#0 0                                          box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,aggregate%substring3%6#0 (copy)
-        int 8                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,aggregate%substring3%6#0 (copy),8
-        extract_uint16                                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,aggregate%item_offset%7#0
-        l-load aggregate%substring3%6#0 1                                               box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%item_offset%7#0,aggregate%substring3%6#0
-        int 0                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%item_offset%7#0,aggregate%substring3%6#0,0
-        l-load aggregate%item_offset%7#0 2                                              box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,0,aggregate%item_offset%7#0
-        extract3                                                                        box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%data_up_to_item%3#0
+        int 0                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%2#0 (copy),0
+        callsub dynamic_array_read_dynamic_element                                      box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%item%3#0
+        l-load-copy aggregate%item%3#0 0                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%item%3#0,aggregate%item%3#0 (copy)
+        int 8                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%item%3#0,aggregate%item%3#0 (copy),8
+        extract_uint16                                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%item%3#0,aggregate%item_offset%3#0
+        l-load aggregate%item%3#0 1                                                     box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%item_offset%3#0,aggregate%item%3#0
+        int 0                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%item_offset%3#0,aggregate%item%3#0,0
+        l-load aggregate%item_offset%3#0 2                                              box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%item%3#0,0,aggregate%item_offset%3#0
+        extract3                                                                        box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%data_up_to_item%3#0
         // state_mutations/contract.py:46
         // self.glob.value[0].baz = arc4.String("modified")
-        byte 0x00086d6f646966696564                                                     box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%data_up_to_item%3#0,0x00086d6f646966696564
+        byte 0x00086d6f646966696564                                                     box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%data_up_to_item%3#0,0x00086d6f646966696564
         // state_mutations/contract.py:49
         // self.map[Txn.sender][0].baz = arc4.String("modified")
-        concat                                                                          box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%updated_data%3#0
-        l-load aggregate%array_length%6#0 1                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0,aggregate%array_length%6#0
-        assert // index access is out of bounds                                         box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0
+        concat                                                                          box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0
         l-load aggregate%box_get%2#0 1                                                  box_prefixed_key%0#0,aggregate%updated_data%3#0,aggregate%box_get%2#0
         l-load aggregate%updated_data%3#0 1                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0
         int 0                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0,0

@@ -38,9 +38,9 @@ main_block@0:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> uint64, bytes:
+// _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> bytes:
 dynamic_array_pop_bit:
-    proto 1 2
+    proto 1 1
     b dynamic_array_pop_bit_block@0
 
 dynamic_array_pop_bit_block@0:
@@ -58,12 +58,9 @@ dynamic_array_pop_bit_block@0:
     dig 1
     pushint 16
     +
-    dup2
-    getbit
-    cover 3
     intc_0 // 0
     setbit
-    uncover 1
+    cover 1
     pushint 7
     +
     pushint 8
@@ -115,9 +112,9 @@ dynamic_array_pop_fixed_size_after_inlined__puya_lib.arc4.r_trim@2:
     retsub
 
 
-// _puya_lib.arc4.dynamic_array_pop_byte_length_head(array: bytes) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_byte_length_head(array: bytes) -> bytes:
 dynamic_array_pop_byte_length_head:
-    proto 1 2
+    proto 1 1
     b dynamic_array_pop_byte_length_head_block@0
 
 dynamic_array_pop_byte_length_head_block@0:
@@ -134,35 +131,51 @@ dynamic_array_pop_byte_length_head_block@0:
     dup
     dig 2
     extract_uint16
-    dig 1
-    len
-    cover 1
-    dig 2
-    dig 1
-    uncover 3
-    substring3
-    cover 3
-    dig 1
+    cover 2
+    dup
     intc_0 // 0
-    dig 4
+    dig 3
     substring3
     cover 2
-    uncover 3
+    uncover 1
     intc_2 // 2
     +
-    uncover 2
-    uncover 1
-    uncover 2
+    uncover 3
     substring3
     concat
-    dig 2
+    dig 1
     itob
     extract 6 2
     uncover 1
-    uncover 3
+    uncover 2
     intc_0 // 0
     callsub _recalculate_head_for_elements_with_byte_length_head
     concat
+    retsub
+
+
+// _puya_lib.arc4.dynamic_array_read_byte_length_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_byte_length_element:
+    proto 2 1
+    b dynamic_array_read_byte_length_element_block@0
+
+dynamic_array_read_byte_length_element_block@0:
+    frame_dig -2
+    extract 2 0
+    frame_dig -1
+    intc_2 // 2
+    *
+    dig 1
+    uncover 1
+    extract_uint16
+    dup2
+    extract_uint16
+    intc_2 // 2
+    +
+    uncover 2
+    uncover 2
+    uncover 2
+    extract3
     retsub
 
 
@@ -341,10 +354,6 @@ static_array_replace_byte_length_head:
 
 static_array_replace_byte_length_head_block@0:
     frame_dig -2
-    frame_dig -1
-    <
-    assert // Index out of bounds
-    frame_dig -2
     intc_2 // 2
     *
     frame_dig -4
@@ -442,6 +451,21 @@ _recalculate_head_for_elements_with_byte_length_head_for_footer@3:
 _recalculate_head_for_elements_with_byte_length_head_after_for@4:
     frame_dig -3
     frame_bury 0
+    retsub
+
+
+// _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
+dynamic_assert_index:
+    proto 2 0
+    b dynamic_assert_index_block@0
+
+dynamic_assert_index_block@0:
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    >
+    assert // index out of bounds
     retsub
 
 
@@ -719,34 +743,10 @@ array_of_array_dynamic_block@0:
     // arc4_types/mutation.py:78
     // array_of_array[0].append(UInt8(255))
     dup
-    len
-    cover 1
-    dup
-    intc_2 // 2
-    uncover 3
-    substring3
-    cover 1
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
+    callsub dynamic_assert_index
     intc_0 // 0
-    >
-    assert // index access is out of bounds
-    intc_0 // 0
-    intc_2 // 2
-    *
-    dig 1
-    uncover 1
-    extract_uint16
-    dup2
-    extract_uint16
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    uncover 2
-    uncover 2
-    uncover 2
-    extract3
+    callsub dynamic_array_read_byte_length_element
     bytec_1 // 0x
     bytec 8 // 0xff
     concat
@@ -774,21 +774,14 @@ array_of_array_dynamic_block@1:
 array_of_array_dynamic_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@2:
     // arc4_types/mutation.py:78
     // array_of_array[0].append(UInt8(255))
-    frame_dig 0
     frame_dig 1
     dup
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 0
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     dup
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 0
-    >
-    assert // index access is out of bounds
-    uncover 1
+    callsub dynamic_assert_index
+    frame_dig 0
     intc_0 // 0
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:80
@@ -800,36 +793,11 @@ array_of_array_dynamic_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@2
     // arc4_types/mutation.py:82
     // array_of_array[0][1] = UInt8(0)
     dup
-    len
-    cover 1
-    dup
-    intc_2 // 2
-    uncover 3
-    substring3
-    cover 1
+    intc_0 // 0
+    callsub dynamic_assert_index
     dup
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 0
-    >
-    assert // index access is out of bounds
-    intc_0 // 0
-    intc_2 // 2
-    *
-    dig 2
-    uncover 1
-    extract_uint16
-    dig 2
-    dig 1
-    extract_uint16
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    uncover 3
-    uncover 2
-    uncover 2
-    extract3
+    callsub dynamic_array_read_byte_length_element
     intc_1 // 1
     intc_1 // 1
     *
@@ -839,10 +807,7 @@ array_of_array_dynamic_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@2
     replace3 // on error: index access is out of bounds
     dig 1
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 0
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     intc_0 // 0
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:83
@@ -1013,22 +978,17 @@ index_assign_block@0:
     setbit
     intc_0 // 0
     getbit
-    cover 1
-    dup
+    dig 1
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
+    callsub dynamic_assert_index
+    dig 1
     intc_0 // 0
-    >
-    assert // index access is out of bounds
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 0
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     intc_0 // 0
     pushint 16
     +
+    uncover 2
+    uncover 1
     uncover 2
     setbit
     // arc4_types/mutation.py:111
@@ -1770,13 +1730,17 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     intc_0 // 0
     setbit
-    bytec_1 // 0x
+    intc_0 // 0
+    getbit
+    uncover 1
+    intc_1 // 1
     uncover 2
-    concat
+    setbit
+    bytec_1 // 0x
     uncover 1
     concat
     intc_2 // 2
-    pushint 8
+    intc_1 // 1
     callsub dynamic_array_concat_bits
     // arc4_types/mutation.py:171
     // assert dynamic_bool_array.bytes == Bytes.from_hex("0004A0")
@@ -1985,7 +1949,7 @@ dynamic_array_bool_block@0:
     uncover 1
     concat
     intc_1 // 1
-    pushint 8
+    intc_1 // 1
     callsub dynamic_array_concat_bits
     // arc4_types/mutation.py:190
     // Bool(True),
@@ -2120,12 +2084,23 @@ dynamic_array_bool_block@0:
     assert
     // arc4_types/mutation.py:201
     // assert dynamic_bool_array.pop() == Bool(True)
-    callsub dynamic_array_pop_bit
-    cover 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    -
+    pushint 16
+    +
+    dig 1
+    uncover 1
+    getbit
     bytec_0 // 0x00
     intc_0 // 0
     uncover 2
     setbit
+    cover 1
+    callsub dynamic_array_pop_bit
+    cover 1
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
@@ -2134,12 +2109,23 @@ dynamic_array_bool_block@0:
     assert
     // arc4_types/mutation.py:202
     // assert dynamic_bool_array.pop() == Bool(False)
-    callsub dynamic_array_pop_bit
-    cover 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    -
+    pushint 16
+    +
+    dig 1
+    uncover 1
+    getbit
     bytec_0 // 0x00
     intc_0 // 0
     uncover 2
     setbit
+    cover 1
+    callsub dynamic_array_pop_bit
+    cover 1
     bytec_0 // 0x00
     intc_0 // 0
     intc_0 // 0
@@ -2556,34 +2542,22 @@ dynamic_array_string_block@0:
     // arc4_types/mutation.py:233
     // dynamic_string_array[3] = hello
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     pushint 3
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     pushint 3
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     dig 2
     pushint 3
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:234
     // dynamic_string_array[5] = hello
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     pushint 5
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     pushint 5
-    >
-    assert // index access is out of bounds
+    callsub dynamic_assert_index
     dig 2
     pushint 5
     callsub dynamic_array_replace_byte_length_head
@@ -2687,7 +2661,16 @@ dynamic_array_string_block@0:
     assert
     // arc4_types/mutation.py:240
     // assert dynamic_string_array.pop() == bar
-    uncover 3
+    dig 3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    -
+    dig 4
+    uncover 1
+    callsub dynamic_array_read_byte_length_element
+    cover 1
+    uncover 4
     callsub dynamic_array_pop_byte_length_head
     cover 1
     uncover 2
@@ -2695,6 +2678,15 @@ dynamic_array_string_block@0:
     assert
     // arc4_types/mutation.py:241
     // assert dynamic_string_array.pop() == foo
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    -
+    dig 1
+    uncover 1
+    callsub dynamic_array_read_byte_length_element
+    cover 1
     callsub dynamic_array_pop_byte_length_head
     cover 4
     dig 2

@@ -94,6 +94,21 @@ main_after_inlined_test_cases.regression_tests.leftover_branch.BranchElimination
     return
 
 
+// _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
+dynamic_assert_index:
+    proto 2 0
+    b dynamic_assert_index_block@0
+
+dynamic_assert_index_block@0:
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    >
+    assert // index out of bounds
+    retsub
+
+
 // test_cases.regression_tests.leftover_branch.hmm() -> uint64:
 hmm:
     b hmm_block@0
@@ -506,18 +521,15 @@ test_cases.regression_tests.leftover_branch.BranchElimination.calculate_for_body
     // regression_tests/leftover_branch.py:39
     // inner_list = nested_list[i].copy()
     frame_dig -2
+    dig 1
+    callsub dynamic_assert_index
+    frame_dig -2
     len
     frame_dig -2
     intc_2 // 2
     uncover 2
     substring3
-    cover 1
-    frame_dig -2
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    dig 1
-    >
-    assert // index access is out of bounds
+    uncover 1
     intc_2 // 2
     *
     dig 1
