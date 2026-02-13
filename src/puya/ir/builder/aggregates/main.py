@@ -94,7 +94,12 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         if not array_encoding.length_header:
             if element_encoding.is_dynamic or element_encoding.is_bit:
                 raise CodeError(f"unsupported dynamic array type {array_encoding}", loc)
-            return factory.concat(concat.base, concat.items)
+            return factory.concat(
+                concat.base,
+                concat.items,
+                ir_type=concat.base_type,
+                error_message="max array length exceeded",
+            )
         elif element_encoding.is_bit:
             element_bits = concat.item_encoding.num_bits
             assert element_bits in (1, 8)
