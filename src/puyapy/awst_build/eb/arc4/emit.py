@@ -3,11 +3,11 @@ from collections.abc import Sequence
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Emit, NewStruct, ReinterpretCast
+from puya.awst.nodes import Emit, NewStruct
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.arc4_utils import arc4_to_pytype, pytype_to_arc4, pytype_to_arc4_pytype
+from puyapy.awst_build.arc4_utils import arc4_to_pytype, pytype_to_arc4
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
@@ -33,9 +33,7 @@ class EmitBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         first, rest = expect.at_least_one_arg(args, location, default=expect.default_raise)
         match first:
-            case (
-                InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
-            ) if pytypes.ARC4StructBaseType < struct_type:
+            case InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb:
                 if rest:
                     logger.error(
                         "unexpected additional arguments", location=rest[0].source_location
@@ -46,40 +44,6 @@ class EmitBuilder(FunctionBuilder):
                     event_arg_eb.pytype, encode_resource_types=True, loc=location
                 )
                 event_expr = event_arg_eb.resolve()
-            case (
-                InstanceBuilder(pytype=pytypes.StructType() as struct_type) as event_arg_eb
-            ) if pytypes.StructBaseType < struct_type:
-                if rest:
-                    logger.error(
-                        "unexpected additional arguments", location=rest[0].source_location
-                    )
-                    return dummy_value(pytypes.NoneType, location)
-                event_name = struct_type.name.split(".")[-1]
-                event_arc4_name = pytype_to_arc4(
-                    event_arg_eb.pytype, encode_resource_types=True, loc=location
-                )
-                fields = {}
-                for field_name, field_pytype in struct_type.fields.items():
-                    arc4_pytype = pytype_to_arc4_pytype(
-                        field_pytype, "fail", encode_resource_types=True, source_location=location
-                    )
-                    fields[field_name] = arc4_pytype.checked_wtype(location)
-                struct_wtype = wtypes.ARC4Struct(
-                    name=event_name,
-                    fields=fields,
-                    frozen=True,
-                    source_location=location,
-                )
-                as_bytes = ReinterpretCast(
-                    expr=event_arg_eb.resolve(),
-                    wtype=wtypes.bytes_wtype,
-                    source_location=location,
-                )
-                event_expr = ReinterpretCast(
-                    expr=as_bytes,
-                    wtype=struct_wtype,
-                    source_location=location,
-                )
             case _:
                 method_sig = split_arc4_signature(first)
                 if method_sig.maybe_returns is not None:
