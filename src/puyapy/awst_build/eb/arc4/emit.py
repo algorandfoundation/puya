@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Emit, NewStruct
+from puya.awst.nodes import Emit, NewStruct, ReinterpretCast
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
@@ -58,25 +58,25 @@ class EmitBuilder(FunctionBuilder):
                 event_arc4_name = pytype_to_arc4(
                     event_arg_eb.pytype, encode_resource_types=True, loc=location
                 )
-                values = {}
                 fields = {}
                 for field_name, field_pytype in struct_type.fields.items():
                     arc4_pytype = pytype_to_arc4_pytype(
                         field_pytype, "fail", encode_resource_types=True, source_location=location
                     )
-                    arc4_value = implicit_arc4_conversion(
-                        event_arg_eb.member_access(field_name, location), arc4_pytype
-                    ).resolve()
-                    values[field_name] = arc4_value
-                    fields[field_name] = arc4_value.wtype
+                    fields[field_name] = arc4_pytype.checked_wtype(location)
                 struct_wtype = wtypes.ARC4Struct(
                     name=event_name,
                     fields=fields,
                     frozen=True,
                     source_location=location,
                 )
-                event_expr = NewStruct(
-                    values=values,
+                as_bytes = ReinterpretCast(
+                    expr=event_arg_eb.resolve(),
+                    wtype=wtypes.bytes_wtype,
+                    source_location=location,
+                )
+                event_expr = ReinterpretCast(
+                    expr=as_bytes,
                     wtype=struct_wtype,
                     source_location=location,
                 )
