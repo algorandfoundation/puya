@@ -41,7 +41,7 @@ testing = [
     "pytest-xdist[psutil]>=3.3.1,<4",
     # TODO: bump to non alpha version
     "algokit-utils>=5.0.0a12,<6",
-    "pytest-cov>=4.1.0,<5",
+    "coverage>=7.13.4,<8",
     "prettytable>=3.9.0,<4",
     "pytest-asyncio>=0.26.0",
 ]
@@ -109,7 +109,7 @@ markers = [
     "localnet: test requires `algokit localnet start`",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
-addopts = "-n auto --cov-config=.coveragerc --dist worksteal"
+addopts = "-n auto --dist worksteal"
 testpaths = [
     "tests"
 ]
@@ -347,6 +347,10 @@ size_diff.script = "scripts.test_cases_diff_summary:main()"
 compile_all_fast.script = "scripts.compile_all_fast:main()"
 lint.cmd = "pre-commit run --all-files"
 update_typeshed.script = "scripts.update_typeshed:main()"
+_coverage_combine.cmd = "coverage combine --quiet"
+_coverage_report_term.cmd = "coverage report"
+_coverage_report_xml.cmd = "coverage xml"
+coverage = ["_coverage_run", "_coverage_combine", "_coverage_report_term", "_coverage_report_xml"]
 
 [tool.poe.tasks.next_version]
 cmd = "semantic-release version --print-tag"
@@ -354,8 +358,8 @@ cmd = "semantic-release version --print-tag"
 # but in the CD pipeline it will be overridden
 env.GITHUB_TOKEN.default = "na"
 
-[tool.poe.tasks.coverage]
-cmd = "pytest --cov --cov-report xml --cov-report term"
+[tool.poe.tasks._coverage_run]
+cmd = "coverage run -m pytest"
 env = { COVERAGE_CORE = "sysmon" }
 
 [tool.scriv]
