@@ -161,7 +161,7 @@ jobs:
 
       - name: pytest
         shell: bash # sets pipefail etc
-        run: pytest --cov --splits 2 -m "${{ matrix.module }}" --group ${{ matrix.group }} --junitxml=pytest-junit.xml
+        run: coverage run -m pytest --splits 2 -m "${{ matrix.module }}" --group ${{ matrix.group }} --junitxml=pytest-junit.xml
         env:
           COVERAGE_CORE: sysmon
 
@@ -169,7 +169,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage${{ matrix.group }}${{ matrix.module }}
-          path: .coverage
+          path: .coverage*
           if-no-files-found: error
           include-hidden-files: true
 
