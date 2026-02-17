@@ -130,6 +130,13 @@ def _is_box_len_intrinsic_op(intrinsic: models.Intrinsic) -> bool:
     return intrinsic.op is AVMOp.len_
 
 
+@attrs.frozen
+class _TupleOffsets:
+    update_relative_offsets: list[int]
+    offset_delta: int
+    offset_delta_is_element_offset: bool
+
+
 @attrs.define
 class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
     """
@@ -262,36 +269,39 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
                 return self._combine_box_write_and_replace_value_fixed_size(
                     write, mutation, read_src
                 )
-            array_mutation = self.aggregates.aggregate_mutations.get(mutation.value)
-            if array_mutation and _is_dynamic_array_fixed_element(
-                array_mutation.base_type.encoding
+
+            if (
+                (array_mutation := self.aggregates.aggregate_mutations.get(mutation.value))
+                and _is_dynamic_array_fixed_element(array_mutation.base_type.encoding)
+                and (
+                    tuple_offsets := _get_tuple_dynamic_offsets(
+                        mutation.base_type.encoding, mutation.indexes
+                    )
+                )
+                is not None
             ):
                 match array_mutation:
-                    # occurs when box value type is a tuple with a dynamic array member being popped
                     # e.g. self.box.value.array_member.pop()
                     case models.ArrayPop():
                         return self._combine_box_write_and_nested_array_pop(
-                            write, mutation, array_mutation, read_src
+                            write, mutation, array_mutation, read_src, tuple_offsets
                         )
-                    # occurs when box value type is a tuple with a dynamic array member being extended
                     # e.g. self.box.value.array_member.extend(some_iterable) OR
                     #      self.box.value.array_member.append(item)
                     case models.ArrayConcat():
                         return self._combine_box_write_and_nested_array_concat(
-                            write, mutation, array_mutation, read_src
+                            write, mutation, array_mutation, read_src, tuple_offsets
                         )
 
         dynamic_array_of_fixed_size_enc = _maybe_dynamic_array_fixed_element(mutation.base_type)
         if dynamic_array_of_fixed_size_enc:
             match mutation:
                 case models.ArrayPop():
-                    # occurs when box value type is a dynamic array being popped
                     # e.g. self.box.value.pop()
                     return self._combine_box_write_and_array_pop(
                         write, mutation, read_src, dynamic_array_of_fixed_size_enc
                     )
                 case models.ArrayConcat():
-                    # occurs when box value type is a dynamic array being extended
                     # e.g. self.box.value.extend(some_iterable) OR
                     #      self.box.value.append(item)
                     return self._combine_box_write_and_array_concat(
@@ -424,20 +434,19 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         replace_value: models.ReplaceValue,
         mutation: models.ArrayPop,
         read_src: models.BoxRead,
-    ) -> models.Op | None:
+        tuple_offsets: Sequence[_TupleOffsets],
+    ) -> models.Op:
         loc = mutation.source_location
         array_encoding = mutation.array_encoding
-        array_offset = self._maybe_update_tuple_nested_array_offsets(
+        array_offset = self._update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
             array_encoding=array_encoding,
             inc_or_dec="dec",
             offset_delta=array_encoding.element.checked_num_bytes,
+            tuple_offsets=tuple_offsets,
             loc=loc,
         )
-        # return if no update occurred
-        if not array_offset:
-            return None
         factory = OpFactory(self, loc)
         pop = _pop_index_from_array_in_place(
             factory,
@@ -462,7 +471,8 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         replace_value: models.ReplaceValue,
         mutation: models.ArrayConcat,
         read_src: models.BoxRead,
-    ) -> models.Op | None:
+        tuple_offsets: Sequence[_TupleOffsets],
+    ) -> models.Op:
         """
         Combines a BoxWrite, ReplaceValue and ArrayConcat into operations that work
         directly on the box.
@@ -472,16 +482,15 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         array_encoding = mutation.array_encoding
         element_size = array_encoding.element.checked_num_bytes
 
-        array_offset = self._maybe_update_tuple_nested_array_offsets(
+        array_offset = self._update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
             array_encoding=array_encoding,
             inc_or_dec="inc",
             offset_delta=factory.mul(mutation.num_items, element_size),
+            tuple_offsets=tuple_offsets,
             loc=loc,
         )
-        if not array_offset:
-            return None
         concat = _extend_array_in_place(
             factory,
             array_encoding,
@@ -501,28 +510,34 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         )
         return concat
 
-    def _maybe_update_tuple_nested_array_offsets(
+    def _update_tuple_nested_array_offsets(
         self,
         box_key: models.Value,
         replace_value: models.ReplaceValue,
         array_encoding: ArrayEncoding,
         inc_or_dec: typing.Literal["inc", "dec"],
         offset_delta: models.Value | int,
+        tuple_offsets: Sequence[_TupleOffsets],
         loc: SourceLocation | None,
-    ) -> models.Value | None:
+    ) -> models.Value:
         """
         When a dynamic array is nested inside a tuple, this will update relevant head pointers
         to ensure offsets are correct after resizing a dynamic array by offset_delta
         """
         factory = OpFactory(self, loc)
-        tuple_dynamic_offsets = _get_tuple_dynamic_offsets_requiring_update(
-            factory,
-            box_key,
-            replace_value.base_type.encoding,
-            replace_value.indexes,
-        )
-        if tuple_dynamic_offsets is None:
-            return None
+        tuple_dynamic_offsets = list[models.Value]()
+        box_offset = factory.constant(0)
+        for tuple_offset in tuple_offsets:
+            for relative_offset in tuple_offset.update_relative_offsets:
+                tuple_dynamic_offsets.append(factory.add(box_offset, relative_offset))
+            if tuple_offset.offset_delta_is_element_offset:
+                box_offset = factory.add(box_offset, tuple_offset.offset_delta)
+            else:
+                # Calculate the offset that contains the offset to read from the box
+                offset_ptr_position = factory.add(box_offset, tuple_offset.offset_delta)
+                # Read the actual offset from the box
+                element_offset = factory.box_extract_u16(box_key, offset_ptr_position)
+                box_offset = factory.add(box_offset, element_offset)
         array_offset = _get_fixed_byte_offset(
             factory,
             box_key=box_key,
@@ -610,12 +625,9 @@ def _get_element_encoding(
     return encoding
 
 
-def _get_tuple_dynamic_offsets_requiring_update(
-    factory: OpFactory,
-    box_key: models.Value,
-    encoding: encodings.Encoding,
-    indexes: Sequence[models.Value | int],
-) -> list[models.Value] | None:
+def _get_tuple_dynamic_offsets(
+    encoding: encodings.Encoding, indexes: Sequence[models.Value | int]
+) -> list[_TupleOffsets] | None:
     """
     Finds all the offsets pointing to head elements that require updating after resizing an array,
     these are all the dynamic tuple members that come after the modified array in its parent tuple,
@@ -623,43 +635,41 @@ def _get_tuple_dynamic_offsets_requiring_update(
 
     Returns None if not a supported scenario
     """
-    result = list[models.Value]()
+    result = list[_TupleOffsets]()
     indexes = list(reversed(indexes))
-    box_offset = factory.constant(0)
     while indexes:
         index = indexes.pop()
         if not (isinstance(encoding, encodings.TupleEncoding) and isinstance(index, int)):
             # nested array updates are not supported
             return None
-        next_index = index + 1
         # track any other dynamic offsets after the indexed element
         dynamic_indexes = [el_idx for el_idx, el in enumerate(encoding.elements) if el.is_dynamic]
+        update_relative_offsets = []
         for el_idx in dynamic_indexes:
-            if el_idx >= next_index:
+            if el_idx > index:
                 head_offset = bits_to_bytes(encoding.get_head_bit_offset(el_idx))
-                result.append(factory.add(box_offset, head_offset))
-        if not indexes:
-            # stop if there are no more indexes to process
-            break
+                update_relative_offsets.append(head_offset)
         element_encoding = encoding.elements[index]
         if not element_encoding.is_dynamic:
             # because this function is only looking at the index sequence to a dynamic array
             # every element in that sequence should also be dynamic
             # if this isn't true for any reason, return early
             return None
-        # if there are more indexes to process need to calculate this element's offset
-        element_offset: models.Value | int
-        # first dynamic element has a statically known offset
         if index == dynamic_indexes[0]:
             # first dynamic element - use tail offset (statically known)
-            element_offset = bits_to_bytes(encoding.get_head_bit_offset(None))
+            offset_delta = bits_to_bytes(encoding.get_head_bit_offset(None))
+            offset_delta_is_element_offset = True
         else:
             # Calculate the offset that contains the offset to read from the box
-            head_offset = bits_to_bytes(encoding.get_head_bit_offset(index))
-            offset_ptr_position = factory.add(box_offset, head_offset)
-            # Read the actual offset from the box
-            element_offset = factory.box_extract_u16(box_key, offset_ptr_position)
-        box_offset = factory.add(box_offset, element_offset)
+            offset_delta = bits_to_bytes(encoding.get_head_bit_offset(index))
+            offset_delta_is_element_offset = False
+        result.append(
+            _TupleOffsets(
+                update_relative_offsets=update_relative_offsets,
+                offset_delta=offset_delta,
+                offset_delta_is_element_offset=offset_delta_is_element_offset,
+            )
+        )
         encoding = element_encoding
     return result
 
