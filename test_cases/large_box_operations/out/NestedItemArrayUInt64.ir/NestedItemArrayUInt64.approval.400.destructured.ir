@@ -1,7 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@4 : block@17
+        goto tmp%0#1 ? block@4 : block@19
     block@4: // abi_routing_L35
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -9,34 +9,40 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "bootstrap()void" => block@6, method "append(((uint64,bool),uint64))void" => block@7, method "pop()((uint64,bool),uint64)" => block@8, method "nested_uint(uint64)uint64" => block@9, method "nested_bool(uint64)bool" => block@10, method "nested_arr_append(uint64,uint64)void" => block@11, method "nested_arr_pop(uint64)uint64" => block@12, method "clear_padding()void" => block@13, * => block@16}
+        switch tmp%6#0 {method "bootstrap()void" => block@6, method "append(((uint64,bool),uint64))void" => block@7, method "pop()((uint64,bool),uint64)" => block@8, method "nested_uint(uint64)uint64" => block@9, method "nested_bool(uint64)bool" => block@10, method "nested_arr_append(uint64,uint64)void" => block@11, method "nested_arr_pop(uint64)uint64" => block@12, method "dynamic_append((uint64[]))void" => block@13, method "dynamic_pop()(uint64[])" => block@14, method "clear_padding()void" => block@15, * => block@18}
     block@6: // bootstrap_route_L39
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.bootstrap[routing]()
-        goto block@16
+        goto block@18
     block@7: // append_route_L64
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.append[routing]()
-        goto block@16
+        goto block@18
     block@8: // pop_route_L68
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.pop[routing]()
-        goto block@16
+        goto block@18
     block@9: // nested_uint_route_L72
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_uint[routing]()
-        goto block@16
+        goto block@18
     block@10: // nested_bool_route_L76
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_bool[routing]()
-        goto block@16
+        goto block@18
     block@11: // nested_arr_append_route_L80
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_arr_append[routing]()
-        goto block@16
+        goto block@18
     block@12: // nested_arr_pop_route_L84
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_arr_pop[routing]()
-        goto block@16
-    block@13: // clear_padding_route_L88
+        goto block@18
+    block@13: // dynamic_append_route_L88
+        test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dynamic_append[routing]()
+        goto block@18
+    block@14: // dynamic_pop_route_L92
+        test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dynamic_pop[routing]()
+        goto block@18
+    block@15: // clear_padding_route_L96
         test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.clear_padding[routing]()
-        goto block@16
-    block@16: // after_if_else_L35
+        goto block@18
+    block@18: // after_if_else_L35
         fail
-    block@17: // __algopy_default_create_L1
+    block@19: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)
@@ -100,6 +106,55 @@ subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint
         (box_replace box_key#0 offset#0 new_offset_value_u16#0)
         return 
 
+subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
+    block@0: // L227
+        let new_head#0: bytes = 0x
+        let item_offset_adjustment#0: uint64 = (* new_items_count#0 2u)
+        let tmp%1#0: uint64 = (* array_items_count#0 2u)
+        let value_internal%0#0: uint64 = 0u
+        let head_offset#0: uint64 = value_internal%0#0
+        goto block@1
+    block@1: // for_header_L238
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%1#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L239
+        let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
+        let tmp%3#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
+        let tmp%4#0: bytes = (itob tmp%3#0)
+        let tmp%5#0: bytes = ((extract 6 2) tmp%4#0)
+        let new_head#0: bytes = (concat new_head#0 tmp%5#0)
+        let value_internal%0#0: uint64 = (+ head_offset#0 2u)
+        let head_offset#0: uint64 = value_internal%0#0
+        goto block@1
+    block@4: // after_for_L238
+        let head_and_tail_length#0: uint64 = (len array_head_and_tail#0)
+        let value_internal%1#0: uint64 = 0u
+        let head_offset#0: uint64 = value_internal%1#0
+        goto block@5
+    block@5: // for_header_L243
+        let continue_looping%1#0: bool = (< head_offset#0 item_offset_adjustment#0)
+        goto continue_looping%1#0 ? block@6 : block@8
+    block@6: // for_body_L244
+        let item_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
+        let tmp%10#0: uint64 = (+ head_and_tail_length#0 item_offset#0)
+        let tmp%11#0: bytes = (itob tmp%10#0)
+        let tmp%12#0: bytes = ((extract 6 2) tmp%11#0)
+        let new_head#0: bytes = (concat new_head#0 tmp%12#0)
+        let value_internal%1#0: uint64 = (+ head_offset#0 2u)
+        let head_offset#0: uint64 = value_internal%1#0
+        goto block@5
+    block@8: // after_for_L243
+        let tmp%14#0: uint64 = (+ array_items_count#0 new_items_count#0)
+        let tmp%15#0: bytes = (itob tmp%14#0)
+        let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
+        let tmp%17#0: bytes = (concat tmp%16#0 new_head#0)
+        let tmp%19#0: bytes = (substring3 array_head_and_tail#0 tmp%1#0 head_and_tail_length#0)
+        let tmp%20#0: bytes = (concat tmp%17#0 tmp%19#0)
+        let tmp%22#0: uint64 = (len new_head_and_tail#0)
+        let tmp%23#0: bytes = (substring3 new_head_and_tail#0 item_offset_adjustment#0 tmp%22#0)
+        let tmp%24#0: bytes = (concat tmp%20#0 tmp%23#0)
+        return tmp%24#0
+
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
     block@0: // L278
         let size_b#0: bytes = ((substring 0 2) source#0)
@@ -144,41 +199,8 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.boo
     block@0: // L39
         (box_del "box")
         (box_put "box" 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b00000000)
-        let new_head#0: bytes = 0x
-        let value_internal%0#0: uint64 = 0u
-        let head_offset#0: uint64 = value_internal%0#0
-        goto block@2
-    block@2: // for_header_L238
-        let continue_looping%0#0: bool = (< head_offset#0 0u)
-        goto continue_looping%0#0 ? block@3 : block@4
-    block@3: // for_body_L239
-        let item_offset#0: uint64 = (extract_uint16 0x head_offset#0)
-        let tmp%3#1: uint64 = (+ 2u item_offset#0)
-        let tmp%4#1: bytes = (itob tmp%3#1)
-        let tmp%5#1: bytes = ((extract 6 2) tmp%4#1)
-        let new_head#0: bytes = (concat new_head#0 tmp%5#1)
-        let value_internal%0#0: uint64 = (+ head_offset#0 2u)
-        let head_offset#0: uint64 = value_internal%0#0
-        goto block@2
-    block@4: // after_for_L238
-        let value_internal%1#0: uint64 = 0u
-        let head_offset#0: uint64 = value_internal%1#0
-        goto block@5
-    block@5: // for_header_L243
-        let continue_looping%1#0: bool = (< head_offset#0 2u)
-        goto continue_looping%1#0 ? block@6 : block@7
-    block@6: // for_body_L244
-        let item_offset#0: uint64 = (extract_uint16 0x000200020000 head_offset#0)
-        let tmp%11#0: bytes = (itob item_offset#0)
-        let tmp%12#0: bytes = ((extract 6 2) tmp%11#0)
-        let new_head#0: bytes = (concat new_head#0 tmp%12#0)
-        let value_internal%1#0: uint64 = (+ head_offset#0 2u)
-        let head_offset#0: uint64 = value_internal%1#0
-        goto block@5
-    block@7: // after_for_L243
-        let tmp%17#0: bytes = (concat 0x0001 new_head#0)
-        let tmp%24#0: bytes = (concat tmp%17#0 0x00020000)
-        let aggregate%updated_data%0#0: bytes = (concat 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000 tmp%24#0)
+        let as_Encoded(len+((len+uint64[]))[])%0#0: Encoded(len+((len+uint64[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, 0x000200020000)
+        let aggregate%updated_data%0#0: bytes = (concat 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000 as_Encoded(len+((len+uint64[]))[])%0#0)
         (box_del "box")
         (box_put "box" aggregate%updated_data%0#0)
         let tmp%6#0: bytes[4096] = (bzero 4096u)
@@ -396,8 +418,81 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         (log tmp%4#0)
         exit 1u
 
-subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.clear_padding[routing]() -> void:
+subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dynamic_append[routing]() -> void:
     block@0: // L88
+        let item#0: Encoded((len+uint64[])) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len item#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 item#0 0u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 2u)
+        (assert eq%0#0) // invalid tail pointer at index 0 of ((len+uint64[]))
+        let substring3%0#0: bytes = (substring3 item#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 8u)
+        let add%1#0: uint64 = (+ mul%0#0 4u)
+        let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for test_cases.large_box_operations.nested_item.ItemWithArray
+        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
+        (assert aggregate%box_get%1#0) // check self.box exists
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 aggregate%box_get%0#0 4u)
+        let aggregate%len%0#0: uint64 = (len aggregate%box_get%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 aggregate%box_get%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#0 0u)
+        let extract_to_end%0#0: bytes = ((extract 2 0) aggregate%substring3%0#0)
+        let aggregate%concat%0#0: bytes = (concat 0x0002 item#0)
+        let as_Encoded(len+((len+uint64[]))[])%0#0: Encoded(len+((len+uint64[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%0#0)
+        let aggregate%data_up_to_item%0#0: bytes = (extract3 aggregate%box_get%0#0 0u aggregate%extract_uint16%0#0)
+        let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 as_Encoded(len+((len+uint64[]))[])%0#0)
+        (box_del "box")
+        (box_put "box" aggregate%updated_data%0#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dynamic_pop[routing]() -> void:
+    block@0: // L92
+        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
+        (assert aggregate%box_get%1#0) // check self.box exists
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 aggregate%box_get%0#0 4u)
+        let aggregate%len%0#0: uint64 = (len aggregate%box_get%0#0)
+        let array#0: bytes = (substring3 aggregate%box_get%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let length_minus_1#0: uint64 = (- array_length#0 1u)
+        let popped_header_offset#0: uint64 = (* length_minus_1#0 2u)
+        let head_and_tail#0: bytes = ((extract 2 0) array#0)
+        let popped_offset#0: uint64 = (extract_uint16 head_and_tail#0 popped_header_offset#0)
+        let tmp%5#0: uint64 = (len head_and_tail#0)
+        let popped#0: bytes = (substring3 head_and_tail#0 popped_offset#0 tmp%5#0)
+        let new_head#0: bytes = 0x
+        let value_internal%0#0: uint64 = 0u
+        let head_offset#0: uint64 = value_internal%0#0
+        goto block@2
+    block@2: // for_header_L119
+        let continue_looping%0#0: bool = (< head_offset#0 popped_header_offset#0)
+        goto continue_looping%0#0 ? block@3 : block@4
+    block@3: // for_body_L120
+        let item_offset#0: uint64 = (extract_uint16 head_and_tail#0 head_offset#0)
+        let item_offset#0: uint64 = (- item_offset#0 2u)
+        let tmp%10#0: bytes = (itob item_offset#0)
+        let tmp%11#0: bytes = ((extract 6 2) tmp%10#0)
+        let new_head#0: bytes = (concat new_head#0 tmp%11#0)
+        let value_internal%0#0: uint64 = (+ head_offset#0 2u)
+        let head_offset#0: uint64 = value_internal%0#0
+        goto block@2
+    block@4: // after_for_L119
+        let tmp%13#0: bytes = (itob length_minus_1#0)
+        let tmp%14#0: bytes = ((extract 6 2) tmp%13#0)
+        let tmp%15#0: bytes = (concat tmp%14#0 new_head#0)
+        let tmp%16#0: uint64 = (+ popped_header_offset#0 2u)
+        let tmp%17#0: bytes = (substring3 head_and_tail#0 tmp%16#0 popped_offset#0)
+        let updated#0: bytes = (concat tmp%15#0 tmp%17#0)
+        let aggregate%data_up_to_item%0#0: bytes = (extract3 aggregate%box_get%0#0 0u aggregate%extract_uint16%0#0)
+        let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 updated#0)
+        (box_del "box")
+        (box_put "box" aggregate%updated_data%0#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 popped#0)
+        (log tmp%1#0)
+        exit 1u
+
+subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.clear_padding[routing]() -> void:
+    block@0: // L96
         let box%box_extract%3#0: bytes = (box_extract "box" 2u 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%3#0)
         _puya_lib.box_arc4.box_update_offset_dec("box", 4u, 4096u)
