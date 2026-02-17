@@ -420,7 +420,8 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
     ) -> models.Op | None:
         loc = mutation.source_location
         array_encoding = _maybe_dynamic_array_fixed_element(mutation.base_type)
-        assert array_encoding is not None, "expected array encoding"
+        if array_encoding is None:
+            return None
         array_offset = self._maybe_update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
@@ -464,7 +465,8 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         loc = mutation.source_location
         factory = OpFactory(self, loc)
         array_encoding = _maybe_dynamic_array_fixed_element(mutation.base_type)
-        assert array_encoding is not None, "expected array encoding"
+        if array_encoding is None:
+            return None
         element_size = array_encoding.element.checked_num_bytes
 
         array_offset = self._maybe_update_tuple_nested_array_offsets(
