@@ -271,7 +271,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
                     )
                 case _:
                     # remaining cases occur when box value type is a tuple/struct being mutated
-                    # e.g. self.box.value.foo.bar.bax = UInt64(42)
+                    # e.g. self.box.value.foo.bar.bax = ...
                     return self._combine_box_write_and_replace_value(write, mutation, read_src)
 
         dynamic_array_of_fixed_size_enc = _maybe_dynamic_array_fixed_element(mutation.base_type)
@@ -421,7 +421,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         loc = mutation.source_location
         array_encoding = _maybe_dynamic_array_fixed_element(mutation.base_type)
         assert array_encoding is not None, "expected array encoding"
-        array_offset = self._maybe_update_nested_array_offsets(
+        array_offset = self._maybe_update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
             array_encoding=array_encoding,
@@ -467,7 +467,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         assert array_encoding is not None, "expected array encoding"
         element_size = array_encoding.element.checked_num_bytes
 
-        array_offset = self._maybe_update_nested_array_offsets(
+        array_offset = self._maybe_update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
             array_encoding=array_encoding,
@@ -477,7 +477,6 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         )
         if not array_offset:
             return None
-        factory = OpFactory(self, loc)
         concat = _extend_array_in_place(
             factory,
             array_encoding,
@@ -497,7 +496,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         )
         return concat
 
-    def _maybe_update_nested_array_offsets(
+    def _maybe_update_tuple_nested_array_offsets(
         self,
         box_key: models.Value,
         replace_value: models.ReplaceValue,
@@ -511,13 +510,13 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         to ensure offsets are correct after resizing a dynamic array by offset_delta
         """
         factory = OpFactory(self, loc)
-        dynamic_offsets = _get_dynamic_offsets_requiring_update(
+        tuple_dynamic_offsets = _get_tuple_dynamic_offsets_requiring_update(
             factory,
             box_key,
             replace_value.base_type.encoding,
             replace_value.indexes,
         )
-        if dynamic_offsets is None:
+        if tuple_dynamic_offsets is None:
             return None
         array_offset = _get_fixed_byte_offset(
             factory,
@@ -527,7 +526,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             stop_at_valid_stack_value=False,
         )
         assert array_offset.encoding == array_encoding, "encodings should match"
-        for offset in dynamic_offsets:
+        for offset in tuple_dynamic_offsets:
             invoke = factory.invoke(
                 PuyaLibIR[f"box_update_offset_{inc_or_dec}"],
                 [box_key, offset, offset_delta],
@@ -614,7 +613,7 @@ def _get_element_encoding(
     return encoding
 
 
-def _get_dynamic_offsets_requiring_update(
+def _get_tuple_dynamic_offsets_requiring_update(
     factory: OpFactory,
     box_key: models.Value,
     encoding: encodings.Encoding,
@@ -632,7 +631,7 @@ def _get_dynamic_offsets_requiring_update(
     box_offset = factory.constant(0)
     while indexes:
         index = indexes.pop()
-        if not isinstance(encoding, encodings.TupleEncoding) or not isinstance(index, int):
+        if not (isinstance(encoding, encodings.TupleEncoding) and isinstance(index, int)):
             # nested array updates are not supported
             return None
         next_index = index + 1
