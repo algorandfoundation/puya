@@ -251,11 +251,18 @@ def test_unsupported_large_box_operations(nested_item_client: AppClient) -> None
     # test nested array operations with large box (>4096 bytes)
     # these operations go through an array index path which is not optimised
     # so they fall back to box_get/box_put which fails for large boxes
-    with pytest.raises(au.LogicError):
+    with pytest.raises(au.LogicError, match="box_get produced a too big"):
         nested_item_client.call("nested_arr_append", 0, 42)
 
-    with pytest.raises(au.LogicError):
+    with pytest.raises(au.LogicError, match="box_get produced a too big"):
         nested_item_client.call("nested_arr_pop", 0)
+
+    # test append/pop of a dynamic value
+    with pytest.raises(au.LogicError, match="box_get produced a too big"):
+        nested_item_client.call("dynamic_append", {"arr": [0]})
+
+    with pytest.raises(au.LogicError, match="box_get produced a too big"):
+        nested_item_client.call("dynamic_pop")
 
     # clear padding to get box under 4096 bytes
     nested_item_client.call("clear_padding")
@@ -268,3 +275,6 @@ def test_unsupported_large_box_operations(nested_item_client: AppClient) -> None
     assert nested_item_client.call("nested_arr_pop", 0) == 300
     assert nested_item_client.call("nested_arr_pop", 0) == 200
     assert nested_item_client.call("nested_arr_pop", 0) == 100
+
+    nested_item_client.call("dynamic_append", {"arr": [1, 2, 3]})
+    assert nested_item_client.call("dynamic_pop") == {"arr": [1, 2, 3]}

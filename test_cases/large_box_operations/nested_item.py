@@ -86,5 +86,13 @@ class NestedItemArrayUInt64(ARC4Contract):
         return self.box.value.items[item_idx].arr.pop()
 
     @public
+    def dynamic_append(self, item: ItemWithArray) -> None:
+        self.box.value.items.append(item.copy())
+
+    @public
+    def dynamic_pop(self) -> ItemWithArray:
+        return self.box.value.items.pop()
+
+    @public
     def clear_padding(self) -> None:
         _discarded = self.box.value.padding.pop()
