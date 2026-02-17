@@ -253,41 +253,43 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         if write.key != read_src.key:
             return None
 
-        maybe_array_encoding = _maybe_dynamic_array_fixed_element(mutation.base_type)
-        match mutation:
-            case models.ArrayPop() if maybe_array_encoding:
-                # occurs when box value type is a dynamic array being popped
-                # e.g. self.box.value.pop()
-                return self._combine_box_write_and_array_pop(
-                    write, mutation, read_src, maybe_array_encoding
-                )
-            case models.ArrayConcat() if maybe_array_encoding:
-                # occurs when box value type is a dynamic array being extended
-                # e.g. self.box.value.extend(some_iterable) OR
-                #      self.box.value.append(item)
-                return self._combine_box_write_and_array_concat(
-                    write, mutation, read_src, maybe_array_encoding
-                )
-            case models.ReplaceValue() as replace_value:
-                array_mutation = self.aggregates.aggregate_mutations.get(replace_value.value)
+        if isinstance(mutation, models.ReplaceValue):
+            array_mutation = self.aggregates.aggregate_mutations.get(mutation.value)
+            match array_mutation:
                 # occurs when box value type is a tuple with a dynamic array member being popped
                 # e.g. self.box.value.array_member.pop()
-                if isinstance(array_mutation, models.ArrayPop):
+                case models.ArrayPop():
                     return self._combine_box_write_and_nested_array_pop(
-                        write, replace_value, array_mutation, read_src
+                        write, mutation, array_mutation, read_src
                     )
-
                 # occurs when box value type is a tuple with a dynamic array member being extended
                 # e.g. self.box.value.array_member.extend(some_iterable) OR
                 #      self.box.value.array_member.append(item)
-                if isinstance(array_mutation, models.ArrayConcat):
+                case models.ArrayConcat():
                     return self._combine_box_write_and_nested_array_concat(
-                        write, replace_value, array_mutation, read_src
+                        write, mutation, array_mutation, read_src
                     )
+                case _:
+                    # remaining cases occur when box value type is a tuple/struct being mutated
+                    # e.g. self.box.value.foo.bar.bax = UInt64(42)
+                    return self._combine_box_write_and_replace_value(write, mutation, read_src)
 
-                # remaining cases occur when box value type is a tuple/struct being mutated
-                # e.g. self.box.value.foo.bar.bax = UInt64(42)
-                return self._combine_box_write_and_replace_value(write, replace_value, read_src)
+        dynamic_array_of_fixed_size_enc = _maybe_dynamic_array_fixed_element(mutation.base_type)
+        if dynamic_array_of_fixed_size_enc:
+            match mutation:
+                case models.ArrayPop():
+                    # occurs when box value type is a dynamic array being popped
+                    # e.g. self.box.value.pop()
+                    return self._combine_box_write_and_array_pop(
+                        write, mutation, read_src, dynamic_array_of_fixed_size_enc
+                    )
+                case models.ArrayConcat():
+                    # occurs when box value type is a dynamic array being extended
+                    # e.g. self.box.value.extend(some_iterable) OR
+                    #      self.box.value.append(item)
+                    return self._combine_box_write_and_array_concat(
+                        write, mutation, read_src, dynamic_array_of_fixed_size_enc
+                    )
         return None
 
     def _handle_intrinsic_read(self, intrinsic: models.Intrinsic) -> models.ValueProvider | None:
