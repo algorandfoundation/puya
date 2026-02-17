@@ -444,10 +444,10 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.boo
         let aggregate%head%13#0: bytes = (concat 0x aggregate%as_Encoded(uint8[4096])%0#0)
         let aggregate%as_Encoded(uint8[4096][])%0#0: Encoded(uint8[4096][]) = aggregate%head%13#0
         let tmp%7#0: Encoded(uint8[4096][]) = aggregate%as_Encoded(uint8[4096][])%0#0
-        let box%box_extract%3#0: bytes = (box_extract "box" 2u 2u)
-        let box%btoi%2#0: uint64 = (btoi box%box_extract%3#0)
+        let box%box_extract%4#0: bytes = (box_extract "box" 2u 2u)
+        let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", 4u, 4096u)
-        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%2#0, tmp%7#0, 1u, 4096u)
+        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%3#0, tmp%7#0, 1u, 4096u)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "box")
         (assert check%0#0) // check self.box exists
         let tmp%9#0: bool = (> value%0#0 4096u)
@@ -616,11 +616,6 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let aggregate%data_up_to_item%1#0: bytes = (extract3 storage_value%0#0 0u aggregate%item_offset%2#0)
         let aggregate%updated_data%1#0: bytes = (concat aggregate%data_up_to_item%1#0 aggregate%updated_array%0#0)
         let updated_tuple%0#0: Encoded((uint64,(len+((uint64,bool1),uint64)[]),uint64),(len+uint8[4096][]),(len+((len+uint64[]))[])) = aggregate%updated_data%1#0
-        let box%mul%0#1: uint64 = (* 1u 8u)
-        let box%add%0#0: uint64 = (+ 0u 4u)
-        let box%box_extract%0#1: bytes = (box_extract "box" box%add%0#0 2u)
-        let box%btoi%0#1: uint64 = (btoi box%box_extract%0#1)
-        let box%add%1#1: uint64 = (+ 0u box%btoi%0#1)
         (box_del "box")
         (box_put "box" updated_tuple%0#0)
         exit 1u
@@ -718,10 +713,6 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let aggregate%data_up_to_item%1#0: bytes = (extract3 storage_value%0#0 0u aggregate%item_offset%2#0)
         let aggregate%updated_data%1#0: bytes = (concat aggregate%data_up_to_item%1#0 aggregate%updated_array%0#0)
         let updated_tuple%0#0: Encoded((uint64,(len+((uint64,bool1),uint64)[]),uint64),(len+uint8[4096][]),(len+((len+uint64[]))[])) = aggregate%updated_data%1#0
-        let box%add%0#0: uint64 = (+ 0u 4u)
-        let box%box_extract%0#1: bytes = (box_extract "box" box%add%0#0 2u)
-        let box%btoi%0#1: uint64 = (btoi box%box_extract%0#1)
-        let box%add%1#1: uint64 = (+ 0u box%btoi%0#1)
         (box_del "box")
         (box_put "box" updated_tuple%0#0)
         let tmp%4#0: bytes = (concat 0x151f7c75 box%box_extract%13#0)
@@ -825,8 +816,8 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dyn
 
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.clear_padding[routing]() -> void:
     block@0: // L96
-        let box%box_extract%3#0: bytes = (box_extract "box" 2u 2u)
-        let box%btoi%2#0: uint64 = (btoi box%box_extract%3#0)
+        let box%box_extract%4#0: bytes = (box_extract "box" 2u 2u)
+        let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
         _puya_lib.box_arc4.box_update_offset_dec("box", 4u, 4096u)
-        _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("box", box%btoi%2#0, 4096u)
+        _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("box", box%btoi%3#0, 4096u)
         exit 1u
