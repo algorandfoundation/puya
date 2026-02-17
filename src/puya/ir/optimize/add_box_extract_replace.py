@@ -254,25 +254,32 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             return None
 
         if isinstance(mutation, models.ReplaceValue):
+            # TODO: support writing a whole dynamic array
+            #       e.g self.box.value.arr = Array[UInt64]()
+            if _get_element_encoding(
+                mutation.base_type.encoding, mutation.indexes, mutation.source_location
+            ).is_fixed:
+                return self._combine_box_write_and_replace_value_fixed_size(
+                    write, mutation, read_src
+                )
             array_mutation = self.aggregates.aggregate_mutations.get(mutation.value)
-            match array_mutation:
-                # occurs when box value type is a tuple with a dynamic array member being popped
-                # e.g. self.box.value.array_member.pop()
-                case models.ArrayPop():
-                    return self._combine_box_write_and_nested_array_pop(
-                        write, mutation, array_mutation, read_src
-                    )
-                # occurs when box value type is a tuple with a dynamic array member being extended
-                # e.g. self.box.value.array_member.extend(some_iterable) OR
-                #      self.box.value.array_member.append(item)
-                case models.ArrayConcat():
-                    return self._combine_box_write_and_nested_array_concat(
-                        write, mutation, array_mutation, read_src
-                    )
-                case _:
-                    # remaining cases occur when box value type is a tuple/struct being mutated
-                    # e.g. self.box.value.foo.bar.bax = ...
-                    return self._combine_box_write_and_replace_value(write, mutation, read_src)
+            if array_mutation and _is_dynamic_array_fixed_element(
+                array_mutation.base_type.encoding
+            ):
+                match array_mutation:
+                    # occurs when box value type is a tuple with a dynamic array member being popped
+                    # e.g. self.box.value.array_member.pop()
+                    case models.ArrayPop():
+                        return self._combine_box_write_and_nested_array_pop(
+                            write, mutation, array_mutation, read_src
+                        )
+                    # occurs when box value type is a tuple with a dynamic array member being extended
+                    # e.g. self.box.value.array_member.extend(some_iterable) OR
+                    #      self.box.value.array_member.append(item)
+                    case models.ArrayConcat():
+                        return self._combine_box_write_and_nested_array_concat(
+                            write, mutation, array_mutation, read_src
+                        )
 
         dynamic_array_of_fixed_size_enc = _maybe_dynamic_array_fixed_element(mutation.base_type)
         if dynamic_array_of_fixed_size_enc:
@@ -419,9 +426,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         read_src: models.BoxRead,
     ) -> models.Op | None:
         loc = mutation.source_location
-        array_encoding = _maybe_dynamic_array_fixed_element(mutation.base_type)
-        if array_encoding is None:
-            return None
+        array_encoding = mutation.array_encoding
         array_offset = self._maybe_update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
@@ -464,9 +469,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         """
         loc = mutation.source_location
         factory = OpFactory(self, loc)
-        array_encoding = _maybe_dynamic_array_fixed_element(mutation.base_type)
-        if array_encoding is None:
-            return None
+        array_encoding = mutation.array_encoding
         element_size = array_encoding.element.checked_num_bytes
 
         array_offset = self._maybe_update_tuple_nested_array_offsets(
@@ -536,17 +539,9 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             self.add_op(invoke)
         return array_offset.offset
 
-    def _combine_box_write_and_replace_value(
+    def _combine_box_write_and_replace_value_fixed_size(
         self, write: models.BoxWrite, replace_value: models.ReplaceValue, read_src: models.BoxRead
-    ) -> models.Op | None:
-        # only support fixed size writes
-        # TODO: support writing a whole dynamic array
-        #       e.g self.box.value.arr = Array[UInt64]()
-        if _get_element_encoding(
-            replace_value.base_type.encoding, replace_value.indexes, replace_value.source_location
-        ).is_dynamic:
-            return None
-
+    ) -> models.Op:
         merged_loc = sequential_source_locations_merge(
             (replace_value.source_location, write.source_location)
         )
