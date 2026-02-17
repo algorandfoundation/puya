@@ -293,19 +293,19 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
                             write, mutation, array_mutation, read_src, tuple_offsets
                         )
 
-        dynamic_array_of_fixed_size_enc = _maybe_dynamic_array_fixed_element(mutation.base_type)
-        if dynamic_array_of_fixed_size_enc:
+        base_encoding = mutation.base_type.encoding
+        if _is_dynamic_array_fixed_element(base_encoding):
             match mutation:
                 case models.ArrayPop():
                     # e.g. self.box.value.pop()
                     return self._combine_box_write_and_array_pop(
-                        write, mutation, read_src, dynamic_array_of_fixed_size_enc
+                        write, mutation, read_src, base_encoding.element.checked_num_bytes
                     )
                 case models.ArrayConcat():
                     # e.g. self.box.value.extend(some_iterable) OR
                     #      self.box.value.append(item)
                     return self._combine_box_write_and_array_concat(
-                        write, mutation, read_src, dynamic_array_of_fixed_size_enc
+                        write, mutation, read_src, base_encoding.element.checked_num_bytes
                     )
         return None
 
@@ -382,13 +382,13 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         write: models.BoxWrite,
         array_pop: models.ArrayPop,
         read_src: models.BoxRead,
-        array_encoding: encodings.ArrayEncoding,
+        fixed_element_size: int,
     ) -> models.Op:
         loc = array_pop.source_location
         factory = OpFactory(self, loc)
         pop = _pop_index_from_array_in_place(
             factory,
-            array_encoding,
+            fixed_element_size,
             box_key=write.key,
             array_offset=0,
         )
@@ -407,13 +407,13 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         write: models.BoxWrite,
         array_concat: models.ArrayConcat,
         read_src: models.BoxRead,
-        array_encoding: encodings.ArrayEncoding,
+        fixed_element_size: int,
     ) -> models.Op:
         loc = array_concat.source_location
         factory = OpFactory(self, loc)
         concat = _extend_array_in_place(
             factory,
-            array_encoding,
+            fixed_element_size,
             box_key=write.key,
             array_offset=0,
             new_items_bytes=array_concat.items,
@@ -437,20 +437,19 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         tuple_offsets: Sequence[_TupleOffsets],
     ) -> models.Op:
         loc = mutation.source_location
-        array_encoding = mutation.array_encoding
+        element_size = mutation.array_encoding.element.checked_num_bytes
         array_offset = self._update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
-            array_encoding=array_encoding,
             inc_or_dec="dec",
-            offset_delta=array_encoding.element.checked_num_bytes,
+            offset_delta=element_size,
             tuple_offsets=tuple_offsets,
             loc=loc,
         )
         factory = OpFactory(self, loc)
         pop = _pop_index_from_array_in_place(
             factory,
-            array_encoding,
+            element_size,
             box_key=write.key,
             array_offset=array_offset,
         )
@@ -479,13 +478,10 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         """
         loc = mutation.source_location
         factory = OpFactory(self, loc)
-        array_encoding = mutation.array_encoding
-        element_size = array_encoding.element.checked_num_bytes
-
+        element_size = mutation.array_encoding.element.checked_num_bytes
         array_offset = self._update_tuple_nested_array_offsets(
             box_key=write.key,
             replace_value=replace_value,
-            array_encoding=array_encoding,
             inc_or_dec="inc",
             offset_delta=factory.mul(mutation.num_items, element_size),
             tuple_offsets=tuple_offsets,
@@ -493,7 +489,7 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         )
         concat = _extend_array_in_place(
             factory,
-            array_encoding,
+            element_size,
             box_key=write.key,
             array_offset=array_offset,
             new_items_bytes=mutation.items,
@@ -514,7 +510,6 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
         self,
         box_key: models.Value,
         replace_value: models.ReplaceValue,
-        array_encoding: ArrayEncoding,
         inc_or_dec: typing.Literal["inc", "dec"],
         offset_delta: models.Value | int,
         tuple_offsets: Sequence[_TupleOffsets],
@@ -545,7 +540,6 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             indexes=replace_value.indexes,
             stop_at_valid_stack_value=False,
         )
-        assert array_offset.encoding == array_encoding, "encodings should match"
         for offset in tuple_dynamic_offsets:
             invoke = factory.invoke(
                 PuyaLibIR[f"box_update_offset_{inc_or_dec}"],
@@ -676,12 +670,11 @@ def _get_tuple_dynamic_offsets(
 
 def _pop_index_from_array_in_place(
     factory: OpFactory,
-    encoding: ArrayEncoding,
+    fixed_element_size: int,
     *,
     box_key: models.Value,
     array_offset: models.Value | int,
 ) -> models.Op:
-    fixed_element_size = encoding.element.checked_num_bytes
     return factory.invoke(
         PuyaLibIR.box_dynamic_array_pop_fixed_size,
         [box_key, array_offset, fixed_element_size],
@@ -690,14 +683,13 @@ def _pop_index_from_array_in_place(
 
 def _extend_array_in_place(
     factory: OpFactory,
-    encoding: ArrayEncoding,
+    fixed_element_size: int,
     *,
     box_key: models.Value,
     array_offset: models.Value | int,
     new_items_bytes: models.Value,
     new_items_count: models.Value,
 ) -> models.Op:
-    fixed_element_size = encoding.element.checked_num_bytes
     return factory.invoke(
         PuyaLibIR.box_dynamic_array_concat_fixed,
         [box_key, array_offset, new_items_bytes, new_items_count, fixed_element_size],
@@ -974,11 +966,3 @@ def _is_dynamic_array_fixed_element(
     if not isinstance(encoding, encodings.ArrayEncoding):
         return False
     return encoding.length_header and encoding.element.is_fixed
-
-
-def _maybe_dynamic_array_fixed_element(typ: EncodedType) -> encodings.ArrayEncoding | None:
-    encoding = typ.encoding
-    if _is_dynamic_array_fixed_element(encoding):
-        return encoding
-    else:
-        return None
