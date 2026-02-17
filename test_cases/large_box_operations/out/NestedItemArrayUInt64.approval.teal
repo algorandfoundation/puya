@@ -8,18 +8,18 @@ main:
     // large_box_operations/nested_item.py:35
     // class NestedItemArrayUInt64(ARC4Contract):
     txn NumAppArgs
-    bz main___algopy_default_create@17
+    bz main___algopy_default_create@19
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0xbec76d87 0xc77a89b1 0xe8a98acb 0x307d43ea 0xf54b080e 0xe8979d27 0xb88bd898 0x73739330 // method "bootstrap()void", method "append(((uint64,bool),uint64))void", method "pop()((uint64,bool),uint64)", method "nested_uint(uint64)uint64", method "nested_bool(uint64)bool", method "nested_arr_append(uint64,uint64)void", method "nested_arr_pop(uint64)uint64", method "clear_padding()void"
+    pushbytess 0xbec76d87 0xc77a89b1 0xe8a98acb 0x307d43ea 0xf54b080e 0xe8979d27 0xb88bd898 0x020b7209 0x3dbf3922 0x73739330 // method "bootstrap()void", method "append(((uint64,bool),uint64))void", method "pop()((uint64,bool),uint64)", method "nested_uint(uint64)uint64", method "nested_bool(uint64)bool", method "nested_arr_append(uint64,uint64)void", method "nested_arr_pop(uint64)uint64", method "dynamic_append((uint64[]))void", method "dynamic_pop()(uint64[])", method "clear_padding()void"
     txna ApplicationArgs 0
-    match bootstrap append pop nested_uint nested_bool nested_arr_append nested_arr_pop clear_padding
+    match bootstrap append pop nested_uint nested_bool nested_arr_append nested_arr_pop dynamic_append dynamic_pop clear_padding
     err
 
-main___algopy_default_create@17:
+main___algopy_default_create@19:
     txn OnCompletion
     !
     txn ApplicationID
@@ -145,6 +145,96 @@ box_update_offset_inc:
     frame_dig -2
     uncover 2
     box_replace
+    retsub
+
+
+// _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
+dynamic_array_concat_dynamic_element:
+    proto 4 1
+    bytec_2 // ""
+    dup
+    frame_dig -2
+    intc_0 // 2
+    *
+    frame_dig -4
+    intc_0 // 2
+    *
+    intc_2 // 0
+
+dynamic_array_concat_dynamic_element_for_header@1:
+    frame_dig 4
+    frame_dig 3
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@4
+    frame_dig -3
+    frame_dig 4
+    dup
+    cover 2
+    extract_uint16
+    frame_dig 2
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    swap
+    concat
+    frame_bury 1
+    intc_0 // 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@1
+
+dynamic_array_concat_dynamic_element_after_for@4:
+    frame_dig -3
+    len
+    frame_bury 0
+    intc_2 // 0
+    frame_bury 4
+
+dynamic_array_concat_dynamic_element_for_header@5:
+    frame_dig 4
+    frame_dig 2
+    <
+    bz dynamic_array_concat_dynamic_element_after_for@8
+    frame_dig -1
+    frame_dig 4
+    dup
+    cover 2
+    extract_uint16
+    frame_dig 0
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    swap
+    concat
+    frame_bury 1
+    intc_0 // 2
+    +
+    frame_bury 4
+    b dynamic_array_concat_dynamic_element_for_header@5
+
+dynamic_array_concat_dynamic_element_after_for@8:
+    frame_dig -4
+    frame_dig -2
+    +
+    itob
+    extract 6 2
+    frame_dig 1
+    concat
+    frame_dig -3
+    frame_dig 3
+    frame_dig 0
+    substring3
+    concat
+    frame_dig -1
+    len
+    frame_dig -1
+    frame_dig 2
+    uncover 2
+    substring3
+    concat
+    frame_bury 0
     retsub
 
 
@@ -292,69 +382,13 @@ bootstrap:
     // )
     pushbytes 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b00000000
     box_put
-    bytec_2 // 0x
-    intc_2 // 0
-
-bootstrap_for_header@2:
-    dup
-    intc_2 // 0
-    <
-    bz bootstrap_after_for@4
     // large_box_operations/nested_item.py:60
     // self.box.value.items.append(ItemWithArray(arr=Array[UInt64]()))
-    bytec_2 // 0x
-    dig 1
-    dup
-    cover 2
-    extract_uint16
-    intc_0 // 2
-    +
-    itob
-    extract 6 2
-    dig 3
-    swap
-    concat
-    bury 3
-    intc_0 // 2
-    +
-    bury 1
-    b bootstrap_for_header@2
-
-bootstrap_after_for@4:
     intc_2 // 0
-    bury 1
-
-bootstrap_for_header@5:
-    dup
-    intc_0 // 2
-    <
-    bz bootstrap_after_for@7
-    // large_box_operations/nested_item.py:60
-    // self.box.value.items.append(ItemWithArray(arr=Array[UInt64]()))
+    bytec_2 // 0x
+    intc_1 // 1
     pushbytes 0x000200020000
-    dig 1
-    dup
-    cover 2
-    extract_uint16
-    itob
-    extract 6 2
-    dig 3
-    swap
-    concat
-    bury 3
-    intc_0 // 2
-    +
-    bury 1
-    b bootstrap_for_header@5
-
-bootstrap_after_for@7:
-    pushbytes 0x0001
-    dig 2
-    concat
-    pushbytes 0x00020000
-    concat
-    // large_box_operations/nested_item.py:60
-    // self.box.value.items.append(ItemWithArray(arr=Array[UInt64]()))
+    callsub dynamic_array_concat_dynamic_element
     pushbytes 0x0006002b002d0000000000000001001200000000000000020001000000000000002a80000000000000007b0000
     swap
     concat
@@ -885,9 +919,187 @@ nested_arr_pop:
     return
 
 
+// test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dynamic_append[routing]() -> void:
+dynamic_append:
+    // large_box_operations/nested_item.py:88
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    dig 1
+    intc_2 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    intc_0 // 2
+    ==
+    assert // invalid tail pointer at index 0 of ((len+uint64[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 8
+    *
+    pushint 4
+    +
+    ==
+    assert // invalid number of bytes for test_cases.large_box_operations.nested_item.ItemWithArray
+    // large_box_operations/nested_item.py:90
+    // self.box.value.items.append(item.copy())
+    bytec_0 // "box"
+    box_get
+    assert // check self.box exists
+    dup
+    pushint 4
+    extract_uint16
+    dig 1
+    len
+    dig 2
+    dig 2
+    uncover 2
+    substring3
+    dup
+    intc_2 // 0
+    extract_uint16
+    swap
+    extract 2 0
+    pushbytes 0x0002
+    uncover 5
+    concat
+    cover 2
+    intc_1 // 1
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    uncover 2
+    intc_2 // 0
+    uncover 3
+    extract3
+    swap
+    concat
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    swap
+    box_put
+    // large_box_operations/nested_item.py:88
+    // @public
+    intc_1 // 1
+    return
+
+
+// test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dynamic_pop[routing]() -> void:
+dynamic_pop:
+    // large_box_operations/nested_item.py:94
+    // return self.box.value.items.pop()
+    bytec_0 // "box"
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // check self.box exists
+    dup
+    pushint 4
+    extract_uint16
+    dup
+    uncover 2
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    dup
+    cover 2
+    intc_0 // 2
+    *
+    dup
+    uncover 2
+    extract 2 0
+    dup
+    cover 2
+    dup
+    uncover 2
+    extract_uint16
+    dup
+    uncover 2
+    dup
+    len
+    swap
+    cover 2
+    substring3
+    bytec_2 // 0x
+    intc_2 // 0
+
+dynamic_pop_for_header@2:
+    dup
+    dig 6
+    <
+    bz dynamic_pop_after_for@4
+    dig 4
+    dig 1
+    dup
+    cover 2
+    extract_uint16
+    intc_0 // 2
+    -
+    itob
+    extract 6 2
+    dig 3
+    swap
+    concat
+    bury 3
+    intc_0 // 2
+    +
+    bury 1
+    b dynamic_pop_for_header@2
+
+dynamic_pop_after_for@4:
+    dig 6
+    itob
+    extract 6 2
+    dig 2
+    concat
+    dig 6
+    intc_0 // 2
+    +
+    dig 6
+    swap
+    dig 6
+    substring3
+    concat
+    // large_box_operations/nested_item.py:94
+    // return self.box.value.items.pop()
+    dig 9
+    intc_2 // 0
+    dig 10
+    extract3
+    swap
+    concat
+    bytec_0 // "box"
+    box_del
+    pop
+    bytec_0 // "box"
+    swap
+    box_put
+    // large_box_operations/nested_item.py:92
+    // @public
+    bytec_1 // 0x151f7c75
+    dig 3
+    concat
+    log
+    intc_1 // 1
+    return
+
+
 // test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.clear_padding[routing]() -> void:
 clear_padding:
-    // large_box_operations/nested_item.py:90
+    // large_box_operations/nested_item.py:98
     // _discarded = self.box.value.padding.pop()
     bytec_0 // "box"
     intc_0 // 2
@@ -902,7 +1114,7 @@ clear_padding:
     swap
     intc 4 // 4096
     callsub box_dynamic_array_pop_fixed_size
-    // large_box_operations/nested_item.py:88
+    // large_box_operations/nested_item.py:96
     // @public
     intc_1 // 1
     return
