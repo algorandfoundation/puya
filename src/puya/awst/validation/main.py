@@ -8,6 +8,7 @@ from puya.awst.validation.inner_transactions import (
     StaleInnerTransactionsValidator,
 )
 from puya.awst.validation.labels import LabelsValidator
+from puya.awst.validation.logged_errors import LoggedErrorsValidator
 from puya.awst.validation.storage import StorageTypesValidator
 
 
@@ -20,3 +21,4 @@ def validate_awst(module: awst_nodes.AWST) -> None:
     LabelsValidator.validate(module)
     ImmutableValidator.validate(module)
     AbiMethodNameValidator.validate(module)
+    LoggedErrorsValidator.validate(module)
