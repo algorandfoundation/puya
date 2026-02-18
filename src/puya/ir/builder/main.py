@@ -1602,7 +1602,7 @@ def _build_logged_error(
     condition: ir.Value | None,
     msg: str,
     loc: SourceLocation,
-):
+) -> None:
     # model assert/err behavior as a conditional jump into a pushbytes X; log; err; pattern
     if condition:
         log_and_fail, after_assert = context.block_builder.mkblocks(

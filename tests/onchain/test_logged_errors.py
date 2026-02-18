@@ -9,7 +9,7 @@ def test_logged_errs(deployer_o: Deployer) -> None:
     result = deployer_o.create_bare(TEST_CASES_DIR / "logged_errors")
     client = result.client
 
-    def call(arg: int):
+    def call(arg: int) -> au.SendAppTransactionResult[au.ABIValue]:
         return client.send.call(
             au.AppClientMethodCallParams(
                 method="test_logged_errs",
