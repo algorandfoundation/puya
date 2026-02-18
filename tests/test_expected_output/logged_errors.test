@@ -1,0 +1,117 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: test_logged_assert_invalid_code
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "not-alnum!") ## W: error code should be alphanumeric
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_colon_in_code
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "bad:code") ## E: error code must not contain domain separator ':'
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_colon_in_message
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "01", error_message="bad:msg") ## E: error message must not contain domain separator ':'
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_invalid_prefix
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "01", prefix="BAD") # type: ignore[arg-type] ## E: error prefix must be one of AER, ERR
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_err_invalid_code
+
+from algopy import Contract, UInt64, logged_err
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        if UInt64(1):
+            logged_err("not-alnum!") ## W: error code should be alphanumeric
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_err_colon_in_code
+
+from algopy import Contract, UInt64, logged_err
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        if UInt64(1):
+            logged_err("bad:code") ## E: error code must not contain domain separator ':'
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_err_colon_in_message
+
+from algopy import Contract, UInt64, logged_err
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        if UInt64(1):
+            logged_err("01", error_message="bad:msg") ## E: error message must not contain domain separator ':'
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_err_in_logicsig
+
+from algopy import logicsig, logged_err
+
+
+@logicsig
+def my_sig() -> bool:
+    logged_err("01") ## E: logged errors are not supported in logic signatures
+    return True
+
+## case: test_logged_assert_in_logicsig
+
+from algopy import logicsig, logged_assert, op
+
+
+@logicsig
+def my_sig() -> bool:
+    logged_assert(op.arg(0) != b"", "01") ## E: logged errors are not supported in logic signatures
+    return True
