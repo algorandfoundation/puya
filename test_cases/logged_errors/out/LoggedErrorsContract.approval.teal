@@ -1,0 +1,98 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // logged_errors/contract.py:5
+    // class LoggedErrorsContract(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x400ca34b // method "test_logged_errs(uint64)void"
+    txna ApplicationArgs 0
+    match main_test_logged_errs_route@3
+    err
+
+main_test_logged_errs_route@3:
+    // logged_errors/contract.py:6
+    // @abimethod
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b test_logged_errs
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs[routing]() -> void:
+test_logged_errs:
+    // logged_errors/contract.py:6
+    // @abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // logged_errors/contract.py:8-9
+    // # code only (default prefix "ERR") -> "ERR:01"
+    // logged_assert(arg != 1, "01")
+    pushint 1
+    !=
+    bnz test_logged_errs_after_assert@3
+    pushbytes "ERR:01"
+    log
+    err // ERR:01
+
+test_logged_errs_after_assert@3:
+    // logged_errors/contract.py:10-11
+    // # code + message -> "ERR:02:arg is two"
+    // logged_assert(arg != 2, "02", error_message="arg is two")
+    dup
+    pushint 2
+    !=
+    bnz test_logged_errs_after_assert@5
+    pushbytes "ERR:02:arg is two"
+    log
+    err // ERR:02:arg is two
+
+test_logged_errs_after_assert@5:
+    // logged_errors/contract.py:12-13
+    // # code + custom prefix -> "AER:03"
+    // logged_assert(arg != 3, "03", prefix="AER")
+    dup
+    pushint 3
+    !=
+    bnz test_logged_errs_after_assert@7
+    pushbytes "AER:03"
+    log
+    err // AER:03
+
+test_logged_errs_after_assert@7:
+    // logged_errors/contract.py:14-15
+    // # unconditional logged_err -> "ERR:04"
+    // if arg == 4:
+    dup
+    pushint 4
+    ==
+    bz test_logged_errs_after_if_else@9
+    // logged_errors/contract.py:16
+    // logged_err("04")
+    pushbytes "ERR:04"
+    log
+    err // ERR:04
+
+test_logged_errs_after_if_else@9:
+    // logged_errors/contract.py:6
+    // @abimethod
+    pushint 1
+    return
