@@ -62,6 +62,8 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "ensure_budget": SymbolData(fullname="algopy._util.ensure_budget", module_public=True),
         "log": SymbolData(fullname="algopy._util.log", module_public=True),
         "size_of": SymbolData(fullname="algopy._util.size_of", module_public=True),
+        "logged_assert": SymbolData(fullname="algopy._util.logged_assert", module_public=True),
+        "logged_err": SymbolData(fullname="algopy._util.logged_err", module_public=True),
         "TemplateVar": SymbolData(
             fullname="algopy._template_variables.TemplateVar", module_public=True
         ),
@@ -207,6 +209,8 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "ensure_budget": SymbolData(fullname="algopy._util.ensure_budget", module_public=True),
         "log": SymbolData(fullname="algopy._util.log", module_public=True),
         "size_of": SymbolData(fullname="algopy._util.size_of", module_public=True),
+        "logged_assert": SymbolData(fullname="algopy._util.logged_assert", module_public=True),
+        "logged_err": SymbolData(fullname="algopy._util.logged_err", module_public=True),
     },
     "algopy.arc4": {
         "_P": SymbolData(fullname="algopy.arc4._P", module_public=True),
