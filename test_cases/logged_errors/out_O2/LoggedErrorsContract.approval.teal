@@ -1,0 +1,73 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    pushbytes ""
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x400ca34b // method "test_logged_errs(uint64)void"
+    txna ApplicationArgs 0
+    match main_test_logged_errs_route@3
+    err
+
+main_test_logged_errs_route@3:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    bury 2
+    pushint 1
+    !=
+    bnz main_after_assert@10
+    pushbytes "ERR:01"
+    log
+    err // ERR:01
+
+main_after_assert@10:
+    dup
+    pushint 2
+    !=
+    bnz main_after_assert@12
+    pushbytes "ERR:02:arg is two"
+    log
+    err // ERR:02:arg is two
+
+main_after_assert@12:
+    dup
+    pushint 3
+    !=
+    bnz main_after_assert@14
+    pushbytes "AER:03"
+    log
+    err // AER:03
+
+main_after_assert@14:
+    dup
+    pushint 4
+    ==
+    bz main_after_if_else@16
+    pushbytes "ERR:04"
+    log
+    err // ERR:04
+
+main_after_if_else@16:
+    pushint 1
+    return
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
