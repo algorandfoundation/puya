@@ -654,12 +654,13 @@ class ToCodeVisitor(
     def visit_assert_expression(self, statement: nodes.AssertExpression) -> str:
         error_message = "" if statement.error_message is None else f'"{statement.error_message}"'
         if not statement.condition:
-            result = "err("
+            result = "err(" if not statement.log_error else "logged_err("
             if error_message:
                 result += error_message
             result += ")"
         else:
-            result = f"assert({statement.condition.accept(self)}"
+            result = "assert(" if not statement.log_error else "logged_assert("
+            result += f"{statement.condition.accept(self)}"
             if error_message:
                 result += f", comment={error_message}"
             result += ")"

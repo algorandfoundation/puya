@@ -338,6 +338,7 @@ class AssertExpression(Expression):
     """An error message to be associated with the assertion failure"""
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
     explicit: bool = True
+    log_error: bool = False
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_assert_expression(self)
@@ -1211,13 +1212,13 @@ class IndexExpression(Expression):
         match self.base.wtype, wtype:
             case wtypes.BytesWType(), wtypes.BytesWType(length=1 | None):
                 pass
-            case wtypes.ARC4Array(
-                element_type=array_element_type
-            ), _ if array_element_type == wtype:
+            case wtypes.ARC4Array(element_type=array_element_type), _ if (
+                array_element_type == wtype
+            ):
                 pass
-            case wtypes.ReferenceArray(
-                element_type=array_element_type
-            ), _ if array_element_type == wtype:
+            case wtypes.ReferenceArray(element_type=array_element_type), _ if (
+                array_element_type == wtype
+            ):
                 pass
             case _:
                 raise InternalError(

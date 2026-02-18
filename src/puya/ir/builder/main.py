@@ -40,7 +40,7 @@ from puya.ir.builder._utils import (
     method_signature_to_abi_signature,
 )
 from puya.ir.builder.encoding_validation import validate_encoding
-from puya.ir.context import IRBuildContext
+from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
 from puya.ir.types_ import wtype_to_encoded_ir_type, wtype_to_ir_type
@@ -1120,6 +1120,13 @@ class FunctionIRBuilder(
                 else:  # false constant, treat as fail/err
                     condition_value = None
 
+        if expr.log_error:
+            if expr.error_message:
+                _build_logged_error(self.context, condition_value, expr.error_message, loc)
+            else:
+                raise InternalError("a logged error should have some kind of string to log")
+            return None
+
         if condition_value is None:
             self.context.block_builder.terminate(
                 ir.Fail(
@@ -1588,6 +1595,50 @@ class FunctionIRBuilder(
         """
         value_or_tuple = self.materialise_value_provider_as_value_or_tuple(provider, description)
         return multi_value_to_values(value_or_tuple)
+
+
+def _build_logged_error(
+    context: IRFunctionBuildContext,
+    condition: ir.Value | None,
+    msg: str,
+    loc: SourceLocation,
+):
+    # model assert/err behavior as a conditional jump into a pushbytes X; log; err; pattern
+    if condition:
+        log_and_fail, after_assert = context.block_builder.mkblocks(
+            "logged_error_handling", "after_assert", source_location=loc
+        )
+        context.block_builder.terminate(
+            ir.ConditionalBranch(
+                condition=condition,
+                non_zero=after_assert,
+                zero=log_and_fail,
+                source_location=loc,
+            )
+        )
+        context.block_builder.activate_block(log_and_fail)
+    context.block_builder.add(
+        ir.Intrinsic(
+            op=AVMOp("log"),
+            args=[
+                ir.BytesConstant(
+                    value=msg.encode("utf8"),
+                    encoding=types.AVMBytesEncoding.utf8,
+                    source_location=loc,
+                )
+            ],
+            source_location=loc,
+        )
+    )
+    context.block_builder.terminate(
+        ir.Fail(
+            error_message=msg,
+            explicit=True,  # logged errors are always explicit
+            source_location=loc,
+        )
+    )
+    if condition:
+        context.block_builder.try_activate_block(after_assert)
 
 
 def create_uint64_binary_op(

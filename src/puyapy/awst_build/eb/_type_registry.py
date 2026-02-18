@@ -9,6 +9,7 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import constants, intrinsic_data, pytypes
 from puyapy.awst_build.eb import (
     arc4,
+    arc65_error,
     biguint,
     bool as bool_,
     bytes as bytes_,
@@ -58,6 +59,8 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
     "algopy.op.err": intrinsics.ErrFunctionBuilder,
+    "algopy._util.logged_assert": arc65_error.LoggedAssertFunctionBuilder,
+    "algopy._util.logged_err": arc65_error.LoggedErrFunctionBuilder,
     **{
         (fullname := "".join((constants.ALGOPY_OP_PREFIX, name))): functools.partial(
             intrinsics.IntrinsicFunctionExpressionBuilder, fullname, mappings
