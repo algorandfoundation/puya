@@ -36,7 +36,7 @@ def create_source_list(
     sources = []
     for path in paths:
         path = path.resolve()
-        if path.suffix == ".py":
+        if path.suffixes == [".py"]:
             sources.append(finder.file_source(path))
         elif not path.is_dir():
             logger.error(f"path is not a directory or a .py file: {path}")
@@ -85,7 +85,7 @@ class _SourceResolver:
         py_paths = []
         sub_dirs = []
         for path in src_dir.iterdir():
-            if path.suffix == ".py":
+            if path.suffixes == [".py"]:
                 py_paths.append(path)
             elif path.name.startswith(".") or path.name in self._all_excluded_subdir_names:
                 pass  # skip hidden directories and also excluded ones
