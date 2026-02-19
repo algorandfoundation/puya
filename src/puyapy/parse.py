@@ -30,7 +30,7 @@ from packaging import version
 from puya import log
 from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import make_path_relative_to_cwd
+from puya.utils import make_path_relative_to_cwd, unique
 from puyapy import interpreter_data
 from puyapy.find_sources import ResolvedSourceSet, resolve_source_set
 
@@ -90,23 +90,9 @@ def parse_python(
 
     source_set = resolve_source_set(paths=paths, excluded_subdir_names=excluded_subdir_names)
 
-    source_roots = [rs.base_dir or rs.path.parent for rs in source_set.sources]
-    source_roots.append(Path.cwd())
+    package_paths = _resolve_package_paths(package_search_paths)
+    _check_algopy_version(package_paths)
 
-    python_path = tuple(dict.fromkeys(map(str, source_roots)))
-    package_paths = tuple(_resolve_package_paths(package_search_paths))
-    typeshed_paths = _typeshed_paths()
-    mypy_search_paths = SearchPaths(
-        python_path=python_path,
-        package_path=package_paths,
-        typeshed_path=typeshed_paths,
-        mypy_path=(),
-    )
-    mypy_build_sources = [
-        BuildSource(path=str(rs.path), module=rs.module)
-        for rs in source_set.sources
-    ]
-    mypy_options = _get_mypy_options()
     fs_cache = FileSystemCache()
     # prime the cache with supplied content overrides, so that mypy reads from our data instead
     if file_contents:
@@ -117,22 +103,16 @@ def parse_python(
             fs_cache.read_cache[fn] = data
             fs_cache.hash_cache[fn] = hash_digest(data)
 
-    manager, graph = _mypy_build(mypy_build_sources, mypy_options, mypy_search_paths, fs_cache)
-    # Sometimes when we call back into mypy, there might be errors.
-    # We don't want to crash when that happens.
-    manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
-    missing_module_names = source_set.sources_by_module_name.keys() - manager.modules.keys()
-    # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
-    assert (
-        not missing_module_names
-    ), f"mypy parse failed, missing modules: {', '.join(missing_module_names)}"
+    mypy_options = _get_mypy_options()
+    graph = _mypy_build(source_set, package_paths, mypy_options, fs_cache)
 
     # order modules by dependency, and also sanity check the contents
     ordered_modules = {}
     for scc in sorted_components(graph):
         for module_name in order_ascc(graph, scc.mod_ids):
-            module = manager.modules[module_name]
             state = graph[module_name]
+            module = state.tree
+            assert module is not None, f"missing AST for module {module_name}"
             assert (
                 module_name == module.fullname
             ), f"mypy module mismatch, expected {module_name}, got {module.fullname}"
@@ -173,7 +153,6 @@ def _resolve_package_paths(
         case paths:
             sys_path = [os.path.abspath(p) for p in paths]  # noqa: PTH100
     logger.info(f"using python search path: {sys_path}")
-    _check_algopy_version(sys_path)
     return sys_path
 
 
@@ -282,11 +261,11 @@ def _get_mypy_options() -> MypyOptions:
 
 
 def _mypy_build(
-    sources: list[BuildSource],
+    source_set: ResolvedSourceSet,
+    sys_path: Sequence[str],
     options: MypyOptions,
-    search_paths: SearchPaths,
     fscache: FileSystemCache,
-) -> tuple[BuildManager, Graph]:
+) -> Graph:
     """
     Our own implementation of mypy.build.build which handles errors via logging,
     and uses our computed search paths.
@@ -303,7 +282,21 @@ def _mypy_build(
     ) -> None:
         all_messages.extend(msg for msg in new_messages if os.devnull not in msg)
 
-    source_set = BuildSourceSet(sources)
+    mypy_build_sources = [
+        BuildSource(path=str(rs.path), module=rs.module) for rs in source_set.sources
+    ]
+    mypy_source_set = BuildSourceSet(mypy_build_sources)
+
+    # for standalone modules (indicated by no base_dir), include their containing directory
+    python_path = unique(str(rs.base_dir or rs.path.parent) for rs in source_set.sources)
+    typeshed_path = _typeshed_paths()
+    search_paths = SearchPaths(
+        python_path=tuple(python_path),
+        package_path=tuple(sys_path),
+        typeshed_path=typeshed_path,
+        mypy_path=(),
+    )
+
     cached_read = fscache.read
     errors = Errors(options, read_source=lambda path: read_py_file(path, cached_read))
     plugin = DefaultPlugin(options)
@@ -314,7 +307,7 @@ def _mypy_build(
         search_paths=search_paths,
         # Ignore current directory prefix in error messages.
         ignore_prefix=os.getcwd(),  # noqa: PTH109
-        source_set=source_set,
+        source_set=mypy_source_set,
         reports=None,
         options=options,
         version_id=mypy_version,
@@ -328,11 +321,20 @@ def _mypy_build(
     )
 
     reset_global_state()
-    graph = dispatch(sources, manager, sys.stdout)
+    graph = dispatch(mypy_build_sources, manager, sys.stdout)
     _log_mypy_messages(all_messages)
     if not options.fine_grained_incremental:
         type_state.reset_all_subtype_caches()
-    return manager, graph
+
+    # Sometimes when we call back into mypy, there might be errors.
+    # We don't want to crash when that happens.
+    manager.errors.set_file("<puyapy>", module=None, scope=None, options=options)
+    missing_module_names = source_set.sources_by_module_name.keys() - manager.modules.keys()
+    # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
+    assert (
+        not missing_module_names
+    ), f"mypy parse failed, missing modules: {', '.join(missing_module_names)}"
+    return graph
 
 
 def _log_mypy_message(message: log.Log | None, related_lines: list[str]) -> None:
