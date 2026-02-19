@@ -1,12 +1,13 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from functools import cached_property
 from pathlib import Path
 
 import attrs
 
 from puya import log
+from puya.errors import ConfigurationError
 from puya.parse import SourceLocation
-from puya.utils import lazy_setdefault, make_path_relative_to_cwd
+from puya.utils import lazy_setdefault, make_path_relative_to_cwd, set_add
 
 logger = log.get_logger(__name__)
 
@@ -32,7 +33,21 @@ class ResolvedSource:
             )
 
 
-def create_source_list(
+@attrs.frozen
+class ResolvedSourceSet:
+    sources: Sequence[ResolvedSource]
+    sources_by_module_name: Mapping[str, ResolvedSource]
+    package_roots: Mapping[str, Path]
+
+
+def resolve_source_set(
+    paths: Sequence[Path], *, excluded_subdir_names: Sequence[str] | None
+) -> ResolvedSourceSet:
+    resolve_source_list = _create_source_list(paths, excluded_subdir_names=excluded_subdir_names)
+    return _create_and_check_source_set(resolve_source_list)
+
+
+def _create_source_list(
     paths: Sequence[Path], *, excluded_subdir_names: Sequence[str] | None
 ) -> list[ResolvedSource]:
     finder = _SourceResolver(excluded_subdir_names=excluded_subdir_names)
@@ -148,3 +163,63 @@ def _module_join(parent: str, child: str) -> str:
             return parent
         return parent + "." + child
     return child
+
+
+def _create_and_check_source_set(
+    resolved_sources: Sequence[ResolvedSource],
+) -> ResolvedSourceSet:
+    """
+    Validate the consistency and uniqueness of all properties of resolved sources,
+    and return a ResolvedSourceSet..
+    """
+    sources_by_module_name = dict[str, ResolvedSource]()
+    seen_paths = set[Path]()
+    package_roots = dict[str, Path]()
+    errors = list[str]()
+    seen_pkg_conflicts = set[frozenset[Path]]()
+    for rs in resolved_sources:
+        existing = sources_by_module_name.setdefault(rs.module, rs)
+        if existing != rs:
+            errors.append(
+                f"duplicate modules named in build sources:"
+                f" {make_path_relative_to_cwd(rs.path)} has same module name '{rs.module}'"
+                f" as {make_path_relative_to_cwd(existing.path)}"
+            )
+            continue
+        assert set_add(seen_paths, rs.path), f"duplicate path with different module: {rs.path}"
+        pkg = rs.module.partition(".")[0]
+        if rs.base_dir is None:
+            pkg_root = rs.path
+            assert pkg_root.suffixes == [".py"] and pkg_root.stem != "__init__"
+        else:
+            pkg_root = rs.base_dir / pkg / "__init__.py"
+            assert pkg_root.is_file()
+        existing_root = package_roots.setdefault(pkg, pkg_root)
+        if existing_root != pkg_root:
+            if not set_add(seen_pkg_conflicts, frozenset((existing_root, pkg_root))):
+                continue
+            conflict_msg = f"module '{rs.module}' appears to be a"
+            if rs.base_dir is None:
+                conflict_msg += f" standalone module at {make_path_relative_to_cwd(pkg_root)}"
+            else:
+                conflict_msg += f" package rooted at {make_path_relative_to_cwd(rs.base_dir)}"
+            conflict_msg += ", which conflicts with a"
+            existing_is_standalone = existing_root.name != "__init__.py"
+            if existing_is_standalone:
+                conflict_msg += (
+                    f" standalone module of the same name"
+                    f" located at {make_path_relative_to_cwd(existing_root)}"
+                )
+            else:
+                conflict_msg += (
+                    f" package of the same name"
+                    f" rooted at {make_path_relative_to_cwd(existing_root.parent)}"
+                )
+            errors.append(conflict_msg)
+    if errors:
+        raise ExceptionGroup("source conflicts", [ConfigurationError(msg) for msg in errors])
+    return ResolvedSourceSet(
+        sources=resolved_sources,
+        sources_by_module_name=sources_by_module_name,
+        package_roots=package_roots,
+    )

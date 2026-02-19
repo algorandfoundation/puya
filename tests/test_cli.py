@@ -195,6 +195,79 @@ def test_run_file_shadowed_by_directory(tmp_path: Path) -> None:
     ) in output
 
 
+def test_run_duplicate_module_names(tmp_path: Path) -> None:
+    dir1 = tmp_path / "dir1"
+    dir2 = tmp_path / "dir2"
+    dir1.mkdir()
+    dir2.mkdir()
+    (dir1 / "foo.py").write_text("", "utf-8")
+    (dir2 / "foo.py").write_text("", "utf-8")
+    output = _run_puyapy_expecting_failure(dir1, dir2, cwd=tmp_path)
+    assert (
+        "error: duplicate modules named in build sources:"
+        " dir2/foo.py has same module name 'foo' as dir1/foo.py"
+    ) in output
+
+
+def test_run_conflicting_package_roots_standalone_vs_package(tmp_path: Path) -> None:
+    # standalone foo.py conflicts with foo/ package in a different directory
+    dir1 = tmp_path / "dir1"
+    dir1.mkdir()
+    (dir1 / "foo.py").write_text("", "utf-8")
+    dir2 = tmp_path / "dir2"
+    (dir2 / "foo").mkdir(parents=True)
+    (dir2 / "foo" / "__init__.py").write_text("", "utf-8")
+    (dir2 / "foo" / "bar.py").write_text("", "utf-8")
+    output = _run_puyapy_expecting_failure(dir1 / "foo.py", dir2 / "foo" / "bar.py", cwd=tmp_path)
+    assert (
+        "error: module 'foo.bar' appears to be a package rooted at dir2,"
+        " which conflicts with a standalone module of the same name located at dir1/foo.py"
+    ) in output
+
+
+def test_run_conflicting_package_roots_packages(tmp_path: Path) -> None:
+    # same-named package in two different source roots, with an extra source in src2
+    # to verify the conflict is reported exactly once (dedup)
+    src1 = tmp_path / "src1"
+    src2 = tmp_path / "src2"
+    (src1 / "foo").mkdir(parents=True)
+    (src2 / "foo").mkdir(parents=True)
+    (src1 / "foo" / "__init__.py").write_text("", "utf-8")
+    (src2 / "foo" / "__init__.py").write_text("", "utf-8")
+    (src1 / "foo" / "bar.py").write_text("", "utf-8")
+    (src2 / "foo" / "baz.py").write_text("", "utf-8")
+    (src2 / "foo" / "qux.py").write_text("", "utf-8")
+    output = _run_puyapy_expecting_failure(
+        src1 / "foo" / "bar.py",
+        src2 / "foo" / "baz.py",
+        src2 / "foo" / "qux.py",
+        cwd=tmp_path,
+    )
+    assert (
+        "error: module 'foo.baz' appears to be a package rooted at src2,"
+        " which conflicts with a package of the same name rooted at src1/foo"
+    ) in output
+    assert output.count("conflicts with") == 1
+
+
+def test_run_conflicting_package_roots_package_vs_standalone(tmp_path: Path) -> None:
+    # package source processed first, then standalone — exercises the "standalone module at" branch
+    pkg_dir = tmp_path / "pkg_dir"
+    (pkg_dir / "foo").mkdir(parents=True)
+    (pkg_dir / "foo" / "__init__.py").write_text("", "utf-8")
+    (pkg_dir / "foo" / "bar.py").write_text("", "utf-8")
+    standalone_dir = tmp_path / "standalone_dir"
+    standalone_dir.mkdir()
+    (standalone_dir / "foo.py").write_text("", "utf-8")
+    output = _run_puyapy_expecting_failure(
+        pkg_dir / "foo" / "bar.py", standalone_dir / "foo.py", cwd=tmp_path
+    )
+    assert (
+        "error: module 'foo' appears to be a standalone module at standalone_dir/foo.py,"
+        " which conflicts with a package of the same name rooted at pkg_dir/foo"
+    ) in output
+
+
 @pytest.fixture(scope="session")
 def arc_56_out(tmp_path_factory: pytest.TempPathFactory) -> Path:
     # isolate output from other tests

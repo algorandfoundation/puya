@@ -11,7 +11,6 @@ import typing
 from collections.abc import Mapping, Sequence, Set
 from functools import cached_property
 from importlib import metadata
-from operator import itemgetter
 from pathlib import Path
 
 import attrs
@@ -33,7 +32,7 @@ from puya.errors import ConfigurationError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd
 from puyapy import interpreter_data
-from puyapy.find_sources import ResolvedSource, create_source_list
+from puyapy.find_sources import ResolvedSourceSet, resolve_source_set
 
 logger = log.get_logger(__name__)
 
@@ -89,10 +88,9 @@ def parse_python(
 ) -> ParseResult:
     """Generate the ASTs from the build sources, and all imported modules (recursively)"""
 
-    sources_by_module_name = _create_and_check_source_list(
-        paths, excluded_subdir_names=excluded_subdir_names
-    )
-    source_roots = [bs.base_dir or bs.path.parent for bs in sources_by_module_name.values()]
+    source_set = resolve_source_set(paths=paths, excluded_subdir_names=excluded_subdir_names)
+
+    source_roots = [rs.base_dir or rs.path.parent for rs in source_set.sources]
     source_roots.append(Path.cwd())
 
     python_path = tuple(dict.fromkeys(map(str, source_roots)))
@@ -105,8 +103,8 @@ def parse_python(
         mypy_path=(),
     )
     mypy_build_sources = [
-        BuildSource(path=str(bs.path), module=module_name, base_dir=str(bs.base_dir) if bs.base_dir else None)
-        for module_name, bs in sorted(sources_by_module_name.items(), key=itemgetter(0))
+        BuildSource(path=str(rs.path), module=rs.module)
+        for rs in source_set.sources
     ]
     mypy_options = _get_mypy_options()
     fs_cache = FileSystemCache()
@@ -123,7 +121,7 @@ def parse_python(
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     manager.errors.set_file("<puyapy>", module=None, scope=None, options=mypy_options)
-    missing_module_names = sources_by_module_name.keys() - manager.modules.keys()
+    missing_module_names = source_set.sources_by_module_name.keys() - manager.modules.keys()
     # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
     assert (
         not missing_module_names
@@ -147,7 +145,7 @@ def parse_python(
             else:
                 _check_encoding(fs_cache, module_path)
                 lines = read_py_file(str(module_path), fs_cache.read)
-                if module_name in sources_by_module_name:
+                if module_name in source_set.sources_by_module_name:
                     discovery_mechanism = SourceDiscoveryMechanism.explicit
                 else:
                     discovery_mechanism = SourceDiscoveryMechanism.dependency
@@ -162,40 +160,6 @@ def parse_python(
                 )
 
     return ParseResult(mypy_options=mypy_options, ordered_modules=ordered_modules)
-
-
-def _create_and_check_source_list(
-    paths: Sequence[Path],
-    *,
-    excluded_subdir_names: Sequence[str] | None,
-) -> Mapping[str, ResolvedSource]:
-    build_sources = create_source_list(paths=paths, excluded_subdir_names=excluded_subdir_names)
-    sources_by_module_name = dict[str, ResolvedSource]()
-    sources_by_path = dict[Path, ResolvedSource]()
-    duplicate_errors = list[ConfigurationError]()
-    for bs in build_sources:
-        existing = sources_by_module_name.setdefault(bs.module, bs)
-        if existing != bs:
-            duplicate_errors.append(
-                ConfigurationError(
-                    f"duplicate modules named in build sources:"
-                    f" {make_path_relative_to_cwd(bs.path)} has same module name '{bs.module}'"
-                    f" as {make_path_relative_to_cwd(existing.path)}"
-                )
-            )
-        else:
-            existing = sources_by_path.setdefault(bs.path, bs)
-            if existing != bs:
-                duplicate_errors.append(
-                    ConfigurationError(
-                        f"source path {make_path_relative_to_cwd(bs.path)}"
-                        f" was resolved to multiple module names, ensure each path is only"
-                        f" specified once or add top-level __init__.py files to mark package roots"
-                    )
-                )
-    if duplicate_errors:
-        raise ExceptionGroup("duplicate module errors", duplicate_errors)
-    return sources_by_module_name
 
 
 def _resolve_package_paths(
