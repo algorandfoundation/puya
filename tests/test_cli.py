@@ -18,7 +18,9 @@ ENV_WITH_NO_COLOR = dict(os.environ) | {
 }
 
 
-def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+def run_puyapy(
+    args: list[str | Path], *, check: bool = True, cwd: Path | None = None
+) -> subprocess.CompletedProcess[str]:
     puyapy = shutil.which("puyapy")
     assert puyapy is not None, "puyapy not found"
     return _run(
@@ -41,6 +43,7 @@ def run_puyapy(args: list[str | Path], *, check: bool = True) -> subprocess.Comp
             *map(str, args),
         ],
         check=check,
+        cwd=cwd,
     )
 
 
@@ -71,7 +74,9 @@ def run_puyapy_clientgen(
     )
 
 
-def _run(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+def _run(
+    args: list[str], *, check: bool = True, cwd: Path | None = None
+) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
         args,
         text=True,
@@ -79,7 +84,7 @@ def _run(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[
         stdout=subprocess.PIPE,
         # redirect stderr to stdout, so they're interleaved in the correct ordering
         stderr=subprocess.STDOUT,
-        cwd=VCS_ROOT,
+        cwd=cwd or VCS_ROOT,
         check=False,
         env=ENV_WITH_NO_COLOR,
     )
@@ -155,6 +160,39 @@ def test_run_no_init_multiple_files() -> None:
         r"warning: cannot determine package root for tests/no-init/(.*\.py)", result.stdout
     )
     assert set(package_rootless) == {"arc4/hello_world_arc4.py", "hello_world.py"}
+
+
+def test_run_invalid_module_name(tmp_path: Path) -> None:
+    pkg = tmp_path / "my-pkg"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("", "utf-8")
+    result = run_puyapy([pkg])
+    assert 'warning: python module name is invalid ("my-pkg")' in result.stdout
+
+
+def _run_puyapy_expecting_failure(*args: str | Path, cwd: Path | None = None) -> str:
+    result = run_puyapy(list(args), check=False, cwd=cwd)
+    assert result.returncode != 0
+    return result.stdout
+
+
+def test_run_empty_directory(tmp_path: Path) -> None:
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    output = _run_puyapy_expecting_failure(empty, cwd=tmp_path)
+    assert "error: there are no .py files in directory: empty" in output
+
+
+def test_run_file_shadowed_by_directory(tmp_path: Path) -> None:
+    src = tmp_path / "src"
+    src.mkdir()
+    (src / "__init__.py").write_text("", "utf-8")
+    (src / "foo").mkdir()
+    (src / "foo.py").write_text("", "utf-8")
+    output = _run_puyapy_expecting_failure(src, cwd=tmp_path)
+    assert (
+        "error: python file src/foo.py potentially shadowed by directory with same name"
+    ) in output
 
 
 @pytest.fixture(scope="session")

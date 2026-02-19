@@ -15,15 +15,19 @@ logger = log.get_logger(__name__)
 class ResolvedSource:
     path: Path
     """File where it's found (e.g. '/home/user/pkg/module.py')"""
-    module: str
+    module: str = attrs.field()
     """Module name (e.g. 'pkg.module')"""
-    base_dir: Path
-    """Directory where the package is rooted (e.g. '/home/user')"""
+    base_dir: Path | None
+    """
+    Directory where the package is rooted (e.g. '/home/user'),
+    If None, then unable to determine a package.
+    """
 
-    def __attrs_post_init__(self) -> None:
-        if not all(part.isidentifier() for part in self.module.split(".")):
+    @module.validator
+    def _module_validator(self, _attr: object, module: str) -> None:
+        if not all(part.isidentifier() for part in module.split(".")):
             logger.warning(
-                f'python module name is invalid ("{self.module}")',
+                f'python module name is invalid ("{module}")',
                 location=SourceLocation(file=self.path, line=1),
             )
 
@@ -39,11 +43,15 @@ def create_source_list(
         if path.suffixes == [".py"]:
             sources.append(finder.file_source(path))
         elif not path.is_dir():
-            logger.error(f"path is not a directory or a .py file: {path}")
+            logger.error(
+                f"path is not a directory or a .py file: {make_path_relative_to_cwd(path)}"
+            )
         else:
             sub_sources = finder.directory_sources(path)
             if not sub_sources:
-                logger.error(f"there are no .py files in directory: {path}")
+                logger.error(
+                    f"there are no .py files in directory: {make_path_relative_to_cwd(path)}"
+                )
             else:
                 sources.extend(sub_sources)
     return sources
@@ -75,39 +83,31 @@ class _SourceResolver:
         else:
             logger.warning(f"cannot determine package root for {make_path_relative_to_cwd(path)}")
             parent_module = ""
-            base_dir = parent
+            base_dir = None
 
         module = _module_join(parent_module, path.stem)
         return ResolvedSource(path, module, base_dir)
 
     def directory_sources(self, src_dir: Path) -> list[ResolvedSource]:
         """Given an absolute directory, recursively find all build sources within."""
-        py_paths = []
-        sub_dirs = []
-        for path in src_dir.iterdir():
-            if path.suffixes == [".py"]:
-                py_paths.append(path)
-            elif path.name.startswith(".") or path.name in self._all_excluded_subdir_names:
-                pass  # skip hidden directories and also excluded ones
-            elif path.is_dir():
-                sub_dirs.append(path)
-
         sources = []
-        src_dir_names = set[str]()
-        for path in sub_dirs:
-            sub_sources = self.directory_sources(path)
-            if sub_sources:
-                src_dir_names.add(path.name)
-                sources.extend(sub_sources)
-
-        for path in py_paths:
-            if path.stem in src_dir_names:
-                logger.warning(
-                    f"python file {make_path_relative_to_cwd(path)}"
-                    f" shadowed by module directory with same name"
-                )
-            else:
-                sources.append(self.file_source(path))
+        dir_names = set[str]()
+        # sort to ensure that directories appear before any python modules they might shadow
+        for path in sorted(src_dir.iterdir()):
+            if path.is_dir():
+                dir_names.add(path.name)
+                if path.name.startswith(".") or path.name in self._all_excluded_subdir_names:
+                    pass  # skip hidden directories and also excluded ones
+                else:
+                    sources.extend(self.directory_sources(path))
+            elif path.suffixes == [".py"]:
+                if path.stem in dir_names:
+                    logger.error(
+                        f"python file {make_path_relative_to_cwd(path)}"
+                        f" potentially shadowed by directory with same name"
+                    )
+                else:
+                    sources.append(self.file_source(path))
         return sources
 
     def _find_package_root(self, src_dir: Path) -> tuple[str, Path] | None:
@@ -120,13 +120,15 @@ class _SourceResolver:
 
         parent = src_dir.parent
         if parent == src_dir:  # prevents infinite recursion
-            if has_init:
+            if has_init:  # pragma: no cover
+                # no simple cross-platform way to test this without
+                # root privileges or an in-process filesystem fake
                 logger.error("root directory cannot be a Python package")
             return None
 
         name = src_dir.name
         if not (has_init or name.isidentifier()):
-            # if the  directory name is invalid and there's not __init__.py, stop crawling upwards
+            # if the directory name is invalid and there's not __init__.py, stop crawling upwards
             return None
 
         root = self._find_package_root(parent)

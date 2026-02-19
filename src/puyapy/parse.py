@@ -92,7 +92,7 @@ def parse_python(
     sources_by_module_name = _create_and_check_source_list(
         paths, excluded_subdir_names=excluded_subdir_names
     )
-    source_roots = [bs.base_dir for bs in sources_by_module_name.values()]
+    source_roots = [bs.base_dir or bs.path.parent for bs in sources_by_module_name.values()]
     source_roots.append(Path.cwd())
 
     python_path = tuple(dict.fromkeys(map(str, source_roots)))
@@ -105,7 +105,7 @@ def parse_python(
         mypy_path=(),
     )
     mypy_build_sources = [
-        BuildSource(path=str(bs.path), module=module_name, base_dir=str(bs.base_dir))
+        BuildSource(path=str(bs.path), module=module_name, base_dir=str(bs.base_dir) if bs.base_dir else None)
         for module_name, bs in sorted(sources_by_module_name.items(), key=itemgetter(0))
     ]
     mypy_options = _get_mypy_options()
