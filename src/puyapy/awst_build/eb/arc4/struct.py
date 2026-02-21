@@ -55,7 +55,7 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
 
         values = {
             field_name: expect.argument_of_type_else_dummy(
-                field_mapping[field_name], pytype.fields[field_name]
+                field_mapping[field_name], pytype.fields[field_name].type
             ).resolve()
             for field_name in field_mapping
         }
@@ -88,7 +88,7 @@ class ARC4StructExpressionBuilder(
                     name=field_name,
                     source_location=location,
                 )
-                return builder_for_instance(field, result_expr)
+                return builder_for_instance(field.type, result_expr)
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
             case "_replace":
@@ -134,13 +134,13 @@ class _Replace(FunctionBuilder):
         )
         base_expr = self.instance.single_eval().resolve()
         values = dict[str, Expression]()
-        for field_name, field_pytype in pytype.fields.items():
+        for field_name, field in pytype.fields.items():
             new_value = field_mapping.get(field_name)
             if new_value is not None:
-                item_builder = expect.argument_of_type_else_dummy(new_value, field_pytype)
+                item_builder = expect.argument_of_type_else_dummy(new_value, field.type)
                 item = item_builder.resolve()
             else:
-                field_wtype = field_pytype.checked_wtype(location)
+                field_wtype = field.type.checked_wtype(location)
                 item = FieldExpression(base=base_expr, name=field_name, source_location=location)
                 if not field_wtype.immutable:
                     logger.error(

@@ -12,6 +12,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.avm import TransactionType
 from puya.awst import wtypes
+from puya.awst.wtypes import WTypeField
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
@@ -345,12 +346,21 @@ class TupleType(TupleLikeType):
         )
 
 
+@attrs.frozen(kw_only=True, order=False)
+class PyTypeField:
+    name: str = attrs.field()
+    type: PyType = attrs.field()
+    docs: str | None = attrs.field(default=None, eq=False)
+
+
 NamedTupleBaseType: typing.Final[PyType] = _BaseType(name="typing.NamedTuple")
 
 
 @attrs.frozen(kw_only=True, order=False)
 class NamedTupleType(TupleType, RuntimeType):
-    fields: immutabledict[str, PyType] = attrs.field(converter=immutabledict)
+    fields: immutabledict[str, PyTypeField] = attrs.field(
+        converter=immutabledict[str, PyTypeField]
+    )
     items: tuple[PyType, ...] = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
     bases: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
@@ -360,7 +370,7 @@ class NamedTupleType(TupleType, RuntimeType):
 
     @items.default
     def _items(self) -> tuple[PyType, ...]:
-        return tuple(self.fields.values())
+        return tuple(field.type for field in self.fields.values())
 
     @wtype.default
     def _wtype(self) -> wtypes.WTuple:
@@ -470,7 +480,9 @@ ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.o
 @typing.final
 @attrs.frozen(init=False, order=False)
 class StructType(RuntimeType):
-    fields: immutabledict[str, PyType] = attrs.field(converter=immutabledict)
+    fields: immutabledict[str, PyTypeField] = attrs.field(
+        converter=immutabledict[str, PyTypeField]
+    )
     frozen: bool
     wtype: wtypes.ARC4Struct
     source_location: SourceLocation | None = attrs.field(eq=False)
@@ -483,7 +495,7 @@ class StructType(RuntimeType):
 
     @cached_property
     def types(self) -> tuple[PyType, ...]:
-        return tuple(self.fields.values())
+        return tuple(field.type for field in self.fields.values())
 
     def __init__(
         self,
@@ -491,7 +503,7 @@ class StructType(RuntimeType):
         base: PyType,
         name: str,
         desc: str | None,
-        fields: Mapping[str, PyType],
+        fields: Mapping[str, PyTypeField],
         frozen: bool,
         source_location: SourceLocation | None,
     ):
@@ -499,7 +511,10 @@ class StructType(RuntimeType):
             raise InternalError(f"Unknown struct base type: {base}", source_location)
 
         field_wtypes = {
-            name: field_typ.checked_wtype(source_location) for name, field_typ in fields.items()
+            name: WTypeField(
+                name=field.name, type=field.type.checked_wtype(source_location), docs=field.docs
+            )
+            for name, field in fields.items()
         }
         wtype = wtypes.ARC4Struct(
             fields=field_wtypes,
@@ -834,13 +849,19 @@ CompiledContractType: typing.Final = _register_builtin(
     NamedTupleType(
         name="algopy._compiled.CompiledContract",
         fields={
-            "approval_program": GenericTupleType.parameterise([BytesType, BytesType], None),
-            "clear_state_program": GenericTupleType.parameterise([BytesType, BytesType], None),
-            "extra_program_pages": UInt64Type,
-            "global_uints": UInt64Type,
-            "global_bytes": UInt64Type,
-            "local_uints": UInt64Type,
-            "local_bytes": UInt64Type,
+            "approval_program": PyTypeField(
+                name="approval_program",
+                type=GenericTupleType.parameterise([BytesType, BytesType], None),
+            ),
+            "clear_state_program": PyTypeField(
+                name="clear_state_program",
+                type=GenericTupleType.parameterise([BytesType, BytesType], None),
+            ),
+            "extra_program_pages": PyTypeField(name="extra_program_pages", type=UInt64Type),
+            "global_uints": PyTypeField(name="global_uints", type=UInt64Type),
+            "global_bytes": PyTypeField(name="global_bytes", type=UInt64Type),
+            "local_uints": PyTypeField(name="local_uints", type=UInt64Type),
+            "local_bytes": PyTypeField(name="local_bytes", type=UInt64Type),
         },
         source_location=None,
     )
@@ -849,7 +870,7 @@ CompiledLogicSigType: typing.Final = _register_builtin(
     NamedTupleType(
         name="algopy._compiled.CompiledLogicSig",
         fields={
-            "account": AccountType,
+            "account": PyTypeField(name="account", type=AccountType),
         },
         source_location=None,
     )

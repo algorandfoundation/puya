@@ -334,6 +334,14 @@ class ReferenceArray(_WTypeInstance):
 
 
 @typing.final
+@attrs.frozen(kw_only=True)
+class WTypeField:
+    name: str = attrs.field()
+    type: WType = attrs.field()
+    docs: str | None = attrs.field(default=None, eq=False)
+
+
+@typing.final
 @attrs.frozen(eq=False)
 class WTuple(_WTypeInstance):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
@@ -388,11 +396,14 @@ class WTuple(_WTypeInstance):
             raise CodeError("tuple item names are not unique", self.source_location)
 
     @cached_property
-    def fields(self) -> Mapping[str, WType]:
+    def fields(self) -> Mapping[str, WTypeField]:
         """Mapping of item names to types if `names` is defined, otherwise empty."""
         if self.names is None:
             return {}
-        return dict(zip(self.names, self.types, strict=True))
+        return {
+            name: WTypeField(name=name, type=wtype)
+            for name, wtype in zip(self.names, self.types, strict=True)
+        }
 
     def name_to_index(self, name: str, source_location: SourceLocation) -> int:
         if self.names is None:
@@ -567,7 +578,7 @@ class ARC4StaticArray(ARC4Array):
 @attrs.frozen(kw_only=True)
 class ARC4Struct(_ARC4WTypeInstance):
     arc4_alias: None = attrs.field(default=None, init=False)
-    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict[str, WType])
+    fields: immutabledict[str, WTypeField] = attrs.field(converter=immutabledict[str, WTypeField])
     frozen: bool
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
@@ -575,19 +586,39 @@ class ARC4Struct(_ARC4WTypeInstance):
     is_aggregate: bool = attrs.field(default=True, init=False)
 
     @fields.validator
-    def _fields_validator(self, _attribute: object, value: immutabledict[str, WType]) -> None:
-        unpersistable = [
-            field_name for field_name, field_type in value.items() if not field_type.persistable
-        ]
+    def _fields_validator(self, _attribute: object, value: immutabledict[str, WTypeField]) -> None:
+        unpersistable = [field.name for name, field in value.items() if not field.type.persistable]
         if unpersistable:
             raise CodeError(
                 "invalid ARC-4 Struct declaration,"
                 f" the following fields are not persistable: {', '.join(unpersistable)}",
             )
 
+        nonmatching_names = [
+            f"({name} -> {field.name}" for name, field in value.items() if name != field.name
+        ]
+        if nonmatching_names:
+            raise CodeError(
+                "invalid ARC-4 Struct declaration, the following fields have"
+                f" an incorrect internal name: {', '.join(nonmatching_names)}",
+            )
+
+        field_names = set()
+        repeated_field_names = set()
+        for field in value.values():
+            if field.name in field_names:
+                repeated_field_names.add(field.name)
+            else:
+                field_names.add(field.name)
+        if repeated_field_names:
+            raise CodeError(
+                "invalid ARC-4 Struct declaration,"
+                f"the following fields are not unique: {', '.join(repeated_field_names)}"
+            )
+
     @immutable.default
     def _immutable(self) -> bool:
-        return self.frozen and all(typ.immutable for typ in self.fields.values())
+        return self.frozen and all(field.type.immutable for field in self.fields.values())
 
     @cached_property
     def names(self) -> tuple[str, ...]:
@@ -595,7 +626,7 @@ class ARC4Struct(_ARC4WTypeInstance):
 
     @cached_property
     def types(self) -> tuple[WType, ...]:
-        return tuple(self.fields.values())
+        return tuple(field.type for field in self.fields.values())
 
     @typing.override
     def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:

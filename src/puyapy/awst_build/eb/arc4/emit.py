@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Emit, NewStruct
+from puya.awst.wtypes import WTypeField
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
@@ -78,14 +79,14 @@ class EmitBuilder(FunctionBuilder):
                 event_arc4_name = "(" + ",".join(arg_arc4_names) + ")"
                 # emit requires a struct type, so generate one based on args
                 values = {}
-                fields = {}
+                fields: dict[str, WTypeField] = {}
                 for idx, (arg, arc4_pt) in enumerate(
                     zip(rest, arc4_pytypes, strict=True), start=1
                 ):
                     arc4_arg = implicit_arc4_conversion(arg, arc4_pt).resolve()
                     field_name = f"field{idx}"
                     values[field_name] = arc4_arg
-                    fields[field_name] = arc4_arg.wtype
+                    fields[field_name] = wtypes.WTypeField(name=field_name, type=arc4_arg.wtype)
                 struct_wtype = wtypes.ARC4Struct(
                     name=method_sig.name,
                     fields=fields,

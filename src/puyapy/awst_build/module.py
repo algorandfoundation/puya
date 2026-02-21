@@ -671,8 +671,8 @@ def _process_contract_class_options(
 
 def _process_dataclass_like_fields(
     context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef, base_type: pytypes.PyType
-) -> dict[str, pytypes.PyType] | None:
-    fields = dict[str, pytypes.PyType]()
+) -> dict[str, pytypes.PyTypeField] | None:
+    fields = dict[str, pytypes.PyTypeField]()
     has_error = False
     for stmt in cdef.defs.body:
         stmt_loc = context.node_location(stmt)
@@ -687,7 +687,7 @@ def _process_dataclass_like_fields(
                 type=mypy.types.Type() as mypy_type,
             ):
                 pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
-                fields[field_name] = pytype
+                fields[field_name] = pytypes.PyTypeField(name=field_name, type=pytype)
                 if isinstance((maybe_err := pytype.wtype), str):
                     logger.error(maybe_err, location=stmt_loc)
                     has_error = True

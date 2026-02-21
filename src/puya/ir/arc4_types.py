@@ -70,7 +70,12 @@ class _ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
                 return None
             arc4_item_types.append(arc4_type)
         if wtuple.fields:
-            arc4_fields = dict(zip(wtuple.fields, arc4_item_types, strict=True))
+            arc4_fields = {
+                name: wtypes.WTypeField(name=field.name, type=new_type, docs=field.docs)
+                for (name, field), new_type in zip(
+                    wtuple.fields.items(), arc4_item_types, strict=True
+                )
+            }
             return wtypes.ARC4Struct(
                 name=wtuple.name, desc=wtuple.desc, frozen=True, fields=arc4_fields
             )
@@ -112,9 +117,12 @@ class _ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
 
     @typing.override
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> wtypes.ARC4Type | None:
-        fields = {name: t.accept(self) for name, t in wtype.fields.items()}
-        if None in fields.values():
-            return None
+        fields: dict[str, wtypes.WTypeField] = {}
+        for name, field in wtype.fields.items():
+            new_type = field.type.accept(self)
+            if new_type is None:
+                return None
+            fields[name] = wtypes.WTypeField(name=field.name, type=new_type, docs=field.docs)
         return attrs.evolve(wtype, fields=immutabledict(fields))
 
 

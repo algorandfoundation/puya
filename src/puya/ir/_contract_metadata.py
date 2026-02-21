@@ -328,9 +328,9 @@ def _extract_structs(
         if struct.name in struct_results:
             continue
         struct_wtypes.extend(
-            wtype
-            for wtype in struct.fields.values()
-            if _is_arc4_struct(wtype) and wtype.name not in struct_results
+            field.type
+            for field in struct.fields.values()
+            if _is_arc4_struct(field.type) and field.type.name not in struct_results
         )
         struct_results[struct.name] = _wtype_to_struct(struct)
     return dict(sorted(struct_results.items(), key=itemgetter(0)))
@@ -392,7 +392,8 @@ def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
 def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> models.ARC4Struct:
     fields = []
     assert s.fields
-    for field_name, field_wtype in s.fields.items():
+    for field_name, field in s.fields.items():
+        field_wtype = field.type
         if not isinstance(field_wtype, wtypes.ARC4Type):
             field_wtype = wtype_to_arc4_wtype(field_wtype, None)
         fields.append(

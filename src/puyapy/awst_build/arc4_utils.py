@@ -40,13 +40,17 @@ def pytype_to_arc4_pytype(
                 desc=pytype.desc,
                 name=pytype.name,
                 fields={
-                    name: pytype_to_arc4_pytype(
-                        t,
-                        on_error,
-                        encode_resource_types=True,
-                        source_location=pytype.source_location or source_location,
+                    name: pytypes.PyTypeField(
+                        name=field.name,
+                        type=pytype_to_arc4_pytype(
+                            field.type,
+                            on_error,
+                            encode_resource_types=True,
+                            source_location=pytype.source_location or source_location,
+                        ),
+                        docs=field.docs,
                     )
-                    for name, t in pytype.fields.items()
+                    for name, field in pytype.fields.items()
                 },
                 frozen=True,
                 source_location=pytype.source_location,
@@ -204,8 +208,8 @@ def pytype_to_arc4(
             pytypes.ARC4StructBaseType < arc4_pytype or pytypes.StructBaseType < arc4_pytype
         ):
             item_arc4_names = [
-                pytype_to_arc4(it, encode_resource_types=True, loc=loc)
-                for it in arc4_struct_fields.values()
+                pytype_to_arc4(field.type, encode_resource_types=True, loc=loc)
+                for field in arc4_struct_fields.values()
             ]
             return f"({','.join(item_arc4_names)})"
         case _:
