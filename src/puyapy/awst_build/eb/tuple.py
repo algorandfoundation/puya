@@ -136,7 +136,7 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
 
         values = {
             field_name: expect.argument_of_type_else_dummy(
-                field_builder, pytype.fields[field_name]
+                field_builder, pytype.fields[field_name].type
             ).resolve()
             for field_name, field_builder in field_mapping.items()
         }
@@ -308,14 +308,14 @@ class TupleExpressionBuilder(
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if isinstance(self.pytype, pytypes.NamedTupleType):
-            item_typ = self.pytype.fields.get(name)
-            if item_typ is not None:
+            field = self.pytype.fields.get(name)
+            if field is not None:
                 item_expr = FieldExpression(
                     base=self.resolve(),
                     name=name,
                     source_location=location,
                 )
-                return builder_for_instance(item_typ, item_expr)
+                return builder_for_instance(field.type, item_expr)
             elif name == "_replace":
                 return _Replace(self, self.pytype, location)
             elif name in _NAMED_TUPLE_MEMBERS:
@@ -517,13 +517,13 @@ class _Replace(FunctionBuilder):
         )
         base_expr = self.instance.single_eval().resolve()
         items = list[Expression]()
-        for idx, (field_name, field_pytype) in enumerate(pytype.fields.items()):
+        for idx, (field_name, field) in enumerate(pytype.fields.items()):
             new_value = field_mapping.get(field_name)
             if new_value is not None:
-                item_builder = expect.argument_of_type_else_dummy(new_value, field_pytype)
+                item_builder = expect.argument_of_type_else_dummy(new_value, field.type)
                 item = item_builder.resolve()
             else:
-                field_wtype = field_pytype.checked_wtype(location)
+                field_wtype = field.type.checked_wtype(location)
                 item = TupleItemExpression(base=base_expr, index=idx, source_location=location)
                 if not field_wtype.immutable:
                     logger.error(
