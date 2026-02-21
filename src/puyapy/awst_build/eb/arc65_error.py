@@ -15,7 +15,6 @@ from puyapy.awst_build.utils import get_arg_mapping
 logger = log.get_logger(__name__)
 
 _VALID_PREFIXES = frozenset(("AER", "ERR"))
-_LONG_ERROR_MESSAGE = 64  # long error message (in bytes)
 
 
 class LoggedAssertFunctionBuilder(FunctionBuilder):
@@ -104,40 +103,28 @@ def _resolve_error_message(
         else "ERR"
     )
 
-    # code validation
+    # code strict properties validation
     if code is None:
+        # should never get here because of type checking and expect.simple_string_literal(.)
         logger.error("error code is mandatory in logged errors", location=location)
         return None
     elif ":" in code:
         logger.error("error code must not contain domain separator ':'", location=location)
-    elif not code.isalnum():
-        logger.warning("error code should be alphanumeric", location=location)
+        return None
 
-    # message validation
+    # message strict properties validation
     if message is not None and ":" in message:
         logger.error("error message must not contain domain separator ':'", location=location)
+        return None
 
-    # prefix validation (note: prefix should already be validated by mypy typing check)
+    # prefix strict properties validation
+    # (note: prefix should already be validated by mypy typing check)
     if prefix not in _VALID_PREFIXES:
         logger.error(
             "error prefix must be one of AER, ERR",
             location=location,
         )
+        return None
 
     arc65_msg = f"{prefix}:{code}:{message}" if message else f"{prefix}:{code}"
-
-    # arc65 recommendations
-    msglen = len(arc65_msg)
-    if msglen >= _LONG_ERROR_MESSAGE:
-        logger.warning(
-            f"error message is {msglen} bytes long, consider making it shorter",
-            location=location,
-        )
-    elif msglen in (8, 32):
-        logger.warning(
-            f"your final error message is {msglen} bytes long. "
-            "Error messages exactly 8 or 32 bytes long are discouraged",
-            location=location,
-        )
-
     return arc65_msg
