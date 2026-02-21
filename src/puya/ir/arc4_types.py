@@ -1,7 +1,6 @@
 import typing
 
 import attrs
-from immutabledict import immutabledict
 
 from puya.awst import wtypes
 from puya.awst.visitors import ARC4WTypeVisitor, WTypeVisitor
@@ -70,7 +69,10 @@ class _ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
                 return None
             arc4_item_types.append(arc4_type)
         if wtuple.fields:
-            arc4_fields = dict(zip(wtuple.fields, arc4_item_types, strict=True))
+            arc4_fields = [
+                wtypes.WTypeField(name=field.name, wtype=new_type, description=field.description)
+                for field, new_type in zip(wtuple.fields, arc4_item_types, strict=True)
+            ]
             return wtypes.ARC4Struct(
                 name=wtuple.name, desc=wtuple.desc, frozen=True, fields=arc4_fields
             )
@@ -112,10 +114,15 @@ class _ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
 
     @typing.override
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> wtypes.ARC4Type | None:
-        fields = {name: t.accept(self) for name, t in wtype.fields.items()}
-        if None in fields.values():
-            return None
-        return attrs.evolve(wtype, fields=immutabledict(fields))
+        fields = list[wtypes.WTypeField]()
+        for field in wtype.fields:
+            new_type = field.wtype.accept(self)
+            if new_type is None:
+                return None
+            fields.append(
+                wtypes.WTypeField(name=field.name, wtype=new_type, description=field.description)
+            )
+        return attrs.evolve(wtype, fields=fields)
 
 
 class _ARC4NameWTypeVisitor(ARC4WTypeVisitor[str]):
