@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 8
     b main_block@0
 
 main_block@0:
@@ -78,7 +78,7 @@ test_logged_errs_block@0:
     txna ApplicationArgs 1
     dup
     len
-    pushint 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -97,7 +97,7 @@ test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs:
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_block@0:
     // logged_errors/contract.py:8-9
-    // # code only (default prefix "ERR") -> "ERR:01"
+    // # "ERR:01"
     // logged_assert(arg != 1, "01")
     frame_dig -1
     intc_1 // 1
@@ -107,7 +107,7 @@ test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_block@0:
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_error_handling@1:
     // logged_errors/contract.py:8-9
-    // # code only (default prefix "ERR") -> "ERR:01"
+    // # "ERR:01"
     // logged_assert(arg != 1, "01")
     pushbytes "ERR:01"
     log
@@ -115,8 +115,8 @@ test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_e
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_assert@2:
     // logged_errors/contract.py:10-11
-    // # code + message -> "ERR:02:arg is two"
-    // logged_assert(arg != 2, "02", error_message="arg is two")
+    // # "ERR:arg02:arg is two"
+    // logged_assert(arg != 2, "arg02", error_message="arg is two")
     frame_dig -1
     pushint 2
     !=
@@ -125,16 +125,16 @@ test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_as
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_error_handling@3:
     // logged_errors/contract.py:10-11
-    // # code + message -> "ERR:02:arg is two"
-    // logged_assert(arg != 2, "02", error_message="arg is two")
-    pushbytes "ERR:02:arg is two"
+    // # "ERR:arg02:arg is two"
+    // logged_assert(arg != 2, "arg02", error_message="arg is two")
+    pushbytes "ERR:arg02:arg is two"
     log
-    err // ERR:02:arg is two
+    err // ERR:arg02:arg is two
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_assert@4:
     // logged_errors/contract.py:12-13
-    // # code + custom prefix -> "AER:03"
-    // logged_assert(arg != 3, "03", prefix="AER")
+    // # "AER:arg03"
+    // logged_assert(arg != 3, "arg03", prefix="AER")
     frame_dig -1
     pushint 3
     !=
@@ -143,28 +143,97 @@ test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_as
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_error_handling@5:
     // logged_errors/contract.py:12-13
-    // # code + custom prefix -> "AER:03"
-    // logged_assert(arg != 3, "03", prefix="AER")
-    pushbytes "AER:03"
+    // # "AER:arg03"
+    // logged_assert(arg != 3, "arg03", prefix="AER")
+    pushbytes "AER:arg03"
     log
-    err // AER:03
+    err // AER:arg03
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_assert@6:
     // logged_errors/contract.py:14-15
-    // # unconditional logged_err -> "ERR:04"
-    // if arg == 4:
+    // # "AER:arg04:arg is 4"
+    // logged_assert(arg != 4, "arg04", error_message="arg is 4", prefix="AER")
     frame_dig -1
     pushint 4
-    ==
-    bz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@8
-    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@7
+    !=
+    bnz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_assert@8
+    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_error_handling@7
 
-test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@7:
-    // logged_errors/contract.py:16
-    // logged_err("04")
-    pushbytes "ERR:04"
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_logged_error_handling@7:
+    // logged_errors/contract.py:14-15
+    // # "AER:arg04:arg is 4"
+    // logged_assert(arg != 4, "arg04", error_message="arg is 4", prefix="AER")
+    pushbytes "AER:arg04:arg is 4"
     log
-    err // ERR:04
+    err // AER:arg04:arg is 4
 
-test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@8:
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_assert@8:
+    // logged_errors/contract.py:17-18
+    // # "ERR:arg05"
+    // if arg == 5:
+    frame_dig -1
+    pushint 5
+    ==
+    bz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@10
+    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@9
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@9:
+    // logged_errors/contract.py:19
+    // logged_err("arg05")
+    pushbytes "ERR:arg05"
+    log
+    err // ERR:arg05
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@10:
+    // logged_errors/contract.py:20-21
+    // # "ERR:arg06:arg was 6"
+    // if arg == 6:
+    frame_dig -1
+    pushint 6
+    ==
+    bz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@12
+    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@11
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@11:
+    // logged_errors/contract.py:22
+    // logged_err("06", error_message="arg was 6")
+    pushbytes "ERR:06:arg was 6"
+    log
+    err // ERR:06:arg was 6
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@12:
+    // logged_errors/contract.py:23-24
+    // # "AER:arg07"
+    // if arg == 7:
+    frame_dig -1
+    pushint 7
+    ==
+    bz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@14
+    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@13
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@13:
+    // logged_errors/contract.py:25
+    // logged_err("arg07", prefix="AER")
+    pushbytes "AER:arg07"
+    log
+    err // AER:arg07
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@14:
+    // logged_errors/contract.py:26-27
+    // # "AER:arg08:arg is seven (08)"
+    // if arg == 8:
+    frame_dig -1
+    intc_2 // 8
+    ==
+    bz test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@16
+    b test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@15
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@15:
+    // logged_errors/contract.py:28
+    // logged_err("arg08", error_message="arg is eight (08)", prefix="AER")
+    pushbytes "AER:arg08:arg is eight (08)"
+    log
+    err // AER:arg08:arg is eight (08)
+
+test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@16:
     retsub

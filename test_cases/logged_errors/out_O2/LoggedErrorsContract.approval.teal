@@ -3,6 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 8 1
     pushbytes ""
     txn NumAppArgs
     bz main___algopy_default_create@5
@@ -20,13 +21,13 @@ main_test_logged_errs_route@3:
     txna ApplicationArgs 1
     dup
     len
-    pushint 8
+    intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     bury 2
-    pushint 1
+    intc_1 // 1
     !=
     bnz main_after_assert@10
     pushbytes "ERR:01"
@@ -38,30 +39,66 @@ main_after_assert@10:
     pushint 2
     !=
     bnz main_after_assert@12
-    pushbytes "ERR:02:arg is two"
+    pushbytes "ERR:arg02:arg is two"
     log
-    err // ERR:02:arg is two
+    err // ERR:arg02:arg is two
 
 main_after_assert@12:
     dup
     pushint 3
     !=
     bnz main_after_assert@14
-    pushbytes "AER:03"
+    pushbytes "AER:arg03"
     log
-    err // AER:03
+    err // AER:arg03
 
 main_after_assert@14:
     dup
     pushint 4
-    ==
-    bz main_after_if_else@16
-    pushbytes "ERR:04"
+    !=
+    bnz main_after_assert@16
+    pushbytes "AER:arg04:arg is 4"
     log
-    err // ERR:04
+    err // AER:arg04:arg is 4
 
-main_after_if_else@16:
-    pushint 1
+main_after_assert@16:
+    dup
+    pushint 5
+    ==
+    bz main_after_if_else@18
+    pushbytes "ERR:arg05"
+    log
+    err // ERR:arg05
+
+main_after_if_else@18:
+    dup
+    pushint 6
+    ==
+    bz main_after_if_else@20
+    pushbytes "ERR:06:arg was 6"
+    log
+    err // ERR:06:arg was 6
+
+main_after_if_else@20:
+    dup
+    pushint 7
+    ==
+    bz main_after_if_else@22
+    pushbytes "AER:arg07"
+    log
+    err // AER:arg07
+
+main_after_if_else@22:
+    dup
+    intc_0 // 8
+    ==
+    bz main_after_if_else@24
+    pushbytes "AER:arg08:arg is eight (08)"
+    log
+    err // AER:arg08:arg is eight (08)
+
+main_after_if_else@24:
+    intc_1 // 1
     return
 
 main___algopy_default_create@5:
