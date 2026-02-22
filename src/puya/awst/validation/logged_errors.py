@@ -44,7 +44,8 @@ class LoggedErrorsValidator(AWSTTraverser):
                 # error message format is PREFIX:CODE[:MESSAGE]
                 # refer to arc65 for more info
                 parts = expr.error_message.split(":")
-                prefix, code = None, None
+                prefix: str | None = None
+                code: str | None = None
                 match parts:
                     case [prefix]:
                         pass
