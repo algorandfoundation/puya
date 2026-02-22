@@ -56,21 +56,45 @@ subroutine test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_er
         let tmp%1#0: bool = (!= arg#0 2u)
         goto tmp%1#0 ? block@4 : block@3
     block@3: // logged_error_handling_L11
-        (log "ERR:02:arg is two")
-        fail // ERR:02:arg is two
+        (log "ERR:arg02:arg is two")
+        fail // ERR:arg02:arg is two
     block@4: // after_assert_L11
         let tmp%2#0: bool = (!= arg#0 3u)
         goto tmp%2#0 ? block@6 : block@5
     block@5: // logged_error_handling_L13
-        (log "AER:03")
-        fail // AER:03
+        (log "AER:arg03")
+        fail // AER:arg03
     block@6: // after_assert_L13
-        let tmp%3#0: bool = (== arg#0 4u)
-        goto tmp%3#0 ? block@7 : block@8
-    block@7: // if_body_L16
-        (log "ERR:04")
-        fail // ERR:04
-    block@8: // after_if_else_L15
+        let tmp%3#0: bool = (!= arg#0 4u)
+        goto tmp%3#0 ? block@8 : block@7
+    block@7: // logged_error_handling_L15
+        (log "AER:arg04:arg is 4")
+        fail // AER:arg04:arg is 4
+    block@8: // after_assert_L15
+        let tmp%4#0: bool = (== arg#0 5u)
+        goto tmp%4#0 ? block@9 : block@10
+    block@9: // if_body_L19
+        (log "ERR:arg05")
+        fail // ERR:arg05
+    block@10: // after_if_else_L18
+        let tmp%5#0: bool = (== arg#0 6u)
+        goto tmp%5#0 ? block@11 : block@12
+    block@11: // if_body_L22
+        (log "ERR:06:arg was 6")
+        fail // ERR:06:arg was 6
+    block@12: // after_if_else_L21
+        let tmp%6#0: bool = (== arg#0 7u)
+        goto tmp%6#0 ? block@13 : block@14
+    block@13: // if_body_L25
+        (log "AER:arg07")
+        fail // AER:arg07
+    block@14: // after_if_else_L24
+        let tmp%7#0: bool = (== arg#0 8u)
+        goto tmp%7#0 ? block@15 : block@16
+    block@15: // if_body_L28
+        (log "AER:arg08:arg is eight (08)")
+        fail // AER:arg08:arg is eight (08)
+    block@16: // after_if_else_L27
         return 
 
 subroutine test_cases.logged_errors.contract.LoggedErrorsContract.__algopy_default_create() -> void:
