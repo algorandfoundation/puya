@@ -56,12 +56,12 @@ class MyContract(Contract):
 
 ## case: test_logged_err_invalid_code
 
-from algopy import Contract, UInt64, logged_err
+from algopy import Contract, Txn, logged_err
 
 
 class MyContract(Contract):
     def approval_program(self) -> bool:
-        if UInt64(1):
+        if Txn.num_app_args > 0:
             logged_err("not-alnum!") ## W: error code should be alphanumeric
         return True
 
@@ -70,12 +70,12 @@ class MyContract(Contract):
 
 ## case: test_logged_err_colon_in_code
 
-from algopy import Contract, UInt64, logged_err
+from algopy import Contract, Txn, logged_err
 
 
 class MyContract(Contract):
     def approval_program(self) -> bool:
-        if UInt64(1):
+        if Txn.num_app_args > 0:
             logged_err("bad:code") ## E: error code must not contain domain separator ':'
         return True
 
@@ -84,12 +84,12 @@ class MyContract(Contract):
 
 ## case: test_logged_err_colon_in_message
 
-from algopy import Contract, UInt64, logged_err
+from algopy import Contract, Txn, logged_err
 
 
 class MyContract(Contract):
     def approval_program(self) -> bool:
-        if UInt64(1):
+        if Txn.num_app_args > 0:
             logged_err("01", error_message="bad:msg") ## E: error message must not contain domain separator ':'
         return True
 
@@ -115,3 +115,68 @@ from algopy import logicsig, logged_assert, op
 def my_sig() -> bool:
     logged_assert(op.arg(0) != b"", "01") ## E: logged errors are not supported in logic signatures
     return True
+
+## case: test_logged_assert_camel_case_code
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "MyCode") ## W: error code should be in camelCase
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_aer_prefix
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "01", prefix="AER") ## W: AER prefixed error messages are reserved for specific ARC errors
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_long_message
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "01", error_message="I will now provide a succint description of the error. I guess it all started when I was 5...") ## W: error message is 100 bytes long, consider making it shorter
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_8_byte_message
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "abcd") ## W: your final error message is 8 bytes long. Error messages exactly 8 or 32 bytes long are discouraged
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_32_byte_message
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0, "01", error_message="aaaaaaaaaaaaaaaaaaaaaaaaa") ## W: your final error message is 32 bytes long. Error messages exactly 8 or 32 bytes long are discouraged
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
