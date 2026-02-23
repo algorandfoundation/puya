@@ -63,8 +63,10 @@ subroutine examples.arc_28.contract.EventEmitter.emit_native_swapped[routing]() 
         let eq%1#0: bool = (== len%1#0 8u)
         (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let b#0: uint64 = decode_bytes<uint64>(tmp%2#0)
-        let tmp%0#1: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(b#0, a#0)
-        let event%0#0: bytes = (concat method "NativeSwapped(uint64,uint64)" tmp%0#1)
+        let tmp%0#1: Encoded(uint64) = tmp%2#0
+        let tmp%1#1: Encoded(uint64) = tmp%0#0
+        let tmp%2#1: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%0#1, tmp%1#1)
+        let event%0#0: bytes = (concat method "NativeSwapped(uint64,uint64)" tmp%2#1)
         (log event%0#0)
         exit 1u
 
