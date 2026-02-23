@@ -115,19 +115,19 @@ class Event2(arc4.Struct):
 
 @subroutine
 def wrong_arg_type1() -> None:
-    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt128(1)) ## E: expected type (string, uint64), got type (arc4.dynamic_array<arc4.uint8>, arc4.uint128)
+    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt128(1)) ## E: expected type uint64, got type arc4.uint128
 
 @subroutine
 def wrong_arg_type2() -> None:
-    arc4.emit("Event(string,uint8)", b"a", 1) ## E: expected type (string, arc4.uint8), got type (bytes, uint64)
+    arc4.emit("Event(string,uint8)", b"a", 1) ## E: cannot encode bytes to string
 
 @subroutine
 def wrong_arg_type3() -> None:
-    arc4.emit("Event(string,uint8)", "a", 256) ## E: expected type (string, arc4.uint8), got type (string, uint64)
+    arc4.emit("Event(string,uint8)", "a", 256) ## E: cannot encode uint64 to arc4.uint8
 
 @subroutine
 def wrong_arg_type5() -> None:
-    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type (string), got type (test_emit_errors_ir_lowering.Event2)
+    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type string, got type test_emit_errors_ir_lowering.Event2
 
 class MyContract(ARC4Contract):
     @arc4.abimethod()
