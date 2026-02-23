@@ -20,6 +20,7 @@ from puya.ir import (
     types_ as types,
 )
 from puya.ir._utils import multi_value_to_values
+from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import (
     assignment,
@@ -38,12 +39,18 @@ from puya.ir.builder._utils import (
     get_implicit_return_is_original,
     get_implicit_return_out,
     method_signature_to_abi_signature,
+    split_signature,
 )
 from puya.ir.builder.encoding_validation import validate_encoding
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
-from puya.ir.types_ import wtype_to_encoded_ir_type, wtype_to_ir_type
+from puya.ir.types_ import (
+    abi_name_to_wtype,
+    split_tuple_types,
+    wtype_to_encoded_ir_type,
+    wtype_to_ir_type,
+)
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ir.ValueProvider | None
@@ -1421,9 +1428,69 @@ class FunctionIRBuilder(
         )
 
     def visit_emit(self, expr: awst_nodes.Emit) -> TExpression:
+        assert isinstance(
+            expr.value.wtype, wtypes.ARC4Struct
+        ), "expected ARC4Struct for emit value"
+
         factory = OpFactory(self.context, expr.source_location)
-        value = self.visit_and_materialise_single(expr.value)
-        prefix = ir.MethodConstant(value=expr.signature, source_location=expr.source_location)
+
+        name, maybe_args_str, maybe_returns = split_signature(expr.signature, expr.source_location)
+        if maybe_args_str is None:
+            maybe_args = None
+        elif maybe_args_str:
+            maybe_args = tuple(split_tuple_types(maybe_args_str))
+        else:
+            maybe_args = ()
+
+        if maybe_returns is not None:
+            logger.error(
+                "event signatures cannot include return types",
+                location=expr.source_location,
+            )
+        if maybe_args is None:
+            struct_wtype = expr.value.wtype
+        else:
+            fields = {f"field{idx}": abi_name_to_wtype(arg) for idx, arg in enumerate(maybe_args)}
+            struct_wtype = wtypes.ARC4Struct(
+                name=name,
+                fields=fields,
+                frozen=True,
+                source_location=expr.source_location,
+            )
+
+        if len(expr.value.wtype.fields) != len(struct_wtype.fields):
+            logger.error(
+                f"expected {len(struct_wtype.fields)} ABI arguments,"
+                f" got {len(expr.value.wtype.fields)}",
+                location=expr.source_location,
+            )
+
+        target = awst_nodes.MethodSignature(
+            name=name,
+            arg_types=struct_wtype.fields.values(),
+            return_type=wtypes.void_wtype,
+            source_location=expr.source_location,
+            resource_encoding="index",
+        )
+        abi_signature = method_signature_to_abi_signature(target).replace(")void", ")")
+
+        arc4_wtype = wtype_to_arc4_wtype(struct_wtype, expr.source_location)
+        value_types_names = f"({', '.join(map(str, expr.value.wtype.fields.values()))})"
+        expected_types_names = f"({', '.join(map(str, struct_wtype.fields.values()))})"
+        if isinstance(struct_wtype, wtypes.ARC4Type):
+            # if it's already an ARC-4 type and encoding fails, it's an incompatible value
+            error_message = f"expected type {expected_types_names}, got type {value_types_names}"
+        else:
+            error_message = f"cannot encode {value_types_names} to {expected_types_names}"
+
+        encoded_expr = awst_nodes.ARC4Encode(
+            value=expr.value,
+            wtype=arc4_wtype,
+            error_message=error_message,
+            source_location=expr.source_location,
+        )
+        value = self.visit_and_materialise_single(encoded_expr)
+        prefix = ir.MethodConstant(value=abi_signature, source_location=expr.source_location)
         event = factory.concat(prefix, value, "event")
 
         self.context.block_builder.add(

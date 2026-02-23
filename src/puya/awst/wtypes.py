@@ -583,6 +583,7 @@ class ARC4Struct(_ARC4WTypeInstance):
             raise CodeError(
                 "invalid ARC-4 Struct declaration,"
                 f" the following fields are not persistable: {', '.join(unpersistable)}",
+                location=self.source_location,
             )
 
     @immutable.default
