@@ -105,7 +105,6 @@ def _resolve_error_message(
 
     # code strict properties validation
     if code is None:
-        # should never get here because of type checking and expect.simple_string_literal(.)
         logger.error("error code is mandatory in logged errors", location=location)
         return None
     elif ":" in code:
@@ -118,7 +117,7 @@ def _resolve_error_message(
         return None
 
     # prefix strict properties validation
-    # (note: prefix should already be validated by mypy typing check)
+    # (note: prefix should already be validated by mypy type checking)
     if prefix not in _VALID_PREFIXES:
         logger.error(
             "error prefix must be one of AER, ERR",

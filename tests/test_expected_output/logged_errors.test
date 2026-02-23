@@ -180,3 +180,32 @@ class MyContract(Contract):
 
     def clear_state_program(self) -> bool:
         return True
+
+## case: test_logged_err_missing_code
+
+from algopy import Contract, Txn, logged_err
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        if Txn.num_app_args > 0:
+            logged_err() # type: ignore[call-arg] ## E: missing required positional argument(s): error_code \
+                                                   ## E: error code is mandatory in logged errors
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logged_assert_missing_code
+
+from algopy import Contract, Txn, logged_assert
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        logged_assert(Txn.num_app_args > 0) # type: ignore[call-arg] ## E: missing required positional argument(s): error_code \
+                                                                       ## E: error code is mandatory in logged errors
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
