@@ -4,11 +4,14 @@
 Pipeline:
   1. Run scripts/generate_docs.output_doc_stubs() to produce processed .pyi files
      in docs/algopy-stubs/ (reuses the existing mypy-based stub processing).
-  2. Run sphinx-build -b markdown against docs/sphinx/ to generate raw markdown.
-  3. Post-process the markdown for Starlight compatibility:
+  2. Stage stubs into docs/_autoapi_source/algopy/ so sphinx-autoapi sees a valid
+     Python package name (the directory "algopy-stubs" has a hyphen and can't be
+     used as a module name directly).
+  3. Run sphinx-build -b markdown against docs/sphinx/ to generate raw markdown.
+  4. Post-process the markdown for Starlight compatibility:
      - Inject YAML frontmatter (title)
      - Strip duplicate H1 headings
-     - Flatten autodoc2 output directory
+     - Flatten autoapi output directory
      - Fix /index.md links
      - Shorten fully-qualified names in H3/H4 headings
      - Simplify *class* headings (strip constructor signatures)
@@ -27,6 +30,7 @@ DOCS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = DOCS_DIR.parent
 API_OUT = DOCS_DIR / "src" / "content" / "docs" / "api"
 PACKAGE_NAME = "algopy"
+AUTOAPI_SOURCE = DOCS_DIR / "_autoapi_source"  # staging dir for sphinx-autoapi
 
 _pkg = re.escape(PACKAGE_NAME)
 
@@ -91,7 +95,26 @@ def _generate_stubs() -> None:
     output_doc_stubs(result.manager)
 
 
-# Step 2: Sphinx markdown build -------------------------------------------------
+# Step 2: stage stubs for autoapi ----------------------------------------------
+
+
+def _prepare_autoapi_source() -> None:
+    """Copy docs/algopy-stubs/ → docs/_autoapi_source/algopy/.
+
+    sphinx-autoapi infers the package name from the directory name, so the
+    stubs must live in a directory called "algopy". The source directory is
+    named "algopy-stubs" (hyphen not valid in Python identifiers), so we
+    copy it into a staging area with the correct name before running Sphinx.
+    """
+    print("==> Staging stubs for autoapi...")
+    stubs_src = DOCS_DIR / "algopy-stubs"
+    target = AUTOAPI_SOURCE / PACKAGE_NAME
+    if AUTOAPI_SOURCE.exists():
+        shutil.rmtree(AUTOAPI_SOURCE)
+    shutil.copytree(str(stubs_src), str(target))
+
+
+# Step 3: Sphinx markdown build -------------------------------------------------
 
 
 def _clean_api_output() -> None:
@@ -129,7 +152,7 @@ def _run_sphinx_build() -> None:
         sys.exit(1)
 
 
-# Step 3: post-processing -------------------------------------------------------
+# Step 4: post-processing -------------------------------------------------------
 
 
 def _remove_sphinx_artifacts() -> None:
@@ -147,23 +170,23 @@ def _remove_sphinx_artifacts() -> None:
         index_md.unlink()
 
 
-def _flatten_autodoc2() -> None:
+def _flatten_autoapi() -> None:
     """Move autoapi/<package>/ up one level to api/<package>/."""
-    print("==> Flattening autodoc2 directory structure...")
-    autodoc2_pkg = API_OUT / "autoapi" / PACKAGE_NAME
+    print("==> Flattening autoapi directory structure...")
+    autoapi_pkg = API_OUT / "autoapi" / PACKAGE_NAME
     target = API_OUT / PACKAGE_NAME
 
-    if not autodoc2_pkg.is_dir():
+    if not autoapi_pkg.is_dir():
         print(
-            f"WARNING: Expected autodoc2 directory not found: {autodoc2_pkg}\n"
-            "         The output may already be flat, or conf.py needs adjustment.",
+            f"ERROR: Expected autoapi output directory not found: {autoapi_pkg}\n"
+            "Check that 'autoapi_dirs' in docs/sphinx/conf.py points to the correct staging directory.",
             file=sys.stderr,
         )
-        return
+        sys.exit(1)
 
     if target.exists():
         shutil.rmtree(target)
-    shutil.move(str(autodoc2_pkg), str(target))
+    shutil.move(str(autoapi_pkg), str(target))
 
     autoapi_dir = API_OUT / "autoapi"
     if autoapi_dir.exists():
@@ -289,10 +312,11 @@ def _fix_qualified_anchors() -> None:
 def main() -> None:
     """Run the full API docs build pipeline."""
     _generate_stubs()
+    _prepare_autoapi_source()
     _clean_api_output()
     _run_sphinx_build()
     _remove_sphinx_artifacts()
-    _flatten_autodoc2()
+    _flatten_autoapi()
     _inject_frontmatter()
     _fix_internal_links()
     _shorten_qualified_names()
