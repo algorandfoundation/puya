@@ -144,9 +144,6 @@ subroutine emit_native_swapped:
         v-store eq%0#0
         v-load eq%0#0                                             eq%0#0
         assert // invalid number of bytes for arc4.uint64
-        v-load tmp%0#0                                            tmp%0#0
-        btoi                                                      a#0
-        v-store a#0
         txna ApplicationArgs 2                                    tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                            tmp%2#0
@@ -158,19 +155,10 @@ subroutine emit_native_swapped:
         v-store eq%1#0
         v-load eq%1#0                                             eq%1#0
         assert // invalid number of bytes for arc4.uint64
-        v-load tmp%2#0                                            tmp%2#0
-        btoi                                                      b#0
-        v-store b#0
         // arc_28/contract.py:25
         // arc4.emit(NativeSwapped(a=b, b=a))
-        v-load b#0                                                b#0
-        itob                                                      aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
-        v-load a#0                                                a#0
-        itob                                                      aggregate%val_as_bytes%1#0
-        v-store aggregate%val_as_bytes%1#0
-        v-load aggregate%val_as_bytes%0#0                         aggregate%val_as_bytes%0#0
-        v-load aggregate%val_as_bytes%1#0                         aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        v-load tmp%2#0                                            tmp%2#0
+        v-load tmp%0#0                                            tmp%2#0,tmp%0#0
         concat                                                    aggregate%head%1#0
         v-store aggregate%head%1#0
         method NativeSwapped(uint64,uint64)                       Method(NativeSwapped(uint64,uint64))

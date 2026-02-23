@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 0x2a 0x68656c6c6f31 0x68656c6c6f32 "hello" 0x68656c6c6f33 "hi" TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
+    bytecblock 0x 0x151f7c75 0x2a 0x68656c6c6f31 "hello" 0x68656c6c6f32 0x68656c6c6f33 "hi" TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
     b main_block@0
 
 main_block@0:
@@ -1054,13 +1054,35 @@ test_cases.arc_56.contract.Contract.emitter_block@0:
     uncover 1
     concat
     log
-    // arc_56/contract.py:110
-    // SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
-    bytec 4 // 0x68656c6c6f32
+    // arc_56/contract.py:109
+    // String("hello"),
+    bytec 4 // "hello"
+    // arc_56/contract.py:107-111
+    // arc4.emit(
+    //     "Anonymous",
+    //     String("hello"),
+    //     SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
+    // )
     len
     itob
     extract 6 2
-    bytec 4 // 0x68656c6c6f32
+    // arc_56/contract.py:109
+    // String("hello"),
+    bytec 4 // "hello"
+    // arc_56/contract.py:107-111
+    // arc4.emit(
+    //     "Anonymous",
+    //     String("hello"),
+    //     SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
+    // )
+    concat
+    // arc_56/contract.py:110
+    // SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
+    bytec 5 // 0x68656c6c6f32
+    len
+    itob
+    extract 6 2
+    bytec 5 // 0x68656c6c6f32
     concat
     pushint 3
     itob
@@ -1072,45 +1094,26 @@ test_cases.arc_56.contract.Contract.emitter_block@0:
     concat
     uncover 1
     concat
-    // arc_56/contract.py:109
-    // String("hello"),
-    bytec 5 // "hello"
     // arc_56/contract.py:107-111
     // arc4.emit(
     //     "Anonymous",
     //     String("hello"),
     //     SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
     // )
-    len
-    itob
-    extract 6 2
-    // arc_56/contract.py:109
-    // String("hello"),
-    bytec 5 // "hello"
-    // arc_56/contract.py:107-111
-    // arc4.emit(
-    //     "Anonymous",
-    //     String("hello"),
-    //     SharedStruct(foo=arc4.DynamicBytes(b"hello2"), bar=arc4.UInt8(42)),
-    // )
-    concat
     pushint 4
     itob
     extract 6 2
     bytec_0 // 0x
     uncover 1
     concat
-    cover 1
-    dup
+    dig 2
     len
     pushint 4
     +
     itob
     extract 6 2
-    uncover 2
-    uncover 1
     concat
-    uncover 1
+    uncover 2
     concat
     uncover 1
     concat
