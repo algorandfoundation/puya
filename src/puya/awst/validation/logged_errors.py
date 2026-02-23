@@ -3,6 +3,7 @@ import re
 from puya import log
 from puya.awst import nodes as awst_nodes
 from puya.awst.awst_traverser import AWSTTraverser
+from puya.errors import InternalError
 
 logger = log.get_logger(__name__)
 
@@ -48,15 +49,14 @@ class LoggedErrorsValidator(AWSTTraverser):
                 code: str | None = None
                 match parts:
                     case [prefix]:
-                        pass
+                        raise InternalError("a prefix only error message is invalid", location=loc)
                     case [prefix, code]:
                         pass
                     # message, if present, should already be valid as it's very permissive
                     case [prefix, code, _]:
                         pass
                     case _:
-                        # should never happen
-                        logger.error("invalid logged error message", location=loc)
+                        raise InternalError("invalid logged error message", location=loc)
 
                 # ARC65 recommends error codes are alphanumeric and in camelCase
                 if code and not code.isalnum():
