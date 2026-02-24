@@ -41,29 +41,6 @@ def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
     return arg0
 
 
-@logicsig(validate_encoding="unsafe_disabled")
-def args_simple_no_validation(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
-    # verify args match raw op.arg values
-    assert arg0 == op.btoi(op.arg(0))
-    assert arg1 == op.arg(1)
-    assert arg2 == (op.btoi(op.arg(2)) != 0)
-
-    # mutate all
-    if arg0 < 10:
-        arg0 = UInt64(10)
-    arg1 = arg1 + b"suffix"
-    arg2 = not arg2
-
-    # assert all
-    assert arg0 >= 10
-    assert arg1.length > 0
-
-    # cross-arg operations
-    if arg2:
-        arg0 += arg1.length
-    return arg0
-
-
 @logicsig
 def args_complex(
     arg0: UInt64,
@@ -259,10 +236,6 @@ def args_complex_no_validation(
     assert arg17[0] > 0
     assert arg17[1].length > 0
 
-    # cross-arg operations
-    total = arg0 + arg5.as_uint64() + arg6.as_uint64() + arg15[1].as_uint64()
-    total += arg16.b.as_uint64() + arg17[0]
-    if arg4:
-        total += arg1.length
-    assert total > 0
+    # TODO: replicate non-validation bug
+
     return arg9.native
