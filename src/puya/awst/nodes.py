@@ -2512,14 +2512,10 @@ class LogicSignature(RootNode):
     reserved_scratch_space: Set[int]
     """Scratch slots that the logicsig is explicitly setting aside for direct/explicit usage."""
     avm_version: int | None = attrs.field(validator=_validate_avm_version)
+    validate_encoding: bool | None = None
 
     @program.validator
     def _validate_program(self, _instance: object, program: Subroutine) -> None:
-        if program.args:
-            raise CodeError(
-                "logicsig should not take any args",
-                program.args[0].source_location,
-            )
         if program.return_type not in (wtypes.uint64_wtype, wtypes.bool_wtype):
             raise CodeError(
                 "Invalid return type for logicsig method, should be either bool or UInt64.",
