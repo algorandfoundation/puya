@@ -24,6 +24,12 @@ UINT16_OFFSET = UINT64_SIZE - UINT16_SIZE
 
 
 @__pure
+@subroutine(inline=True)
+def _itob16(i: UInt64) -> Bytes:
+    return extract(itob(i), UINT16_OFFSET, 0)
+
+
+@__pure
 @subroutine
 def dynamic_array_pop_bit(array: Bytes) -> Bytes:
     """
@@ -35,7 +41,7 @@ def dynamic_array_pop_bit(array: Bytes) -> Bytes:
     """
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
-    result = replace(array, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
+    result = replace(array, 0, _itob16(length_minus_1))
     popped_location = length_minus_1 + UINT16_SIZE * 8
     result = setbit_bytes(result, popped_location, False)  # noqa: FBT003
     result = substring(result, 0, UINT16_SIZE + ((length_minus_1 + 7) // 8))
@@ -62,7 +68,7 @@ def dynamic_array_pop_fixed_size(array: Bytes, fixed_byte_size: UInt64) -> Bytes
     result = r_trim(array, fixed_byte_size)
     array_length = extract_uint16(result, 0)
     length_minus_1 = array_length - 1
-    return replace(result, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
+    return replace(result, 0, _itob16(length_minus_1))
 
 
 @__pure
@@ -86,9 +92,7 @@ def dynamic_array_pop_byte_length_head(array: Bytes) -> Bytes:
         head_and_tail, popped_header_offset + 2, popped_offset
     )
 
-    updated = extract(
-        itob(length_minus_1), UINT16_OFFSET, UINT16_SIZE
-    ) + _recalculate_head_for_elements_with_byte_length_head(
+    updated = _itob16(length_minus_1) + _recalculate_head_for_elements_with_byte_length_head(
         array_head_and_tail=head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
     )
 
@@ -108,13 +112,13 @@ def dynamic_array_pop_dynamic_element(array: Bytes) -> Bytes:
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
 
-    updated = extract(itob(length_minus_1), UINT16_OFFSET, UINT16_SIZE)
+    updated = _itob16(length_minus_1)
     popped_header_offset = length_minus_1 * UINT16_SIZE
     head_offset = UInt64(UINT16_SIZE)
     while head_offset <= popped_header_offset:
         item_offset = extract_uint16(array, head_offset)
         item_offset -= UINT16_SIZE
-        updated += extract(itob(item_offset), UINT16_OFFSET, UINT16_SIZE)
+        updated += _itob16(item_offset)
         head_offset += UINT16_SIZE
 
     head_and_tail = extract(array, UINT16_SIZE, 0)
@@ -186,7 +190,7 @@ def dynamic_array_concat_fixed(
     """
     array_length = extract_uint16(array, 0)
     new_array_length = array_length + new_items_count
-    new_len_u16 = extract(itob(new_array_length), UINT16_OFFSET, 0)
+    new_len_u16 = _itob16(new_array_length)
     result = replace(array, 0, new_len_u16)
     return result + new_items_bytes
 
@@ -211,7 +215,7 @@ def dynamic_array_concat_bits(
     """
     array_length = extract_uint16(array, 0)
     new_array_length = array_length + new_items_count
-    new_array_length_b = extract(itob(new_array_length), UINT16_OFFSET, 0)
+    new_array_length_b = _itob16(new_array_length)
     result = replace(array, 0, new_array_length_b)
     current_bytes = (array_length + 7) // 8
     required_bytes = (new_array_length + 7) // 8
@@ -276,14 +280,14 @@ def dynamic_array_concat_dynamic_element(
     item_offset_adjustment = new_items_count * UINT16_SIZE
     for head_offset in urange(0, array_items_count * UINT16_SIZE, UINT16_SIZE):
         item_offset = extract_uint16(array_head_and_tail, head_offset)
-        new_head += extract(itob(item_offset_adjustment + item_offset), UINT16_OFFSET, UINT16_SIZE)
+        new_head += _itob16(item_offset_adjustment + item_offset)
 
     head_and_tail_length = array_head_and_tail.length
     for head_offset in urange(0, new_items_count * UINT16_SIZE, UINT16_SIZE):
         item_offset = extract_uint16(new_head_and_tail, head_offset)
-        new_head += extract(itob(head_and_tail_length + item_offset), UINT16_OFFSET, UINT16_SIZE)
+        new_head += _itob16(head_and_tail_length + item_offset)
     return (
-        extract(itob(array_items_count + new_items_count), UINT16_OFFSET, UINT16_SIZE)
+        _itob16(array_items_count + new_items_count)
         + new_head
         + substring(array_head_and_tail, array_items_count * UINT16_SIZE, head_and_tail_length)
         + substring(new_head_and_tail, new_items_count * UINT16_SIZE, new_head_and_tail.length)
@@ -349,7 +353,7 @@ def static_array_replace_dynamic_element(
         tail_offset = extract_uint16(new_head_and_tail, head_offset)
         tail_offset += new_item_length
         tail_offset -= original_item_length
-        tail_offset_bytes = extract(itob(tail_offset), UINT16_OFFSET, UINT16_SIZE)
+        tail_offset_bytes = _itob16(tail_offset)
         new_head_and_tail = replace(new_head_and_tail, head_offset, tail_offset_bytes)
     return new_head_and_tail
 
@@ -405,7 +409,7 @@ def _recalculate_head_for_elements_with_byte_length_head(
     )
 
     for head_offset in urange(start_at_index * UINT16_SIZE, length * UINT16_SIZE, UINT16_SIZE):
-        tail_offset_bytes = extract(itob(tail_offset), UINT16_OFFSET, UINT16_SIZE)
+        tail_offset_bytes = _itob16(tail_offset)
         array_head_and_tail = replace(array_head_and_tail, head_offset, tail_offset_bytes)
         tail_offset += extract_uint16(array_head_and_tail, tail_offset) + UINT16_SIZE
         head_offset += UINT16_SIZE
