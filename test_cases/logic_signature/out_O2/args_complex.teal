@@ -1,0 +1,388 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.logic_signature.lsig_args.args_complex() -> uint64:
+main:
+    intcblock 1 0 8 16
+    bytecblock 0x21 0x01 0xff 0x
+    arg_0
+    btoi
+    arg_1
+    arg_2
+    arg_3
+    arg 4
+    btoi
+    arg 5
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    arg 6
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    arg 7
+    dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for arc4.uint128
+    arg 8
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    arg 9
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    arg 10
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    arg 11
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    arg 12
+    dup
+    len
+    pushint 4
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 4>
+    arg 13
+    dup
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for test_cases.logic_signature.lsig_args.SimpleStruct
+    arg 14
+    dup
+    len
+    pushint 17
+    ==
+    assert // invalid number of bytes for test_cases.logic_signature.lsig_args.NestedStruct
+    arg 15
+    dup
+    len
+    pushint 9
+    ==
+    assert // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint64>
+    arg 16
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    arg 17
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    arg 18
+    btoi
+    arg 19
+    arg_0
+    btoi
+    dig 20
+    ==
+    assert
+    dig 18
+    arg_1
+    ==
+    assert
+    dig 17
+    arg_2
+    ==
+    assert
+    dig 16
+    arg_3
+    ==
+    assert
+    arg 4
+    btoi
+    intc_1 // 0
+    !=
+    dig 16
+    ==
+    assert
+    dig 14
+    arg 5
+    ==
+    assert
+    dig 13
+    arg 6
+    ==
+    assert
+    dig 12
+    arg 7
+    ==
+    assert
+    arg 8
+    uncover 12
+    ==
+    assert
+    dig 10
+    arg 9
+    ==
+    assert
+    dig 9
+    arg 10
+    ==
+    assert
+    dig 8
+    arg 11
+    ==
+    assert
+    dig 7
+    arg 12
+    ==
+    assert
+    dig 6
+    arg 13
+    ==
+    assert
+    dig 5
+    arg 14
+    ==
+    assert
+    dig 4
+    arg 15
+    ==
+    assert
+    dig 3
+    arg 16
+    ==
+    assert
+    dig 2
+    arg 17
+    ==
+    assert
+    arg 18
+    btoi
+    dig 2
+    ==
+    assert
+    dup
+    arg 19
+    ==
+    assert
+    uncover 18
+    intc_0 // 1
+    +
+    uncover 18
+    bytec_0 // 0x21
+    concat
+    uncover 18
+    bytec_1 // 0x01
+    b+
+    pushbytes "hello_"
+    uncover 19
+    concat
+    uncover 17
+    btoi
+    intc_0 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    uncover 17
+    btoi
+    intc_0 // 1
+    +
+    uncover 17
+    bytec_1 // 0x01
+    b+
+    dup
+    len
+    intc_3 // 16
+    <=
+    assert // overflow
+    intc_3 // 16
+    bzero
+    b|
+    uncover 17
+    intc_1 // 0
+    getbit
+    !
+    cover 18
+    uncover 16
+    extract 2 0
+    pushbytes " world"
+    concat
+    uncover 16
+    extract 2 0
+    pushbytes 0x00
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    uncover 16
+    bytec_2 // 0xff
+    replace2 0 // on error: index access is out of bounds
+    dig 16
+    intc_1 // 0
+    extract_uint64
+    intc_0 // 1
+    +
+    itob
+    uncover 17
+    extract 8 8
+    concat
+    dig 16
+    intc_1 // 0
+    getbyte
+    intc_0 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    extract 7 1
+    uncover 17
+    extract 1 16
+    concat
+    dig 16
+    intc_1 // 0
+    getbyte
+    intc_0 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    extract 7 1
+    uncover 17
+    intc_0 // 1
+    extract_uint64
+    intc_0 // 1
+    +
+    itob
+    concat
+    uncover 16
+    btoi
+    intc_0 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    uncover 16
+    btoi
+    intc_0 // 1
+    +
+    uncover 16
+    intc_0 // 1
+    +
+    uncover 16
+    bytec_0 // 0x21
+    concat
+    dig 16
+    assert
+    uncover 15
+    len
+    dup
+    cover 18
+    assert
+    uncover 14
+    bytec_3 // 0x
+    b>
+    assert
+    uncover 13
+    len
+    assert
+    uncover 12
+    pushint 7
+    getbyte
+    dup
+    assert
+    dig 12
+    assert
+    uncover 11
+    bytec_3 // 0x
+    b>
+    assert
+    uncover 10
+    len
+    assert
+    uncover 9
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    assert
+    uncover 8
+    extract 0 1 // on error: index access is out of bounds
+    bytec_2 // 0xff
+    b==
+    assert
+    uncover 7
+    intc_1 // 0
+    extract_uint64
+    assert
+    uncover 6
+    intc_1 // 0
+    getbyte
+    assert
+    dig 5
+    intc_1 // 0
+    getbyte
+    assert
+    uncover 4
+    pushint 7
+    getbyte
+    assert
+    dig 2
+    assert
+    swap
+    len
+    assert
+    uncover 5
+    +
+    uncover 4
+    +
+    uncover 3
+    intc_0 // 1
+    extract_uint64
+    +
+    cover 2
+    +
+    +
+    swap
+    bnz main_after_if_else@2
+    dig 1
+    +
+
+main_after_if_else@2:
+    assert
+    dig 1
+    return

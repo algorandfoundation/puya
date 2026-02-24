@@ -1,0 +1,61 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.logic_signature.lsig_args.args_simple() -> uint64:
+main:
+    pushbytes ""
+    arg_0
+    btoi
+    dup
+    arg_1
+    dup
+    uncover 2
+    arg_2
+    btoi
+    dup
+    cover 3
+    cover 3
+    arg_0
+    btoi
+    dig 1
+    ==
+    assert
+    arg_1
+    uncover 2
+    ==
+    assert
+    arg_2
+    btoi
+    pushint 0
+    !=
+    uncover 2
+    ==
+    assert
+    pushint 10
+    <
+    bz main_after_if_else@2
+    pushint 10
+    bury 3
+
+main_after_if_else@2:
+    dig 1
+    pushbytes 0x737566666978
+    concat
+    dig 3
+    pushint 10
+    >=
+    assert
+    len
+    dup
+    bury 5
+    assert
+    dup
+    bnz main_after_if_else@4
+    dig 2
+    dig 4
+    +
+    bury 3
+
+main_after_if_else@4:
+    dig 2
+    return
