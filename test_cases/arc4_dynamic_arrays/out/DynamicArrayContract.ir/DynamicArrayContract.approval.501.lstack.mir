@@ -124,23 +124,18 @@ subroutine dynamic_array_pop_dynamic_element:
         l-load array_length#0 0                                                     (𝕡) array#0 | array_length#0
         int 1                                                                       (𝕡) array#0 | array_length#0,1
         -                                                                           (𝕡) array#0 | length_minus_1#0
-        l-store-copy length_minus_1#0 0                                             (𝕡) array#0 | length_minus_1#0,length_minus_1#0 (copy)
-        v-store length_minus_1#0                                                    (𝕡) array#0 | length_minus_1#0
+        p-load array#0                                                              (𝕡) array#0 | length_minus_1#0,array#0 (copy)
+        extract 2 0                                                                 (𝕡) array#0 | length_minus_1#0,head_and_tail#0
+        v-store head_and_tail#0                                                     (𝕡) array#0 | length_minus_1#0
+        l-load-copy length_minus_1#0 0                                              (𝕡) array#0 | length_minus_1#0,length_minus_1#0 (copy)
+        itob                                                                        (𝕡) array#0 | length_minus_1#0,tmp%3#0
+        l-load tmp%3#0 0                                                            (𝕡) array#0 | length_minus_1#0,tmp%3#0
+        extract 6 2                                                                 (𝕡) array#0 | length_minus_1#0,updated#0
+        v-store updated#0                                                           (𝕡) array#0 | length_minus_1#0
         l-load length_minus_1#0 0                                                   (𝕡) array#0 | length_minus_1#0
         int 2                                                                       (𝕡) array#0 | length_minus_1#0,2
         *                                                                           (𝕡) array#0 | popped_header_offset#0
-        l-store-copy popped_header_offset#0 0                                       (𝕡) array#0 | popped_header_offset#0,popped_header_offset#0 (copy)
-        v-store popped_header_offset#0                                              (𝕡) array#0 | popped_header_offset#0
-        p-load array#0                                                              (𝕡) array#0 | popped_header_offset#0,array#0 (copy)
-        extract 2 0                                                                 (𝕡) array#0 | popped_header_offset#0,head_and_tail#0
-        l-store-copy head_and_tail#0 0                                              (𝕡) array#0 | popped_header_offset#0,head_and_tail#0,head_and_tail#0 (copy)
-        v-store head_and_tail#0                                                     (𝕡) array#0 | popped_header_offset#0,head_and_tail#0
-        l-load head_and_tail#0 0                                                    (𝕡) array#0 | popped_header_offset#0,head_and_tail#0
-        l-load popped_header_offset#0 1                                             (𝕡) array#0 | head_and_tail#0,popped_header_offset#0
-        extract_uint16                                                              (𝕡) array#0 | popped_offset#0
-        v-store popped_offset#0                                                     (𝕡) array#0 |
-        byte 0x                                                                     (𝕡) array#0 | 0x
-        v-store new_head#0                                                          (𝕡) array#0 |
+        v-store popped_header_offset#0                                              (𝕡) array#0 |
         int 0                                                                       (𝕡) array#0 | 0
         l-store value_internal%0#0 0                                                (𝕡) array#0 | value_internal%0#0
         l-load value_internal%0#0 0                                                 (𝕡) array#0 | value_internal%0#0
@@ -166,10 +161,10 @@ subroutine dynamic_array_pop_dynamic_element:
         itob                                                                        (𝕡) array#0 | head_offset#0,tmp%8#0
         l-load tmp%8#0 0                                                            (𝕡) array#0 | head_offset#0,tmp%8#0
         extract 6 2                                                                 (𝕡) array#0 | head_offset#0,tmp%9#0
-        v-load new_head#0                                                           (𝕡) array#0 | head_offset#0,tmp%9#0,new_head#0
-        l-load tmp%9#0 1                                                            (𝕡) array#0 | head_offset#0,new_head#0,tmp%9#0
-        concat                                                                      (𝕡) array#0 | head_offset#0,new_head#0
-        v-store new_head#0                                                          (𝕡) array#0 | head_offset#0
+        v-load updated#0                                                            (𝕡) array#0 | head_offset#0,tmp%9#0,updated#0
+        l-load tmp%9#0 1                                                            (𝕡) array#0 | head_offset#0,updated#0,tmp%9#0
+        concat                                                                      (𝕡) array#0 | head_offset#0,updated#0
+        v-store updated#0                                                           (𝕡) array#0 | head_offset#0
         l-load head_offset#0 0                                                      (𝕡) array#0 | head_offset#0
         int 2                                                                       (𝕡) array#0 | head_offset#0,2
         +                                                                           (𝕡) array#0 | value_internal%0#0
@@ -178,22 +173,20 @@ subroutine dynamic_array_pop_dynamic_element:
         b dynamic_array_pop_dynamic_element_for_header@1                            (𝕡) array#0 |
 
     dynamic_array_pop_dynamic_element_after_for@4:                                  (𝕡) array#0 |
-        v-load length_minus_1#0                                                     (𝕡) array#0 | length_minus_1#0
-        itob                                                                        (𝕡) array#0 | tmp%11#0
-        l-load tmp%11#0 0                                                           (𝕡) array#0 | tmp%11#0
-        extract 6 2                                                                 (𝕡) array#0 | tmp%12#0
-        l-load tmp%12#0 0                                                           (𝕡) array#0 | tmp%12#0
-        v-load new_head#0                                                           (𝕡) array#0 | tmp%12#0,new_head#0
-        concat                                                                      (𝕡) array#0 | tmp%13#0
-        v-load popped_header_offset#0                                               (𝕡) array#0 | tmp%13#0,popped_header_offset#0
-        int 2                                                                       (𝕡) array#0 | tmp%13#0,popped_header_offset#0,2
-        +                                                                           (𝕡) array#0 | tmp%13#0,tmp%14#0
-        v-load head_and_tail#0                                                      (𝕡) array#0 | tmp%13#0,tmp%14#0,head_and_tail#0
-        l-load tmp%14#0 1                                                           (𝕡) array#0 | tmp%13#0,head_and_tail#0,tmp%14#0
-        v-load popped_offset#0                                                      (𝕡) array#0 | tmp%13#0,head_and_tail#0,tmp%14#0,popped_offset#0
-        substring3                                                                  (𝕡) array#0 | tmp%13#0,tmp%15#0
-        l-load tmp%13#0 1                                                           (𝕡) array#0 | tmp%15#0,tmp%13#0
-        l-load tmp%15#0 1                                                           (𝕡) array#0 | tmp%13#0,tmp%15#0
+        v-load popped_header_offset#0                                               (𝕡) array#0 | popped_header_offset#0
+        l-store-copy popped_header_offset#0 0                                       (𝕡) array#0 | popped_header_offset#0,popped_header_offset#0 (copy)
+        int 2                                                                       (𝕡) array#0 | popped_header_offset#0,popped_header_offset#0 (copy),2
+        +                                                                           (𝕡) array#0 | popped_header_offset#0,tmp%11#0
+        v-load head_and_tail#0                                                      (𝕡) array#0 | popped_header_offset#0,tmp%11#0,head_and_tail#0
+        l-store-copy head_and_tail#0 0                                              (𝕡) array#0 | popped_header_offset#0,tmp%11#0,head_and_tail#0,head_and_tail#0 (copy)
+        l-load popped_header_offset#0 3                                             (𝕡) array#0 | tmp%11#0,head_and_tail#0,head_and_tail#0 (copy),popped_header_offset#0
+        extract_uint16                                                              (𝕡) array#0 | tmp%11#0,head_and_tail#0,tmp%12#0
+        l-load head_and_tail#0 1                                                    (𝕡) array#0 | tmp%11#0,tmp%12#0,head_and_tail#0
+        l-load tmp%11#0 2                                                           (𝕡) array#0 | tmp%12#0,head_and_tail#0,tmp%11#0
+        l-load tmp%12#0 2                                                           (𝕡) array#0 | head_and_tail#0,tmp%11#0,tmp%12#0
+        substring3                                                                  (𝕡) array#0 | tmp%13#0
+        v-load updated#0                                                            (𝕡) array#0 | tmp%13#0,updated#0
+        l-load tmp%13#0 1                                                           (𝕡) array#0 | updated#0,tmp%13#0
         concat                                                                      (𝕡) array#0 | updated#0
         l-load updated#0 0                                                          (𝕡) array#0 | updated#0
         retsub                                                                      updated#0

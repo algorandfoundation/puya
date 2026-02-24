@@ -58,25 +58,24 @@ dynamic_array_pop_dynamic_element:
     extract_uint16
     intc_1 // 1
     -
-    dup
-    intc_2 // 2
-    *
-    dup
     frame_dig -1
     extract 2 0
+    swap
     dup
-    uncover 2
-    extract_uint16
-    bytec_0 // 0x
+    itob
+    extract 6 2
+    swap
+    intc_2 // 2
+    *
     intc_0 // 0
 
 dynamic_array_pop_dynamic_element_for_header@1:
-    frame_dig 5
-    frame_dig 1
+    frame_dig 3
+    frame_dig 2
     <
     bz dynamic_array_pop_dynamic_element_after_for@4
-    frame_dig 2
-    frame_dig 5
+    frame_dig 0
+    frame_dig 3
     dup
     cover 2
     extract_uint16
@@ -84,28 +83,29 @@ dynamic_array_pop_dynamic_element_for_header@1:
     -
     itob
     extract 6 2
-    frame_dig 4
+    frame_dig 1
     swap
     concat
-    frame_bury 4
+    frame_bury 1
     intc_2 // 2
     +
-    frame_bury 5
+    frame_bury 3
     b dynamic_array_pop_dynamic_element_for_header@1
 
 dynamic_array_pop_dynamic_element_after_for@4:
-    frame_dig 0
-    itob
-    extract 6 2
-    frame_dig 4
-    concat
-    frame_dig 1
+    frame_dig 2
+    dup
     intc_2 // 2
     +
-    frame_dig 2
+    frame_dig 0
+    dup
+    uncover 3
+    extract_uint16
     swap
-    frame_dig 3
+    cover 2
     substring3
+    frame_dig 1
+    swap
     concat
     frame_bury 0
     retsub

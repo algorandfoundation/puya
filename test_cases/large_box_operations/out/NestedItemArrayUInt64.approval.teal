@@ -1000,22 +1000,20 @@ dynamic_pop:
     extract_uint16
     intc_1 // 1
     -
+    swap
+    extract 2 0
+    swap
     dup
-    cover 2
+    itob
+    extract 6 2
+    swap
     intc_0 // 2
     *
-    dup
-    uncover 2
-    extract 2 0
-    dup
-    uncover 2
-    extract_uint16
-    bytec_2 // 0x
     intc_2 // 0
 
 dynamic_pop_for_header@2:
     dup
-    dig 5
+    dig 2
     <
     bz dynamic_pop_after_for@4
     dig 3
@@ -1027,34 +1025,35 @@ dynamic_pop_for_header@2:
     -
     itob
     extract 6 2
-    dig 3
+    dig 4
     swap
     concat
-    bury 3
+    bury 4
     intc_0 // 2
     +
     bury 1
     b dynamic_pop_for_header@2
 
 dynamic_pop_after_for@4:
-    dig 5
-    itob
-    extract 6 2
-    dig 2
-    concat
-    dig 5
+    dig 1
+    dup
     intc_0 // 2
     +
     dig 5
+    dup
+    uncover 3
+    extract_uint16
     swap
-    dig 5
+    cover 2
     substring3
+    dig 3
+    swap
     concat
     // large_box_operations/nested_item.py:94
     // return self.box.value.items.pop()
-    dig 9
+    dig 7
     intc_2 // 0
-    dig 10
+    dig 8
     extract3
     swap
     concat
@@ -1067,7 +1066,7 @@ dynamic_pop_after_for@4:
     // large_box_operations/nested_item.py:92
     // @public
     bytec_1 // 0x151f7c75
-    dig 7
+    dig 5
     concat
     log
     intc_1 // 1

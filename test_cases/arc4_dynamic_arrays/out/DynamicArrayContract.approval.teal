@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 2 10
-    bytecblock 0x 0x000400070001610003626565 0x000000000000000300120000040000000000000161 0x00020000000000000003040500000400000000002aff 0x00000000000000030405 0x00040011000b48656c6c6f20576f726c64000161 0x00020000040000000000001200000000000000030003626565 0x0000040000000000001200000000000000030003626565 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
+    bytecblock 0x000400070001610003626565 0x000000000000000300120000040000000000000161 0x 0x00020000000000000003040500000400000000002aff 0x00000000000000030405 0x00040011000b48656c6c6f20576f726c64000161 0x00020000040000000000001200000000000000030003626565 0x0000040000000000001200000000000000030003626565 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn NumAppArgs
@@ -64,25 +64,24 @@ dynamic_array_pop_dynamic_element:
     extract_uint16
     intc_0 // 1
     -
-    dup
-    intc_2 // 2
-    *
-    dup
     frame_dig -1
     extract 2 0
+    swap
     dup
-    uncover 2
-    extract_uint16
-    bytec_0 // 0x
+    itob
+    extract 6 2
+    swap
+    intc_2 // 2
+    *
     intc_1 // 0
 
 dynamic_array_pop_dynamic_element_for_header@1:
-    frame_dig 5
-    frame_dig 1
+    frame_dig 3
+    frame_dig 2
     <
     bz dynamic_array_pop_dynamic_element_after_for@4
-    frame_dig 2
-    frame_dig 5
+    frame_dig 0
+    frame_dig 3
     dup
     cover 2
     extract_uint16
@@ -90,28 +89,29 @@ dynamic_array_pop_dynamic_element_for_header@1:
     -
     itob
     extract 6 2
-    frame_dig 4
+    frame_dig 1
     swap
     concat
-    frame_bury 4
+    frame_bury 1
     intc_2 // 2
     +
-    frame_bury 5
+    frame_bury 3
     b dynamic_array_pop_dynamic_element_for_header@1
 
 dynamic_array_pop_dynamic_element_after_for@4:
-    frame_dig 0
-    itob
-    extract 6 2
-    frame_dig 4
-    concat
-    frame_dig 1
+    frame_dig 2
+    dup
     intc_2 // 2
     +
-    frame_dig 2
+    frame_dig 0
+    dup
+    uncover 3
+    extract_uint16
     swap
-    frame_dig 3
+    cover 2
     substring3
+    frame_dig 1
+    swap
     concat
     frame_bury 0
     retsub
@@ -153,7 +153,7 @@ dynamic_array_read_dynamic_element:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new_head_and_tail: bytes, new_items_count: uint64) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 3 1
-    bytec_0 // ""
+    bytec_2 // ""
     frame_dig -3
     intc_1 // 0
     extract_uint16
@@ -161,7 +161,7 @@ dynamic_array_concat_dynamic_element:
     frame_dig -3
     extract 2 0
     swap
-    bytec_0 // 0x
+    bytec_2 // 0x
     swap
     frame_dig -1
     intc_2 // 2
@@ -444,7 +444,7 @@ test_dynamic_elements:
     swap
     // arc4_dynamic_arrays/contract.py:57
     // struct1 = DynamicStruct(get_string1(), get_string2())
-    bytec_1 // 0x000400070001610003626565
+    bytec_0 // 0x000400070001610003626565
     // arc4_dynamic_arrays/contract.py:67
     // assert array.pop() == struct1
     ==
@@ -492,7 +492,7 @@ test_dynamic_elements:
     swap
     // arc4_dynamic_arrays/contract.py:57
     // struct1 = DynamicStruct(get_string1(), get_string2())
-    bytec_1 // 0x000400070001610003626565
+    bytec_0 // 0x000400070001610003626565
     // arc4_dynamic_arrays/contract.py:71
     // assert array.pop() == struct1
     ==
@@ -523,7 +523,7 @@ test_mixed_single_dynamic_elements:
     callsub dynamic_array_concat_dynamic_element
     // arc4_dynamic_arrays/contract.py:76
     // struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
-    bytec_2 // 0x000000000000000300120000040000000000000161
+    bytec_1 // 0x000000000000000300120000040000000000000161
     // arc4_dynamic_arrays/contract.py:81
     // array[0] = struct1.copy()  # replace
     intc_1 // 0
@@ -575,7 +575,7 @@ test_mixed_single_dynamic_elements:
     callsub dynamic_array_read_dynamic_element
     // arc4_dynamic_arrays/contract.py:76
     // struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
-    bytec_2 // 0x000000000000000300120000040000000000000161
+    bytec_1 // 0x000000000000000300120000040000000000000161
     // arc4_dynamic_arrays/contract.py:89
     // assert array.pop() == struct1
     ==
@@ -623,7 +623,7 @@ test_mixed_single_dynamic_elements:
     callsub dynamic_array_read_dynamic_element
     // arc4_dynamic_arrays/contract.py:76
     // struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
-    bytec_2 // 0x000000000000000300120000040000000000000161
+    bytec_1 // 0x000000000000000300120000040000000000000161
     // arc4_dynamic_arrays/contract.py:95
     // assert array2[-2] == struct1
     ==
@@ -722,7 +722,7 @@ test_nested_tuple_modification:
     pushbytes 0x00000000000000030405001a000004000000000005040026004f000400070001610003626565
     dig 1
     concat
-    bytec_1 // 0x000400070001610003626565
+    bytec_0 // 0x000400070001610003626565
     concat
     swap
     len
