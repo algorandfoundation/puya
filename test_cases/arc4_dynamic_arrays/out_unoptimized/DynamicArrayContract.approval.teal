@@ -172,22 +172,21 @@ dynamic_array_pop_dynamic_element_block@0:
     *
     frame_dig -1
     extract 2 0
-    intc_1 // 2
-    assert // Step cannot be zero
     intc_0 // 0
-    b dynamic_array_pop_dynamic_element_for_header@1
+    b dynamic_array_pop_dynamic_element_while_top@1
 
-dynamic_array_pop_dynamic_element_for_header@1:
+dynamic_array_pop_dynamic_element_while_top@1:
     frame_dig 3
     frame_dig 1
     <
-    bz dynamic_array_pop_dynamic_element_after_for@4
-    b dynamic_array_pop_dynamic_element_for_body@2
+    bz dynamic_array_pop_dynamic_element_after_while@3
+    b dynamic_array_pop_dynamic_element_while_body@2
 
-dynamic_array_pop_dynamic_element_for_body@2:
-    frame_dig 3
+dynamic_array_pop_dynamic_element_while_body@2:
     frame_dig 2
-    uncover 1
+    frame_dig 3
+    dup
+    cover 2
     extract_uint16
     intc_1 // 2
     -
@@ -197,16 +196,12 @@ dynamic_array_pop_dynamic_element_for_body@2:
     uncover 1
     concat
     frame_bury 0
-    b dynamic_array_pop_dynamic_element_for_footer@3
-
-dynamic_array_pop_dynamic_element_for_footer@3:
-    frame_dig 3
     intc_1 // 2
     +
     frame_bury 3
-    b dynamic_array_pop_dynamic_element_for_header@1
+    b dynamic_array_pop_dynamic_element_while_top@1
 
-dynamic_array_pop_dynamic_element_after_for@4:
+dynamic_array_pop_dynamic_element_after_while@3:
     frame_dig 1
     dup
     intc_1 // 2

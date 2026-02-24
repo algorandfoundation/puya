@@ -124,48 +124,48 @@ subroutine dynamic_array_pop_dynamic_element:
         f-store head_and_tail#0                                                     (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0 |
         int 0                                                                       (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0 | head_offset#0
         f-store head_offset#0                                                       (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
-        b dynamic_array_pop_dynamic_element_for_header@1                            (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
+        b dynamic_array_pop_dynamic_element_while_top@1                             (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
 
-    dynamic_array_pop_dynamic_element_for_header@1:                                 (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
+    dynamic_array_pop_dynamic_element_while_top@1:                                  (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
         f-load head_offset#0                                                        (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0
         f-load popped_header_offset#0                                               (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,popped_header_offset#0
-        <                                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | continue_looping%0#0
-        bz dynamic_array_pop_dynamic_element_after_for@4 ; b dynamic_array_pop_dynamic_element_for_body@2 (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | 
+        <                                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%6#0
+        bz dynamic_array_pop_dynamic_element_after_while@3 ; b dynamic_array_pop_dynamic_element_while_body@2 (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | 
 
-    dynamic_array_pop_dynamic_element_for_body@2:                                   (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
+    dynamic_array_pop_dynamic_element_while_body@2:                                 (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
         f-load head_and_tail#0                                                      (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_and_tail#0
         f-load head_offset#0                                                        (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_and_tail#0,head_offset#0
         l-store-copy head_offset#0 1                                                (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,head_and_tail#0,head_offset#0 (copy)
         extract_uint16                                                              (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,item_offset#0
         int 2                                                                       (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,item_offset#0,2
         -                                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,item_offset#0
-        itob                                                                        (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,tmp%8#0
-        extract 6 2                                                                 (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,tmp%9#0
-        f-load updated#0                                                            (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,tmp%9#0,updated#0
-        l-load tmp%9#0 1                                                            (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,updated#0,tmp%9#0
+        itob                                                                        (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,tmp%9#0
+        extract 6 2                                                                 (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,tmp%10#0
+        f-load updated#0                                                            (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,tmp%10#0,updated#0
+        l-load tmp%10#0 1                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,updated#0,tmp%10#0
         concat                                                                      (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,updated#0
         f-store updated#0                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0
         l-load head_offset#0 0                                                      (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0
         int 2                                                                       (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0,2
         +                                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_offset#0
         f-store head_offset#0                                                       (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
-        b dynamic_array_pop_dynamic_element_for_header@1                            (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
+        b dynamic_array_pop_dynamic_element_while_top@1                             (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
 
-    dynamic_array_pop_dynamic_element_after_for@4:                                  (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
+    dynamic_array_pop_dynamic_element_after_while@3:                                (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 |
         f-load popped_header_offset#0                                               (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0
         l-store-copy popped_header_offset#0 0                                       (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,popped_header_offset#0 (copy)
         int 2                                                                       (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,popped_header_offset#0 (copy),2
-        +                                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,tmp%11#0
-        f-load head_and_tail#0                                                      (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,tmp%11#0,head_and_tail#0
-        l-store-copy head_and_tail#0 0                                              (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,tmp%11#0,head_and_tail#0,head_and_tail#0 (copy)
-        l-load popped_header_offset#0 3                                             (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%11#0,head_and_tail#0,head_and_tail#0 (copy),popped_header_offset#0
-        extract_uint16                                                              (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%11#0,head_and_tail#0,tmp%12#0
-        l-load head_and_tail#0 1                                                    (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%11#0,tmp%12#0,head_and_tail#0
-        l-load tmp%11#0 2                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%12#0,head_and_tail#0,tmp%11#0
-        l-load tmp%12#0 2                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_and_tail#0,tmp%11#0,tmp%12#0
-        substring3                                                                  (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%13#0
-        f-load updated#0                                                            (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%13#0,updated#0
-        l-load tmp%13#0 1                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | updated#0,tmp%13#0
+        +                                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,tmp%13#0
+        f-load head_and_tail#0                                                      (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,tmp%13#0,head_and_tail#0
+        l-store-copy head_and_tail#0 0                                              (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | popped_header_offset#0,tmp%13#0,head_and_tail#0,head_and_tail#0 (copy)
+        l-load popped_header_offset#0 3                                             (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%13#0,head_and_tail#0,head_and_tail#0 (copy),popped_header_offset#0
+        extract_uint16                                                              (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%13#0,head_and_tail#0,tmp%14#0
+        l-load head_and_tail#0 1                                                    (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%13#0,tmp%14#0,head_and_tail#0
+        l-load tmp%13#0 2                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%14#0,head_and_tail#0,tmp%13#0
+        l-load tmp%14#0 2                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | head_and_tail#0,tmp%13#0,tmp%14#0
+        substring3                                                                  (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%15#0
+        f-load updated#0                                                            (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | tmp%15#0,updated#0
+        l-load tmp%15#0 1                                                           (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | updated#0,tmp%15#0
         concat                                                                      (𝕡) array#0 | (𝕗) updated#0,popped_header_offset#0,head_and_tail#0,head_offset#0 | updated#0
         retsub                                                                      updated#0
 

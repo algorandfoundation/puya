@@ -299,7 +299,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         return 1u
 
 subroutine _puya_lib.arc4.dynamic_array_read_byte_length_element(array: bytes, index: uint64) -> bytes:
-    block@0: // L152
+    block@0: // L154
         let tmp%0#0: bytes = ((extract 2 0) array#0)
         let array_head_and_tail#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (* index#0 2u)
@@ -312,7 +312,7 @@ subroutine _puya_lib.arc4.dynamic_array_read_byte_length_element(array: bytes, i
         return tmp%5#0
 
 subroutine _puya_lib.arc4.static_array_read_byte_length_element(array: bytes, index: uint64) -> bytes:
-    block@0: // L161
+    block@0: // L163
         let tmp%0#0: uint64 = (* index#0 2u)
         let tmp%1#0: uint64 = (extract_uint16 array#0 tmp%0#0)
         let item_start_offset#0: uint64 = tmp%1#0
@@ -323,7 +323,7 @@ subroutine _puya_lib.arc4.static_array_read_byte_length_element(array: bytes, in
         return tmp%4#0
 
 subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L355
+    block@0: // L357
         let tmp%0#0: uint64 = (* index#0 2u)
         let tmp%1#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
         let offset_for_index#0: uint64 = tmp%1#0
@@ -341,7 +341,7 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
         return tmp%10#0
 
 subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
-    block@0: // L383
+    block@0: // L385
         let tmp%0#0: uint64 = (* length#0 2u)
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
@@ -352,10 +352,10 @@ subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(a
         (assert 2u) // Step cannot be zero
         let value_internal%0#0: uint64 = tmp%5#0
         goto block@1
-    block@1: // for_header_L405
+    block@1: // for_header_L407
         let continue_looping%0#0: bool = (< value_internal%0#0 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L406
+    block@2: // for_body_L408
         let head_offset#0: uint64 = value_internal%0#0
         let tmp%6#0: bytes = (itob tail_offset#0)
         let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
@@ -367,14 +367,14 @@ subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(a
         let tmp%11#0: uint64 = (+ tail_offset#0 tmp%10#0)
         let tail_offset#0: uint64 = tmp%11#0
         goto block@3
-    block@3: // for_footer_L405
+    block@3: // for_footer_L407
         let value_internal%0#0: uint64 = (+ value_internal%0#0 2u)
         goto block@1
-    block@4: // after_for_L405
+    block@4: // after_for_L407
         return array_head_and_tail#0
 
 subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
-    block@0: // L413
+    block@0: // L415
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let length#0: uint64 = tmp%0#0
         let tmp%1#0: bool = (< index#0 length#0)
