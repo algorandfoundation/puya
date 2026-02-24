@@ -201,6 +201,81 @@ def transform_ir(context: ArtifactCompileContext, artifact_ir: ModuleArtifact) -
     return artifact_ir
 
 
+def _lower_logic_sig_args(
+    program: awst_nodes.Subroutine, *, validate: bool
+) -> awst_nodes.Subroutine:
+    """Transform a logicsig program with args into a parameterless one.
+    Prepends assignment statements that read each arg via the `arg` opcode,
+    with appropriate type conversion (and optionally validation), then
+    clears the arg list.
+    """
+    if not program.args:
+        return program
+
+    from puya.awst import wtypes
+
+    arg_assignments = list[awst_nodes.Statement]()
+    for i, arg in enumerate(program.args):
+        loc = arg.source_location
+
+        # (micro opt.) use the arg_N opcode for N<=3, otherwise arg with immediate
+        raw_bytes = awst_nodes.IntrinsicCall(
+            op_code=f"arg_{i}" if i <= 3 else "arg",
+            immediates=[] if i <= 3 else [i],
+            wtype=wtypes.bytes_wtype,
+            source_location=loc,
+        )
+        # convert to the declared type
+        if arg.wtype.scalar_type == AVMType.uint64:
+            converted: awst_nodes.Expression = awst_nodes.IntrinsicCall(
+                op_code="btoi",
+                stack_args=[raw_bytes],
+                wtype=wtypes.uint64_wtype,
+                source_location=loc,
+            )
+            if arg.wtype != wtypes.uint64_wtype:
+                converted = awst_nodes.ReinterpretCast(
+                    expr=converted,
+                    wtype=arg.wtype,
+                    source_location=loc,
+                )
+        elif arg.wtype == wtypes.bytes_wtype:
+            converted = raw_bytes
+        elif isinstance(arg.wtype, wtypes.ARC4Type):
+            # ARC4-typed arg. use ARC4FromBytes with optional validation
+            converted = awst_nodes.ARC4FromBytes(
+                value=raw_bytes,
+                validate=validate,
+                wtype=arg.wtype,
+                source_location=loc,
+            )
+        else:
+            # other bytes-backed types need reinterpret
+            converted = awst_nodes.ReinterpretCast(
+                expr=raw_bytes,
+                wtype=arg.wtype,
+                source_location=loc,
+            )
+        target = awst_nodes.VarExpression(
+            name=arg.name,
+            wtype=arg.wtype,
+            source_location=loc,
+        )
+        arg_assignments.append(
+            awst_nodes.AssignmentStatement(
+                target=target,
+                value=converted,
+                source_location=loc,
+            )
+        )
+    new_body = awst_nodes.Block(
+        body=[*arg_assignments, *program.body.body],
+        source_location=program.body.source_location,
+    )
+    # get rid of args in the program as they have already been materialized
+    return attrs.evolve(program, args=(), body=new_body)
+
+
 def _build_logic_sig_ir(
     ctx: IRBuildContext, logic_sig: awst_nodes.LogicSignature
 ) -> LogicSignature:
@@ -209,10 +284,14 @@ def _build_logic_sig_ir(
         description=logic_sig.docstring,
         name=logic_sig.short_name,
     )
+
+    validate = coalesce(logic_sig.validate_encoding, ctx.options.validate_abi_args)
+    program = _lower_logic_sig_args(logic_sig.program, validate=validate)
+
     avm_version = coalesce(logic_sig.avm_version, ctx.options.target_avm_version)
     sig_ir = _make_program(
         ctx,
-        logic_sig.program,
+        program,
         kind=ProgramKind.logic_signature,
         avm_version=avm_version,
         reserved_scratch_space=logic_sig.reserved_scratch_space,
