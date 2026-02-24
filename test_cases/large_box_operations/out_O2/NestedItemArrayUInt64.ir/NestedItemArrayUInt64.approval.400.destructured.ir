@@ -125,14 +125,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%2#4: bytes = (itob new_array_length#0)
         let new_len_u16#0: bytes = ((extract 6 0) tmp%2#4)
         let result#0: bytes = ((replace2 0) array#0 new_len_u16#0)
-        let tmp%5#2: bytes = (concat result#0 new_items_bytes#0)
+        let tmp%5#3: bytes = (concat result#0 new_items_bytes#0)
         let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 aggregate%box_get%2#0 4u)
         let aggregate%len%2#0: uint64 = (len aggregate%box_get%2#0)
         let aggregate%substring3%2#0: bytes = (substring3 aggregate%box_get%2#0 aggregate%extract_uint16%2#0 aggregate%len%2#0)
         let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(aggregate%substring3%2#0, item_idx#0)
         let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%item%0#0 0u)
         let aggregate%data_up_to_item%1#0: bytes = (extract3 aggregate%item%0#0 0u aggregate%item_offset%1#0)
-        let aggregate%updated_data%1#0: bytes = (concat aggregate%data_up_to_item%1#0 tmp%5#2)
+        let aggregate%updated_data%1#0: bytes = (concat aggregate%data_up_to_item%1#0 tmp%5#3)
         let aggregate%updated_array%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(aggregate%substring3%2#0, aggregate%updated_data%1#0, item_idx#0)
         let aggregate%data_up_to_item%2#0: bytes = (extract3 aggregate%box_get%2#0 0u aggregate%extract_uint16%2#0)
         let aggregate%updated_data%2#0: bytes = (concat aggregate%data_up_to_item%2#0 aggregate%updated_array%0#0)
@@ -179,14 +179,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let length_minus_1#0: uint64 = (- array_length#0 1u)
         let tmp%3#7: bytes = (itob length_minus_1#0)
         let tmp%4#1: bytes = ((extract 6 0) tmp%3#7)
-        let tmp%5#2: bytes = ((replace2 0) result#0 tmp%4#1)
+        let tmp%5#3: bytes = ((replace2 0) result#0 tmp%4#1)
         let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 aggregate%box_get%4#0 4u)
         let aggregate%len%4#0: uint64 = (len aggregate%box_get%4#0)
         let aggregate%substring3%4#0: bytes = (substring3 aggregate%box_get%4#0 aggregate%extract_uint16%4#0 aggregate%len%4#0)
         let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(aggregate%substring3%4#0, item_idx#0)
         let aggregate%item_offset%3#0: uint64 = (extract_uint16 aggregate%item%1#0 0u)
         let aggregate%data_up_to_item%3#0: bytes = (extract3 aggregate%item%1#0 0u aggregate%item_offset%3#0)
-        let aggregate%updated_data%3#0: bytes = (concat aggregate%data_up_to_item%3#0 tmp%5#2)
+        let aggregate%updated_data%3#0: bytes = (concat aggregate%data_up_to_item%3#0 tmp%5#3)
         let aggregate%updated_array%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(aggregate%substring3%4#0, aggregate%updated_data%3#0, item_idx#0)
         let aggregate%data_up_to_item%4#0: bytes = (extract3 aggregate%box_get%4#0 0u aggregate%extract_uint16%4#0)
         let aggregate%updated_data%4#0: bytes = (concat aggregate%data_up_to_item%4#0 aggregate%updated_array%1#0)
@@ -236,25 +236,24 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%2#4: bytes = (itob length_minus_1#0)
         let updated#0: bytes = ((extract 6 2) tmp%2#4)
         let popped_header_offset#0: uint64 = (* length_minus_1#0 2u)
-        let head_and_tail#0: bytes = ((extract 2 0) array#0)
-        let head_offset#0: uint64 = 0u
+        let head_offset#0: uint64 = 2u
         goto block@21
-    block@21: // while_top_L115
-        let tmp%6#2: bool = (< head_offset#0 popped_header_offset#0)
-        goto tmp%6#2 ? block@22 : block@23
-    block@22: // while_body_L116
-        let item_offset#0: uint64 = (extract_uint16 head_and_tail#0 head_offset#0)
+    block@21: // while_top_L114
+        let tmp%5#2: bool = (<= head_offset#0 popped_header_offset#0)
+        goto tmp%5#2 ? block@22 : block@23
+    block@22: // while_body_L115
+        let item_offset#0: uint64 = (extract_uint16 array#0 head_offset#0)
         let item_offset#0: uint64 = (- item_offset#0 2u)
-        let tmp%9#1: bytes = (itob item_offset#0)
-        let tmp%10#2: bytes = ((extract 6 2) tmp%9#1)
-        let updated#0: bytes = (concat updated#0 tmp%10#2)
+        let tmp%8#2: bytes = (itob item_offset#0)
+        let tmp%9#1: bytes = ((extract 6 2) tmp%8#2)
+        let updated#0: bytes = (concat updated#0 tmp%9#1)
         let head_offset#0: uint64 = (+ head_offset#0 2u)
         goto block@21
-    block@23: // after_while_L115
-        let tmp%13#0: uint64 = (+ head_offset#0 2u)
-        let tmp%14#0: uint64 = (extract_uint16 head_and_tail#0 popped_header_offset#0)
-        let tmp%15#0: bytes = (substring3 head_and_tail#0 tmp%13#0 tmp%14#0)
-        let updated#0: bytes = (concat updated#0 tmp%15#0)
+    block@23: // after_while_L114
+        let head_and_tail#0: bytes = ((extract 2 0) array#0)
+        let tmp%13#0: uint64 = (extract_uint16 head_and_tail#0 popped_header_offset#0)
+        let tmp%14#0: bytes = (substring3 head_and_tail#0 head_offset#0 tmp%13#0)
+        let updated#0: bytes = (concat updated#0 tmp%14#0)
         let aggregate%data_up_to_item%6#0: bytes = (extract3 aggregate%box_get%8#0 0u aggregate%extract_uint16%8#0)
         let aggregate%updated_data%6#0: bytes = (concat aggregate%data_up_to_item%6#0 updated#0)
         (box_del "box")

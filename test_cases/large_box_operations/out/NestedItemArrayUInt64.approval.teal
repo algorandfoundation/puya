@@ -979,6 +979,7 @@ dynamic_pop:
     swap
     cover 2
     substring3
+    dup
     bytec_0 // "box"
     pushint 4
     intc_0 // 2
@@ -995,7 +996,6 @@ dynamic_pop:
     swap
     callsub dynamic_array_read_dynamic_element
     swap
-    dup
     intc_2 // 0
     extract_uint16
     intc_1 // 1
@@ -1003,19 +1003,18 @@ dynamic_pop:
     dup
     itob
     extract 6 2
-    cover 2
+    swap
     intc_0 // 2
     *
-    swap
-    extract 2 0
-    intc_2 // 0
+    intc_0 // 2
 
 dynamic_pop_while_top@2:
     dup
-    dig 3
-    <
+    dig 2
+    <=
     bz dynamic_pop_after_while@4
-    dup2
+    dig 4
+    dig 1
     dup
     cover 2
     extract_uint16
@@ -1023,27 +1022,25 @@ dynamic_pop_while_top@2:
     -
     itob
     extract 6 2
-    dig 5
+    dig 4
     swap
     concat
-    bury 5
+    bury 4
     intc_0 // 2
     +
     bury 1
     b dynamic_pop_while_top@2
 
 dynamic_pop_after_while@4:
-    dup
-    intc_0 // 2
-    +
-    dig 2
-    dup
-    dig 5
-    extract_uint16
-    swap
-    cover 2
-    substring3
     dig 4
+    extract 2 0
+    dup
+    dig 3
+    extract_uint16
+    dig 2
+    swap
+    substring3
+    dig 3
     swap
     concat
     // large_box_operations/nested_item.py:94
@@ -1063,7 +1060,7 @@ dynamic_pop_after_while@4:
     // large_box_operations/nested_item.py:92
     // @public
     bytec_1 // 0x151f7c75
-    dig 5
+    dig 4
     concat
     log
     intc_1 // 1

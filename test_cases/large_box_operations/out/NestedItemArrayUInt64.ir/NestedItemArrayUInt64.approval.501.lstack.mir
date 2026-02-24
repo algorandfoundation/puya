@@ -1261,6 +1261,8 @@ subroutine dynamic_pop:
         l-load aggregate%extract_uint16%0#0 2                              aggregate%len%0#0,aggregate%box_get%0#0,aggregate%extract_uint16%0#0
         l-load aggregate%len%0#0 2                                         aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
         substring3                                                         array#0
+        l-store-copy array#0 0                                             array#0,array#0 (copy)
+        v-store array#0                                                    array#0
         byte "box"                                                         array#0,"box"
         int 4                                                              array#0,"box",4
         int 2                                                              array#0,"box",4,2
@@ -1280,49 +1282,46 @@ subroutine dynamic_pop:
         l-load sub%0#0 1                                                   array#0,array#0 (copy),sub%0#0
         callsub dynamic_array_read_dynamic_element                         array#0,aggregate%item%0#0
         v-store aggregate%item%0#0                                         array#0
-        l-load-copy array#0 0                                              array#0,array#0 (copy)
-        int 0                                                              array#0,array#0 (copy),0
-        extract_uint16                                                     array#0,array_length#0
-        l-load array_length#0 0                                            array#0,array_length#0
-        int 1                                                              array#0,array_length#0,1
-        -                                                                  array#0,length_minus_1#0
-        l-load-copy length_minus_1#0 0                                     array#0,length_minus_1#0,length_minus_1#0 (copy)
-        itob                                                               array#0,length_minus_1#0,tmp%2#1
-        l-load tmp%2#1 0                                                   array#0,length_minus_1#0,tmp%2#1
-        extract 6 2                                                        array#0,length_minus_1#0,updated#0
-        v-store updated#0                                                  array#0,length_minus_1#0
-        l-load length_minus_1#0 0                                          array#0,length_minus_1#0
-        int 2                                                              array#0,length_minus_1#0,2
-        *                                                                  array#0,popped_header_offset#0
-        v-store popped_header_offset#0                                     array#0
         l-load array#0 0                                                   array#0
-        extract 2 0                                                        head_and_tail#0
-        v-store head_and_tail#0
-        int 0                                                              0
+        int 0                                                              array#0,0
+        extract_uint16                                                     array_length#0
+        l-load array_length#0 0                                            array_length#0
+        int 1                                                              array_length#0,1
+        -                                                                  length_minus_1#0
+        l-load-copy length_minus_1#0 0                                     length_minus_1#0,length_minus_1#0 (copy)
+        itob                                                               length_minus_1#0,tmp%2#1
+        l-load tmp%2#1 0                                                   length_minus_1#0,tmp%2#1
+        extract 6 2                                                        length_minus_1#0,updated#0
+        v-store updated#0                                                  length_minus_1#0
+        l-load length_minus_1#0 0                                          length_minus_1#0
+        int 2                                                              length_minus_1#0,2
+        *                                                                  popped_header_offset#0
+        v-store popped_header_offset#0
+        int 2                                                              2
         v-store head_offset#0
         b dynamic_pop_while_top@2
 
     dynamic_pop_while_top@2:
         v-load head_offset#0                                               head_offset#0
         v-load popped_header_offset#0                                      head_offset#0,popped_header_offset#0
-        <                                                                  tmp%6#0
-        l-load tmp%6#0 0                                                   tmp%6#0
+        <=                                                                 tmp%5#0
+        l-load tmp%5#0 0                                                   tmp%5#0
         bz dynamic_pop_after_while@4 ; b dynamic_pop_while_body@3
 
     dynamic_pop_while_body@3:
-        v-load head_and_tail#0                                             head_and_tail#0
-        v-load head_offset#0                                               head_and_tail#0,head_offset#0
-        l-store-copy head_offset#0 1                                       head_offset#0,head_and_tail#0,head_offset#0 (copy)
+        v-load array#0                                                     array#0
+        v-load head_offset#0                                               array#0,head_offset#0
+        l-store-copy head_offset#0 1                                       head_offset#0,array#0,head_offset#0 (copy)
         extract_uint16                                                     head_offset#0,item_offset#0
         l-load item_offset#0 0                                             head_offset#0,item_offset#0
         int 2                                                              head_offset#0,item_offset#0,2
         -                                                                  head_offset#0,item_offset#0
         l-load item_offset#0 0                                             head_offset#0,item_offset#0
-        itob                                                               head_offset#0,tmp%9#0
-        l-load tmp%9#0 0                                                   head_offset#0,tmp%9#0
-        extract 6 2                                                        head_offset#0,tmp%10#0
-        v-load updated#0                                                   head_offset#0,tmp%10#0,updated#0
-        l-load tmp%10#0 1                                                  head_offset#0,updated#0,tmp%10#0
+        itob                                                               head_offset#0,tmp%8#0
+        l-load tmp%8#0 0                                                   head_offset#0,tmp%8#0
+        extract 6 2                                                        head_offset#0,tmp%9#0
+        v-load updated#0                                                   head_offset#0,tmp%9#0,updated#0
+        l-load tmp%9#0 1                                                   head_offset#0,updated#0,tmp%9#0
         concat                                                             head_offset#0,updated#0
         v-store updated#0                                                  head_offset#0
         l-load head_offset#0 0                                             head_offset#0
@@ -1332,19 +1331,17 @@ subroutine dynamic_pop:
         b dynamic_pop_while_top@2
 
     dynamic_pop_after_while@4:
-        v-load head_offset#0                                               head_offset#0
-        int 2                                                              head_offset#0,2
-        +                                                                  tmp%13#0
-        v-load head_and_tail#0                                             tmp%13#0,head_and_tail#0
-        l-store-copy head_and_tail#0 0                                     tmp%13#0,head_and_tail#0,head_and_tail#0 (copy)
-        v-load popped_header_offset#0                                      tmp%13#0,head_and_tail#0,head_and_tail#0 (copy),popped_header_offset#0
-        extract_uint16                                                     tmp%13#0,head_and_tail#0,tmp%14#0
-        l-load head_and_tail#0 1                                           tmp%13#0,tmp%14#0,head_and_tail#0
-        l-load tmp%13#0 2                                                  tmp%14#0,head_and_tail#0,tmp%13#0
-        l-load tmp%14#0 2                                                  head_and_tail#0,tmp%13#0,tmp%14#0
-        substring3                                                         tmp%15#0
-        v-load updated#0                                                   tmp%15#0,updated#0
-        l-load tmp%15#0 1                                                  updated#0,tmp%15#0
+        v-load array#0                                                     array#0
+        extract 2 0                                                        head_and_tail#0
+        l-load-copy head_and_tail#0 0                                      head_and_tail#0,head_and_tail#0 (copy)
+        v-load popped_header_offset#0                                      head_and_tail#0,head_and_tail#0 (copy),popped_header_offset#0
+        extract_uint16                                                     head_and_tail#0,tmp%13#0
+        l-load head_and_tail#0 1                                           tmp%13#0,head_and_tail#0
+        v-load head_offset#0                                               tmp%13#0,head_and_tail#0,head_offset#0
+        l-load tmp%13#0 2                                                  head_and_tail#0,head_offset#0,tmp%13#0
+        substring3                                                         tmp%14#0
+        v-load updated#0                                                   tmp%14#0,updated#0
+        l-load tmp%14#0 1                                                  updated#0,tmp%14#0
         concat                                                             updated#0
         // large_box_operations/nested_item.py:94
         // return self.box.value.items.pop()
