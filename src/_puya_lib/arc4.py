@@ -110,17 +110,17 @@ def dynamic_array_pop_dynamic_element(array: Bytes) -> Bytes:
 
     updated = extract(itob(length_minus_1), UINT16_OFFSET, UINT16_SIZE)
     popped_header_offset = length_minus_1 * UINT16_SIZE
-    head_and_tail = extract(array, UINT16_SIZE, 0)
-    head_offset = UInt64(0)
-    while head_offset < popped_header_offset:
-        item_offset = extract_uint16(head_and_tail, head_offset)
+    head_offset = UInt64(UINT16_SIZE)
+    while head_offset <= popped_header_offset:
+        item_offset = extract_uint16(array, head_offset)
         item_offset -= UINT16_SIZE
         updated += extract(itob(item_offset), UINT16_OFFSET, UINT16_SIZE)
         head_offset += UINT16_SIZE
 
+    head_and_tail = extract(array, UINT16_SIZE, 0)
     updated += substring(
         head_and_tail,
-        head_offset + UINT16_SIZE,
+        head_offset,
         extract_uint16(head_and_tail, popped_header_offset),
     )
 
