@@ -120,7 +120,7 @@ def dynamic_array_pop_dynamic_element(array: Bytes) -> Bytes:
 
     updated += substring(
         head_and_tail,
-        popped_header_offset + UINT16_SIZE,
+        head_offset + UINT16_SIZE,
         extract_uint16(head_and_tail, popped_header_offset),
     )
 
