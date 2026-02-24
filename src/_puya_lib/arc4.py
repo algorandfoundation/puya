@@ -147,8 +147,8 @@ def static_array_read_dynamic_element(
     *, array_head_and_tail: Bytes, index: UInt64, array_length: UInt64
 ) -> Bytes:
     item_start_offset = extract_uint16(array_head_and_tail, index * 2)
-    next_index = index + 1
     end_of_tail = array_head_and_tail.length
+    next_index = index + 1
     next_item_offset = extract_uint16(array_head_and_tail, next_index * 2)
     is_before_end = array_length - next_index  # this will error if index is beyond the length
     item_end_offset = select_uint64(end_of_tail, next_item_offset, is_before_end)
