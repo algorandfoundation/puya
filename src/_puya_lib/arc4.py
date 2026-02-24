@@ -84,18 +84,17 @@ def dynamic_array_pop_byte_length_head(array: Bytes) -> Bytes:
     """
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
-    popped_header_offset = length_minus_1 * UINT16_SIZE
+    updated = _itob16(length_minus_1)
     head_and_tail = extract(array, UINT16_SIZE, 0)
+    popped_header_offset = length_minus_1 * UINT16_SIZE
+
     popped_offset = extract_uint16(head_and_tail, popped_header_offset)
+    new_head_and_tail = substring(head_and_tail, 0, popped_header_offset)
+    new_head_and_tail += substring(head_and_tail, popped_header_offset + 2, popped_offset)
 
-    head_and_tail = substring(head_and_tail, 0, popped_header_offset) + substring(
-        head_and_tail, popped_header_offset + 2, popped_offset
+    updated += _recalculate_head_for_elements_with_byte_length_head(
+        array_head_and_tail=new_head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
     )
-
-    updated = _itob16(length_minus_1) + _recalculate_head_for_elements_with_byte_length_head(
-        array_head_and_tail=head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
-    )
-
     return updated
 
 
