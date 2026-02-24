@@ -1,4 +1,4 @@
-logicsig test_cases.logic_signature.signature.pre_approved_sale
+logicsig test_cases.logic_signature.signature.pre_approved_sale():
 {
   pay_txn: group_transaction_pay = group_transaction(index=0u, type=pay)
   asset_txn: group_transaction_axfer = group_transaction(index=1u, type=axfer)
@@ -19,7 +19,151 @@ subroutine assert_correct_asset(txn: group_transaction_axfer): void
   assert(gtxns<AssetAmount>(txn) == 1u and gtxns<Sender>(txn) == TemplateVar[account](TMPL_SELLER) and gtxns<XferAsset>(txn) == TemplateVar[asset](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
 }
 
-logicsig test_cases.logic_signature.compiled_logic_sig.dont_use_this
+logicsig test_cases.logic_signature.lsig_args.args_simple(arg0: uint64, arg1: bytes, arg2: bool):
+{
+  assert(arg0 == btoi(arg<0>()))
+  assert(arg1 == arg<1>())
+  assert(arg2 == btoi(arg<2>()) != 0u)
+  if (arg0 < 10u) {
+    arg0: uint64 = 10u
+  }
+  arg1: bytes = arg1 + hex<"737566666978">
+  arg2: bool = !(arg2)
+  assert(arg0 >= 10u)
+  assert(len(arg1) > 0u)
+  if (arg2) {
+    arg0 += len(arg1)
+  }
+  return arg0
+}
+
+logicsig test_cases.logic_signature.lsig_args.args_complex(arg0: uint64, arg1: bytes, arg2: biguint, arg3: string, arg4: bool, arg5: arc4.uint8, arg6: arc4.uint64, arg7: arc4.uint128, arg8: arc4.static_array<arc4.uint8, 32>, arg9: arc4.bool, arg10: arc4.dynamic_array<arc4.uint8>, arg11: arc4.dynamic_array<arc4.uint8>, arg12: arc4.static_array<arc4.uint8, 4>, arg13: test_cases.logic_signature.lsig_args.SimpleStruct, arg14: test_cases.logic_signature.lsig_args.NestedStruct, arg15: arc4.tuple<arc4.uint8,arc4.uint64>, arg16: test_cases.logic_signature.lsig_args.SimpleNamedTuple, arg17: tuple<uint64,bytes>):
+{
+  assert(arg0 == btoi(arg<0>()))
+  assert(arg1 == arg<1>())
+  assert(reinterpret_cast<bytes>(arg2) == arg<2>())
+  assert(reinterpret_cast<bytes>(arg3) == arg<3>())
+  assert(arg4 == btoi(arg<4>()) != 0u)
+  assert(reinterpret_cast<bytes>(arg5) == arg<5>())
+  assert(reinterpret_cast<bytes>(arg6) == arg<6>())
+  assert(reinterpret_cast<bytes>(arg7) == arg<7>())
+  assert(reinterpret_cast<bytes>(arg8) == arg<8>())
+  assert(reinterpret_cast<bytes>(arg9) == arg<9>())
+  assert(reinterpret_cast<bytes>(arg10) == arg<10>())
+  assert(reinterpret_cast<bytes>(arg11) == arg<11>())
+  assert(reinterpret_cast<bytes>(arg12) == arg<12>())
+  assert(reinterpret_cast<bytes>(arg13) == arg<13>())
+  assert(reinterpret_cast<bytes>(arg14) == arg<14>())
+  assert(reinterpret_cast<bytes>(arg15) == arg<15>())
+  assert(reinterpret_cast<bytes>(arg16[0]) == arg<16>())
+  assert(reinterpret_cast<bytes>(arg16[1]) == arg<17>())
+  assert(arg17[0] == btoi(arg<18>()))
+  assert(arg17[1] == arg<19>())
+  arg0: uint64 = arg0 + 1u
+  arg1: bytes = arg1 + hex<"21">
+  arg2: biguint = arg2 b+ 1n
+  arg3: string = 'hello_' + arg3
+  arg4: bool = !(arg4)
+  arg5: arc4.uint8 = arc4_encode(arc4_decode(arg5, uint64) + 1u, arc4.uint8)
+  arg6: arc4.uint64 = arc4_encode(arc4_decode(arg6, uint64) + 1u, arc4.uint64)
+  arg7: arc4.uint128 = arc4_encode(arc4_decode(arg7, biguint) b+ 1n, arc4.uint128)
+  arg8: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(global<ZeroAddress>())
+  arg9: arc4.bool = arc4_encode(!(arc4_decode(arg9, bool)), arc4.bool)
+  arg10: arc4.dynamic_array<arc4.uint8> = arc4_encode(arc4_decode(arg10, string) + ' world', arc4.dynamic_array<arc4.uint8>)
+  arg11: arc4.dynamic_array<arc4.uint8> = arc4_encode(arc4_decode(arg11, bytes) + hex<"00">, arc4.dynamic_array<arc4.uint8>)
+  arg12[0u]: arc4.uint8 = 255_arc4u8
+  arg13: test_cases.logic_signature.lsig_args.SimpleStruct = new test_cases.logic_signature.lsig_args.SimpleStruct(x=arc4_encode(arc4_decode(arg13.x, uint64) + 1u, arc4.uint64), y=arg13.y)
+  arg14: test_cases.logic_signature.lsig_args.NestedStruct = new test_cases.logic_signature.lsig_args.NestedStruct(header=arc4_encode(arc4_decode(arg14.header, uint64) + 1u, arc4.uint8), data=arg14.data.copy())
+  arg15: arc4.tuple<arc4.uint8,arc4.uint64> = arc4_encode((arc4_encode(arc4_decode(arg15[0], uint64) + 1u, arc4.uint8), arc4_encode(arc4_decode(arg15[1], uint64) + 1u, arc4.uint64)), arc4.tuple<arc4.uint8,arc4.uint64>)
+  arg16: test_cases.logic_signature.lsig_args.SimpleNamedTuple = (a=arc4_encode(arc4_decode(arg16.a, uint64) + 1u, arc4.uint8), b=arc4_encode(arc4_decode(arg16.b, uint64) + 1u, arc4.uint64))
+  arg17: tuple<uint64,bytes> = (arg17[0] + 1u, arg17[1] + hex<"21">)
+  assert(arg0 > 0u)
+  assert(len(arg1) > 0u)
+  assert(arg2 > 0n)
+  assert(len(reinterpret_cast<bytes>(arg3)) > 0u)
+  assert(arc4_decode(arg5, uint64) > 0u)
+  assert(arc4_decode(arg6, uint64) > 0u)
+  assert(arc4_decode(arg7, biguint) > 0n)
+  assert(reinterpret_cast<account>(arg8) == global<ZeroAddress>())
+  assert(len(reinterpret_cast<bytes>(arc4_decode(arg10, string))) > 0u)
+  assert(arg11.length > 0u)
+  assert(reinterpret_cast<biguint>(arg12[0u]) == reinterpret_cast<biguint>(255_arc4u8))
+  assert(arc4_decode(arg13.x, uint64) > 0u)
+  assert(arc4_decode(arg14.header, uint64) > 0u)
+  assert(arc4_decode(arg15[0], uint64) > 0u)
+  assert(arc4_decode(arg16.a, uint64) > 0u)
+  assert(arg17[0] > 0u)
+  assert(len(arg17[1]) > 0u)
+  total: uint64 = arg0 + arc4_decode(arg5, uint64) + arc4_decode(arg6, uint64) + arc4_decode(arg15[1], uint64)
+  total += arc4_decode(arg16.b, uint64) + arg17[0]
+  if (arg4) {
+    total += len(arg1)
+  }
+  assert(total > 0u)
+  return arc4_decode(arg9, bool)
+}
+
+logicsig test_cases.logic_signature.lsig_args.args_complex_no_validation(arg0: uint64, arg1: bytes, arg2: biguint, arg3: string, arg4: bool, arg5: arc4.uint8, arg6: arc4.uint64, arg7: arc4.uint128, arg8: arc4.static_array<arc4.uint8, 32>, arg9: arc4.bool, arg10: arc4.dynamic_array<arc4.uint8>, arg11: arc4.dynamic_array<arc4.uint8>, arg12: arc4.static_array<arc4.uint8, 4>, arg13: test_cases.logic_signature.lsig_args.SimpleStruct, arg14: test_cases.logic_signature.lsig_args.NestedStruct, arg15: arc4.tuple<arc4.uint8,arc4.uint64>, arg16: test_cases.logic_signature.lsig_args.SimpleNamedTuple, arg17: tuple<uint64,bytes>):
+{
+  assert(arg0 == btoi(arg<0>()))
+  assert(arg1 == arg<1>())
+  assert(reinterpret_cast<bytes>(arg2) == arg<2>())
+  assert(reinterpret_cast<bytes>(arg3) == arg<3>())
+  assert(arg4 == btoi(arg<4>()) != 0u)
+  assert(reinterpret_cast<bytes>(arg5) == arg<5>())
+  assert(reinterpret_cast<bytes>(arg6) == arg<6>())
+  assert(reinterpret_cast<bytes>(arg7) == arg<7>())
+  assert(reinterpret_cast<bytes>(arg8) == arg<8>())
+  assert(reinterpret_cast<bytes>(arg9) == arg<9>())
+  assert(reinterpret_cast<bytes>(arg10) == arg<10>())
+  assert(reinterpret_cast<bytes>(arg11) == arg<11>())
+  assert(reinterpret_cast<bytes>(arg12) == arg<12>())
+  assert(reinterpret_cast<bytes>(arg13) == arg<13>())
+  assert(reinterpret_cast<bytes>(arg14) == arg<14>())
+  assert(reinterpret_cast<bytes>(arg15) == arg<15>())
+  assert(reinterpret_cast<bytes>(arg16[0]) == arg<16>())
+  assert(reinterpret_cast<bytes>(arg16[1]) == arg<17>())
+  assert(arg17[0] == btoi(arg<18>()))
+  assert(arg17[1] == arg<19>())
+  arg0: uint64 = arg0 + 1u
+  arg1: bytes = arg1 + hex<"21">
+  arg2: biguint = arg2 b+ 1n
+  arg3: string = 'hello_' + arg3
+  arg4: bool = !(arg4)
+  arg5: arc4.uint8 = arc4_encode(arc4_decode(arg5, uint64) + 1u, arc4.uint8)
+  arg6: arc4.uint64 = arc4_encode(arc4_decode(arg6, uint64) + 1u, arc4.uint64)
+  arg7: arc4.uint128 = arc4_encode(arc4_decode(arg7, biguint) b+ 1n, arc4.uint128)
+  arg8: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(global<ZeroAddress>())
+  arg9: arc4.bool = arc4_encode(!(arc4_decode(arg9, bool)), arc4.bool)
+  arg10: arc4.dynamic_array<arc4.uint8> = arc4_encode(arc4_decode(arg10, string) + ' world', arc4.dynamic_array<arc4.uint8>)
+  arg11: arc4.dynamic_array<arc4.uint8> = arc4_encode(arc4_decode(arg11, bytes) + hex<"00">, arc4.dynamic_array<arc4.uint8>)
+  arg12[0u]: arc4.uint8 = 255_arc4u8
+  arg13: test_cases.logic_signature.lsig_args.SimpleStruct = new test_cases.logic_signature.lsig_args.SimpleStruct(x=arc4_encode(arc4_decode(arg13.x, uint64) + 1u, arc4.uint64), y=arg13.y)
+  arg14: test_cases.logic_signature.lsig_args.NestedStruct = new test_cases.logic_signature.lsig_args.NestedStruct(header=arc4_encode(arc4_decode(arg14.header, uint64) + 1u, arc4.uint8), data=arg14.data.copy())
+  arg15: arc4.tuple<arc4.uint8,arc4.uint64> = arc4_encode((arc4_encode(arc4_decode(arg15[0], uint64) + 1u, arc4.uint8), arc4_encode(arc4_decode(arg15[1], uint64) + 1u, arc4.uint64)), arc4.tuple<arc4.uint8,arc4.uint64>)
+  arg16: test_cases.logic_signature.lsig_args.SimpleNamedTuple = (a=arc4_encode(arc4_decode(arg16.a, uint64) + 1u, arc4.uint8), b=arc4_encode(arc4_decode(arg16.b, uint64) + 1u, arc4.uint64))
+  arg17: tuple<uint64,bytes> = (arg17[0] + 1u, arg17[1] + hex<"21">)
+  assert(arg0 > 0u)
+  assert(len(arg1) > 0u)
+  assert(arg2 > 0n)
+  assert(len(reinterpret_cast<bytes>(arg3)) > 0u)
+  assert(arc4_decode(arg5, uint64) > 0u)
+  assert(arc4_decode(arg6, uint64) > 0u)
+  assert(arc4_decode(arg7, biguint) > 0n)
+  assert(reinterpret_cast<account>(arg8) == global<ZeroAddress>())
+  assert(len(reinterpret_cast<bytes>(arc4_decode(arg10, string))) > 0u)
+  assert(arg11.length > 0u)
+  assert(reinterpret_cast<biguint>(arg12[0u]) == reinterpret_cast<biguint>(255_arc4u8))
+  assert(arc4_decode(arg13.x, uint64) > 0u)
+  assert(arc4_decode(arg14.header, uint64) > 0u)
+  assert(arc4_decode(arg15[0], uint64) > 0u)
+  assert(arc4_decode(arg16.a, uint64) > 0u)
+  assert(arg17[0] > 0u)
+  assert(len(arg17[1]) > 0u)
+  return arc4_decode(arg9, bool)
+}
+
+logicsig test_cases.logic_signature.compiled_logic_sig.dont_use_this():
 {
   assert(arg<1>() == hex<"74686973206973206E6F7420736563757265">, comment="arg is not correct")
   assert(arg<0>() == hex<"30">)
@@ -61,7 +205,7 @@ contract CheckCompiledSig
   }
 }
 
-logicsig test_cases.logic_signature.always_allow.some_sig
+logicsig test_cases.logic_signature.always_allow.some_sig():
 {
   return true
 }
