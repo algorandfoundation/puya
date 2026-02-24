@@ -272,9 +272,10 @@ class ToCodeVisitor(
     @typing.override
     def visit_logic_signature(self, statement: nodes.LogicSignature) -> list[str]:
         body = statement.program.body.accept(self)
+        args = ", ".join([f"{a.name}: {a.wtype}" for a in statement.program.args])
         return [
             "",
-            f"logicsig {statement.id}",
+            f"logicsig {statement.id}({args}):",
             "{",
             *_indent(body),
             "}",

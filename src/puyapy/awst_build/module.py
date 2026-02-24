@@ -50,6 +50,7 @@ class _LogicSigDecoratorInfo:
     name_override: str | None
     avm_version: int | None
     scratch_slots: Set[int]
+    validate_encoding: bool | None
 
 
 _BUILTIN_INHERITABLE: typing.Final = frozenset(
@@ -116,6 +117,7 @@ class ModuleASTConverter(
                     source_location=logicsig_dec.loc,
                     avm_version=info.avm_version,
                     reserved_scratch_space=info.scratch_slots,
+                    validate_encoding=info.validate_encoding,
                 )
 
             return [deferred]
@@ -147,6 +149,7 @@ class ModuleASTConverter(
     def _process_logic_sig_decorator(self, decorator: DecoratorInfo) -> _LogicSigDecoratorInfo:
         name_override = None
         avm_version = None
+        validate_encoding: bool | None = None
         scratch_slot_reservations = set[int]()
         for arg_data in decorator.args or ():
             arg = arg_data.expr
@@ -163,6 +166,16 @@ class ModuleASTConverter(
                         avm_version = version_const
                     else:
                         self.context.error("expected an int", arg)
+                case "validate_encoding":
+                    enc_const = self.visit_expression(arg)
+                    if not isinstance(enc_const, str):
+                        self.context.error("expected a str", arg)
+                    elif enc_const == "args":
+                        validate_encoding = True
+                    elif enc_const == "unsafe_disabled":
+                        validate_encoding = False
+                    else:
+                        self.context.error(f"invalid validate_encoding option: {enc_const}", arg)
                 case "scratch_slots":
                     if isinstance(arg, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
                         slot_items = arg.items
@@ -184,6 +197,7 @@ class ModuleASTConverter(
             name_override=name_override,
             avm_version=avm_version,
             scratch_slots=scratch_slot_reservations,
+            validate_encoding=validate_encoding,
         )
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
