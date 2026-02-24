@@ -58,44 +58,44 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let tmp%3#0: uint64 = 0u
         let value_internal%0#0: uint64 = 0u
         goto block@2
-    block@2: // for_header_L277
+    block@2: // for_header_L281
         let head_offset#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#0 0u)
         goto continue_looping%0#0 ? block@3 : block@4
-    block@3: // for_body_L278
+    block@3: // for_body_L282
         let item_offset#0: uint64 = (extract_uint16 0x head_offset#0)
-        let tmp%5#0: uint64 = (+ 2u item_offset#0)
-        let tmp%6#0: bytes = (itob tmp%5#0)
-        let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
-        let new_head#2: bytes = (concat new_head#1 tmp%7#0)
+        let i#2: uint64 = (+ 2u item_offset#0)
+        let tmp%0#5: bytes = (itob i#2)
+        let tmp%1#4: bytes = ((extract 6 0) tmp%0#5)
+        let new_head#2: bytes = (concat new_head#1 tmp%1#4)
         let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@2
-    block@4: // after_for_L277
+    block@4: // after_for_L281
         let head_and_tail_length#0: uint64 = 0u
         let value_internal%1#0: uint64 = 0u
         goto block@5
-    block@5: // for_header_L282
+    block@5: // for_header_L286
         let head_offset#1: uint64 = φ(value_internal%1#0 <- block@4, value_internal%1#2 <- block@6)
         let new_head#3: bytes = φ(new_head#1 <- block@4, new_head#4 <- block@6)
         let continue_looping%1#0: bool = (< head_offset#1 2u)
         goto continue_looping%1#0 ? block@6 : block@7
-    block@6: // for_body_L283
+    block@6: // for_body_L287
         let item_offset#1: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#1)
-        let tmp%13#0: bytes = (itob item_offset#1)
-        let tmp%14#0: bytes = ((extract 6 2) tmp%13#0)
-        let new_head#4: bytes = (concat new_head#3 tmp%14#0)
+        let tmp%0#4: bytes = (itob item_offset#1)
+        let tmp%1#3: bytes = ((extract 6 0) tmp%0#4)
+        let new_head#4: bytes = (concat new_head#3 tmp%1#3)
         let value_internal%1#2: uint64 = (+ head_offset#1 2u)
         goto block@5
-    block@7: // after_for_L282
-        let tmp%16#0: uint64 = 1u
-        let tmp%17#0: bytes = (itob 1u)
-        let tmp%18#0: bytes = 0x0001
-        let tmp%19#0: bytes = (concat 0x0001 new_head#3)
-        let tmp%21#0: bytes = 0x
-        let tmp%24#0: uint64 = (len new_head_and_tail#0)
-        let tmp%25#0: bytes = ((extract 2 0) new_head_and_tail#0)
-        let nested_arr#1: Encoded(len+(len+uint64[])[]) = (concat tmp%19#0 tmp%25#0)
+    block@7: // after_for_L286
+        let i#0: uint64 = 1u
+        let tmp%0#3: bytes = (itob 1u)
+        let tmp%1#2: bytes = 0x0001
+        let tmp%16#0: bytes = (concat 0x0001 new_head#3)
+        let tmp%18#0: bytes = 0x
+        let tmp%21#0: uint64 = (len new_head_and_tail#0)
+        let tmp%22#0: bytes = ((extract 2 0) new_head_and_tail#0)
+        let nested_arr#1: Encoded(len+(len+uint64[])[]) = (concat tmp%16#0 tmp%22#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[][])uint64")

@@ -2,10 +2,10 @@ main test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program:
     block@0: // L8
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%0#0: Encoded(bool8) = aggregate%encoded_bool%0#0
-        let tmp%0#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
+        let tmp%0#0: bytes = aggregate%as_Encoded(bool8)%0#0
         let aggregate%encoded_bool%1#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%1#0: Encoded(bool8) = aggregate%encoded_bool%1#0
-        let tmp%1#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%1#0
+        let tmp%1#0: bytes = aggregate%as_Encoded(bool8)%1#0
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0)
         let aggregate%encoded_bool%2#0: bytes[1] = (setbit 0x00 0u 1u)
@@ -113,20 +113,26 @@ main test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program:
         let array#0: bytes = dynamic_arr#0
         let new_items_bytes#0: bytes = tmp%40#0
         goto block@1
-    block@1: // L171
+    block@1: // L175
         let tmp%0#1: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#1
         let tmp%1#1: uint64 = (+ array_length#0 1u)
         let new_array_length#0: uint64 = tmp%1#1
-        let tmp%2#1: bytes = (itob new_array_length#0)
-        let tmp%3#0: bytes = ((extract 6 0) tmp%2#1)
-        let new_len_u16#0: bytes = tmp%3#0
-        let tmp%4#0: bytes = ((replace2 0) array#0 new_len_u16#0)
-        let result#0: bytes = tmp%4#0
-        let tmp%5#1: bytes = (concat result#0 new_items_bytes#0)
-        let tmp%41#0: Encoded(len+uint64[]) = tmp%5#1
+        let i#0: uint64 = new_array_length#0
         goto block@2
-    block@2: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L8
+    block@2: // L26
+        let tmp%0#0: bytes = (itob i#0)
+        let tmp%1#0: bytes = ((extract 6 0) tmp%0#0)
+        let tmp%2#1: bytes = tmp%1#0
+        goto block@3
+    block@3: // after_inlined__puya_lib.arc4._itob16_L175
+        let new_len_u16#0: bytes = tmp%2#1
+        let tmp%3#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let result#0: bytes = tmp%3#0
+        let tmp%4#0: bytes = (concat result#0 new_items_bytes#0)
+        let tmp%41#0: Encoded(len+uint64[]) = tmp%4#0
+        goto block@4
+    block@4: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L8
         let dynamic_arr#0: Encoded(len+uint64[]) = tmp%41#0
         let aggregate%as_bytes%6#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)

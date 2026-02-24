@@ -317,8 +317,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let new_items_bytes#0: bytes = load(local.2)
         let aggregate%bytes_len%13#0: uint64 = (len new_items_bytes#0)
         let new_items_count#0: uint64 = (/ aggregate%bytes_len%13#0 8u)
-        let tmp%2#8: bytes = (itob new_items_count#0)
-        let new_len_u16#0: bytes = ((extract 6 0) tmp%2#8)
+        let tmp%0#6: bytes = (itob new_items_count#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#6)
         let result#0: bytes = ((replace2 0) 0x0000 new_len_u16#0)
         let arc4_arr#0: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#0)
         let tmp%3#2: bytes = (concat 0x151f7c75 arc4_arr#0)
@@ -458,38 +458,38 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
 
 subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
-    block@0: // L194
+    block@0: // L198
         let array_length#0: uint64 = (extract_uint16 array#0 0u)
         let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
-        let tmp%2#0: bytes = (itob new_array_length#0)
-        let new_array_length_b#0: bytes = ((extract 6 0) tmp%2#0)
+        let tmp%0#1: bytes = (itob new_array_length#0)
+        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#1)
         let result#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
-        let tmp%5#0: uint64 = (+ array_length#0 7u)
-        let current_bytes#0: uint64 = (/ tmp%5#0 8u)
-        let tmp%7#0: uint64 = (+ new_array_length#0 7u)
-        let required_bytes#0: uint64 = (/ tmp%7#0 8u)
-        let tmp%9#0: bool = (< current_bytes#0 required_bytes#0)
-        goto tmp%9#0 ? block@1 : block@2
-    block@1: // if_body_L219
-        let tmp%10#0: uint64 = (- required_bytes#0 current_bytes#0)
-        let tmp%11#0: bytes = (bzero tmp%10#0)
-        let result#0: bytes = (concat result#0 tmp%11#0)
+        let tmp%4#0: uint64 = (+ array_length#0 7u)
+        let current_bytes#0: uint64 = (/ tmp%4#0 8u)
+        let tmp%6#0: uint64 = (+ new_array_length#0 7u)
+        let required_bytes#0: uint64 = (/ tmp%6#0 8u)
+        let tmp%8#0: bool = (< current_bytes#0 required_bytes#0)
+        goto tmp%8#0 ? block@1 : block@2
+    block@1: // if_body_L223
+        let tmp%9#0: uint64 = (- required_bytes#0 current_bytes#0)
+        let tmp%10#0: bytes = (bzero tmp%9#0)
+        let result#0: bytes = (concat result#0 tmp%10#0)
         goto block@2
-    block@2: // after_if_else_L218
+    block@2: // after_if_else_L222
         let read_offset#0: uint64 = 0u
         let write_offset#0: uint64 = (+ array_length#0 16u)
         let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
         goto block@3
-    block@3: // while_top_L224
-        let tmp%15#0: bool = (< write_offset#0 write_end#0)
-        goto tmp%15#0 ? block@4 : block@5
-    block@4: // while_body_L225
-        let tmp%16#0: bool = (getbit new_items_bytes#0 read_offset#0)
-        let result#0: bytes = (setbit result#0 write_offset#0 tmp%16#0)
+    block@3: // while_top_L228
+        let tmp%14#0: bool = (< write_offset#0 write_end#0)
+        goto tmp%14#0 ? block@4 : block@5
+    block@4: // while_body_L229
+        let tmp%15#0: bool = (getbit new_items_bytes#0 read_offset#0)
+        let result#0: bytes = (setbit result#0 write_offset#0 tmp%15#0)
         let write_offset#0: uint64 = (+ write_offset#0 1u)
         let read_offset#0: uint64 = (+ read_offset#0 read_step#0)
         goto block@3
-    block@5: // after_while_L224
+    block@5: // after_while_L228
         return result#0
 
 subroutine test_cases.array.static_size.StaticSizeContract.xtra() -> <uint64, uint64, account, Encoded(uint64,uint64), biguint>:
