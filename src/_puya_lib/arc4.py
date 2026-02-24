@@ -111,10 +111,12 @@ def dynamic_array_pop_dynamic_element(array: Bytes) -> Bytes:
     updated = extract(itob(length_minus_1), UINT16_OFFSET, UINT16_SIZE)
     popped_header_offset = length_minus_1 * UINT16_SIZE
     head_and_tail = extract(array, UINT16_SIZE, 0)
-    for head_offset in urange(0, popped_header_offset, UINT16_SIZE):
+    head_offset = UInt64(0)
+    while head_offset < popped_header_offset:
         item_offset = extract_uint16(head_and_tail, head_offset)
         item_offset -= UINT16_SIZE
         updated += extract(itob(item_offset), UINT16_OFFSET, UINT16_SIZE)
+        head_offset += UINT16_SIZE
 
     updated += substring(
         head_and_tail,
