@@ -124,6 +124,7 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "_Validatable": SymbolData(fullname="algopy._interfaces._Validatable", module_public=True)
     },
     "algopy._logic_sig": {
+        "_P": SymbolData(fullname="algopy._logic_sig._P", module_public=True),
         "LogicSig": SymbolData(fullname="algopy._logic_sig.LogicSig", module_public=True),
         "logicsig": SymbolData(fullname="algopy._logic_sig.logicsig", module_public=True),
     },
