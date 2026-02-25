@@ -1,10 +1,10 @@
 #pragma version 11
 #pragma typetrack false
 
-// test_cases.logic_signature.lsig_args.args_complex() -> uint64:
+// test_cases.logic_signature.lsig_args_complex.args_complex() -> uint64:
 main:
     intcblock 1 0 8 16
-    bytecblock 0x21 0x01 0xff 0x
+    bytecblock 0x21 0x00 0xff 0x01
     arg_0
     btoi
     arg_1
@@ -73,13 +73,13 @@ main:
     len
     intc_3 // 16
     ==
-    assert // invalid number of bytes for test_cases.logic_signature.lsig_args.SimpleStruct
+    assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleStruct
     arg 14
     dup
     len
     pushint 17
     ==
-    assert // invalid number of bytes for test_cases.logic_signature.lsig_args.NestedStruct
+    assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.NestedStruct
     arg 15
     dup
     len
@@ -101,20 +101,42 @@ main:
     arg 18
     btoi
     arg 19
+    arg 20
+    btoi
+    arg 21
+    arg 22
+    btoi
+    arg 23
+    dup
+    len
+    pushint 2
+    ==
+    assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.OverwriteStruct
+    arg 24
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    pushint 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     arg_0
     btoi
-    dig 20
+    dig 26
     ==
     assert
-    dig 18
+    dig 24
     arg_1
     ==
     assert
-    dig 17
+    dig 23
     arg_2
     ==
     assert
-    dig 16
+    dig 22
     arg_3
     ==
     assert
@@ -122,83 +144,105 @@ main:
     btoi
     intc_1 // 0
     !=
-    dig 16
+    dig 22
     ==
     assert
-    dig 14
+    dig 20
     arg 5
     ==
     assert
-    dig 13
+    dig 19
     arg 6
     ==
     assert
-    dig 12
+    dig 18
     arg 7
     ==
     assert
     arg 8
-    uncover 12
+    uncover 18
     ==
     assert
-    dig 10
+    dig 16
     arg 9
     ==
     assert
-    dig 9
+    dig 15
     arg 10
     ==
     assert
-    dig 8
+    dig 14
     arg 11
     ==
     assert
-    dig 7
+    dig 13
     arg 12
     ==
     assert
-    dig 6
+    dig 12
     arg 13
     ==
     assert
-    dig 5
+    dig 11
     arg 14
     ==
     assert
-    dig 4
+    dig 10
     arg 15
     ==
     assert
-    dig 3
+    dig 9
     arg 16
     ==
     assert
-    dig 2
+    dig 8
     arg 17
     ==
     assert
     arg 18
     btoi
-    dig 2
+    dig 8
     ==
     assert
-    dup
+    dig 6
     arg 19
     ==
     assert
-    uncover 18
+    arg 20
+    btoi
+    dig 6
+    ==
+    assert
+    dig 4
+    arg 21
+    ==
+    assert
+    arg 22
+    btoi
+    dig 4
+    ==
+    assert
+    dig 2
+    arg 23
+    ==
+    assert
+    dig 1
+    arg 24
+    ==
+    assert
+    uncover 24
     intc_0 // 1
     +
-    uncover 18
+    uncover 24
     bytec_0 // 0x21
     concat
-    uncover 18
-    bytec_1 // 0x01
+    uncover 24
+    bytec_3 // 0x01
     b+
     pushbytes "hello_"
-    uncover 19
+    uncover 25
     concat
-    uncover 17
+    uncover 23
     btoi
     intc_0 // 1
     +
@@ -208,12 +252,12 @@ main:
     intc_2 // 8
     <=
     assert // overflow
-    uncover 17
+    uncover 23
     btoi
     intc_0 // 1
     +
-    uncover 17
-    bytec_1 // 0x01
+    uncover 23
+    bytec_3 // 0x01
     b+
     dup
     len
@@ -223,18 +267,18 @@ main:
     intc_3 // 16
     bzero
     b|
-    uncover 17
+    uncover 23
     intc_1 // 0
     getbit
     !
-    cover 18
-    uncover 16
+    cover 24
+    uncover 22
     extract 2 0
     pushbytes " world"
     concat
-    uncover 16
+    uncover 22
     extract 2 0
-    pushbytes 0x00
+    bytec_1 // 0x00
     concat
     dup
     len
@@ -242,19 +286,19 @@ main:
     extract 6 2
     swap
     concat
-    uncover 16
+    uncover 22
     bytec_2 // 0xff
     replace2 0 // on error: index access is out of bounds
-    dig 16
+    dig 22
     intc_1 // 0
     extract_uint64
     intc_0 // 1
     +
     itob
-    uncover 17
+    uncover 23
     extract 8 8
     concat
-    dig 16
+    dig 22
     intc_1 // 0
     getbyte
     intc_0 // 1
@@ -266,10 +310,10 @@ main:
     <=
     assert // overflow
     extract 7 1
-    uncover 17
+    uncover 23
     extract 1 16
     concat
-    dig 16
+    dig 22
     intc_1 // 0
     getbyte
     intc_0 // 1
@@ -281,14 +325,14 @@ main:
     <=
     assert // overflow
     extract 7 1
-    uncover 17
+    uncover 23
     intc_0 // 1
     extract_uint64
     intc_0 // 1
     +
     itob
     concat
-    uncover 16
+    uncover 22
     btoi
     intc_0 // 1
     +
@@ -298,83 +342,149 @@ main:
     intc_2 // 8
     <=
     assert // overflow
-    uncover 16
+    uncover 22
     btoi
     intc_0 // 1
     +
-    uncover 16
+    uncover 22
     intc_0 // 1
     +
-    uncover 16
+    uncover 22
     bytec_0 // 0x21
     concat
-    dig 16
+    uncover 22
+    intc_0 // 1
+    +
+    uncover 22
+    bytec_0 // 0x21
+    concat
+    uncover 22
+    intc_0 // 1
+    +
+    dig 22
+    intc_1 // 0
+    getbyte
+    intc_0 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    extract 7 1
+    uncover 23
+    intc_2 // 8
+    getbit
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    intc_1 // 0
+    getbit
+    !
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    concat
+    uncover 21
+    intc_0 // 1
+    +
+    itob
+    extract 6 0
+    uncover 22
+    swap
+    replace2 0
+    bytec_2 // 0xff
+    concat
+    dig 21
     assert
-    uncover 15
+    uncover 20
     len
     dup
-    cover 18
+    cover 23
     assert
-    uncover 14
-    bytec_3 // 0x
+    uncover 19
+    pushbytes 0x
     b>
     assert
-    uncover 13
+    uncover 18
     len
     assert
-    uncover 12
+    uncover 17
     pushint 7
     getbyte
     dup
     assert
-    dig 12
+    dig 17
     assert
-    uncover 11
-    bytec_3 // 0x
+    uncover 16
+    pushbytes 0x
     b>
     assert
-    uncover 10
+    uncover 15
     len
     assert
-    uncover 9
+    uncover 14
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     assert
-    uncover 8
+    uncover 13
     extract 0 1 // on error: index access is out of bounds
     bytec_2 // 0xff
     b==
     assert
-    uncover 7
+    uncover 12
     intc_1 // 0
     extract_uint64
     assert
-    uncover 6
+    uncover 11
     intc_1 // 0
     getbyte
     assert
-    dig 5
+    dig 10
     intc_1 // 0
     getbyte
     assert
-    uncover 4
+    uncover 9
     pushint 7
     getbyte
     assert
-    dig 2
+    dig 7
     assert
-    swap
+    uncover 6
     len
     assert
-    uncover 5
-    +
+    dig 5
+    assert
     uncover 4
+    len
+    assert
+    dig 3
+    assert
+    uncover 2
+    intc_1 // 0
+    getbyte
+    assert
+    swap
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    assert
+    uncover 7
     +
-    uncover 3
+    uncover 6
+    +
+    uncover 5
     intc_0 // 1
     extract_uint64
     +
-    cover 2
+    uncover 4
+    uncover 4
+    +
+    uncover 3
+    +
+    uncover 2
     +
     +
     swap
