@@ -1,10 +1,10 @@
 #pragma version 11
 #pragma typetrack false
 
-// test_cases.logic_signature.lsig_args.args_simple() -> uint64:
+// test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 main:
     pushbytes ""
-    // logic_signature/lsig_args.py:22
+    // logic_signature/lsig_args_simple.py:5
     // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
     arg_0
     btoi
@@ -17,7 +17,7 @@ main:
     dup
     cover 3
     cover 3
-    // logic_signature/lsig_args.py:23-24
+    // logic_signature/lsig_args_simple.py:6-7
     // # verify args match raw op.arg values
     // assert arg0 == op.btoi(op.arg(0))
     arg_0
@@ -25,13 +25,13 @@ main:
     dig 1
     ==
     assert
-    // logic_signature/lsig_args.py:25
+    // logic_signature/lsig_args_simple.py:8
     // assert arg1 == op.arg(1)
     arg_1
     uncover 2
     ==
     assert
-    // logic_signature/lsig_args.py:26
+    // logic_signature/lsig_args_simple.py:9
     // assert arg2 == (op.btoi(op.arg(2)) != 0)
     arg_2
     btoi
@@ -40,42 +40,42 @@ main:
     uncover 2
     ==
     assert
-    // logic_signature/lsig_args.py:28-29
+    // logic_signature/lsig_args_simple.py:11-12
     // # mutate all
     // if arg0 < 10:
     pushint 10
     <
     bz main_after_if_else@2
-    // logic_signature/lsig_args.py:30
+    // logic_signature/lsig_args_simple.py:13
     // arg0 = UInt64(10)
     pushint 10
     bury 3
 
 main_after_if_else@2:
-    // logic_signature/lsig_args.py:31
+    // logic_signature/lsig_args_simple.py:14
     // arg1 = arg1 + b"suffix"
     dig 1
     pushbytes 0x737566666978
     concat
-    // logic_signature/lsig_args.py:34-35
+    // logic_signature/lsig_args_simple.py:17-18
     // # assert all
     // assert arg0 >= 10
     dig 3
     pushint 10
     >=
     assert
-    // logic_signature/lsig_args.py:36
+    // logic_signature/lsig_args_simple.py:19
     // assert arg1.length > 0
     len
     dup
     bury 5
     assert
-    // logic_signature/lsig_args.py:38-39
-    // # cross-arg operations
+    // logic_signature/lsig_args_simple.py:21-22
+    // # some random cross-arg operations
     // if arg2:
     dup
     bnz main_after_if_else@4
-    // logic_signature/lsig_args.py:40
+    // logic_signature/lsig_args_simple.py:23
     // arg0 += arg1.length
     dig 2
     dig 4
@@ -83,7 +83,7 @@ main_after_if_else@2:
     bury 3
 
 main_after_if_else@4:
-    // logic_signature/lsig_args.py:41
+    // logic_signature/lsig_args_simple.py:24
     // return arg0
     dig 2
     return
