@@ -18,27 +18,9 @@ class SimpleNamedTuple(typing.NamedTuple):
     b: arc4.UInt64
 
 
-@logicsig
-def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
-    # verify args match raw op.arg values
-    assert arg0 == op.btoi(op.arg(0))
-    assert arg1 == op.arg(1)
-    assert arg2 == (op.btoi(op.arg(2)) != 0)
-
-    # mutate all
-    if arg0 < 10:
-        arg0 = UInt64(10)
-    arg1 = arg1 + b"suffix"
-    arg2 = not arg2
-
-    # assert all
-    assert arg0 >= 10
-    assert arg1.length > 0
-
-    # cross-arg operations
-    if arg2:
-        arg0 += arg1.length
-    return arg0
+class OverwriteStruct(arc4.Struct):
+    value: arc4.UInt8
+    dont_overwrite_me: arc4.Bool
 
 
 @logicsig
@@ -61,6 +43,9 @@ def args_complex(
     arg15: arc4.Tuple[arc4.UInt8, arc4.UInt64],
     arg16: SimpleNamedTuple,
     arg17: tuple[UInt64, Bytes],
+    arg18: tuple[UInt64, tuple[Bytes, UInt64]],
+    arg19: OverwriteStruct,
+    arg20: arc4.DynamicArray[arc4.UInt8],
 ) -> bool:
     # verify args match raw op.arg values
     assert arg0 == op.btoi(op.arg(0))
@@ -83,6 +68,11 @@ def args_complex(
     assert arg16[1].bytes == op.arg(17)
     assert arg17[0] == op.btoi(op.arg(18))
     assert arg17[1] == op.arg(19)
+    assert arg18[0] == op.btoi(op.arg(20))
+    assert arg18[1][0] == op.arg(21)
+    assert arg18[1][1] == op.btoi(op.arg(22))
+    assert arg19.bytes == op.arg(23)
+    assert arg20.bytes == op.arg(24)
 
     # mutate all
     arg0 = arg0 + 1
@@ -114,6 +104,12 @@ def args_complex(
         b=arc4.UInt64(arg16.b.as_uint64() + 1),
     )
     arg17 = (arg17[0] + 1, arg17[1] + b"!")
+    arg18 = (arg18[0] + 1, (arg18[1][0] + b"!", arg18[1][1] + 1))
+    arg19 = OverwriteStruct(
+        value=arc4.UInt8(arg19.value.as_uint64() + 1),
+        dont_overwrite_me=arc4.Bool(not arg19.dont_overwrite_me.native),
+    )
+    arg20.append(arc4.UInt8(0xFF))
 
     # assert all
     assert arg0 > 0
@@ -133,10 +129,15 @@ def args_complex(
     assert arg16.a.as_uint64() > 0
     assert arg17[0] > 0
     assert arg17[1].length > 0
+    assert arg18[0] > 0
+    assert arg18[1][0].length > 0
+    assert arg18[1][1] > 0
+    assert arg19.value.as_uint64() > 0
+    assert arg20.length > 0
 
-    # cross-arg operations
+    # some random cross-arg operations
     total = arg0 + arg5.as_uint64() + arg6.as_uint64() + arg15[1].as_uint64()
-    total += arg16.b.as_uint64() + arg17[0]
+    total += arg16.b.as_uint64() + arg17[0] + arg18[0] + arg18[1][1]
     if arg4:
         total += arg1.length
     assert total > 0
@@ -163,6 +164,9 @@ def args_complex_no_validation(
     arg15: arc4.Tuple[arc4.UInt8, arc4.UInt64],
     arg16: SimpleNamedTuple,
     arg17: tuple[UInt64, Bytes],
+    arg18: tuple[UInt64, tuple[Bytes, UInt64]],
+    arg19: OverwriteStruct,
+    arg20: arc4.DynamicArray[arc4.UInt8],
 ) -> bool:
     # verify args match raw op.arg values
     assert arg0 == op.btoi(op.arg(0))
@@ -185,6 +189,11 @@ def args_complex_no_validation(
     assert arg16[1].bytes == op.arg(17)
     assert arg17[0] == op.btoi(op.arg(18))
     assert arg17[1] == op.arg(19)
+    assert arg18[0] == op.btoi(op.arg(20))
+    assert arg18[1][0] == op.arg(21)
+    assert arg18[1][1] == op.btoi(op.arg(22))
+    assert arg19.bytes == op.arg(23)
+    assert arg20.bytes == op.arg(24)
 
     # mutate all
     arg0 = arg0 + 1
@@ -216,6 +225,12 @@ def args_complex_no_validation(
         b=arc4.UInt64(arg16.b.as_uint64() + 1),
     )
     arg17 = (arg17[0] + 1, arg17[1] + b"!")
+    arg18 = (arg18[0] + 1, (arg18[1][0] + b"!", arg18[1][1] + 1))
+    arg19 = OverwriteStruct(
+        value=arc4.UInt8(arg19.value.as_uint64() + 1),
+        dont_overwrite_me=arc4.Bool(not arg19.dont_overwrite_me.native),
+    )
+    arg20.append(arc4.UInt8(0xFF))
 
     # assert all
     assert arg0 > 0
@@ -235,7 +250,10 @@ def args_complex_no_validation(
     assert arg16.a.as_uint64() > 0
     assert arg17[0] > 0
     assert arg17[1].length > 0
-
-    # TODO: replicate non-validation bug
+    assert arg18[0] > 0
+    assert arg18[1][0].length > 0
+    assert arg18[1][1] > 0
+    assert arg19.value.as_uint64() > 0
+    assert arg20.length > 0
 
     return arg9.native
