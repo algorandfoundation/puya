@@ -271,23 +271,22 @@ def dynamic_array_concat_dynamic_element(
     new_head_and_tail: Bytes,
     new_items_count: UInt64,
 ) -> Bytes:
-    new_head = Bytes()
-    array_head_and_tail = extract(array, UINT16_SIZE, 0)
     array_items_count = extract_uint16(array, 0)
-    arr_head_size = array_items_count * UINT16_SIZE
+    result = _itob16(array_items_count + new_items_count)
+    array_head_and_tail = extract(array, UINT16_SIZE, 0)
+    array_head_size = array_items_count * UINT16_SIZE
     new_head_size = new_items_count * UINT16_SIZE
-    for head_offset in urange(0, arr_head_size, UINT16_SIZE):
+    for head_offset in urange(0, array_head_size, UINT16_SIZE):
         item_offset = extract_uint16(array_head_and_tail, head_offset)
-        new_head += _itob16(new_head_size + item_offset)
+        result += _itob16(new_head_size + item_offset)
 
     head_and_tail_length = array_head_and_tail.length
     for head_offset in urange(0, new_head_size, UINT16_SIZE):
         item_offset = extract_uint16(new_head_and_tail, head_offset)
-        new_head += _itob16(head_and_tail_length + item_offset)
+        result += _itob16(head_and_tail_length + item_offset)
     return (
-        _itob16(array_items_count + new_items_count)
-        + new_head
-        + substring(array_head_and_tail, arr_head_size, head_and_tail_length)
+        result
+        + substring(array_head_and_tail, array_head_size, head_and_tail_length)
         + substring(new_head_and_tail, new_head_size, new_head_and_tail.length)
     )
 
