@@ -1160,14 +1160,26 @@ export class BytesAugmentedAssignment extends Statement {
      return visitor.visitBytesAugmentedAssignment(this)
    }
 }
-export class Emit extends Expression {
-  constructor(props: Props<Emit>) {
+export class EmitFields extends Expression {
+  constructor(props: Props<EmitFields>) {
     super(props)
     this.signature = props.signature
-    this.value = props.value
+    this.values = props.values
     this.wtype = props.wtype
   }
   readonly signature: string
+  readonly values: Array<Expression>
+  readonly wtype: wtypes.WType
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitEmitFields(this)
+   }
+}
+export class Emit extends Expression {
+  constructor(props: Props<Emit>) {
+    super(props)
+    this.value = props.value
+    this.wtype = props.wtype
+  }
   readonly value: Expression
   readonly wtype: wtypes.WType
   accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -1642,6 +1654,7 @@ export const concreteNodes = {
   uInt64AugmentedAssignment: UInt64AugmentedAssignment,
   bigUIntAugmentedAssignment: BigUIntAugmentedAssignment,
   bytesAugmentedAssignment: BytesAugmentedAssignment,
+  emitFields: EmitFields,
   emit: Emit,
   range: Range,
   enumeration: Enumeration,
@@ -1749,6 +1762,7 @@ export interface ExpressionVisitor<T> {
   visitBytesBinaryOperation(expression: BytesBinaryOperation): T
   visitBooleanBinaryOperation(expression: BooleanBinaryOperation): T
   visitNot(expression: Not): T
+  visitEmitFields(expression: EmitFields): T
   visitEmit(expression: Emit): T
   visitRange(expression: Range): T
   visitEnumeration(expression: Enumeration): T
