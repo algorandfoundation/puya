@@ -3,7 +3,7 @@ title: AVM Operations
 description: Low-level AVM operations available via the algopy.op module
 ---
 
-Algorand Python allows you to do express [every op code the AVM has available](https://dev.algorand.co/concepts/smart-contracts/avm/#operations) apart from ops that manipulate the stack (to avoid conflicts with the compiler), and `log` (to avoid confusion with the superior [Algorand Python log function](/puya/language-guide/logs/)). These ops are exposed via the [`algopy.op`](#algopy.op) submodule.
+Algorand Python allows you to do express [every op code the AVM has available](https://dev.algorand.co/concepts/smart-contracts/avm/#operations) apart from ops that manipulate the stack (to avoid conflicts with the compiler), and `log` (to avoid confusion with the superior [Algorand Python log function](/puya/language-guide/logs/)). These ops are exposed via the [`algopy.op`](/puya/api/algopy/algopyop/) submodule.
 We generally recommend importing this entire submodule so you can use intellisense to discover the available methods:
 
 ```python

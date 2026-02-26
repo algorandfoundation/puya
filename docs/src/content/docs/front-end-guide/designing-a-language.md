@@ -1,6 +1,8 @@
 ---
 title: Designing a Language
 description: Considerations for designing a language to compile to AVM via Puya
+sidebar:
+  order: 3
 ---
 
 The first step to adding a new front end for Puya is designing the language itself.

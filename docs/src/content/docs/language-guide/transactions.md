@@ -8,15 +8,15 @@ creating and submitting inner transactions from your smart contract.
 
 The following types are available:
 
-| Group Transactions                                                   | Inner Transaction Field sets                     | Inner Transaction                                                              |
-| -------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ |
-| [PaymentTransaction](algopy.gtxn.PaymentTransaction)                 | [Payment](algopy.itxn.Payment)                   | [PaymentInnerTransaction](algopy.itxn.PaymentInnerTransaction)                 |
-| [KeyRegistrationTransaction](algopy.gtxn.KeyRegistrationTransaction) | [KeyRegistration](algopy.itxn.KeyRegistration)   | [KeyRegistrationInnerTransaction](algopy.itxn.KeyRegistrationInnerTransaction) |
-| [AssetConfigTransaction](algopy.gtxn.AssetConfigTransaction)         | [AssetConfig](algopy.itxn.AssetConfig)           | [AssetConfigInnerTransaction](algopy.itxn.AssetConfigInnerTransaction)         |
-| [AssetTransferTransaction](algopy.gtxn.AssetTransferTransaction)     | [AssetTransfer](algopy.itxn.AssetTransfer)       | [AssetTransferInnerTransaction](algopy.itxn.AssetTransferInnerTransaction)     |
-| [AssetFreezeTransaction](algopy.gtxn.AssetFreezeTransaction)         | [AssetFreeze](algopy.itxn.AssetFreeze)           | [AssetFreezeInnerTransaction](algopy.itxn.AssetFreezeInnerTransaction)         |
-| [ApplicationCallTransaction](algopy.gtxn.ApplicationCallTransaction) | [ApplicationCall](algopy.itxn.ApplicationCall)   | [ApplicationCallInnerTransaction](algopy.itxn.ApplicationCallInnerTransaction) |
-| [Transaction](algopy.gtxn.Transaction)                               | [InnerTransaction](algopy.itxn.InnerTransaction) | [InnerTransactionResult](algopy.itxn.InnerTransactionResult)                   |
+| Group Transactions                                                                          | Inner Transaction Field sets                                            | Inner Transaction                                                                                     |
+| ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [PaymentTransaction](/puya/api/algopy/algopygtxn/#class-paymenttransaction)                 | [Payment](/puya/api/algopy/algopyitxn/#class-payment)                   | [PaymentInnerTransaction](/puya/api/algopy/algopyitxn/#class-paymentinnertransaction)                 |
+| [KeyRegistrationTransaction](/puya/api/algopy/algopygtxn/#class-keyregistrationtransaction) | [KeyRegistration](/puya/api/algopy/algopyitxn/#class-keyregistration)   | [KeyRegistrationInnerTransaction](/puya/api/algopy/algopyitxn/#class-keyregistrationinnertransaction) |
+| [AssetConfigTransaction](/puya/api/algopy/algopygtxn/#class-assetconfigtransaction)         | [AssetConfig](/puya/api/algopy/algopyitxn/#class-assetconfig)           | [AssetConfigInnerTransaction](/puya/api/algopy/algopyitxn/#class-assetconfiginnertransaction)         |
+| [AssetTransferTransaction](/puya/api/algopy/algopygtxn/#class-assettransfertransaction)     | [AssetTransfer](/puya/api/algopy/algopyitxn/#class-assettransfer)       | [AssetTransferInnerTransaction](/puya/api/algopy/algopyitxn/#class-assettransferinnertransaction)     |
+| [AssetFreezeTransaction](/puya/api/algopy/algopygtxn/#class-assetfreezetransaction)         | [AssetFreeze](/puya/api/algopy/algopyitxn/#class-assetfreeze)           | [AssetFreezeInnerTransaction](/puya/api/algopy/algopyitxn/#class-assetfreezeinnertransaction)         |
+| [ApplicationCallTransaction](/puya/api/algopy/algopygtxn/#class-applicationcalltransaction) | [ApplicationCall](/puya/api/algopy/algopyitxn/#class-applicationcall)   | [ApplicationCallInnerTransaction](/puya/api/algopy/algopyitxn/#class-applicationcallinnertransaction) |
+| [Transaction](/puya/api/algopy/algopygtxn/#class-transaction)                               | [InnerTransaction](/puya/api/algopy/algopyitxn/#class-innertransaction) | [InnerTransactionResult](/puya/api/algopy/algopyitxn/#class-innertransactionresult)                   |
 
 ## Group Transactions
 
@@ -43,7 +43,7 @@ class MyContract(algopy.ARC4Contract):
 
 Group transactions can also be created using the group index of the transaction.
 If instantiating one of the type specific transactions they will be checked to ensure the transaction is of the expected type.
-[Transaction](algopy.gtxn.Transaction) is not checked for a specific type and provides access to all transaction fields
+[Transaction](/puya/api/algopy/algopygtxn/#class-transaction) is not checked for a specific type and provides access to all transaction fields
 
 For example, to obtain a reference to a payment transaction:
 
@@ -60,7 +60,7 @@ def process_payment(group_index: algopy.UInt64) -> None:
 ## Inner Transactions
 
 Inner transactions are defined using the parameter types, and can then be submitted individually by calling the
-`.submit()` method, or as a group by calling [`submit_txns`](#algopy.itxn.submit_txns)
+`.submit()` method, or as a group by calling [`submit_txns`](/puya/api/algopy/algopyitxn/)
 
 ### Examples
 
@@ -127,9 +127,9 @@ def example() -> tuple[Asset, Bytes]:
 
 #### Submitting a group with dynamic number of inner transactions
 
-[`.stage()`](#algopy.itxn.InnerTransaction.stage) method in inner transaction classes and [`algopy.itxn.submit_staged()`](#algopy.itxn.submit_staged) function allow for composition of dynamically sized inner transaction groups. It makes some sacrifices to the developer experience in order to support this scenario, so its use should be limited to situations that require it; an example being when an arbitrary number of transactions must be submitted as a single group in order for another application to introspect this group. In most cases, it will be easier to create variadic groups in batches and rely on the atomic nature of the outer transaction to provide transactional consistency.
+[`.stage()`](/puya/api/algopy/algopyitxn/#class-innertransaction) method in inner transaction classes and [`algopy.itxn.submit_staged()`](/puya/api/algopy/algopyitxn/#submit-staged-none) function allow for composition of dynamically sized inner transaction groups. It makes some sacrifices to the developer experience in order to support this scenario, so its use should be limited to situations that require it; an example being when an arbitrary number of transactions must be submitted as a single group in order for another application to introspect this group. In most cases, it will be easier to create variadic groups in batches and rely on the atomic nature of the outer transaction to provide transactional consistency.
 
-The first transaction staged for any group should pass `begin_group=True` and all other transactions can omit that parameter as it has a default value of `False`. Exactly one call to `stage` with `begin_group=True` is required for each transaction group. Otherwise, it will fail when executed on chain. When all transactions in the group have been staged, [`algopy.itxn.submit_staged()`](#algopy.itxn.submit_staged) can be called to dispatch these transactions.
+The first transaction staged for any group should pass `begin_group=True` and all other transactions can omit that parameter as it has a default value of `False`. Exactly one call to `stage` with `begin_group=True` is required for each transaction group. Otherwise, it will fail when executed on chain. When all transactions in the group have been staged, [`algopy.itxn.submit_staged()`](/puya/api/algopy/algopyitxn/#submit-staged-none) can be called to dispatch these transactions.
 
 To read the result from any of these transactions, one can make use of the `GITxn` ops; e.g., `op.GITxn.last_log(n)`, where n is a compile time constant representing the index of the transaction in the group.
 
