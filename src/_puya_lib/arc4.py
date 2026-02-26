@@ -252,9 +252,7 @@ def dynamic_array_concat_byte_length_head(
     new_length = array_length + new_items_count
     header_end = array_length * UINT16_SIZE + 2
 
-    return extract(
-        itob(new_length), UINT16_OFFSET, UINT16_SIZE
-    ) + _recalculate_head_for_elements_with_byte_length_head(
+    return _itob16(new_length) + _recalculate_head_for_elements_with_byte_length_head(
         array_head_and_tail=(
             substring(array, 2, header_end)
             + bzero(new_items_count * UINT16_SIZE)
