@@ -336,10 +336,10 @@ def static_array_replace_dynamic_element(
     new_item_length = new_item.length
 
     end_of_tail = array_head_and_tail.length
-    next_item_offset = extract_uint16(array_head_and_tail, (index + 1) * 2)
+    next_item_offset = extract_uint16(array_head_and_tail, (index + 1) * UINT16_SIZE)
     is_before_end = array_length - index - 1
     end_offset = select_uint64(end_of_tail, next_item_offset, is_before_end)
-    original_offset = extract_uint16(array_head_and_tail, index * 2)
+    original_offset = extract_uint16(array_head_and_tail, index * UINT16_SIZE)
     original_item_length = end_offset - original_offset
 
     new_head_and_tail = (
@@ -347,7 +347,7 @@ def static_array_replace_dynamic_element(
         + new_item
         + substring(array_head_and_tail, end_offset, end_of_tail)
     )
-    for head_offset in urange((index + 1) * 2, array_length * 2, 2):
+    for head_offset in urange((index + 1) * UINT16_SIZE, array_length * UINT16_SIZE, UINT16_SIZE):
         tail_offset = extract_uint16(new_head_and_tail, head_offset)
         tail_offset += new_item_length
         tail_offset -= original_item_length
