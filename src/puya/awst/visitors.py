@@ -331,6 +331,9 @@ class ExpressionVisitor[T](ABC):
     def visit_emit(self, emit: puya.awst.nodes.Emit) -> T: ...
 
     @abstractmethod
+    def visit_emit_fields(self, emit: puya.awst.nodes.EmitFields) -> T: ...
+
+    @abstractmethod
     def visit_comma_expression(self, expr: puya.awst.nodes.CommaExpression) -> T: ...
 
     @abstractmethod

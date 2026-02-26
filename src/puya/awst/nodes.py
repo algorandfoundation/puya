@@ -2201,12 +2201,25 @@ class BytesAugmentedAssignment(Statement):
 
 
 @attrs.frozen
-class Emit(Expression):
+class EmitFields(Expression):
     """
     Emits an ARC-28 log event using the provided signature, and the serialization of the value
     """
 
     signature: str
+    values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_emit_fields(self)
+
+
+@attrs.frozen
+class Emit(Expression):
+    """
+    Emits an ARC-28 log event using the struct name, and the serialization of the value
+    """
+
     value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Struct))
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
 
