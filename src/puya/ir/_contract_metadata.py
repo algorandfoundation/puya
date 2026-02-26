@@ -436,6 +436,16 @@ class _EventCollector(FunctionTraverser):
         assert isinstance(emit.value.wtype, wtypes.ARC4Struct)
         self.emits[self.current_func].add(emit.value.wtype)
 
+    def visit_emit_fields(self, emit: awst_nodes.EmitFields) -> None:
+        fields = {f"field{idx}": arg.wtype for idx, arg in enumerate(emit.values, start=1)}
+        struct_wtype = wtypes.ARC4Struct(
+            name=emit.signature,
+            fields=fields,
+            frozen=True,
+            source_location=emit.source_location,
+        )
+        self.emits[self.current_func].add(struct_wtype)
+
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         target = self.context.resolve_function_reference(
             expr.target,

@@ -728,7 +728,12 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_emit(self, expr: nodes.Emit) -> str:
-        return f"emit({expr.signature!r}, {expr.value.accept(self)})"
+        return f"emit({expr.value.wtype.name!r}, {expr.value.accept(self)})"
+
+    @typing.override
+    def visit_emit_fields(self, expr: nodes.EmitFields) -> str:
+        values = ", ".join([value.accept(self) for value in expr.values])
+        return f"emit_fields({expr.signature!r}, ({values}))"
 
     @typing.override
     def visit_comma_expression(self, expr: nodes.CommaExpression) -> str:
