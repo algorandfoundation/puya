@@ -133,7 +133,7 @@ subroutine _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index
         return tmp%8#0
 
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new_head_and_tail: bytes, new_items_count: uint64) -> bytes:
-    block@0: // L269
+    block@0: // L267
         let array_items_count#0: uint64 = (extract_uint16 array#0 0u)
         let array_head_and_tail#0: bytes = ((extract 2 0) array#0)
         let new_head#0: bytes = 0x
@@ -142,10 +142,10 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new
         let value_internal%0#0: uint64 = 0u
         let head_offset#0: uint64 = value_internal%0#0
         goto block@1
-    block@1: // for_header_L281
+    block@1: // for_header_L279
         let continue_looping%0#0: bool = (< head_offset#0 tmp%3#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L282
+    block@2: // for_body_L280
         let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
         let i#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
         let tmp%0#1: bytes = (itob i#0)
@@ -154,15 +154,15 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new
         let value_internal%0#0: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%0#0
         goto block@1
-    block@4: // after_for_L281
+    block@4: // after_for_L279
         let head_and_tail_length#0: uint64 = (len array_head_and_tail#0)
         let value_internal%1#0: uint64 = 0u
         let head_offset#0: uint64 = value_internal%1#0
         goto block@5
-    block@5: // for_header_L286
+    block@5: // for_header_L284
         let continue_looping%1#0: bool = (< head_offset#0 item_offset_adjustment#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L287
+    block@6: // for_body_L285
         let item_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let i#0: uint64 = (+ head_and_tail_length#0 item_offset#0)
         let tmp%0#1: bytes = (itob i#0)
@@ -171,7 +171,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new
         let value_internal%1#0: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%1#0
         goto block@5
-    block@8: // after_for_L286
+    block@8: // after_for_L284
         let i#0: uint64 = (+ array_items_count#0 new_items_count#0)
         let tmp%0#1: bytes = (itob i#0)
         let tmp%1#1: bytes = ((extract 6 0) tmp%0#1)
@@ -184,7 +184,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new
         return tmp%23#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L321
+    block@0: // L319
         let size_b#0: bytes = ((substring 0 2) source#0)
         let array_length#0: uint64 = (btoi size_b#0)
         let array_head_and_tail#0: bytes = ((extract 2 0) source#0)
@@ -206,10 +206,10 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let tmp%15#0: uint64 = (* array_length#0 2u)
         let head_offset#0: uint64 = tmp%3#1
         goto block@2
-    block@2: // for_header_L352
+    block@2: // for_header_L350
         let continue_looping%0#0: bool = (< head_offset#0 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
-    block@3: // for_body_L353
+    block@3: // for_body_L351
         let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let tail_offset#0: uint64 = (+ tail_offset#0 new_item_length#0)
         let tail_offset#0: uint64 = (- tail_offset#0 original_item_length#0)
@@ -219,6 +219,6 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%0#2
         goto block@2
-    block@5: // after_for_L352
+    block@5: // after_for_L350
         let tmp%4#0: bytes = (concat size_b#0 new_head_and_tail#0)
         return tmp%4#0
