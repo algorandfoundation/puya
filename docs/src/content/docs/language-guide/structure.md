@@ -103,7 +103,7 @@ deploy the same contract class multiple times, each will become a distinct and i
 
 Contract classes can optionally implement an `__init__` method, which will be executed exactly
 once, on first deployment. This method takes no arguments, but can contain arbitrary code,
-including reading directly from the transaction arguments via [`Txn`](#algopy.op.Txn). This makes
+including reading directly from the transaction arguments via [`Txn`](/puya/api/algopy/algopyop/#class-txn). This makes
 it a good place to put common initialisation code, particularly in ARC-4 contracts with multiple
 methods that allow for creation.
 
@@ -131,7 +131,7 @@ as explicitly abstract, inherit from [`abc.ABC`](https://docs.python.org/3/libra
 ### Contract class configuration
 
 When defining a contract subclass you can pass configuration options to the `algopy.Contract`
-base class [per the API documentation](/puya/api/algopy/#algopy.Contract).
+base class [per the API documentation](/puya/api/algopy/algopy/#class-contract).
 
 Namely you can pass in:
 

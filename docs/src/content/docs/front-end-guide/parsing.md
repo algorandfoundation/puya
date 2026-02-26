@@ -1,6 +1,8 @@
 ---
 title: Parsing
 description: How to parse a source language into an AST for Puya front-end development
+sidebar:
+  order: 4
 ---
 
 ## Generating AST

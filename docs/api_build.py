@@ -4,14 +4,13 @@
 Pipeline:
   1. Run scripts/generate_docs.output_doc_stubs() to produce processed .pyi files
      in docs/algopy-stubs/ (reuses the existing mypy-based stub processing).
-  2. Stage stubs into docs/_autoapi_source/algopy/ so sphinx-autoapi sees a valid
-     Python package name (the directory "algopy-stubs" has a hyphen and can't be
-     used as a module name directly).
-  3. Run sphinx-build -b markdown against docs/sphinx/ to generate raw markdown.
-  4. Post-process the markdown for Starlight compatibility:
+  2. Run sphinx-build -b markdown against docs/sphinx/ to generate raw markdown.
+     sphinx-autodoc2 reads docs/algopy-stubs/ directly (module name overridden to
+     "algopy" in conf.py), so no staging directory is required.
+  3. Post-process the markdown for Starlight compatibility:
      - Inject YAML frontmatter (title)
      - Strip duplicate H1 headings
-     - Flatten autoapi output directory
+     - Flatten autodoc2 output directory
      - Fix /index.md links
      - Shorten fully-qualified names in H3/H4 headings
      - Simplify *class* headings (strip constructor signatures)
@@ -30,8 +29,6 @@ DOCS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = DOCS_DIR.parent
 API_OUT = DOCS_DIR / "src" / "content" / "docs" / "api"
 PACKAGE_NAME = "algopy"
-AUTOAPI_SOURCE = DOCS_DIR / "_autoapi_source"  # staging dir for sphinx-autoapi
-
 _pkg = re.escape(PACKAGE_NAME)
 
 # Regex patterns ----------------------------------------------------------------
@@ -43,12 +40,18 @@ _LINKED_QUALIFIED_RE = re.compile(
     r"(?:\.\w+)*\.(\w+)\]"
 )
 _PLAIN_QUALIFIED_RE = re.compile(
-    r"(?<!\[)(?<!#)(?<!/)(?<!\.md)"
+    r"(?<!\[)(?<!#)(?<!/)(?<!\.md)(?<!\()"
     r"(?:" + _pkg + r"|typing_extensions|collections\.abc)"
     r"(?:\.\w+)*\.(\w+)"
 )
 
 _INDEX_MD_RE = re.compile(r"/index\.md")
+
+# Matches relative algopy*.md references in links, e.g. (algopy.op.md) or (algopy.md#class-foo)
+_MODULE_MD_LINK_RE = re.compile(r"\(algopy(?:\.(\w+))?\.md(#[^)]+)?\)")
+
+# Base URL path for the site (must match base in astro.config.mjs)
+_SITE_BASE = "/puya/"
 
 # Matches *class* headings with constructor signatures:
 # "### *class* Foo(\*args, \*\*kwds)"
@@ -95,26 +98,7 @@ def _generate_stubs() -> None:
     output_doc_stubs(result.manager)
 
 
-# Step 2: stage stubs for autoapi ----------------------------------------------
-
-
-def _prepare_autoapi_source() -> None:
-    """Copy docs/algopy-stubs/ → docs/_autoapi_source/algopy/.
-
-    sphinx-autoapi infers the package name from the directory name, so the
-    stubs must live in a directory called "algopy". The source directory is
-    named "algopy-stubs" (hyphen not valid in Python identifiers), so we
-    copy it into a staging area with the correct name before running Sphinx.
-    """
-    print("==> Staging stubs for autoapi...")
-    stubs_src = DOCS_DIR / "algopy-stubs"
-    target = AUTOAPI_SOURCE / PACKAGE_NAME
-    if AUTOAPI_SOURCE.exists():
-        shutil.rmtree(AUTOAPI_SOURCE)
-    shutil.copytree(str(stubs_src), str(target))
-
-
-# Step 3: Sphinx markdown build -------------------------------------------------
+# Step 2: Sphinx markdown build -------------------------------------------------
 
 
 def _clean_api_output() -> None:
@@ -171,33 +155,36 @@ def _remove_sphinx_artifacts() -> None:
 
 
 def _flatten_autoapi() -> None:
-    """Move autoapi/<package>/ up one level to api/<package>/."""
-    print("==> Flattening autoapi directory structure...")
-    autoapi_pkg = API_OUT / "autoapi" / PACKAGE_NAME
+    """Move apidocs/<package>/ up one level to api/<package>/."""
+    print("==> Flattening autodoc2 directory structure...")
+    autodoc2_pkg = API_OUT / "apidocs" / PACKAGE_NAME
     target = API_OUT / PACKAGE_NAME
 
-    if not autoapi_pkg.is_dir():
+    if not autodoc2_pkg.is_dir():
         print(
-            f"ERROR: Expected autoapi output directory not found: {autoapi_pkg}\n"
-            "Check that 'autoapi_dirs' in docs/sphinx/conf.py points to the correct staging directory.",
+            f"ERROR: Expected autodoc2 output directory not found: {autodoc2_pkg}\n"
+            "Check that 'autodoc2_output_dir' in docs/sphinx/conf.py is set to 'apidocs'.",
             file=sys.stderr,
         )
         sys.exit(1)
 
     if target.exists():
         shutil.rmtree(target)
-    shutil.move(str(autoapi_pkg), str(target))
+    shutil.move(str(autodoc2_pkg), str(target))
 
-    autoapi_dir = API_OUT / "autoapi"
-    if autoapi_dir.exists():
-        shutil.rmtree(autoapi_dir)
+    apidocs_dir = API_OUT / "apidocs"
+    if apidocs_dir.exists():
+        shutil.rmtree(apidocs_dir)
 
 
 def _extract_title(file_path: Path) -> str:
     with open(file_path, encoding="utf-8") as f:
         for line in f:
             if line.startswith("# "):
-                return line[2:].strip()
+                title = line[2:].strip()
+                # Strip markdown link syntax: [`foo`](#anchor) → foo, [foo](#anchor) → foo
+                title = re.sub(r"\[`?([^`\]]+)`?\]\([^)]*\)", r"\1", title)
+                return title
     return file_path.stem
 
 
@@ -225,6 +212,30 @@ def _fix_internal_links() -> None:
             md_file.write_text(updated, encoding="utf-8")
 
 
+def _fix_module_md_links() -> None:
+    """Rewrite relative algopy*.md links to absolute Starlight URLs.
+
+    Sphinx/autodoc2 outputs relative links like (algopy.op.md#class-txn), but
+    Starlight slugifies dots away when generating page URLs, so 'algopy.op.md'
+    becomes the slug 'algopyop' (URL /puya/api/algopy/algopyop/). Relative links
+    from a sibling page therefore resolve to the wrong URL.
+    """
+    print("==> Fixing cross-module .md links...")
+
+    def _md_to_url(m: re.Match) -> str:
+        module_suffix = m.group(1)  # 'op', 'arc4', etc., or None for algopy itself
+        anchor = m.group(2) or ""  # '#class-foo' or ''
+        stem = f"algopy{module_suffix}" if module_suffix else "algopy"
+        slug = stem.replace(".", "")
+        return f"({_SITE_BASE}api/algopy/{slug}/{anchor})"
+
+    for md_file in sorted(API_OUT.rglob("*.md")):
+        content = md_file.read_text(encoding="utf-8")
+        updated = _MODULE_MD_LINK_RE.sub(_md_to_url, content)
+        if updated != content:
+            md_file.write_text(updated, encoding="utf-8")
+
+
 def _shorten_qualified_names() -> None:
     """Strip module prefixes from H3/H4 headings (e.g. algopy.arc4.Address → Address)."""
     print("==> Shortening qualified names in headings...")
@@ -248,6 +259,7 @@ def _compute_starlight_anchor(heading_text: str) -> str:
     text = re.sub(r"\*([^*]+)\*", r"\1", heading_text)   # *em* → em
     text = re.sub(r"`([^`]+)`", r"\1", text)              # `code` → code
     text = re.sub(r"\\.", "", text)                        # \* → (removed)
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)  # [text](url) → text
     text = text.lower()
     text = re.sub(r"[^a-z0-9-]+", " ", text)
     return "-".join(text.split())
@@ -295,7 +307,9 @@ def _fix_qualified_anchors() -> None:
         def fix_anchor(m: re.Match, _file: Path = md_file) -> str:
             path_part, symbol = m.group(1), m.group(2)
             if path_part:
-                target_md = (_file.parent / path_part).resolve() / "index.md"
+                resolved = (_file.parent / path_part).resolve()
+                # autodoc2 links to sibling .md files directly; old autoapi linked to dirs
+                target_md = resolved if path_part.endswith(".md") else resolved / "index.md"
             else:
                 target_md = _file
             anchor = file_maps.get(str(target_md), {}).get(symbol, symbol.lower())
@@ -312,13 +326,13 @@ def _fix_qualified_anchors() -> None:
 def main() -> None:
     """Run the full API docs build pipeline."""
     _generate_stubs()
-    _prepare_autoapi_source()
     _clean_api_output()
     _run_sphinx_build()
     _remove_sphinx_artifacts()
     _flatten_autoapi()
     _inject_frontmatter()
     _fix_internal_links()
+    _fix_module_md_links()
     _shorten_qualified_names()
     _simplify_class_headings()
     _fix_qualified_anchors()

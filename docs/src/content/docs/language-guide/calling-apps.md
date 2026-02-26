@@ -9,9 +9,9 @@ and in the case of `arc4_create` and `arc4_update` automatic inclusion of approv
 
 ## `algopy.arc4.abi_call`
 
-[`algopy.arc4.abi_call`](#algopy.arc4.abi_call) can be used to call other ARC-4 contracts, the first argument should refer to
-an ARC-4 method either by referencing an Algorand Python [`algopy.arc4.ARC4Contract`](#algopy.arc4.ARC4Contract) method,
-an [`algopy.arc4.ARC4Client`](#algopy.arc4.ARC4Client) method generated from an ARC-32/ARC-56 app spec, or a string representing
+[`algopy.arc4.abi_call`](#algopyarc4abi_call) can be used to call other ARC-4 contracts, the first argument should refer to
+an ARC-4 method either by referencing an Algorand Python [`algopy.arc4.ARC4Contract`](/puya/api/algopy/algopyarc4/#class-arc4contract) method,
+an [`algopy.arc4.ARC4Client`](/puya/api/algopy/algopyarc4/#class-arc4client) method generated from an ARC-32/ARC-56 app spec, or a string representing
 the ARC-4 method signature or name.
 The following arguments should then be the arguments required for the call, these arguments will be type checked and converted where appropriate.
 Any other related transaction parameters such as `app_id`, `fee` etc. can also be provided as keyword arguments.
@@ -84,12 +84,12 @@ def call_another_contract() -> None:
 
 ## `algopy.arc4.arc4_create`
 
-[`algopy.arc4.arc4_create`](#algopy.arc4.arc4_create) can be used to create ARC-4 applications, and will automatically populate required fields for app creation (such as approval program, clear state program, and global/local state allocation).
+[`algopy.arc4.arc4_create`](#algopyarc4arc4_create) can be used to create ARC-4 applications, and will automatically populate required fields for app creation (such as approval program, clear state program, and global/local state allocation).
 
 Like [`algopy.arc4.abi_call`](/puya/language-guide/transactions/#create-an-arc-4-application-and-then-call-it) it handles ARC-4 arguments and provides ARC-4 return values.
 
 If the compiled programs and state allocation fields need to be customized (for example due to [template variables](/puya/language-guide/compile/#within-other-contracts)),
-this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
+this can be done by passing a [`algopy.CompiledContract`](/puya/api/algopy/algopy/#class-compiledcontract) via the `compiled` keyword argument.
 
 ```python
 from algopy import ARC4Contract, String, arc4, subroutine
@@ -111,12 +111,12 @@ def create_new_application() -> None:
 
 ## `algopy.arc4.arc4_update`
 
-[`algopy.arc4.arc4_update`](#algopy.arc4.arc4_update) is used to update an existing ARC-4 application and will automatically populate the required approval and clear state program fields.
+[`algopy.arc4.arc4_update`](#algopyarc4arc4_update) is used to update an existing ARC-4 application and will automatically populate the required approval and clear state program fields.
 
 Like [`algopy.arc4.abi_call`](/puya/language-guide/transactions/#create-an-arc-4-application-and-then-call-it) it handles ARC-4 arguments and provides ARC-4 return values.
 
 If the compiled programs need to be customized (for example due to [template variables](/puya/language-guide/compile/#within-other-contracts)),
-this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
+this can be done by passing a [`algopy.CompiledContract`](/puya/api/algopy/algopy/#class-compiledcontract) via the `compiled` keyword argument.
 
 ```python
 from algopy import Application, ARC4Contract, String, arc4, subroutine
@@ -139,5 +139,5 @@ def update_existing_application(existing_app: Application) -> None:
 ## Using `itxn.ApplicationCall`
 
 If the application being called is not an ARC-4 contract, or an application specification is not available,
-then [`algopy.itxn.ApplicationCall`](#algopy.itxn.ApplicationCall) can be used. This approach is generally more verbose
+then [`algopy.itxn.ApplicationCall`](/puya/api/algopy/algopyitxn/#class-applicationcall) can be used. This approach is generally more verbose
 than the above approaches, so should only be used if required. See [here](/puya/language-guide/transactions/#create-an-arc-4-application-and-then-call-it) for an example
