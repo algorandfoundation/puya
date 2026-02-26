@@ -410,7 +410,6 @@ def _recalculate_head_for_elements_with_byte_length_head(
         tail_offset_bytes = _itob16(tail_offset)
         array_head_and_tail = replace(array_head_and_tail, head_offset, tail_offset_bytes)
         tail_offset += extract_uint16(array_head_and_tail, tail_offset) + UINT16_SIZE
-        head_offset += UINT16_SIZE
     return array_head_and_tail
 
 
