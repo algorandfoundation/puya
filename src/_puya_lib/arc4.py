@@ -375,10 +375,13 @@ def static_array_replace_byte_length_head(
     offset_for_index = extract_uint16(array_head_and_tail, index * UINT16_SIZE)
     old_item_length = extract_uint16(array_head_and_tail, offset_for_index)
     old_item_end = offset_for_index + old_item_length + UINT16_SIZE
-    return _recalculate_head_for_elements_with_byte_length_head(
-        array_head_and_tail=substring(array_head_and_tail, 0, offset_for_index)
+    new_head_and_tail = (
+        substring(array_head_and_tail, 0, offset_for_index)
         + new_item
-        + substring(array_head_and_tail, old_item_end, array_head_and_tail.length),
+        + substring(array_head_and_tail, old_item_end, array_head_and_tail.length)
+    )
+    return _recalculate_head_for_elements_with_byte_length_head(
+        array_head_and_tail=new_head_and_tail,
         length=array_length,
         start_at_index=index,
     )
