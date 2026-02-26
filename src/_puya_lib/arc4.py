@@ -362,7 +362,7 @@ def static_array_replace_byte_length_head(
     array_head_and_tail: Bytes, new_item: Bytes, index: UInt64, array_length: UInt64
 ) -> Bytes:
     """
-    Replace a single item in an arc4 dynamic array of items that are prefixed with
+    Replace a single item in an arc4 static array of dynamic items that are prefixed with
     their byte length
 
     array_head_and_tail: The head and tail bytes of the source array
