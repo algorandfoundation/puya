@@ -40,11 +40,12 @@ def dynamic_array_pop_bit(array: Bytes) -> Bytes:
     returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
-    length_minus_1 = array_length - 1
-    result = replace(array, 0, _itob16(length_minus_1))
-    popped_location = length_minus_1 + UINT16_SIZE * 8
-    result = setbit_bytes(result, popped_location, False)  # noqa: FBT003
-    result = substring(result, 0, UINT16_SIZE + ((length_minus_1 + 7) // 8))
+    new_length = array_length - 1
+    result = _itob16(new_length)
+    data = extract(array, UINT16_SIZE, 0)
+    data = setbit_bytes(data, new_length, False)  # noqa: FBT003
+    trimmed_size = (new_length + 7) // 8
+    result += extract(data, 0, trimmed_size)
     return result
 
 
