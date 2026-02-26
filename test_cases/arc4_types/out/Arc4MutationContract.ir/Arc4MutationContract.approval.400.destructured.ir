@@ -170,25 +170,25 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
 subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
     block@0: // L236
         let array_length#0: uint64 = (extract_uint16 array#0 0u)
+        let tmp%1#0: uint64 = (* array_length#0 2u)
+        let header_end#0: uint64 = (+ tmp%1#0 2u)
+        let tmp%3#0: bytes = (substring3 array#0 2u header_end#0)
+        let tmp%4#0: uint64 = (* new_items_count#0 2u)
+        let tmp%5#0: bytes = (bzero tmp%4#0)
+        let array_head#0: bytes = (concat tmp%3#0 tmp%5#0)
+        let tmp%7#0: uint64 = (len array#0)
+        let tmp%8#0: bytes = (substring3 array#0 header_end#0 tmp%7#0)
+        let array_tail#0: bytes = (concat tmp%8#0 new_items_bytes#0)
+        let array_head_and_tail#0: bytes = (concat array_head#0 array_tail#0)
         let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
-        let tmp%2#0: uint64 = (* array_length#0 2u)
-        let header_end#0: uint64 = (+ tmp%2#0 2u)
         let tmp%0#1: bytes = (itob new_length#0)
         let tmp%1#1: bytes = ((extract 6 0) tmp%0#1)
-        let tmp%5#0: bytes = (substring3 array#0 2u header_end#0)
-        let tmp%6#0: uint64 = (* new_items_count#0 2u)
-        let tmp%7#0: bytes = (bzero tmp%6#0)
-        let tmp%8#0: bytes = (concat tmp%5#0 tmp%7#0)
-        let tmp%9#0: uint64 = (len array#0)
-        let tmp%10#0: bytes = (substring3 array#0 header_end#0 tmp%9#0)
-        let tmp%11#0: bytes = (concat tmp%8#0 tmp%10#0)
-        let tmp%12#0: bytes = (concat tmp%11#0 new_items_bytes#0)
-        let tmp%13#0: bytes = _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(tmp%12#0, new_length#0, 0u)
-        let tmp%14#0: bytes = (concat tmp%1#1 tmp%13#0)
-        return tmp%14#0
+        let tmp%13#0: bytes = _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(array_head_and_tail#0, new_length#0, 0u)
+        let result#0: bytes = (concat tmp%1#1 tmp%13#0)
+        return result#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L295
+    block@0: // L294
         let size_b#0: bytes = ((substring 0 2) array#0)
         let array_length#0: uint64 = (btoi size_b#0)
         let array_head_and_tail#0: bytes = ((extract 2 0) array#0)
@@ -207,17 +207,17 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
-    block@0: // L387
+    block@0: // L386
         let tmp%0#0: uint64 = (* length#0 2u)
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
         let tail_offset#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
         let head_offset#0: uint64 = tmp%1#0
         goto block@1
-    block@1: // for_header_L409
+    block@1: // for_header_L408
         let continue_looping%0#0: bool = (< head_offset#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L410
+    block@2: // for_body_L409
         let tmp%0#1: bytes = (itob tail_offset#0)
         let tail_offset_bytes#0: bytes = ((extract 6 0) tmp%0#1)
         let array_head_and_tail#0: bytes = (replace3 array_head_and_tail#0 head_offset#0 tail_offset_bytes#0)
@@ -227,5 +227,5 @@ subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head(a
         let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%0#2
         goto block@1
-    block@4: // after_for_L409
+    block@4: // after_for_L408
         return array_head_and_tail#0
