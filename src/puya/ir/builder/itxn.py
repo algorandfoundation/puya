@@ -1406,6 +1406,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         return self._empty_actions_from_wtype(expr)
 
     @typing.override
+    def visit_emit_fields(self, expr: awst_nodes.EmitFields) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
     def visit_inner_transaction_field(
         self, expr: awst_nodes.InnerTransactionField
     ) -> list[_SourceAction]:
