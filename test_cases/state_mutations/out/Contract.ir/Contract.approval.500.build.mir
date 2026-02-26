@@ -187,15 +187,23 @@ subroutine dynamic_array_read_dynamic_element:
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new_head_and_tail: bytes, new_items_count: uint64) -> bytes:
 subroutine dynamic_array_concat_dynamic_element:
     dynamic_array_concat_dynamic_element_block@0:                                       (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        byte 0x                                                                         (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | 0x
-        v-store new_head#0                                                              (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        p-load array#0                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array#0 (copy)
-        extract 2 0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_head_and_tail#0
-        v-store array_head_and_tail#0                                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
         p-load array#0                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array#0 (copy)
         int 0                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array#0 (copy),0
         extract_uint16                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_items_count#0
         v-store array_items_count#0                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        v-load array_items_count#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_items_count#0
+        p-load new_items_count#0                                                        (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_items_count#0,new_items_count#0 (copy)
+        +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | i#0
+        v-store i#0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        v-load i#0                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | i#0
+        itob                                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%0#1
+        v-store tmp%0#1                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        v-load tmp%0#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%0#1
+        extract 6 0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0
+        v-store result#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        p-load array#0                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array#0 (copy)
+        extract 2 0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_head_and_tail#0
+        v-store array_head_and_tail#0                                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
         v-load array_items_count#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_items_count#0
         int 2                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_items_count#0,2
         *                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | arr_head_size#0
@@ -233,10 +241,10 @@ subroutine dynamic_array_concat_dynamic_element:
         v-load tmp%0#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%0#1
         extract 6 0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%1#1
         v-store tmp%1#1                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load new_head#0                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head#0
-        v-load tmp%1#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head#0,tmp%1#1
-        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head#0
-        v-store new_head#0                                                              (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        v-load result#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0
+        v-load tmp%1#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0,tmp%1#1
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0
+        v-store result#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
         v-load head_offset#0                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | head_offset#0
         int 2                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | head_offset#0,2
         +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | value_internal%0#0
@@ -278,10 +286,10 @@ subroutine dynamic_array_concat_dynamic_element:
         v-load tmp%0#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%0#1
         extract 6 0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%1#1
         v-store tmp%1#1                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load new_head#0                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head#0
-        v-load tmp%1#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head#0,tmp%1#1
-        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head#0
-        v-store new_head#0                                                              (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        v-load result#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0
+        v-load tmp%1#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0,tmp%1#1
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0
+        v-store result#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
         v-load head_offset#0                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | head_offset#0
         int 2                                                                           (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | head_offset#0,2
         +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | value_internal%1#0
@@ -291,43 +299,29 @@ subroutine dynamic_array_concat_dynamic_element:
         b dynamic_array_concat_dynamic_element_for_header@5                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
 
     dynamic_array_concat_dynamic_element_after_for@8:                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load array_items_count#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_items_count#0
-        p-load new_items_count#0                                                        (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_items_count#0,new_items_count#0 (copy)
-        +                                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | i#0
-        v-store i#0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load i#0                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | i#0
-        itob                                                                            (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%0#1
-        v-store tmp%0#1                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load tmp%0#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%0#1
-        extract 6 0                                                                     (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%1#1
-        v-store tmp%1#1                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load tmp%1#1                                                                  (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%1#1
-        v-load new_head#0                                                               (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%1#1,new_head#0
-        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%15#0
-        v-store tmp%15#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
         v-load array_head_and_tail#0                                                    (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_head_and_tail#0
         v-load arr_head_size#0                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_head_and_tail#0,arr_head_size#0
         v-load head_and_tail_length#0                                                   (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | array_head_and_tail#0,arr_head_size#0,head_and_tail_length#0
-        substring3                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%16#0
+        substring3                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%15#0
+        v-store tmp%15#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        v-load result#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0
+        v-load tmp%15#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | result#0,tmp%15#0
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%16#0
         v-store tmp%16#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load tmp%15#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%15#0
-        v-load tmp%16#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%15#0,tmp%16#0
-        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%17#0
+        p-load new_head_and_tail#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head_and_tail#0 (copy)
+        len                                                                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%17#0
         v-store tmp%17#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
         p-load new_head_and_tail#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head_and_tail#0 (copy)
-        len                                                                             (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%18#0
-        v-store tmp%18#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        p-load new_head_and_tail#0                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head_and_tail#0 (copy)
         v-load new_head_size#0                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head_and_tail#0 (copy),new_head_size#0
-        v-load tmp%18#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head_and_tail#0 (copy),new_head_size#0,tmp%18#0
-        substring3                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%19#0
+        v-load tmp%17#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | new_head_and_tail#0 (copy),new_head_size#0,tmp%17#0
+        substring3                                                                      (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%18#0
+        v-store tmp%18#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
+        v-load tmp%16#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%16#0
+        v-load tmp%18#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%16#0,tmp%18#0
+        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%19#0
         v-store tmp%19#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load tmp%17#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%17#0
-        v-load tmp%19#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%17#0,tmp%19#0
-        concat                                                                          (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%20#0
-        v-store tmp%20#0                                                                (𝕡) array#0,new_head_and_tail#0,new_items_count#0 |
-        v-load tmp%20#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%20#0
-        retsub                                                                          tmp%20#0
+        v-load tmp%19#0                                                                 (𝕡) array#0,new_head_and_tail#0,new_items_count#0 | tmp%19#0
+        retsub                                                                          tmp%19#0
 
 
 // _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:

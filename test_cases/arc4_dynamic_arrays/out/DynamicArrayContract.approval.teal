@@ -148,13 +148,18 @@ dynamic_array_read_dynamic_element:
 dynamic_array_concat_dynamic_element:
     proto 3 1
     pushbytes ""
-    dup
-    frame_dig -3
-    extract 2 0
     frame_dig -3
     intc_1 // 0
     extract_uint16
     dup
+    frame_dig -1
+    +
+    itob
+    extract 6 0
+    swap
+    frame_dig -3
+    extract 2 0
+    swap
     intc_2 // 2
     *
     frame_dig -1
@@ -163,16 +168,16 @@ dynamic_array_concat_dynamic_element:
     intc_1 // 0
 
 dynamic_array_concat_dynamic_element_for_header@1:
-    frame_dig 6
-    frame_dig 4
+    frame_dig 5
+    frame_dig 3
     <
     bz dynamic_array_concat_dynamic_element_after_for@4
     frame_dig 2
-    frame_dig 6
+    frame_dig 5
     dup
     cover 2
     extract_uint16
-    frame_dig 5
+    frame_dig 4
     +
     itob
     extract 6 0
@@ -182,7 +187,7 @@ dynamic_array_concat_dynamic_element_for_header@1:
     frame_bury 1
     intc_2 // 2
     +
-    frame_bury 6
+    frame_bury 5
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_after_for@4:
@@ -190,15 +195,15 @@ dynamic_array_concat_dynamic_element_after_for@4:
     len
     frame_bury 0
     intc_1 // 0
-    frame_bury 6
+    frame_bury 5
 
 dynamic_array_concat_dynamic_element_for_header@5:
-    frame_dig 6
     frame_dig 5
+    frame_dig 4
     <
     bz dynamic_array_concat_dynamic_element_after_for@8
     frame_dig -2
-    frame_dig 6
+    frame_dig 5
     dup
     cover 2
     extract_uint16
@@ -212,26 +217,21 @@ dynamic_array_concat_dynamic_element_for_header@5:
     frame_bury 1
     intc_2 // 2
     +
-    frame_bury 6
+    frame_bury 5
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_after_for@8:
-    frame_dig 3
-    frame_dig -1
-    +
-    itob
-    extract 6 0
-    frame_dig 1
-    concat
     frame_dig 2
-    frame_dig 4
+    frame_dig 3
     frame_dig 0
     substring3
+    frame_dig 1
+    swap
     concat
     frame_dig -2
     len
     frame_dig -2
-    frame_dig 5
+    frame_dig 4
     uncover 2
     substring3
     concat

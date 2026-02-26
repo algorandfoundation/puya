@@ -31,7 +31,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let new_head_and_tail#0: bytes = (concat 0x0002 arr#0)
-        let new_head#0: bytes = 0x
+        let result#0: bytes = 0x0001
         let value_internal%0#0: uint64 = 0u
         let head_offset#0: uint64 = value_internal%0#0
         goto block@7
@@ -40,10 +40,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto continue_looping%0#0 ? block@8 : block@9
     block@8: // for_body_L280
         let item_offset#0: uint64 = (extract_uint16 0x head_offset#0)
-        let i#2: uint64 = (+ 2u item_offset#0)
-        let tmp%0#6: bytes = (itob i#2)
-        let tmp%1#1: bytes = ((extract 6 0) tmp%0#6)
-        let new_head#0: bytes = (concat new_head#0 tmp%1#1)
+        let i#1: uint64 = (+ 2u item_offset#0)
+        let tmp%0#5: bytes = (itob i#1)
+        let tmp%1#1: bytes = ((extract 6 0) tmp%0#5)
+        let result#0: bytes = (concat result#0 tmp%1#1)
         let value_internal%0#0: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%0#0
         goto block@7
@@ -56,16 +56,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto continue_looping%1#0 ? block@11 : block@12
     block@11: // for_body_L285
         let item_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
-        let tmp%0#6: bytes = (itob item_offset#0)
-        let tmp%1#1: bytes = ((extract 6 0) tmp%0#6)
-        let new_head#0: bytes = (concat new_head#0 tmp%1#1)
+        let tmp%0#5: bytes = (itob item_offset#0)
+        let tmp%1#1: bytes = ((extract 6 0) tmp%0#5)
+        let result#0: bytes = (concat result#0 tmp%1#1)
         let value_internal%1#0: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%1#0
         goto block@10
     block@12: // after_for_L284
-        let tmp%15#0: bytes = (concat 0x0001 new_head#0)
-        let tmp%19#0: bytes = ((extract 2 0) new_head_and_tail#0)
-        let nested_arr#1: Encoded(len+(len+uint64[])[]) = (concat tmp%15#0 tmp%19#0)
+        let tmp%18#0: bytes = ((extract 2 0) new_head_and_tail#0)
+        let nested_arr#1: Encoded(len+(len+uint64[])[]) = (concat result#0 tmp%18#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[][])uint64")
