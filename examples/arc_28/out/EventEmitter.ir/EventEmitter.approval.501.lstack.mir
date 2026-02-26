@@ -123,18 +123,26 @@ subroutine emit_native_swapped:
         ==                                                        tmp%0#0,eq%0#0
         l-load eq%0#0 0                                           tmp%0#0,eq%0#0
         assert // invalid number of bytes for arc4.uint64         tmp%0#0
-        txna ApplicationArgs 2                                    tmp%0#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                     tmp%0#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                       tmp%0#0,tmp%2#0,len%1#0
-        l-load len%1#0 0                                          tmp%0#0,tmp%2#0,len%1#0
-        int 8                                                     tmp%0#0,tmp%2#0,len%1#0,8
-        ==                                                        tmp%0#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                           tmp%0#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64         tmp%0#0,tmp%2#0
+        l-load tmp%0#0 0                                          tmp%0#0
+        btoi                                                      a#0
+        txna ApplicationArgs 2                                    a#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                     a#0,tmp%2#0,tmp%2#0 (copy)
+        len                                                       a#0,tmp%2#0,len%1#0
+        l-load len%1#0 0                                          a#0,tmp%2#0,len%1#0
+        int 8                                                     a#0,tmp%2#0,len%1#0,8
+        ==                                                        a#0,tmp%2#0,eq%1#0
+        l-load eq%1#0 0                                           a#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for arc4.uint64         a#0,tmp%2#0
+        l-load tmp%2#0 0                                          a#0,tmp%2#0
+        btoi                                                      a#0,b#0
         // arc_28/contract.py:25
         // arc4.emit(NativeSwapped(a=b, b=a))
-        l-load tmp%2#0 0                                          tmp%0#0,tmp%2#0
-        l-load tmp%0#0 1                                          tmp%2#0,tmp%0#0
+        l-load b#0 0                                              a#0,b#0
+        itob                                                      a#0,aggregate%val_as_bytes%0#0
+        l-load a#0 1                                              aggregate%val_as_bytes%0#0,a#0
+        itob                                                      aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                       aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                       aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                    aggregate%head%1#0
         method NativeSwapped(uint64,uint64)                       aggregate%head%1#0,Method(NativeSwapped(uint64,uint64))
         l-load aggregate%head%1#0 1                               Method(NativeSwapped(uint64,uint64)),aggregate%head%1#0
