@@ -249,19 +249,18 @@ def dynamic_array_concat_byte_length_head(
     returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
-    new_length = array_length + new_items_count
-    header_end = array_length * UINT16_SIZE + 2
 
-    return _itob16(new_length) + _recalculate_head_for_elements_with_byte_length_head(
-        array_head_and_tail=(
-            substring(array, 2, header_end)
-            + bzero(new_items_count * UINT16_SIZE)
-            + substring(array, header_end, array.length)
-            + new_items_bytes
-        ),
+    header_end = array_length * UINT16_SIZE + 2
+    array_head = substring(array, 2, header_end) + bzero(new_items_count * UINT16_SIZE)
+    array_tail = substring(array, header_end, array.length) + new_items_bytes
+    array_head_and_tail = array_head + array_tail
+    new_length = array_length + new_items_count
+    result = _itob16(new_length) + _recalculate_head_for_elements_with_byte_length_head(
+        array_head_and_tail=array_head_and_tail,
         length=new_length,
         start_at_index=UInt64(0),
     )
+    return result
 
 
 @__pure
