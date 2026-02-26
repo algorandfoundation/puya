@@ -1740,9 +1740,9 @@ subroutine test_bool_array:
         // assert not arr[1], "expected element 1 to be False"
         int 1                                                                               1
         v-load array_length#0                                                               1,array_length#0
-        <                                                                                   tmp%1#4
-        v-store tmp%1#4
-        v-load tmp%1#4                                                                      tmp%1#4
+        <                                                                                   tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                      tmp%1#0
         assert // index out of bounds
         // array/immutable.py:168
         // assert not arr[1], "expected element 1 to be False"
@@ -1772,9 +1772,9 @@ subroutine test_bool_array:
         // assert arr[2], "expected element 2 to be True"
         int 2                                                                               2
         v-load array_length#0                                                               2,array_length#0
-        <                                                                                   tmp%1#4
-        v-store tmp%1#4
-        v-load tmp%1#4                                                                      tmp%1#4
+        <                                                                                   tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                      tmp%1#0
         assert // index out of bounds
         // array/immutable.py:170
         // assert arr[2], "expected element 2 to be True"
@@ -1805,9 +1805,9 @@ subroutine test_bool_array:
         v-store index#0
         v-load index#0                                                                      index#0
         v-load array_length#0                                                               index#0,array_length#0
-        <                                                                                   tmp%1#4
-        v-store tmp%1#4
-        v-load tmp%1#4                                                                      tmp%1#4
+        <                                                                                   tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                      tmp%1#0
         assert // index out of bounds
         // array/immutable.py:172
         // assert not arr[length - 1], "expected last element to be False"
@@ -1840,43 +1840,38 @@ subroutine test_bool_array:
     test_bool_array_if_body@14:
         v-load array_length#0                                                               array_length#0
         int 1                                                                               array_length#0,1
-        -                                                                                   length_minus_1#0
-        v-store length_minus_1#0
-        v-load length_minus_1#0                                                             length_minus_1#0
+        -                                                                                   new_length#0
+        v-store new_length#0
+        v-load new_length#0                                                                 new_length#0
         itob                                                                                tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                      tmp%0#0
-        extract 6 0                                                                         tmp%1#3
-        v-store tmp%1#3
+        extract 6 0                                                                         result#0
+        v-store result#0
         v-load arr#0                                                                        arr#0
-        v-load tmp%1#3                                                                      arr#0,tmp%1#3
-        replace2 0                                                                          result#0
-        v-store result#0
-        v-load length_minus_1#0                                                             length_minus_1#0
-        int 16                                                                              length_minus_1#0,16
-        +                                                                                   popped_location#0
-        v-store popped_location#0
-        v-load result#0                                                                     result#0
-        v-load popped_location#0                                                            result#0,popped_location#0
-        int 0                                                                               result#0,popped_location#0,0
-        setbit                                                                              result#0
-        v-store result#0
-        v-load length_minus_1#0                                                             length_minus_1#0
-        int 7                                                                               length_minus_1#0,7
-        +                                                                                   tmp%6#1
-        v-store tmp%6#1
-        v-load tmp%6#1                                                                      tmp%6#1
-        int 8                                                                               tmp%6#1,8
-        /                                                                                   tmp%7#1
+        extract 2 0                                                                         data#0
+        v-store data#0
+        v-load data#0                                                                       data#0
+        v-load new_length#0                                                                 data#0,new_length#0
+        int 0                                                                               data#0,new_length#0,0
+        setbit                                                                              data#0
+        v-store data#0
+        v-load new_length#0                                                                 new_length#0
+        int 7                                                                               new_length#0,7
+        +                                                                                   tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                      tmp%5#0
+        int 8                                                                               tmp%5#0,8
+        /                                                                                   trimmed_size#0
+        v-store trimmed_size#0
+        v-load data#0                                                                       data#0
+        int 0                                                                               data#0,0
+        v-load trimmed_size#0                                                               data#0,0,trimmed_size#0
+        extract3                                                                            tmp%7#1
         v-store tmp%7#1
-        int 2                                                                               2
-        v-load tmp%7#1                                                                      2,tmp%7#1
-        +                                                                                   tmp%8#0
-        v-store tmp%8#0
         v-load result#0                                                                     result#0
-        int 0                                                                               result#0,0
-        v-load tmp%8#0                                                                      result#0,0,tmp%8#0
-        substring3                                                                          result#0
+        v-load tmp%7#1                                                                      result#0,tmp%7#1
+        concat                                                                              result#0
         v-store result#0
         // array/immutable.py:177
         // assert arr.length == length - 1
