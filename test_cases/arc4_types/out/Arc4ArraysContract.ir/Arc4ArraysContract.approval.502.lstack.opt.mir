@@ -335,10 +335,11 @@ subroutine main:
         ==                                                                                           tmp%37#0
         assert
         int 2                                                                                        tmp%0#0
-        byte 0x0004000a000450696e67000450696e67                                                      tmp%0#0,0x0004000a000450696e67000450696e67
-        v-store array_head_and_tail#1                                                                tmp%0#0
-        int 10                                                                                       tmp%0#0,10
-        v-store tail_offset#0                                                                        tmp%0#0
+        byte 0x0004000a000450696e67000450696e67                                                      tmp%0#0,new_head_and_tail#0
+        int 10                                                                                       tmp%0#0,new_head_and_tail#0,10
+        v-store tail_offset#0                                                                        tmp%0#0,new_head_and_tail#0
+        l-load new_head_and_tail#0 0                                                                 tmp%0#0,new_head_and_tail#0
+        v-store array_head_and_tail#2                                                                tmp%0#0
         l-load tmp%0#0 0                                                                             tmp%0#0
         v-store head_offset#0
         b main_for_header@36
@@ -354,15 +355,15 @@ subroutine main:
         l-store-copy tail_offset#0 0                                                                 tail_offset#0,tail_offset#0 (copy)
         itob                                                                                         tail_offset#0,tmp%0#3
         extract 6 0                                                                                  tail_offset#0,tail_offset_bytes#0
-        v-load array_head_and_tail#1                                                                 tail_offset#0,tail_offset_bytes#0,array_head_and_tail#1
-        v-load head_offset#0                                                                         tail_offset#0,tail_offset_bytes#0,array_head_and_tail#1,head_offset#0
-        l-store-copy head_offset#0 3                                                                 head_offset#0,tail_offset#0,tail_offset_bytes#0,array_head_and_tail#1,head_offset#0 (copy)
-        l-load tail_offset_bytes#0 2                                                                 head_offset#0,tail_offset#0,array_head_and_tail#1,head_offset#0 (copy),tail_offset_bytes#0
-        replace3                                                                                     head_offset#0,tail_offset#0,array_head_and_tail#1
-        l-store-copy array_head_and_tail#1 0                                                         head_offset#0,tail_offset#0,array_head_and_tail#1,array_head_and_tail#1 (copy)
-        v-store array_head_and_tail#1                                                                head_offset#0,tail_offset#0,array_head_and_tail#1
-        l-load array_head_and_tail#1 0                                                               head_offset#0,tail_offset#0,array_head_and_tail#1
-        l-load-copy tail_offset#0 1                                                                  head_offset#0,tail_offset#0,array_head_and_tail#1,tail_offset#0 (copy)
+        v-load array_head_and_tail#2                                                                 tail_offset#0,tail_offset_bytes#0,array_head_and_tail#2
+        v-load head_offset#0                                                                         tail_offset#0,tail_offset_bytes#0,array_head_and_tail#2,head_offset#0
+        l-store-copy head_offset#0 3                                                                 head_offset#0,tail_offset#0,tail_offset_bytes#0,array_head_and_tail#2,head_offset#0 (copy)
+        l-load tail_offset_bytes#0 2                                                                 head_offset#0,tail_offset#0,array_head_and_tail#2,head_offset#0 (copy),tail_offset_bytes#0
+        replace3                                                                                     head_offset#0,tail_offset#0,array_head_and_tail#2
+        l-store-copy array_head_and_tail#2 0                                                         head_offset#0,tail_offset#0,array_head_and_tail#2,array_head_and_tail#2 (copy)
+        v-store array_head_and_tail#2                                                                head_offset#0,tail_offset#0,array_head_and_tail#2
+        l-load array_head_and_tail#2 0                                                               head_offset#0,tail_offset#0,array_head_and_tail#2
+        l-load-copy tail_offset#0 1                                                                  head_offset#0,tail_offset#0,array_head_and_tail#2,tail_offset#0 (copy)
         extract_uint16                                                                               head_offset#0,tail_offset#0,tmp%8#2
         int 2                                                                                        head_offset#0,tail_offset#0,tmp%8#2,2
         +                                                                                            head_offset#0,tail_offset#0,tmp%9#2
@@ -396,9 +397,9 @@ subroutine main:
     main_for_body@32:
         // arc4_types/array.py:83
         // for string_item in static_string_array:
-        v-load array_head_and_tail#1                                                                 array_head_and_tail#1
-        v-load item_index_internal%6#0                                                               array_head_and_tail#1,item_index_internal%6#0
-        l-store-copy item_index_internal%6#0 1                                                       item_index_internal%6#0,array_head_and_tail#1,item_index_internal%6#0 (copy)
+        v-load array_head_and_tail#2                                                                 array_head_and_tail#2
+        v-load item_index_internal%6#0                                                               array_head_and_tail#2,item_index_internal%6#0
+        l-store-copy item_index_internal%6#0 1                                                       item_index_internal%6#0,array_head_and_tail#2,item_index_internal%6#0 (copy)
         callsub static_array_read_byte_length_element                                                item_index_internal%6#0,string_item#0
         // arc4_types/array.py:84
         // result += string_item.native + " "

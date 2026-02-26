@@ -196,13 +196,13 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 0u)
         let tmp%5#1: uint64 = 0u
         goto block@4
-    block@4: // for_header_L409
+    block@4: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
         let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
         goto continue_looping%0#0 ? block@5 : block@7
-    block@5: // for_body_L410
+    block@5: // for_body_L413
         let tail_offset_bytes#0: bytes = _puya_lib.arc4._itob16(tail_offset#1)
         let array_head_and_tail#3: bytes = (replace3 array_head_and_tail#2 head_offset#0 tail_offset_bytes#0)
         let tmp%8#1: uint64 = (extract_uint16 array_head_and_tail#3 tail_offset#1)
@@ -210,7 +210,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let tail_offset#2: uint64 = (+ tail_offset#1 tmp%9#1)
         let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         goto block@4
-    block@7: // after_for_L409
+    block@7: // after_for_L412
         let result#0: bytes = (concat tmp%1#1 array_head_and_tail#2)
         return result#0
 
@@ -264,7 +264,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new
         return tmp%19#0
 
 subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> void:
-    block@0: // L416
+    block@0: // L419
         let length#0: uint64 = (extract_uint16 array#0 0u)
         let tmp%1#0: bool = (< index#0 length#0)
         (assert tmp%1#0) // index out of bounds
