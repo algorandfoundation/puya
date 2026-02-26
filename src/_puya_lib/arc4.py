@@ -333,14 +333,15 @@ def dynamic_array_replace_dynamic_element(source: Bytes, new_item: Bytes, index:
 def static_array_replace_dynamic_element(
     *, array_head_and_tail: Bytes, new_item: Bytes, index: UInt64, array_length: UInt64
 ) -> Bytes:
-    original_offset = extract_uint16(array_head_and_tail, index * 2)
-    next_item_offset = extract_uint16(array_head_and_tail, (index + 1) * 2)
+    new_item_length = new_item.length
+
     end_of_tail = array_head_and_tail.length
+    next_item_offset = extract_uint16(array_head_and_tail, (index + 1) * 2)
     is_before_end = array_length - index - 1
     end_offset = select_uint64(end_of_tail, next_item_offset, is_before_end)
-
+    original_offset = extract_uint16(array_head_and_tail, index * 2)
     original_item_length = end_offset - original_offset
-    new_item_length = new_item.length
+
     new_head_and_tail = (
         substring(array_head_and_tail, 0, original_offset)
         + new_item
