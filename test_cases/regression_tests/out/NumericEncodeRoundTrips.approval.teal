@@ -85,9 +85,26 @@ arc4_uint128_via_uint64:
     txna ApplicationArgs 1
     dup
     len
+    dup
     pushint 16
     ==
     assert // invalid number of bytes for arc4.uint128
+    // regression_tests/numeric_encode_round_trips.py:16
+    // return arc4.UInt128(x.as_uint64())
+    dig 1
+    bitlen
+    intc_2 // 64
+    <=
+    assert // overflow
+    intc_1 // 8
+    -
+    intc_1 // 8
+    extract3
+    pushint 16
+    bzero
+    b|
+    // regression_tests/numeric_encode_round_trips.py:14
+    // @public
     bytec_0 // 0x151f7c75
     swap
     concat
