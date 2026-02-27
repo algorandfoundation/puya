@@ -1,98 +1,123 @@
 // Op                                                                        Stack (out)
 // test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 subroutine main:
-    declare uint64 tmp%17#0
-    main_block@0:                                                            (𝕗) tmp%17#0 |
+    declare uint64 tmp%20#0
+    main_block@0:                                                            (𝕗) tmp%20#0 |
         // logic_signature/lsig_args_simple.py:5
         // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
-        arg_0                                                                (𝕗) tmp%17#0 | tmp%0#0
-        btoi                                                                 (𝕗) tmp%17#0 | arg0#0
-        l-store-copy arg0#0 0                                                (𝕗) tmp%17#0 | arg0#0,arg0#0 (copy)
-        f-store arg0#0                                                       (𝕗) tmp%17#0,arg0#0 | arg0#0
-        arg_1                                                                (𝕗) tmp%17#0,arg0#0 | arg0#0,arg1#0
-        l-store-copy arg1#0 1                                                (𝕗) tmp%17#0,arg0#0 | arg1#0,arg0#0,arg1#0 (copy)
-        f-store arg1#0                                                       (𝕗) tmp%17#0,arg0#0,arg1#0 | arg1#0,arg0#0
-        arg_2                                                                (𝕗) tmp%17#0,arg0#0,arg1#0 | arg1#0,arg0#0,tmp%3#0
-        btoi                                                                 (𝕗) tmp%17#0,arg0#0,arg1#0 | arg1#0,arg0#0,arg2#0
-        l-store-copy arg2#0 2                                                (𝕗) tmp%17#0,arg0#0,arg1#0 | arg2#0,arg1#0,arg0#0,arg2#0 (copy)
-        f-store arg2#0                                                       (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0
+        arg 0                                                                (𝕗) tmp%20#0 | tmp%0#0
+        l-load-copy tmp%0#0 0                                                (𝕗) tmp%20#0 | tmp%0#0,tmp%0#0 (copy)
+        len                                                                  (𝕗) tmp%20#0 | tmp%0#0,len%0#0
+        int 8                                                                (𝕗) tmp%20#0 | tmp%0#0,len%0#0,8
+        ==                                                                   (𝕗) tmp%20#0 | tmp%0#0,eq%0#0
+        assert // invalid number of bytes for uint64                         (𝕗) tmp%20#0 | tmp%0#0
+        l-load tmp%0#0 0                                                     (𝕗) tmp%20#0 | tmp%0#0
+        btoi                                                                 (𝕗) tmp%20#0 | arg0#0
+        l-store-copy arg0#0 0                                                (𝕗) tmp%20#0 | arg0#0,arg0#0 (copy)
+        f-store arg0#0                                                       (𝕗) tmp%20#0,arg0#0 | arg0#0
+        arg 1                                                                (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0
+        l-load-copy tmp%2#0 0                                                (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,tmp%2#0 (copy)
+        int 0                                                                (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,tmp%2#0 (copy),0
+        extract_uint16 // on error: invalid array length header              (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,aggregate%array_length%0#0
+        int 2                                                                (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,aggregate%array_length%0#0,2
+        +                                                                    (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,add%0#0
+        l-load-copy tmp%2#0 1                                                (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,add%0#0,tmp%2#0 (copy)
+        len                                                                  (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,add%0#0,len%1#0
+        l-load add%0#0 1                                                     (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,len%1#0,add%0#0
+        ==                                                                   (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0,eq%1#0
+        assert // invalid number of bytes for bytes                          (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0
+        l-load tmp%2#0 0                                                     (𝕗) tmp%20#0,arg0#0 | arg0#0,tmp%2#0
+        extract 2 0                                                          (𝕗) tmp%20#0,arg0#0 | arg0#0,arg1#0
+        l-store-copy arg1#0 0                                                (𝕗) tmp%20#0,arg0#0 | arg0#0,arg1#0,arg1#0 (copy)
+        f-store arg1#0                                                       (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0
+        arg 2                                                                (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0
+        l-load-copy tmp%4#0 0                                                (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0,tmp%4#0 (copy)
+        len                                                                  (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0,len%2#0
+        int 1                                                                (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0,len%2#0,1
+        ==                                                                   (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0,eq%2#0
+        assert // invalid number of bytes for bool                           (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0
+        l-load tmp%4#0 0                                                     (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0
+        int 0                                                                (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,tmp%4#0,0
+        getbit                                                               (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg1#0,arg2#0
+        l-store-copy arg2#0 1                                                (𝕗) tmp%20#0,arg0#0,arg1#0 | arg0#0,arg2#0,arg1#0,arg2#0 (copy)
+        f-store arg2#0                                                       (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0
         // logic_signature/lsig_args_simple.py:7
-        // assert arg0 == op.btoi(op.arg(0))
-        arg 0                                                                (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0,tmp%4#0
-        btoi                                                                 (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0,tmp%5#0
-        l-load-copy arg0#0 1                                                 (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0,tmp%5#0,arg0#0 (copy)
-        l-load tmp%5#0 1                                                     (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0,arg0#0 (copy),tmp%5#0
-        ==                                                                   (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0,tmp%6#0
-        assert                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0
+        // assert arg0 == arc4.UInt64.from_bytes(op.arg(0)).native
+        arg 0                                                                (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,reinterpret_Encoded(uint64)%0#0
+        btoi                                                                 (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,tmp%6#0
+        l-load-copy arg0#0 3                                                 (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,tmp%6#0,arg0#0 (copy)
+        l-load tmp%6#0 1                                                     (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,arg0#0 (copy),tmp%6#0
+        ==                                                                   (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,tmp%7#0
+        assert                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0
         // logic_signature/lsig_args_simple.py:8
-        // assert arg1 == op.arg(1)
-        arg 1                                                                (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg1#0,arg0#0,tmp%7#0
-        l-load arg1#0 2                                                      (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0,tmp%7#0,arg1#0
-        l-load tmp%7#0 1                                                     (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0,arg1#0,tmp%7#0
-        ==                                                                   (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0,tmp%8#0
-        assert                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0
+        // assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
+        arg 1                                                                (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                          (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,tmp%8#0
+        l-load arg1#0 1                                                      (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,tmp%8#0,arg1#0
+        l-load tmp%8#0 1                                                     (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,arg1#0,tmp%8#0
+        ==                                                                   (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,tmp%9#0
+        assert                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0
         // logic_signature/lsig_args_simple.py:9
-        // assert arg2 == (op.btoi(op.arg(2)) != 0)
-        arg 2                                                                (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0,tmp%9#0
-        btoi                                                                 (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0,tmp%10#0
-        int 0                                                                (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0,tmp%10#0,0
-        !=                                                                   (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0,arg0#0,tmp%11#0
-        l-load arg2#0 2                                                      (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0,tmp%11#0,arg2#0
-        l-load tmp%11#0 1                                                    (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,tmp%11#0
-        ==                                                                   (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0,tmp%12#0
-        assert                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0
+        // assert arg2 == arc4.Bool(op.btoi(op.arg(2)) != 0)
+        arg 2                                                                (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,tmp%10#0
+        btoi                                                                 (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,tmp%11#0
+        int 0                                                                (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,tmp%11#0,0
+        !=                                                                   (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,arg2#0,tmp%12#0
+        l-load arg2#0 1                                                      (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,tmp%12#0,arg2#0
+        ==                                                                   (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,tmp%15#0
+        assert                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0
         // logic_signature/lsig_args_simple.py:12
         // if arg0 < 10:
-        l-load arg0#0 0                                                      (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0
-        int 10                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0,10
-        <                                                                    (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | tmp%13#0
-        bz main_after_if_else@2 ; b main_if_body@1                           (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+        l-load arg0#0 0                                                      (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0
+        int 10                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,10
+        <                                                                    (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | tmp%16#0
+        bz main_after_if_else@2 ; b main_if_body@1                           (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
 
-    main_if_body@1:                                                          (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+    main_if_body@1:                                                          (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
         // logic_signature/lsig_args_simple.py:13
         // arg0 = UInt64(10)
-        int 10                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | 10
-        f-store arg0#0                                                       (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
-        b main_after_if_else@2                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+        int 10                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | 10
+        f-store arg0#0                                                       (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
+        b main_after_if_else@2                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
 
-    main_after_if_else@2:                                                    (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+    main_after_if_else@2:                                                    (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
         // logic_signature/lsig_args_simple.py:14
         // arg1 = arg1 + b"suffix"
-        f-load arg1#0                                                        (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0
-        byte 0x737566666978                                                  (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0,0x737566666978
-        concat                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0
+        f-load arg1#0                                                        (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0
+        byte 0x737566666978                                                  (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0,0x737566666978
+        concat                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0
         // logic_signature/lsig_args_simple.py:18
         // assert arg0 >= 10
-        f-load arg0#0                                                        (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0,arg0#0
-        int 10                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0,arg0#0,10
-        >=                                                                   (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0,tmp%16#0
-        assert                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0
+        f-load arg0#0                                                        (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0,arg0#0
+        int 10                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0,arg0#0,10
+        >=                                                                   (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0,tmp%19#0
+        assert                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0
         // logic_signature/lsig_args_simple.py:19
         // assert arg1.length > 0
-        l-load arg1#0 0                                                      (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg1#0
-        len                                                                  (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | tmp%17#0
-        l-store-copy tmp%17#0 0                                              (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | tmp%17#0,tmp%17#0 (copy)
-        f-store tmp%17#0                                                     (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | tmp%17#0
-        l-load tmp%17#0 0                                                    (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | tmp%17#0
-        assert                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+        l-load arg1#0 0                                                      (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg1#0
+        len                                                                  (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | tmp%20#0
+        l-store-copy tmp%20#0 0                                              (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | tmp%20#0,tmp%20#0 (copy)
+        f-store tmp%20#0                                                     (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | tmp%20#0
+        l-load tmp%20#0 0                                                    (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | tmp%20#0
+        assert                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
         // logic_signature/lsig_args_simple.py:22
         // if arg2:
-        f-load arg2#0                                                        (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg2#0
-        bz main_if_body@3 ; b main_after_if_else@4                           (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+        f-load arg2#0                                                        (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg2#0
+        bz main_if_body@3 ; b main_after_if_else@4                           (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
 
-    main_if_body@3:                                                          (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+    main_if_body@3:                                                          (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
         // logic_signature/lsig_args_simple.py:23
         // arg0 += arg1.length
-        f-load arg0#0                                                        (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0
-        f-load tmp%17#0                                                      (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0,tmp%17#0
-        +                                                                    (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0
-        f-store arg0#0                                                       (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
-        b main_after_if_else@4                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+        f-load arg0#0                                                        (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0
+        f-load tmp%20#0                                                      (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0,tmp%20#0
+        +                                                                    (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0
+        f-store arg0#0                                                       (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
+        b main_after_if_else@4                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
 
-    main_after_if_else@4:                                                    (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+    main_after_if_else@4:                                                    (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
         // logic_signature/lsig_args_simple.py:24
         // return arg0
-        f-load arg0#0                                                        (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 | arg0#0
-        return                                                               (𝕗) tmp%17#0,arg0#0,arg1#0,arg2#0 |
+        f-load arg0#0                                                        (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 | arg0#0
+        return                                                               (𝕗) tmp%20#0,arg0#0,arg1#0,arg2#0 |
 
 

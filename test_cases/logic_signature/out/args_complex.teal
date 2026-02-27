@@ -3,31 +3,67 @@
 
 // test_cases.logic_signature.lsig_args_complex.args_complex() -> uint64:
 main:
-    intcblock 1 0 8 16
+    intcblock 0 1 8 2
     bytecblock 0x21 0x00 0xff 0x01
     // logic_signature/lsig_args_complex.py:28
     // arg0: UInt64,
     arg_0
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     // logic_signature/lsig_args_complex.py:29
     // arg1: Bytes,
     arg_1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for bytes
+    extract 2 0
     // logic_signature/lsig_args_complex.py:30
     // arg2: BigUInt,
     arg_2
+    dup
+    len
+    pushint 64
+    ==
+    assert // invalid number of bytes for biguint
     // logic_signature/lsig_args_complex.py:31
     // arg3: String,
     arg_3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for string
+    extract 2 0
     // logic_signature/lsig_args_complex.py:32
     // arg4: bool,
     arg 4
-    btoi
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for bool
+    intc_0 // 0
+    getbit
     // logic_signature/lsig_args_complex.py:33
     // arg5: arc4.UInt8,
     arg 5
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     // logic_signature/lsig_args_complex.py:34
@@ -43,7 +79,7 @@ main:
     arg 7
     dup
     len
-    intc_3 // 16
+    pushint 16
     ==
     assert // invalid number of bytes for arc4.uint128
     // logic_signature/lsig_args_complex.py:36
@@ -59,16 +95,16 @@ main:
     arg 9
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.bool
     // logic_signature/lsig_args_complex.py:38
     // arg10: arc4.String,
     arg 10
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -78,9 +114,9 @@ main:
     // arg11: arc4.DynamicBytes,
     arg 11
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -99,7 +135,7 @@ main:
     arg 13
     dup
     len
-    intc_3 // 16
+    pushint 16
     ==
     assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleStruct
     // logic_signature/lsig_args_complex.py:42
@@ -123,43 +159,103 @@ main:
     arg 16
     dup
     len
-    intc_0 // 1
+    pushint 9
     ==
-    assert // invalid number of bytes for arc4.uint8
+    assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleNamedTuple
+    dup
+    extract 0 1
+    dig 1
+    extract 1 8
+    // logic_signature/lsig_args_complex.py:45
+    // arg17: tuple[UInt64, Bytes],
     arg 17
     dup
     len
+    dig 1
     intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
     ==
-    assert // invalid number of bytes for arc4.uint64
-    // logic_signature/lsig_args_complex.py:45
-    // arg17: tuple[UInt64, Bytes],
-    arg 18
-    btoi
-    arg 19
+    assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for tuple<uint64,bytes>
+    swap
+    intc_0 // 0
+    extract_uint64
+    swap
+    extract 2 0
     // logic_signature/lsig_args_complex.py:46
     // arg18: tuple[UInt64, tuple[Bytes, UInt64]],
-    arg 20
-    btoi
-    arg 21
-    arg 22
-    btoi
-    // logic_signature/lsig_args_complex.py:47
-    // arg19: OverwriteStruct,
-    arg 23
+    arg 18
     dup
     len
-    pushint 2
+    dig 1
+    intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,((len+uint8[]),uint64))
+    dig 2
+    swap
+    dig 2
+    substring3
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 0 of ((len+uint8[]),uint64)
+    dig 2
+    swap
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 22
+    +
+    uncover 3
+    ==
+    assert // invalid number of bytes for tuple<uint64,tuple<bytes,uint64>>
+    uncover 2
+    intc_0 // 0
+    extract_uint64
+    swap
+    extract 2 0
+    uncover 2
+    intc_3 // 2
+    extract_uint64
+    // logic_signature/lsig_args_complex.py:47
+    // arg19: OverwriteStruct,
+    arg 19
+    dup
+    len
+    intc_3 // 2
     ==
     assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.OverwriteStruct
     // logic_signature/lsig_args_complex.py:48
     // arg20: arc4.DynamicArray[arc4.UInt8],
-    arg 24
+    arg 20
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    pushint 2
+    intc_3 // 2
     +
     dig 2
     len
@@ -170,185 +266,222 @@ main:
     // assert arg0 == op.btoi(op.arg(0))
     arg_0
     btoi
-    dig 26
+    dig 27
     ==
     assert
     // logic_signature/lsig_args_complex.py:52
-    // assert arg1 == op.arg(1)
-    dig 24
+    // assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
     arg_1
+    extract 2 0
+    dig 26
     ==
     assert
     // logic_signature/lsig_args_complex.py:53
     // assert arg2.bytes == op.arg(2)
-    dig 23
+    dig 24
     arg_2
     ==
     assert
     // logic_signature/lsig_args_complex.py:54
-    // assert arg3.bytes == op.arg(3)
-    dig 22
+    // assert arg3 == arc4.String.from_bytes(op.arg(3)).native
     arg_3
+    extract 2 0
+    dig 24
     ==
     assert
     // logic_signature/lsig_args_complex.py:55
     // assert arg4 == (op.btoi(op.arg(4)) != 0)
     arg 4
     btoi
-    intc_1 // 0
+    intc_0 // 0
     !=
-    dig 22
+    dig 23
     ==
     assert
     // logic_signature/lsig_args_complex.py:56
     // assert arg5.bytes == op.arg(5)
-    dig 20
+    dig 21
     arg 5
     ==
     assert
     // logic_signature/lsig_args_complex.py:57
     // assert arg6.bytes == op.arg(6)
-    dig 19
+    dig 20
     arg 6
     ==
     assert
     // logic_signature/lsig_args_complex.py:58
     // assert arg7.bytes == op.arg(7)
-    dig 18
+    dig 19
     arg 7
     ==
     assert
     // logic_signature/lsig_args_complex.py:59
     // assert arg8.bytes == op.arg(8)
     arg 8
-    uncover 18
+    uncover 19
     ==
     assert
     // logic_signature/lsig_args_complex.py:60
     // assert arg9.bytes == op.arg(9)
-    dig 16
+    dig 17
     arg 9
     ==
     assert
     // logic_signature/lsig_args_complex.py:61
     // assert arg10.bytes == op.arg(10)
-    dig 15
+    dig 16
     arg 10
     ==
     assert
     // logic_signature/lsig_args_complex.py:62
     // assert arg11.bytes == op.arg(11)
-    dig 14
+    dig 15
     arg 11
     ==
     assert
     // logic_signature/lsig_args_complex.py:63
     // assert arg12.bytes == op.arg(12)
-    dig 13
+    dig 14
     arg 12
     ==
     assert
     // logic_signature/lsig_args_complex.py:64
     // assert arg13.bytes == op.arg(13)
-    dig 12
+    dig 13
     arg 13
     ==
     assert
     // logic_signature/lsig_args_complex.py:65
     // assert arg14.bytes == op.arg(14)
-    dig 11
+    dig 12
     arg 14
     ==
     assert
     // logic_signature/lsig_args_complex.py:66
     // assert arg15.bytes == op.arg(15)
-    dig 10
+    dig 11
     arg 15
     ==
     assert
     // logic_signature/lsig_args_complex.py:67
-    // assert arg16[0].bytes == op.arg(16)
-    dig 9
+    // _raw16 = arc4.Tuple[arc4.UInt8, arc4.UInt64].from_bytes(op.arg(16))
     arg 16
-    ==
-    assert
     // logic_signature/lsig_args_complex.py:68
-    // assert arg16[1].bytes == op.arg(17)
-    dig 8
-    arg 17
-    ==
+    // assert arg16[0] == _raw16[0]
+    dup
+    extract 0 1
+    uncover 11
+    b==
     assert
     // logic_signature/lsig_args_complex.py:69
-    // assert arg17[0] == op.btoi(op.arg(18))
-    arg 18
-    btoi
-    dig 8
-    ==
+    // assert arg16[1] == _raw16[1]
+    extract 1 8
+    uncover 9
+    b==
     assert
     // logic_signature/lsig_args_complex.py:70
-    // assert arg17[1] == op.arg(19)
-    dig 6
-    arg 19
-    ==
-    assert
+    // _raw17 = arc4.Tuple[arc4.UInt64, arc4.DynamicBytes].from_bytes(op.arg(17))
+    arg 17
     // logic_signature/lsig_args_complex.py:71
-    // assert arg18[0] == op.btoi(op.arg(20))
-    arg 20
-    btoi
-    dig 6
+    // assert arg17[0] == _raw17[0].native
+    dup
+    intc_0 // 0
+    extract_uint64
+    dig 9
     ==
     assert
     // logic_signature/lsig_args_complex.py:72
-    // assert arg18[1][0] == op.arg(21)
-    dig 4
-    arg 21
-    ==
-    assert
-    // logic_signature/lsig_args_complex.py:73
-    // assert arg18[1][1] == op.btoi(op.arg(22))
-    arg 22
-    btoi
-    dig 4
+    // assert arg17[1] == _raw17[1].native
+    dup
+    intc_2 // 8
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    dig 7
     ==
     assert
     // logic_signature/lsig_args_complex.py:74
-    // assert arg19.bytes == op.arg(23)
-    dig 2
-    arg 23
+    // op.arg(18)
+    arg 18
+    // logic_signature/lsig_args_complex.py:76
+    // assert arg18[0] == _raw18[0].native
+    dup
+    intc_0 // 0
+    extract_uint64
+    dig 7
     ==
     assert
-    // logic_signature/lsig_args_complex.py:75
-    // assert arg20.bytes == op.arg(24)
+    // logic_signature/lsig_args_complex.py:77
+    // assert arg18[1][0] == _raw18[1][0].native
+    dup
+    intc_2 // 8
+    extract_uint16
     dig 1
-    arg 24
+    len
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
+    dig 6
     ==
     assert
     // logic_signature/lsig_args_complex.py:77-78
+    // assert arg18[1][0] == _raw18[1][0].native
+    // assert arg18[1][1] == _raw18[1][1].native
+    intc_3 // 2
+    // logic_signature/lsig_args_complex.py:78
+    // assert arg18[1][1] == _raw18[1][1].native
+    extract_uint64
+    dig 4
+    ==
+    assert
+    // logic_signature/lsig_args_complex.py:79
+    // assert arg19.bytes == op.arg(19)
+    dig 2
+    arg 19
+    ==
+    assert
+    // logic_signature/lsig_args_complex.py:80
+    // assert arg20.bytes == op.arg(20)
+    dig 1
+    arg 20
+    ==
+    assert
+    // logic_signature/lsig_args_complex.py:82-83
     // # mutate all
     // arg0 = arg0 + 1
-    uncover 24
-    intc_0 // 1
+    uncover 23
+    intc_1 // 1
     +
-    // logic_signature/lsig_args_complex.py:79
+    // logic_signature/lsig_args_complex.py:84
     // arg1 = arg1 + b"!"
-    uncover 24
+    uncover 23
     bytec_0 // 0x21
     concat
-    // logic_signature/lsig_args_complex.py:80
+    // logic_signature/lsig_args_complex.py:85
     // arg2 = arg2 + BigUInt(1)
-    uncover 24
+    uncover 23
     bytec_3 // 0x01
     b+
-    // logic_signature/lsig_args_complex.py:81
+    // logic_signature/lsig_args_complex.py:86
     // arg3 = String("hello_") + arg3
     pushbytes "hello_"
-    uncover 25
+    uncover 24
     concat
-    // logic_signature/lsig_args_complex.py:83
+    // logic_signature/lsig_args_complex.py:88
     // arg5 = arc4.UInt8(arg5.as_uint64() + 1)
-    uncover 23
+    uncover 22
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     dup
@@ -356,41 +489,41 @@ main:
     intc_2 // 8
     <=
     assert // overflow
-    // logic_signature/lsig_args_complex.py:84
+    // logic_signature/lsig_args_complex.py:89
     // arg6 = arc4.UInt64(arg6.as_uint64() + 1)
-    uncover 23
+    uncover 22
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
-    // logic_signature/lsig_args_complex.py:85
+    // logic_signature/lsig_args_complex.py:90
     // arg7 = arc4.UInt128(arg7.as_biguint() + BigUInt(1))
-    uncover 23
+    uncover 22
     bytec_3 // 0x01
     b+
     dup
     len
-    intc_3 // 16
+    pushint 16
     <=
     assert // overflow
-    intc_3 // 16
+    pushint 16
     bzero
     b|
-    // logic_signature/lsig_args_complex.py:87
+    // logic_signature/lsig_args_complex.py:92
     // arg9 = arc4.Bool(not arg9.native)
-    uncover 23
-    intc_1 // 0
+    uncover 22
+    intc_0 // 0
     getbit
     !
-    cover 24
-    // logic_signature/lsig_args_complex.py:88
+    cover 23
+    // logic_signature/lsig_args_complex.py:93
     // arg10 = arc4.String(arg10.native + " world")
-    uncover 22
+    uncover 21
     extract 2 0
     pushbytes " world"
     concat
-    // logic_signature/lsig_args_complex.py:89
+    // logic_signature/lsig_args_complex.py:94
     // arg11 = arc4.DynamicBytes(arg11.native + b"\x00")
-    uncover 22
+    uncover 21
     extract 2 0
     bytec_1 // 0x00
     concat
@@ -400,52 +533,28 @@ main:
     extract 6 2
     swap
     concat
-    // logic_signature/lsig_args_complex.py:90
+    // logic_signature/lsig_args_complex.py:95
     // arg12[0] = arc4.Byte(0xFF)
-    uncover 22
+    uncover 21
     bytec_2 // 0xff
     replace2 0 // on error: index access is out of bounds
-    // logic_signature/lsig_args_complex.py:91
+    // logic_signature/lsig_args_complex.py:96
     // arg13 = SimpleStruct(x=arc4.UInt64(arg13.x.as_uint64() + 1), y=arg13.y)
-    dig 22
-    intc_1 // 0
+    dig 21
+    intc_0 // 0
     extract_uint64
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
-    uncover 23
+    uncover 22
     extract 8 8
     concat
-    // logic_signature/lsig_args_complex.py:93
-    // header=arc4.UInt8(arg14.header.as_uint64() + 1),
-    dig 22
-    intc_1 // 0
-    getbyte
-    intc_0 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
-    extract 7 1
-    // logic_signature/lsig_args_complex.py:94
-    // data=arg14.data.copy(),
-    uncover 23
-    extract 1 16
-    // logic_signature/lsig_args_complex.py:92-95
-    // arg14 = NestedStruct(
-    //     header=arc4.UInt8(arg14.header.as_uint64() + 1),
-    //     data=arg14.data.copy(),
-    // )
-    concat
     // logic_signature/lsig_args_complex.py:98
-    // arc4.UInt8(arg15[0].as_uint64() + 1),
-    dig 22
-    intc_1 // 0
+    // header=arc4.UInt8(arg14.header.as_uint64() + 1),
+    dig 21
+    intc_0 // 0
     getbyte
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     dup
@@ -455,64 +564,21 @@ main:
     assert // overflow
     extract 7 1
     // logic_signature/lsig_args_complex.py:99
-    // arc4.UInt64(arg15[1].as_uint64() + 1),
-    uncover 23
-    intc_0 // 1
-    extract_uint64
-    intc_0 // 1
-    +
-    itob
-    // logic_signature/lsig_args_complex.py:96-101
-    // arg15 = arc4.Tuple(
-    //     (
-    //         arc4.UInt8(arg15[0].as_uint64() + 1),
-    //         arc4.UInt64(arg15[1].as_uint64() + 1),
-    //     )
+    // data=arg14.data.copy(),
+    uncover 22
+    extract 1 16
+    // logic_signature/lsig_args_complex.py:97-100
+    // arg14 = NestedStruct(
+    //     header=arc4.UInt8(arg14.header.as_uint64() + 1),
+    //     data=arg14.data.copy(),
     // )
     concat
     // logic_signature/lsig_args_complex.py:103
-    // a=arc4.UInt8(arg16.a.as_uint64() + 1),
-    uncover 22
-    btoi
-    intc_0 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
-    // logic_signature/lsig_args_complex.py:104
-    // b=arc4.UInt64(arg16.b.as_uint64() + 1),
-    uncover 22
-    btoi
-    intc_0 // 1
-    +
-    // logic_signature/lsig_args_complex.py:106
-    // arg17 = (arg17[0] + 1, arg17[1] + b"!")
-    uncover 22
-    intc_0 // 1
-    +
-    uncover 22
-    bytec_0 // 0x21
-    concat
-    // logic_signature/lsig_args_complex.py:107
-    // arg18 = (arg18[0] + 1, (arg18[1][0] + b"!", arg18[1][1] + 1))
-    uncover 22
-    intc_0 // 1
-    +
-    uncover 22
-    bytec_0 // 0x21
-    concat
-    uncover 22
-    intc_0 // 1
-    +
-    // logic_signature/lsig_args_complex.py:109
-    // value=arc4.UInt8(arg19.value.as_uint64() + 1),
-    dig 22
-    intc_1 // 0
+    // arc4.UInt8(arg15[0].as_uint64() + 1),
+    dig 21
+    intc_0 // 0
     getbyte
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     dup
@@ -521,167 +587,244 @@ main:
     <=
     assert // overflow
     extract 7 1
-    // logic_signature/lsig_args_complex.py:110
+    // logic_signature/lsig_args_complex.py:104
+    // arc4.UInt64(arg15[1].as_uint64() + 1),
+    uncover 22
+    intc_1 // 1
+    extract_uint64
+    intc_1 // 1
+    +
+    itob
+    // logic_signature/lsig_args_complex.py:101-106
+    // arg15 = arc4.Tuple(
+    //     (
+    //         arc4.UInt8(arg15[0].as_uint64() + 1),
+    //         arc4.UInt64(arg15[1].as_uint64() + 1),
+    //     )
+    // )
+    concat
+    // logic_signature/lsig_args_complex.py:108
+    // a=arc4.UInt8(arg16.a.as_uint64() + 1),
+    dig 21
+    // logic_signature/lsig_args_complex.py:44
+    // arg16: SimpleNamedTuple,
+    intc_0 // 0
+    // logic_signature/lsig_args_complex.py:108
+    // a=arc4.UInt8(arg16.a.as_uint64() + 1),
+    getbyte
+    intc_1 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    // logic_signature/lsig_args_complex.py:109
+    // b=arc4.UInt64(arg16.b.as_uint64() + 1),
+    uncover 22
+    // logic_signature/lsig_args_complex.py:44
+    // arg16: SimpleNamedTuple,
+    intc_1 // 1
+    // logic_signature/lsig_args_complex.py:109
+    // b=arc4.UInt64(arg16.b.as_uint64() + 1),
+    extract_uint64
+    intc_1 // 1
+    +
+    // logic_signature/lsig_args_complex.py:111
+    // arg17 = (arg17[0] + 1, arg17[1] + b"!")
+    uncover 22
+    intc_1 // 1
+    +
+    uncover 22
+    bytec_0 // 0x21
+    concat
+    // logic_signature/lsig_args_complex.py:112
+    // arg18 = (arg18[0] + 1, (arg18[1][0] + b"!", arg18[1][1] + 1))
+    uncover 22
+    intc_1 // 1
+    +
+    uncover 22
+    bytec_0 // 0x21
+    concat
+    uncover 22
+    intc_1 // 1
+    +
+    // logic_signature/lsig_args_complex.py:114
+    // value=arc4.UInt8(arg19.value.as_uint64() + 1),
+    dig 22
+    intc_0 // 0
+    getbyte
+    intc_1 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    extract 7 1
+    // logic_signature/lsig_args_complex.py:115
     // dont_overwrite_me=arc4.Bool(not arg19.dont_overwrite_me.native),
     uncover 23
     intc_2 // 8
     getbit
     bytec_1 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     setbit
-    intc_1 // 0
+    intc_0 // 0
     getbit
     !
     bytec_1 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     setbit
-    // logic_signature/lsig_args_complex.py:108-111
+    // logic_signature/lsig_args_complex.py:113-116
     // arg19 = OverwriteStruct(
     //     value=arc4.UInt8(arg19.value.as_uint64() + 1),
     //     dont_overwrite_me=arc4.Bool(not arg19.dont_overwrite_me.native),
     // )
     concat
     uncover 21
-    // logic_signature/lsig_args_complex.py:112
+    // logic_signature/lsig_args_complex.py:117
     // arg20.append(arc4.UInt8(0xFF))
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     extract 6 0
     uncover 22
     swap
     replace2 0
-    // logic_signature/lsig_args_complex.py:112
+    // logic_signature/lsig_args_complex.py:117
     // arg20.append(arc4.UInt8(0xFF))
     bytec_2 // 0xff
     concat
-    // logic_signature/lsig_args_complex.py:114-115
+    // logic_signature/lsig_args_complex.py:119-120
     // # assert all
     // assert arg0 > 0
     dig 21
     assert
-    // logic_signature/lsig_args_complex.py:116
+    // logic_signature/lsig_args_complex.py:121
     // assert arg1.length > 0
     uncover 20
     len
     dup
     cover 23
     assert
-    // logic_signature/lsig_args_complex.py:117
+    // logic_signature/lsig_args_complex.py:122
     // assert arg2 > 0
     uncover 19
     pushbytes 0x
     b>
     assert
-    // logic_signature/lsig_args_complex.py:118
+    // logic_signature/lsig_args_complex.py:123
     // assert arg3.bytes.length > 0
     uncover 18
     len
     assert
-    // logic_signature/lsig_args_complex.py:119
+    // logic_signature/lsig_args_complex.py:124
     // assert arg5.as_uint64() > 0
     uncover 17
-    // logic_signature/lsig_args_complex.py:83
+    // logic_signature/lsig_args_complex.py:88
     // arg5 = arc4.UInt8(arg5.as_uint64() + 1)
     pushint 7
-    // logic_signature/lsig_args_complex.py:119
+    // logic_signature/lsig_args_complex.py:124
     // assert arg5.as_uint64() > 0
     getbyte
     dup
     assert
-    // logic_signature/lsig_args_complex.py:120
+    // logic_signature/lsig_args_complex.py:125
     // assert arg6.as_uint64() > 0
     dig 17
     assert
-    // logic_signature/lsig_args_complex.py:121
+    // logic_signature/lsig_args_complex.py:126
     // assert arg7.as_biguint() > 0
     uncover 16
     pushbytes 0x
     b>
     assert
-    // logic_signature/lsig_args_complex.py:123
+    // logic_signature/lsig_args_complex.py:128
     // assert arg10.native.bytes.length > 0
     uncover 15
     len
     assert
-    // logic_signature/lsig_args_complex.py:124
+    // logic_signature/lsig_args_complex.py:129
     // assert arg11.length > 0
     uncover 14
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     assert
-    // logic_signature/lsig_args_complex.py:125
+    // logic_signature/lsig_args_complex.py:130
     // assert arg12[0] == arc4.Byte(0xFF)
     uncover 13
     extract 0 1 // on error: index access is out of bounds
     bytec_2 // 0xff
     b==
     assert
-    // logic_signature/lsig_args_complex.py:126
+    // logic_signature/lsig_args_complex.py:131
     // assert arg13.x.as_uint64() > 0
     uncover 12
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     assert
-    // logic_signature/lsig_args_complex.py:127
+    // logic_signature/lsig_args_complex.py:132
     // assert arg14.header.as_uint64() > 0
     uncover 11
-    intc_1 // 0
+    intc_0 // 0
     getbyte
     assert
-    // logic_signature/lsig_args_complex.py:128
+    // logic_signature/lsig_args_complex.py:133
     // assert arg15[0].as_uint64() > 0
     dig 10
-    intc_1 // 0
+    intc_0 // 0
     getbyte
     assert
-    // logic_signature/lsig_args_complex.py:129
+    // logic_signature/lsig_args_complex.py:134
     // assert arg16.a.as_uint64() > 0
     uncover 9
-    // logic_signature/lsig_args_complex.py:103
+    // logic_signature/lsig_args_complex.py:108
     // a=arc4.UInt8(arg16.a.as_uint64() + 1),
     pushint 7
-    // logic_signature/lsig_args_complex.py:129
+    // logic_signature/lsig_args_complex.py:134
     // assert arg16.a.as_uint64() > 0
     getbyte
     assert
-    // logic_signature/lsig_args_complex.py:130
+    // logic_signature/lsig_args_complex.py:135
     // assert arg17[0] > 0
     dig 7
     assert
-    // logic_signature/lsig_args_complex.py:131
+    // logic_signature/lsig_args_complex.py:136
     // assert arg17[1].length > 0
     uncover 6
     len
     assert
-    // logic_signature/lsig_args_complex.py:132
+    // logic_signature/lsig_args_complex.py:137
     // assert arg18[0] > 0
     dig 5
     assert
-    // logic_signature/lsig_args_complex.py:133
+    // logic_signature/lsig_args_complex.py:138
     // assert arg18[1][0].length > 0
     uncover 4
     len
     assert
-    // logic_signature/lsig_args_complex.py:134
+    // logic_signature/lsig_args_complex.py:139
     // assert arg18[1][1] > 0
     dig 3
     assert
-    // logic_signature/lsig_args_complex.py:135
+    // logic_signature/lsig_args_complex.py:140
     // assert arg19.value.as_uint64() > 0
     uncover 2
-    intc_1 // 0
+    intc_0 // 0
     getbyte
     assert
-    // logic_signature/lsig_args_complex.py:136
+    // logic_signature/lsig_args_complex.py:141
     // assert arg20.length > 0
     swap
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     assert
-    // logic_signature/lsig_args_complex.py:138-139
+    // logic_signature/lsig_args_complex.py:143-144
     // # some random cross-arg operations
     // total = arg0 + arg5.as_uint64() + arg6.as_uint64() + arg15[1].as_uint64()
     uncover 7
@@ -689,10 +832,10 @@ main:
     uncover 6
     +
     uncover 5
-    intc_0 // 1
+    intc_1 // 1
     extract_uint64
     +
-    // logic_signature/lsig_args_complex.py:140
+    // logic_signature/lsig_args_complex.py:145
     // total += arg16.b.as_uint64() + arg17[0] + arg18[0] + arg18[1][1]
     uncover 4
     uncover 4
@@ -703,19 +846,19 @@ main:
     +
     +
     swap
-    // logic_signature/lsig_args_complex.py:141
+    // logic_signature/lsig_args_complex.py:146
     // if arg4:
     bnz main_after_if_else@2
-    // logic_signature/lsig_args_complex.py:142
+    // logic_signature/lsig_args_complex.py:147
     // total += arg1.length
     dig 1
     +
 
 main_after_if_else@2:
-    // logic_signature/lsig_args_complex.py:143
+    // logic_signature/lsig_args_complex.py:148
     // assert total > 0
     assert
-    // logic_signature/lsig_args_complex.py:144
+    // logic_signature/lsig_args_complex.py:149
     // return arg9.native
     dig 1
     return

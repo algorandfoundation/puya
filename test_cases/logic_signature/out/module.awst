@@ -21,9 +21,9 @@ subroutine assert_correct_asset(txn: group_transaction_axfer): void
 
 logicsig test_cases.logic_signature.lsig_args_simple.args_simple(arg0: uint64, arg1: bytes, arg2: bool):
 {
-  assert(arg0 == btoi(arg<0>()))
-  assert(arg1 == arg<1>())
-  assert(arg2 == btoi(arg<2>()) != 0u)
+  assert(arg0 == arc4_decode(reinterpret_cast<arc4.uint64>(arg<0>()), uint64))
+  assert(arg1 == arc4_decode(reinterpret_cast<arc4.dynamic_array<arc4.uint8>>(arg<1>()), bytes))
+  assert(arc4_decode(arc4_encode(btoi(arg<2>()) != 0u, arc4.bool), bool) == arg2)
   if (arg0 < 10u) {
     arg0: uint64 = 10u
   }
@@ -40,9 +40,9 @@ logicsig test_cases.logic_signature.lsig_args_simple.args_simple(arg0: uint64, a
 logicsig test_cases.logic_signature.lsig_args_complex.args_complex(arg0: uint64, arg1: bytes, arg2: biguint, arg3: string, arg4: bool, arg5: arc4.uint8, arg6: arc4.uint64, arg7: arc4.uint128, arg8: arc4.static_array<arc4.uint8, 32>, arg9: arc4.bool, arg10: arc4.dynamic_array<arc4.uint8>, arg11: arc4.dynamic_array<arc4.uint8>, arg12: arc4.static_array<arc4.uint8, 4>, arg13: test_cases.logic_signature.lsig_args_complex.SimpleStruct, arg14: test_cases.logic_signature.lsig_args_complex.NestedStruct, arg15: arc4.tuple<arc4.uint8,arc4.uint64>, arg16: test_cases.logic_signature.lsig_args_complex.SimpleNamedTuple, arg17: tuple<uint64,bytes>, arg18: tuple<uint64,tuple<bytes,uint64>>, arg19: test_cases.logic_signature.lsig_args_complex.OverwriteStruct, arg20: arc4.dynamic_array<arc4.uint8>):
 {
   assert(arg0 == btoi(arg<0>()))
-  assert(arg1 == arg<1>())
+  assert(arg1 == arc4_decode(reinterpret_cast<arc4.dynamic_array<arc4.uint8>>(arg<1>()), bytes))
   assert(reinterpret_cast<bytes>(arg2) == arg<2>())
-  assert(reinterpret_cast<bytes>(arg3) == arg<3>())
+  assert(arg3 == arc4_decode(reinterpret_cast<arc4.dynamic_array<arc4.uint8>>(arg<3>()), string))
   assert(arg4 == btoi(arg<4>()) != 0u)
   assert(reinterpret_cast<bytes>(arg5) == arg<5>())
   assert(reinterpret_cast<bytes>(arg6) == arg<6>())
@@ -55,15 +55,18 @@ logicsig test_cases.logic_signature.lsig_args_complex.args_complex(arg0: uint64,
   assert(reinterpret_cast<bytes>(arg13) == arg<13>())
   assert(reinterpret_cast<bytes>(arg14) == arg<14>())
   assert(reinterpret_cast<bytes>(arg15) == arg<15>())
-  assert(reinterpret_cast<bytes>(arg16[0]) == arg<16>())
-  assert(reinterpret_cast<bytes>(arg16[1]) == arg<17>())
-  assert(arg17[0] == btoi(arg<18>()))
-  assert(arg17[1] == arg<19>())
-  assert(arg18[0] == btoi(arg<20>()))
-  assert(arg18[1][0] == arg<21>())
-  assert(arg18[1][1] == btoi(arg<22>()))
-  assert(reinterpret_cast<bytes>(arg19) == arg<23>())
-  assert(reinterpret_cast<bytes>(arg20) == arg<24>())
+  _raw16: arc4.tuple<arc4.uint8,arc4.uint64> = reinterpret_cast<arc4.tuple<arc4.uint8,arc4.uint64>>(arg<16>())
+  assert(reinterpret_cast<biguint>(arg16[0]) == reinterpret_cast<biguint>(_raw16[0]))
+  assert(reinterpret_cast<biguint>(arg16[1]) == reinterpret_cast<biguint>(_raw16[1]))
+  _raw17: arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>> = reinterpret_cast<arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>>>(arg<17>())
+  assert(arg17[0] == arc4_decode(_raw17[0], uint64))
+  assert(arg17[1] == arc4_decode(_raw17[1], bytes))
+  _raw18: arc4.tuple<arc4.uint64,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.uint64>> = reinterpret_cast<arc4.tuple<arc4.uint64,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.uint64>>>(arg<18>())
+  assert(arg18[0] == arc4_decode(_raw18[0], uint64))
+  assert(arg18[1][0] == arc4_decode(_raw18[1][0], bytes))
+  assert(arg18[1][1] == arc4_decode(_raw18[1][1], uint64))
+  assert(reinterpret_cast<bytes>(arg19) == arg<19>())
+  assert(reinterpret_cast<bytes>(arg20) == arg<20>())
   arg0: uint64 = arg0 + 1u
   arg1: bytes = arg1 + hex<"21">
   arg2: biguint = arg2 b+ 1n
@@ -119,9 +122,9 @@ logicsig test_cases.logic_signature.lsig_args_complex.args_complex(arg0: uint64,
 logicsig test_cases.logic_signature.lsig_args_complex.args_complex_no_validation(arg0: uint64, arg1: bytes, arg2: biguint, arg3: string, arg4: bool, arg5: arc4.uint8, arg6: arc4.uint64, arg7: arc4.uint128, arg8: arc4.static_array<arc4.uint8, 32>, arg9: arc4.bool, arg10: arc4.dynamic_array<arc4.uint8>, arg11: arc4.dynamic_array<arc4.uint8>, arg12: arc4.static_array<arc4.uint8, 4>, arg13: test_cases.logic_signature.lsig_args_complex.SimpleStruct, arg14: test_cases.logic_signature.lsig_args_complex.NestedStruct, arg15: arc4.tuple<arc4.uint8,arc4.uint64>, arg16: test_cases.logic_signature.lsig_args_complex.SimpleNamedTuple, arg17: tuple<uint64,bytes>, arg18: tuple<uint64,tuple<bytes,uint64>>, arg19: test_cases.logic_signature.lsig_args_complex.OverwriteStruct, arg20: arc4.dynamic_array<arc4.uint8>):
 {
   assert(arg0 == btoi(arg<0>()))
-  assert(arg1 == arg<1>())
+  assert(arg1 == arc4_decode(reinterpret_cast<arc4.dynamic_array<arc4.uint8>>(arg<1>()), bytes))
   assert(reinterpret_cast<bytes>(arg2) == arg<2>())
-  assert(reinterpret_cast<bytes>(arg3) == arg<3>())
+  assert(arg3 == arc4_decode(reinterpret_cast<arc4.dynamic_array<arc4.uint8>>(arg<3>()), string))
   assert(arg4 == btoi(arg<4>()) != 0u)
   assert(reinterpret_cast<bytes>(arg5) == arg<5>())
   assert(reinterpret_cast<bytes>(arg6) == arg<6>())
@@ -134,15 +137,18 @@ logicsig test_cases.logic_signature.lsig_args_complex.args_complex_no_validation
   assert(reinterpret_cast<bytes>(arg13) == arg<13>())
   assert(reinterpret_cast<bytes>(arg14) == arg<14>())
   assert(reinterpret_cast<bytes>(arg15) == arg<15>())
-  assert(reinterpret_cast<bytes>(arg16[0]) == arg<16>())
-  assert(reinterpret_cast<bytes>(arg16[1]) == arg<17>())
-  assert(arg17[0] == btoi(arg<18>()))
-  assert(arg17[1] == arg<19>())
-  assert(arg18[0] == btoi(arg<20>()))
-  assert(arg18[1][0] == arg<21>())
-  assert(arg18[1][1] == btoi(arg<22>()))
-  assert(reinterpret_cast<bytes>(arg19) == arg<23>())
-  assert(reinterpret_cast<bytes>(arg20) == arg<24>())
+  _raw16: arc4.tuple<arc4.uint8,arc4.uint64> = reinterpret_cast<arc4.tuple<arc4.uint8,arc4.uint64>>(arg<16>())
+  assert(reinterpret_cast<biguint>(arg16.a) == reinterpret_cast<biguint>(_raw16[0]))
+  assert(reinterpret_cast<biguint>(arg16.b) == reinterpret_cast<biguint>(_raw16[1]))
+  _raw17: arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>> = reinterpret_cast<arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>>>(arg<17>())
+  assert(arg17[0] == arc4_decode(_raw17[0], uint64))
+  assert(arg17[1] == arc4_decode(_raw17[1], bytes))
+  _raw18: arc4.tuple<arc4.uint64,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.uint64>> = reinterpret_cast<arc4.tuple<arc4.uint64,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.uint64>>>(arg<18>())
+  assert(arg18[0] == arc4_decode(_raw18[0], uint64))
+  assert(arg18[1][0] == arc4_decode(_raw18[1][0], bytes))
+  assert(arg18[1][1] == arc4_decode(_raw18[1][1], uint64))
+  assert(reinterpret_cast<bytes>(arg19) == arg<19>())
+  assert(reinterpret_cast<bytes>(arg20) == arg<20>())
   arg0: uint64 = arg0 + 1u
   arg1: bytes = arg1 + hex<"21">
   arg2: biguint = arg2 b+ 1n

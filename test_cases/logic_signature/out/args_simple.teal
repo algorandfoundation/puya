@@ -3,52 +3,73 @@
 
 // test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 main:
+    intcblock 0 10
     pushbytes ""
     // logic_signature/lsig_args_simple.py:5
     // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
     arg_0
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     dup
     arg_1
     dup
-    uncover 2
-    arg_2
-    btoi
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for bytes
+    extract 2 0
     dup
-    cover 3
+    cover 2
+    arg_2
+    dup
+    len
+    pushint 1
+    ==
+    assert // invalid number of bytes for bool
+    intc_0 // 0
+    getbit
+    dup
+    cover 2
     cover 3
     // logic_signature/lsig_args_simple.py:6-7
     // # verify args match raw op.arg values
-    // assert arg0 == op.btoi(op.arg(0))
+    // assert arg0 == arc4.UInt64.from_bytes(op.arg(0)).native
     arg_0
     btoi
-    dig 1
+    dig 3
     ==
     assert
     // logic_signature/lsig_args_simple.py:8
-    // assert arg1 == op.arg(1)
+    // assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
     arg_1
-    uncover 2
+    extract 2 0
     ==
     assert
     // logic_signature/lsig_args_simple.py:9
-    // assert arg2 == (op.btoi(op.arg(2)) != 0)
+    // assert arg2 == arc4.Bool(op.btoi(op.arg(2)) != 0)
     arg_2
     btoi
-    pushint 0
+    intc_0 // 0
     !=
-    uncover 2
     ==
     assert
     // logic_signature/lsig_args_simple.py:11-12
     // # mutate all
     // if arg0 < 10:
-    pushint 10
+    intc_1 // 10
     <
     bz main_after_if_else@2
     // logic_signature/lsig_args_simple.py:13
     // arg0 = UInt64(10)
-    pushint 10
+    intc_1 // 10
     bury 3
 
 main_after_if_else@2:
@@ -61,7 +82,7 @@ main_after_if_else@2:
     // # assert all
     // assert arg0 >= 10
     dig 3
-    pushint 10
+    intc_1 // 10
     >=
     assert
     // logic_signature/lsig_args_simple.py:19
