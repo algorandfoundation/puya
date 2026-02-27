@@ -73,6 +73,92 @@ subroutine append_to_array(arr: ref_array<uint64>): void
   }
 }
 
+contract NumericEncodeRoundTrips
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_uint64(x: arc4.uint32): arc4.uint32
+  {
+    return arc4_encode(arc4_decode(x, uint64), arc4.uint32)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_uint64(x: arc4.uint64): arc4.uint64
+  {
+    return arc4_encode(arc4_decode(x, uint64), arc4.uint64)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_uint64(x: arc4.uint128): arc4.uint128
+  {
+    return arc4_encode(arc4_decode(x, uint64), arc4.uint128)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint32(x: uint64): uint64
+  {
+    return arc4_decode(arc4_encode(x, arc4.uint32), uint64)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint64(x: uint64): uint64
+  {
+    return arc4_decode(arc4_encode(x, arc4.uint64), uint64)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint128(x: uint64): uint64
+  {
+    return arc4_decode(arc4_encode(x, arc4.uint128), uint64)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_biguint(x: arc4.uint32): arc4.uint32
+  {
+    return arc4_encode(arc4_decode(x, biguint), arc4.uint32)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_biguint(x: arc4.uint64): arc4.uint64
+  {
+    return arc4_encode(arc4_decode(x, biguint), arc4.uint64)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_biguint(x: arc4.uint128): arc4.uint128
+  {
+    return arc4_encode(arc4_decode(x, biguint), arc4.uint128)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint32(x: biguint): biguint
+  {
+    return arc4_decode(arc4_encode(x, arc4.uint32), biguint)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint64(x: biguint): biguint
+  {
+    return arc4_decode(arc4_encode(x, arc4.uint64), biguint)
+  }
+  
+  abimethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint128(x: biguint): biguint
+  {
+    return arc4_decode(arc4_encode(x, arc4.uint128), biguint)
+  }
+  
+  baremethod test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract NeverReturnsInlining
 {
   method_resolution_order: (
