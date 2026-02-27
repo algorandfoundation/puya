@@ -93,6 +93,13 @@ def invalid_signature5() -> None:
 def invalid_signature6() -> None:
     arc4.emit("Event(string,uint8)(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
 
+@subroutine
+def literal_warnings() -> None:
+    arc4.emit("Emit(string,uint8)", "a", 1) # ok
+    arc4.emit("Emit", arc4.String("a"), arc4.UInt8(1)) # ok
+    arc4.emit("Emit", arc4.String("a"), 1) ## W: implicit conversion to algopy.UInt64 will be attempted for int argument 
+    arc4.emit("Emit", "a", arc4.UInt8(1)) ## W: implicit conversion to algopy.String will be attempted for str argument
+
 class MyContract(ARC4Contract):
     @arc4.abimethod()
     def foo(self) -> None:
@@ -102,6 +109,7 @@ class MyContract(ARC4Contract):
         invalid_signature4()
         invalid_signature5()
         invalid_signature6()
+        literal_warnings()
 
 ## case: test_emit_errors_ir_lowering
 from algopy import *
