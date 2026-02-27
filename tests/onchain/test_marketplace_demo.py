@@ -1,7 +1,7 @@
 import algokit_utils as au
-from algokit_abi import abi
 
 from tests import TEST_CASES_DIR
+from tests.utils import arc4_encode
 from tests.utils.deployer import Deployer
 
 
@@ -59,7 +59,7 @@ def test_marketplace_with_tups(deployer: Deployer, asset_a: int) -> None:
     )
 
     # The application call needs to know which boxes will be used
-    box_key = b"listings" + _arc4_encode(
+    box_key = b"listings" + arc4_encode(
         "(address,uint64,uint64)", (deployer.account.addr, asset_a, nonce)
     )
 
@@ -78,7 +78,3 @@ def test_marketplace_with_tups(deployer: Deployer, asset_a: int) -> None:
     )
     assert isinstance(box_value, dict)
     assert box_value["deposited"] == deposited
-
-
-def _arc4_encode(arc4_type: str, value: object) -> bytes:
-    return abi.ABIType.from_string(arc4_type).encode(value)

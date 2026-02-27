@@ -2,18 +2,18 @@ import random
 
 import algokit_utils as au
 import pytest
-from algokit_abi.abi import ABIType
 
 from tests import TEST_CASES_DIR
+from tests.utils import arc4_encode
 from tests.utils.compile import compile_arc56
 
 
 def test_template_variables(localnet: au.AlgorandClient, account: au.AddressWithSigners) -> None:
     app_spec = compile_arc56(TEST_CASES_DIR / "template_variables")
 
-    tuple_bytes = _encode_arc4("(uint64,uint64)", [1, 2])
-    named_tuple_bytes = _encode_arc4("(uint64,uint64)", [3, 4])
-    struct_bytes = _encode_arc4("(uint64,uint64)", [5, 6])
+    tuple_bytes = arc4_encode("(uint64,uint64)", [1, 2])
+    named_tuple_bytes = arc4_encode("(uint64,uint64)", [3, 4])
+    struct_bytes = arc4_encode("(uint64,uint64)", [5, 6])
 
     # Create factory and compile with template values
     factory = au.AppFactory(
@@ -106,7 +106,3 @@ def test_template_variables(localnet: au.AlgorandClient, account: au.AddressWith
     client.send.bare.delete(
         au.AppClientBareCallParams(note=random.randbytes(8)),
     )
-
-
-def _encode_arc4(arc4_type: str, value: object) -> bytes:
-    return ABIType.from_string(arc4_type).encode(value)

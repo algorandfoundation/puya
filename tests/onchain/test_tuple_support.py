@@ -1,8 +1,7 @@
 import algokit_utils as au
-from algokit_abi import abi
 
 from tests import TEST_CASES_DIR
-from tests.utils import decode_logs
+from tests.utils import arc4_encode, decode_logs
 from tests.utils.deployer import Deployer
 
 _TUPLE_SUPPORT_DIR = TEST_CASES_DIR / "tuple_support"
@@ -147,7 +146,7 @@ def test_tuple_storage(deployer: Deployer) -> None:
     val = 123
     client.send.call(au.AppClientMethodCallParams(method="mutate_tuple", args=[val]))
     tup_state = client.get_global_state()["tup"]
-    assert tup_state.value_raw == _arc4_encode("(uint64[],uint64)", ([0, val], 0))
+    assert tup_state.value_raw == arc4_encode("(uint64[],uint64)", ([0, val], 0))
 
     val = 234
     client.send.call(
@@ -158,18 +157,14 @@ def test_tuple_storage(deployer: Deployer) -> None:
         )
     )
     box_value = client.get_box_value(b"box")
-    assert box_value == _arc4_encode("(uint64[],uint64)", ([0, val], 0))
+    assert box_value == arc4_encode("(uint64[],uint64)", ([0, val], 0))
 
     val = 2**64 - 1
     client.send.call(au.AppClientMethodCallParams(method="mutate_global", args=[val]))
     glob_state = client.get_global_state()["glob"]
-    assert glob_state.value_raw == _arc4_encode("(uint64[],uint64)", ([0, val], 0))
+    assert glob_state.value_raw == arc4_encode("(uint64[],uint64)", ([0, val], 0))
 
     val = 345
     client.send.call(au.AppClientMethodCallParams(method="mutate_local", args=[val]))
     loc_state = client.get_local_state(deployer.account.addr)["loc"]
-    assert loc_state.value_raw == _arc4_encode("(uint64[],uint64)", ([0, val], 0))
-
-
-def _arc4_encode(arc4_type: str, value: object) -> bytes:
-    return abi.ABIType.from_string(arc4_type).encode(value)
+    assert loc_state.value_raw == arc4_encode("(uint64[],uint64)", ([0, val], 0))

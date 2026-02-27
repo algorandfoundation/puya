@@ -3,12 +3,11 @@ from pathlib import Path
 
 import algokit_utils as au
 import pytest
-from algokit_abi import abi
 from algokit_algod_client import models as algod
 from algokit_common import public_key_from_address
 
 from tests import TEST_CASES_DIR
-from tests.utils import get_state_delta_as_dict
+from tests.utils import arc4_encode, get_state_delta_as_dict
 from tests.utils.deployer import Deployer
 
 _ARRAY_DIR = TEST_CASES_DIR / "array"
@@ -53,7 +52,7 @@ def test_array_static_size(deployer_o: Deployer) -> None:
 
     response = _simulate(client, "test_array", args=[x1, y1, x2, y2])
     assert response.returns[0].value == 15
-    assert _get_box_state_from_trace(response, b"a") == _arc4_encode(
+    assert _get_box_state_from_trace(response, b"a") == arc4_encode(
         "(uint64,uint64,(uint64,uint64,address,(uint64,uint64),uint512))[]",
         [
             (0, 0, (5, 1, sender, (2, 1), 1)),
@@ -100,53 +99,53 @@ def test_immutable_array(immutable_array_client: au.AppClient) -> None:
 
     response = _simulate(client, "test_uint64_array")
     global_state = _get_global_state_delta(response)
-    assert global_state[b"a"] == _arc4_encode("uint64[]", [42, 0, 23, 2, *range(10), 44])
+    assert global_state[b"a"] == arc4_encode("uint64[]", [42, 0, 23, 2, *range(10), 44])
 
     response = _simulate(client, "test_biguint_array")
     box_value = _get_box_state_from_trace(response, b"biguint")
-    assert box_value == _arc4_encode("uint512[]", [0, *range(5), 2**512 - 2, 2**512 - 1])
+    assert box_value == arc4_encode("uint512[]", [0, *range(5), 2**512 - 2, 2**512 - 1])
 
     response = _simulate(client, "test_fixed_size_tuple_array")
     global_state = _get_global_state_delta(response)
-    assert global_state[b"c"] == _arc4_encode(
+    assert global_state[b"c"] == arc4_encode(
         "(uint64,uint64)[]", [(i + 1, i + 2) for i in range(4)]
     )
 
     response = _simulate(client, "test_fixed_size_named_tuple_array")
     global_state = _get_global_state_delta(response)
-    assert global_state[b"d"] == _arc4_encode(
+    assert global_state[b"d"] == arc4_encode(
         "(uint64,bool,bool)[]", [(i, i % 2 == 0, i * 3 % 2 == 0) for i in range(5)]
     )
 
     response = _simulate(client, "test_dynamic_sized_tuple_array")
     global_state = _get_global_state_delta(response)
-    assert global_state[b"e"] == _arc4_encode(
+    assert global_state[b"e"] == arc4_encode(
         "(uint64,byte[])[]", [(i + 1, b"\x00" * i) for i in range(4)]
     )
 
     response = _simulate(client, "test_dynamic_sized_named_tuple_array")
     global_state = _get_global_state_delta(response)
-    assert global_state[b"f"] == _arc4_encode(
+    assert global_state[b"f"] == arc4_encode(
         "(uint64,string)[]", [(i + 1, " " * i) for i in range(4)]
     )
 
     response = _simulate(client, "test_bit_packed_tuples")
     global_state = _get_global_state_delta(response)
-    assert global_state[b"bool2"] == _arc4_encode(
+    assert global_state[b"bool2"] == arc4_encode(
         "(bool,bool)[]", [(i == 0, i == 1) for i in range(5)]
     )
-    assert global_state[b"bool7"] == _arc4_encode(
+    assert global_state[b"bool7"] == arc4_encode(
         "(uint64,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
         [(i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i + 1) for i in range(5)],
     )
-    assert global_state[b"bool8"] == _arc4_encode(
+    assert global_state[b"bool8"] == arc4_encode(
         "(uint64,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
         [
             (i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i == 7, i + 1)
             for i in range(5)
         ],
     )
-    assert global_state[b"bool9"] == _arc4_encode(
+    assert global_state[b"bool9"] == arc4_encode(
         "(uint64,bool,bool,bool,bool,bool,bool,bool,bool,bool,uint64)[]",
         [
             (i, i == 0, i == 1, i == 2, i == 3, i == 4, i == 5, i == 6, i == 7, i == 8, i + 1)
@@ -195,7 +194,7 @@ def test_immutable_array(immutable_array_client: au.AppClient) -> None:
     ]
     assert response.returns[0].value == expected_imm_fixed_arr_value
     global_state = _get_global_state_delta(response)
-    assert global_state[b"imm_fixed_arr"] == _arc4_encode(
+    assert global_state[b"imm_fixed_arr"] == arc4_encode(
         "(uint64,uint64)[3]",
         expected_imm_fixed_arr_value,
     )
@@ -210,7 +209,7 @@ def test_immutable_bool_array(immutable_array_client: au.AppClient, length: int)
     response = _simulate(client, "test_bool_array", args=[length])
     expected = _EXPECTED_LENGTH_20[:length]
     global_state = _get_global_state_delta(response)
-    assert global_state[b"g"] == _arc4_encode("bool[]", expected)
+    assert global_state[b"g"] == arc4_encode("bool[]", expected)
 
 
 def test_immutable_routing(immutable_array_client: au.AppClient) -> None:
@@ -329,10 +328,6 @@ def _simulate(
             ),
         )
     )
-
-
-def _arc4_encode(arc4_type: str, value: object) -> bytes:
-    return abi.ABIType.from_string(arc4_type).encode(value)
 
 
 def _get_global_state_delta(
