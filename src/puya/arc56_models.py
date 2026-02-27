@@ -27,8 +27,12 @@ class AVMType(enum.StrEnum):
 class SourceInfo:
     pc: Sequence[int]
     """The program counter value(s). Could be offset if pcOffsetMethod is not 'none'"""
-    errorMessage: str
+    errorMessage: str | None = None
     """A human-readable string that describes the error when the program fails at the given PC"""
+    teal: int | None = None
+    """The TEAL line number that corresponds to the given PC"""
+    source: str | None = None
+    """The source file and line number that corresponds to the given PC"""
 
 
 @attrs.frozen
