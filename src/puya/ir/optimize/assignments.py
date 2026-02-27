@@ -180,6 +180,8 @@ def _is_round_trip_safe(
             return isinstance(encoding, encodings.UIntEncoding) and (
                 encoding.n == 64 if intermediary == "native" else encoding.n >= 64
             )
+        case PrimitiveIRType.biguint if intermediary == "native":
+            return isinstance(encoding, encodings.UIntEncoding)
         case TupleIRType(elements=native_elements):
             # okay if encoding is TupleEncoding and all elements are round-trip safe
             # when matched with the element IRType
