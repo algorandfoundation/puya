@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8 64 4
+    intcblock 1 64 8 4
     bytecblock 0x151f7c75
     // regression_tests/numeric_encode_round_trips.py:4
     // class NumericEncodeRoundTrips(ARC4Contract):
@@ -67,7 +67,7 @@ arc4_uint64_via_uint64:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     bytec_0 // 0x151f7c75
@@ -93,12 +93,12 @@ arc4_uint128_via_uint64:
     // return arc4.UInt128(x.as_uint64())
     dig 1
     bitlen
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_1 // 8
+    intc_2 // 8
     -
-    intc_1 // 8
+    intc_2 // 8
     extract3
     pushint 16
     bzero
@@ -121,7 +121,7 @@ uint64_via_arc4_uint32:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -154,7 +154,7 @@ uint64_via_arc4_uint64:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     bytec_0 // 0x151f7c75
@@ -172,7 +172,7 @@ uint64_via_arc4_uint128:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     bytec_0 // 0x151f7c75
@@ -191,21 +191,9 @@ arc4_uint32_via_biguint:
     txna ApplicationArgs 1
     dup
     len
-    dup
     intc_3 // 4
     ==
     assert // invalid number of bytes for arc4.uint32
-    // regression_tests/numeric_encode_round_trips.py:34
-    // return arc4.UInt32(x.as_biguint())
-    intc_3 // 4
-    <=
-    assert // overflow
-    intc_3 // 4
-    bzero
-    b|
-    // regression_tests/numeric_encode_round_trips.py:31-32
-    // # ARC4 UInt -> BigUInt -> ARC4 UInt
-    // @public
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -221,20 +209,9 @@ arc4_uint64_via_biguint:
     txna ApplicationArgs 1
     dup
     len
-    dup
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // regression_tests/numeric_encode_round_trips.py:38
-    // return arc4.UInt64(x.as_biguint())
-    intc_1 // 8
-    <=
-    assert // overflow
-    intc_1 // 8
-    bzero
-    b|
-    // regression_tests/numeric_encode_round_trips.py:36
-    // @public
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -250,20 +227,9 @@ arc4_uint128_via_biguint:
     txna ApplicationArgs 1
     dup
     len
-    dup
     pushint 16
     ==
     assert // invalid number of bytes for arc4.uint128
-    // regression_tests/numeric_encode_round_trips.py:42
-    // return arc4.UInt128(x.as_biguint())
-    pushint 16
-    <=
-    assert // overflow
-    pushint 16
-    bzero
-    b|
-    // regression_tests/numeric_encode_round_trips.py:40
-    // @public
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -281,7 +247,7 @@ biguint_via_arc4_uint32:
     dup
     len
     dup
-    intc_2 // 64
+    intc_1 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
     // regression_tests/numeric_encode_round_trips.py:47
@@ -297,10 +263,10 @@ biguint_via_arc4_uint32:
     // @public
     dup
     len
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
@@ -319,25 +285,25 @@ biguint_via_arc4_uint64:
     dup
     len
     dup
-    intc_2 // 64
+    intc_1 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
     // regression_tests/numeric_encode_round_trips.py:51
     // return arc4.UInt64(x).as_biguint()
-    intc_1 // 8
+    intc_2 // 8
     <=
     assert // overflow
-    intc_1 // 8
+    intc_2 // 8
     bzero
     b|
     // regression_tests/numeric_encode_round_trips.py:49
     // @public
     dup
     len
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
@@ -356,7 +322,7 @@ biguint_via_arc4_uint128:
     dup
     len
     dup
-    intc_2 // 64
+    intc_1 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
     // regression_tests/numeric_encode_round_trips.py:55
@@ -371,10 +337,10 @@ biguint_via_arc4_uint128:
     // @public
     dup
     len
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
