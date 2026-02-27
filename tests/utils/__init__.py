@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import attrs
+from algokit_abi import abi
 from algokit_algod_client import models as algod
 
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
@@ -59,6 +60,10 @@ def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:
                 key, value = parse_template_key_value(line)
                 result[key] = value
     return prefix, result
+
+
+def arc4_encode(arc4_type: str, value: object) -> bytes:
+    return abi.ABIType.from_string(arc4_type).encode(value)
 
 
 def decode_logs(logs: list[bytes] | None, log_format: str) -> list[str | bytes | int]:
