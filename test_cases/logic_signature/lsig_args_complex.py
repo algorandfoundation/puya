@@ -49,9 +49,9 @@ def args_complex(
 ) -> bool:
     # verify args match raw op.arg values
     assert arg0 == op.btoi(op.arg(0))
-    assert arg1 == op.arg(1)
+    assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
     assert arg2.bytes == op.arg(2)
-    assert arg3.bytes == op.arg(3)
+    assert arg3 == arc4.String.from_bytes(op.arg(3)).native
     assert arg4 == (op.btoi(op.arg(4)) != 0)
     assert arg5.bytes == op.arg(5)
     assert arg6.bytes == op.arg(6)
@@ -64,15 +64,20 @@ def args_complex(
     assert arg13.bytes == op.arg(13)
     assert arg14.bytes == op.arg(14)
     assert arg15.bytes == op.arg(15)
-    assert arg16[0].bytes == op.arg(16)
-    assert arg16[1].bytes == op.arg(17)
-    assert arg17[0] == op.btoi(op.arg(18))
-    assert arg17[1] == op.arg(19)
-    assert arg18[0] == op.btoi(op.arg(20))
-    assert arg18[1][0] == op.arg(21)
-    assert arg18[1][1] == op.btoi(op.arg(22))
-    assert arg19.bytes == op.arg(23)
-    assert arg20.bytes == op.arg(24)
+    _raw16 = arc4.Tuple[arc4.UInt8, arc4.UInt64].from_bytes(op.arg(16))
+    assert arg16[0] == _raw16[0]
+    assert arg16[1] == _raw16[1]
+    _raw17 = arc4.Tuple[arc4.UInt64, arc4.DynamicBytes].from_bytes(op.arg(17))
+    assert arg17[0] == _raw17[0].native
+    assert arg17[1] == _raw17[1].native
+    _raw18 = arc4.Tuple[arc4.UInt64, arc4.Tuple[arc4.DynamicBytes, arc4.UInt64]].from_bytes(
+        op.arg(18)
+    )
+    assert arg18[0] == _raw18[0].native
+    assert arg18[1][0] == _raw18[1][0].native
+    assert arg18[1][1] == _raw18[1][1].native
+    assert arg19.bytes == op.arg(19)
+    assert arg20.bytes == op.arg(20)
 
     # mutate all
     arg0 = arg0 + 1
@@ -170,9 +175,9 @@ def args_complex_no_validation(
 ) -> bool:
     # verify args match raw op.arg values
     assert arg0 == op.btoi(op.arg(0))
-    assert arg1 == op.arg(1)
+    assert arg1 == arc4.DynamicBytes.from_bytes(op.arg(1)).native
     assert arg2.bytes == op.arg(2)
-    assert arg3.bytes == op.arg(3)
+    assert arg3 == arc4.String.from_bytes(op.arg(3)).native
     assert arg4 == (op.btoi(op.arg(4)) != 0)
     assert arg5.bytes == op.arg(5)
     assert arg6.bytes == op.arg(6)
@@ -185,15 +190,20 @@ def args_complex_no_validation(
     assert arg13.bytes == op.arg(13)
     assert arg14.bytes == op.arg(14)
     assert arg15.bytes == op.arg(15)
-    assert arg16[0].bytes == op.arg(16)
-    assert arg16[1].bytes == op.arg(17)
-    assert arg17[0] == op.btoi(op.arg(18))
-    assert arg17[1] == op.arg(19)
-    assert arg18[0] == op.btoi(op.arg(20))
-    assert arg18[1][0] == op.arg(21)
-    assert arg18[1][1] == op.btoi(op.arg(22))
-    assert arg19.bytes == op.arg(23)
-    assert arg20.bytes == op.arg(24)
+    _raw16 = arc4.Tuple[arc4.UInt8, arc4.UInt64].from_bytes(op.arg(16))
+    assert arg16.a == _raw16[0]
+    assert arg16.b == _raw16[1]
+    _raw17 = arc4.Tuple[arc4.UInt64, arc4.DynamicBytes].from_bytes(op.arg(17))
+    assert arg17[0] == _raw17[0].native
+    assert arg17[1] == _raw17[1].native
+    _raw18 = arc4.Tuple[arc4.UInt64, arc4.Tuple[arc4.DynamicBytes, arc4.UInt64]].from_bytes(
+        op.arg(18)
+    )
+    assert arg18[0] == _raw18[0].native
+    assert arg18[1][0] == _raw18[1][0].native
+    assert arg18[1][1] == _raw18[1][1].native
+    assert arg19.bytes == op.arg(19)
+    assert arg20.bytes == op.arg(20)
 
     # mutate all
     arg0 = arg0 + 1

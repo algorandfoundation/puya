@@ -16,6 +16,7 @@ from algokit_utils.transactions.transaction_composer import TransactionComposerE
 from puya.compilation_artifacts import CompiledLogicSig
 from puyapy.options import PuyaPyOptions
 from tests import TEST_CASES_DIR
+from tests.utils import arc4_encode
 from tests.utils.compile import compile_src_from_options
 
 pytestmark = pytest.mark.localnet
@@ -168,17 +169,28 @@ def _execute_logic_sig(
             amount=AlgoAmount.from_algo(2),
         )
     )
-    result = localnet.send.payment(
-        PaymentParams(
-            sender=logic_sig.addr,
-            receiver=funder.addr,
-            amount=AlgoAmount.from_algo(1),
+    result = (
+        localnet.new_group()
+        .add_payment(
+            PaymentParams(
+                sender=funder.addr,
+                receiver=funder.addr,
+                amount=AlgoAmount.from_micro_algo(0),
+            )
         )
+        .add_payment(
+            PaymentParams(
+                sender=logic_sig.addr,
+                receiver=funder.addr,
+                amount=AlgoAmount.from_algo(1),
+            )
+        )
+        .send()
     )
-    assert result.confirmation.confirmed_round is not None
+    assert result.confirmations[-1].confirmed_round is not None
 
 
-_VALID_OVERWRITE_STRUCT = b"\x05\x80"
+_VALID_OVERWRITE_STRUCT = arc4_encode("(uint8,bool)", (5, True))
 # valid OverwriteStruct(value=5, dont_overwrite_me=True), size of 2 bytes
 
 _INVALID_OVERWRITE_STRUCT = b"\x05\x00\x80"
@@ -188,34 +200,32 @@ _INVALID_OVERWRITE_STRUCT = b"\x05\x00\x80"
 
 
 def _build_complex_args(*, overwrite_struct: bytes = _VALID_OVERWRITE_STRUCT) -> list[bytes]:
-    simple_struct = (1).to_bytes(8, "big") + (2).to_bytes(8, "big")
-    nested_struct = b"\x03" + simple_struct
+    simple_struct = arc4_encode("(uint64,uint64)", (1, 2))
+    nested_struct = arc4_encode("(uint8,(uint64,uint64))", (3, (1, 2)))
     return [
-        (42).to_bytes(8, "big"),  # arg0:  UInt64
-        b"test",  # arg1:  Bytes
-        (999).to_bytes(2, "big"),  # arg2:  BigUInt
-        b"world",  # arg3:  String
-        (1).to_bytes(8, "big"),  # arg4:  bool = True
-        b"\x05",  # arg5:  arc4.UInt8
-        (100).to_bytes(8, "big"),  # arg6:  arc4.UInt64
-        (1000).to_bytes(16, "big"),  # arg7:  arc4.UInt128
-        b"\x00" * 32,  # arg8:  arc4.Address
-        b"\x00",  # arg9:  arc4.Bool = False
-        b"\x00\x05hello",  # arg10: arc4.String
-        b"\x00\x03abc",  # arg11: arc4.DynamicBytes
-        b"\x01\x02\x03\x04",  # arg12: arc4.StaticArray[Byte, 4]
+        arc4_encode("uint64", 42),  # arg0:  UInt64
+        arc4_encode("byte[]", b"test"),  # arg1:  Bytes
+        arc4_encode("uint512", 999),  # arg2:  BigUInt (encoded as uint512 = 64 bytes)
+        arc4_encode("string", "world"),  # arg3:  String
+        arc4_encode("bool", value=True),  # arg4:  bool
+        arc4_encode("uint8", 5),  # arg5:  arc4.UInt8
+        arc4_encode("uint64", 100),  # arg6:  arc4.UInt64
+        arc4_encode("uint128", 1000),  # arg7:  arc4.UInt128
+        arc4_encode("address", b"\x00" * 32),  # arg8:  arc4.Address
+        arc4_encode("bool", value=False),  # arg9:  arc4.Bool = False
+        arc4_encode("string", "hello"),  # arg10: arc4.String
+        arc4_encode("byte[]", b"abc"),  # arg11: arc4.DynamicBytes
+        arc4_encode("byte[4]", b"\x01\x02\x03\x04"),  # arg12: arc4.StaticArray[Byte, 4]
         simple_struct,  # arg13: SimpleStruct
         nested_struct,  # arg14: NestedStruct
-        b"\x05" + (2).to_bytes(8, "big"),  # arg15: arc4.Tuple[UInt8, UInt64]
-        b"\x0a",  # arg16[0]: NamedTuple.a (arc4.UInt8)
-        (20).to_bytes(8, "big"),  # arg16[1]: NamedTuple.b (arc4.UInt64)
-        (50).to_bytes(8, "big"),  # arg17[0]: tuple UInt64
-        b"tuple_bytes",  # arg17[1]: tuple Bytes
-        (60).to_bytes(8, "big"),  # arg18[0]: tuple UInt64
-        b"nested",  # arg18[1][0]: nested tuple Bytes
-        (70).to_bytes(8, "big"),  # arg18[1][1]: nested tuple UInt64
+        arc4_encode("(uint8,uint64)", (5, 2)),  # arg15: arc4.Tuple[UInt8, UInt64]
+        arc4_encode("(uint8,uint64)", (10, 20)),  # arg16: SimpleNamedTuple (single arg)
+        arc4_encode("(uint64,byte[])", (50, b"tuple_bytes")),  # arg17: tuple[UInt64, Bytes]
+        arc4_encode(
+            "(uint64,(byte[],uint64))", (60, (b"nested", 70))
+        ),  # arg18: tuple[UInt64, tuple[Bytes, UInt64]]
         overwrite_struct,  # arg19: OverwriteStruct
-        b"\x00\x03\x01\x02\x03",  # arg20: arc4.DynamicArray[UInt8] = [1, 2, 3]
+        arc4_encode("uint8[]", [1, 2, 3]),  # arg20: arc4.DynamicArray[UInt8]
     ]
 
 
@@ -224,9 +234,9 @@ def test_logic_sig_args_simple(localnet: AlgorandClient, account: AddressWithSig
         TEST_CASES_DIR / "logic_signature" / "lsig_args_simple.py",
     )
     simple_args = [
-        (42).to_bytes(8, "big"),  # arg0: UInt64
-        b"hello",  # arg1: Bytes
-        (1).to_bytes(8, "big"),  # arg2: bool = True
+        arc4_encode("uint64", 42),  # arg0: UInt64
+        arc4_encode("byte[]", b"hello"),  # arg1: Bytes
+        arc4_encode("bool", value=True),  # arg2: bool
     ]
     _execute_logic_sig(localnet, account, bytecode, simple_args)
 
