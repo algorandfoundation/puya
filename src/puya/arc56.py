@@ -1,8 +1,8 @@
 import base64
-import itertools
 import typing
 from collections import defaultdict
 from collections.abc import Iterable, Mapping, Sequence
+from pathlib import Path
 from importlib.metadata import version as metadata_version
 
 from cattrs.preconf.json import make_converter
@@ -27,8 +27,8 @@ from puya.awst.nodes import (
     AppStorageKind,
     ARC4CreateOption,
 )
-from puya.compilation_artifacts import CompiledProgram, DebugInfo
-from puya.utils import unique
+from puya.compilation_artifacts import CompiledProgram, DebugEvent, DebugInfo
+from puya.utils import make_path_relative_to_cwd, unique
 
 # TODO: use puya once the backend is shipped as separate package
 _ALGOPY_VERSION = version.parse(metadata_version("puyapy"))
@@ -121,11 +121,17 @@ def create_arc56_json(
         bareActions=_combine_actions(list(map(_method_actions, bare_methods))),
         sourceInfo={
             "approval": models.ProgramSourceInfo(
-                sourceInfo=_get_source_info(approval_program.debug_info),
+                sourceInfo=_get_source_info(
+                    debug_info=approval_program.debug_info,
+                    teal_src=approval_program.teal_src,
+                ),
                 pcOffsetMethod="cblocks" if approval_program.debug_info.op_pc_offset else "none",
             ),
             "clear": models.ProgramSourceInfo(
-                sourceInfo=_get_source_info(clear_program.debug_info),
+                sourceInfo=_get_source_info(
+                    debug_info=clear_program.debug_info,
+                    teal_src=clear_program.teal_src,
+                ),
                 pcOffsetMethod="cblocks" if clear_program.debug_info.op_pc_offset else "none",
             ),
         },
@@ -168,18 +174,124 @@ def create_arc56_json(
     return converter.dumps(app_spec, indent=4)
 
 
-def _get_source_info(debug_info: DebugInfo) -> Sequence[models.SourceInfo]:
-    errors = defaultdict[str, list[int]](list)
-    for pc, event in debug_info.pc_events.items():
-        if error := event.get("error"):
-            errors[error].append(pc)
+def _get_source_info(*, debug_info: DebugInfo, teal_src: str) -> Sequence[models.SourceInfo]:
+    error_by_pc = {
+        pc: error for pc, event in debug_info.pc_events.items() if (error := event.get("error"))
+    }
+    source_by_pc = _decode_source_mappings(debug_info)
+    teal_by_pc = _get_teal_line_numbers(debug_info.pc_events, teal_src)
+
+    grouped = defaultdict[tuple[str | None, int | None, str | None], list[int]](list)
+    for pc in sorted(set(source_by_pc) | set(teal_by_pc) | set(error_by_pc)):
+        error = error_by_pc.get(pc)
+        source = source_by_pc.get(pc)
+        teal = teal_by_pc.get(pc)
+        grouped[(error, teal, source)].append(pc)
+
     return [
         models.SourceInfo(
-            pc=errors[error],
-            errorMessage=error,
+            pc=pcs,
+            errorMessage=error_message,
+            teal=teal,
+            source=source,
         )
-        for error in sorted(errors)
+        for (error_message, teal, source), pcs in sorted(
+            grouped.items(), key=lambda item: item[1][0]
+        )
     ]
+
+
+def _get_teal_line_numbers(
+    pc_events: Mapping[int, DebugEvent], teal_src: str
+) -> Mapping[int, int]:
+    op_line_numbers = []
+    for line_num, line in enumerate(teal_src.splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith(("//", "#pragma")) or stripped.endswith(":"):
+            continue
+        op_line_numbers.append((line_num, stripped))
+
+    if not op_line_numbers:
+        return {}
+
+    line_idx = 0
+    result = dict[int, int]()
+    for pc in sorted(pc_events):
+        event = pc_events[pc]
+        op = event.get("op") if event else None
+        if not op:
+            continue
+        while line_idx < len(op_line_numbers):
+            line_num, line_op = op_line_numbers[line_idx]
+            line_idx += 1
+            if line_op == op:
+                result[pc] = line_num
+                break
+    return result
+
+
+def _decode_source_mappings(debug_info: DebugInfo) -> Mapping[int, str]:
+    if not debug_info.mappings:
+        return {}
+    entries = debug_info.mappings.split(";")
+    previous_source_index = 0
+    previous_line = 0
+    previous_column = 0
+    result = dict[int, str]()
+    for pc, entry in enumerate(entries):
+        if not entry:
+            continue
+        generated_col, source_index_delta, line_delta, column_delta = _base64vlq_decode(entry)
+        if generated_col:
+            continue
+        previous_source_index += source_index_delta
+        previous_line += line_delta
+        previous_column += column_delta
+        if not 0 <= previous_source_index < len(debug_info.sources):
+            continue
+        source_path = debug_info.sources[previous_source_index]
+        source_line = previous_line + 1
+        result[pc] = f"{_normalize_source_path(source_path)}:{source_line}"
+    return result
+
+
+def _normalize_source_path(path: str) -> str:
+    return make_path_relative_to_cwd(Path(path))
+
+
+def _base64vlq_decode(value: str) -> tuple[int, int, int, int]:
+    decoded = []
+    current = 0
+    shift = 0
+    for char in value:
+        digit = _decode_base64_char(char)
+        continuation = digit & 0b100000
+        payload = digit & 0b011111
+        current |= payload << shift
+        shift += 5
+        if continuation:
+            continue
+        sign = -1 if current & 1 else 1
+        decoded.append(sign * (current >> 1))
+        current = 0
+        shift = 0
+    if len(decoded) != 4:
+        raise ValueError(f"Invalid source map segment: {value!r}")
+    return typing.cast(tuple[int, int, int, int], tuple(decoded))
+
+
+def _decode_base64_char(char: str) -> int:
+    if "A" <= char <= "Z":
+        return ord(char) - ord("A")
+    if "a" <= char <= "z":
+        return ord(char) - ord("a") + 26
+    if "0" <= char <= "9":
+        return ord(char) - ord("0") + 52
+    if char == "+":
+        return 62
+    if char == "/":
+        return 63
+    raise ValueError(f"Invalid base64 VLQ character: {char!r}")
 
 
 class _StructAliases:
@@ -299,9 +411,35 @@ def _encode_default_arg(default: MethodArgDefault | None) -> models.MethodArgDef
 
 
 def _combine_actions(actions: Sequence[models.MethodActions]) -> models.MethodActions:
+    create = sorted(
+        {
+            oca
+            for action in actions
+            for oca in action.create
+            if allowed_create_oca(oca)
+        }
+    )
+    call = sorted(
+        {
+            oca
+            for action in actions
+            for oca in action.call
+            if allowed_call_oca(oca)
+        }
+    )
     return models.MethodActions(
-        create=sorted(set(itertools.chain.from_iterable(a.create for a in actions))),
-        call=sorted(set(itertools.chain.from_iterable(a.call for a in actions))),
+        create=typing.cast(
+            Sequence[typing.Literal["NoOp", "OptIn", "DeleteApplication"]],
+            create,
+        ),
+        call=typing.cast(
+            Sequence[
+                typing.Literal[
+                    "NoOp", "OptIn", "CloseOut", "UpdateApplication", "DeleteApplication"
+                ]
+            ],
+            call,
+        ),
     )
 
 
