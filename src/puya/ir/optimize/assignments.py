@@ -1,3 +1,5 @@
+import typing
+
 from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
@@ -106,7 +108,7 @@ def encode_decode_pair_elimination(
             if (
                 encode_decode.ir_type == encode_op.values_type
                 and encode_decode.encoding == encode_op.encoding
-                and _is_round_trip_safe(encode_decode.encoding, encode_decode.ir_type)
+                and _is_round_trip_safe(encode_decode.encoding, encode_decode.ir_type, "encoded")
             ):
                 logger.debug(
                     f"replacing redundant decode-of-encode with:"
@@ -131,7 +133,7 @@ def encode_decode_pair_elimination(
             if (
                 decode_op.encoding == decode_encode.encoding
                 and decode_op.ir_type == decode_encode.values_type
-                and _is_round_trip_safe(decode_op.encoding, decode_op.ir_type)
+                and _is_round_trip_safe(decode_op.encoding, decode_op.ir_type, "native")
             ):
                 logger.debug(f"replacing redundant encode-of-decode with: {decode_op.value}")
                 modified = True
@@ -139,7 +141,11 @@ def encode_decode_pair_elimination(
     return modified
 
 
-def _is_round_trip_safe(encoding: encodings.Encoding, native_type: IRType | TupleIRType) -> bool:
+def _is_round_trip_safe(
+    encoding: encodings.Encoding,
+    native_type: IRType | TupleIRType,
+    intermediary: typing.Literal["encoded", "native"],
+) -> bool:
     match native_type:
         case EncodedType(encoding=ir_type_encoding):
             # TODO: maybe if both are encodings.BoolEncoding with different packings this
@@ -170,13 +176,27 @@ def _is_round_trip_safe(encoding: encodings.Encoding, native_type: IRType | Tupl
                 and encoding.size == 32
                 and encoding.element == encodings.UIntEncoding(n=8)
             )
-        case PrimitiveIRType.uint64:
+        case PrimitiveIRType.uint64 if intermediary == "native":
+            # arc4.uintN -> uint64 -> arc4.uintN if N <= 64 can be eliminated, as the uint64
+            # will fit all sizes
+            return isinstance(encoding, encodings.UIntEncoding) and encoding.n <= 64
+        case PrimitiveIRType.uint64 if intermediary == "encoded":
+            # uint64 -> arc4.uintN -> uint64 if N >= 64 can be eliminated, as the arc4 value
+            # will fit all uint64 values
             return isinstance(encoding, encodings.UIntEncoding) and encoding.n >= 64
+        case PrimitiveIRType.biguint if intermediary == "native":
+            # biguint values, unlike uint64 and arc4.uintN, have multiple possible representations
+            # for the same logical value (e.g. zero can a byte array of zeros or the empty byte[]),
+            # so there's no case match for intermediary == "encoded" since the process of
+            # round-tripping might *intentionally* be changing the representation.
+            # there also doesn't need to be a check on the arc4.uintN size since biguint can
+            # be arbitrarily large (you just can't do math if it's > 512 bits)
+            return isinstance(encoding, encodings.UIntEncoding)
         case TupleIRType(elements=native_elements):
             # okay if encoding is TupleEncoding and all elements are round-trip safe
             # when matched with the element IRType
             return isinstance(encoding, encodings.TupleEncoding) and all(
-                _is_round_trip_safe(element_encoding, element_type)
+                _is_round_trip_safe(element_encoding, element_type, intermediary)
                 for element_encoding, element_type in zip(
                     encoding.elements, native_elements, strict=True
                 )

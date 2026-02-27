@@ -1,0 +1,400 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        goto block@1
+    block@1: // L4
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#1 0u)
+        goto tmp%1#0 ? block@2 : block@19
+    block@2: // abi_routing_L4
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 NoOp)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        goto tmp%5#0 ? block@3 : block@17
+    block@3: // call_NoOp_L4
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "arc4_uint32_via_uint64(uint32)uint32" => block@4, method "arc4_uint64_via_uint64(uint64)uint64" => block@5, method "arc4_uint128_via_uint64(uint128)uint128" => block@6, method "uint64_via_arc4_uint32(uint64)uint64" => block@7, method "uint64_via_arc4_uint64(uint64)uint64" => block@8, method "uint64_via_arc4_uint128(uint64)uint64" => block@9, method "arc4_uint32_via_biguint(uint32)uint32" => block@10, method "arc4_uint64_via_biguint(uint64)uint64" => block@11, method "arc4_uint128_via_biguint(uint128)uint128" => block@12, method "biguint_via_arc4_uint32(uint512)uint512" => block@13, method "biguint_via_arc4_uint64(uint512)uint512" => block@14, method "biguint_via_arc4_uint128(uint512)uint512" => block@15, * => block@16}
+    block@4: // arc4_uint32_via_uint64_route_L6
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_uint64[routing]()
+        goto block@16
+    block@5: // arc4_uint64_via_uint64_route_L10
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_uint64[routing]()
+        goto block@16
+    block@6: // arc4_uint128_via_uint64_route_L14
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_uint64[routing]()
+        goto block@16
+    block@7: // uint64_via_arc4_uint32_route_L19
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint32[routing]()
+        goto block@16
+    block@8: // uint64_via_arc4_uint64_route_L23
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint64[routing]()
+        goto block@16
+    block@9: // uint64_via_arc4_uint128_route_L27
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint128[routing]()
+        goto block@16
+    block@10: // arc4_uint32_via_biguint_route_L32
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_biguint[routing]()
+        goto block@16
+    block@11: // arc4_uint64_via_biguint_route_L36
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_biguint[routing]()
+        goto block@16
+    block@12: // arc4_uint128_via_biguint_route_L40
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_biguint[routing]()
+        goto block@16
+    block@13: // biguint_via_arc4_uint32_route_L45
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint32[routing]()
+        goto block@16
+    block@14: // biguint_via_arc4_uint64_route_L49
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint64[routing]()
+        goto block@16
+    block@15: // biguint_via_arc4_uint128_route_L53
+        test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint128[routing]()
+        goto block@16
+    block@16: // switch_case_next_L4
+        goto block@18
+    block@17: // create_NoOp_L4
+        goto block@18
+    block@18: // after_if_else_L4
+        goto block@20
+    block@19: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        goto block@22
+    block@22: // L1
+        goto block@23
+    block@23: // after_inlined_test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.__algopy_default_create_L1
+        exit 1u
+    block@20: // after_if_else_L4
+        exit 0u
+    block@21: // after_inlined_test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.__puya_arc4_router___L1
+        let tmp%0#0: bool = undefined
+        return tmp%0#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_uint64[routing]() -> void:
+    block@0: // L6
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 4u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint32
+        let as_Encoded(uint32)%0#0: Encoded(uint32) = tmp%0#0
+        let tmp%1#0: Encoded(uint32) = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_uint64(as_Encoded(uint32)%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_uint64[routing]() -> void:
+    block@0: // L10
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: Encoded(uint64) = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_uint64(as_Encoded(uint64)%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_uint64[routing]() -> void:
+    block@0: // L14
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint128
+        let as_Encoded(uint128)%0#0: Encoded(uint128) = tmp%0#0
+        let tmp%1#0: Encoded(uint128) = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_uint64(as_Encoded(uint128)%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint32[routing]() -> void:
+    block@0: // L19
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        let tmp%2#0: uint64 = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint32(tmp%1#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%3#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint64[routing]() -> void:
+    block@0: // L23
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        let tmp%2#0: uint64 = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint64(tmp%1#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%3#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint128[routing]() -> void:
+    block@0: // L27
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
+        let tmp%2#0: uint64 = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint128(tmp%1#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%3#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_biguint[routing]() -> void:
+    block@0: // L32
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 4u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint32
+        let as_Encoded(uint32)%0#0: Encoded(uint32) = tmp%0#0
+        let tmp%1#0: Encoded(uint32) = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_biguint(as_Encoded(uint32)%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_biguint[routing]() -> void:
+    block@0: // L36
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: Encoded(uint64) = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_biguint(as_Encoded(uint64)%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_biguint[routing]() -> void:
+    block@0: // L40
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint128
+        let as_Encoded(uint128)%0#0: Encoded(uint128) = tmp%0#0
+        let tmp%1#0: Encoded(uint128) = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_biguint(as_Encoded(uint128)%0#0)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint32[routing]() -> void:
+    block@0: // L45
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = tmp%0#0
+        let tmp%1#0: biguint = as_Encoded(uint512)%0#0
+        let tmp%2#0: biguint = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint32(tmp%1#0)
+        let aggregate%value_len%0#0: uint64 = (len tmp%2#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 64u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| tmp%2#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint512)%0#0: Encoded(uint512) = aggregate%arc4_encoded%0#0
+        let tmp%3#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint64[routing]() -> void:
+    block@0: // L49
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = tmp%0#0
+        let tmp%1#0: biguint = as_Encoded(uint512)%0#0
+        let tmp%2#0: biguint = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint64(tmp%1#0)
+        let aggregate%value_len%0#0: uint64 = (len tmp%2#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 64u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| tmp%2#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint512)%0#0: Encoded(uint512) = aggregate%arc4_encoded%0#0
+        let tmp%3#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint128[routing]() -> void:
+    block@0: // L53
+        let tmp%0#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = tmp%0#0
+        let tmp%1#0: biguint = as_Encoded(uint512)%0#0
+        let tmp%2#0: biguint = test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint128(tmp%1#0)
+        let aggregate%value_len%0#0: uint64 = (len tmp%2#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 64u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| tmp%2#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint512)%0#0: Encoded(uint512) = aggregate%arc4_encoded%0#0
+        let tmp%3#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%0#0
+        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_uint64(x: Encoded(uint32)) -> Encoded(uint32):
+    block@0: // L6
+        let tmp%0#0: uint64 = (btoi x#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
+        let aggregate%bitlen%0#0: uint64 = (bitlen aggregate%val_as_bytes%0#0)
+        let aggregate%no_overflow%0#0: bool = (<= aggregate%bitlen%0#0 32u)
+        (assert aggregate%no_overflow%0#0) // overflow
+        let aggregate%uint32%0#0: bytes = (extract3 aggregate%val_as_bytes%0#0 4u 4u)
+        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = aggregate%uint32%0#0
+        let tmp%1#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_uint64(x: Encoded(uint64)) -> Encoded(uint64):
+    block@0: // L10
+        let tmp%0#0: uint64 = (btoi x#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_uint64(x: Encoded(uint128)) -> Encoded(uint128):
+    block@0: // L14
+        let aggregate%bitlen%0#0: uint64 = (bitlen x#0)
+        let aggregate%lte%0#0: bool = (<= aggregate%bitlen%0#0 64u)
+        (assert aggregate%lte%0#0) // overflow
+        let aggregate%len%0#0: uint64 = (len x#0)
+        let aggregate%sub%0#0: uint64 = (- aggregate%len%0#0 8u)
+        let aggregate%extract_uint64%0#0: uint64 = (extract_uint64 x#0 aggregate%sub%0#0)
+        let tmp%0#0: uint64 = aggregate%extract_uint64%0#0
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
+        let aggregate%bzero%0#0: bytes = (bzero 16u)
+        let aggregate%arc4_encoded%0#0: bytes[16] = (b| aggregate%val_as_bytes%0#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint128)%0#0: Encoded(uint128) = aggregate%arc4_encoded%0#0
+        let tmp%1#0: Encoded(uint128) = aggregate%as_Encoded(uint128)%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint32(x: uint64) -> uint64:
+    block@0: // L19
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob x#0)
+        let aggregate%bitlen%0#0: uint64 = (bitlen aggregate%val_as_bytes%0#0)
+        let aggregate%no_overflow%0#0: bool = (<= aggregate%bitlen%0#0 32u)
+        (assert aggregate%no_overflow%0#0) // overflow
+        let aggregate%uint32%0#0: bytes = (extract3 aggregate%val_as_bytes%0#0 4u 4u)
+        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = aggregate%uint32%0#0
+        let tmp%0#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%0#0
+        let tmp%1#0: uint64 = (btoi tmp%0#0)
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint64(x: uint64) -> uint64:
+    block@0: // L23
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob x#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%1#0: uint64 = (btoi tmp%0#0)
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint128(x: uint64) -> uint64:
+    block@0: // L27
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob x#0)
+        let aggregate%bzero%0#0: bytes = (bzero 16u)
+        let aggregate%arc4_encoded%0#0: bytes[16] = (b| aggregate%val_as_bytes%0#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint128)%0#0: Encoded(uint128) = aggregate%arc4_encoded%0#0
+        let tmp%0#0: Encoded(uint128) = aggregate%as_Encoded(uint128)%0#0
+        let aggregate%bitlen%0#0: uint64 = (bitlen tmp%0#0)
+        let aggregate%lte%0#0: bool = (<= aggregate%bitlen%0#0 64u)
+        (assert aggregate%lte%0#0) // overflow
+        let aggregate%len%0#0: uint64 = (len tmp%0#0)
+        let aggregate%sub%0#0: uint64 = (- aggregate%len%0#0 8u)
+        let aggregate%extract_uint64%0#0: uint64 = (extract_uint64 tmp%0#0 aggregate%sub%0#0)
+        let tmp%1#0: uint64 = aggregate%extract_uint64%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_biguint(x: Encoded(uint32)) -> Encoded(uint32):
+    block@0: // L32
+        let tmp%0#0: biguint = x#0
+        let aggregate%value_len%0#0: uint64 = (len tmp%0#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 4u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 4u)
+        let aggregate%arc4_encoded%0#0: bytes[4] = (b| tmp%0#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = aggregate%arc4_encoded%0#0
+        let tmp%1#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_biguint(x: Encoded(uint64)) -> Encoded(uint64):
+    block@0: // L36
+        let tmp%0#0: biguint = x#0
+        let aggregate%value_len%0#0: uint64 = (len tmp%0#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 8u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 8u)
+        let aggregate%arc4_encoded%0#0: bytes[8] = (b| tmp%0#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%arc4_encoded%0#0
+        let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_biguint(x: Encoded(uint128)) -> Encoded(uint128):
+    block@0: // L40
+        let tmp%0#0: biguint = x#0
+        let aggregate%value_len%0#0: uint64 = (len tmp%0#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 16u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 16u)
+        let aggregate%arc4_encoded%0#0: bytes[16] = (b| tmp%0#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint128)%0#0: Encoded(uint128) = aggregate%arc4_encoded%0#0
+        let tmp%1#0: Encoded(uint128) = aggregate%as_Encoded(uint128)%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint32(x: biguint) -> biguint:
+    block@0: // L45
+        let aggregate%value_len%0#0: uint64 = (len x#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 4u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 4u)
+        let aggregate%arc4_encoded%0#0: bytes[4] = (b| x#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint32)%0#0: Encoded(uint32) = aggregate%arc4_encoded%0#0
+        let tmp%0#0: Encoded(uint32) = aggregate%as_Encoded(uint32)%0#0
+        let tmp%1#0: biguint = tmp%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint64(x: biguint) -> biguint:
+    block@0: // L49
+        let aggregate%value_len%0#0: uint64 = (len x#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 8u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 8u)
+        let aggregate%arc4_encoded%0#0: bytes[8] = (b| x#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%arc4_encoded%0#0
+        let tmp%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
+        let tmp%1#0: biguint = tmp%0#0
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint128(x: biguint) -> biguint:
+    block@0: // L53
+        let aggregate%value_len%0#0: uint64 = (len x#0)
+        let aggregate%len_ok%0#0: bool = (<= aggregate%value_len%0#0 16u)
+        (assert aggregate%len_ok%0#0) // overflow
+        let aggregate%bzero%0#0: bytes = (bzero 16u)
+        let aggregate%arc4_encoded%0#0: bytes[16] = (b| x#0 aggregate%bzero%0#0)
+        let aggregate%as_Encoded(uint128)%0#0: Encoded(uint128) = aggregate%arc4_encoded%0#0
+        let tmp%0#0: Encoded(uint128) = aggregate%as_Encoded(uint128)%0#0
+        let tmp%1#0: biguint = tmp%0#0
+        return tmp%1#0
