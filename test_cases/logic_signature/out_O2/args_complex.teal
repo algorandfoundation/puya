@@ -3,19 +3,55 @@
 
 // test_cases.logic_signature.lsig_args_complex.args_complex() -> uint64:
 main:
-    intcblock 1 0 8 16
+    intcblock 0 1 8 2
     bytecblock 0x21 0x00 0xff 0x01
     arg_0
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
     btoi
     arg_1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for bytes
+    extract 2 0
     arg_2
+    dup
+    len
+    pushint 64
+    ==
+    assert // invalid number of bytes for biguint
     arg_3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for string
+    extract 2 0
     arg 4
-    btoi
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for bool
+    intc_0 // 0
+    getbit
     arg 5
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     arg 6
@@ -27,7 +63,7 @@ main:
     arg 7
     dup
     len
-    intc_3 // 16
+    pushint 16
     ==
     assert // invalid number of bytes for arc4.uint128
     arg 8
@@ -39,14 +75,14 @@ main:
     arg 9
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.bool
     arg 10
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -54,9 +90,9 @@ main:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     arg 11
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 2
+    intc_3 // 2
     +
     dig 1
     len
@@ -71,7 +107,7 @@ main:
     arg 13
     dup
     len
-    intc_3 // 16
+    pushint 16
     ==
     assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleStruct
     arg 14
@@ -89,35 +125,95 @@ main:
     arg 16
     dup
     len
-    intc_0 // 1
+    pushint 9
     ==
-    assert // invalid number of bytes for arc4.uint8
+    assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleNamedTuple
+    dup
+    extract 0 1
+    dig 1
+    extract 1 8
     arg 17
     dup
     len
+    dig 1
     intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    uncover 2
+    ==
+    assert // invalid number of bytes for tuple<uint64,bytes>
+    swap
+    intc_0 // 0
+    extract_uint64
+    swap
+    extract 2 0
     arg 18
-    btoi
-    arg 19
-    arg 20
-    btoi
-    arg 21
-    arg 22
-    btoi
-    arg 23
     dup
     len
-    pushint 2
+    dig 1
+    intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,((len+uint8[]),uint64))
+    dig 2
+    swap
+    dig 2
+    substring3
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 0 of ((len+uint8[]),uint64)
+    dig 2
+    swap
+    uncover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 22
+    +
+    uncover 3
+    ==
+    assert // invalid number of bytes for tuple<uint64,tuple<bytes,uint64>>
+    uncover 2
+    intc_0 // 0
+    extract_uint64
+    swap
+    extract 2 0
+    uncover 2
+    intc_3 // 2
+    extract_uint64
+    arg 19
+    dup
+    len
+    intc_3 // 2
     ==
     assert // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.OverwriteStruct
-    arg 24
+    arg 20
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    pushint 2
+    intc_3 // 2
     +
     dig 2
     len
@@ -125,126 +221,154 @@ main:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     arg_0
     btoi
+    dig 27
+    ==
+    assert
+    arg_1
+    extract 2 0
     dig 26
     ==
     assert
     dig 24
-    arg_1
-    ==
-    assert
-    dig 23
     arg_2
     ==
     assert
-    dig 22
     arg_3
+    extract 2 0
+    dig 24
     ==
     assert
     arg 4
     btoi
-    intc_1 // 0
+    intc_0 // 0
     !=
-    dig 22
+    dig 23
     ==
     assert
-    dig 20
+    dig 21
     arg 5
     ==
     assert
-    dig 19
+    dig 20
     arg 6
     ==
     assert
-    dig 18
+    dig 19
     arg 7
     ==
     assert
     arg 8
-    uncover 18
+    uncover 19
     ==
     assert
-    dig 16
+    dig 17
     arg 9
     ==
     assert
-    dig 15
+    dig 16
     arg 10
     ==
     assert
-    dig 14
+    dig 15
     arg 11
     ==
     assert
-    dig 13
+    dig 14
     arg 12
     ==
     assert
-    dig 12
+    dig 13
     arg 13
     ==
     assert
-    dig 11
+    dig 12
     arg 14
     ==
     assert
-    dig 10
+    dig 11
     arg 15
     ==
     assert
-    dig 9
     arg 16
+    dup
+    extract 0 1
+    uncover 11
+    b==
+    assert
+    extract 1 8
+    uncover 9
+    b==
+    assert
+    arg 17
+    dup
+    intc_0 // 0
+    extract_uint64
+    dig 9
     ==
     assert
-    dig 8
-    arg 17
+    dup
+    intc_2 // 8
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    dig 7
     ==
     assert
     arg 18
-    btoi
-    dig 8
+    dup
+    intc_0 // 0
+    extract_uint64
+    dig 7
     ==
     assert
+    dup
+    intc_2 // 8
+    extract_uint16
+    dig 1
+    len
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    len
+    dig 2
+    cover 2
+    substring3
+    extract 2 0
     dig 6
-    arg 19
     ==
     assert
-    arg 20
-    btoi
-    dig 6
-    ==
-    assert
-    dig 4
-    arg 21
-    ==
-    assert
-    arg 22
-    btoi
+    intc_3 // 2
+    extract_uint64
     dig 4
     ==
     assert
     dig 2
-    arg 23
+    arg 19
     ==
     assert
     dig 1
-    arg 24
+    arg 20
     ==
     assert
-    uncover 24
-    intc_0 // 1
+    uncover 23
+    intc_1 // 1
     +
-    uncover 24
+    uncover 23
     bytec_0 // 0x21
     concat
-    uncover 24
+    uncover 23
     bytec_3 // 0x01
     b+
     pushbytes "hello_"
-    uncover 25
+    uncover 24
     concat
-    uncover 23
+    uncover 22
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     dup
@@ -252,31 +376,31 @@ main:
     intc_2 // 8
     <=
     assert // overflow
-    uncover 23
+    uncover 22
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
-    uncover 23
+    uncover 22
     bytec_3 // 0x01
     b+
     dup
     len
-    intc_3 // 16
+    pushint 16
     <=
     assert // overflow
-    intc_3 // 16
+    pushint 16
     bzero
     b|
-    uncover 23
-    intc_1 // 0
+    uncover 22
+    intc_0 // 0
     getbit
     !
-    cover 24
-    uncover 22
+    cover 23
+    uncover 21
     extract 2 0
     pushbytes " world"
     concat
-    uncover 22
+    uncover 21
     extract 2 0
     bytec_1 // 0x00
     concat
@@ -286,22 +410,22 @@ main:
     extract 6 2
     swap
     concat
-    uncover 22
+    uncover 21
     bytec_2 // 0xff
     replace2 0 // on error: index access is out of bounds
-    dig 22
-    intc_1 // 0
+    dig 21
+    intc_0 // 0
     extract_uint64
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
-    uncover 23
+    uncover 22
     extract 8 8
     concat
-    dig 22
-    intc_1 // 0
+    dig 21
+    intc_0 // 0
     getbyte
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     dup
@@ -310,13 +434,13 @@ main:
     <=
     assert // overflow
     extract 7 1
-    uncover 23
+    uncover 22
     extract 1 16
     concat
-    dig 22
-    intc_1 // 0
+    dig 21
+    intc_0 // 0
     getbyte
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     dup
@@ -325,16 +449,17 @@ main:
     <=
     assert // overflow
     extract 7 1
-    uncover 23
-    intc_0 // 1
+    uncover 22
+    intc_1 // 1
     extract_uint64
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     concat
-    uncover 22
-    btoi
-    intc_0 // 1
+    dig 21
+    intc_0 // 0
+    getbyte
+    intc_1 // 1
     +
     itob
     dup
@@ -343,28 +468,29 @@ main:
     <=
     assert // overflow
     uncover 22
-    btoi
-    intc_0 // 1
+    intc_1 // 1
+    extract_uint64
+    intc_1 // 1
     +
     uncover 22
-    intc_0 // 1
-    +
-    uncover 22
-    bytec_0 // 0x21
-    concat
-    uncover 22
-    intc_0 // 1
+    intc_1 // 1
     +
     uncover 22
     bytec_0 // 0x21
     concat
     uncover 22
-    intc_0 // 1
+    intc_1 // 1
+    +
+    uncover 22
+    bytec_0 // 0x21
+    concat
+    uncover 22
+    intc_1 // 1
     +
     dig 22
-    intc_1 // 0
+    intc_0 // 0
     getbyte
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     dup
@@ -377,19 +503,19 @@ main:
     intc_2 // 8
     getbit
     bytec_1 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     setbit
-    intc_1 // 0
+    intc_0 // 0
     getbit
     !
     bytec_1 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     setbit
     concat
     uncover 21
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     extract 6 0
@@ -427,7 +553,7 @@ main:
     len
     assert
     uncover 14
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     assert
     uncover 13
@@ -436,15 +562,15 @@ main:
     b==
     assert
     uncover 12
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     assert
     uncover 11
-    intc_1 // 0
+    intc_0 // 0
     getbyte
     assert
     dig 10
-    intc_1 // 0
+    intc_0 // 0
     getbyte
     assert
     uncover 9
@@ -464,11 +590,11 @@ main:
     dig 3
     assert
     uncover 2
-    intc_1 // 0
+    intc_0 // 0
     getbyte
     assert
     swap
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     assert
     uncover 7
@@ -476,7 +602,7 @@ main:
     uncover 6
     +
     uncover 5
-    intc_0 // 1
+    intc_1 // 1
     extract_uint64
     +
     uncover 4

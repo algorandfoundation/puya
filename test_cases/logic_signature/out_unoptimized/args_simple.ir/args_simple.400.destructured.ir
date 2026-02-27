@@ -1,46 +1,70 @@
 main test_cases.logic_signature.lsig_args_simple.args_simple:
     block@0: // L4
-        let tmp%0#0: bytes = arg_0
-        let tmp%1#0: uint64 = (btoi tmp%0#0)
+        let tmp%0#0: bytes = (arg 0)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let arg0#0: uint64 = tmp%1#0
-        let tmp%2#0: bytes = arg_1
-        let arg1#0: bytes = tmp%2#0
-        let tmp%3#0: bytes = arg_2
-        let reinterpret_bool%0#0: bool = (btoi tmp%3#0)
-        let arg2#0: bool = reinterpret_bool%0#0
-        let tmp%4#0: bytes = (arg 0)
-        let tmp%5#0: uint64 = (btoi tmp%4#0)
-        let tmp%6#0: bool = (== arg0#0 tmp%5#0)
-        (assert tmp%6#0)
-        let tmp%7#0: bytes = (arg 1)
-        let tmp%8#0: bool = (== arg1#0 tmp%7#0)
-        (assert tmp%8#0)
-        let tmp%9#0: bytes = (arg 2)
-        let tmp%10#0: uint64 = (btoi tmp%9#0)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        let tmp%12#0: bool = (== arg2#0 tmp%11#0)
-        (assert tmp%12#0)
-        let tmp%13#0: bool = (< arg0#0 10u)
-        goto tmp%13#0 ? block@1 : block@2
+        let tmp%2#0: bytes = (arg 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for bytes
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%2#0
+        let tmp%3#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
+        let arg1#0: bytes = tmp%3#0
+        let tmp%4#0: bytes = (arg 2)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for bool
+        let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%4#0
+        let aggregate%get_bit%0#0: bool = (getbit as_Encoded(bool8)%0#0 0u)
+        let tmp%5#0: bool = aggregate%get_bit%0#0
+        let arg2#0: bool = tmp%5#0
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (arg 0)
+        let tmp%6#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%7#0: bool = (== arg0#0 tmp%6#0)
+        (assert tmp%7#0)
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (arg 1)
+        let tmp%8#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%9#0: bool = (== arg1#0 tmp%8#0)
+        (assert tmp%9#0)
+        let tmp%10#0: bytes = (arg 2)
+        let tmp%11#0: uint64 = (btoi tmp%10#0)
+        let tmp%12#0: bool = (!= tmp%11#0 0u)
+        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%12#0)
+        let aggregate%as_Encoded(bool8)%0#0: Encoded(bool8) = aggregate%encoded_bool%0#0
+        let tmp%13#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
+        let aggregate%get_bit%1#0: bool = (getbit tmp%13#0 0u)
+        let tmp%14#0: bool = aggregate%get_bit%1#0
+        let tmp%15#0: bool = (== tmp%14#0 arg2#0)
+        (assert tmp%15#0)
+        let tmp%16#0: bool = (< arg0#0 10u)
+        goto tmp%16#0 ? block@1 : block@2
     block@1: // if_body_L13
         let arg0#0: uint64 = 10u
         goto block@2
     block@2: // after_if_else_L12
-        let tmp%14#0: bytes = (concat arg1#0 0x737566666978)
-        let arg1#0: bytes = tmp%14#0
-        let tmp%15#0: bool = (! arg2#0)
-        let arg2#0: bool = tmp%15#0
-        let tmp%16#0: bool = (>= arg0#0 10u)
-        (assert tmp%16#0)
-        let tmp%17#0: uint64 = (len arg1#0)
-        let tmp%18#0: bool = (> tmp%17#0 0u)
-        (assert tmp%18#0)
+        let tmp%17#0: bytes = (concat arg1#0 0x737566666978)
+        let arg1#0: bytes = tmp%17#0
+        let tmp%18#0: bool = (! arg2#0)
+        let arg2#0: bool = tmp%18#0
+        let tmp%19#0: bool = (>= arg0#0 10u)
+        (assert tmp%19#0)
+        let tmp%20#0: uint64 = (len arg1#0)
+        let tmp%21#0: bool = (> tmp%20#0 0u)
+        (assert tmp%21#0)
         let arg0#4: uint64 = arg0#0
         goto arg2#0 ? block@3 : block@4
     block@3: // if_body_L23
-        let tmp%19#0: uint64 = (len arg1#0)
-        let tmp%20#0: uint64 = (+ arg0#0 tmp%19#0)
-        let arg0#0: uint64 = tmp%20#0
+        let tmp%22#0: uint64 = (len arg1#0)
+        let tmp%23#0: uint64 = (+ arg0#0 tmp%22#0)
+        let arg0#0: uint64 = tmp%23#0
         let arg0#4: uint64 = arg0#0
         goto block@4
     block@4: // after_if_else_L22

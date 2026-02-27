@@ -1,36 +1,49 @@
 main test_cases.logic_signature.lsig_args_simple.args_simple:
     block@0: // L4
-        let tmp%0#0: bytes = arg_0
+        let tmp%0#0: bytes = (arg 0)
+        let len%0#0: uint64 = (len tmp%0#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         let arg0#0: uint64 = (btoi tmp%0#0)
-        let arg1#0: bytes = arg_1
-        let tmp%3#0: bytes = arg_2
-        let arg2#0: bool = (btoi tmp%3#0)
-        let tmp%4#0: bytes = (arg 0)
-        let tmp%5#0: uint64 = (btoi tmp%4#0)
-        let tmp%6#0: bool = (== arg0#0 tmp%5#0)
-        (assert tmp%6#0)
-        let tmp%7#0: bytes = (arg 1)
-        let tmp%8#0: bool = (== arg1#0 tmp%7#0)
-        (assert tmp%8#0)
-        let tmp%9#0: bytes = (arg 2)
-        let tmp%10#0: uint64 = (btoi tmp%9#0)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        let tmp%12#0: bool = (== arg2#0 tmp%11#0)
-        (assert tmp%12#0)
-        let tmp%13#0: bool = (< arg0#0 10u)
-        goto tmp%13#0 ? block@1 : block@2
+        let tmp%2#0: bytes = (arg 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%1#0: uint64 = (len tmp%2#0)
+        let eq%1#0: bool = (== len%1#0 add%0#0)
+        (assert eq%1#0) // invalid number of bytes for bytes
+        let arg1#0: bytes = ((extract 2 0) tmp%2#0)
+        let tmp%4#0: bytes = (arg 2)
+        let len%2#0: uint64 = (len tmp%4#0)
+        let eq%2#0: bool = (== len%2#0 1u)
+        (assert eq%2#0) // invalid number of bytes for bool
+        let arg2#0: bool = (getbit tmp%4#0 0u)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (arg 0)
+        let tmp%6#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%7#0: bool = (== arg0#0 tmp%6#0)
+        (assert tmp%7#0)
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (arg 1)
+        let tmp%8#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%9#0: bool = (== arg1#0 tmp%8#0)
+        (assert tmp%9#0)
+        let tmp%10#0: bytes = (arg 2)
+        let tmp%11#0: uint64 = (btoi tmp%10#0)
+        let tmp%12#0: bool = (!= tmp%11#0 0u)
+        let tmp%15#0: bool = (== tmp%12#0 arg2#0)
+        (assert tmp%15#0)
+        let tmp%16#0: bool = (< arg0#0 10u)
+        goto tmp%16#0 ? block@1 : block@2
     block@1: // if_body_L13
         let arg0#0: uint64 = 10u
         goto block@2
     block@2: // after_if_else_L12
         let arg1#0: bytes = (concat arg1#0 0x737566666978)
-        let tmp%16#0: bool = (>= arg0#0 10u)
-        (assert tmp%16#0)
-        let tmp%17#0: uint64 = (len arg1#0)
-        (assert tmp%17#0)
+        let tmp%19#0: bool = (>= arg0#0 10u)
+        (assert tmp%19#0)
+        let tmp%20#0: uint64 = (len arg1#0)
+        (assert tmp%20#0)
         goto arg2#0 ? block@4 : block@3
     block@3: // if_body_L23
-        let arg0#0: uint64 = (+ arg0#0 tmp%17#0)
+        let arg0#0: uint64 = (+ arg0#0 tmp%20#0)
         goto block@4
     block@4: // after_if_else_L22
         return arg0#0
