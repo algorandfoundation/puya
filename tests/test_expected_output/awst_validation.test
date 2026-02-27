@@ -1,0 +1,53 @@
+## case: duplicate_global_state_key_is_rejected
+from algopy import ARC4Contract, GlobalState, UInt64
+
+
+class Contract(ARC4Contract):
+    def __init__(self) -> None:
+        self.first = GlobalState(UInt64, key=b"dup") ## N: previous definition of global state key was here
+        self.second = GlobalState(UInt64, key=b"dup") ## E: duplicate global state key b'dup'
+
+
+## case: duplicate_local_state_key_is_rejected
+from algopy import ARC4Contract, LocalState, UInt64
+
+
+class Contract(ARC4Contract):
+    def __init__(self) -> None:
+        self.first = LocalState(UInt64, key=b"dup") ## N: previous definition of local state key was here
+        self.second = LocalState(UInt64, key=b"dup") ## E: duplicate local state key b'dup'
+
+
+## case: duplicate_box_key_is_rejected
+from algopy import ARC4Contract, Box, UInt64
+
+
+class Contract(ARC4Contract):
+    def __init__(self) -> None:
+        self.first = Box(UInt64, key=b"dup") ## N: previous definition of box key or prefix was here
+        self.second = Box(UInt64, key=b"dup") ## E: duplicate box key or prefix b'dup'
+
+
+## case: duplicate_box_prefix_is_rejected
+from algopy import ARC4Contract, BoxMap, UInt64
+
+
+class Contract(ARC4Contract):
+    def __init__(self) -> None:
+        self.first = BoxMap(UInt64, UInt64, key_prefix=b"dup") ## N: previous definition of box key or prefix was here
+        self.second = BoxMap(UInt64, UInt64, key_prefix=b"dup") ## E: duplicate box key or prefix b'dup'
+
+
+## case: duplicate_global_state_key_is_rejected_in_inheritance
+from algopy import ARC4Contract, GlobalState, UInt64
+
+
+class BaseContract(ARC4Contract):
+    def __init__(self) -> None:
+        self.base_counter = GlobalState(UInt64, key=b"dup") ## N: previous definition of global state key was here
+
+
+class Contract(BaseContract):
+    def __init__(self) -> None:
+        super().__init__()
+        self.child_counter = GlobalState(UInt64, key=b"dup") ## E: duplicate global state key b'dup'
