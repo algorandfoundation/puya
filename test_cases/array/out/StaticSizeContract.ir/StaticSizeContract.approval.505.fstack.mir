@@ -763,7 +763,7 @@ subroutine test_bool_array:
         setbit                                                                                     (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,slot_contents%0#0,aggregate%encoded_bool%0#0
         l-load slot_contents%0#0 1                                                                 (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,aggregate%encoded_bool%0#0,slot_contents%0#0
         l-load aggregate%encoded_bool%0#0 1                                                        (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,slot_contents%0#0,aggregate%encoded_bool%0#0
-        concat                                                                                     (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                              (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,aggregate%concat%0#0
         f-store slot%0                                                                             (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0
         // array/static_size.py:82
         // for i in urange(1, length + 1):
@@ -789,7 +789,7 @@ subroutine test_bool_array:
         // arr2.extend(arr)
         l-load aggregate%slot_contents%1#0 1                                                       (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | length#0,slot%0,slot_contents%2#0,aggregate%slot_contents%1#0
         l-load slot_contents%2#0 1                                                                 (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | length#0,slot%0,aggregate%slot_contents%1#0,slot_contents%2#0
-        concat                                                                                     (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | length#0,slot%0,aggregate%concat%1#0
+        concat // on error: max array length exceeded                                              (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | length#0,slot%0,aggregate%concat%1#0
         // array/static_size.py:88
         // assert arr2.length == length * 2, "expected correct length"
         len                                                                                        (𝕗) aggregate%bytes_len%4#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | length#0,slot%0,aggregate%bytes_len%3#0
@@ -909,7 +909,7 @@ subroutine test_arc4_conversion:
         itob                                                                                       (𝕗) aggregate%array_len%1#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,aggregate%val_as_bytes%0#0
         f-load slot%0                                                                              (𝕗) aggregate%array_len%1#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                                        (𝕗) aggregate%array_len%1#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                                     (𝕗) aggregate%array_len%1#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                              (𝕗) aggregate%array_len%1#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0,aggregate%concat%0#0
         f-store slot%0                                                                             (𝕗) aggregate%array_len%1#0,count#0,item_index_internal%0#0,length#0,slot%0,tmp%2#1,i#0 | i#0
         // array/static_size.py:101
         // for i in urange(1, length + 1):
@@ -1118,7 +1118,7 @@ subroutine test_arc4_bool:
         setbit                                                                                     aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0
         l-load aggregate%encoded_bool%0#0 1                                                        aggregate%encoded_bool%1#0,aggregate%encoded_bool%0#0
         l-load aggregate%encoded_bool%1#0 1                                                        aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0
-        concat                                                                                     aggregate%concat%1#0
+        concat // on error: max array length exceeded                                              aggregate%concat%1#0
         l-load-copy aggregate%concat%1#0 0                                                         aggregate%concat%1#0,aggregate%concat%1#0 (copy)
         f-store slot%0                                                                             (𝕗) slot%0 | aggregate%concat%1#0
         // array/static_size.py:147
@@ -1236,7 +1236,7 @@ subroutine test_arc4_bool:
         // array/static_size.py:157
         // arr2.append(b)
         l-load b#0 1                                                                               (𝕗) slot%0,dyn_arr#1,length#0,slot%1,item_index_internal%0#0 | item_index_internal%0#0,slot_contents%4#0,b#0
-        concat                                                                                     (𝕗) slot%0,dyn_arr#1,length#0,slot%1,item_index_internal%0#0 | item_index_internal%0#0,aggregate%concat%2#0
+        concat // on error: max array length exceeded                                              (𝕗) slot%0,dyn_arr#1,length#0,slot%1,item_index_internal%0#0 | item_index_internal%0#0,aggregate%concat%2#0
         f-store slot%1                                                                             (𝕗) slot%0,dyn_arr#1,length#0,slot%1,item_index_internal%0#0 | item_index_internal%0#0
         l-load item_index_internal%0#0 0                                                           (𝕗) slot%0,dyn_arr#1,length#0,slot%1,item_index_internal%0#0 | item_index_internal%0#0
         int 1                                                                                      (𝕗) slot%0,dyn_arr#1,length#0,slot%1,item_index_internal%0#0 | item_index_internal%0#0,1

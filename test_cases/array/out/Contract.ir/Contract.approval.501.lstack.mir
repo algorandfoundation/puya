@@ -387,7 +387,7 @@ subroutine create_array:
         itob                                                                         i#0,arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load slot_contents%0#0 1                                                   i#0,arr#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          i#0,arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       i#0,arr#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                i#0,arr#0,aggregate%concat%0#0
         l-load arr#0 1                                                               i#0,aggregate%concat%0#0,arr#0
         l-load aggregate%concat%0#0 1                                                i#0,arr#0,aggregate%concat%0#0
         stores                                                                       i#0
@@ -465,7 +465,7 @@ subroutine add_x:
         itob                                                                         (𝕡) arr#0,x#0 | i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load slot_contents%0#0 1                                                   (𝕡) arr#0,x#0 | i#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          (𝕡) arr#0,x#0 | i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       (𝕡) arr#0,x#0 | i#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                (𝕡) arr#0,x#0 | i#0,aggregate%concat%0#0
         p-load arr#0                                                                 (𝕡) arr#0,x#0 | i#0,aggregate%concat%0#0,arr#0 (copy)
         l-load aggregate%concat%0#0 1                                                (𝕡) arr#0,x#0 | i#0,arr#0 (copy),aggregate%concat%0#0
         stores                                                                       (𝕡) arr#0,x#0 | i#0
@@ -498,7 +498,7 @@ subroutine append_length_and_return:
         itob                                                                         (𝕡) arr#0 | aggregate%slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load aggregate%slot_contents%0#0 1                                         (𝕡) arr#0 | aggregate%val_as_bytes%0#0,aggregate%slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          (𝕡) arr#0 | aggregate%slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       (𝕡) arr#0 | aggregate%concat%0#0
+        concat // on error: max array length exceeded                                (𝕡) arr#0 | aggregate%concat%0#0
         p-load arr#0                                                                 (𝕡) arr#0 | aggregate%concat%0#0,arr#0 (copy)
         l-load aggregate%concat%0#0 1                                                (𝕡) arr#0 | arr#0 (copy),aggregate%concat%0#0
         stores                                                                       (𝕡) arr#0 |
@@ -678,7 +678,7 @@ subroutine test_array:
         itob                                                                         arr#0,aggregate%slot_contents%5#0,aggregate%val_as_bytes%1#0
         l-load aggregate%slot_contents%5#0 1                                         arr#0,aggregate%val_as_bytes%1#0,aggregate%slot_contents%5#0
         l-load aggregate%val_as_bytes%1#0 1                                          arr#0,aggregate%slot_contents%5#0,aggregate%val_as_bytes%1#0
-        concat                                                                       arr#0,aggregate%concat%1#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%1#0
         l-load-copy arr#0 1                                                          arr#0,aggregate%concat%1#0,arr#0 (copy)
         l-load-copy aggregate%concat%1#0 1                                           arr#0,aggregate%concat%1#0,arr#0 (copy),aggregate%concat%1#0 (copy)
         stores                                                                       arr#0,aggregate%concat%1#0
@@ -761,7 +761,7 @@ subroutine test_array:
         itob                                                                         arr#0,aggregate%slot_contents%9#0,aggregate%val_as_bytes%2#0
         l-load aggregate%slot_contents%9#0 1                                         arr#0,aggregate%val_as_bytes%2#0,aggregate%slot_contents%9#0
         l-load aggregate%val_as_bytes%2#0 1                                          arr#0,aggregate%slot_contents%9#0,aggregate%val_as_bytes%2#0
-        concat                                                                       arr#0,aggregate%concat%2#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%2#0
         // array/uint64.py:41
         // assert arr.length == 15
         l-load-copy aggregate%concat%2#0 0                                           arr#0,aggregate%concat%2#0,aggregate%concat%2#0 (copy)
@@ -796,14 +796,14 @@ subroutine test_array:
         itob                                                                         arr#0,aggregate%concat%2#0,aggregate%val_as_bytes%3#0
         l-load aggregate%concat%2#0 1                                                arr#0,aggregate%val_as_bytes%3#0,aggregate%concat%2#0
         l-load aggregate%val_as_bytes%3#0 1                                          arr#0,aggregate%concat%2#0,aggregate%val_as_bytes%3#0
-        concat                                                                       arr#0,aggregate%concat%3#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%3#0
         // array/uint64.py:273
         // arr2.append(UInt64(100))
         int 100                                                                      arr#0,aggregate%concat%3#0,100
         itob                                                                         arr#0,aggregate%concat%3#0,aggregate%val_as_bytes%4#0
         l-load aggregate%concat%3#0 1                                                arr#0,aggregate%val_as_bytes%4#0,aggregate%concat%3#0
         l-load aggregate%val_as_bytes%4#0 1                                          arr#0,aggregate%concat%3#0,aggregate%val_as_bytes%4#0
-        concat                                                                       arr#0,aggregate%concat%4#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%4#0
         // array/uint64.py:44
         // return_ref(arr, arr)[0] += 2
         l-load-copy aggregate%concat%4#0 0                                           arr#0,aggregate%concat%4#0,aggregate%concat%4#0 (copy)
@@ -904,7 +904,7 @@ subroutine test_array_extend:
         byte 0x000000000000000100000000000000020000000000000003                      arr#0,slot_contents%4#0,0x000000000000000100000000000000020000000000000003
         // array/uint64.py:59
         // arr.extend(arr2)
-        concat                                                                       arr#0,aggregate%concat%3#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%3#0
         l-load arr#0 1                                                               aggregate%concat%3#0,arr#0
         l-load-copy aggregate%concat%3#0 1                                           aggregate%concat%3#0,arr#0,aggregate%concat%3#0 (copy)
         stores                                                                       aggregate%concat%3#0
@@ -948,21 +948,21 @@ subroutine test_array_multiple_append:
         itob                                                                         arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load slot_contents%0#0 1                                                   arr#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       arr#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%0#0
         // array/uint64.py:67
         // arr.append(UInt64(2))
         int 2                                                                        arr#0,aggregate%concat%0#0,2
         itob                                                                         arr#0,aggregate%concat%0#0,aggregate%val_as_bytes%1#0
         l-load aggregate%concat%0#0 1                                                arr#0,aggregate%val_as_bytes%1#0,aggregate%concat%0#0
         l-load aggregate%val_as_bytes%1#0 1                                          arr#0,aggregate%concat%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                       arr#0,aggregate%concat%1#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%1#0
         // array/uint64.py:68
         // arr.append(UInt64(3))
         int 3                                                                        arr#0,aggregate%concat%1#0,3
         itob                                                                         arr#0,aggregate%concat%1#0,aggregate%val_as_bytes%2#0
         l-load aggregate%concat%1#0 1                                                arr#0,aggregate%val_as_bytes%2#0,aggregate%concat%1#0
         l-load aggregate%val_as_bytes%2#0 1                                          arr#0,aggregate%concat%1#0,aggregate%val_as_bytes%2#0
-        concat                                                                       arr#0,aggregate%concat%2#0
+        concat // on error: max array length exceeded                                arr#0,aggregate%concat%2#0
         l-load arr#0 1                                                               aggregate%concat%2#0,arr#0
         l-load-copy aggregate%concat%2#0 1                                           aggregate%concat%2#0,arr#0,aggregate%concat%2#0 (copy)
         stores                                                                       aggregate%concat%2#0
@@ -1018,7 +1018,7 @@ subroutine test_array_too_long:
         itob                                                                         i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load slot_contents%0#0 1                                                   i#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       i#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                i#0,aggregate%concat%0#0
         l-load aggregate%concat%0#0 0                                                i#0,aggregate%concat%0#0
         v-store slot%0                                                               i#0
         // array/uint64.py:78
@@ -1051,7 +1051,7 @@ subroutine test_array_too_long:
         itob                                                                         aggregate%slot_contents%0#0,aggregate%val_as_bytes%1#0
         l-load aggregate%slot_contents%0#0 1                                         aggregate%val_as_bytes%1#0,aggregate%slot_contents%0#0
         l-load aggregate%val_as_bytes%1#0 1                                          aggregate%slot_contents%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                       aggregate%concat%1#0
+        concat // on error: max array length exceeded                                aggregate%concat%1#0
         l-load aggregate%concat%1#0 0                                                aggregate%concat%1#0
         v-store slot%0
         // array/uint64.py:75
@@ -1094,7 +1094,7 @@ subroutine test_array_copy_and_extend:
         itob                                                                         i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load slot_contents%0#0 1                                                   i#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          i#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       i#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                i#0,aggregate%concat%0#0
         l-load aggregate%concat%0#0 0                                                i#0,aggregate%concat%0#0
         v-store slot%0                                                               i#0
         // array/uint64.py:87
@@ -1122,7 +1122,7 @@ subroutine test_array_copy_and_extend:
         itob                                                                         slot%1,slot_contents%2#0,aggregate%val_as_bytes%1#0
         l-load slot_contents%2#0 1                                                   slot%1,aggregate%val_as_bytes%1#0,slot_contents%2#0
         l-load aggregate%val_as_bytes%1#0 1                                          slot%1,slot_contents%2#0,aggregate%val_as_bytes%1#0
-        concat                                                                       slot%1,aggregate%concat%1#0
+        concat // on error: max array length exceeded                                slot%1,aggregate%concat%1#0
         l-load-copy aggregate%concat%1#0 0                                           slot%1,aggregate%concat%1#0,aggregate%concat%1#0 (copy)
         v-store slot%0                                                               slot%1,aggregate%concat%1#0
         // array/uint64.py:92
@@ -1187,7 +1187,7 @@ subroutine test_array_copy_and_extend:
         // array.extend(array2)
         l-load aggregate%concat%1#0 1                                                slot%1,aggregate%slot_contents%2#0,aggregate%concat%1#0
         l-load aggregate%slot_contents%2#0 1                                         slot%1,aggregate%concat%1#0,aggregate%slot_contents%2#0
-        concat                                                                       slot%1,aggregate%concat%2#0
+        concat // on error: max array length exceeded                                slot%1,aggregate%concat%2#0
         l-load-copy aggregate%concat%2#0 0                                           slot%1,aggregate%concat%2#0,aggregate%concat%2#0 (copy)
         v-store slot%0                                                               slot%1,aggregate%concat%2#0
         // array/uint64.py:99
@@ -1292,7 +1292,7 @@ subroutine test_array_evaluation_order:
         loads                                                                        arr#0,tmp%2#0,slot_contents%1#0,slot_contents%2#0
         l-load slot_contents%2#0 0                                                   arr#0,tmp%2#0,slot_contents%1#0,slot_contents%2#0
         l-load slot_contents%1#0 1                                                   arr#0,tmp%2#0,slot_contents%2#0,slot_contents%1#0
-        concat                                                                       arr#0,tmp%2#0,aggregate%concat%1#0
+        concat // on error: max array length exceeded                                arr#0,tmp%2#0,aggregate%concat%1#0
         l-load tmp%2#0 1                                                             arr#0,aggregate%concat%1#0,tmp%2#0
         l-load aggregate%concat%1#0 1                                                arr#0,tmp%2#0,aggregate%concat%1#0
         stores                                                                       arr#0
@@ -1620,7 +1620,7 @@ subroutine test_iteration:
         itob                                                                         val#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load slot_contents%0#0 1                                                   val#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          val#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       val#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                val#0,aggregate%concat%0#0
         l-load aggregate%concat%0#0 0                                                val#0,aggregate%concat%0#0
         v-store slot%0                                                               val#0
         // array/uint64.py:143
@@ -1850,7 +1850,7 @@ subroutine test_iteration:
         l-store slot_contents%4#0 0                                                  i#0,new_items_bytes#0,slot_contents%4#0
         l-load slot_contents%4#0 0                                                   i#0,new_items_bytes#0,slot_contents%4#0
         l-load new_items_bytes#0 1                                                   i#0,slot_contents%4#0,new_items_bytes#0
-        concat                                                                       i#0,aggregate%concat%1#0
+        concat // on error: max array length exceeded                                i#0,aggregate%concat%1#0
         l-load aggregate%concat%1#0 0                                                i#0,aggregate%concat%1#0
         v-store slot%1                                                               i#0
         // array/uint64.py:164
@@ -1983,7 +1983,7 @@ subroutine test_quicksort:
         itob                                                                         item_index_internal%0#0,rnd#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
         l-load slot_contents%0#0 1                                                   item_index_internal%0#0,rnd#0,aggregate%val_as_bytes%0#0,slot_contents%0#0
         l-load aggregate%val_as_bytes%0#0 1                                          item_index_internal%0#0,rnd#0,slot_contents%0#0,aggregate%val_as_bytes%0#0
-        concat                                                                       item_index_internal%0#0,rnd#0,aggregate%concat%0#0
+        concat // on error: max array length exceeded                                item_index_internal%0#0,rnd#0,aggregate%concat%0#0
         l-load rnd#0 1                                                               item_index_internal%0#0,aggregate%concat%0#0,rnd#0
         l-load aggregate%concat%0#0 1                                                item_index_internal%0#0,rnd#0,aggregate%concat%0#0
         stores                                                                       item_index_internal%0#0
