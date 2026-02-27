@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64 8 4
+    intcblock 1 64 8 16
     bytecblock 0x151f7c75
     txn NumAppArgs
     bz main___algopy_default_create@19
@@ -25,10 +25,10 @@ main_biguint_via_arc4_uint128_route@15:
     intc_1 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
-    pushint 16
+    intc_3 // 16
     <=
     assert // overflow
-    pushint 16
+    intc_3 // 16
     bzero
     b|
     dup
@@ -83,10 +83,10 @@ main_biguint_via_arc4_uint32_route@13:
     intc_1 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
-    intc_3 // 4
+    pushint 4
     <=
     assert // overflow
-    intc_3 // 4
+    pushint 4
     bzero
     b|
     dup
@@ -109,13 +109,13 @@ main_arc4_uint128_via_biguint_route@12:
     dup
     len
     dup
-    pushint 16
+    intc_3 // 16
     ==
     assert // invalid number of bytes for arc4.uint128
-    pushint 16
+    intc_3 // 16
     <=
     assert // overflow
-    pushint 16
+    intc_3 // 16
     bzero
     b|
     bytec_0 // 0x151f7c75
@@ -151,13 +151,13 @@ main_arc4_uint32_via_biguint_route@10:
     dup
     len
     dup
-    intc_3 // 4
+    pushint 4
     ==
     assert // invalid number of bytes for arc4.uint32
-    intc_3 // 4
+    pushint 4
     <=
     assert // overflow
-    intc_3 // 4
+    pushint 4
     bzero
     b|
     bytec_0 // 0x151f7c75
@@ -195,7 +195,7 @@ main_uint64_via_arc4_uint32_route@7:
     pushint 32
     <=
     assert // overflow
-    intc_3 // 4
+    pushint 4
     extract_uint32
     itob
     bytec_0 // 0x151f7c75
@@ -209,9 +209,22 @@ main_arc4_uint128_via_uint64_route@6:
     txna ApplicationArgs 1
     dup
     len
-    pushint 16
+    dup
+    intc_3 // 16
     ==
     assert // invalid number of bytes for arc4.uint128
+    dig 1
+    bitlen
+    intc_1 // 64
+    <=
+    assert // overflow
+    intc_2 // 8
+    -
+    intc_2 // 8
+    extract3
+    intc_3 // 16
+    bzero
+    b|
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -237,7 +250,7 @@ main_arc4_uint32_via_uint64_route@4:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 4
+    pushint 4
     ==
     assert // invalid number of bytes for arc4.uint32
     btoi
