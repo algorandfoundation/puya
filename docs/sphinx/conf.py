@@ -23,3 +23,4 @@ autodoc2_packages = [
 ]
 autodoc2_render_plugin = "myst"
 autodoc2_output_dir = "apidocs"
+autodoc2_hidden_objects = ["private", "dunder"]

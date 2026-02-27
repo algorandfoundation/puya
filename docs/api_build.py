@@ -265,6 +265,39 @@ def _compute_starlight_anchor(heading_text: str) -> str:
     return "-".join(text.split())
 
 
+def _github_slug(heading_text: str) -> str:
+    """Compute the anchor slug that Starlight/github-slugger generates from heading text.
+
+    github-slugger algorithm (used by rehype-slug in Starlight):
+    1. Strip markdown syntax (links, emphasis, code, backslash escapes)
+    2. Lowercase
+    3. Replace underscore with hyphen
+    4. Remove all chars not in [a-z0-9 space hyphen] individually (no replacement char)
+    5. Replace spaces with hyphens
+    6. Do NOT collapse multiple consecutive hyphens
+    7. Strip leading/trailing hyphens
+
+    This differs from _compute_starlight_anchor() which collapses runs of
+    non-alphanumeric chars into a single space (producing single hyphens), while
+    github-slugger removes them individually, preserving surrounding spaces as
+    separate hyphens (e.g. ' | ' → ' ' + ' ' → '--').
+    """
+    # Strip markdown syntax
+    text = re.sub(r"\*([^*]+)\*", r"\1", heading_text)    # *em* → em
+    text = re.sub(r"`([^`]+)`", r"\1", text)               # `code` → code
+    text = re.sub(r"\\(.)", r"\1", text)                    # \_t → _t (keep escaped char)
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)   # [text](url) → text
+    # Lowercase
+    text = text.lower()
+    # Remove all chars not in [a-z0-9 _-] individually (no replacement character)
+    # Note: underscores are preserved by github-slugger (not converted to hyphens)
+    text = re.sub(r"[^a-z0-9 _-]", "", text)
+    # Spaces → hyphens (preserving doubles from e.g. ' | ' → '  ' → '--')
+    text = text.replace(" ", "-")
+    # Strip leading/trailing hyphens
+    return text.strip("-")
+
+
 def _simplify_class_headings() -> None:
     """Strip constructor signatures from *class* headings for predictable anchors.
 
@@ -320,6 +353,43 @@ def _fix_qualified_anchors() -> None:
             md_file.write_text(updated, encoding="utf-8")
 
 
+def _fix_member_index_anchors() -> None:
+    """Fix member-index table anchor links to use github-slugger slugs.
+
+    autodoc2 generates a member-index table at the top of each API page with links
+    like [`addw`](#addw-a-uint64-int-...) that use its own slug algorithm. Starlight
+    renders heading IDs using github-slugger which produces different slugs
+    (e.g. #addwa-uint64--int-... for the same heading). This function rebuilds the
+    mapping from every ### heading's autodoc2 slug → github-slugger slug and rewrites
+    all (#...) same-page anchor references in each file.
+    """
+    print("==> Fixing member-index anchor slugs...")
+
+    for md_file in sorted(API_OUT.rglob("*.md")):
+        content = md_file.read_text(encoding="utf-8")
+
+        # Build slug map: autodoc2_slug → github_slug for every ### heading
+        slug_map: dict[str, str] = {}
+        for m in _H3_TEXT_RE.finditer(content):
+            heading_text = m.group(1)
+            old_slug = _compute_starlight_anchor(heading_text)
+            new_slug = _github_slug(heading_text)
+            if old_slug != new_slug:
+                slug_map[old_slug] = new_slug
+
+        if not slug_map:
+            continue
+
+        # Replace all (#old-slug) occurrences in the file
+        def fix_anchor(m: re.Match) -> str:
+            anchor = m.group(1)
+            return f"(#{slug_map.get(anchor, anchor)})"
+
+        updated = re.sub(r"\(#([^)]+)\)", fix_anchor, content)
+        if updated != content:
+            md_file.write_text(updated, encoding="utf-8")
+
+
 # Main --------------------------------------------------------------------------
 
 
@@ -332,10 +402,11 @@ def main() -> None:
     _flatten_autoapi()
     _inject_frontmatter()
     _fix_internal_links()
-    _fix_module_md_links()
     _shorten_qualified_names()
     _simplify_class_headings()
     _fix_qualified_anchors()
+    _fix_module_md_links()
+    _fix_member_index_anchors()
 
     file_count = sum(1 for _ in API_OUT.rglob("*.md"))
     print(f"==> API docs generated at: {API_OUT}")

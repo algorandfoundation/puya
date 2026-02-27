@@ -169,8 +169,8 @@ PuyaPy compiler for compiling Algorand Python to TEAL
 
 ### Defining template values
 
-[Template Variables](#algopy.TemplateVar), can be replaced with literal values during compilation to bytecode using the `--template-var` option.
-Additionally, Algorand Python functions that create AVM bytecode, such as [compile_contract](#algopy.compile_contract) and [compile_logicsig](#algopy.compile_logicsig), can also provide the specified values.
+[Template Variables](/puya/api/algopy/algopy/#class-templatevar), can be replaced with literal values during compilation to bytecode using the `--template-var` option.
+Additionally, Algorand Python functions that create AVM bytecode, such as [compile_contract](/puya/api/algopy/algopy/) and [compile_logicsig](/puya/api/algopy/algopy/), can also provide the specified values.
 
 #### Examples of Variable Definitions
 
@@ -178,9 +178,9 @@ The table below illustrates how different variables and values can be defined:
 
 | Variable Type            | Example Algorand Python                   | Value definition example |
 | ------------------------ | ----------------------------------------- | ------------------------ |
-| [UInt64](#algopy.UInt64) | `algopy.TemplateVar[UInt64]("SOME_INT")`  | `SOME_INT=1234`          |
-| [Bytes](#algopy.Bytes)   | `algopy.TemplateVar[Bytes]("SOME_BYTES")` | `SOME_BYTES=0x1A2B`      |
-| [String](#algopy.String) | `algopy.TemplateVar[String]("SOME_STR")`  | `SOME_STR="hello"`       |
+| [UInt64](/puya/api/algopy/algopy/#class-uint64) | `algopy.TemplateVar[UInt64]("SOME_INT")`  | `SOME_INT=1234`          |
+| [Bytes](/puya/api/algopy/algopy/#class-bytes)   | `algopy.TemplateVar[Bytes]("SOME_BYTES")` | `SOME_BYTES=0x1A2B`      |
+| [String](/puya/api/algopy/algopy/#class-string) | `algopy.TemplateVar[String]("SOME_STR")`  | `SOME_STR="hello"`       |
 
 All template values specified via the command line are prefixed with "TMPL\_" by default.
 The default prefix can be modified using the `--template-vars-prefix` option.
