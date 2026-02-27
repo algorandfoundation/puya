@@ -176,11 +176,21 @@ def _is_round_trip_safe(
                 and encoding.size == 32
                 and encoding.element == encodings.UIntEncoding(n=8)
             )
-        case PrimitiveIRType.uint64:
-            return isinstance(encoding, encodings.UIntEncoding) and (
-                encoding.n == 64 if intermediary == "native" else encoding.n >= 64
-            )
+        case PrimitiveIRType.uint64 if intermediary == "native":
+            # arc4.uintN -> uint64 -> arc4.uintN if N <= 64 can be eliminated, as the uint64
+            # will fit all sizes
+            return isinstance(encoding, encodings.UIntEncoding) and encoding.n <= 64
+        case PrimitiveIRType.uint64 if intermediary == "encoded":
+            # uint64 -> arc4.uintN -> uint64 if N >= 64 can be eliminated, as the arc4 value
+            # will fit all uint64 values
+            return isinstance(encoding, encodings.UIntEncoding) and encoding.n >= 64
         case PrimitiveIRType.biguint if intermediary == "native":
+            # biguint values, unlike uint64 and arc4.uintN, have multiple possible representations
+            # for the same logical value (e.g. zero can a byte array of zeros or the empty byte[]),
+            # so there's no case match for intermediary == "encoded" since the process of
+            # round-tripping might *intentionally* be changing the representation.
+            # there also doesn't need to be a check on the arc4.uintN size since biguint can
+            # be arbitrarily large (you just can't do math if it's > 512 bits)
             return isinstance(encoding, encodings.UIntEncoding)
         case TupleIRType(elements=native_elements):
             # okay if encoding is TupleEncoding and all elements are round-trip safe
