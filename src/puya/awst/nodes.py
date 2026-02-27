@@ -2207,7 +2207,7 @@ class EmitFields(Expression):
     """
 
     signature: str
-    values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
+    values: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

@@ -46,12 +46,6 @@ from puya.ir.builder.encoding_validation import validate_encoding
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
-from puya.ir.types_ import (
-    abi_name_to_wtype,
-    split_tuple_types,
-    wtype_to_encoded_ir_type,
-    wtype_to_ir_type,
-)
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ir.ValueProvider | None
@@ -176,7 +170,7 @@ class FunctionIRBuilder(
     def visit_arc4_from_bytes(self, expr: awst_nodes.ARC4FromBytes) -> TExpression:
         loc = expr.source_location
         factory = OpFactory(self.context, loc)
-        encoded_ir_type = wtype_to_encoded_ir_type(expr.wtype, loc)
+        encoded_ir_type = types.wtype_to_encoded_ir_type(expr.wtype, loc)
 
         value = self.visit_and_materialise_single(expr.value)
         if value.ir_type.maybe_avm_type != AVMType.bytes:
@@ -192,7 +186,7 @@ class FunctionIRBuilder(
             )
         encoded_value = factory.as_ir_type(value, encoded_ir_type)
 
-        ir_type = wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
+        ir_type = types.wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
         return ir.DecodeBytes.maybe(
             value=encoded_value,
             encoding=encoded_ir_type.encoding,
@@ -1429,10 +1423,6 @@ class FunctionIRBuilder(
         )
 
     def visit_emit(self, expr: awst_nodes.Emit) -> TExpression:
-        assert isinstance(
-            expr.value.wtype, wtypes.ARC4Struct
-        ), "expected ARC4Struct for emit value"
-
         expr_loc = expr.source_location
         struct_wtype = expr.value.wtype
 
@@ -1440,103 +1430,92 @@ class FunctionIRBuilder(
         abi_signature = (
             f"{event_name}{types.wtype_to_abi_name(struct_wtype, source_location=expr_loc)}"
         )
-
-        arc4_wtype = wtype_to_arc4_wtype(struct_wtype, expr_loc)
-        if isinstance(struct_wtype, wtypes.ARC4Type):
-            error_message = f"expected type {struct_wtype}, got type {expr.value.wtype}"
-        else:
-            error_message = f"cannot encode {expr.value.wtype} to {struct_wtype}"
-
-        encoded_expr = awst_nodes.ARC4Encode(
-            value=expr.value,
-            wtype=arc4_wtype,
-            error_message=error_message,
-            source_location=expr_loc,
-        )
-
-        self.handle_emit(abi_signature, encoded_expr, expr_loc)
+        value = self.visit_and_materialise_single(expr.value)
+        self.handle_emit(abi_signature, value, expr_loc)
 
         return None
 
     def visit_emit_fields(self, expr: awst_nodes.EmitFields) -> TExpression:
         expr_loc = expr.source_location
-        name, maybe_args_str, maybe_returns = split_signature(expr.signature, expr_loc)
-        if maybe_args_str is None:
-            maybe_args = None
-        elif maybe_args_str:
-            maybe_args = tuple(split_tuple_types(maybe_args_str))
-        else:
-            maybe_args = ()
-
+        name, maybe_args, maybe_returns = split_signature(expr.signature, expr_loc)
         if maybe_returns is not None:
             logger.error(
                 "event signatures cannot include return types",
                 location=expr_loc,
             )
 
-        if maybe_args is not None and len(expr.values) != len(maybe_args):
-            logger.error(
-                f"expected {len(maybe_args)} ABI arguments," f" got {len(expr.values)}",
-                location=expr_loc,
-            )
-            return None
-
         if maybe_args is None:
-            fields = {f"field{idx}": arg.wtype for idx, arg in enumerate(expr.values, start=1)}
+            fields = [arg.wtype for arg in expr.values]
         else:
-            fields = {
-                f"field{idx}": abi_name_to_wtype(arg)
-                for idx, arg in enumerate(maybe_args, start=1)
-            }
-
-        encoded_fields: dict[str, wtypes.WType] = {}
-        encoded_values: dict[str, awst_nodes.Expression] = {}
-        for (field_name, field_type), value_expr in zip(fields.items(), expr.values, strict=True):
-            encoded_wtype = wtype_to_arc4_wtype(field_type, value_expr.source_location)
-            encoded_fields[field_name] = encoded_wtype
-
-            if isinstance(value_expr.wtype, wtypes.ARC4Type):
-                error_message = f"expected type {field_type}, got type {value_expr.wtype}"
+            args = tuple(types.split_tuple_types(maybe_args))
+            if len(expr.values) == len(args):
+                fields = [types.abi_name_to_wtype(arg) for arg in args]
             else:
-                error_message = f"cannot encode {value_expr.wtype} to {field_type}"
-            encoded_values[field_name] = awst_nodes.ARC4Encode(
-                value=value_expr,
-                wtype=encoded_wtype,
-                error_message=error_message,
-                source_location=expr_loc,
+                logger.error(
+                    f"expected {len(args)} ABI arguments," f" got {len(expr.values)}",
+                    location=expr_loc,
+                )
+                return None
+
+        encoded_types = list[wtypes.WType]()
+        encoded_values = list[ir.Value]()
+        for field_type, value_expr in zip(fields, expr.values, strict=True):
+            value_wtype = value_expr.wtype
+            value_ir_type = types.wtype_to_ir_type(
+                value_wtype, value_expr.source_location, allow_tuple=True
             )
 
-        encoded_struct_wtype = wtypes.ARC4Struct(
-            name=name,
-            fields=encoded_fields,
-            frozen=True,
-            source_location=expr_loc,
-        )
-        encoded_expr: awst_nodes.Expression = awst_nodes.NewStruct(
-            values=encoded_values,
-            wtype=encoded_struct_wtype,
-            source_location=expr_loc,
+            encoded_wtype = wtype_to_arc4_wtype(field_type, value_expr.source_location)
+            encoding = wtype_to_encoding(encoded_wtype, value_expr.source_location)
+            encoded_types.append(encoded_wtype)
+
+            values = self.visit_and_materialise(value_expr)
+
+            if isinstance(value_wtype, wtypes.ARC4Type):
+                error_message = f"expected type {field_type}, got type {value_wtype}"
+            else:
+                error_message = f"cannot encode {value_wtype} to {field_type}"
+
+            encoded_values.extend(
+                self.materialise_value_provider(
+                    ir.BytesEncode.maybe(
+                        values=values,
+                        values_type=value_ir_type,
+                        encoding=encoding,
+                        error_message_override=error_message,
+                        source_location=value_expr.source_location,
+                    ),
+                    "tmp",
+                )
+            )
+
+        tuple_wtype = wtypes.WTuple(types=encoded_types, source_location=expr_loc)
+        tuple_ir_type = types.wtype_to_ir_type(tuple_wtype, expr_loc, allow_tuple=True)
+        tuple_encoding = wtype_to_encoding(tuple_wtype, expr_loc)
+        [value] = self.materialise_value_provider(
+            ir.BytesEncode.maybe(
+                values=encoded_values,
+                values_type=tuple_ir_type,
+                encoding=tuple_encoding,
+                source_location=expr_loc,
+            ),
+            "tmp",
         )
 
-        abi_signature = (
-            f"{name}{types.wtype_to_abi_name(encoded_struct_wtype, source_location=expr_loc)}"
-        )
-
-        self.handle_emit(abi_signature, encoded_expr, expr_loc)
+        abi_signature = f"{name}{types.wtype_to_abi_name(tuple_wtype, source_location=expr_loc)}"
+        self.handle_emit(abi_signature, value, expr_loc)
 
         return None
 
     def handle_emit(
         self,
         abi_signature: str,
-        encoded_expr: awst_nodes.Expression,
+        value: ir.Value,
         source_location: SourceLocation,
     ) -> None:
-        factory = OpFactory(self.context, source_location)
-        value = self.visit_and_materialise_single(encoded_expr)
         prefix = ir.MethodConstant(value=abi_signature, source_location=source_location)
+        factory = OpFactory(self.context, source_location)
         event = factory.concat(prefix, value, "event")
-
         self.context.block_builder.add(
             ir.Intrinsic(
                 op=AVMOp("log"),
