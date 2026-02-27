@@ -205,83 +205,42 @@ def transform_ir(context: ArtifactCompileContext, artifact_ir: ModuleArtifact) -
     return artifact_ir
 
 
-def _lower_logic_sig_arg(
+def _lower_single_arg(
     wtype: wtypes.WType,
     arg_idx: int,
     *,
     validate: bool,
     loc: SourceLocation,
-) -> tuple[awst_nodes.Expression, int]:
-    """Lower a single logical arg starting at the given op.arg index.
-
-    Returns the converted expression and the next available arg. index.
-    For tuple types, each element consumes one or more argument indices (recursively).
-    """
-    if isinstance(wtype, wtypes.WTuple):
-        items = list[awst_nodes.Expression]()
-        for field_wtype in wtype.types:
-            field_expr, arg_idx = _lower_logic_sig_arg(
-                field_wtype, arg_idx, validate=validate, loc=loc
-            )
-            items.append(field_expr)
-        return awst_nodes.TupleExpression(items=items, wtype=wtype, source_location=loc), arg_idx
-
-    # (micro opt.) use the arg_N opcode for N<=3, otherwise arg with immediate
+) -> awst_nodes.Expression:
     raw_bytes = awst_nodes.IntrinsicCall(
-        op_code=f"arg_{arg_idx}" if arg_idx <= 3 else "arg",
-        immediates=[] if arg_idx <= 3 else [arg_idx],
+        op_code="arg",
+        immediates=[arg_idx],
         wtype=wtypes.bytes_wtype,
         source_location=loc,
     )
-    if wtype.scalar_type == AVMType.uint64:
-        converted: awst_nodes.Expression = awst_nodes.IntrinsicCall(
-            op_code="btoi",
-            stack_args=[raw_bytes],
-            wtype=wtypes.uint64_wtype,
-            source_location=loc,
-        )
-        if wtype != wtypes.uint64_wtype:
-            converted = awst_nodes.ReinterpretCast(
-                expr=converted,
-                wtype=wtype,
-                source_location=loc,
-            )
-    elif wtype == wtypes.bytes_wtype:
-        converted = raw_bytes
-    elif isinstance(wtype, wtypes.ARC4Type):
-        converted = awst_nodes.ARC4FromBytes(
-            value=raw_bytes,
-            validate=validate,
-            wtype=wtype,
-            source_location=loc,
-        )
-    else:
-        # other bytes-backed types need reinterpret
-        converted = awst_nodes.ReinterpretCast(
-            expr=raw_bytes,
-            wtype=wtype,
-            source_location=loc,
-        )
-    return converted, arg_idx + 1
+    return awst_nodes.ARC4FromBytes(
+        value=raw_bytes,
+        validate=validate,
+        wtype=wtype,
+        source_location=loc,
+    )
 
 
 def _lower_logic_sig_args(
     program: awst_nodes.Subroutine, *, validate: bool
 ) -> awst_nodes.Subroutine:
-    """Transform a logicsig program with args into a parameterless one.
+    # Transform a logicsig program with args into a parameterless one.
+    # Prepends assignment statements that read each arg via the `arg` opcode,
+    # with appropriate type conversion (and optionally validation), then
+    # clears the arg list.
 
-    Prepends assignment statements that read each arg via the `arg` opcode,
-    with appropriate type conversion (and optionally validation), then
-    clears the arg list.
-    """
     if not program.args:
         return program
 
     arg_assignments = list[awst_nodes.Statement]()
-    arg_idx = 0
-    for arg in program.args:
+    for arg_idx, arg in enumerate(program.args):
         loc = arg.source_location
-        converted, arg_idx = _lower_logic_sig_arg(arg.wtype, arg_idx, validate=validate, loc=loc)
+        converted = _lower_single_arg(arg.wtype, arg_idx, validate=validate, loc=loc)
         target = awst_nodes.VarExpression(
             name=arg.name,
             wtype=arg.wtype,
