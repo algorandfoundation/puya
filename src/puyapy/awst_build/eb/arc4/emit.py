@@ -36,20 +36,18 @@ class EmitBuilder(FunctionBuilder):
                 event_expr = event_arg_eb.resolve()
                 return NoneExpressionBuilder(Emit(value=event_expr, source_location=location))
             case _:
-                first_string = expect.simple_string_literal(first, default=expect.default_raise)
-                event_name = first_string
+                event_name = expect.simple_string_literal(first, default=expect.default_raise)
                 allow_literal = "(" in event_name
 
-                values = []
-                for arg in rest:
-                    arg_instance_builder = expect.instance_builder(
-                        arg, default=expect.default_raise
-                    )
-                    expr = maybe_resolve_literal(
-                        arg_instance_builder, allow_literal=allow_literal
-                    ).resolve()
+                builders = [
+                    expect.instance_builder(arg, default=expect.default_raise) for arg in rest
+                ]
 
-                    values.append(expr)
+                values = [
+                    maybe_resolve_literal(builder, allow_literal=allow_literal).resolve()
+                    for builder in builders
+                ]
+
                 return NoneExpressionBuilder(
                     EmitFields(
                         signature=event_name,
