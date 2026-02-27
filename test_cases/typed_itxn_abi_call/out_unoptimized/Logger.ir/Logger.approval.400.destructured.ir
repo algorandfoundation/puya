@@ -801,7 +801,7 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo(value: Encoded(len+
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "echo: ")
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
-        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
+        let tmp%0#0: bytes = aggregate%as_Encoded(len+utf8[])%0#0
         let total_length%0#0: uint64 = (len value#0)
         let extract_to_end%0#0: bytes = (substring3 value#0 2u total_length%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
@@ -810,21 +810,26 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo(value: Encoded(len+
         let new_items_bytes#0: bytes = extract_to_end%0#0
         let new_items_count#0: uint64 = tmp%1#0
         goto block@1
-    block@1: // L133
+    block@1: // L175
         let tmp%0#1: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#1
         let tmp%1#0: uint64 = (+ array_length#0 new_items_count#0)
         let new_array_length#0: uint64 = tmp%1#0
-        let tmp%2#0: bytes = (itob new_array_length#0)
-        let tmp%3#0: bytes = ((extract 6 0) tmp%2#0)
-        let new_len_u16#0: bytes = tmp%3#0
-        let tmp%4#0: bytes = ((replace2 0) array#0 new_len_u16#0)
-        let result#0: bytes = tmp%4#0
-        let tmp%5#0: bytes = (concat result#0 new_items_bytes#0)
-        let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = tmp%5#0
+        let i#0: uint64 = new_array_length#0
         goto block@2
-    block@2: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L37
-        let tmp%2#0: bytes = aggregate%as_Encoded(len+utf8[])%1#0
+    block@2: // L26
+        let tmp%0#0: bytes = (itob i#0)
+        let tmp%1#2: bytes = ((extract 6 0) tmp%0#0)
+        let tmp%2#0: bytes = tmp%1#2
+        goto block@3
+    block@3: // after_inlined__puya_lib.arc4._itob16_L175
+        let new_len_u16#0: bytes = tmp%2#0
+        let tmp%3#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let result#0: bytes = tmp%3#0
+        let tmp%4#0: bytes = (concat result#0 new_items_bytes#0)
+        let tmp%2#0: bytes = tmp%4#0
+        goto block@4
+    block@4: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L37
         return tmp%2#0
 
 subroutine test_cases.typed_itxn_abi_call.logger.Logger.no_args() -> uint64:
@@ -960,7 +965,7 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple(tuple_
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "echo: ")
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
-        let tmp%1#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
+        let tmp%1#0: bytes = aggregate%as_Encoded(len+utf8[])%0#0
         let total_length%0#0: uint64 = (len arc4_string#0)
         let extract_to_end%0#0: bytes = (substring3 arc4_string#0 2u total_length%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 arc4_string#0 0u) // on error: invalid array length header
@@ -969,21 +974,26 @@ subroutine test_cases.typed_itxn_abi_call.logger.Logger.echo_nested_tuple(tuple_
         let new_items_bytes#0: bytes = extract_to_end%0#0
         let new_items_count#0: uint64 = tmp%2#0
         goto block@1
-    block@1: // L133
+    block@1: // L175
         let tmp%0#1: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#1
         let tmp%1#1: uint64 = (+ array_length#0 new_items_count#0)
         let new_array_length#0: uint64 = tmp%1#1
-        let tmp%2#1: bytes = (itob new_array_length#0)
-        let tmp%3#0: bytes = ((extract 6 0) tmp%2#1)
-        let new_len_u16#0: bytes = tmp%3#0
-        let tmp%4#1: bytes = ((replace2 0) array#0 new_len_u16#0)
-        let result#0: bytes = tmp%4#1
-        let tmp%5#1: bytes = (concat result#0 new_items_bytes#0)
-        let aggregate%as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = tmp%5#1
+        let i#0: uint64 = new_array_length#0
         goto block@2
-    block@2: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L123
-        let tmp%3#0: bytes = aggregate%as_Encoded(len+utf8[])%1#0
+    block@2: // L26
+        let tmp%0#2: bytes = (itob i#0)
+        let tmp%1#0: bytes = ((extract 6 0) tmp%0#2)
+        let tmp%2#1: bytes = tmp%1#0
+        goto block@3
+    block@3: // after_inlined__puya_lib.arc4._itob16_L175
+        let new_len_u16#0: bytes = tmp%2#1
+        let tmp%3#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let result#0: bytes = tmp%3#0
+        let tmp%4#1: bytes = (concat result#0 new_items_bytes#0)
+        let tmp%3#0: bytes = tmp%4#1
+        goto block@4
+    block@4: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L123
         let tmp%4#0: uint64 = (+ u64#0 1u)
         let tmp%5#0: uint64 = (btoi arc4_u64#0)
         let tmp%6#0: uint64 = (+ tmp%5#0 1u)

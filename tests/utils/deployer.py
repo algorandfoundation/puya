@@ -115,6 +115,17 @@ class Deployer:
             abi_return=None,
         )
 
+    def create_op_up(self, note: bytes | None = None) -> au.Transaction:
+        return self.localnet.create_transaction.app_create(
+            au.AppCreateParams(
+                approval_program=_ALWAYS_APPROVE,
+                clear_state_program=_ALWAYS_APPROVE,
+                on_complete=au.OnApplicationComplete.DeleteApplication,
+                sender=self.account.addr,
+                note=note,
+            )
+        )
+
     def create_with_op_up(
         self,
         contract: Contract,
@@ -135,15 +146,7 @@ class Deployer:
             )
         )
         for idx in range(num_op_ups):
-            group.add_app_create(
-                au.AppCreateParams(
-                    approval_program=_ALWAYS_APPROVE,
-                    clear_state_program=_ALWAYS_APPROVE,
-                    on_complete=au.OnApplicationComplete.DeleteApplication,
-                    sender=self.account.addr,
-                    note=idx.to_bytes(),  # make op ups unique
-                )
-            )
+            group.add_transaction(self.create_op_up(idx.to_bytes()))
 
         result = group.send()
         confirmation = result.confirmations[0]

@@ -325,3 +325,21 @@ def wtype_to_encoding(wtype: wtypes.WType, loc: SourceLocation | None) -> Encodi
 
 def wtype_to_encoding(wtype: wtypes.WType, loc: SourceLocation | None) -> Encoding:
     return wtype.accept(_WTypeToEncoding(loc))
+
+
+def is_byte_length_dynamic_array(encoding: Encoding) -> bool:
+    return (
+        is_dynamic_array_of_fixed_size_byte_elements(encoding) and encoding.element.num_bytes == 1
+    )
+
+
+def is_dynamic_array_of_fixed_size_byte_elements(
+    encoding: Encoding,
+) -> typing.TypeGuard[ArrayEncoding]:
+    return (
+        isinstance(encoding, ArrayEncoding)
+        and encoding.element.is_fixed
+        and not encoding.element.is_bit
+        and encoding.size is None
+        and encoding.length_header
+    )

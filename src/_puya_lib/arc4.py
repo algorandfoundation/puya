@@ -24,23 +24,29 @@ UINT16_OFFSET = UINT64_SIZE - UINT16_SIZE
 
 
 @__pure
+@subroutine(inline=True)
+def _itob16(i: UInt64) -> Bytes:
+    return extract(itob(i), UINT16_OFFSET, 0)
+
+
+@__pure
 @subroutine
-def dynamic_array_pop_bit(array: Bytes) -> tuple[bool, Bytes]:
+def dynamic_array_pop_bit(array: Bytes) -> Bytes:
     """
     Pop the last item from an arc4 dynamic array of arc4 encoded boolean items
 
     array: The bytes for the source array
 
-    returns: tuple of (The popped item, The updated bytes for the source array)
+    returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
-    length_minus_1 = array_length - 1
-    result = replace(array, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
-    popped_location = length_minus_1 + UINT16_SIZE * 8
-    popped = getbit(result, popped_location)
-    result = setbit_bytes(result, popped_location, False)  # noqa: FBT003
-    result = substring(result, 0, UINT16_SIZE + ((length_minus_1 + 7) // 8))
-    return popped, result
+    new_length = array_length - 1
+    result = _itob16(new_length)
+    data = extract(array, UINT16_SIZE, 0)
+    data = setbit_bytes(data, new_length, False)  # noqa: FBT003
+    trimmed_size = (new_length + 7) // 8
+    result += extract(data, 0, trimmed_size)
+    return result
 
 
 @__pure
@@ -63,71 +69,107 @@ def dynamic_array_pop_fixed_size(array: Bytes, fixed_byte_size: UInt64) -> Bytes
     result = r_trim(array, fixed_byte_size)
     array_length = extract_uint16(result, 0)
     length_minus_1 = array_length - 1
-    return replace(result, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
+    return replace(result, 0, _itob16(length_minus_1))
 
 
 @__pure
 @subroutine
-def dynamic_array_pop_byte_length_head(array: Bytes) -> tuple[Bytes, Bytes]:
+def dynamic_array_pop_byte_length_head(array: Bytes) -> Bytes:
     """
     Pop the last item from an arc4 dynamic array of items that are prefixed with their length in
     bytes, e.g. arc4.String, arc4.DynamicBytes
 
     source: The bytes for the source array
 
-    returns: tuple of (The popped item, The updated bytes for the source array)
+    returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
-    popped_header_offset = length_minus_1 * UINT16_SIZE
+    updated = _itob16(length_minus_1)
     head_and_tail = extract(array, UINT16_SIZE, 0)
+    popped_header_offset = length_minus_1 * UINT16_SIZE
+
     popped_offset = extract_uint16(head_and_tail, popped_header_offset)
+    new_head_and_tail = substring(head_and_tail, 0, popped_header_offset)
+    new_head_and_tail += substring(head_and_tail, popped_header_offset + 2, popped_offset)
 
-    popped = substring(head_and_tail, popped_offset, head_and_tail.length)
-    head_and_tail = substring(head_and_tail, 0, popped_header_offset) + substring(
-        head_and_tail, popped_header_offset + 2, popped_offset
+    updated += _recalculate_head_for_elements_with_byte_length_head(
+        array_head_and_tail=new_head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
     )
-
-    updated = extract(
-        itob(length_minus_1), UINT16_OFFSET, UINT16_SIZE
-    ) + _recalculate_head_for_elements_with_byte_length_head(
-        array_head_and_tail=head_and_tail, length=length_minus_1, start_at_index=UInt64(0)
-    )
-
-    return popped, updated
+    return updated
 
 
 @__pure
 @subroutine
-def dynamic_array_pop_dynamic_element(array: Bytes) -> tuple[Bytes, Bytes]:
+def dynamic_array_pop_dynamic_element(array: Bytes) -> Bytes:
     """
     Pop the last item from an arc4 dynamic array of dynamically sized items
 
     array: The bytes for the source array
 
-    returns: tuple of (The popped item, The updated bytes for the source array)
+    returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
     length_minus_1 = array_length - 1
+
+    updated = _itob16(length_minus_1)
     popped_header_offset = length_minus_1 * UINT16_SIZE
-    head_and_tail = extract(array, UINT16_SIZE, 0)
-    popped_offset = extract_uint16(head_and_tail, popped_header_offset)
-
-    popped = substring(head_and_tail, popped_offset, head_and_tail.length)
-
-    new_head = Bytes()
-    for head_offset in urange(0, length_minus_1 * UINT16_SIZE, UINT16_SIZE):
-        item_offset = extract_uint16(head_and_tail, head_offset)
+    head_offset = UInt64(UINT16_SIZE)
+    while head_offset <= popped_header_offset:
+        item_offset = extract_uint16(array, head_offset)
         item_offset -= UINT16_SIZE
-        new_head += extract(itob(item_offset), UINT16_OFFSET, UINT16_SIZE)
+        updated += _itob16(item_offset)
+        head_offset += UINT16_SIZE
 
-    updated = (
-        extract(itob(length_minus_1), UINT16_OFFSET, UINT16_SIZE)
-        + new_head
-        + substring(head_and_tail, popped_header_offset + UINT16_SIZE, popped_offset)
+    head_and_tail = extract(array, UINT16_SIZE, 0)
+    updated += substring(
+        head_and_tail,
+        head_offset,
+        extract_uint16(head_and_tail, popped_header_offset),
     )
 
-    return popped, updated
+    return updated
+
+
+@__pure
+@subroutine
+def dynamic_array_read_dynamic_element(*, array: Bytes, index: UInt64) -> Bytes:
+    return static_array_read_dynamic_element(
+        array_head_and_tail=extract(array, UINT16_SIZE, 0),
+        index=index,
+        array_length=extract_uint16(array, 0),
+    )
+
+
+@__pure
+@subroutine
+def static_array_read_dynamic_element(
+    *, array_head_and_tail: Bytes, index: UInt64, array_length: UInt64
+) -> Bytes:
+    item_start_offset = extract_uint16(array_head_and_tail, index * 2)
+    end_of_tail = array_head_and_tail.length
+    next_index = index + 1
+    next_item_offset = extract_uint16(array_head_and_tail, next_index * 2)
+    is_before_end = array_length - next_index  # this will error if index is beyond the length
+    item_end_offset = select_uint64(end_of_tail, next_item_offset, is_before_end)
+    return substring(array_head_and_tail, item_start_offset, item_end_offset)
+
+
+@__pure
+@subroutine
+def dynamic_array_read_byte_length_element(*, array: Bytes, index: UInt64) -> Bytes:
+    array_head_and_tail = extract(array, UINT16_SIZE, 0)
+    item_start_offset = extract_uint16(array_head_and_tail, index * 2)
+    item_length = extract_uint16(array_head_and_tail, item_start_offset)
+    return extract(array_head_and_tail, item_start_offset, item_length + 2)
+
+
+@__pure
+@subroutine
+def static_array_read_byte_length_element(*, array: Bytes, index: UInt64) -> Bytes:
+    item_start_offset = extract_uint16(array, index * 2)
+    item_length = extract_uint16(array, item_start_offset)
+    return extract(array, item_start_offset, item_length + 2)
 
 
 @__pure
@@ -148,7 +190,7 @@ def dynamic_array_concat_fixed(
     """
     array_length = extract_uint16(array, 0)
     new_array_length = array_length + new_items_count
-    new_len_u16 = extract(itob(new_array_length), UINT16_OFFSET, 0)
+    new_len_u16 = _itob16(new_array_length)
     result = replace(array, 0, new_len_u16)
     return result + new_items_bytes
 
@@ -173,7 +215,7 @@ def dynamic_array_concat_bits(
     """
     array_length = extract_uint16(array, 0)
     new_array_length = array_length + new_items_count
-    new_array_length_b = extract(itob(new_array_length), UINT16_OFFSET, 0)
+    new_array_length_b = _itob16(new_array_length)
     result = replace(array, 0, new_array_length_b)
     current_bytes = (array_length + 7) // 8
     required_bytes = (new_array_length + 7) // 8
@@ -207,47 +249,45 @@ def dynamic_array_concat_byte_length_head(
     returns: The updated bytes for the source array
     """
     array_length = extract_uint16(array, 0)
-    new_length = array_length + new_items_count
-    header_end = array_length * UINT16_SIZE + 2
 
-    return extract(
-        itob(new_length), UINT16_OFFSET, UINT16_SIZE
-    ) + _recalculate_head_for_elements_with_byte_length_head(
-        array_head_and_tail=(
-            substring(array, 2, header_end)
-            + bzero(new_items_count * UINT16_SIZE)
-            + substring(array, header_end, array.length)
-            + new_items_bytes
-        ),
+    header_end = array_length * UINT16_SIZE + 2
+    array_head = substring(array, 2, header_end) + bzero(new_items_count * UINT16_SIZE)
+    array_tail = substring(array, header_end, array.length) + new_items_bytes
+    array_head_and_tail = array_head + array_tail
+    new_length = array_length + new_items_count
+    result = _itob16(new_length) + _recalculate_head_for_elements_with_byte_length_head(
+        array_head_and_tail=array_head_and_tail,
         length=new_length,
         start_at_index=UInt64(0),
     )
+    return result
 
 
 @__pure
 @subroutine
 def dynamic_array_concat_dynamic_element(
     *,
-    array_items_count: UInt64,
-    array_head_and_tail: Bytes,
-    new_items_count: UInt64,
+    array: Bytes,
     new_head_and_tail: Bytes,
+    new_items_count: UInt64,
 ) -> Bytes:
-    new_head = Bytes()
-    item_offset_adjustment = new_items_count * UINT16_SIZE
-    for head_offset in urange(0, array_items_count * UINT16_SIZE, UINT16_SIZE):
+    array_items_count = extract_uint16(array, 0)
+    result = _itob16(array_items_count + new_items_count)
+    array_head_and_tail = extract(array, UINT16_SIZE, 0)
+    array_head_size = array_items_count * UINT16_SIZE
+    new_head_size = new_items_count * UINT16_SIZE
+    for head_offset in urange(0, array_head_size, UINT16_SIZE):
         item_offset = extract_uint16(array_head_and_tail, head_offset)
-        new_head += extract(itob(item_offset_adjustment + item_offset), UINT16_OFFSET, UINT16_SIZE)
+        result += _itob16(new_head_size + item_offset)
 
     head_and_tail_length = array_head_and_tail.length
-    for head_offset in urange(0, new_items_count * UINT16_SIZE, UINT16_SIZE):
+    for head_offset in urange(0, new_head_size, UINT16_SIZE):
         item_offset = extract_uint16(new_head_and_tail, head_offset)
-        new_head += extract(itob(head_and_tail_length + item_offset), UINT16_OFFSET, UINT16_SIZE)
+        result += _itob16(head_and_tail_length + item_offset)
     return (
-        extract(itob(array_items_count + new_items_count), UINT16_OFFSET, UINT16_SIZE)
-        + new_head
-        + substring(array_head_and_tail, array_items_count * UINT16_SIZE, head_and_tail_length)
-        + substring(new_head_and_tail, new_items_count * UINT16_SIZE, new_head_and_tail.length)
+        result
+        + substring(array_head_and_tail, array_head_size, head_and_tail_length)
+        + substring(new_head_and_tail, new_head_size, new_head_and_tail.length)
     )
 
 
@@ -293,24 +333,25 @@ def dynamic_array_replace_dynamic_element(source: Bytes, new_item: Bytes, index:
 def static_array_replace_dynamic_element(
     *, array_head_and_tail: Bytes, new_item: Bytes, index: UInt64, array_length: UInt64
 ) -> Bytes:
-    original_offset = extract_uint16(array_head_and_tail, index * 2)
-    next_item_offset = extract_uint16(array_head_and_tail, (index + 1) * 2)
+    new_item_length = new_item.length
+
     end_of_tail = array_head_and_tail.length
+    next_item_offset = extract_uint16(array_head_and_tail, (index + 1) * UINT16_SIZE)
     is_before_end = array_length - index - 1
     end_offset = select_uint64(end_of_tail, next_item_offset, is_before_end)
-
+    original_offset = extract_uint16(array_head_and_tail, index * UINT16_SIZE)
     original_item_length = end_offset - original_offset
-    new_item_length = new_item.length
+
     new_head_and_tail = (
         substring(array_head_and_tail, 0, original_offset)
         + new_item
         + substring(array_head_and_tail, end_offset, end_of_tail)
     )
-    for head_offset in urange((index + 1) * 2, array_length * 2, 2):
+    for head_offset in urange((index + 1) * UINT16_SIZE, array_length * UINT16_SIZE, UINT16_SIZE):
         tail_offset = extract_uint16(new_head_and_tail, head_offset)
         tail_offset += new_item_length
         tail_offset -= original_item_length
-        tail_offset_bytes = extract(itob(tail_offset), UINT16_OFFSET, UINT16_SIZE)
+        tail_offset_bytes = _itob16(tail_offset)
         new_head_and_tail = replace(new_head_and_tail, head_offset, tail_offset_bytes)
     return new_head_and_tail
 
@@ -321,7 +362,7 @@ def static_array_replace_byte_length_head(
     array_head_and_tail: Bytes, new_item: Bytes, index: UInt64, array_length: UInt64
 ) -> Bytes:
     """
-    Replace a single item in an arc4 dynamic array of items that are prefixed with
+    Replace a single item in an arc4 static array of dynamic items that are prefixed with
     their byte length
 
     array_head_and_tail: The head and tail bytes of the source array
@@ -331,14 +372,16 @@ def static_array_replace_byte_length_head(
 
     returns: The updated bytes for the source array
     """
-    assert index < array_length, "Index out of bounds"
     offset_for_index = extract_uint16(array_head_and_tail, index * UINT16_SIZE)
     old_item_length = extract_uint16(array_head_and_tail, offset_for_index)
     old_item_end = offset_for_index + old_item_length + UINT16_SIZE
-    return _recalculate_head_for_elements_with_byte_length_head(
-        array_head_and_tail=substring(array_head_and_tail, 0, offset_for_index)
+    new_head_and_tail = (
+        substring(array_head_and_tail, 0, offset_for_index)
         + new_item
-        + substring(array_head_and_tail, old_item_end, array_head_and_tail.length),
+        + substring(array_head_and_tail, old_item_end, array_head_and_tail.length)
+    )
+    return _recalculate_head_for_elements_with_byte_length_head(
+        array_head_and_tail=new_head_and_tail,
         length=array_length,
         start_at_index=index,
     )
@@ -367,8 +410,14 @@ def _recalculate_head_for_elements_with_byte_length_head(
     )
 
     for head_offset in urange(start_at_index * UINT16_SIZE, length * UINT16_SIZE, UINT16_SIZE):
-        tail_offset_bytes = extract(itob(tail_offset), UINT16_OFFSET, UINT16_SIZE)
+        tail_offset_bytes = _itob16(tail_offset)
         array_head_and_tail = replace(array_head_and_tail, head_offset, tail_offset_bytes)
         tail_offset += extract_uint16(array_head_and_tail, tail_offset) + UINT16_SIZE
-        head_offset += UINT16_SIZE
     return array_head_and_tail
+
+
+@__pure
+@subroutine
+def dynamic_assert_index(array: Bytes, index: UInt64) -> None:
+    length = extract_uint16(array, 0)
+    assert index < length, "index out of bounds"

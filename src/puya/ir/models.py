@@ -12,6 +12,7 @@ from puya.artifact_metadata import ContractMetaData, LogicSignatureMetaData
 from puya.avm import AVMType
 from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
+from puya.ir import encodings
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, Variant
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
@@ -468,6 +469,7 @@ class ArrayConcat(ValueProvider):
     base_type: EncodedType = attrs.field(repr=lambda x: x.name)
     array_encoding: ArrayEncoding = attrs.field(init=False)
     items: Value
+    item_encoding: Encoding = attrs.field()
     num_items: Value = attrs.field()
 
     @array_encoding.default
@@ -476,6 +478,17 @@ class ArrayConcat(ValueProvider):
         if not isinstance(encoding, ArrayEncoding):
             raise InternalError("can only concat arrays", self.source_location)
         return encoding
+
+    @item_encoding.validator
+    def _validate_item_encoding(self, _: object, item_encoding: Encoding) -> None:
+        if self.array_encoding.element.is_bit:
+            if not isinstance(item_encoding, encodings.BoolEncoding | encodings.Bool8Encoding):
+                raise InternalError("expected bool array", self.items.source_location)
+        elif self.array_encoding.element != item_encoding:
+            raise InternalError(
+                "expected item encoding to match array element encoding",
+                self.items.source_location,
+            )
 
     @num_items.validator
     def _validate_num_items(self, _: object, num_items: Value) -> None:

@@ -11,6 +11,8 @@ main:
     intc_0 // 0
     intc_0 // 0
     intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
     bytec_0 // ""
@@ -108,7 +110,7 @@ main_after_for@4:
     bytec_1 // 0x0304
     concat
     dup
-    bury 14
+    bury 17
     // arc4_types/dynamic_bytes.py:22
     // assert dynamic_bytes2.native == b"\x03\x04"
     dup
@@ -126,7 +128,7 @@ main_after_for@4:
     // for uint8_item in dynamic_bytes2:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    bury 9
+    bury 10
     intc_0 // 0
     bury 7
     b main_for_header@5
@@ -135,7 +137,7 @@ main_for_header@5:
     // arc4_types/dynamic_bytes.py:25
     // for uint8_item in dynamic_bytes2:
     dig 6
-    dig 9
+    dig 10
     <
     bz main_after_for@8
     b main_for_body@6
@@ -143,7 +145,7 @@ main_for_header@5:
 main_for_body@6:
     // arc4_types/dynamic_bytes.py:25
     // for uint8_item in dynamic_bytes2:
-    dig 12
+    dig 15
     dup
     len
     cover 1
@@ -173,7 +175,7 @@ main_for_footer@7:
 main_after_for@8:
     // arc4_types/dynamic_bytes.py:28
     // dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
-    dig 12
+    dig 15
     extract 2 0
     dup
     len
@@ -182,7 +184,7 @@ main_after_for@8:
     uncover 1
     concat
     dup
-    bury 13
+    bury 16
     // arc4_types/dynamic_bytes.py:29
     // assert dynamic_bytes3.native == b"\x03\x04"
     dup
@@ -200,7 +202,7 @@ main_after_for@8:
     // for uint8_item in dynamic_bytes3:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    bury 8
+    bury 9
     intc_0 // 0
     bury 6
     b main_for_header@9
@@ -209,7 +211,7 @@ main_for_header@9:
     // arc4_types/dynamic_bytes.py:32
     // for uint8_item in dynamic_bytes3:
     dig 5
-    dig 8
+    dig 9
     <
     bz main_after_for@12
     b main_for_body@10
@@ -217,7 +219,7 @@ main_for_header@9:
 main_for_body@10:
     // arc4_types/dynamic_bytes.py:32
     // for uint8_item in dynamic_bytes3:
-    dig 11
+    dig 14
     dup
     len
     cover 1
@@ -269,34 +271,45 @@ main_after_for@12:
     cover 1
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    dig 13
-    bury 16
+    dig 16
+    bury 19
     uncover 1
-    bury 12
+    bury 15
     bury 5
     b main_block@16
 
 main_block@16:
-    dig 13
-    dup
+    dig 16
     intc_0 // 0
     extract_uint16
-    dig 6
+    dig 5
     +
+    bury 8
+    b main_block@17
+
+main_block@17:
+    dig 7
     itob
     extract 6 0
-    replace2 0
-    dig 11
-    concat
-    bury 15
-    // arc4_types/dynamic_bytes.py:37
-    // dynamic_bytes3.extend(DynamicBytes(b"abc"))
-    b main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@17
+    bury 12
+    b main_after_inlined__puya_lib.arc4._itob16@18
 
-main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@17:
+main_after_inlined__puya_lib.arc4._itob16@18:
+    dig 11
+    dig 17
+    uncover 1
+    replace2 0
+    dig 14
+    concat
+    bury 11
     // arc4_types/dynamic_bytes.py:37
     // dynamic_bytes3.extend(DynamicBytes(b"abc"))
-    dig 14
+    b main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@19
+
+main_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@19:
+    // arc4_types/dynamic_bytes.py:37
+    // dynamic_bytes3.extend(DynamicBytes(b"abc"))
+    dig 10
     // arc4_types/dynamic_bytes.py:38
     // assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
     dup
@@ -350,13 +363,13 @@ main_ternary_true@13:
     extract 6 2
     pushbytes 0x32
     concat
-    bury 10
+    bury 13
     b main_ternary_merge@15
 
 main_ternary_merge@15:
     // arc4_types/dynamic_bytes.py:44
     // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
-    dig 9
+    dig 12
     // arc4_types/dynamic_bytes.py:45
     // assert dynamic_bytes.native == b"3"
     extract 2 0
@@ -377,5 +390,5 @@ main_ternary_false@14:
     extract 6 2
     bytec_3 // 0x33
     concat
-    bury 10
+    bury 13
     b main_ternary_merge@15

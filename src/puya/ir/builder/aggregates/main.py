@@ -3,8 +3,9 @@ import typing
 import attrs
 
 from puya import log
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir import (
+    encodings,
     models as ir,
     types_ as types,
 )
@@ -62,44 +63,65 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
     @typing.override
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
         array_encoding = pop.array_encoding
-        element_encoding = array_encoding.element
-        if not element_encoding.is_fixed or element_encoding.is_bit:
-            raise InternalError(
-                "ir.ArrayPop only supports fixed size elements currently", pop.source_location
-            )
-        if array_encoding.length_header:
-            pop_method = PuyaLibIR.dynamic_array_pop_fixed_size
-        else:
-            pop_method = PuyaLibIR.r_trim
+        assert array_encoding.size is None, "expected DynamicArray encoding"
         factory = OpFactory(self, pop.source_location)
-        return factory.invoke(
-            pop_method,
-            [pop.base, element_encoding.checked_num_bytes],
-        )
+        element_encoding = array_encoding.element
+        if not array_encoding.length_header:
+            if element_encoding.is_dynamic or element_encoding.is_bit:
+                raise CodeError(
+                    f"unsupported dynamic array type {array_encoding}", pop.source_location
+                )
+            return factory.invoke(PuyaLibIR.r_trim, [pop.base, element_encoding.checked_num_bytes])
+        elif element_encoding.is_bit:
+            return factory.invoke(PuyaLibIR.dynamic_array_pop_bit, [pop.base])
+        elif encodings.is_byte_length_dynamic_array(element_encoding):
+            return factory.invoke(PuyaLibIR.dynamic_array_pop_byte_length_head, [pop.base])
+        elif element_encoding.is_dynamic:
+            return factory.invoke(PuyaLibIR.dynamic_array_pop_dynamic_element, [pop.base])
+        else:
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_pop_fixed_size,
+                [pop.base, element_encoding.checked_num_bytes],
+            )
 
     @typing.override
     def visit_array_concat(self, concat: ir.ArrayConcat) -> ir.ValueProvider:
+        loc = concat.source_location
         array_encoding = concat.array_encoding
-        array_element = array_encoding.element
-        if not array_element.is_fixed or array_element.is_bit:
-            raise InternalError(
-                "ir.ArrayConcat only supports fixed size elements currently",
-                concat.source_location,
-            )
-        factory = OpFactory(self, concat.source_location)
-        if array_encoding.length_header:
-            updated_array: ir.ValueProvider = factory.invoke(
-                PuyaLibIR.dynamic_array_concat_fixed,
-                [concat.base, concat.items, concat.num_items],
-            )
-        else:
-            updated_array = factory.concat(
+        assert array_encoding.size is None, "expected DynamicArray encoding"
+        element_encoding = array_encoding.element
+        factory = OpFactory(self, loc)
+        if not array_encoding.length_header:
+            if element_encoding.is_dynamic or element_encoding.is_bit:
+                raise CodeError(f"unsupported dynamic array type {array_encoding}", loc)
+            return factory.concat(
                 concat.base,
                 concat.items,
                 ir_type=concat.base_type,
                 error_message="max array length exceeded",
             )
-        return factory.as_ir_type(updated_array, concat.base_type)
+        elif element_encoding.is_bit:
+            element_bits = concat.item_encoding.num_bits
+            assert element_bits in (1, 8)
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_bits,
+                [concat.base, concat.items, concat.num_items, element_bits],
+            )
+        elif encodings.is_byte_length_dynamic_array(array_encoding.element):
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_byte_length_head,
+                [concat.base, concat.items, concat.num_items],
+            )
+        elif element_encoding.is_dynamic:
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_dynamic_element,
+                [concat.base, concat.items, concat.num_items],
+            )
+        else:
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_fixed,
+                [concat.base, concat.items, concat.num_items],
+            )
 
     @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:

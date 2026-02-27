@@ -72,11 +72,20 @@ def test_dynamic_arrays_mixed_single_dynamic(
     mixed1_struct0 = (3, "a", 2**42)
     mixed1_struct1 = (2**42, "bee", 3)
 
-    mixed_single_result = app_client.send.call(
-        au.AppClientMethodCallParams(method="test_mixed_single_dynamic_elements")
+    mixed_single_result = (
+        app_client.algorand.new_group()
+        .add_app_call_method_call(
+            app_client.params.call(
+                au.AppClientMethodCallParams(method="test_mixed_single_dynamic_elements")
+            )
+        )
+        .add_transaction(deployer.create_op_up())
+        .send()
+        .confirmations[0]
     )
+
     (mixed1_arr_bytes, mixed1_0_bytes, mixed1_1_bytes) = decode_logs(
-        mixed_single_result.confirmation.logs, "bbb"
+        mixed_single_result.logs, "bbb"
     )
 
     assert mixed1_arr_bytes == mixed1_arr_t.encode([mixed1_struct0, mixed1_struct1])

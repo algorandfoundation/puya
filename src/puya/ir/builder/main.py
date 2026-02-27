@@ -766,8 +766,7 @@ class FunctionIRBuilder(
                     expr.source_location,
                 )
             array = self.visit_and_materialise_single(expr.base)
-            builder = dynamic_array.get_builder(self.context, sliceable_type, loc)
-            data, _ = builder.pop(array)
+            data, _ = dynamic_array.pop(self.context, wtype=sliceable_type, array=array, loc=loc)
             return data
         else:
             raise InternalError(
@@ -1240,8 +1239,14 @@ class FunctionIRBuilder(
         target_value = self.visit_and_materialise_single(statement.target)
         rhs = self.visit_and_materialise_single(statement.value)
         if statement.target.wtype == wtypes.arc4_string_alias:
-            builder = dynamic_array.get_builder(self.context, statement.target.wtype, loc)
-            value: ir.ValueProvider = builder.concat(target_value, rhs, rhs.ir_type)
+            value: ir.ValueProvider = dynamic_array.concat(
+                self.context,
+                wtype=statement.target.wtype,
+                array=target_value,
+                iterable=rhs,
+                iterable_ir_type=rhs.ir_type,
+                loc=loc,
+            )
         else:
             value = create_bytes_binary_op(statement.op, target_value, rhs, loc)
 
@@ -1296,14 +1301,15 @@ class FunctionIRBuilder(
         loc = expr.source_location
 
         array_wtype = expr.base.wtype
-        builder = dynamic_array.get_builder(self.context, array_wtype, loc)
 
         array_or_slot = self.visit_and_materialise_single(expr.base)
         if isinstance(array_or_slot.ir_type, types.SlotType):
             array = mem.read_slot(self.context, array_or_slot, loc)
         else:
             array = array_or_slot
-        updated_array, popped_item = builder.pop(array)
+        updated_array, popped_item = dynamic_array.pop(
+            self.context, wtype=array_wtype, array=array, loc=loc
+        )
 
         if isinstance(array_or_slot.ir_type, types.SlotType):
             mem.write_slot(self.context, array_or_slot, updated_array, loc)
@@ -1391,8 +1397,14 @@ class FunctionIRBuilder(
             array = array_or_slot
 
         # do concat
-        builder = dynamic_array.get_builder(self.context, array_expr.wtype, loc)
-        return array_or_slot, builder.concat(array, iterable, iterable_ir_type)
+        return array_or_slot, dynamic_array.concat(
+            self.context,
+            wtype=array_expr.wtype,
+            array=array,
+            iterable=iterable,
+            iterable_ir_type=iterable_ir_type,
+            loc=loc,
+        )
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
         loc = expr.source_location

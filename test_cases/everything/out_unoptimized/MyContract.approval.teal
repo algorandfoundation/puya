@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock "counter" "name" 0x151f7c75 "Howdy stranger!" "Hello, "
+    bytecblock "counter" "name" 0x151f7c75 "" "Howdy stranger!" "Hello, "
     b main_block@0
 
 main_block@0:
@@ -350,7 +350,9 @@ test_cases.everything.contract.Everything.say_hello:
     intc_0 // 0
     intc_0 // 0
     intc_0 // 0
-    pushbytes ""
+    intc_0 // 0
+    bytec_3 // ""
+    bytec_3 // ""
     b test_cases.everything.contract.Everything.say_hello_block@0
 
 test_cases.everything.contract.Everything.say_hello_block@0:
@@ -371,11 +373,11 @@ test_cases.everything.contract.Everything.say_hello_block@0:
 test_cases.everything.contract.Everything.say_hello_if_body@1:
     // everything/contract.py:61
     // return String("Howdy stranger!")
-    bytec_3 // "Howdy stranger!"
+    bytec 4 // "Howdy stranger!"
     len
     itob
     extract 6 2
-    bytec_3 // "Howdy stranger!"
+    bytec 4 // "Howdy stranger!"
     concat
     frame_bury 0
     retsub
@@ -383,13 +385,13 @@ test_cases.everything.contract.Everything.say_hello_if_body@1:
 test_cases.everything.contract.Everything.say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    bytec 4 // "Hello, "
+    bytec 5 // "Hello, "
     len
     itob
     extract 6 2
-    bytec 4 // "Hello, "
+    bytec 5 // "Hello, "
     concat
-    frame_dig 5
+    frame_dig 7
     dup
     len
     cover 1
@@ -401,69 +403,36 @@ test_cases.everything.contract.Everything.say_hello_after_if_else@2:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     uncover 2
-    frame_bury 2
+    frame_bury 0
     uncover 1
-    frame_bury 3
-    frame_bury 4
+    frame_bury 1
+    frame_bury 6
     b test_cases.everything.contract.Everything.say_hello_block@3
 
 test_cases.everything.contract.Everything.say_hello_block@3:
-    frame_dig 2
-    dup
-    intc_0 // 0
-    extract_uint16
-    frame_dig 4
-    +
-    itob
-    extract 6 0
-    replace2 0
-    frame_dig 3
-    concat
-    frame_bury 0
-    // everything/contract.py:62
-    // return "Hello, " + name + "!"
-    b test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4
-
-test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@4:
-    // everything/contract.py:62
-    // return "Hello, " + name + "!"
     frame_dig 0
-    pushbytes "!"
-    len
-    itob
-    extract 6 2
-    pushbytes "!"
-    concat
-    dup
-    len
-    cover 1
-    dup
-    intc_2 // 2
-    uncover 3
-    substring3
-    cover 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    uncover 2
-    frame_bury 2
-    uncover 1
-    frame_bury 3
-    frame_bury 4
-    b test_cases.everything.contract.Everything.say_hello_block@5
-
-test_cases.everything.contract.Everything.say_hello_block@5:
-    frame_dig 2
-    dup
     intc_0 // 0
     extract_uint16
-    frame_dig 4
+    frame_dig 6
     +
+    frame_bury 5
+    b test_cases.everything.contract.Everything.say_hello_block@4
+
+test_cases.everything.contract.Everything.say_hello_block@4:
+    frame_dig 5
     itob
     extract 6 0
+    frame_bury 2
+    b test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4._itob16@5
+
+test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4._itob16@5:
+    frame_dig 2
+    frame_dig 0
+    uncover 1
     replace2 0
-    frame_dig 3
+    frame_dig 1
     concat
-    frame_bury 1
+    frame_bury 3
     // everything/contract.py:62
     // return "Hello, " + name + "!"
     b test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@6
@@ -471,7 +440,61 @@ test_cases.everything.contract.Everything.say_hello_block@5:
 test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@6:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
+    pushbytes "!"
+    len
+    itob
+    extract 6 2
+    pushbytes "!"
+    concat
+    dup
+    len
+    cover 1
+    dup
+    intc_2 // 2
+    uncover 3
+    substring3
+    cover 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    frame_dig 3
+    frame_bury 0
+    uncover 1
+    frame_bury 1
+    frame_bury 6
+    b test_cases.everything.contract.Everything.say_hello_block@7
+
+test_cases.everything.contract.Everything.say_hello_block@7:
+    frame_dig 0
+    intc_0 // 0
+    extract_uint16
+    frame_dig 6
+    +
+    frame_bury 5
+    b test_cases.everything.contract.Everything.say_hello_block@8
+
+test_cases.everything.contract.Everything.say_hello_block@8:
+    frame_dig 5
+    itob
+    extract 6 0
+    frame_bury 2
+    b test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4._itob16@9
+
+test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4._itob16@9:
+    frame_dig 2
+    frame_dig 0
+    uncover 1
+    replace2 0
     frame_dig 1
+    concat
+    frame_bury 4
+    // everything/contract.py:62
+    // return "Hello, " + name + "!"
+    b test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@10
+
+test_cases.everything.contract.Everything.say_hello_after_inlined__puya_lib.arc4.dynamic_array_concat_fixed@10:
+    // everything/contract.py:62
+    // return "Hello, " + name + "!"
+    frame_dig 4
     frame_bury 0
     retsub
 

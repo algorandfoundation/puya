@@ -4,7 +4,7 @@
 // test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
 main:
     intcblock 2 0 1 4
-    bytecblock "" 0x0004000b000548656c6c6f0005576f726c64 " " 0x0004000a000450696e670004506f6e67
+    bytecblock "" " " 0x00020004000b000548656c6c6f0005576f726c64
     intc_1 // 0
     dup
     bytec_0 // ""
@@ -77,6 +77,20 @@ main_after_for@8:
     intc_3 // 4
     ==
     assert // Total should now include sum of aliased_dynamic items
+    // arc4_types/array.py:35
+    // dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
+    bytec_2 // 0x00020004000b000548656c6c6f0005576f726c64
+    // arc4_types/array.py:37
+    // assert dynamic_string_array[0] == ARC4String("Hello")
+    intc_1 // 0
+    callsub dynamic_array_read_byte_length_element
+    // arc4_types/array.py:35
+    // dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
+    pushbytes 0x000548656c6c6f
+    // arc4_types/array.py:37
+    // assert dynamic_string_array[0] == ARC4String("Hello")
+    ==
+    assert
     // arc4_types/array.py:38
     // result = String("")
     bytec_0 // ""
@@ -91,21 +105,15 @@ main_for_header@9:
     intc_0 // 2
     <
     bz main_after_for@15
-    dig 8
+    // arc4_types/array.py:35
+    // dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
+    bytec_2 // 0x00020004000b000548656c6c6f0005576f726c64
+    // arc4_types/array.py:39
+    // for index, string_item in uenumerate(dynamic_string_array):
+    dig 9
     dup
-    intc_0 // 2
-    *
-    bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
-    swap
-    extract_uint16
-    bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
-    dig 1
-    extract_uint16
-    intc_0 // 2
-    +
-    bytec_1 // 0x0004000b000548656c6c6f0005576f726c64
     cover 2
-    extract3
+    callsub dynamic_array_read_byte_length_element
     swap
     // arc4_types/array.py:40
     // if index == 0:
@@ -126,7 +134,7 @@ main_else_body@12:
     // arc4_types/array.py:43
     // result += " " + string_item.native
     extract 2 0
-    bytec_2 // " "
+    bytec_1 // " "
     swap
     concat
     dig 12
@@ -246,33 +254,15 @@ main_for_header@24:
     intc_0 // 2
     <
     bz main_after_for@30
-    dig 8
+    // arc4_types/array.py:70
+    // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
+    pushbytes 0x0004000a000450696e670004506f6e67
+    // arc4_types/array.py:73
+    // for index, string_item in uenumerate(static_string_array):
+    dig 9
     dup
-    intc_0 // 2
-    *
-    // arc4_types/array.py:70
-    // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    bytec_3 // 0x0004000a000450696e670004506f6e67
-    // arc4_types/array.py:73
-    // for index, string_item in uenumerate(static_string_array):
-    swap
-    extract_uint16
-    // arc4_types/array.py:70
-    // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    bytec_3 // 0x0004000a000450696e670004506f6e67
-    // arc4_types/array.py:73
-    // for index, string_item in uenumerate(static_string_array):
-    dig 1
-    extract_uint16
-    intc_0 // 2
-    +
-    // arc4_types/array.py:70
-    // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    bytec_3 // 0x0004000a000450696e670004506f6e67
-    // arc4_types/array.py:73
-    // for index, string_item in uenumerate(static_string_array):
     cover 2
-    extract3
+    callsub static_array_read_byte_length_element
     swap
     // arc4_types/array.py:74
     // if index == 0:
@@ -293,7 +283,7 @@ main_else_body@27:
     // arc4_types/array.py:77
     // result += " " + string_item.native
     extract 2 0
-    bytec_2 // " "
+    bytec_1 // " "
     swap
     concat
     dig 12
@@ -311,9 +301,9 @@ main_after_for@30:
     assert
     intc_0 // 2
     pushbytes 0x0004000a000450696e67000450696e67
-    bury 14
     pushint 10
-    bury 5
+    bury 6
+    bury 14
     bury 10
 
 main_for_header@36:
@@ -324,7 +314,7 @@ main_for_header@36:
     dig 3
     dup
     itob
-    extract 6 2
+    extract 6 0
     dig 14
     dig 12
     dup
@@ -359,23 +349,15 @@ main_for_header@31:
     intc_0 // 2
     <
     bz main_after_for@34
-    dig 4
+    dig 12
+    dig 5
     dup
-    intc_0 // 2
-    *
-    dig 14
-    dup
-    uncover 2
-    extract_uint16
-    dup2
-    extract_uint16
-    intc_0 // 2
-    +
-    extract3
+    cover 2
+    callsub static_array_read_byte_length_element
     // arc4_types/array.py:84
     // result += string_item.native + " "
     extract 2 0
-    bytec_2 // " "
+    bytec_1 // " "
     concat
     dig 13
     swap
@@ -397,3 +379,42 @@ main_after_for@34:
     // return True
     intc_2 // 1
     return
+
+
+// _puya_lib.arc4.dynamic_array_read_byte_length_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_byte_length_element:
+    proto 2 1
+    frame_dig -2
+    extract 2 0
+    frame_dig -1
+    intc_0 // 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    dup2
+    extract_uint16
+    intc_0 // 2
+    +
+    extract3
+    retsub
+
+
+// _puya_lib.arc4.static_array_read_byte_length_element(array: bytes, index: uint64) -> bytes:
+static_array_read_byte_length_element:
+    proto 2 1
+    frame_dig -1
+    intc_0 // 2
+    *
+    frame_dig -2
+    swap
+    extract_uint16
+    frame_dig -2
+    dig 1
+    extract_uint16
+    intc_0 // 2
+    +
+    frame_dig -2
+    cover 2
+    extract3
+    retsub
