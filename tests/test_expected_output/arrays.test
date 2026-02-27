@@ -33,11 +33,6 @@ class ArrayContract(arc4.ARC4Contract):
     def array_log(self) -> None:
         log(ReferenceArray[UInt64]()) ## E: cannot serialize algopy.ReferenceArray[algopy.UInt64], try using .freeze() to get an immutable array
 
-
-    @arc4.abimethod
-    def array_emit(self) -> None:
-        arc4.emit("test", ReferenceArray[UInt64]()) ## E: algopy.ReferenceArray[algopy.UInt64] is not an ARC-4 type and no implicit ARC-4 conversion possible
-
     @arc4.abimethod
     def array_fixed(self) -> None:
         arr = ReferenceArray[UInt64]()
@@ -119,7 +114,6 @@ class ArrayContract(arc4.ARC4Contract):
 import typing
 from algopy import *
 
-
 class ArrayContract(arc4.ARC4Contract):
 
     @arc4.abimethod
@@ -145,6 +139,15 @@ class ArrayContract(arc4.ARC4Contract):
     @arc4.abimethod ## E: unsupported return type for an ARC-4 method
     def arr_account_return(self) -> ReferenceArray[Account]:
         op.err("Not implemented")
+
+## case: test_array_element_error_from_ir_layer_lowering
+from algopy import *
+
+class ArrayContract(arc4.ARC4Contract):
+
+    @arc4.abimethod
+    def array_emit(self) -> None:
+        arc4.emit("test", ReferenceArray[UInt64]()) ## E: invalid ARC-4 Struct declaration, the following fields are not persistable: field1
 
 
 ## case: test_imm_array_txn

@@ -1,0 +1,218 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 2
+    bytecblock 0x0002 0x0003
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@10
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x8769b79a 0xf14889d7 0xd4c97c9c // method "emitSwapped(uint8,uint8)void", method "emitCustom(string,bool)void", method "emitDynamicBytes(byte[],byte[])void"
+    txna ApplicationArgs 0
+    match emitSwapped emitCustom emitDynamicBytes
+    err
+
+main___algots__.defaultCreate@10:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routing]() -> void:
+emitSwapped:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    dup
+    dig 2
+    concat
+    pushbytes 0x0b6325ed // method "Swapped(uint8,uint8)"
+    dig 1
+    concat
+    dup
+    log
+    dup
+    log
+    pushbytes 0x441e2cd8 // method "SwappedArc4(uint8,uint8)"
+    uncover 2
+    concat
+    log
+    dup
+    log
+    log
+    dup
+    dig 1
+    concat
+    dup
+    dig 3
+    concat
+    pushbytes 0x388cc12d // method "Swapped((uint8,uint8),uint8)"
+    dig 1
+    concat
+    dup
+    log
+    log
+    bytec_0 // 0x0002
+    dig 3
+    concat
+    dig 3
+    concat
+    bytec_1 // 0x0003
+    dig 5
+    concat
+    dup
+    dig 2
+    concat
+    pushbytes 0x08754e0c // method "Swapped(uint8[],uint8)"
+    swap
+    concat
+    log
+    pushbytes 0x8d44bf68 // method "Swapped(((uint8,uint8)),uint8)"
+    uncover 3
+    concat
+    log
+    pushbytes 0x00010002
+    dig 2
+    concat
+    dig 1
+    swap
+    concat
+    pushbytes 0xd8991c5c // method "Swapped(uint8[][],uint8)"
+    swap
+    concat
+    log
+    pushbytes 0x0001
+    uncover 3
+    concat
+    dig 1
+    swap
+    concat
+    pushbytes 0x9047648f // method "Swapped((uint8,uint8)[],uint8)"
+    swap
+    concat
+    log
+    bytec_0 // 0x0002
+    uncover 2
+    concat
+    concat
+    pushbytes 0x194abeb4 // method "Swapped((uint8[]),uint8)"
+    swap
+    concat
+    log
+    swap
+    btoi
+    swap
+    btoi
+    itob
+    bytec_0 // 0x0002
+    dig 1
+    concat
+    swap
+    concat
+    swap
+    itob
+    pushbytes 0x000a
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x4e707717 // method "Swapped(uint64[],uint64)"
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom[routing]() -> void:
+emitCustom:
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    bytec_1 // 0x0003
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0xa313c066 // method "Custom(string,bool)"
+    swap
+    concat
+    dup
+    log
+    log
+    intc_0 // 1
+    return
+
+
+// tests/approvals/arc-28-events.algo.ts::EventEmitter.emitDynamicBytes[routing]() -> void:
+emitDynamicBytes:
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    dup
+    uncover 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushint 4
+    uncover 2
+    +
+    itob
+    extract 6 2
+    pushbytes 0x0004
+    swap
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    pushbytes 0x4524e1dd // method "DB(byte[],byte[])"
+    swap
+    concat
+    log
+    intc_0 // 1
+    return

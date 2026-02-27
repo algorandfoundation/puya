@@ -41,41 +41,6 @@ def abi_call_tuple_ok() -> None:
 def abi_call_none_return() -> None:
     arc4.abi_call[None]("foo()void", app_id=1) # type: ignore[index] ## E: invalid return type for an ARC-4 method: typing.Never
 
-
-@subroutine
-def wrong_arg_type2() -> None:
-    arc4.emit("Event(string,uint8)", b"a", 1) ## E: can't convert literal to algopy.arc4.String
-
-@subroutine
-def wrong_arg_type3() -> None:
-    arc4.emit("Event(string,uint8)", "a", 256) ## E: invalid algopy.arc4.UIntN[typing.Literal[8]] value
-
-@subroutine
-def wrong_arg_type4() -> None:
-    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected 2 ABI arguments, got 1
-
-@subroutine
-def wrong_number_args() -> None:
-    arc4.emit("Event(string,uint8)", "a", 1, 2) ## E: expected 2 ABI arguments, got 3
-
-@subroutine
-def invalid_signature() -> None:
-    arc4.emit("(string,uint8)", "a", 1) ## E: invalid signature: name=''
-    arc4.emit("string,uint8", "a", 1) ## E: invalid signature: name='string,uint8'
-    arc4.emit("9bad_name(string,uint8)", "a", 1) ## E: invalid signature: name='9bad_name'
-
-@subroutine
-def invalid_signature4() -> None:
-    arc4.emit("Event(string,uint8)void", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
-
-@subroutine
-def invalid_signature5() -> None:
-    arc4.emit("Event(string,uint8)uint64", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
-
-@subroutine
-def invalid_signature6() -> None:
-    arc4.emit("Event(string,uint8)(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
-
 @subroutine
 def dont_copy_array() -> None:
     a = arc4.DynamicBytes()
@@ -91,7 +56,7 @@ class Event(arc4.Struct):
 @subroutine
 def abi_call_wrong_return() -> None:
     event, txn = arc4.abi_call[Event]("foo()(string,uint64)", app_id=1) ## E: method selector from args 'foo()(string,uint8)' does not match provided method selector: 'foo()(string,uint64)'
-    
+
 ## case: test_emit_errors_ir
 from algopy import *
 
@@ -103,17 +68,81 @@ class Event2(arc4.Struct):
     a: arc4.String
 
 @subroutine
+def wrong_arg_type4() -> None:
+    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected 2 ABI arguments, got 1
+
+@subroutine
+def wrong_number_args() -> None:
+    arc4.emit("Event(string,uint8)", "a", 1, 2) ## E: expected 2 ABI arguments, got 3
+
+@subroutine
+def invalid_signature() -> None:
+    arc4.emit("(string,uint8)", arc4.String("a"), arc4.UInt8(1)) ## E: invalid signature: name=''
+    arc4.emit("string,uint8", arc4.String("a"), arc4.UInt8(1)) ## E: invalid signature: name='string,uint8'
+    arc4.emit("9bad_name(string,uint8)", arc4.String("a"), arc4.UInt8(1)) ## E: invalid signature: name='9bad_name'
+
+@subroutine
+def invalid_signature4() -> None:
+    arc4.emit("Event(string,uint8)void", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
+
+@subroutine
+def invalid_signature5() -> None:
+    arc4.emit("Event(string,uint8)uint64", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
+
+@subroutine
+def invalid_signature6() -> None:
+    arc4.emit("Event(string,uint8)(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: event signatures cannot include return types
+
+@subroutine
+def literal_warnings() -> None:
+    arc4.emit("Emit(string,uint8)", "a", 1) # ok
+    arc4.emit("Emit", arc4.String("a"), arc4.UInt8(1)) # ok
+    arc4.emit("Emit", arc4.String("a"), 1) ## W: implicit conversion to algopy.UInt64 will be attempted for int argument 
+    arc4.emit("Emit", "a", arc4.UInt8(1)) ## W: implicit conversion to algopy.String will be attempted for str argument
+
+class MyContract(ARC4Contract):
+    @arc4.abimethod()
+    def foo(self) -> None:
+        wrong_arg_type4()
+        wrong_number_args()
+        invalid_signature()
+        invalid_signature4()
+        invalid_signature5()
+        invalid_signature6()
+        literal_warnings()
+
+## case: test_emit_errors_ir_lowering
+from algopy import *
+
+class Event(arc4.Struct):
+    a: arc4.String
+    b: arc4.UInt8
+
+class Event2(arc4.Struct):
+    a: arc4.String
+
+@subroutine
 def wrong_arg_type1() -> None:
-    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt128(1)) ## E: expected type algopy.arc4.UIntN[typing.Literal[64]], got type algopy.arc4.BigUIntN[typing.Literal[128]]
+    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt128(1)) ## E: expected type uint64, got type arc4.uint128
+
+@subroutine
+def wrong_arg_type2() -> None:
+    arc4.emit("Event(string,uint8)", b"a", 1) ## E: cannot encode bytes to string
+
+@subroutine
+def wrong_arg_type3() -> None:
+    arc4.emit("Event(string,uint8)", "a", 256) ## E: cannot encode uint64 to arc4.uint8
 
 @subroutine
 def wrong_arg_type5() -> None:
-    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type algopy.arc4.String, got type test_emit_errors_ir.Event2
+    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type string, got type test_emit_errors_ir_lowering.Event2
 
 class MyContract(ARC4Contract):
     @arc4.abimethod()
     def foo(self) -> None:
         wrong_arg_type1()
+        wrong_arg_type2()
+        wrong_arg_type3()
         wrong_arg_type5()
 
 ## case: test_bad_uint_sizes
