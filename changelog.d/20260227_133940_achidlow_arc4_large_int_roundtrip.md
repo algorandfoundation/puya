@@ -14,6 +14,8 @@ For top level release notes, leave all the headers commented out.
 ### Added
 
 - Round-trip encoding of ARC-4 integers via `BigUInt` is now optimized away.
+- Round-trip encoding of ARC-4 integers smaller than 64-bits via native `UInt64` is now 
+  optimized away.
 
 <!--
 ### Changed
