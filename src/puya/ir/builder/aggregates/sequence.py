@@ -7,6 +7,7 @@ from puya import log
 from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir import (
+    encodings,
     models as ir,
     types_ as types,
 )
@@ -95,25 +96,23 @@ def _get_builder(
 ) -> _SequenceBuilder:
     builder_typ: type[_ArrayBuilderImpl]
 
+    element_encoding = array_encoding.element
     if assert_bounds is None:
         # dynamic elements or bit-packed elements could access invalid indexes
         # fixed sized elements don't have this issue as the underling bytes won't be big enough
         # if an invalid index is used
         # note: this assumption may no longer hold if reading nested aggregates
-        assert_bounds = array_encoding.element.is_dynamic or array_encoding.element.is_bit
+        assert_bounds = element_encoding.is_dynamic or element_encoding.is_bit
 
-    if array_encoding.element.is_bit:
+    if element_encoding.is_bit:
         # BitPackedBool is a more specific match than FixedElement so do that first
         if array_encoding.size is None and not array_encoding.length_header:
             raise InternalError("unsupported scenario: bit packed bools in reference array", loc)
         builder_typ = _BitPackedBoolArrayBuilder
-    elif array_encoding.element.is_fixed:
+    elif element_encoding.is_fixed:
         builder_typ = _FixedElementArrayBuilder
-    elif (
-        isinstance(array_encoding.element, ArrayEncoding)
-        and (inner_element_size := array_encoding.element.element.num_bytes) is not None
-    ):
-        if inner_element_size == 1:
+    elif encodings.is_dynamic_array_of_fixed_size_byte_elements(element_encoding):
+        if encodings.is_byte_length_dynamic_array(element_encoding):
             builder_typ = _ByteLengthDynamicElementArrayBuilder
         else:
             builder_typ = _MultiByteLengthDynamicElementArrayBuilder
