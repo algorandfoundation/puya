@@ -1,0 +1,29 @@
+name: Build Docs
+description: Build Algorand Python docs (API generation + Starlight)
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python venv
+      uses: ./.github/actions/setup-python-venv
+      with:
+        uv_sync_args: "--group doc"
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: docs/package-lock.json
+
+    - name: Install Node docs dependencies
+      shell: bash
+      run: npm ci --prefix docs
+
+    - name: Generate API docs
+      shell: bash
+      run: uv run poe docs-api
+
+    - name: Build Starlight site
+      shell: bash
+      run: npm run --prefix docs build

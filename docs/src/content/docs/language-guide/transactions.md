@@ -1,0 +1,276 @@
+---
+title: Transactions
+description: Transaction types, inner transactions, and group transactions in Algorand Python
+---
+
+Algorand Python provides types for accessing fields of other transactions in a group, as well as
+creating and submitting inner transactions from your smart contract.
+
+The following types are available:
+
+| Group Transactions                                                                          | Inner Transaction Field sets                                            | Inner Transaction                                                                                     |
+| ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [PaymentTransaction](/puya/api/algopy/algopygtxn/#class-paymenttransaction)                 | [Payment](/puya/api/algopy/algopyitxn/#class-payment)                   | [PaymentInnerTransaction](/puya/api/algopy/algopyitxn/#class-paymentinnertransaction)                 |
+| [KeyRegistrationTransaction](/puya/api/algopy/algopygtxn/#class-keyregistrationtransaction) | [KeyRegistration](/puya/api/algopy/algopyitxn/#class-keyregistration)   | [KeyRegistrationInnerTransaction](/puya/api/algopy/algopyitxn/#class-keyregistrationinnertransaction) |
+| [AssetConfigTransaction](/puya/api/algopy/algopygtxn/#class-assetconfigtransaction)         | [AssetConfig](/puya/api/algopy/algopyitxn/#class-assetconfig)           | [AssetConfigInnerTransaction](/puya/api/algopy/algopyitxn/#class-assetconfiginnertransaction)         |
+| [AssetTransferTransaction](/puya/api/algopy/algopygtxn/#class-assettransfertransaction)     | [AssetTransfer](/puya/api/algopy/algopyitxn/#class-assettransfer)       | [AssetTransferInnerTransaction](/puya/api/algopy/algopyitxn/#class-assettransferinnertransaction)     |
+| [AssetFreezeTransaction](/puya/api/algopy/algopygtxn/#class-assetfreezetransaction)         | [AssetFreeze](/puya/api/algopy/algopyitxn/#class-assetfreeze)           | [AssetFreezeInnerTransaction](/puya/api/algopy/algopyitxn/#class-assetfreezeinnertransaction)         |
+| [ApplicationCallTransaction](/puya/api/algopy/algopygtxn/#class-applicationcalltransaction) | [ApplicationCall](/puya/api/algopy/algopyitxn/#class-applicationcall)   | [ApplicationCallInnerTransaction](/puya/api/algopy/algopyitxn/#class-applicationcallinnertransaction) |
+| [Transaction](/puya/api/algopy/algopygtxn/#class-transaction)                               | [InnerTransaction](/puya/api/algopy/algopyitxn/#class-innertransaction) | [InnerTransactionResult](/puya/api/algopy/algopyitxn/#class-innertransactionresult)                   |
+
+## Group Transactions
+
+Group transactions can be used as ARC-4 parameters or instantiated from a group index.
+
+### ARC-4 parameter
+
+Group transactions can be used as parameters in ARC-4 method
+
+For example to require a payment transaction in an ARC-4 ABI method:
+
+```python
+import algopy
+
+
+class MyContract(algopy.ARC4Contract):
+
+    @algopy.arc4.abimethod()
+    def process_payment(self, payment: algopy.gtxn.PaymentTransaction) -> None:
+        ...
+```
+
+### Group Index
+
+Group transactions can also be created using the group index of the transaction.
+If instantiating one of the type specific transactions they will be checked to ensure the transaction is of the expected type.
+[Transaction](/puya/api/algopy/algopygtxn/#class-transaction) is not checked for a specific type and provides access to all transaction fields
+
+For example, to obtain a reference to a payment transaction:
+
+```python
+import algopy
+
+
+@algopy.subroutine()
+def process_payment(group_index: algopy.UInt64) -> None:
+    pay_txn = algopy.gtxn.PaymentTransaction(group_index)
+    ...
+```
+
+## Inner Transactions
+
+Inner transactions are defined using the parameter types, and can then be submitted individually by calling the
+`.submit()` method, or as a group by calling [`submit_txns`](/puya/api/algopy/algopyitxn/)
+
+### Examples
+
+#### Create and submit an inner transaction
+
+```python
+from algopy import Account, UInt64, itxn, subroutine
+
+
+@subroutine
+def example(amount: UInt64, receiver: Account) -> None:
+    itxn.Payment(
+        amount=amount,
+        receiver=receiver,
+        fee=0,
+    ).submit()
+```
+
+#### Accessing result of a submitted inner transaction
+
+```python
+from algopy import Asset, itxn, subroutine
+
+
+@subroutine
+def example() -> Asset:
+    asset_txn = itxn.AssetConfig(
+        asset_name=b"Puya",
+        unit_name=b"PYA",
+        total=1000,
+        decimals=3,
+        fee=0,
+    ).submit()
+    return asset_txn.created_asset
+```
+
+#### Submitting multiple transactions
+
+```python
+from algopy import Asset, Bytes, itxn, log, subroutine
+
+
+@subroutine
+def example() -> tuple[Asset, Bytes]:
+    asset1_params = itxn.AssetConfig(
+        asset_name=b"Puya",
+        unit_name=b"PYA",
+        total=1000,
+        decimals=3,
+        fee=0,
+    )
+    app_params = itxn.ApplicationCall(
+        app_id=1234,
+        app_args=(Bytes(b"arg1"), Bytes(b"arg1"))
+    )
+    asset1_txn, app_txn = itxn.submit_txns(asset1_params, app_params)
+    # log some details
+    log(app_txn.logs(0))
+    log(asset1_txn.txn_id)
+    log(app_txn.txn_id)
+
+    return asset1_txn.created_asset, app_txn.logs(1)
+```
+
+#### Submitting a group with dynamic number of inner transactions
+
+[`.stage()`](/puya/api/algopy/algopyitxn/#class-innertransaction) method in inner transaction classes and [`algopy.itxn.submit_staged()`](/puya/api/algopy/algopyitxn/#submit-staged-none) function allow for composition of dynamically sized inner transaction groups. It makes some sacrifices to the developer experience in order to support this scenario, so its use should be limited to situations that require it; an example being when an arbitrary number of transactions must be submitted as a single group in order for another application to introspect this group. In most cases, it will be easier to create variadic groups in batches and rely on the atomic nature of the outer transaction to provide transactional consistency.
+
+The first transaction staged for any group should pass `begin_group=True` and all other transactions can omit that parameter as it has a default value of `False`. Exactly one call to `stage` with `begin_group=True` is required for each transaction group. Otherwise, it will fail when executed on chain. When all transactions in the group have been staged, [`algopy.itxn.submit_staged()`](/puya/api/algopy/algopyitxn/#submit-staged-none) can be called to dispatch these transactions.
+
+To read the result from any of these transactions, one can make use of the `GITxn` ops; e.g., `op.GITxn.last_log(n)`, where n is a compile time constant representing the index of the transaction in the group.
+
+```python
+from algopy import UInt64, arc4, itxn, subroutine, urange
+
+
+@subroutine
+def demo(count: UInt64) -> None:
+    hello_app = arc4.arc4_create(Hello.create, "hello").created_app
+
+    for i in urange(count):
+        app_call = itxn.ApplicationCall(
+            app_id=hello_app.id, app_args=(arc4.arc4_signature("greet(string)string"), "ho")
+        )
+        app_call.stage(begin_group=(i == 0))
+
+    itxn.submit_staged()
+```
+
+#### Create an ARC-4 application, and then call it
+
+```python
+from algopy import Bytes, arc4, itxn, subroutine
+
+HELLO_WORLD_APPROVAL: bytes = ...
+HELLO_WORLD_CLEAR: bytes = ...
+
+
+@subroutine
+def example() -> None:
+    # create an application
+    application_txn = itxn.ApplicationCall(
+        approval_program=HELLO_WORLD_APPROVAL,
+        clear_state_program=HELLO_WORLD_CLEAR,
+        fee=0,
+    ).submit()
+    app = application_txn.created_app
+
+    # invoke an ABI method
+    call_txn = itxn.ApplicationCall(
+        app_id=app,
+        app_args=(arc4.arc4_signature("hello(string)string"), arc4.String("World")),
+        fee=0,
+    ).submit()
+    # extract result
+    hello_world_result = arc4.String.from_log(call_txn.last_log)
+```
+
+#### Create and submit transactions in a loop
+
+```python
+from algopy import Account, UInt64, itxn, subroutine
+
+
+@subroutine
+def example(receivers: tuple[Account, Account, Account]) -> None:
+    for receiver in receivers:
+        itxn.Payment(
+            amount=UInt64(1_000_000),
+            receiver=receiver,
+            fee=0,
+        ).submit()
+```
+
+### Limitations
+
+Inner transactions are powerful, but currently do have some restrictions in how they are used.
+
+#### Inner transaction objects cannot be passed to or returned from subroutines
+
+```python
+from algopy import Application, Bytes, itxn, subroutine
+
+
+@subroutine
+def parameter_not_allowed(txn: itxn.PaymentInnerTransaction) -> None:
+    # this is a compile error
+    ...
+
+
+@subroutine
+def return_not_allowed() -> itxn.PaymentInnerTransaction:
+    # this is a compile error
+    ...
+
+
+@subroutine
+def passing_fields_allowed() -> Application:
+    txn = itxn.ApplicationCall(...).submit()
+    do_something(txn.txn_id, txn.logs(0))  # this is ok
+    return txn.created_app  # and this is ok
+
+
+@subroutine
+def do_something(txn_id: Bytes):  # this is just a regular subroutine
+    ...
+```
+
+#### Inner transaction parameters cannot be reassigned without a `.copy()`
+
+```python
+from algopy import itxn, subroutine
+
+
+@subroutine
+def example() -> None:
+    payment = itxn.Payment(...)
+    reassigned_payment = payment  # this is an error
+    copied_payment = payment.copy()  # this is ok
+```
+
+#### Inner transactions cannot be reassigned
+
+```python
+from algopy import itxn, subroutine
+
+
+@subroutine
+def example() -> None:
+    payment_txn = itxn.Payment(...).submit()
+    reassigned_payment_txn = payment_txn  # this is an error
+    txn_id = payment_txn.txn_id  # this is ok
+```
+
+#### Inner transactions methods cannot be called if there is a subsequent inner transaction submitted or another subroutine is called
+
+```python
+from algopy import itxn, subroutine
+
+
+@subroutine
+def example() -> None:
+    app_1 = itxn.ApplicationCall(...).submit()
+    log_from_call1 = app_1.logs(0)  # this is ok
+
+    # another inner transaction is submitted
+    itxn.ApplicationCall(...).submit()
+    # or another subroutine is called
+    call_some_other_subroutine()
+
+    app1_txn_id = app_1.txn_id  # this is ok, properties are still available
+    another_log_from_call1 = app_1.logs(1)  # this is not allowed as the array results may no longer be available, instead assign to a variable before submitting another transaction
+```

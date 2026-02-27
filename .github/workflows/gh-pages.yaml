@@ -1,4 +1,4 @@
-name: "Sphinx: Render + publish docs"
+name: "Starlight: Build + publish docs"
 
 on:
   workflow_call:
@@ -15,18 +15,13 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Setup Python venv
-        uses: ./.github/actions/setup-python-venv
-        with:
-          uv_sync_args: "--group doc"
-
-      - name: Build doc
-        run: poe docs
+      - name: Build documentation
+        uses: ./.github/actions/build-docs
 
       - name: Upload to GitHub pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
-          path: docs/_build
+          path: docs/dist
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
