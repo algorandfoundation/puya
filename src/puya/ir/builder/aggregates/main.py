@@ -64,31 +64,25 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
         array_encoding = pop.array_encoding
         assert array_encoding.size is None, "expected DynamicArray encoding"
+        factory = OpFactory(self, pop.source_location)
         element_encoding = array_encoding.element
-        pop_method: PuyaLibIR
-        args: list[ir.Value | int] = [pop.base]
-        match element_encoding:
-            # BitPackedBool is a more specific match than FixedElement so do that first
-            case encodings.BoolEncoding() if array_encoding.length_header:
-                pop_method = PuyaLibIR.dynamic_array_pop_bit
-            case encodings.ArrayEncoding(
-                element=encodings.Encoding(num_bytes=1), length_header=True, size=None
-            ):
-                pop_method = PuyaLibIR.dynamic_array_pop_byte_length_head
-            case encodings.Encoding(is_dynamic=False):
-                if array_encoding.length_header:
-                    pop_method = PuyaLibIR.dynamic_array_pop_fixed_size
-                else:
-                    pop_method = PuyaLibIR.r_trim
-                args.append(element_encoding.checked_num_bytes)
-            case encodings.Encoding(is_dynamic=True) if array_encoding.length_header:
-                pop_method = PuyaLibIR.dynamic_array_pop_dynamic_element
-            case _:
+        if not array_encoding.length_header:
+            if element_encoding.is_dynamic or element_encoding.is_bit:
                 raise CodeError(
                     f"unsupported dynamic array type {array_encoding}", pop.source_location
                 )
-        factory = OpFactory(self, pop.source_location)
-        return factory.invoke(pop_method, args)
+            return factory.invoke(PuyaLibIR.r_trim, [pop.base, element_encoding.checked_num_bytes])
+        elif element_encoding.is_bit:
+            return factory.invoke(PuyaLibIR.dynamic_array_pop_bit, [pop.base])
+        elif encodings.is_byte_length_dynamic_array(element_encoding):
+            return factory.invoke(PuyaLibIR.dynamic_array_pop_byte_length_head, [pop.base])
+        elif element_encoding.is_dynamic:
+            return factory.invoke(PuyaLibIR.dynamic_array_pop_dynamic_element, [pop.base])
+        else:
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_pop_fixed_size,
+                [pop.base, element_encoding.checked_num_bytes],
+            )
 
     @typing.override
     def visit_array_concat(self, concat: ir.ArrayConcat) -> ir.ValueProvider:
@@ -96,34 +90,33 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         array_encoding = concat.array_encoding
         assert array_encoding.size is None, "expected DynamicArray encoding"
         element_encoding = array_encoding.element
-        args: list[ir.Value | int] = [concat.base, concat.items, concat.num_items]
         factory = OpFactory(self, loc)
-        if element_encoding.is_bit:
+        if not array_encoding.length_header:
+            if element_encoding.is_dynamic or element_encoding.is_bit:
+                raise CodeError(f"unsupported dynamic array type {array_encoding}", loc)
+            return factory.concat(concat.base, concat.items)
+        elif element_encoding.is_bit:
             element_bits = concat.item_encoding.num_bits
             assert element_bits in (1, 8)
-            concat_method = PuyaLibIR.dynamic_array_concat_bits
-            args.append(element_bits)
-        elif element_encoding.is_fixed:
-            assert (
-                element_encoding == concat.item_encoding
-            ), "expected array element encoding to match item encoding"
-            if array_encoding.length_header:
-                concat_method = PuyaLibIR.dynamic_array_concat_fixed
-            else:
-                return factory.concat(concat.base, concat.items)
-        elif (
-            encodings.is_byte_length_dynamic_array(array_encoding.element)
-            and array_encoding.length_header
-        ):
-            concat_method = PuyaLibIR.dynamic_array_concat_byte_length_head
-        elif array_encoding.length_header:
-            assert (
-                element_encoding == concat.item_encoding
-            ), "expected array element encoding to match item encoding"
-            concat_method = PuyaLibIR.dynamic_array_concat_dynamic_element
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_bits,
+                [concat.base, concat.items, concat.num_items, element_bits],
+            )
+        elif encodings.is_byte_length_dynamic_array(array_encoding.element):
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_byte_length_head,
+                [concat.base, concat.items, concat.num_items],
+            )
+        elif element_encoding.is_dynamic:
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_dynamic_element,
+                [concat.base, concat.items, concat.num_items],
+            )
         else:
-            raise CodeError(f"unsupported dynamic array type {array_encoding}", loc)
-        return factory.invoke(concat_method, args)
+            return factory.invoke(
+                PuyaLibIR.dynamic_array_concat_fixed,
+                [concat.base, concat.items, concat.num_items],
+            )
 
     @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:
