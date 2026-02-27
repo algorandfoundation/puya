@@ -1021,7 +1021,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 arr#0 0u) // on error: invalid array length header
         let tmp%4#0: uint64 = aggregate%array_length%2#0
-        let aggregate%concat%0#0: bytes = (concat slot_contents%0#0 extract_to_end%0#0)
+        let aggregate%concat%0#0: Encoded((uint64,uint64)[]) = (concat slot_contents%0#0 extract_to_end%0#0) // on error: max array length exceeded
         let tmp%5#0: Encoded((uint64,uint64)[]) = aggregate%concat%0#0
         store(arr4#0, tmp%5#0)
         let aggregate%array_length%3#0: uint64 = (extract_uint16 arr#0 0u) // on error: invalid array length header
@@ -1135,7 +1135,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let tmp%56#0: bool = (! tmp%55#0)
         (assert tmp%56#0)
         let slot_contents%2#0: Encoded((uint64,uint64)[]) = load(arr11#0)
-        let aggregate%concat%1#0: bytes = (concat slot_contents%2#0 tmp%19#0)
+        let aggregate%concat%1#0: Encoded((uint64,uint64)[]) = (concat slot_contents%2#0 tmp%19#0) // on error: max array length exceeded
         let tmp%58#0: Encoded((uint64,uint64)[]) = aggregate%concat%1#0
         store(arr11#0, tmp%58#0)
         let aggregate%slot_contents%2#0: Encoded((uint64,uint64)[]) = load(arr11#0)
