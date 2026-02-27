@@ -37,7 +37,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let len%0#0: uint64 = (len x#3)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint128
-        let tmp%2#1: bytes = (concat 0x151f7c75 x#3)
+        let aggregate%bitlen%1#0: uint64 = (bitlen x#3)
+        let aggregate%lte%0#0: bool = (<= aggregate%bitlen%1#0 64u)
+        (assert aggregate%lte%0#0) // overflow
+        let aggregate%sub%0#0: uint64 = (- len%0#0 8u)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (extract3 x#3 aggregate%sub%0#0 8u)
+        let aggregate%bzero%0#0: bytes = (bzero 16u)
+        let aggregate%arc4_encoded%0#0: bytes[16] = (b| aggregate%val_as_bytes%1#0 aggregate%bzero%0#0)
+        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%0#0)
         (log tmp%2#1)
         exit 1u
     block@7: // uint64_via_arc4_uint32_route_L19
@@ -46,13 +53,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let x#8: uint64 = (btoi tmp%0#14)
-        let aggregate%val_as_bytes%1#0: bytes[8] = (itob x#8)
-        let aggregate%bitlen%1#0: uint64 = (bitlen aggregate%val_as_bytes%1#0)
-        let aggregate%no_overflow%1#0: bool = (<= aggregate%bitlen%1#0 32u)
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob x#8)
+        let aggregate%bitlen%2#0: uint64 = (bitlen aggregate%val_as_bytes%2#0)
+        let aggregate%no_overflow%1#0: bool = (<= aggregate%bitlen%2#0 32u)
         (assert aggregate%no_overflow%1#0) // overflow
-        let tmp%1#18: uint64 = (extract_uint32 aggregate%val_as_bytes%1#0 4u)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%1#18)
-        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%2#0)
+        let tmp%1#18: uint64 = (extract_uint32 aggregate%val_as_bytes%2#0 4u)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%1#18)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%3#0)
         (log tmp%4#1)
         exit 1u
     block@8: // uint64_via_arc4_uint64_route_L23
@@ -70,9 +77,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint32
         let aggregate%len_ok%0#0: bool = (<= len%0#0 4u)
         (assert aggregate%len_ok%0#0) // overflow
-        let aggregate%bzero%0#0: bytes = (bzero 4u)
-        let aggregate%arc4_encoded%0#0: bytes[4] = (b| x#3 aggregate%bzero%0#0)
-        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%0#0)
+        let aggregate%bzero%1#0: bytes = (bzero 4u)
+        let aggregate%arc4_encoded%1#0: bytes[4] = (b| x#3 aggregate%bzero%1#0)
+        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%1#0)
         (log tmp%2#1)
         exit 1u
     block@11: // arc4_uint64_via_biguint_route_L36
@@ -82,9 +89,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let aggregate%len_ok%1#0: bool = (<= len%0#0 8u)
         (assert aggregate%len_ok%1#0) // overflow
-        let aggregate%bzero%1#0: bytes = (bzero 8u)
-        let aggregate%arc4_encoded%1#0: bytes[8] = (b| x#3 aggregate%bzero%1#0)
-        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%1#0)
+        let aggregate%bzero%2#0: bytes = (bzero 8u)
+        let aggregate%arc4_encoded%2#0: bytes[8] = (b| x#3 aggregate%bzero%2#0)
+        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%2#0)
         (log tmp%2#1)
         exit 1u
     block@12: // arc4_uint128_via_biguint_route_L40
@@ -94,9 +101,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint128
         let aggregate%len_ok%2#0: bool = (<= len%0#0 16u)
         (assert aggregate%len_ok%2#0) // overflow
-        let aggregate%bzero%2#0: bytes = (bzero 16u)
-        let aggregate%arc4_encoded%2#0: bytes[16] = (b| x#3 aggregate%bzero%2#0)
-        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%2#0)
+        let aggregate%bzero%3#0: bytes = (bzero 16u)
+        let aggregate%arc4_encoded%3#0: bytes[16] = (b| x#3 aggregate%bzero%3#0)
+        let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%3#0)
         (log tmp%2#1)
         exit 1u
     block@13: // biguint_via_arc4_uint32_route_L45
@@ -106,14 +113,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint512
         let aggregate%len_ok%3#0: bool = (<= len%0#0 4u)
         (assert aggregate%len_ok%3#0) // overflow
-        let aggregate%bzero%3#0: bytes = (bzero 4u)
-        let aggregate%arc4_encoded%3#0: bytes[4] = (b| x#0 aggregate%bzero%3#0)
-        let aggregate%value_len%4#0: uint64 = (len aggregate%arc4_encoded%3#0)
+        let aggregate%bzero%4#0: bytes = (bzero 4u)
+        let aggregate%arc4_encoded%4#0: bytes[4] = (b| x#0 aggregate%bzero%4#0)
+        let aggregate%value_len%4#0: uint64 = (len aggregate%arc4_encoded%4#0)
         let aggregate%len_ok%4#0: bool = (<= aggregate%value_len%4#0 64u)
         (assert aggregate%len_ok%4#0) // overflow
-        let aggregate%bzero%4#0: bytes = (bzero 64u)
-        let aggregate%arc4_encoded%4#0: bytes[64] = (b| aggregate%arc4_encoded%3#0 aggregate%bzero%4#0)
-        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%4#0)
+        let aggregate%bzero%5#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%5#0: bytes[64] = (b| aggregate%arc4_encoded%4#0 aggregate%bzero%5#0)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%5#0)
         (log tmp%4#1)
         exit 1u
     block@14: // biguint_via_arc4_uint64_route_L49
@@ -123,14 +130,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint512
         let aggregate%len_ok%5#0: bool = (<= len%0#0 8u)
         (assert aggregate%len_ok%5#0) // overflow
-        let aggregate%bzero%5#0: bytes = (bzero 8u)
-        let aggregate%arc4_encoded%5#0: bytes[8] = (b| x#0 aggregate%bzero%5#0)
-        let aggregate%value_len%6#0: uint64 = (len aggregate%arc4_encoded%5#0)
+        let aggregate%bzero%6#0: bytes = (bzero 8u)
+        let aggregate%arc4_encoded%6#0: bytes[8] = (b| x#0 aggregate%bzero%6#0)
+        let aggregate%value_len%6#0: uint64 = (len aggregate%arc4_encoded%6#0)
         let aggregate%len_ok%6#0: bool = (<= aggregate%value_len%6#0 64u)
         (assert aggregate%len_ok%6#0) // overflow
-        let aggregate%bzero%6#0: bytes = (bzero 64u)
-        let aggregate%arc4_encoded%6#0: bytes[64] = (b| aggregate%arc4_encoded%5#0 aggregate%bzero%6#0)
-        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%6#0)
+        let aggregate%bzero%7#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%7#0: bytes[64] = (b| aggregate%arc4_encoded%6#0 aggregate%bzero%7#0)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%7#0)
         (log tmp%4#1)
         exit 1u
     block@15: // biguint_via_arc4_uint128_route_L53
@@ -140,14 +147,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert eq%0#0) // invalid number of bytes for arc4.uint512
         let aggregate%len_ok%7#0: bool = (<= len%0#0 16u)
         (assert aggregate%len_ok%7#0) // overflow
-        let aggregate%bzero%7#0: bytes = (bzero 16u)
-        let aggregate%arc4_encoded%7#0: bytes[16] = (b| x#0 aggregate%bzero%7#0)
-        let aggregate%value_len%8#0: uint64 = (len aggregate%arc4_encoded%7#0)
+        let aggregate%bzero%8#0: bytes = (bzero 16u)
+        let aggregate%arc4_encoded%8#0: bytes[16] = (b| x#0 aggregate%bzero%8#0)
+        let aggregate%value_len%8#0: uint64 = (len aggregate%arc4_encoded%8#0)
         let aggregate%len_ok%8#0: bool = (<= aggregate%value_len%8#0 64u)
         (assert aggregate%len_ok%8#0) // overflow
-        let aggregate%bzero%8#0: bytes = (bzero 64u)
-        let aggregate%arc4_encoded%8#0: bytes[64] = (b| aggregate%arc4_encoded%7#0 aggregate%bzero%8#0)
-        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%8#0)
+        let aggregate%bzero%9#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%9#0: bytes[64] = (b| aggregate%arc4_encoded%8#0 aggregate%bzero%9#0)
+        let tmp%4#1: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%9#0)
         (log tmp%4#1)
         exit 1u
     block@18: // after_if_else_L4

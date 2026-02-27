@@ -85,7 +85,9 @@ subroutine test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeR
         let len%0#0: uint64 = (len x#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint128
-        let tmp%2#0: bytes = (concat 0x151f7c75 x#0)
+        let tmp%0#1: uint64 = decode_bytes<uint64>(x#0)
+        let tmp%1#1: Encoded(uint128) = bytes_encode<uint128>(tmp%0#1)
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#1)
         (log tmp%2#0)
         exit 1u
 
