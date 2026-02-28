@@ -577,7 +577,7 @@ BigUIntType: typing.Final[RuntimeType] = _SimpleBytesBackedType(
     name="algopy._primitives.BigUInt",
     wtype=wtypes.biguint_wtype,
 )
-BytesType: typing.Final[RuntimeType] = _SimpleType(
+BytesType: typing.Final[RuntimeType] = _SimpleBytesBackedType(
     name="algopy._primitives.Bytes",
     wtype=wtypes.bytes_wtype,
 )
