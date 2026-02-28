@@ -57,9 +57,9 @@ def my_sub(t: MyTuple) -> None:
     pass
 
 ## case: unsupported_class
-from algopy import Contract, UInt64
+from algopy import BaseContract, UInt64
 
-class AllowedContract(Contract):
+class AllowedContract(BaseContract):
 
     def approval_program(self) -> UInt64:
         return UInt64(1)
@@ -67,7 +67,7 @@ class AllowedContract(Contract):
     def clear_state_program(self) -> UInt64:
         return UInt64(1)
 
-class NotAllowed: ## E: Unsupported class declaration. Contract classes must inherit either directly or indirectly from algopy.Contract.
+class NotAllowed: ## E: Unsupported class declaration. Contract classes must inherit either directly or indirectly from algopy.BaseContract.
     pass
 
 ## case: all_ignored
@@ -164,9 +164,9 @@ THREE = ONE + pkg.two.TWO
 ## case: imported_contract_test
 ## path: my_contract.py
 import abc
-from algopy import Contract, UInt64, subroutine
+from algopy import BaseContract, UInt64, subroutine
 
-class MyContractBase(Contract, abc.ABC):
+class MyContractBase(BaseContract, abc.ABC):
 
     def approval_program(self) -> UInt64:
         return UInt64(1)
@@ -212,7 +212,7 @@ def four() -> None:
 from algopy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
 
 
-class BaseContract(
+class Contract(
     arc4.ARC4Contract,
     state_totals=StateTotals(local_bytes=1, global_uints=3),
 ):
@@ -225,17 +225,17 @@ class BaseContract(
         pass
 
 
-class AnotherContract(BaseContract): ## W: Contract extends base contract state_totals_test.BaseContract with explicit state_totals, but does not define its own state_totals. This could result in insufficient reserved state at run time.
+class AnotherContract(Contract): ## W: Contract extends base contract state_totals_test.Contract with explicit state_totals, but does not define its own state_totals. This could result in insufficient reserved state at run time.
     pass
 
-class AnotherContractAuto(BaseContract, state_totals=StateTotals()):
+class AnotherContractAuto(Contract, state_totals=StateTotals()):
     pass
 
 ## case: state_totals_too_small_test
 from algopy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
 
 
-class BaseContract( ## W: State totals declared on the class are less than totals calculated from explicitly declared properties: global_bytes: declared=0, calculated=1, global_uints: declared=0, calculated=2, local_bytes: declared=0, calculated=3, local_uints: declared=0, calculated=4.
+class Contract( ## W: State totals declared on the class are less than totals calculated from explicitly declared properties: global_bytes: declared=0, calculated=1, global_uints: declared=0, calculated=2, local_bytes: declared=0, calculated=3, local_uints: declared=0, calculated=4.
     arc4.ARC4Contract,
     state_totals=StateTotals(local_uints=0, local_bytes=0, global_uints=0, global_bytes=0),
 ):
@@ -276,8 +276,8 @@ class Contract2(Contract, state_totals=StateTotals(local_uints=10, local_bytes=1
 
 
 ## case: implicitly_abstract_warning
-from algopy import Contract
+from algopy import BaseContract
 
-class IForgotToImplementClearState(Contract): ## W: Class implicitly_abstract_warning.IForgotToImplementClearState is implicitly abstract
+class IForgotToImplementClearState(BaseContract): ## W: Class implicitly_abstract_warning.IForgotToImplementClearState is implicitly abstract
     def approval_program(self) -> bool:
         return True

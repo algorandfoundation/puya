@@ -1,4 +1,8 @@
-# public decorator is an alias for abimethod to provide a cleaner API
-from algopy.arc4 import abimethod as public
+from algopy.arc4 import (
+    ARC4Contract as Contract,
+)
+from algopy.arc4 import (
+    abimethod as public,
+)
 
-__all__ = ["public"]
+__all__ = ["public", "Contract"]

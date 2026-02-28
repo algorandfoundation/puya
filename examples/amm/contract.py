@@ -2,8 +2,8 @@
 
 from algopy import (
     Account,
-    ARC4Contract,
     Asset,
+    Contract,
     Global,
     Txn,
     UInt64,
@@ -24,7 +24,7 @@ FEE = 5
 FACTOR = SCALE - FEE
 
 
-class ConstantProductAMM(ARC4Contract):
+class ConstantProductAMM(Contract):
     def __init__(self) -> None:
         # init runs whenever the txn's app ID is zero, and runs first
         # so if we have multiple create methods, this can contain common code.

@@ -1,12 +1,12 @@
 import typing
 
-from algopy import BigUInt, Bytes, arc4, op, subroutine, urange
+from algopy import BigUInt, Bytes, Contract, arc4, op, subroutine, urange
 
 Bytes32: typing.TypeAlias = arc4.StaticArray[arc4.Byte, typing.Literal[32]]
 Proof: typing.TypeAlias = arc4.DynamicArray[Bytes32]
 
 
-class MerkleTree(arc4.ARC4Contract):
+class MerkleTree(Contract):
     @arc4.abimethod(create="require")
     def create(self, root: Bytes32) -> None:
         self.root = root.bytes

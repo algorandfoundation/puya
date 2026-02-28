@@ -17,9 +17,9 @@ If the ARC-4 method returns an ARC-4 result then the result will be a tuple of t
 If the ARC-4 method does not return a result, or if the result type is not fully qualified then just the inner transaction is returned.
 
 ```python
-from algopy import Application, ARC4Contract, String, arc4, subroutine
+from algopy import Application, Contract, String, arc4, subroutine
 
-class HelloWorld(ARC4Contract):
+class HelloWorld(Contract):
 
     @arc4.abimethod()
     def greet(self, name: String) -> String:
@@ -89,9 +89,9 @@ If the compiled programs and state allocation fields need to be customized (for 
 this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
 
 ```python
-from algopy import ARC4Contract, String, arc4, subroutine
+from algopy import Contract, String, arc4, subroutine
 
-class HelloWorld(ARC4Contract):
+class HelloWorld(Contract):
 
     @arc4.abimethod()
     def greet(self, name: String) -> String:
@@ -116,9 +116,9 @@ If the compiled programs need to be customized (for example due to [template var
 this can be done by passing a [`algopy.CompiledContract`](#algopy.CompiledContract) via the `compiled` keyword argument.
 
 ```python
-from algopy import Application, ARC4Contract, String, arc4, subroutine
+from algopy import Application, Contract, String, arc4, subroutine
 
-class NewApp(ARC4Contract):
+class NewApp(Contract):
 
     @arc4.abimethod()
     def greet(self, name: String) -> String:

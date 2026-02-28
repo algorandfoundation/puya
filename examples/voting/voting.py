@@ -3,10 +3,10 @@ import typing
 
 from algopy import (
     Account,
-    ARC4Contract,
     Box,
     BoxMap,
     Bytes,
+    Contract,
     Global,
     GlobalState,
     OpUpFeeSource,
@@ -46,7 +46,7 @@ class VotingPreconditions(arc4.Struct):
     current_time: arc4.UInt64
 
 
-class VotingRoundApp(ARC4Contract):
+class VotingRoundApp(Contract):
     def __init__(self) -> None:
         self.is_bootstrapped = False
         # The minimum number of voters who have voted

@@ -1380,7 +1380,7 @@ OpEnumTypes: typing.Final = _make_intrinsic_enum_types()
 OpNamespaceTypes: typing.Final = _make_intrinsic_namespace_types()
 
 StateTotalsType: typing.Final[PyType] = _CompileTimeType(
-    name="algopy._contract.StateTotals",
+    name="algopy._base_contract.StateTotals",
     wtype_error="{self} is only usable in a class options context",
 )
 
