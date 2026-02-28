@@ -256,7 +256,7 @@ class _BytesBase(typing.Protocol, Reversible[Bytes]):
     def __ne__(self, other: Bytes | FixedBytes | bytes) -> bool:  # type: ignore[override,type-arg]
         """Compare with with another Bytes, bytes, or FixedBytes using the `!=` operator"""
 
-class Bytes(_BytesBase):
+class Bytes(BytesBacked, _BytesBase):
     """A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM"""
 
     __match_value__: bytes
