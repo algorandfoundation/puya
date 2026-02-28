@@ -1,0 +1,113 @@
+subroutine return_value_times(self: test_cases.structure_methods.contract.ARC4TestStruct, times: uint64): uint64
+{
+  return arc4_decode(self.value, uint64) * times
+}
+
+subroutine return1(): uint64
+{
+  return 1u
+}
+
+subroutine return_value_times(self: test_cases.structure_methods.contract.TestStruct, times: uint64): uint64
+{
+  return self.value * times
+}
+
+subroutine return1(): uint64
+{
+  return 1u
+}
+
+subroutine return_value_times(self: test_cases.structure_methods.contract.TestNamedTuple, times: uint64): uint64
+{
+  return self.value * times
+}
+
+subroutine return1(): uint64
+{
+  return 1u
+}
+
+subroutine never_inlined_usually_inlined(self: test_cases.structure_methods.contract.GroupedMethods, v: uint64): uint64
+{
+  return v + 1u
+}
+
+subroutine always_inlined_not_usually_inlined(self: test_cases.structure_methods.contract.GroupedMethods, v: uint64): void
+{
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+}
+
+subroutine usually_inlined(self: test_cases.structure_methods.contract.GroupedMethods, v: uint64): uint64
+{
+  return v + 1u
+}
+
+subroutine not_usually_inlined(self: test_cases.structure_methods.contract.GroupedMethods, v: uint64): void
+{
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+  emit('ARC4TestStruct(uint64)', new test_cases.structure_methods.contract.ARC4TestStruct(value=arc4_encode(v, arc4.uint64)))
+}
+
+contract TestContract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.structure_methods.contract.TestContract.test(): void
+  {
+    assert(18u == test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(new test_cases.structure_methods.contract.ARC4TestStruct(value=9_arc4u64), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestStruct.return_value_times(new test_cases.structure_methods.contract.TestStruct(value=9u), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestNamedTuple.return_value_times((value=9u), 2u))
+    assert(18u == test_cases.structure_methods.contract.ARC4TestStruct.return_value_times(new test_cases.structure_methods.contract.ARC4TestStruct(value=9_arc4u64), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestStruct.return_value_times(new test_cases.structure_methods.contract.TestStruct(value=9u), 2u))
+    assert(18u == test_cases.structure_methods.contract.TestNamedTuple.return_value_times((value=9u), 2u))
+    assert(1u == test_cases.structure_methods.contract.ARC4TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestNamedTuple.return1())
+    assert(1u == test_cases.structure_methods.contract.ARC4TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestStruct.return1())
+    assert(1u == test_cases.structure_methods.contract.TestNamedTuple.return1())
+    assert(3u == test_cases.structure_methods.contract.GroupedMethods.never_inlined_usually_inlined((), 2u))
+    assert(3u == test_cases.structure_methods.contract.GroupedMethods.never_inlined_usually_inlined((), 2u))
+    assert(3u == test_cases.structure_methods.contract.GroupedMethods.usually_inlined((), 2u))
+    assert(3u == test_cases.structure_methods.contract.GroupedMethods.usually_inlined((), 2u))
+    test_cases.structure_methods.contract.GroupedMethods.always_inlined_not_usually_inlined((), 2u)
+    test_cases.structure_methods.contract.GroupedMethods.always_inlined_not_usually_inlined((), 2u)
+    test_cases.structure_methods.contract.GroupedMethods.not_usually_inlined((), 2u)
+    test_cases.structure_methods.contract.GroupedMethods.not_usually_inlined((), 2u)
+  }
+  
+  baremethod test_cases.structure_methods.contract.TestContract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}

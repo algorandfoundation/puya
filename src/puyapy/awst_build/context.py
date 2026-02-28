@@ -189,9 +189,6 @@ def function_pytype(
     ):
         arg_pytype = type_to_pytype(registry, at, source_location=loc, in_func_sig=True)
         func_args.append(pytypes.FuncArg(type=arg_pytype, kind=kind, name=name))
-    # is the function a method but not a static method? if so, drop the first (implicit) argument
-    if func_def.info and not func_def.is_static:
-        _self_arg, *func_args = func_args
     return pytypes.FuncType(
         name=func_def.fullname,
         args=func_args,

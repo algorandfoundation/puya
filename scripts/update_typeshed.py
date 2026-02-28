@@ -70,7 +70,10 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
         stdlib / "sys" / "__init__.pyi",
         stdlib / "abc.pyi",
         # needed for puyapy
-        # stdlib / "enum.pyi"
+        # stdlib / "enum.pyi",
+        stdlib / "importlib" / "machinery.pyi",
+        stdlib / "importlib" / "_bootstrap.pyi",
+        stdlib / "_frozen_importlib.pyi",
     ]
 
     (puya_typeshed / stdlib).mkdir(exist_ok=True, parents=True)

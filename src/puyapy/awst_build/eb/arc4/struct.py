@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Copy, Expression, FieldExpression, NewStruct
+from puya.awst.nodes import Copy, Expression, FieldExpression, NewStruct, SubroutineID
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
@@ -23,6 +23,10 @@ from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuild
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puyapy.awst_build.eb.subroutine import (
+    BoundSubroutineInvokerExpressionBuilder,
+    SubroutineInvokerExpressionBuilder,
+)
 from puyapy.awst_build.utils import get_arg_mapping
 
 logger = log.get_logger(__name__)
@@ -68,6 +72,15 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
             case "from_log":
                 return ARC4FromLogBuilder(location, self.produces())
             case _:
+                pytype = self.produces()
+                method = pytype.static_methods.get(name) or pytype.methods.get(name)
+                if method:
+                    return SubroutineInvokerExpressionBuilder(
+                        target=SubroutineID(method.name),
+                        func_type=method,
+                        location=location,
+                    )
+
                 return super().member_access(name, location)
 
 
@@ -89,6 +102,21 @@ class ARC4StructExpressionBuilder(
                     source_location=location,
                 )
                 return builder_for_instance(field, result_expr)
+            case method_name if method := self.pytype.methods.get(method_name):
+                return BoundSubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(method.name),
+                    func_type=method,
+                    location=location,
+                    args=[self],
+                    arg_names=[None],
+                    arg_kinds=[models.ArgKind.ARG_POS],
+                )
+            case method_name if static_method := self.pytype.static_methods.get(method_name):
+                return SubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(static_method.name),
+                    func_type=static_method,
+                    location=location,
+                )
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
             case "_replace":
