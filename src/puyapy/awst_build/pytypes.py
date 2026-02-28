@@ -1198,8 +1198,8 @@ def _make_gtxn_type(kind: TransactionType | None) -> GroupTransactionType:
             name=stub_name,
             transaction_type=kind,
             wtype=wtypes.WGroupTransaction(kind),
-            bases=[GroupTransactionBaseType],
-            mro=[GroupTransactionBaseType],
+            bases=(GroupTransactionBaseType,),
+            mro=(GroupTransactionBaseType,),
         )
     )
 
@@ -1336,24 +1336,6 @@ GenericABIApplicationCallInnerTransaction: typing.Final = _GenericType[
 )
 
 
-@attrs.frozen(kw_only=True, order=False)
-class _CompileTimeType(PyType):
-    _wtype_error: str
-
-    @typing.override
-    @property
-    def wtype(self) -> ErrorMessage:
-        msg = self._wtype_error.format(self=self)
-        return ErrorMessage(msg)
-
-    def __attrs_post_init__(self) -> None:
-        _register_builtin(self)
-
-
-BytesBackedType: typing.Final[PyType] = _CompileTimeType(
-    name="algopy._primitives.BytesBacked",
-    wtype_error="{self} is not usable as a runtime type",
-)
 ValidatableType: typing.Final[PyType] = _CompileTimeType(
     name="algopy._interfaces._Validatable",
     wtype_error="{self} is not usable as a runtime type",
