@@ -24,7 +24,7 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
-    BytesBackedTypeBuilder,
+    BytesConvertibleTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import (
     CopyBuilder,
@@ -46,7 +46,7 @@ _TPyType_co = typing_extensions.TypeVar(
 )
 
 
-class ARC4TypeBuilder(BytesBackedTypeBuilder[_TPyType_co], abc.ABC):
+class ARC4TypeBuilder(BytesConvertibleTypeBuilder[_TPyType_co], abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
             case "from_log":

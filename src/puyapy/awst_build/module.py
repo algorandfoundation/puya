@@ -233,7 +233,6 @@ class ModuleASTConverter(
             "abc.ABCMeta",
             "typing._ProtocolMeta",
             "typing_extensions._ProtocolMeta",
-            constants.CLS_ARC4_STRUCT_META,
         ):
             self._error(
                 f"Unsupported metaclass: {info.metaclass_type.type.fullname}",
@@ -241,33 +240,28 @@ class ModuleASTConverter(
             )
             return []
 
-        direct_base_types = [
+        direct_base_types = tuple(
             self.context.require_ptype(ti.fullname, cdef_loc)
             for ti in info.direct_base_classes()
             if ti.fullname not in _BUILTIN_INHERITABLE
-        ]
-        mro_types = [
-            self.context.require_ptype(ti.fullname, cdef_loc)
-            for ti in info.mro[1:]
-            if ti.fullname not in _BUILTIN_INHERITABLE
-        ]
-        # create a static type, but don't register it yet,
-        # it might end up being a struct instead
-        static_type = pytypes.StaticType(
-            name=cdef.fullname, bases=direct_base_types, mro=mro_types
         )
+        mro_names = [ti.fullname for ti in info.mro[1:]]
         for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
             # note that since these struct bases aren't protocols, any subclasses
             # cannot be protocols
-            if struct_base < static_type:
-                if direct_base_types != [struct_base]:
+            if struct_base.name in mro_names:
+                if direct_base_types != (struct_base,):
                     self._error(
                         f"{struct_base} classes must only inherit directly from {struct_base}",
                         cdef_loc,
                     )
                 return _process_struct(self.context, struct_base, cdef)
-
-        if pytypes.ContractBaseType < static_type:
+        mro_types = tuple(
+            self.context.require_ptype(mro_name, cdef_loc)
+            for mro_name in mro_names
+            if mro_name not in _BUILTIN_INHERITABLE
+        )
+        if pytypes.ContractBaseType.name in mro_names:
             module_name = cdef.info.module_name
             class_name = cdef.name
             assert "." not in class_name
@@ -286,6 +280,9 @@ class ModuleASTConverter(
             return [converter.build]
 
         if info.is_protocol:
+            static_type = pytypes.StaticType(
+                name=cdef.fullname, bases=direct_base_types, mro=mro_types
+            )
             self.context.register_pytype(static_type)
             if pytypes.ARC4ClientBaseType in direct_base_types:
                 ARC4ClientASTVisitor.visit(self.context, cdef)

@@ -1,9 +1,11 @@
+import abc
 import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
 from typing_extensions import deprecated
 
 import algopy
+import algopy._primitives
 from algopy._interfaces import _Validatable
 
 _P = typing.ParamSpec("_P")
@@ -106,7 +108,7 @@ def baremethod(
 def arc4_signature(signature: str | Callable[_P, _R], /) -> algopy.Bytes:
     """Returns the ARC-4 encoded method selector for the specified signature or abi method"""
 
-class _ABIEncoded(algopy.BytesBacked, _Validatable, typing.Protocol):
+class _ABIEncoded(algopy._primitives._BytesConvertible, _Validatable, abc.ABC):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """
@@ -130,7 +132,7 @@ class String(_ABIEncoded):
 
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
-class _UIntN(_ABIEncoded, typing.Protocol):
+class _UIntN(_ABIEncoded, abc.ABC):
     def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None: ...
 
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
@@ -514,37 +516,15 @@ class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
     def copy(self) -> typing.Self:
         """Create a copy of this tuple"""
 
-@typing.dataclass_transform(
-    eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
-)
-class _StructMeta(type):
-    def __new__(
-        cls,
-        name: str,
-        bases: tuple[type, ...],
-        namespace: dict[str, object],
-        *,
-        kw_only: bool = False,
-    ) -> _StructMeta: ...
-
-class Struct(metaclass=_StructMeta):
+@typing.dataclass_transform()
+class Struct(_ABIEncoded):
     """Base class for ARC-4 Struct types"""
-
-    @classmethod
-    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
-        """Construct an instance from the underlying bytes[] (no validation)"""
-
-    @property
-    def bytes(self) -> algopy.Bytes:
-        """Get the underlying bytes[]"""
-
-    @classmethod
-    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
-        """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
-
-    def validate(self) -> None:
-        """Performs validation to ensure the value is well-formed, errors if it is not"""
-
+    def __init_subclass__(
+        cls,
+        *,
+        frozen: bool = False,
+        kw_only: bool = False,
+    ): ...
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 

@@ -11,7 +11,7 @@ from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
-    BytesBackedTypeBuilder,
+    BytesConvertibleTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import (
     CopyBuilder,
@@ -28,7 +28,7 @@ from puyapy.awst_build.utils import get_arg_mapping
 logger = log.get_logger(__name__)
 
 
-class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
+class ARC4StructTypeBuilder(BytesConvertibleTypeBuilder[pytypes.StructType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.StructType)
         assert pytypes.ARC4StructBaseType < typ
