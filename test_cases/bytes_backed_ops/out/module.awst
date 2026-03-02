@@ -1,0 +1,142 @@
+contract BytesBackedOpsContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program(): bool
+  {
+    test_cases.bytes_backed_ops.contract.test_hash_ops()
+    test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops()
+    test_cases.bytes_backed_ops.contract.test_conversion_ops()
+    test_cases.bytes_backed_ops.contract.test_bitwise_ops()
+    return true
+  }
+  
+  subroutine test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_hash_ops(): void
+{
+  fb: bytes[4] = hex<"74657374">
+  s: string = 'test'
+  acct: account = checked_maybe((reinterpret_cast<account>(SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(txn<Sender>()))), 32u == len(SINGLE_EVAL(id=0))))
+  big: biguint = 42n
+  assert(len(sha256(fb)) != 0u)
+  assert(len(sha256(s)) != 0u)
+  assert(len(sha256(acct)) != 0u)
+  assert(len(sha256(big)) != 0u)
+  assert(len(sha256(42_arc4u64)) != 0u)
+  assert(len(sha256(255_arc4u8)) != 0u)
+  assert(len(sha256(1000_arc4u16)) != 0u)
+  assert(len(sha256(100000_arc4u32)) != 0u)
+  assert(len(sha256(999999_arc4u128)) != 0u)
+  assert(len(sha256('test')) != 0u)
+  assert(len(sha256(arc4_encode(true, arc4.bool))) != 0u)
+  assert(len(sha256(reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>()))) != 0u)
+  assert(len(sha256(arc4_encode(hex<"00026869">, arc4.dynamic_array<arc4.uint8>))) != 0u)
+  assert(len(sha256(1.00000000arc4u32x8)) != 0u)
+  assert(len(sha256(1.0000000000000000arc4n256x16)) != 0u)
+  assert(len(sha256(new arc4.static_array<arc4.uint8, 3>(1_arc4u8, 2_arc4u8, 3_arc4u8))) != 0u)
+  assert(len(sha256(new arc4.dynamic_array<arc4.uint8>(1_arc4u8, 2_arc4u8))) != 0u)
+  assert(len(sha256(arc4_encode((1_arc4u8, 'hello'), arc4.tuple<arc4.uint8,arc4.dynamic_array<arc4.uint8>>))) != 0u)
+  assert(len(sha256(new test_cases.bytes_backed_ops.contract.MyStruct(x=42_arc4u64, y=7_arc4u8))) != 0u)
+  assert(len(sha256(new arc4.dynamic_array<uint64>(1u, 2u, 3u))) != 0u)
+  assert(len(sha256(new arc4.dynamic_array<uint64>(10u, 20u))) != 0u)
+  assert(len(sha256(new test_cases.bytes_backed_ops.contract.NativeStruct(a=1u, b=2u))) != 0u)
+  assert(len(keccak256(fb)) != 0u)
+  assert(len(keccak256(acct)) != 0u)
+  assert(len(keccak256(100_arc4u32)) != 0u)
+  assert(len(keccak256(new arc4.dynamic_array<arc4.uint8>(1_arc4u8, 2_arc4u8))) != 0u)
+  assert(len(keccak256(new test_cases.bytes_backed_ops.contract.NativeStruct(a=1u, b=2u))) != 0u)
+  assert(len(sha512_256(fb)) != 0u)
+  assert(len(sha512_256('test')) != 0u)
+  assert(len(sha512_256(42_arc4u64)) != 0u)
+  assert(len(sha512_256(new arc4.dynamic_array<uint64>(1u, 2u))) != 0u)
+  assert(len(sha3_256(fb)) != 0u)
+  assert(len(sha3_256(s)) != 0u)
+  assert(len(sha3_256(big)) != 0u)
+  assert(len(sha3_256(new arc4.static_array<arc4.uint8, 3>(1_arc4u8, 2_arc4u8, 3_arc4u8))) != 0u)
+  assert(len(sha3_256(new arc4.dynamic_array<uint64>(10u, 20u))) != 0u)
+}
+
+subroutine test_byte_manipulation_ops(): void
+{
+  fb: bytes[5] = hex<"68656C6C6F">
+  s: string = 'hello'
+  acct: account = checked_maybe((reinterpret_cast<account>(SINGLE_EVAL(id=1, source=reinterpret_cast<bytes>(txn<Sender>()))), 32u == len(SINGLE_EVAL(id=1))))
+  result: bytes = concat(fb, s)
+  assert(len(result) == 10u)
+  assert(len(concat('hello', acct)) != 0u)
+  assert(len(concat(acct, s)) != 0u)
+  assert(len(concat(1000n, 1000n)) != 0u)
+  assert(len(concat(arc4_encode(hex<"00026869">, arc4.dynamic_array<arc4.uint8>), fb)) != 0u)
+  assert(len(concat(42_arc4u64, 43_arc4u64)) != 0u)
+  assert(len(concat(new arc4.dynamic_array<uint64>(10u, 20u), fb)) != 0u)
+  assert(len(concat(new arc4.dynamic_array<uint64>(1u), new test_cases.bytes_backed_ops.contract.NativeStruct(a=1u, b=2u))) != 0u)
+  assert(extract<1, 3>(s) == hex<"656C6C">)
+  assert(len(extract<0, 4>(acct)) != 0u)
+  assert(len(extract<0, 2>('hello')) != 0u)
+  assert(substring<1, 4>(fb) == hex<"656C6C">)
+  assert(len(substring<0, 4>(42_arc4u64)) != 0u)
+  assert(getbyte(42_arc4u64, 7u) == 42u)
+  assert(getbyte(1000n, 0u) >= 0u)
+  assert(getbyte(s, 0u) == 104u)
+  modified: bytes = setbyte(fb, 0u, 72u)
+  assert(modified == hex<"48656C6C6F">)
+  replaced: bytes = replace2<0>(256n, hex<"00">)
+  assert(len(replaced) != 0u)
+  replaced2: bytes = replace2<0>(acct, hex<"00">)
+  assert(len(replaced2) != 0u)
+  fb8: bytes[8] = hex<"000000000000002A">
+  assert(extract_uint64(fb8, 0u) == 42u)
+  assert(extract_uint16(1000_arc4u32, 0u) >= 0u)
+  assert(extract_uint32(1000_arc4u32, 0u) >= 0u)
+}
+
+subroutine test_conversion_ops(): void
+{
+  fb: bytes[8] = hex<"000000000000002A">
+  assert(btoi(fb) == 42u)
+  assert(btoi(100_arc4u64) == 100u)
+  assert(btoi(hex<"2A">) == 42u)
+  encoded: bytes = hex<"614756736247383D">
+  decoded: bytes = base64_decode<StdEncoding>(encoded)
+  assert(decoded == hex<"68656C6C6F">)
+}
+
+subroutine test_bitwise_ops(): void
+{
+  fb: bytes[4] = hex<"74657374">
+  s: string = 'test'
+  acct: account = checked_maybe((reinterpret_cast<account>(SINGLE_EVAL(id=2, source=reinterpret_cast<bytes>(txn<Sender>()))), 32u == len(SINGLE_EVAL(id=2))))
+  assert(bitlen(fb) > 0u)
+  assert(bitlen(s) > 0u)
+  assert(bitlen(acct) > 0u)
+  assert(bitlen(1000n) > 0u)
+  assert(bitlen(42_arc4u64) > 0u)
+  assert(bitlen('hello') > 0u)
+  assert(bitlen(arc4_encode(hex<"00026869">, arc4.dynamic_array<arc4.uint8>)) > 0u)
+  assert(bitlen(arc4_encode((1_arc4u8, 'hello'), arc4.tuple<arc4.uint8,arc4.dynamic_array<arc4.uint8>>)) > 0u)
+  assert(bitlen(new test_cases.bytes_backed_ops.contract.MyStruct(x=42_arc4u64, y=7_arc4u8)) > 0u)
+  assert(bitlen(new arc4.dynamic_array<uint64>(1u, 2u, 3u)) > 0u)
+  assert(bitlen(new test_cases.bytes_backed_ops.contract.NativeStruct(a=1u, b=2u)) > 0u)
+  bit: bool = getbit(s, 0u)
+  result: bytes = setbit(s, 0u, !(bit))
+  assert(result != reinterpret_cast<bytes>(s))
+  bit2: bool = getbit(fb, 0u)
+  result2: bytes = setbit(fb, 0u, !(bit2))
+  assert(result2 != reinterpret_cast<bytes>(fb))
+  arc4_bool: arc4.bool = arc4_encode(true, arc4.bool)
+  toggled: bytes = setbit(arc4_bool, 0u, false)
+  assert(toggled != reinterpret_cast<bytes>(arc4_bool))
+  assert(0u <= reinterpret_cast<uint64>(getbit(acct, 0u)))
+  assert(0u <= reinterpret_cast<uint64>(getbit(42_arc4u64, 63u)))
+}

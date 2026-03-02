@@ -1,0 +1,92 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
+main:
+    bytecblock 0x68656c6c6f
+    // bytes_backed_ops/contract.py:98
+    // acct = Account(op.Txn.sender.bytes)
+    txn Sender
+    // bytes_backed_ops/contract.py:67
+    // assert op.sha256(arc4.Tuple((arc4.UInt8(1), arc4.String("hello"))))
+    pushbytes 0x000568656c6c6f
+    // bytes_backed_ops/contract.py:104
+    // assert op.concat(arc4.String("hello"), acct)
+    dig 1
+    concat
+    len
+    assert
+    // bytes_backed_ops/contract.py:105
+    // assert op.concat(acct, s)
+    dup
+    // bytes_backed_ops/contract.py:97
+    // s = String("hello")
+    bytec_0 // "hello"
+    // bytes_backed_ops/contract.py:105
+    // assert op.concat(acct, s)
+    concat
+    len
+    assert
+    // bytes_backed_ops/contract.py:121-122
+    // # getbyte
+    // assert op.getbyte(arc4.UInt64(42), 7) == 42
+    pushbytes 0x000000000000002a
+    pushint 7
+    getbyte
+    pushint 42
+    ==
+    assert
+    // bytes_backed_ops/contract.py:97
+    // s = String("hello")
+    bytec_0 // "hello"
+    // bytes_backed_ops/contract.py:124
+    // assert op.getbyte(s, 0) == 104  # 'h'
+    pushint 0
+    getbyte
+    pushint 104
+    ==
+    assert
+    // bytes_backed_ops/contract.py:96
+    // fb = FixedBytes[typing.Literal[5]](b"hello")
+    bytec_0 // 0x68656c6c6f
+    // bytes_backed_ops/contract.py:126-127
+    // # setbyte
+    // modified = op.setbyte(fb, 0, 72)
+    pushints 0 72
+    setbyte
+    // bytes_backed_ops/contract.py:128
+    // assert modified == b"Hello"
+    pushbytes 0x48656c6c6f
+    ==
+    assert
+    // bytes_backed_ops/contract.py:134
+    // replaced2 = op.replace(acct, 0, Bytes(b"\x00"))
+    pushbytes 0x00
+    replace2 0
+    // bytes_backed_ops/contract.py:135
+    // assert replaced2
+    len
+    assert
+    // bytes_backed_ops/contract.py:152-153
+    // # base64_decode
+    // encoded = Bytes(b"aGVsbG8=")
+    pushbytes 0x614756736247383d
+    // bytes_backed_ops/contract.py:154
+    // decoded = op.base64_decode(op.Base64.StdEncoding, encoded)
+    base64_decode StdEncoding
+    // bytes_backed_ops/contract.py:155
+    // assert decoded == b"hello"
+    bytec_0 // 0x68656c6c6f
+    ==
+    assert
+    // bytes_backed_ops/contract.py:162
+    // acct = Account(op.Txn.sender.bytes)
+    txn Sender
+    // bytes_backed_ops/contract.py:167
+    // assert op.bitlen(acct) > UInt64(0)
+    bitlen
+    assert
+    // bytes_backed_ops/contract.py:36
+    // return True
+    pushint 1
+    return
