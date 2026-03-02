@@ -22,3 +22,20 @@ from algopy import logicsig, log
 def some_sig() -> bool:
     log(b"hello") ## E: The operation (log 0x68656c6c6f) is only allowed in smart contracts
     return True
+
+## case: test_byte_mutating_ops_on_encoded_types
+
+from algopy import Contract, String, arc4, op
+
+class ByteMutatingOpsOnEncodedTypes(Contract):
+    def approval_program(self) -> bool:
+        s = String("hello")
+        _r = op.setbyte(s, 0, 87) ## W: using low level byte manipulation op. setbyte on a algopy.String value may result in bytes that are invalid for the original encoding. If this is the intent, consider appending .bytes at the end
+        _r = op.setbit_bytes(s, 0, True) ## W: using low level byte manipulation op. setbit on a algopy.String value may result in bytes that are invalid for the original encoding. If this is the intent, consider appending .bytes at the end
+        _r = op.replace(s, 0, s) ## W: using low level byte manipulation op. replace2 on a algopy.String value may result in bytes that are invalid for the original encoding. If this is the intent, consider appending .bytes at the end
+        a = arc4.String("goodbye")
+        _r = op.setbyte(a, 0, 1) ## W: using low level byte manipulation op. setbyte on a algopy.arc4.String value may result in bytes that are invalid for the original encoding. If this is the intent, consider appending .bytes at the end
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
