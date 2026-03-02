@@ -2,6 +2,7 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
+from puya.awst import wtypes
 from puya.awst.nodes import (
     AssertExpression,
     IntrinsicCall,
@@ -192,6 +193,31 @@ def _best_op_mapping(
     return op_mappings.overloads[0]
 
 
+# ops that modify individual bytes/bits, potentially breaking structural encoding
+_BYTE_MUTATING_OPS: typing.Final = frozenset({"setbit", "setbyte", "replace2", "replace3"})
+
+
+def _check_bytes_encoding_safety(op_code: str, stack_args: list[InstanceBuilder]) -> None:
+    # if the opcode is not one of the possibly destructing ones,
+    # or there are no arguments (already malformed), don't do anything
+    if op_code not in _BYTE_MUTATING_OPS or not stack_args:
+        return
+    target = stack_args[0]
+    target_wtype = target.pytype.wtype
+    # all types whose encoding might be broken by modifying bits/bytes willy-nilly
+    if target_wtype in {wtypes.string_wtype, wtypes.arc4_bool_wtype} or isinstance(
+        target_wtype,
+        wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    ):
+        logger.warning(
+            f"using low level byte manipulation op. {op_code} on a"
+            f" {target.pytype} value may result in bytes that are invalid"
+            " for the original encoding. If this is the intent, consider"
+            " appending .bytes at the end",
+            location=target.source_location,
+        )
+
+
 def _map_call(
     ast_mapper: OpMappingWithOverloads,
     args: Sequence[NodeBuilder],
@@ -237,6 +263,7 @@ def _map_call(
                             arg_in = converted
                             break
             stack_args.append(expect.argument_of_type_else_dummy(arg_in, *allowed_pytypes))
+    _check_bytes_encoding_safety(op_mapping.op_code, stack_args)
     return IntrinsicCall(
         op_code=op_mapping.op_code,
         wtype=ast_mapper.result_wtype,
