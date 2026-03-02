@@ -630,7 +630,11 @@ def _try_fold_intrinsic(
                 )
                 return models.BytesConstant(
                     source_location=op_loc,
-                    encoding=byte_const.encoding,
+                    encoding=(
+                        byte_const.encoding
+                        if byte_const.encoding != AVMBytesEncoding.utf8
+                        else AVMBytesEncoding.unknown
+                    ),
                     value=adjusted_const_value,
                 )
     elif intrinsic.op.code.startswith("extract_uint"):
@@ -659,7 +663,9 @@ def _try_fold_intrinsic(
                 return right_arg
             if right_const is not None:
                 # two constants, just fold
-                target_encoding = _choose_encoding(left_const.encoding, right_const.encoding)
+                target_encoding = _choose_encoding(
+                    left_const.encoding, right_const.encoding, is_concat=True
+                )
                 result_value = left_const.value + right_const.value
                 result = models.BytesConstant(
                     value=result_value,
@@ -696,7 +702,13 @@ def _try_fold_intrinsic(
                     else:
                         extracted = byte_const.value[S : S + L]
                     return models.BytesConstant(
-                        source_location=op_loc, encoding=byte_const.encoding, value=extracted
+                        source_location=op_loc,
+                        encoding=(
+                            byte_const.encoding
+                            if byte_const.encoding != AVMBytesEncoding.utf8
+                            else AVMBytesEncoding.unknown
+                        ),
+                        value=extracted,
                     )
                 elif (
                     (byte_arg_defn := register_assignments.get(byte_arg))
@@ -752,7 +764,13 @@ def _try_fold_intrinsic(
                     return None  # would fail at runtime, lets hope this is unreachable 😬
                 extracted = byte_const.value[S:E]
                 return models.BytesConstant(
-                    source_location=op_loc, encoding=byte_const.encoding, value=extracted
+                    source_location=op_loc,
+                    encoding=(
+                        byte_const.encoding
+                        if byte_const.encoding != AVMBytesEncoding.utf8
+                        else AVMBytesEncoding.unknown
+                    ),
+                    value=extracted,
                 )
             case models.Intrinsic(
                 args=[byte_arg, models.UInt64Constant(value=S), maybe_len_arg]
@@ -918,7 +936,9 @@ def _try_simplify_triple_concat(
             models.BytesConstant() as bytes_const1,
             models.BytesConstant() as bytes_const2,
         ):
-            target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
+            target_encoding = _choose_encoding(
+                bytes_const1.encoding, bytes_const2.encoding, is_concat=True
+            )
             new_const_value = bytes_const1.value + bytes_const2.value
             new_byte_const = models.BytesConstant(
                 value=new_const_value,
@@ -936,7 +956,9 @@ def _try_simplify_triple_concat(
             models.BytesConstant() as bytes_const2,
             models.Value() as reg,
         ):
-            target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
+            target_encoding = _choose_encoding(
+                bytes_const1.encoding, bytes_const2.encoding, is_concat=True
+            )
             new_const_value = bytes_const1.value + bytes_const2.value
             new_byte_const = models.BytesConstant(
                 value=new_const_value,
@@ -1053,12 +1075,21 @@ def _byte_wise(op: Callable[[int, int], int], lhs: bytes, rhs: bytes) -> bytes:
     return bytes([op(a, b) for a, b in zip_longest(lhs[::-1], rhs[::-1], fillvalue=0)][::-1])
 
 
-def _choose_encoding(a: AVMBytesEncoding, b: AVMBytesEncoding) -> AVMBytesEncoding:
+def _choose_encoding(
+    a: AVMBytesEncoding, b: AVMBytesEncoding, *, is_concat: bool = False
+) -> AVMBytesEncoding:
     if a == b:
-        # preserve encoding if both equal
-        return a
+        # special case handling of utf8:
+        # most byte/bit ops. would destroy
+        # encoding save for concat
+        match a:
+            case AVMBytesEncoding.utf8:
+                return a if is_concat else AVMBytesEncoding.unknown
+            case _:
+                # preserve encoding if both equal
+                return a
     # exclude utf8 from known choices, we don't preserve that encoding choice unless
-    # they're both utf8 strings, which is covered by the first check
+    # they're both utf8 strings and the op. is a concat, which is covered by the first check
     known_binary_choices = {a, b} - {AVMBytesEncoding.utf8, AVMBytesEncoding.unknown}
     if not known_binary_choices:
         return AVMBytesEncoding.unknown
@@ -1276,7 +1307,13 @@ def _try_simplify_bytes_unary_op(
             if intrinsic.op is AVMOp.bitwise_not_bytes:
                 inverted = bytes([x ^ 0xFF for x in byte_const.value])
                 return models.BytesConstant(
-                    value=inverted, encoding=byte_const.encoding, source_location=op_loc
+                    value=inverted,
+                    encoding=(
+                        byte_const.encoding
+                        if byte_const.encoding != AVMBytesEncoding.utf8
+                        else AVMBytesEncoding.unknown
+                    ),
+                    source_location=op_loc,
                 )
             elif (
                 intrinsic.op is AVMOp.btoi
