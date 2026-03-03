@@ -21,7 +21,7 @@ class ARC4ClientTypeBuilder(TypeBuilder):
     def __init__(
         self, typ: pytypes.PyType, source_location: SourceLocation, fragment: ContractFragmentBase
     ):
-        assert pytypes.ARC4ClientBaseType in typ.bases
+        assert pytypes.ARC4ClientBaseType < typ
         super().__init__(typ, source_location)
         self.fragment: typing.Final = fragment
 
