@@ -46,7 +46,15 @@ def dont_copy_array() -> None:
     a = arc4.DynamicBytes()
     arc4.emit("Event(byte[])", a)  # this should not need a .copy()
 
-## case: test_emit_errors_from_ir_layer
+@subroutine
+def unencodable1() -> None:
+    arc4.emit("Event", gtxn.Transaction(1)) ## E: cannot use algopy.gtxn.Transaction as an argument to an ARC-4 method
+
+@subroutine
+def unencodable2() -> None:
+    arc4.emit("Event(txn)", gtxn.Transaction(1)) ## E: cannot use algopy.gtxn.Transaction as an argument to an ARC-4 method
+
+## case: test_abi_call_errors_from_ir_layer
 from algopy import *
 
 class Event(arc4.Struct):
@@ -97,8 +105,13 @@ def invalid_signature6() -> None:
 def literal_warnings() -> None:
     arc4.emit("Emit(string,uint8)", "a", 1) # ok
     arc4.emit("Emit", arc4.String("a"), arc4.UInt8(1)) # ok
-    arc4.emit("Emit", arc4.String("a"), 1) ## W: implicit conversion to algopy.UInt64 will be attempted for int argument 
+    arc4.emit("Emit", arc4.String("a"), 1) ## W: implicit conversion to algopy.UInt64 will be attempted for int argument
     arc4.emit("Emit", "a", arc4.UInt8(1)) ## W: implicit conversion to algopy.String will be attempted for str argument
+
+@subroutine
+def unencodable() -> None:
+    arc4.emit("Event(txn)", 1) ## E: unencodable type
+    arc4.emit("Event", ReferenceArray[UInt64]()) ## E: invalid ARC-4 Struct declaration, the following fields are not persistable: field1
 
 class MyContract(ARC4Contract):
     @arc4.abimethod()
@@ -110,6 +123,7 @@ class MyContract(ARC4Contract):
         invalid_signature5()
         invalid_signature6()
         literal_warnings()
+        unencodable()
 
 ## case: test_emit_errors_ir_lowering
 from algopy import *
