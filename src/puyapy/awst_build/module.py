@@ -256,11 +256,11 @@ class ModuleASTConverter(
                         cdef_loc,
                     )
                 return _process_struct(self.context, struct_base, cdef)
-        mro_types = [
+        mro_types = tuple(
             self.context.require_ptype(mro_name, cdef_loc)
             for mro_name in mro_names
             if mro_name not in _BUILTIN_INHERITABLE
-        ]
+        )
         if pytypes.ContractBaseType.name in mro_names:
             module_name = cdef.info.module_name
             class_name = cdef.name
