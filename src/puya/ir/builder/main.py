@@ -17,11 +17,11 @@ from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir import (
+    encodings,
     models as ir,
     types_ as types,
 )
 from puya.ir._utils import multi_value_to_values
-from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import (
     assignment,
@@ -1430,91 +1430,79 @@ class FunctionIRBuilder(
         abi_signature = (
             f"{event_name}{types.wtype_to_abi_name(struct_wtype, source_location=expr_loc)}"
         )
-        value = self.visit_and_materialise_single(expr.value)
-        self.handle_emit(abi_signature, value, expr_loc)
+        value_provider = self.visit_expr(expr.value)
+        self._handle_emit(abi_signature, value_provider, expr_loc)
 
         return None
 
     def visit_emit_fields(self, expr: awst_nodes.EmitFields) -> TExpression:
-        expr_loc = expr.source_location
-        name, maybe_args, maybe_returns = split_signature(expr.signature, expr_loc)
+        loc = expr.source_location
+        name, maybe_args, maybe_returns = split_signature(expr.signature, loc)
         if maybe_returns is not None:
-            logger.error(
-                "event signatures cannot include return types",
-                location=expr_loc,
-            )
+            logger.error("event signatures cannot include return types", location=loc)
 
         if maybe_args is None:
-            fields = [arg.wtype for arg in expr.values]
+            arg_abi_names = [
+                types.wtype_to_abi_name(arg.wtype, source_location=arg.source_location)
+                for arg in expr.values
+            ]
+            abi_signature = f"{name}({",".join(arg_abi_names)})"
+            element_encodings = [
+                encodings.wtype_to_encoding(arg.wtype, arg.source_location) for arg in expr.values
+            ]
         else:
-            args = tuple(types.split_tuple_types(maybe_args))
-            if len(expr.values) == len(args):
-                fields = [types.abi_name_to_wtype(arg) for arg in args]
-            else:
+            arg_abi_names = list(types.split_tuple_types(maybe_args))
+            if len(expr.values) != len(arg_abi_names):
                 logger.error(
-                    f"expected {len(args)} ABI arguments," f" got {len(expr.values)}",
-                    location=expr_loc,
+                    f"expected {len(arg_abi_names)} ABI arguments, got {len(expr.values)}",
+                    location=loc,
                 )
                 return None
+            abi_signature = expr.signature
+            field_types = [types.abi_name_to_wtype(arg_abi_name) for arg_abi_name in arg_abi_names]
+            element_encodings = [
+                encodings.wtype_to_encoding(field_type, loc) for field_type in field_types
+            ]
 
-        encoded_types = list[wtypes.WType]()
-        encoded_values = list[ir.Value]()
-        for field_type, value_expr in zip(fields, expr.values, strict=True):
-            value_wtype = value_expr.wtype
-            value_ir_type = types.wtype_to_ir_type(
-                value_wtype, value_expr.source_location, allow_tuple=True
+        encoded_values = []
+        for encoding, arg, arg_abi_name in zip(
+            element_encodings, expr.values, arg_abi_names, strict=True
+        ):
+            value_or_tuple = self.visit_and_materialise_as_value_or_tuple(arg)
+            (encoded_value,) = self.materialise_value_provider(
+                ir.BytesEncode.maybe(
+                    values=multi_value_to_values(value_or_tuple),
+                    values_type=value_or_tuple.ir_type,
+                    encoding=encoding,
+                    error_message_override=f"cannot encode to {arg_abi_name}",
+                    source_location=arg.source_location,
+                ),
+                "tmp",
             )
+            encoded_values.append(encoded_value)
 
-            encoded_wtype = wtype_to_arc4_wtype(field_type, value_expr.source_location)
-            encoding = wtype_to_encoding(encoded_wtype, value_expr.source_location)
-            encoded_types.append(encoded_wtype)
-
-            values = self.visit_and_materialise(value_expr)
-
-            if isinstance(value_wtype, wtypes.ARC4Type):
-                error_message = f"expected type {field_type}, got type {value_wtype}"
-            else:
-                error_message = f"cannot encode {value_wtype} to {field_type}"
-
-            encoded_values.extend(
-                self.materialise_value_provider(
-                    ir.BytesEncode.maybe(
-                        values=values,
-                        values_type=value_ir_type,
-                        encoding=encoding,
-                        error_message_override=error_message,
-                        source_location=value_expr.source_location,
-                    ),
-                    "tmp",
-                )
-            )
-
-        tuple_wtype = wtypes.WTuple(types=encoded_types, source_location=expr_loc)
-        tuple_ir_type = types.wtype_to_ir_type(tuple_wtype, expr_loc, allow_tuple=True)
-        tuple_encoding = wtype_to_encoding(tuple_wtype, expr_loc)
-        [value] = self.materialise_value_provider(
-            ir.BytesEncode.maybe(
-                values=encoded_values,
-                values_type=tuple_ir_type,
-                encoding=tuple_encoding,
-                source_location=expr_loc,
-            ),
-            "tmp",
+        tuple_ir_type = types.TupleIRType(
+            elements=tuple(types.EncodedType(enc) for enc in element_encodings), fields=None
         )
-
-        abi_signature = f"{name}{types.wtype_to_abi_name(tuple_wtype, source_location=expr_loc)}"
-        self.handle_emit(abi_signature, value, expr_loc)
+        value_provider = ir.BytesEncode(
+            values=encoded_values,
+            values_type=tuple_ir_type,
+            encoding=encodings.TupleEncoding(elements=element_encodings),
+            source_location=loc,
+        )
+        self._handle_emit(abi_signature, value_provider, loc)
 
         return None
 
-    def handle_emit(
+    def _handle_emit(
         self,
         abi_signature: str,
-        value: ir.Value,
+        value_provider: ir.ValueProvider,
         source_location: SourceLocation,
     ) -> None:
         prefix = ir.MethodConstant(value=abi_signature, source_location=source_location)
         factory = OpFactory(self.context, source_location)
+        value = factory.materialise_single(value_provider)
         event = factory.concat(prefix, value, "event")
         self.context.block_builder.add(
             ir.Intrinsic(

@@ -2,7 +2,7 @@ import abc
 import enum
 import re
 import typing
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -475,27 +475,16 @@ _RESOURCE_INDEX_TO_VALUE = {
     wtypes.application_wtype: wtypes.uint64_wtype,
     wtypes.asset_wtype: wtypes.uint64_wtype,
 }
-_ABI_NAME_TO_WTYPE = {
-    "bool": wtypes.bool_wtype,
-    "string": wtypes.string_wtype,
-    "account": wtypes.account_wtype,
-    "application": wtypes.application_wtype,
-    "asset": wtypes.asset_wtype,
-    "void": wtypes.void_wtype,
-    "txn": wtypes.WGroupTransaction(transaction_type=None),
-    **{t.name: wtypes.WGroupTransaction(transaction_type=t) for t in TransactionType},
-    "address": wtypes.arc4_address_alias,
-    "byte": wtypes.arc4_byte_alias,
-    "byte[]": wtypes.BytesWType(length=None),
-    "uint64": wtypes.uint64_wtype,
-    "uint512": wtypes.biguint_wtype,
+_BASIC_WTYPE_TO_ABI_NAME: typing.Final[Mapping[wtypes.WType, str]] = {
+    wtypes.uint64_wtype: "uint64",
+    wtypes.biguint_wtype: "uint512",
+    wtypes.bool_wtype: "bool",
+    wtypes.string_wtype: "string",
+    wtypes.account_wtype: "account",
+    wtypes.application_wtype: "application",
+    wtypes.asset_wtype: "asset",
+    wtypes.void_wtype: "void",
 }
-_WTYPE_TO_ABI_NAME = {v: k for k, v in _ABI_NAME_TO_WTYPE.items()}
-_UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
-_UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
-_FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
-_DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
-_TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
 
 
 class _WTypeToABIName(WTypeVisitor[str]):
@@ -508,11 +497,13 @@ class _WTypeToABIName(WTypeVisitor[str]):
         self.resource_encoding = resource_encoding
 
     def visit_basic_type(self, wtype: wtypes.WType) -> str:
-        if self.resource_encoding == "value":
-            wtype = _RESOURCE_INDEX_TO_VALUE.get(wtype, wtype)
+        if self.resource_encoding == "value" and (
+            value_wtype := _RESOURCE_INDEX_TO_VALUE.get(wtype)
+        ):
+            return value_wtype.accept(self)
 
         try:
-            return _WTYPE_TO_ABI_NAME[wtype]
+            return _BASIC_WTYPE_TO_ABI_NAME[wtype]
         except KeyError:
             self._unencodable(wtype)
 
@@ -584,6 +575,25 @@ class _WTypeToABIName(WTypeVisitor[str]):
 
     def _unencodable(self, wtype: wtypes.WType) -> typing.Never:
         raise CodeError(f"unencodable type: {wtype}", self.loc)
+
+
+_ABI_NAME_TO_WTYPE: typing.Final[Mapping[str, wtypes.WType]] = {
+    "void": wtypes.void_wtype,
+    "account": wtypes.account_wtype,
+    "application": wtypes.application_wtype,
+    "asset": wtypes.asset_wtype,
+    "bool": wtypes.arc4_bool_wtype,
+    "address": wtypes.arc4_address_alias,
+    "byte": wtypes.arc4_byte_alias,
+    "string": wtypes.arc4_string_alias,
+    "txn": wtypes.WGroupTransaction(transaction_type=None),
+    **{t.name: wtypes.WGroupTransaction(transaction_type=t) for t in TransactionType},
+}
+_UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
+_UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
+_FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
+_DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
+_TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
 
 
 def abi_name_to_wtype(typ: str, location: SourceLocation | None = None) -> wtypes.WType:
