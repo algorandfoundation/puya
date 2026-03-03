@@ -37,24 +37,13 @@ class PyType(abc.ABC):
     """The canonical fully qualified type name"""
     generic: PyType | None = None
     """The generic type that this type was parameterised from, if any."""
-    bases: tuple[PyType, ...] = attrs.field(default=(), converter=tuple["PyType", ...])
-    """Direct base classes. probably excluding the implicit builtins.object?"""
     mro: tuple[PyType, ...] = attrs.field(default=(), converter=tuple["PyType", ...])
-    """All base cases, in Method Resolution Order"""
-
-    @bases.validator
-    def _bases_validate(self, _attribute: object, bases: tuple[PyType, ...]) -> None:
-        if len(set(bases)) != len(bases):
-            raise InternalError(f"Duplicate bases in {self}: [{', '.join(map(str, bases))}]")
+    """All base classes of note, in Method Resolution Order"""
 
     @mro.validator
     def _mro_validate(self, _attribute: object, mro: tuple[PyType, ...]) -> None:
-        bases_missing_from_mro = set(self.bases).difference(mro)
-        if bases_missing_from_mro:
-            raise InternalError(
-                f"Bases missing from MRO in {self}:"
-                f" [{', '.join(map(str, bases_missing_from_mro))}]"
-            )
+        if len(set(mro)) != len(mro):
+            raise InternalError(f"Duplicate bases in {self}: [{', '.join(map(str, mro))}]")
 
     @cached_property
     def _friendly_name(self) -> str:
@@ -245,7 +234,6 @@ class TypingLiteralType(PyType):
     source_location: SourceLocation | None = attrs.field(eq=False)
     name: str = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @name.default
@@ -276,7 +264,6 @@ class UnionType(PyType):
     )
     name: str = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
     source_location: SourceLocation = attrs.field(eq=False)
 
@@ -325,7 +312,6 @@ GenericTupleType: typing.Final = _GenericType(
 @attrs.frozen(kw_only=True, order=False)
 class TupleType(TupleLikeType):
     generic: PyType | None = attrs.field(default=GenericTupleType, init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @property
@@ -353,7 +339,6 @@ class NamedTupleType(TupleType, RuntimeType):
     fields: immutabledict[str, PyType] = attrs.field(converter=immutabledict)
     items: tuple[PyType, ...] = attrs.field(init=False)
     generic: None = attrs.field(default=None, init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(NamedTupleBaseType,), init=False)
     desc: str | None = None
     wtype: wtypes.WTuple = attrs.field(init=False)
@@ -427,7 +412,6 @@ class FuncType(PyType):
     args: tuple[FuncArg, ...] = attrs.field(converter=tuple[FuncArg, ...])
     # static data
     generic: None = None
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @typing.override
@@ -509,7 +493,6 @@ class StructType(RuntimeType):
             source_location=source_location,
         )
         self.__attrs_init__(
-            bases=[base],
             mro=[base],
             name=name,
             desc=desc,
@@ -553,7 +536,6 @@ BytesLiteralType: typing.Final = _register_builtin(LiteralOnlyType(bytes))
 BoolType: typing.Final[RuntimeType] = _SimpleType(
     name="builtins.bool",
     wtype=wtypes.bool_wtype,
-    bases=[IntLiteralType],
     mro=[IntLiteralType],
 )
 
@@ -636,7 +618,6 @@ class UInt64EnumType(RuntimeType):
     def __init__(self, name: str):
         self.__attrs_init__(
             name=name,
-            bases=[UInt64Type],
             mro=[UInt64Type],
         )
         _register_builtin(self)
@@ -746,7 +727,6 @@ ARC4ByteType: typing.Final = _register_builtin(
         name="algopy.arc4.Byte",
         wtype=wtypes.arc4_byte_alias,
         bits=8,
-        bases=[ARC4UIntN_Aliases[8]],
         mro=[ARC4UIntN_Aliases[8]],
         native_type=UInt64Type,
     )
@@ -821,7 +801,6 @@ GenericARC4TupleType: typing.Final = _GenericType(
 class ARC4TupleType(TupleLikeType, RuntimeType):
     generic: _GenericType = attrs.field(default=GenericARC4TupleType, init=False)
     name: str = attrs.field(init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
     wtype: wtypes.ARC4Tuple
 
@@ -861,7 +840,6 @@ CompiledLogicSigType: typing.Final = _register_builtin(
 class VariadicTupleType(SequenceType):
     items: PyType
     generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
     name: str = attrs.field(init=False)
 
@@ -930,7 +908,6 @@ def _imm_array_parameterise(
     items_wtype = arg.checked_wtype(source_location)
     bases = (GenericARC4DynamicArrayType.parameterise(args, source_location),)
     return ArrayType(
-        bases=bases,
         mro=bases,
         generic=self,
         name=name,
@@ -955,7 +932,6 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
         size=None,
         items=ARC4ByteType,
         items_wtype=ARC4ByteType.wtype,
-        bases=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
         mro=[GenericARC4DynamicArrayType.parameterise([ARC4ByteType], source_location=None)],
         source_location=None,
     )
@@ -983,7 +959,6 @@ def _make_arc4_static_array_backed_parameterise(*, immutable: bool) -> _Paramete
         return ArrayType(
             generic=self,
             mro=(),
-            bases=(),
             name=name,
             size=size,
             items=items,
@@ -1020,12 +995,6 @@ ARC4AddressType: typing.Final = _register_builtin(
         generic=None,
         items=ARC4ByteType,
         items_wtype=ARC4ByteType.wtype,
-        bases=[
-            GenericARC4StaticArrayType.parameterise(
-                [ARC4ByteType, TypingLiteralType(value=32, source_location=None)],
-                source_location=None,
-            )
-        ],
         mro=[
             GenericARC4StaticArrayType.parameterise(
                 [ARC4ByteType, TypingLiteralType(value=32, source_location=None)],
@@ -1157,7 +1126,6 @@ def _make_gtxn_type(kind: TransactionType | None) -> GroupTransactionType:
             name=stub_name,
             transaction_type=kind,
             wtype=wtypes.WGroupTransaction(kind),
-            bases=[GroupTransactionBaseType],
             mro=[GroupTransactionBaseType],
         )
     )
@@ -1322,11 +1290,10 @@ ValidatableType: typing.Final[PyType] = _CompileTimeType(
 @attrs.frozen(kw_only=True, order=False)
 class IntrinsicEnumType(PyType):
     generic: None = attrs.field(default=None, init=False)
-    bases: tuple[PyType, ...] = attrs.field(
+    mro: tuple[PyType, ...] = attrs.field(
         default=(StrLiteralType,),  # strictly true, but not sure if we want this?
         init=False,
     )
-    mro: tuple[PyType, ...] = attrs.field(default=(StrLiteralType,), init=False)
     members: immutabledict[str, str] = attrs.field(converter=immutabledict)
 
     @property
@@ -1351,7 +1318,6 @@ def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
 @attrs.frozen(kw_only=True, order=False)
 class IntrinsicNamespaceType(PyType):
     generic: None = attrs.field(default=None, init=False)
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
     members: immutabledict[str, PropertyOpMapping | OpMappingWithOverloads] = attrs.field(
         converter=immutabledict
@@ -1419,7 +1385,6 @@ LogicSigType: typing.Final[PyType] = _CompileTimeType(
 ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
 ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
     name=constants.ARC4_CONTRACT_BASE,
-    bases=[ContractBaseType],
     mro=[ContractBaseType],
 )
 ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
@@ -1432,7 +1397,6 @@ StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._native.Struct")
 class PseudoGenericFunctionType(PyType):
     return_type: PyType
     generic: _GenericType[PseudoGenericFunctionType]
-    bases: tuple[PyType, ...] = attrs.field(default=(), init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
 
     @property

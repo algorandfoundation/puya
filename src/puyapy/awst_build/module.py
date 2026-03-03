@@ -269,7 +269,6 @@ class ModuleASTConverter(
             contract_type = pytypes.ContractType(
                 module_name=module_name,
                 class_name=class_name,
-                bases=direct_base_types,
                 mro=mro_types,
                 source_location=cdef_loc,
             )
@@ -280,9 +279,7 @@ class ModuleASTConverter(
             return [converter.build]
 
         if info.is_protocol:
-            static_type = pytypes.StaticType(
-                name=cdef.fullname, bases=direct_base_types, mro=mro_types
-            )
+            static_type = pytypes.StaticType(name=cdef.fullname, mro=mro_types)
             self.context.register_pytype(static_type)
             if pytypes.ARC4ClientBaseType in direct_base_types:
                 ARC4ClientASTVisitor.visit(self.context, cdef)
