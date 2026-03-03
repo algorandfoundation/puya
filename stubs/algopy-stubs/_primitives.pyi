@@ -1,4 +1,5 @@
 # ruff: noqa: PYI034
+import abc
 import typing
 from collections.abc import Container, Iterator, Reversible
 
@@ -289,6 +290,7 @@ class Bytes(_BytesBase):
 
     def __ixor__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
         """Bytes can bitwise xor with another Bytes, bytes, or FixedBytes e.g. `a ^= Bytes(b"0F")`"""
+
     # |
     def __or__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
         """Bytes can bitwise or with another Bytes, bytes, or FixedBytes e.g. `Bytes(b"FF") | b"0F")`"""
@@ -299,11 +301,14 @@ class Bytes(_BytesBase):
     def __ior__(self, other: typing.Self | FixedBytes | bytes) -> typing.Self:  # type: ignore[type-arg]
         """Bytes can bitwise or with another Bytes, bytes, or FixedBytes e.g. `a |= Bytes(b"0F")`"""
 
-class BytesBacked(typing.Protocol):
+class BytesBacked(abc.ABC):
+    """Abstract class for all types that can be used as arguments to intrinsics taking bytes"""
+
+class _BytesConvertible(BytesBacked, abc.ABC):
     """Represents a type that is a single bytes value"""
 
     @classmethod
-    def from_bytes(cls, value: Bytes | bytes, /) -> typing.Self:
+    def from_bytes(cls, value: FixedBytes | Bytes | bytes, /) -> typing.Self:  # type: ignore[type-arg]
         """Construct an instance from the underlying bytes (no validation)"""
 
     @property
@@ -312,7 +317,7 @@ class BytesBacked(typing.Protocol):
 
 _TBytesLength = typing.TypeVar("_TBytesLength", bound=int)
 
-class FixedBytes(typing.Generic[_TBytesLength], BytesBacked, _BytesBase, _Validatable):
+class FixedBytes(typing.Generic[_TBytesLength], _BytesConvertible, _BytesBase, _Validatable):
     """A statically-sized byte sequence, where the length is known at compile time.
 
     Example:
@@ -372,7 +377,7 @@ class FixedBytes(typing.Generic[_TBytesLength], BytesBacked, _BytesBase, _Valida
     def __ior__(self, other: Bytes | typing.Self | bytes) -> typing.Self:  # type: ignore[misc]
         """FixedBytes can bitwise or with another Bytes, bytes, or FixedBytes of the same length e.g. `a |= FixedBytes(b"0F")`"""
 
-class String(BytesBacked, Container[String]):
+class String(_BytesConvertible, Container[String]):
     """A UTF-8 encoded string.
 
     In comparison to `arc4.String`, this type does not store the array length prefix, since that
@@ -441,7 +446,7 @@ class String(BytesBacked, Container[String]):
         The behaviour should mirror `str.join`.
         """
 
-class BigUInt(BytesBacked):
+class BigUInt(_BytesConvertible):
     """A variable length (max 512-bit) unsigned integer"""
 
     __match_value__: int
