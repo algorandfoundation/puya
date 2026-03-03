@@ -146,6 +146,9 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "_BytesBase": SymbolData(fullname="algopy._primitives._BytesBase", module_public=True),
         "Bytes": SymbolData(fullname="algopy._primitives.Bytes", module_public=True),
         "BytesBacked": SymbolData(fullname="algopy._primitives.BytesBacked", module_public=True),
+        "_BytesConvertible": SymbolData(
+            fullname="algopy._primitives._BytesConvertible", module_public=True
+        ),
         "_TBytesLength": SymbolData(
             fullname="algopy._primitives._TBytesLength", module_public=True
         ),
