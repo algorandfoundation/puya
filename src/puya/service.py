@@ -8,8 +8,11 @@ from immutabledict import immutabledict
 from pygls.protocol.json_rpc import JsonRPCProtocol
 from pygls.server import JsonRPCServer
 
+from puya import arc56_models
+from puya.arc56 import create_arc56
 from puya.awst import nodes as awst_nodes
 from puya.awst.serialize import get_converter
+from puya.compilation_artifacts import CompiledContract
 from puya.compile import awst_to_teal
 from puya.errors import PuyaExitError, log_exceptions
 from puya.log import Log, LogLevel, get_logger, logging_context
@@ -52,6 +55,8 @@ class CompileParams:
 @attrs.frozen
 class CompileResult:
     logs: list[Log]
+    arc56: dict[str, arc56_models.Contract]
+    """Mapping of contract compilation set ids to ARC-56 contract"""
 
 
 @attrs.frozen(kw_only=True)
@@ -147,6 +152,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
     @server.feature("compile")
     def compile_(params: typing.Any) -> CompileResult:  # noqa: ANN401
         log_level = LogLevel.info
+        arc56 = dict[str, arc56_models.Contract]()
         with (
             logging_context() as log_ctx,
             contextlib.suppress(PuyaExitError),
@@ -161,15 +167,26 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
                 options = request.options
                 compilation_set = match_compilation_set(options.compilation_set, awst)
                 # Process the compilation
-                awst_to_teal(
+                compiled = awst_to_teal(
                     log_ctx,
                     options,
                     compilation_set,
                     request.source_annotations,
                     awst,
                 )
+                for contract in compiled:
+                    if isinstance(contract, CompiledContract):
+                        contract_arc56 = create_arc56(
+                            metadata=contract.metadata,
+                            approval_program=contract.approval_program,
+                            clear_program=contract.clear_program,
+                            template_prefix=options.template_vars_prefix,
+                        )
+                        arc56[contract.id] = contract_arc56
 
-        result = CompileResult(logs=[log for log in log_ctx.logs if log.level >= log_level])
+        result = CompileResult(
+            logs=[log for log in log_ctx.logs if log.level >= log_level], arc56=arc56
+        )
         return result
 
     return server

@@ -35,17 +35,16 @@ _ALGOPY_VERSION = version.parse(metadata_version("puyapy"))
 logger = log.get_logger(__name__)
 
 
-def create_arc56_json(
+def create_arc56(
     *,
     metadata: ContractMetaData,
     approval_program: CompiledProgram,
     clear_program: CompiledProgram,
     template_prefix: str,
-) -> str:
+) -> models.Contract:
     assert approval_program.debug_info is not None
     assert clear_program.debug_info is not None
 
-    converter = make_converter(omit_if_default=True)
     bare_methods = [m for m in metadata.arc4_methods if isinstance(m, ARC4BareMethod)]
     abi_methods = [m for m in metadata.arc4_methods if isinstance(m, ARC4ABIMethod)]
 
@@ -53,7 +52,7 @@ def create_arc56_json(
     aliases = _StructAliases(metadata.structs.values())
 
     schema = metadata.state_totals
-    app_spec = models.Contract(
+    return models.Contract(
         arcs=(22, 28),
         name=metadata.name,
         desc=metadata.description,
@@ -165,6 +164,22 @@ def create_arc56_json(
         # TODO: provide a way for contracts to declare "public" scratch vars
         scratchVariables=None,
     )
+
+
+def create_arc56_json(
+    *,
+    metadata: ContractMetaData,
+    approval_program: CompiledProgram,
+    clear_program: CompiledProgram,
+    template_prefix: str,
+) -> str:
+    app_spec = create_arc56(
+        metadata=metadata,
+        approval_program=approval_program,
+        clear_program=clear_program,
+        template_prefix=template_prefix,
+    )
+    converter = make_converter(omit_if_default=True)
     return converter.dumps(app_spec, indent=4)
 
 
