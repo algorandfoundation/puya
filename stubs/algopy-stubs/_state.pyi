@@ -2,6 +2,8 @@ import typing
 
 from algopy import Account, Bytes, String, UInt64
 
+_TKey = typing.TypeVar("_TKey")
+_TValue = typing.TypeVar("_TValue")
 _TState = typing.TypeVar("_TState")
 
 @typing.final
@@ -164,4 +166,72 @@ class GlobalState(typing.Generic[_TState]):
         if not name_exists:
             name = Bytes(b"no name")
         ```
+        """
+
+@typing.final
+class GlobalMap(typing.Generic[_TKey, _TValue]):
+    """
+    GlobalMap abstracts the reading and writing of a set of global state values using a
+    common key and content type.
+    Adequate space must be allocated for the application on creation :see algopy.StateTotals
+    """
+
+    def __init__(
+        self,
+        key_type: type[_TKey],
+        value_type: type[_TValue],
+        /,
+        *,
+        key_prefix: bytes | str | Bytes | String = ...,
+    ) -> None:
+        """Declare a global map.
+
+        :arg key_type: The type of the keys
+        :arg value_type: The type of the values
+        :arg key_prefix: The value used as a prefix to key data, can be empty.
+                         When the GlobalMap is being assigned to a member variable,
+                         this argument is optional and defaults to the member variable name,
+                         and if a custom value is supplied it must be static.
+        """
+
+    @property
+    def key_prefix(self) -> Bytes:
+        """Provides access to the raw storage key-prefix"""
+
+    def __getitem__(self, key: _TKey) -> _TValue:
+        """
+        Retrieve the value associated with key. Fails if the key has not been defined.
+        """
+
+    def __setitem__(self, key: _TKey, value: _TValue) -> None:
+        """Write _value_ to global state."""
+
+    def __delitem__(self, key: _TKey) -> None:
+        """Deletes a global state value"""
+
+    def __contains__(self, key: _TKey) -> bool:
+        """
+        Returns True if a specified key exists in the map, regardless of the
+        truthiness of the contents of the value
+        """
+
+    def get(self, key: _TKey, *, default: _TValue) -> _TValue:
+        """
+        Retrieve the contents o, or return the default value if the key is not present
+
+        :arg key: The key to get
+        :arg default: The default value to return if the key is not present.
+        """
+
+    def maybe(self, key: _TKey) -> tuple[_TValue, bool]:
+        """
+        Retrieve the contents if it exists, and return a boolean indicating if the
+        key was present.
+
+        :arg key: The key to get
+        """
+
+    def state(self, key: _TKey) -> GlobalState[_TValue]:
+        """
+        Returns a GlobalState for the value at key
         """
