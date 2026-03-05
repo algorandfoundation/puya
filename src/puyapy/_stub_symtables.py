@@ -54,6 +54,7 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "zero_bytes": SymbolData(fullname="algopy._native.zero_bytes", module_public=True),
         "LocalState": SymbolData(fullname="algopy._state.LocalState", module_public=True),
         "GlobalState": SymbolData(fullname="algopy._state.GlobalState", module_public=True),
+        "GlobalMap": SymbolData(fullname="algopy._state.GlobalMap", module_public=True),
         "urange": SymbolData(fullname="algopy._unsigned_builtins.urange", module_public=True),
         "uenumerate": SymbolData(
             fullname="algopy._unsigned_builtins.uenumerate", module_public=True
@@ -159,9 +160,12 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "Application": SymbolData(fullname="algopy._reference.Application", module_public=True),
     },
     "algopy._state": {
+        "_TKey": SymbolData(fullname="algopy._state._TKey", module_public=True),
+        "_TValue": SymbolData(fullname="algopy._state._TValue", module_public=True),
         "_TState": SymbolData(fullname="algopy._state._TState", module_public=True),
         "LocalState": SymbolData(fullname="algopy._state.LocalState", module_public=True),
         "GlobalState": SymbolData(fullname="algopy._state.GlobalState", module_public=True),
+        "GlobalMap": SymbolData(fullname="algopy._state.GlobalMap", module_public=True),
     },
     "algopy._template_variables": {
         "_T_co": SymbolData(fullname="algopy._template_variables._T_co", module_public=True),
