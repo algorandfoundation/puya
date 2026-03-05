@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import functools
 import typing
 from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
@@ -1066,6 +1067,8 @@ def _parameterise_storage_map(
     self: _GenericType[StorageMapProxyType],
     args: _TypeArgs,
     source_location: SourceLocation | None,
+    *,
+    wtype: wtypes.WType,
 ) -> StorageMapProxyType:
     try:
         key, content = args
@@ -1081,7 +1084,7 @@ def _parameterise_storage_map(
         name=name,
         key=key,
         content=content,
-        wtype=wtypes.box_key,
+        wtype=wtype,
         key_wtype=key_wtype,
         content_wtype=content_wtype,
     )
@@ -1111,7 +1114,11 @@ BoxRefType: typing.Final = _register_builtin(
 
 GenericBoxMapType: typing.Final = _GenericType(
     name="algopy._box.BoxMap",
-    parameterise=_parameterise_storage_map,
+    parameterise=functools.partial(_parameterise_storage_map, wtype=wtypes.box_key),
+)
+GenericGlobalMapType: typing.Final = _GenericType(
+    name="algopy._state.GlobalMap",
+    parameterise=functools.partial(_parameterise_storage_map, wtype=wtypes.state_key),
 )
 
 
