@@ -7,6 +7,7 @@ import attrs
 from puya import log
 from puya.algo_constants import MAX_UINT64
 from puya.avm import OnCompletionAction
+from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4MethodConfig,
     Expression,
@@ -71,19 +72,30 @@ def maybe_resolve_literal(
     allow_literal: bool = True,
 ) -> InstanceBuilder:
     if isinstance(operand, TupleLiteralBuilder):
-        item_types = list[pytypes.PyType]()
-        if expected_type is not None and isinstance(expected_type, pytypes.TupleType):
-            item_types.extend(expected_type.items)
-        resolved_items = [
-            maybe_resolve_literal(elem, expected_type=item_type, allow_literal=allow_literal)
-            for elem, item_type in zip_longest(operand.iterate_static(), item_types)
-        ]
+        items = operand.iterate_static()
+        if isinstance(expected_type, pytypes.TupleType):
+            item_types = expected_type.items
+            if len(item_types) != len(items):
+                raise CodeError(
+                    f"expected {len(item_types)} items, but got {len(items)}",
+                    location=operand.source_location,
+                )
+            resolved_items = [
+                maybe_resolve_literal(elem, expected_type=item_type, allow_literal=allow_literal)
+                for elem, item_type in zip(operand.iterate_static(), item_types, strict=True)
+            ]
+        else:
+            resolved_items = [
+                maybe_resolve_literal(elem, allow_literal=allow_literal) for elem in items
+            ]
         return TupleLiteralBuilder(resolved_items, operand.source_location)
 
-    if expected_type is None:
+    if expected_type is not None:
+        typ = expected_type
+    elif isinstance(operand.pytype, pytypes.LiteralOnlyType):
         match operand.pytype:
             case pytypes.StrLiteralType:
-                typ: pytypes.PyType = pytypes.StringType
+                typ = pytypes.StringType
             case pytypes.BytesLiteralType:
                 typ = pytypes.BytesType
             case pytypes.IntLiteralType:
@@ -95,20 +107,27 @@ def maybe_resolve_literal(
                     typ = pytypes.BigUIntType
                 else:
                     typ = pytypes.UInt64Type
-            case pytypes.GroupTransactionType() | pytypes.InnerTransactionResultType():
+            case _:
                 raise CodeError(
-                    f"cannot use {operand.pytype} as an argument to an ARC-4 method",
+                    f"unsupported literal type {operand.pytype} for ABI call argument",
                     location=operand.source_location,
                 )
-            case _:
-                typ = operand.pytype
-        if (typ != operand.pytype) and not allow_literal:
+        if not allow_literal:
             logger.warning(
                 f"implicit conversion to {typ} will be attempted for {operand.pytype} argument",
                 location=operand.source_location,
             )
+    elif (
+        not isinstance(operand.pytype, pytypes.InnerTransactionFieldsetType)
+        and isinstance(operand.pytype.wtype, wtypes.WType)
+        and not operand.pytype.wtype.persistable
+    ):
+        raise CodeError(
+            f"cannot encode {operand.pytype} as an ARC-4 value",
+            location=operand.source_location,
+        )
     else:
-        typ = expected_type
+        typ = operand.pytype
 
     return base_maybe_resolve_literal(operand, typ)
 
