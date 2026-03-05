@@ -632,7 +632,7 @@ class AppGlobal:
     Native TEAL ops: [`app_global_del`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_global_del), [`app_global_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_global_get), [`app_global_get_ex`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_global_get_ex), [`app_global_put`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_global_put)
     """
     @staticmethod
-    def get_bytes(a: Bytes | bytes, /) -> Bytes:
+    def get_bytes(a: BytesBacked | bytes, /) -> Bytes:
         """
         global state of the key A in the current application
         params: state key. Return: value. The value is zero (of type uint64) if the key does not exist.
@@ -641,7 +641,7 @@ class AppGlobal:
         """
 
     @staticmethod
-    def get_uint64(a: Bytes | bytes, /) -> UInt64:
+    def get_uint64(a: BytesBacked | bytes, /) -> UInt64:
         """
         global state of the key A in the current application
         params: state key. Return: value. The value is zero (of type uint64) if the key does not exist.
@@ -650,7 +650,9 @@ class AppGlobal:
         """
 
     @staticmethod
-    def get_ex_bytes(a: Application | UInt64 | int, b: Bytes | bytes, /) -> tuple[Bytes, bool]:
+    def get_ex_bytes(
+        a: Application | UInt64 | int, b: BytesBacked | bytes, /
+    ) -> tuple[Bytes, bool]:
         """
         X is the global state of application A, key B. Y is 1 if key existed, else 0
         params: Txn.ForeignApps offset (or, since v4, an _available_ application id), state key. Return: did_exist flag (top of the stack, 1 if the application and key existed and 0 otherwise), value. The value is zero (of type uint64) if the key does not exist.
@@ -659,7 +661,9 @@ class AppGlobal:
         """
 
     @staticmethod
-    def get_ex_uint64(a: Application | UInt64 | int, b: Bytes | bytes, /) -> tuple[UInt64, bool]:
+    def get_ex_uint64(
+        a: Application | UInt64 | int, b: BytesBacked | bytes, /
+    ) -> tuple[UInt64, bool]:
         """
         X is the global state of application A, key B. Y is 1 if key existed, else 0
         params: Txn.ForeignApps offset (or, since v4, an _available_ application id), state key. Return: did_exist flag (top of the stack, 1 if the application and key existed and 0 otherwise), value. The value is zero (of type uint64) if the key does not exist.
@@ -668,7 +672,7 @@ class AppGlobal:
         """
 
     @staticmethod
-    def delete(a: Bytes | bytes, /) -> None:
+    def delete(a: BytesBacked | bytes, /) -> None:
         """
         delete key A from the global state of the current application
         params: state key.
@@ -679,7 +683,7 @@ class AppGlobal:
         """
 
     @staticmethod
-    def put(a: Bytes | bytes, b: UInt64 | BytesBacked | int | bytes, /) -> None:
+    def put(a: BytesBacked | bytes, b: UInt64 | BytesBacked | int | bytes, /) -> None:
         """
         write B to key A in the global state of the current application
 
@@ -692,7 +696,7 @@ class AppLocal:
     Native TEAL ops: [`app_local_del`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_local_del), [`app_local_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_local_get), [`app_local_get_ex`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_local_get_ex), [`app_local_put`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_local_put)
     """
     @staticmethod
-    def get_bytes(a: Account | UInt64 | int, b: Bytes | bytes, /) -> Bytes:
+    def get_bytes(a: Account | UInt64 | int, b: BytesBacked | bytes, /) -> Bytes:
         """
         local state of the key B in the current application in account A
         params: Txn.Accounts offset (or, since v4, an _available_ account address), state key. Return: value. The value is zero (of type uint64) if the key does not exist.
@@ -701,7 +705,7 @@ class AppLocal:
         """
 
     @staticmethod
-    def get_uint64(a: Account | UInt64 | int, b: Bytes | bytes, /) -> UInt64:
+    def get_uint64(a: Account | UInt64 | int, b: BytesBacked | bytes, /) -> UInt64:
         """
         local state of the key B in the current application in account A
         params: Txn.Accounts offset (or, since v4, an _available_ account address), state key. Return: value. The value is zero (of type uint64) if the key does not exist.
@@ -711,7 +715,7 @@ class AppLocal:
 
     @staticmethod
     def get_ex_bytes(
-        a: Account | UInt64 | int, b: Application | UInt64 | int, c: Bytes | bytes, /
+        a: Account | UInt64 | int, b: Application | UInt64 | int, c: BytesBacked | bytes, /
     ) -> tuple[Bytes, bool]:
         """
         X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -722,7 +726,7 @@ class AppLocal:
 
     @staticmethod
     def get_ex_uint64(
-        a: Account | UInt64 | int, b: Application | UInt64 | int, c: Bytes | bytes, /
+        a: Account | UInt64 | int, b: Application | UInt64 | int, c: BytesBacked | bytes, /
     ) -> tuple[UInt64, bool]:
         """
         X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -732,7 +736,7 @@ class AppLocal:
         """
 
     @staticmethod
-    def delete(a: Account | UInt64 | int, b: Bytes | bytes, /) -> None:
+    def delete(a: Account | UInt64 | int, b: BytesBacked | bytes, /) -> None:
         """
         delete key B from account A's local state of the current application
         params: Txn.Accounts offset (or, since v4, an _available_ account address), state key.
@@ -744,7 +748,7 @@ class AppLocal:
 
     @staticmethod
     def put(
-        a: Account | UInt64 | int, b: Bytes | bytes, c: UInt64 | BytesBacked | int | bytes, /
+        a: Account | UInt64 | int, b: BytesBacked | bytes, c: UInt64 | BytesBacked | int | bytes, /
     ) -> None:
         """
         write C to key B in account A's local state of the current application
@@ -1052,7 +1056,7 @@ class Box:
     Native TEAL ops: [`box_create`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_create), [`box_del`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_del), [`box_extract`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_extract), [`box_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_get), [`box_len`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_len), [`box_put`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_put), [`box_replace`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_replace), [`box_resize`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_resize), [`box_splice`](https://dev.algorand.co/reference/algorand-teal/opcodes/#box_splice)
     """
     @staticmethod
-    def create(a: Bytes | bytes, b: UInt64 | int, /) -> bool:
+    def create(a: BytesBacked | bytes, b: UInt64 | int, /) -> bool:
         """
         create a box named A, of length B. Fail if the name A is empty or B exceeds 32,768. Returns 0 if A already existed, else 1
         Newly created boxes are filled with 0 bytes. `box_create` will fail if the referenced box already exists with a different size. Otherwise, existing boxes are unchanged by `box_create`.
@@ -1061,7 +1065,7 @@ class Box:
         """
 
     @staticmethod
-    def delete(a: Bytes | bytes, /) -> bool:
+    def delete(a: BytesBacked | bytes, /) -> bool:
         """
         delete box named A if it exists. Return 1 if A existed, 0 otherwise
 
@@ -1069,7 +1073,7 @@ class Box:
         """
 
     @staticmethod
-    def extract(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
+    def extract(a: BytesBacked | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
         """
         read C bytes from box A, starting at offset B. Fail if A does not exist, or the byte range is outside A's size.
 
@@ -1077,7 +1081,7 @@ class Box:
         """
 
     @staticmethod
-    def get(a: Bytes | bytes, /) -> tuple[Bytes, bool]:
+    def get(a: BytesBacked | bytes, /) -> tuple[Bytes, bool]:
         """
         X is the contents of box A if A exists, else ''. Y is 1 if A exists, else 0.
         For boxes that exceed 4,096 bytes, consider `box_create`, `box_extract`, and `box_replace`
@@ -1086,7 +1090,7 @@ class Box:
         """
 
     @staticmethod
-    def length(a: Bytes | bytes, /) -> tuple[UInt64, bool]:
+    def length(a: BytesBacked | bytes, /) -> tuple[UInt64, bool]:
         """
         X is the length of box A if A exists, else 0. Y is 1 if A exists, else 0.
 
@@ -1094,7 +1098,7 @@ class Box:
         """
 
     @staticmethod
-    def put(a: Bytes | bytes, b: BytesBacked | bytes, /) -> None:
+    def put(a: BytesBacked | bytes, b: BytesBacked | bytes, /) -> None:
         """
         replaces the contents of box A with byte-array B. Fails if A exists and len(B) != len(box A). Creates A if it does not exist
         For boxes that exceed 4,096 bytes, consider `box_create`, `box_extract`, and `box_replace`
@@ -1103,7 +1107,7 @@ class Box:
         """
 
     @staticmethod
-    def replace(a: Bytes | bytes, b: UInt64 | int, c: BytesBacked | bytes, /) -> None:
+    def replace(a: BytesBacked | bytes, b: UInt64 | int, c: BytesBacked | bytes, /) -> None:
         """
         write byte-array C into box A, starting at offset B. Fail if A does not exist, or the byte range is outside A's size.
 
@@ -1111,7 +1115,7 @@ class Box:
         """
 
     @staticmethod
-    def resize(a: Bytes | bytes, b: UInt64 | int, /) -> None:
+    def resize(a: BytesBacked | bytes, b: UInt64 | int, /) -> None:
         """
         change the size of box named A to be of length B, adding zero bytes to end or removing bytes from the end, as needed. Fail if the name A is empty, A is not an existing box, or B exceeds 32,768.
 
@@ -1120,7 +1124,7 @@ class Box:
 
     @staticmethod
     def splice(
-        a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, d: BytesBacked | bytes, /
+        a: BytesBacked | bytes, b: UInt64 | int, c: UInt64 | int, d: BytesBacked | bytes, /
     ) -> None:
         """
         set box A to contain its previous bytes up to index B, followed by D, followed by the original bytes of A that began at index B+C.

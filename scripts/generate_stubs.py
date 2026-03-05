@@ -66,10 +66,10 @@ STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
     StackType.bool_only: [pytypes.BoolType],
     StackType.uint64: [pytypes.UInt64Type],
     StackType.any: [pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType],
-    StackType.box_name: [pytypes.BytesType],  # TODO: should this be another type..?
+    StackType.box_name: [pytypes.BytesType, pytypes.BytesBackedType],
     StackType.address: [pytypes.AccountType],
     StackType.bigint: [pytypes.BigUIntType],
-    StackType.state_key: [pytypes.BytesType],  # TODO: should this be another type..?
+    StackType.state_key: [pytypes.BytesType, pytypes.BytesBackedType],
 }
 
 STUB_NAMESPACE = "op"
