@@ -1,0 +1,209 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 1 0
+    bytecblock "map" 0x151f7c75 0x00
+    txn NumAppArgs
+    bz main___algopy_default_create@17
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xb4369c36 0x24fc841f 0xced1bdc6 0x8a39e79f 0xb12581df 0xe3a3dd6d 0xf6d46e55 0xd846c467 // method "get(uint64)uint64", method "get_with_default(uint64,uint64)uint64", method "set(uint64,uint64)void", method "delete(uint64)void", method "in_(uint64)bool", method "prefix()byte[]", method "maybe(uint64)(uint64,bool)", method "get_via_state(uint64)uint64"
+    txna ApplicationArgs 0
+    match main_get_route@6 main_get_with_default_route@7 main_set_route@8 main_delete_route@9 main_in__route@10 main_prefix_route@11 main_maybe_route@12 main_get_via_state_route@13
+    err
+
+main_get_via_state_route@13:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_global_get_ex
+    assert // check GlobalState exists
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_maybe_route@12:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_global_get_ex
+    swap
+    itob
+    bytec_2 // 0x00
+    intc_2 // 0
+    uncover 3
+    setbit
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_prefix_route@11:
+    pushbytes 0x151f7c7500036d6170
+    log
+    intc_1 // 1
+    return
+
+main_in__route@10:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_global_get_ex
+    bury 1
+    bytec_2 // 0x00
+    intc_2 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_delete_route@9:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    app_global_del
+    intc_1 // 1
+    return
+
+main_set_route@8:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    swap
+    app_global_put
+    intc_1 // 1
+    return
+
+main_get_with_default_route@7:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_global_get_ex
+    select
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_get_route@6:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_global_get_ex
+    assert // check self.map entry exists
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main___algopy_default_create@17:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return

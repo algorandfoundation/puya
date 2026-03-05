@@ -1,0 +1,199 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 32 12
+    bytecblock "map" 0x151f7c75 0x00
+    intc_0 // 0
+    pushbytes ""
+    txn NumAppArgs
+    bz main___algopy_default_create@17
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x955b4215 0x40a1d890 0x29317ef4 0xab8b213a 0x682e477c 0xe3a3dd6d 0xa651e43b 0xe65dbbaf // method "get(address)(uint64,byte[4])", method "get_with_default(address,(uint64,byte[4]))(uint64,byte[4])", method "set(address,(uint64,byte[4]))void", method "delete(address)void", method "in_(address)bool", method "prefix()byte[]", method "maybe(address)((uint64,byte[4]),bool)", method "get_via_state(address)(uint64,byte[4])"
+    txna ApplicationArgs 0
+    match main_get_route@6 main_get_with_default_route@7 main_set_route@8 main_delete_route@9 main_in__route@10 main_prefix_route@11 main_maybe_route@12 main_get_via_state_route@13
+    err
+
+main_get_via_state_route@13:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    bytec_0 // "map"
+    swap
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_maybe_route@12:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    bytec_0 // "map"
+    swap
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    dup
+    cover 2
+    bury 3
+    bury 3
+    bnz main_after_if_else@24
+    pushbytes 0x000000000000000000000000
+    bury 2
+
+main_after_if_else@24:
+    bytec_2 // 0x00
+    intc_0 // 0
+    dig 2
+    setbit
+    dig 2
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_prefix_route@11:
+    pushbytes 0x151f7c7500036d6170
+    log
+    intc_1 // 1
+    return
+
+main_in__route@10:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    bytec_0 // "map"
+    swap
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    bury 1
+    bytec_2 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_delete_route@9:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    bytec_0 // "map"
+    swap
+    concat
+    app_global_del
+    intc_1 // 1
+    return
+
+main_set_route@8:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 12
+    ==
+    assert // invalid number of bytes for test_cases.global_map.account_struct.Data
+    bytec_0 // "map"
+    uncover 2
+    concat
+    swap
+    app_global_put
+    intc_1 // 1
+    return
+
+main_get_with_default_route@7:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 12
+    ==
+    assert // invalid number of bytes for test_cases.global_map.account_struct.Data
+    bytec_0 // "map"
+    uncover 2
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    select
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_get_route@6:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    bytec_0 // "map"
+    swap
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    assert // check self.map entry exists
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main___algopy_default_create@17:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
