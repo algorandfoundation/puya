@@ -1,0 +1,339 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1
+    bytecblock "map" 0x151f7c75 0x00
+    // global_map/bytes.py:4-9
+    // class GlobalMapBytes(
+    //     ARC4Contract,
+    //     state_totals=StateTotals(
+    //         global_bytes=10,
+    //     ),
+    // ):
+    txn NumAppArgs
+    bz main___algopy_default_create@17
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x51204f46 0x532d696e 0x0a45cdd5 0x69610792 0xbb38f70a 0xe3a3dd6d 0xf92b3b0c 0x7d067a46 // method "get(byte[])byte[]", method "get_with_default(byte[],byte[])byte[]", method "set(byte[],byte[])void", method "delete(byte[])void", method "in_(byte[])bool", method "prefix()byte[]", method "maybe(byte[])(byte[],bool)", method "get_via_state(byte[])byte[]"
+    txna ApplicationArgs 0
+    match get get_with_default set delete in_ main_prefix_route@11 maybe get_via_state
+    err
+
+main_prefix_route@11:
+    // global_map/bytes.py:33
+    // @public
+    pushbytes 0x151f7c7500036d6170
+    log
+    intc_2 // 1
+    return
+
+main___algopy_default_create@17:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.global_map.bytes.GlobalMapBytes.get[routing]() -> void:
+get:
+    // global_map/bytes.py:13
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // global_map/bytes.py:15
+    // return self.map[key]
+    bytec_0 // "map"
+    swap
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    assert // check self.map entry exists
+    // global_map/bytes.py:13
+    // @public
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.global_map.bytes.GlobalMapBytes.get_with_default[routing]() -> void:
+get_with_default:
+    // global_map/bytes.py:17
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // global_map/bytes.py:19
+    // return self.map.get(key, default=default)
+    bytec_0 // "map"
+    uncover 2
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    select
+    // global_map/bytes.py:17
+    // @public
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.global_map.bytes.GlobalMapBytes.set[routing]() -> void:
+set:
+    // global_map/bytes.py:21
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // global_map/bytes.py:23
+    // self.map[key] = value
+    bytec_0 // "map"
+    uncover 2
+    concat
+    swap
+    app_global_put
+    // global_map/bytes.py:21
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.global_map.bytes.GlobalMapBytes.delete[routing]() -> void:
+delete:
+    // global_map/bytes.py:25
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // global_map/bytes.py:27
+    // del self.map[key]
+    bytec_0 // "map"
+    swap
+    concat
+    app_global_del
+    // global_map/bytes.py:25
+    // @public
+    intc_2 // 1
+    return
+
+
+// test_cases.global_map.bytes.GlobalMapBytes.in_[routing]() -> void:
+in_:
+    // global_map/bytes.py:29
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // global_map/bytes.py:31
+    // return key in self.map
+    bytec_0 // "map"
+    swap
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    bury 1
+    // global_map/bytes.py:29
+    // @public
+    bytec_2 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.global_map.bytes.GlobalMapBytes.maybe[routing]() -> void:
+maybe:
+    // global_map/bytes.py:37
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // global_map/bytes.py:39
+    // value, exists = self.map.maybe(key)
+    bytec_0 // "map"
+    swap
+    concat
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    dup
+    uncover 2
+    swap
+    // global_map/bytes.py:40
+    // if not exists:
+    bnz maybe_after_if_else@3
+    // global_map/bytes.py:41-42
+    // # AVM actually returns a uint64 if value not present
+    // value = Bytes()
+    pushbytes 0x
+    bury 1
+
+maybe_after_if_else@3:
+    // global_map/bytes.py:37
+    // @public
+    dupn 2
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_2 // 0x00
+    intc_0 // 0
+    dig 4
+    setbit
+    pushbytes 0x0003
+    swap
+    concat
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// test_cases.global_map.bytes.GlobalMapBytes.get_via_state[routing]() -> void:
+get_via_state:
+    // global_map/bytes.py:45
+    // @public
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // global_map/bytes.py:47
+    // state = self.map.state(key)
+    bytec_0 // "map"
+    swap
+    concat
+    // global_map/bytes.py:48
+    // return state.value
+    intc_0 // 0
+    swap
+    app_global_get_ex
+    assert // check GlobalState exists
+    // global_map/bytes.py:45
+    // @public
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return

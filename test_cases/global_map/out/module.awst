@@ -1,0 +1,238 @@
+contract GlobalMapUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['map']: uint64 => uint64
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.global_map.uint64.GlobalMapUInt64.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.get(key: uint64): uint64
+  {
+    return GlobalState[BoxMapKey(prefix='map', key=key)]
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.get_with_default(key: uint64, default: uint64): uint64
+  {
+    return STATE_GET(GlobalState[BoxMapKey(prefix='map', key=key)], default=default)
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.set(key: uint64, value: uint64): void
+  {
+    GlobalState[BoxMapKey(prefix='map', key=key)]: uint64 = value
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.delete(key: uint64): void
+  {
+    STATE_DELETE(GlobalState[BoxMapKey(prefix='map', key=key)])
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.in_(key: uint64): bool
+  {
+    return STATE_EXISTS(GlobalState[BoxMapKey(prefix='map', key=key)])
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.prefix(): bytes
+  {
+    return reinterpret_cast<bytes>('map')
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.maybe(key: uint64): tuple<uint64,bool>
+  {
+    return STATE_GET_EX(GlobalState[BoxMapKey(prefix='map', key=key)])
+  }
+  
+  abimethod test_cases.global_map.uint64.GlobalMapUInt64.get_via_state(key: uint64): uint64
+  {
+    state: state_key = BoxMapKey(prefix='map', key=key)
+    return GlobalState[state]
+  }
+  
+  baremethod test_cases.global_map.uint64.GlobalMapUInt64.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract GlobalMapBytes
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['map']: bytes => bytes
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.global_map.bytes.GlobalMapBytes.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.get(key: bytes): bytes
+  {
+    return GlobalState[BoxMapKey(prefix='map', key=key)]
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.get_with_default(key: bytes, default: bytes): bytes
+  {
+    return STATE_GET(GlobalState[BoxMapKey(prefix='map', key=key)], default=default)
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.set(key: bytes, value: bytes): void
+  {
+    GlobalState[BoxMapKey(prefix='map', key=key)]: bytes = value
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.delete(key: bytes): void
+  {
+    STATE_DELETE(GlobalState[BoxMapKey(prefix='map', key=key)])
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.in_(key: bytes): bool
+  {
+    return STATE_EXISTS(GlobalState[BoxMapKey(prefix='map', key=key)])
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.prefix(): bytes
+  {
+    return reinterpret_cast<bytes>('map')
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.maybe(key: bytes): tuple<bytes,bool>
+  {
+    (value, exists): tuple<bytes,bool> = STATE_GET_EX(GlobalState[BoxMapKey(prefix='map', key=key)])
+    if (!(exists)) {
+      value: bytes = hex<"">
+    }
+    return (value, exists)
+  }
+  
+  abimethod test_cases.global_map.bytes.GlobalMapBytes.get_via_state(key: bytes): bytes
+  {
+    state: state_key = BoxMapKey(prefix='map', key=key)
+    return GlobalState[state]
+  }
+  
+  baremethod test_cases.global_map.bytes.GlobalMapBytes.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract GlobalMapAccountStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['map']: account => test_cases.global_map.account_struct.Data
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.global_map.account_struct.GlobalMapAccountStruct.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.get(key: account): test_cases.global_map.account_struct.Data
+  {
+    return GlobalState[BoxMapKey(prefix='map', key=key)]
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.get_with_default(key: account, default: test_cases.global_map.account_struct.Data): test_cases.global_map.account_struct.Data
+  {
+    return STATE_GET(GlobalState[BoxMapKey(prefix='map', key=key)], default=default)
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.set(key: account, value: test_cases.global_map.account_struct.Data): void
+  {
+    GlobalState[BoxMapKey(prefix='map', key=key)]: test_cases.global_map.account_struct.Data = value
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.delete(key: account): void
+  {
+    STATE_DELETE(GlobalState[BoxMapKey(prefix='map', key=key)])
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.in_(key: account): bool
+  {
+    return STATE_EXISTS(GlobalState[BoxMapKey(prefix='map', key=key)])
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.prefix(): bytes
+  {
+    return reinterpret_cast<bytes>('map')
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.maybe(key: account): tuple<test_cases.global_map.account_struct.Data,bool>
+  {
+    (value, exists): tuple<test_cases.global_map.account_struct.Data,bool> = STATE_GET_EX(GlobalState[BoxMapKey(prefix='map', key=key)])
+    if (!(exists)) {
+      value: test_cases.global_map.account_struct.Data = new test_cases.global_map.account_struct.Data(foo=0u, bar=bzero(4u))
+    }
+    return (value, exists)
+  }
+  
+  abimethod test_cases.global_map.account_struct.GlobalMapAccountStruct.get_via_state(key: account): test_cases.global_map.account_struct.Data
+  {
+    state: state_key = BoxMapKey(prefix='map', key=key)
+    return GlobalState[state]
+  }
+  
+  baremethod test_cases.global_map.account_struct.GlobalMapAccountStruct.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
