@@ -1,6 +1,5 @@
 import contextlib
 import operator
-import re
 import typing
 import warnings
 from collections.abc import Callable, Iterator, Mapping, Sequence
@@ -269,13 +268,6 @@ def get_arg_mapping(
         any_missing = True
         logger.error(msg, location=call_location)
     return arg_mapping, any_missing
-
-
-def snake_case(s: str) -> str:
-    s = s.replace("-", " ")
-    s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
-    s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
-    return re.sub(r"[-\s]", "_", s).lower()
 
 
 def maybe_resolve_literal(
