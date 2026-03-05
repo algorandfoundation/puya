@@ -709,9 +709,13 @@ def _build_symbols_and_state(
                     case _:
                         raise InternalError(f"unhandled StorageProxyType: {pytyp}", node_loc)
             elif isinstance(pytyp, pytypes.StorageMapProxyType):
-                if pytyp.generic != pytypes.GenericBoxMapType:
-                    raise InternalError(f"unhandled StorageMapProxyType: {pytyp}", node_loc)
-                kind = awst_nodes.AppStorageKind.box
+                match pytyp.generic:
+                    case pytypes.GenericGlobalMapType:
+                        kind = awst_nodes.AppStorageKind.app_global
+                    case pytypes.GenericBoxMapType:
+                        kind = awst_nodes.AppStorageKind.box
+                    case _:
+                        raise InternalError(f"unhandled StorageMapProxyType: {pytyp}", node_loc)
             else:  # global state, direct
                 wtype = pytyp.checked_wtype(node_loc)
                 key = awst_nodes.BytesConstant(

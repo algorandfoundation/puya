@@ -173,7 +173,7 @@ class GlobalMap(typing.Generic[_TKey, _TValue]):
     """
     GlobalMap abstracts the reading and writing of a set of global state values using a
     common key and content type.
-    Adequate space must be allocated for the application on creation :see algopy.StateTotals
+    Adequate space must be allocated for the application on creation (see algopy.StateTotals).
     """
 
     def __init__(
@@ -196,28 +196,45 @@ class GlobalMap(typing.Generic[_TKey, _TValue]):
 
     @property
     def key_prefix(self) -> Bytes:
-        """Provides access to the raw storage key-prefix"""
+        """Provides access to the raw storage key-prefix."""
 
     def __getitem__(self, key: _TKey) -> _TValue:
-        """
-        Retrieve the value associated with key. Fails if the key has not been defined.
+        """Retrieve the value associated with key. Fails if the key has not been defined.
+
+        ```python
+        value = self.map[key]
+        ```
         """
 
     def __setitem__(self, key: _TKey, value: _TValue) -> None:
-        """Write _value_ to global state."""
+        """Write value to global state.
+
+        ```python
+        self.map[key] = value
+        ```
+        """
 
     def __delitem__(self, key: _TKey) -> None:
-        """Deletes a global state value"""
+        """Deletes a global state value.
+
+        ```python
+        del self.map[key]
+        ```
+        """
 
     def __contains__(self, key: _TKey) -> bool:
         """
         Returns True if a specified key exists in the map, regardless of the
-        truthiness of the contents of the value
+        truthiness of the contents of the value.
+
+        ```python
+        assert key in self.map
+        ```
         """
 
     def get(self, key: _TKey, *, default: _TValue) -> _TValue:
         """
-        Retrieve the contents o, or return the default value if the key is not present
+        Retrieve the contents, or return the default value if the key is not present.
 
         :arg key: The key to get
         :arg default: The default value to return if the key is not present.
@@ -233,5 +250,5 @@ class GlobalMap(typing.Generic[_TKey, _TValue]):
 
     def state(self, key: _TKey) -> GlobalState[_TValue]:
         """
-        Returns a GlobalState for the value at key
+        Returns a GlobalState for the value at key.
         """

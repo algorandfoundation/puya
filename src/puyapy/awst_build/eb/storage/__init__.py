@@ -12,6 +12,11 @@ from puyapy.awst_build.eb.storage.box_ref import (
     BoxRefProxyExpressionBuilder,
     BoxRefTypeBuilder,
 )
+from puyapy.awst_build.eb.storage.global_map import (
+    GlobalMapGenericTypeExpressionBuilder,
+    GlobalMapProxyExpressionBuilder,
+    GlobalMapTypeBuilder,
+)
 from puyapy.awst_build.eb.storage.global_state import (
     GlobalStateExpressionBuilder,
     GlobalStateGenericTypeBuilder,
@@ -35,6 +40,9 @@ __all__ = [
     "GlobalStateTypeBuilder",
     "GlobalStateGenericTypeBuilder",
     "GlobalStateExpressionBuilder",
+    "GlobalMapTypeBuilder",
+    "GlobalMapGenericTypeExpressionBuilder",
+    "GlobalMapProxyExpressionBuilder",
     "LocalStateTypeBuilder",
     "LocalStateGenericTypeBuilder",
     "LocalStateExpressionBuilder",
