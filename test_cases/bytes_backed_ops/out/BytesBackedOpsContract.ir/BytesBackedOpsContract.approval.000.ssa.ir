@@ -1,13 +1,14 @@
 main test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program:
-    block@0: // L31
+    block@0: // L32
         test_cases.bytes_backed_ops.contract.test_hash_ops()
         test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops()
         test_cases.bytes_backed_ops.contract.test_conversion_ops()
         test_cases.bytes_backed_ops.contract.test_bitwise_ops()
+        test_cases.bytes_backed_ops.contract.test_bytes_backed_state_keys()
         return 1u
 
 subroutine test_cases.bytes_backed_ops.contract.test_hash_ops() -> void:
-    block@0: // L42
+    block@0: // L44
         let fb#0: bytes[4] = 0x74657374
         let s#0: string = "test"
         let awst_tmp%0#0: account = (txn Sender)
@@ -181,7 +182,7 @@ subroutine test_cases.bytes_backed_ops.contract.test_hash_ops() -> void:
         return 
 
 subroutine test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops() -> void:
-    block@0: // L94
+    block@0: // L96
         let fb#0: bytes[5] = 0x68656c6c6f
         let s#0: string = "hello"
         let awst_tmp%0#0: account = (txn Sender)
@@ -282,7 +283,7 @@ subroutine test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops() -> 
         return 
 
 subroutine test_cases.bytes_backed_ops.contract.test_conversion_ops() -> void:
-    block@0: // L144
+    block@0: // L146
         let fb#0: bytes[8] = 0x000000000000002a
         let tmp%0#0: uint64 = (btoi fb#0)
         let tmp%1#0: bool = (== tmp%0#0 42u)
@@ -301,7 +302,7 @@ subroutine test_cases.bytes_backed_ops.contract.test_conversion_ops() -> void:
         return 
 
 subroutine test_cases.bytes_backed_ops.contract.test_bitwise_ops() -> void:
-    block@0: // L158
+    block@0: // L160
         let fb#0: bytes[4] = 0x74657374
         let s#0: string = "test"
         let awst_tmp%0#0: account = (txn Sender)
@@ -375,4 +376,13 @@ subroutine test_cases.bytes_backed_ops.contract.test_bitwise_ops() -> void:
         let tmp%43#0: bool = (getbit 0x000000000000002a 63u)
         let tmp%44#0: bool = (<= 0u tmp%43#0)
         (assert tmp%44#0)
+        return 
+
+subroutine test_cases.bytes_backed_ops.contract.test_bytes_backed_state_keys() -> void:
+    block@0: // L201
+        let fb#0: bytes[4] = 0x74657374
+        (app_global_del fb#0)
+        let tmp%0#0: account = (txn Sender)
+        (app_local_del tmp%0#0 fb#0)
+        (box_del fb#0)
         return 
