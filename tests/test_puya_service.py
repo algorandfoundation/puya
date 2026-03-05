@@ -92,6 +92,12 @@ async def test_compile_hello_world(client: JsonRPCClient, tmp_path: Path) -> Non
         f"info: Writing {clear_path.as_posix()}",
     ], "compile contained errors"
 
+    # sanity check of ARC-56 output
+    (artifact_id,) = compile_params.options.compilation_set.keys()
+    arc_56 = response.arc56[artifact_id]
+    assert arc_56.name == "HelloWorldContract"
+    assert arc_56.methods[0].name == "hello"
+
 
 async def test_compile_warn_as_err(client: JsonRPCClient, tmp_path: Path) -> None:
     path = _ANALYSE_DIR / "reti.awst.json.zip"
