@@ -438,8 +438,9 @@ class _EventCollector(FunctionTraverser):
 
     def visit_emit_fields(self, emit: awst_nodes.EmitFields) -> None:
         fields = {f"field{idx}": arg.wtype for idx, arg in enumerate(emit.values, start=1)}
+        name = emit.signature.split("(")[0]  # remove parameter list if present
         struct_wtype = wtypes.ARC4Struct(
-            name=emit.signature,
+            name=name,
             fields=fields,
             frozen=True,
             source_location=emit.source_location,
