@@ -155,7 +155,7 @@ class GlobalStateExpressionBuilder(
         match name:
             case "value":
                 field = _build_field(self, location)
-                return _Value(self.pytype.content, field)
+                return GlobalStateValueExpressionBuilder(self.pytype.content, field)
             case "get":
                 return _Get(self, location)
             case "maybe":
@@ -244,7 +244,9 @@ class _Get(_MemberFunction):
         return builder_for_instance(content_typ, expr)
 
 
-class _Value(ValueProxyExpressionBuilder[pytypes.PyType, AppStateExpression]):
+class GlobalStateValueExpressionBuilder(
+    ValueProxyExpressionBuilder[pytypes.PyType, AppStateExpression]
+):
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         return ExpressionStatement(StateDelete(field=self.resolve(), source_location=location))

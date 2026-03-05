@@ -1358,7 +1358,10 @@ class BoxPrefixedKeyExpression(Expression):
 
     prefix: Expression
     key: Expression
-    wtype: WType = attrs.field(default=wtypes.box_key, init=False)
+    wtype: WType = attrs.field(
+        validator=wtype_is_one_of(wtypes.box_key, wtypes.state_key),
+        default=wtypes.box_key,  # default is for compatability with existing JSON
+    )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_prefixed_key_expression(self)

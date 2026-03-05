@@ -5,8 +5,8 @@ from collections.abc import Callable, Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    AppStateExpression,
     BoxPrefixedKeyExpression,
-    BoxValueExpression,
     Expression,
     StateExists,
     StateGet,
@@ -29,24 +29,24 @@ from puyapy.awst_build.eb.interface import (
     StorageProxyConstructorResult,
     TypeBuilder,
 )
-from puyapy.awst_build.eb.storage import BoxProxyExpressionBuilder
-from puyapy.awst_build.eb.storage._common import BoxValueExpressionBuilder
 from puyapy.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
     parse_storage_proxy_constructor_args,
 )
-from puyapy.awst_build.eb.storage._util import box_length_checked
+from puyapy.awst_build.eb.storage.global_state import (
+    GlobalStateExpressionBuilder,
+    GlobalStateValueExpressionBuilder,
+)
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
-from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping
 
 logger = log.get_logger(__name__)
 
 
-class BoxMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
+class GlobalMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
         assert isinstance(typ, pytypes.StorageMapProxyType)
-        assert typ.generic == pytypes.GenericBoxMapType
+        assert typ.generic == pytypes.GenericGlobalMapType
         super().__init__(typ, location)
 
     @typing.override
@@ -60,7 +60,7 @@ class BoxMapTypeBuilder(TypeBuilder[pytypes.StorageMapProxyType]):
         return _init(args, arg_names, location, result_type=self.produces())
 
 
-class BoxMapGenericTypeExpressionBuilder(GenericTypeBuilder):
+class GlobalMapGenericTypeExpressionBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -100,7 +100,7 @@ def _init(
             raise CodeError("first and second arguments must be type references", location)
 
     if result_type is None:
-        result_type = pytypes.GenericBoxMapType.parameterise([key, content], location)
+        result_type = pytypes.GenericGlobalMapType.parameterise([key, content], location)
     elif not (result_type.key == key and result_type.content == content):
         logger.error(
             "explicit type annotation does not match first argument"
@@ -110,7 +110,7 @@ def _init(
 
     typed_args = parse_storage_proxy_constructor_args(
         arg_mapping,
-        key_wtype=wtypes.box_key,
+        key_wtype=wtypes.state_key,
         key_arg_name=key_prefix_arg_name,
         descr_arg_name=None,
         location=location,
@@ -118,37 +118,37 @@ def _init(
 
     if typed_args.key is None:
         return StorageProxyDefinitionBuilder(typed_args, result_type, location)
-    return _BoxMapProxyExpressionBuilderFromConstructor(typed_args, result_type)
+    return _GlobalMapProxyExpressionBuilderFromConstructor(typed_args, result_type)
 
 
-class BoxMapProxyExpressionBuilder(
+class GlobalMapProxyExpressionBuilder(
     BytesBackedInstanceExpressionBuilder[pytypes.StorageMapProxyType], bytes_member="key_prefix"
 ):
     def __init__(self, expr: Expression, typ: pytypes.PyType, member_name: str | None = None):
         assert isinstance(typ, pytypes.StorageMapProxyType)
-        assert typ.generic == pytypes.GenericBoxMapType
+        assert typ.generic == pytypes.GenericGlobalMapType
         self._member_name = member_name
         super().__init__(typ, expr)
 
-    def _build_box_map_key(
+    def _build_global_map_key(
         self, key: InstanceBuilder, location: SourceLocation
     ) -> BoxPrefixedKeyExpression:
         return BoxPrefixedKeyExpression(
             prefix=self.resolve(),
             key=key.resolve(),
-            wtype=wtypes.box_key,
+            wtype=wtypes.state_key,
             source_location=location,
         )
 
-    def _build_box_value(
+    def _build_global_value(
         self, key: InstanceBuilder, location: SourceLocation
-    ) -> BoxValueExpression:
+    ) -> AppStateExpression:
         if self._member_name:
             exists_assertion_message = f"check self.{self._member_name} entry exists"
         else:
-            exists_assertion_message = "check BoxMap entry exists"
-        return BoxValueExpression(
-            key=self._build_box_map_key(key, location),
+            exists_assertion_message = "check GlobalMap entry exists"
+        return AppStateExpression(
+            key=self._build_global_map_key(key, location),
             wtype=self.pytype.content_wtype,
             exists_assertion_message=exists_assertion_message,
             source_location=location,
@@ -156,30 +156,28 @@ class BoxMapProxyExpressionBuilder(
 
     @typing.override
     def index(self, index: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        return BoxValueExpressionBuilder(
-            self.pytype.content, self._build_box_value(index, location)
+        return GlobalStateValueExpressionBuilder(
+            self.pytype.content, self._build_global_value(index, location)
         )
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         match name:
-            case "box":
-                return _Box(location, self._build_box_map_key, self.pytype)
-            case "length":
-                return _Length(location, self._build_box_value, self.pytype)
+            case "state":
+                return _State(location, self._build_global_map_key, self.pytype)
             case "maybe":
-                return _Maybe(location, self._build_box_value, self.pytype)
+                return _Maybe(location, self._build_global_value, self.pytype)
             case "get":
-                return _Get(location, self._build_box_value, self.pytype)
+                return _Get(location, self._build_global_value, self.pytype)
             case _:
                 return super().member_access(name, location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
-        box_exists = StateExists(
-            field=self._build_box_value(item, location), source_location=location
+        global_exists = StateExists(
+            field=self._build_global_value(item, location), source_location=location
         )
-        return BoolExpressionBuilder(box_exists)
+        return BoolExpressionBuilder(global_exists)
 
     @typing.override
     def slice_index(
@@ -189,11 +187,11 @@ class BoxMapProxyExpressionBuilder(
         stride: InstanceBuilder | None,
         location: SourceLocation,
     ) -> InstanceBuilder:
-        raise CodeError("slicing of BoxMap is not supported", location)
+        raise CodeError("slicing of GlobalMap is not supported", location)
 
     @typing.override
     def iterate(self) -> typing.Never:  # pragma: no cover
-        raise CodeError("iteration of BoxMap is not supported", self.source_location)
+        raise CodeError("iteration of GlobalMap is not supported", self.source_location)
 
     @typing.override
     def iterable_item_type(self) -> typing.Never:
@@ -201,11 +199,11 @@ class BoxMapProxyExpressionBuilder(
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        raise CodeError("cannot determine if a BoxMap is empty or not", location)
+        raise CodeError("cannot determine if a GlobalMap is empty or not", location)
 
 
-class _BoxMapProxyExpressionBuilderFromConstructor(
-    BoxMapProxyExpressionBuilder, StorageProxyConstructorResult
+class _GlobalMapProxyExpressionBuilderFromConstructor(
+    GlobalMapProxyExpressionBuilder, StorageProxyConstructorResult
 ):
     def __init__(self, args: StorageProxyConstructorArgs, typ: pytypes.StorageMapProxyType):
         assert args.key is not None
@@ -218,32 +216,32 @@ class _BoxMapProxyExpressionBuilderFromConstructor(
         return self._args
 
 
-BoxValueBuilder = Callable[[InstanceBuilder, SourceLocation], BoxValueExpression]
-BoxKeyBuilder = Callable[[InstanceBuilder, SourceLocation], BoxPrefixedKeyExpression]
+GlobalValueBuilder = Callable[[InstanceBuilder, SourceLocation], AppStateExpression]
+GlobalKeyBuilder = Callable[[InstanceBuilder, SourceLocation], BoxPrefixedKeyExpression]
 
 
 class _MethodBase(FunctionBuilder, abc.ABC):
     def __init__(
         self,
         location: SourceLocation,
-        box_value_builder: BoxValueBuilder,
-        box_type: pytypes.StorageMapProxyType,
+        global_value_builder: GlobalValueBuilder,
+        global_type: pytypes.StorageMapProxyType,
     ) -> None:
         super().__init__(location)
-        self.build_box_value = box_value_builder
-        self.box_type = box_type
+        self.build_global_value = global_value_builder
+        self.global_type = global_type
 
 
-class _Box(FunctionBuilder):
+class _State(FunctionBuilder):
     def __init__(
         self,
         location: SourceLocation,
-        box_key_builder: BoxKeyBuilder,
-        box_map_type: pytypes.StorageMapProxyType,
+        global_key_builder: GlobalKeyBuilder,
+        global_map_type: pytypes.StorageMapProxyType,
     ) -> None:
         super().__init__(location)
-        self.build_box_key = box_key_builder
-        self.box_map_type = box_map_type
+        self.build_global_key = global_key_builder
+        self.global_map_type = global_map_type
 
     @typing.override
     def call(
@@ -261,41 +259,16 @@ class _Box(FunctionBuilder):
             call_location=location,
             raise_on_missing=False,
         )
-        box_type = pytypes.GenericBoxType.parameterise([self.box_map_type.content], location)
-        if any_missing:
-            return dummy_value(box_type, location)
-        key_arg = expect.argument_of_type_else_dummy(
-            args_map[key_arg_name], self.box_map_type.key, resolve_literal=True
-        )
-        key = self.build_box_key(key_arg, location)
-        return BoxProxyExpressionBuilder(key, box_type)
-
-
-class _Length(_MethodBase):
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        key_arg_name = "key"
-        args_map, any_missing = get_arg_mapping(
-            required_positional_names=[key_arg_name],
-            args=args,
-            arg_names=arg_names,
-            call_location=location,
-            raise_on_missing=False,
+        global_type = pytypes.GenericGlobalStateType.parameterise(
+            [self.global_map_type.content], location
         )
         if any_missing:
-            return dummy_value(pytypes.UInt64Type, location)
-
+            return dummy_value(global_type, location)
         key_arg = expect.argument_of_type_else_dummy(
-            args_map[key_arg_name], self.box_type.key, resolve_literal=True
+            args_map[key_arg_name], self.global_map_type.key, resolve_literal=True
         )
-        key = self.build_box_value(key_arg, location)
-        return UInt64ExpressionBuilder(box_length_checked(key, location))
+        key = self.build_global_key(key_arg, location)
+        return GlobalStateExpressionBuilder(key, global_type)
 
 
 class _Get(_MethodBase):
@@ -318,14 +291,14 @@ class _Get(_MethodBase):
             raise_on_missing=False,
         )
         if any_missing:
-            return dummy_value(self.box_type.content, location)
-        key_arg = expect.argument_of_type_else_dummy(args_map[key_arg_name], self.box_type.key)
+            return dummy_value(self.global_type.content, location)
+        key_arg = expect.argument_of_type_else_dummy(args_map[key_arg_name], self.global_type.key)
         default_arg = expect.argument_of_type_else_dummy(
-            args_map[default_arg_name], self.box_type.content
+            args_map[default_arg_name], self.global_type.content
         )
-        key = self.build_box_value(key_arg, location)
+        key = self.build_global_value(key_arg, location)
         result_expr = StateGet(default=default_arg.resolve(), field=key, source_location=location)
-        return builder_for_instance(self.box_type.content, result_expr)
+        return builder_for_instance(self.global_type.content, result_expr)
 
 
 class _Maybe(_MethodBase):
@@ -338,7 +311,7 @@ class _Maybe(_MethodBase):
         location: SourceLocation,
     ) -> InstanceBuilder:
         result_typ = pytypes.GenericTupleType.parameterise(
-            [self.box_type.content, pytypes.BoolType], location
+            [self.global_type.content, pytypes.BoolType], location
         )
         key_arg_name = "key"
         args_map, any_missing = get_arg_mapping(
@@ -351,7 +324,7 @@ class _Maybe(_MethodBase):
         if any_missing:
             return dummy_value(result_typ, location)
         item_key_inst = expect.argument_of_type_else_dummy(
-            args_map[key_arg_name], self.box_type.key
+            args_map[key_arg_name], self.global_type.key
         )
-        key = self.build_box_value(item_key_inst, location)
+        key = self.build_global_value(item_key_inst, location)
         return TupleExpressionBuilder(StateGetEx(field=key, source_location=location), result_typ)
