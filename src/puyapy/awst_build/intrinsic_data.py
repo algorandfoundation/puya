@@ -893,7 +893,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -903,7 +903,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -915,7 +915,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get_ex",
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.ApplicationType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -927,7 +930,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get_ex",
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.ApplicationType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -936,7 +942,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_del",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -946,7 +952,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "app_global_put",
                     args=[
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                         (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
                     ],
                 ),
@@ -960,7 +966,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_local_get",
-                    args=[(pytypes.AccountType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.AccountType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -970,7 +979,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_local_get",
-                    args=[(pytypes.AccountType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.AccountType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -985,7 +997,7 @@ NAMESPACE_CLASSES: typing.Final[
                     args=[
                         (pytypes.AccountType, pytypes.UInt64Type),
                         (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                     ],
                 ),
             ],
@@ -1001,7 +1013,7 @@ NAMESPACE_CLASSES: typing.Final[
                     args=[
                         (pytypes.AccountType, pytypes.UInt64Type),
                         (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                     ],
                 ),
             ],
@@ -1011,7 +1023,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_local_del",
-                    args=[(pytypes.AccountType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.AccountType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1022,7 +1037,7 @@ NAMESPACE_CLASSES: typing.Final[
                     "app_local_put",
                     args=[
                         (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                         (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
                     ],
                 ),
@@ -1472,7 +1487,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_create",
-                    args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
                 ),
             ],
         ),
@@ -1482,7 +1497,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_del",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -1492,7 +1507,11 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_extract",
-                    args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.UInt64Type,),
+                        (pytypes.UInt64Type,),
+                    ],
                 ),
             ],
         ),
@@ -1504,7 +1523,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_get",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -1516,7 +1535,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_len",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -1525,7 +1544,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_put",
-                    args=[(pytypes.BytesType,), (pytypes.BytesType, pytypes.BytesBackedType)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1535,7 +1557,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "box_replace",
                     args=[
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                         (pytypes.UInt64Type,),
                         (pytypes.BytesType, pytypes.BytesBackedType),
                     ],
@@ -1547,7 +1569,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_resize",
-                    args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
                 ),
             ],
         ),
@@ -1557,7 +1579,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "box_splice",
                     args=[
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                         (pytypes.UInt64Type,),
                         (pytypes.UInt64Type,),
                         (pytypes.BytesType, pytypes.BytesBackedType),
