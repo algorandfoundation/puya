@@ -10,6 +10,7 @@ from algopy import (
     ImmutableArray,
     String,
     Struct,
+    Txn,
     UInt64,
     arc4,
     op,
@@ -33,6 +34,7 @@ class BytesBackedOpsContract(Contract):
         test_byte_manipulation_ops()
         test_conversion_ops()
         test_bitwise_ops()
+        test_bytes_backed_state_keys()
         return True
 
     def clear_state_program(self) -> bool:
@@ -194,3 +196,12 @@ def test_bitwise_ops() -> None:
 
     # getbit with arc4.UInt64
     assert op.getbit(arc4.UInt64(42), 63) >= UInt64(0)
+
+
+@subroutine
+def test_bytes_backed_state_keys() -> None:
+    fb = FixedBytes[typing.Literal[4]](b"test")
+
+    op.AppGlobal.delete(fb)
+    op.AppLocal.delete(Txn.sender, fb)
+    op.Box.delete(fb)
