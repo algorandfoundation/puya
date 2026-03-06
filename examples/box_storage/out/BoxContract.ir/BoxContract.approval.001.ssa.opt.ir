@@ -447,8 +447,8 @@ subroutine examples.box_storage.contract.get_box_map_value_from_key_plus_1(box_m
     block@0: // L449
         let materialized_values%0#0: uint64 = (+ key#0 1u)
         let encoded_value%0#0: bytes[8] = (itob materialized_values%0#0)
-        let box_prefixed_key%0#0: bytes = (concat box_map#0 encoded_value%0#0)
-        let storage_value%0#0: bytes = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat box_map#0 encoded_value%0#0)
+        let storage_value%0#0: bytes = box_read(map_prefixed_key%0#0)
         return storage_value%0#0
 
 subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> void:
@@ -1912,7 +1912,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_set[routing]() -> v
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let value#0: string = decode_bytes<string>(tmp%2#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = encoded_value%0#0
+        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         box_write(encoded_value%0#0, value#0)
         exit 1u
 
@@ -1924,7 +1924,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_get[routing]() -> v
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = encoded_value%0#0
+        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         let storage_value%0#0: bytes = box_read(encoded_value%0#0)
         let tmp%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(storage_value%0#0)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
@@ -1939,7 +1939,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_del[routing]() -> v
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = encoded_value%0#0
+        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         (box_del encoded_value%0#0)
         exit 1u
 
@@ -1951,7 +1951,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_exists[routing]() -
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let key#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = encoded_value%0#0
+        let map_prefixed_key%0#0: bytes = encoded_value%0#0
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len encoded_value%0#0)
         let tmp%3#0: Encoded(bool8) = bytes_encode<bool8>(maybe_exists%0#0)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)

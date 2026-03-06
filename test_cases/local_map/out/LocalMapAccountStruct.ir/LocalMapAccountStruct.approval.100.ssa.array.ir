@@ -57,8 +57,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get[routing
         let eq%1#0: bool = (== len%1#0 32u)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         let key#0: account = tmp%2#0
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.map entry exists for account
         let tmp%5#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%5#0)
@@ -80,8 +80,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_de
         let len%2#0: uint64 = (len default#0)
         let eq%2#0: bool = (== len%2#0 12u)
         (assert eq%2#0) // invalid number of bytes for test_cases.local_map.account_struct.Data
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         let state_get%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
         let tmp%6#0: bytes = (concat 0x151f7c75 state_get%0#0)
         (log tmp%6#0)
@@ -103,8 +103,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.set[routing
         let len%2#0: uint64 = (len value#0)
         let eq%2#0: bool = (== len%2#0 12u)
         (assert eq%2#0) // invalid number of bytes for test_cases.local_map.account_struct.Data
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        (app_local_put account#0 box_prefixed_key%0#0 value#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        (app_local_put account#0 map_prefixed_key%0#0 value#0)
         exit 1u
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.delete[routing]() -> void:
@@ -119,8 +119,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.delete[rout
         let eq%1#0: bool = (== len%1#0 32u)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         let key#0: account = tmp%2#0
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        (app_local_del account#0 box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        (app_local_del account#0 map_prefixed_key%0#0)
         exit 1u
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.in_[routing]() -> void:
@@ -135,8 +135,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.in_[routing
         let eq%1#0: bool = (== len%1#0 32u)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         let key#0: account = tmp%2#0
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (_%0#0: Encoded(uint64,uint8[4]), maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (_%0#0: Encoded(uint64,uint8[4]), maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u maybe_exists%0#0)
         let aggregate%as_Encoded(bool8)%0#0: Encoded(bool8) = aggregate%encoded_bool%0#0
         let tmp%5#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#0
@@ -168,8 +168,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.maybe[routi
         let eq%1#0: bool = (== len%1#0 32u)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
         let key#0: account = tmp%2#0
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (value#0: Encoded(uint64,uint8[4]), exists#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (value#0: Encoded(uint64,uint8[4]), exists#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         goto exists#0 ? block@3 : block@2
     block@2: // if_body_L65
         let tmp%0#1: bytes[4] = (bzero 4u)

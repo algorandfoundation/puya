@@ -121,7 +121,7 @@ contract VotingRoundApp
       assert(answer_option_index < options_count, comment="Answer option index invalid")
       this::increment_vote_in_box(cumulative_offset + answer_option_index)
       cumulative_offset += options_count
-      Box[BoxMapKey(prefix='', key=txn<Sender>())]: arc4.dynamic_array<arc4.uint8> = answer_ids.copy()
+      Box[MapKey(prefix='', key=txn<Sender>())]: arc4.dynamic_array<arc4.uint8> = answer_ids.copy()
       GlobalState['voter_count'] += 1u
     }
   }
@@ -133,7 +133,7 @@ contract VotingRoundApp
   
   subroutine examples.voting.voting.VotingRoundApp.already_voted(): bool
   {
-    return STATE_EXISTS(Box[BoxMapKey(prefix='', key=txn<Sender>())])
+    return STATE_EXISTS(Box[MapKey(prefix='', key=txn<Sender>())])
   }
   
   subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: arc4.dynamic_array<arc4.uint8>): void

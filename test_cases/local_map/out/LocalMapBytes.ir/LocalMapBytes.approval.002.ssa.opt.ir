@@ -59,8 +59,8 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.get[routing]() -> void:
         let eq%1#0: bool = (== len%1#0 add%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let key#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.map entry exists for account
         let tmp%5#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(maybe_value%0#0)
         let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
@@ -88,8 +88,8 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.get_with_default[routing]() 
         let eq%2#0: bool = (== len%2#0 add%1#0)
         (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let default#0: bytes = decode_bytes<bytes>(tmp%4#0)
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         let state_get%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
         let tmp%7#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(state_get%0#0)
         let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
@@ -117,8 +117,8 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.set[routing]() -> void:
         let eq%2#0: bool = (== len%2#0 add%1#0)
         (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let value#0: bytes = decode_bytes<bytes>(tmp%4#0)
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        (app_local_put account#0 box_prefixed_key%0#0 value#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        (app_local_put account#0 map_prefixed_key%0#0 value#0)
         exit 1u
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.delete[routing]() -> void:
@@ -135,8 +135,8 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.delete[routing]() -> void:
         let eq%1#0: bool = (== len%1#0 add%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let key#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        (app_local_del account#0 box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        (app_local_del account#0 map_prefixed_key%0#0)
         exit 1u
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.in_[routing]() -> void:
@@ -153,8 +153,8 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.in_[routing]() -> void:
         let eq%1#0: bool = (== len%1#0 add%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let key#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (_%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (_%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         let tmp%5#0: Encoded(bool8) = bytes_encode<bool8>(maybe_exists%0#0)
         let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
         (log tmp%6#0)
@@ -181,8 +181,8 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.maybe[routing]() -> void:
         let eq%1#0: bool = (== len%1#0 add%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let key#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (value#0: bytes, exists#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (value#0: bytes, exists#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         goto exists#0 ? block@3 : block@2
     block@2: // if_body_L46
         let value#1: bytes = 0x

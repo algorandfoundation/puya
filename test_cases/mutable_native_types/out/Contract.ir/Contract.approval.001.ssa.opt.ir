@@ -494,11 +494,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage[rout
         (assert maybe_exists%2#0) // check self.nested exists
         let tuple_item%0#0: Encoded(uint64,uint64) = extract_value(maybe_value%2#0, 0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let storage_value%0#0: bytes = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        let storage_value%0#0: bytes = box_read(map_prefixed_key%0#0)
         let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = replace_value(storage_value%0#0, 0, tuple_item%0#0)
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        (box_replace box_prefixed_key%0#0 box%offset%0#0 tuple_item%0#0) // on error: index out of bounds
+        (box_replace map_prefixed_key%0#0 box%offset%0#0 tuple_item%0#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routing]() -> void:
@@ -535,8 +535,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[rout
         (app_local_del tmp%0#1 0x6c)
         (box_del "box")
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        (box_del box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        (box_del map_prefixed_key%0#0)
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]() -> void:
@@ -568,11 +568,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]
         let box%offset%0#0: uint64 = (+ 0u 0u)
         (box_replace "box" box%offset%0#0 a#0) // on error: index out of bounds
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        let storage_value%1#0: bytes = box_read(map_prefixed_key%0#0)
         let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = replace_value(storage_value%1#0, 0, a#0)
         let box%offset%1#0: uint64 = (+ 0u 0u)
-        (box_replace box_prefixed_key%0#0 box%offset%1#0 a#0) // on error: index out of bounds
+        (box_replace map_prefixed_key%0#0 box%offset%1#0 a#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return[routing]() -> void:

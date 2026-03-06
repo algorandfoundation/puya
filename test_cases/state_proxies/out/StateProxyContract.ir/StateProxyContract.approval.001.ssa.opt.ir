@@ -79,8 +79,8 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.clear[routing]()
         let tmp%1#0: account = (txn Sender)
         (app_local_del tmp%1#0 0x6c32)
         let materialized_values%0#0: bytes = test_cases.state_proxies.contract.get_key()
-        let box_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
-        (box_del box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
+        (box_del map_prefixed_key%0#0)
         exit 1u
 
 subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_global[routing]() -> void:
@@ -105,9 +105,9 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_lo
 subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_box[routing]() -> void:
     block@0: // L54
         let materialized_values%0#0: bytes = test_cases.state_proxies.contract.get_key()
-        let box_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
         let tmp%0#0: uint64 = test_cases.state_proxies.contract.default_value()
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get map_prefixed_key%0#0)
         let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
         let val#0: uint64 = (select tmp%0#0 maybe_value_converted%0#0 maybe_exists%0#0)
         let tmp%1#0: bool = (== val#0 42u)

@@ -101,18 +101,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%extract%0#0: bytes = ((extract 0 8) tmp%0#2)
         let key.b#4: uint64 = (extract_uint64 tmp%0#2 8u)
         let tmp%0#1: uint64 = (+ key.b#4 1u)
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%0#1)
         let aggregate%head%6#0: bytes = (concat aggregate%extract%0#0 aggregate%val_as_bytes%2#0)
-        (box_put box_prefixed_key%0#0 aggregate%head%6#0)
+        (box_put map_prefixed_key%0#0 aggregate%head%6#0)
         exit 1u
     block@9: // is_tuple_in_box_route_L73
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len map_prefixed_key%0#0)
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u maybe_exists%0#0)
         let tmp%5#3: bytes = (concat 0x151f7c75 aggregate%encoded_bool%0#0)
         (log tmp%5#3)
@@ -122,8 +122,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
-        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
+        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get map_prefixed_key%0#0)
         (assert aggregate%box_get%1#0) // check self.box entry exists
         let tmp%6#0: bytes = (concat 0x151f7c75 aggregate%box_get%0#0)
         (log tmp%6#0)
@@ -133,8 +133,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
-        let (maybe_value%0#0: bytes, exists#0: bool) = (box_get box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
+        let (maybe_value%0#0: bytes, exists#0: bool) = (box_get map_prefixed_key%0#0)
         goto exists#0 ? block@52 : block@53
     block@52: // ternary_true_L83
         let aggregate%item0%1#0: uint64 = (extract_uint64 maybe_value%0#0 0u)
@@ -162,9 +162,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let len%0#0: uint64 = (len tmp%0#2)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#2)
         let (tmp%0#1: uint64, tmp%1#8: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get map_prefixed_key%0#0)
         goto maybe_exists%0#0 ? block@47 : block@48
     block@47: // ternary_true_L88
         let aggregate%item0%2#0: uint64 = (extract_uint64 maybe_value%0#0 0u)

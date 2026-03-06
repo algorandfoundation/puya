@@ -600,14 +600,14 @@ subroutine store_tuple_in_box:
         +                                                                                         tmp%0#0,aggregate%extract%0#0,tmp%0#1
         byte "box"                                                                                tmp%0#0,aggregate%extract%0#0,tmp%0#1,"box"
         l-load tmp%0#0 3                                                                          aggregate%extract%0#0,tmp%0#1,"box",tmp%0#0
-        concat                                                                                    aggregate%extract%0#0,tmp%0#1,box_prefixed_key%0#0
-        l-load tmp%0#1 1                                                                          aggregate%extract%0#0,box_prefixed_key%0#0,tmp%0#1
-        itob                                                                                      aggregate%extract%0#0,box_prefixed_key%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%extract%0#0 2                                                            box_prefixed_key%0#0,aggregate%val_as_bytes%1#0,aggregate%extract%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                       box_prefixed_key%0#0,aggregate%extract%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                                    box_prefixed_key%0#0,aggregate%head%1#0
-        l-load box_prefixed_key%0#0 1                                                             aggregate%head%1#0,box_prefixed_key%0#0
-        l-load aggregate%head%1#0 1                                                               box_prefixed_key%0#0,aggregate%head%1#0
+        concat                                                                                    aggregate%extract%0#0,tmp%0#1,map_prefixed_key%0#0
+        l-load tmp%0#1 1                                                                          aggregate%extract%0#0,map_prefixed_key%0#0,tmp%0#1
+        itob                                                                                      aggregate%extract%0#0,map_prefixed_key%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%extract%0#0 2                                                            map_prefixed_key%0#0,aggregate%val_as_bytes%1#0,aggregate%extract%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                       map_prefixed_key%0#0,aggregate%extract%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                    map_prefixed_key%0#0,aggregate%head%1#0
+        l-load map_prefixed_key%0#0 1                                                             aggregate%head%1#0,map_prefixed_key%0#0
+        l-load aggregate%head%1#0 1                                                               map_prefixed_key%0#0,aggregate%head%1#0
         box_put
         // tuple_support/nested_tuples.py:69
         // @arc4.abimethod()
@@ -632,8 +632,8 @@ subroutine is_tuple_in_box:
         // return key in self.box
         byte "box"                                                                                tmp%0#0,"box"
         l-load tmp%0#0 1                                                                          "box",tmp%0#0
-        concat                                                                                    box_prefixed_key%0#0
-        l-load box_prefixed_key%0#0 0                                                             box_prefixed_key%0#0
+        concat                                                                                    map_prefixed_key%0#0
+        l-load map_prefixed_key%0#0 0                                                             map_prefixed_key%0#0
         box_len                                                                                   _%0#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                                                maybe_exists%0#0,_%0#0
         v-store _%0#0                                                                             maybe_exists%0#0
@@ -669,8 +669,8 @@ subroutine load_tuple_from_box:
         // return self.box[key]
         byte "box"                                                                                tmp%0#0,"box"
         l-load tmp%0#0 1                                                                          "box",tmp%0#0
-        concat                                                                                    box_prefixed_key%0#0
-        l-load box_prefixed_key%0#0 0                                                             box_prefixed_key%0#0
+        concat                                                                                    map_prefixed_key%0#0
+        l-load map_prefixed_key%0#0 0                                                             map_prefixed_key%0#0
         box_get                                                                                   aggregate%box_get%0#0,aggregate%box_get%1#0
         l-load aggregate%box_get%1#0 0                                                            aggregate%box_get%0#0,aggregate%box_get%1#0
         assert // check self.box entry exists                                                     aggregate%box_get%0#0
@@ -702,8 +702,8 @@ subroutine maybe_load_tuple_from_box:
         // maybe_value, exists = self.box.maybe(key)
         byte "box"                                                                                tmp%0#0,"box"
         l-load tmp%0#0 1                                                                          "box",tmp%0#0
-        concat                                                                                    box_prefixed_key%0#0
-        l-load box_prefixed_key%0#0 0                                                             box_prefixed_key%0#0
+        concat                                                                                    map_prefixed_key%0#0
+        l-load map_prefixed_key%0#0 0                                                             map_prefixed_key%0#0
         box_get                                                                                   maybe_value%0#0,exists#0
         l-store-copy exists#0 1                                                                   exists#0,maybe_value%0#0,exists#0 (copy)
         v-store exists#0                                                                          exists#0,maybe_value%0#0
@@ -783,13 +783,13 @@ subroutine load_tuple_from_box_or_default:
         // return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
         byte "box"                                                                                tmp%0#0,"box"
         l-load tmp%0#0 1                                                                          "box",tmp%0#0
-        concat                                                                                    box_prefixed_key%0#0
-        int 4                                                                                     box_prefixed_key%0#0,4
-        int 2                                                                                     box_prefixed_key%0#0,4,2
-        callsub simple_tup                                                                        box_prefixed_key%0#0,tmp%0#1,tmp%1#1
-        v-store tmp%1#1                                                                           box_prefixed_key%0#0,tmp%0#1
-        v-store tmp%0#1                                                                           box_prefixed_key%0#0
-        l-load box_prefixed_key%0#0 0                                                             box_prefixed_key%0#0
+        concat                                                                                    map_prefixed_key%0#0
+        int 4                                                                                     map_prefixed_key%0#0,4
+        int 2                                                                                     map_prefixed_key%0#0,4,2
+        callsub simple_tup                                                                        map_prefixed_key%0#0,tmp%0#1,tmp%1#1
+        v-store tmp%1#1                                                                           map_prefixed_key%0#0,tmp%0#1
+        v-store tmp%0#1                                                                           map_prefixed_key%0#0
+        l-load map_prefixed_key%0#0 0                                                             map_prefixed_key%0#0
         box_get                                                                                   maybe_value%0#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                                                maybe_exists%0#0,maybe_value%0#0
         v-store maybe_value%0#0                                                                   maybe_exists%0#0

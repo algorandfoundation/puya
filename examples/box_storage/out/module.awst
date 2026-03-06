@@ -369,40 +369,40 @@ contract BoxContract
     key_0: uint64 = 0u
     key_1: uint64 = 1u
     value: string = 'Hmmmmm'
-    Box[BoxMapKey(prefix='', key=key_0)]: string = value
-    box_0: box_key = BoxMapKey(prefix='', key=key_0)
-    assert(len(reinterpret_cast<bytes>(Box[BoxMapKey(prefix='', key=key_0)])) == len(reinterpret_cast<bytes>(value)))
-    assert(len(reinterpret_cast<bytes>(Box[BoxMapKey(prefix='', key=key_0)])) == checked_maybe(box_len(box_0)))
-    assert(checked_maybe(box_len(BoxMapKey(prefix='', key=key_0))) == len(reinterpret_cast<bytes>(value)))
-    assert(STATE_GET(Box[BoxMapKey(prefix='', key=key_1)], default='default') == 'default')
-    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[BoxMapKey(prefix='', key=key_1)])
+    Box[MapKey(prefix='', key=key_0)]: string = value
+    box_0: box_key = MapKey(prefix='', key=key_0)
+    assert(len(reinterpret_cast<bytes>(Box[MapKey(prefix='', key=key_0)])) == len(reinterpret_cast<bytes>(value)))
+    assert(len(reinterpret_cast<bytes>(Box[MapKey(prefix='', key=key_0)])) == checked_maybe(box_len(box_0)))
+    assert(checked_maybe(box_len(MapKey(prefix='', key=key_0))) == len(reinterpret_cast<bytes>(value)))
+    assert(STATE_GET(Box[MapKey(prefix='', key=key_1)], default='default') == 'default')
+    (value, exists): tuple<string,bool> = STATE_GET_EX(Box[MapKey(prefix='', key=key_1)])
     assert(!(exists))
-    assert(STATE_EXISTS(Box[BoxMapKey(prefix='', key=key_0)]))
+    assert(STATE_EXISTS(Box[MapKey(prefix='', key=key_0)]))
     assert(reinterpret_cast<bytes>('') == hex<"">)
     tmp_box_map: box_key = hex<"">
-    Box[BoxMapKey(prefix=tmp_box_map, key=key_1)]: string = 'hello'
+    Box[MapKey(prefix=tmp_box_map, key=key_1)]: string = 'hello'
     assert(examples.box_storage.contract.get_box_map_value_from_key_plus_1(tmp_box_map, 0u) == 'hello')
-    STATE_DELETE(Box[BoxMapKey(prefix=tmp_box_map, key=key_1)])
+    STATE_DELETE(Box[MapKey(prefix=tmp_box_map, key=key_1)])
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: string): void
   {
-    Box[BoxMapKey(prefix='', key=key)]: string = value
+    Box[MapKey(prefix='', key=key)]: string = value
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_get(key: uint64): string
   {
-    return Box[BoxMapKey(prefix='', key=key)]
+    return Box[MapKey(prefix='', key=key)]
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_del(key: uint64): void
   {
-    STATE_DELETE(Box[BoxMapKey(prefix='', key=key)])
+    STATE_DELETE(Box[MapKey(prefix='', key=key)])
   }
   
   abimethod examples.box_storage.contract.BoxContract.box_map_exists(key: uint64): bool
   {
-    return STATE_EXISTS(Box[BoxMapKey(prefix='', key=key)])
+    return STATE_EXISTS(Box[MapKey(prefix='', key=key)])
   }
   
   baremethod examples.box_storage.contract.BoxContract.__algopy_default_create(): void
@@ -426,5 +426,5 @@ subroutine get_box_ref_length(ref: box_key): uint64
 
 subroutine get_box_map_value_from_key_plus_1(box_map: box_key, key: uint64): string
 {
-  return Box[BoxMapKey(prefix=box_map, key=key + 1u)]
+  return Box[MapKey(prefix=box_map, key=key + 1u)]
 }
