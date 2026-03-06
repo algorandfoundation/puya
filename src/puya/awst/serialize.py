@@ -2,6 +2,7 @@ import decimal
 import enum
 import functools
 import typing
+import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -110,7 +111,9 @@ def awst_to_json(awst: nodes.AWST) -> str:
 
 
 def awst_from_json(json: str) -> nodes.AWST:
-    return get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
+    # ignore DeprecationWarning while deserializing
+    with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
+        return get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
 
 
 def source_annotations_to_json(sources_by_path: Mapping[Path, Sequence[str] | None]) -> str:
