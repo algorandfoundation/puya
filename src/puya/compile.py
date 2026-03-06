@@ -335,6 +335,7 @@ def _write_artifacts(
                             approval_program=approval,
                             clear_program=clear,
                             template_prefix=context.options.template_vars_prefix,
+                            full_source_info=context.options.full_source_info,
                         )
                         _write_output(
                             artifact_base_path,

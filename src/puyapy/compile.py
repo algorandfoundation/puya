@@ -98,6 +98,7 @@ def write_arc4_clients(
                     clear_program=artifact.clear_program,
                     metadata=artifact.metadata,
                     template_prefix=template_prefix,
+                    full_source_info=False,
                 )
                 # use round trip of ARC-56 -> reparse to ensure consistency
                 # of client output regardless if generating from ARC-56 or

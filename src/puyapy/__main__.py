@@ -106,6 +106,7 @@ def puyapy(
     output_memory_ir: _InternalOutputToggle = False,
     output_teal_intermediates: _InternalOutputToggle = False,
     output_op_statistics: _InternalOutputToggle = False,
+    full_source_info: _InternalOutputToggle = True,
 ) -> None:
     """
     PuyaPy compiler for compiling Algorand Python to TEAL
@@ -129,6 +130,8 @@ def puyapy(
                                 block optimization
         output_op_statistics: Output statistics about ops used for each program compiled
                 optimization_level: Set optimization level of output TEAL / AVM bytecode
+        full_source_info: Include detailed source mappings (TEAL line numbers and
+                                source file references) in ARC-56 output
         optimization_level: Set optimization level of output TEAL / AVM bytecode
         treat_warnings_as_errors: Treat all compiler warnings as errors
         debug_level: Output debug information level, 0 = none,
@@ -197,6 +200,7 @@ def puyapy(
         output_op_statistics=output_op_statistics,
         validate_abi_args=validate_abi_args,
         validate_abi_return=validate_abi_return,
+        full_source_info=full_source_info,
         template_vars_prefix=template_vars_prefix,
         cli_template_definitions=dict(parse_template_key_value(t) for t in template_var),
     )

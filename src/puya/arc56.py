@@ -41,6 +41,7 @@ def create_arc56(
     approval_program: CompiledProgram,
     clear_program: CompiledProgram,
     template_prefix: str,
+    full_source_info: bool = True,
 ) -> models.Contract:
     assert approval_program.debug_info is not None
     assert clear_program.debug_info is not None
@@ -123,6 +124,7 @@ def create_arc56(
                 sourceInfo=_get_source_info(
                     debug_info=approval_program.debug_info,
                     teal_src=approval_program.teal_src,
+                    full_source_info=full_source_info,
                 ),
                 pcOffsetMethod="cblocks" if approval_program.debug_info.op_pc_offset else "none",
             ),
@@ -130,6 +132,7 @@ def create_arc56(
                 sourceInfo=_get_source_info(
                     debug_info=clear_program.debug_info,
                     teal_src=clear_program.teal_src,
+                    full_source_info=full_source_info,
                 ),
                 pcOffsetMethod="cblocks" if clear_program.debug_info.op_pc_offset else "none",
             ),
@@ -178,42 +181,57 @@ def create_arc56_json(
     approval_program: CompiledProgram,
     clear_program: CompiledProgram,
     template_prefix: str,
+    full_source_info: bool = True,
 ) -> str:
     app_spec = create_arc56(
         metadata=metadata,
         approval_program=approval_program,
         clear_program=clear_program,
         template_prefix=template_prefix,
+        full_source_info=full_source_info,
     )
     converter = make_converter(omit_if_default=True)
     return converter.dumps(app_spec, indent=4)
 
 
-def _get_source_info(*, debug_info: DebugInfo, teal_src: str) -> Sequence[models.SourceInfo]:
+def _get_source_info(
+    *, debug_info: DebugInfo, teal_src: str, full_source_info: bool = True
+) -> Sequence[models.SourceInfo]:
     error_by_pc = {
         pc: error for pc, event in debug_info.pc_events.items() if (error := event.get("error"))
     }
-    source_by_pc = _decode_source_mappings(debug_info)
-    teal_by_pc = _get_teal_line_numbers(debug_info.pc_events, teal_src)
 
-    grouped = defaultdict[tuple[str | None, int | None, str | None], list[int]](list)
-    for pc in sorted(set(source_by_pc) | set(teal_by_pc) | set(error_by_pc)):
-        error = error_by_pc.get(pc)
-        source = source_by_pc.get(pc)
-        teal = teal_by_pc.get(pc)
-        grouped[(error, teal, source)].append(pc)
+    if full_source_info:
+        source_by_pc = _decode_source_mappings(debug_info)
+        teal_by_pc = _get_teal_line_numbers(debug_info.pc_events, teal_src)
 
-    return [
-        models.SourceInfo(
-            pc=pcs,
-            errorMessage=error_message,
-            teal=teal,
-            source=source,
-        )
-        for (error_message, teal, source), pcs in sorted(
-            grouped.items(), key=lambda item: item[1][0]
-        )
-    ]
+        grouped = defaultdict[tuple[str | None, int | None, str | None], list[int]](list)
+        for pc in sorted(set(source_by_pc) | set(teal_by_pc) | set(error_by_pc)):
+            error = error_by_pc.get(pc)
+            source = source_by_pc.get(pc)
+            teal = teal_by_pc.get(pc)
+            grouped[(error, teal, source)].append(pc)
+
+        return [
+            models.SourceInfo(
+                pc=pcs,
+                errorMessage=error_message,
+                teal=teal,
+                source=source,
+            )
+            for (error_message, teal, source), pcs in sorted(
+                grouped.items(), key=lambda item: item[1][0]
+            )
+        ]
+    else:
+        # Minimal mode: only include error messages
+        return [
+            models.SourceInfo(
+                pc=[pc],
+                errorMessage=error,
+            )
+            for pc, error in sorted(error_by_pc.items())
+        ]
 
 
 def _get_teal_line_numbers(
