@@ -675,8 +675,8 @@ export class AppAccountStateExpression extends Expression {
      return visitor.visitAppAccountStateExpression(this)
    }
 }
-export class BoxPrefixedKeyExpression extends Expression {
-  constructor(props: Props<BoxPrefixedKeyExpression>) {
+export class MapPrefixedKeyExpression extends Expression {
+  constructor(props: Props<MapPrefixedKeyExpression>) {
     super(props)
     this.prefix = props.prefix
     this.key = props.key
@@ -684,6 +684,16 @@ export class BoxPrefixedKeyExpression extends Expression {
   }
   readonly prefix: Expression
   readonly key: Expression
+  readonly wtype: wtypes.WType
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitMapPrefixedKeyExpression(this)
+   }
+}
+export class BoxPrefixedKeyExpression extends MapPrefixedKeyExpression {
+  constructor(props: Props<BoxPrefixedKeyExpression>) {
+    super(props)
+    this.wtype = props.wtype
+  }
   readonly wtype: wtypes.WType
   accept<T>(visitor: ExpressionVisitor<T>): T {
      return visitor.visitBoxPrefixedKeyExpression(this)
@@ -1623,6 +1633,7 @@ export const concreteNodes = {
   intersectionSliceExpression: IntersectionSliceExpression,
   appStateExpression: AppStateExpression,
   appAccountStateExpression: AppAccountStateExpression,
+  mapPrefixedKeyExpression: MapPrefixedKeyExpression,
   boxPrefixedKeyExpression: BoxPrefixedKeyExpression,
   boxValueExpression: BoxValueExpression,
   singleEvaluation: SingleEvaluation,
@@ -1741,6 +1752,7 @@ export interface ExpressionVisitor<T> {
   visitIntersectionSliceExpression(expression: IntersectionSliceExpression): T
   visitAppStateExpression(expression: AppStateExpression): T
   visitAppAccountStateExpression(expression: AppAccountStateExpression): T
+  visitMapPrefixedKeyExpression(expression: MapPrefixedKeyExpression): T
   visitBoxPrefixedKeyExpression(expression: BoxPrefixedKeyExpression): T
   visitBoxValueExpression(expression: BoxValueExpression): T
   visitSingleEvaluation(expression: SingleEvaluation): T
