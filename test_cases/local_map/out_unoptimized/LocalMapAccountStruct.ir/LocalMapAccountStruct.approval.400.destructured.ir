@@ -238,34 +238,34 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.create() ->
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get(account: account, key: account) -> Encoded(uint64,uint8[4]):
     block@0: // L36
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.map entry exists for account
         return maybe_value%0#0
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_default(account: account, key: account, default: Encoded(uint64,uint8[4])) -> Encoded(uint64,uint8[4]):
     block@0: // L40
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         let state_get%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
         return state_get%0#0
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.set(account: account, key: account, value: Encoded(uint64,uint8[4])) -> void:
     block@0: // L44
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        (app_local_put account#0 box_prefixed_key%0#0 value#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        (app_local_put account#0 map_prefixed_key%0#0 value#0)
         return 
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.delete(account: account, key: account) -> void:
     block@0: // L48
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        (app_local_del account#0 box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        (app_local_del account#0 map_prefixed_key%0#0)
         return 
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.in_(account: account, key: account) -> bool:
     block@0: // L52
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (_%0#0: Encoded(uint64,uint8[4]), maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (_%0#0: Encoded(uint64,uint8[4]), maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         return maybe_exists%0#0
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.prefix() -> bytes:
@@ -274,8 +274,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.prefix() ->
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.maybe(account: account, key: account) -> <Encoded(uint64,uint8[4]), bool>:
     block@0: // L60
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         let value#0: Encoded(uint64,uint8[4]) = maybe_value%0#0
         let exists#0: bool = maybe_exists%0#0
         goto exists#0 ? block@2 : block@1
@@ -295,8 +295,8 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.maybe(accou
 
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_state(account: account, key: account) -> Encoded(uint64,uint8[4]):
     block@0: // L68
-        let box_prefixed_key%0#0: bytes = (concat "map" key#0)
-        let local_state#0: bytes = box_prefixed_key%0#0
+        let map_prefixed_key%0#0: bytes = (concat "map" key#0)
+        let local_state#0: bytes = map_prefixed_key%0#0
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u local_state#0)
         (assert maybe_exists%0#0) // check LocalState exists for account
         return maybe_value%0#0

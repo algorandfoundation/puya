@@ -36,8 +36,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#2: account = (txn Sender)
         (app_local_put tmp%0#2 "loc" encoded_array%0#0)
         let materialized_values%0#0: account = (txn Sender)
-        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        box_write(box_prefixed_key%0#0, encoded_array%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        box_write(map_prefixed_key%0#0, encoded_array%0#0)
         exit 1u
     block@16: // after_if_else_L22
         fail
@@ -267,12 +267,12 @@ subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> voi
         let as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, tmp%1#0)
         box_write("box", as_Encoded(len+(uint64,(len+utf8[]))[])%2#0)
         let materialized_values%0#0: account = (txn Sender)
-        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        let storage_value%1#0: bytes = box_read(map_prefixed_key%0#0)
         let extract_uint16%3#0: uint64 = (extract_uint16 storage_value%1#0 0u)
         let extract_to_end%3#0: bytes = ((extract 2 0) storage_value%1#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%1#0)
-        box_write(box_prefixed_key%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
+        box_write(map_prefixed_key%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
         exit 1u
 
 subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> void:
@@ -291,10 +291,10 @@ subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> voi
         let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%0#0, 0u, 1, tmp%0#0)
         box_write("box", updated_array%2#0)
         let materialized_values%0#0: account = (txn Sender)
-        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        let storage_value%1#0: bytes = box_read(map_prefixed_key%0#0)
         let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%1#0, 0u, 1, tmp%0#0)
-        box_write(box_prefixed_key%0#0, updated_array%3#0)
+        box_write(map_prefixed_key%0#0, updated_array%3#0)
         exit 1u
 
 subroutine test_cases.state_mutations.contract.Contract.get[routing]() -> void:
@@ -306,8 +306,8 @@ subroutine test_cases.state_mutations.contract.Contract.get[routing]() -> void:
         (assert maybe_exists%1#0) // check self.loc exists for account
         let a3#0: Encoded(len+(uint64,(len+utf8[]))[]) = box_read("box")
         let materialized_values%0#0: account = (txn Sender)
-        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        let a4#0: Encoded(len+(uint64,(len+utf8[]))[]) = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
+        let a4#0: Encoded(len+(uint64,(len+utf8[]))[]) = box_read(map_prefixed_key%0#0)
         let tmp%1#1: bool = (== a1#0 a2#0)
         (assert tmp%1#1) // expected local == global
         let tmp%2#0: bool = (== a1#0 a3#0)

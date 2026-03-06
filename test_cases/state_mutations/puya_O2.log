@@ -473,7 +473,7 @@ state_mutations/contract.py:39:9 debug: encountered already materialized express
 state_mutations/contract.py:40:9 debug: encountered already materialized expression ('loc'), reusing result: "loc"
 state_mutations/contract.py:40:18 debug: encountered already materialized expression (txn<Sender>()), reusing result: tmp%2#0
 state_mutations/contract.py:41:9 debug: encountered already materialized expression ('box'), reusing result: "box"
-state_mutations/contract.py:42:9 debug: encountered already materialized expression (BoxMapKey(prefix='map', key=txn<Sender>())), reusing result: box_prefixed_key%0#0
+state_mutations/contract.py:42:9 debug: encountered already materialized expression (MapKey(prefix='map', key=txn<Sender>())), reusing result: map_prefixed_key%0#0
 debug: Terminated block@0
 debug: Building IR for function test_cases.state_mutations.contract.Contract.modify
 debug: Sealing block@0
@@ -481,7 +481,7 @@ state_mutations/contract.py:46:9 debug: encountered already materialized express
 state_mutations/contract.py:47:9 debug: encountered already materialized expression ('loc'), reusing result: "loc"
 state_mutations/contract.py:47:18 debug: encountered already materialized expression (txn<Sender>()), reusing result: tmp%2#0
 state_mutations/contract.py:48:9 debug: encountered already materialized expression ('box'), reusing result: "box"
-state_mutations/contract.py:49:9 debug: encountered already materialized expression (BoxMapKey(prefix='map', key=txn<Sender>())), reusing result: box_prefixed_key%0#0
+state_mutations/contract.py:49:9 debug: encountered already materialized expression (MapKey(prefix='map', key=txn<Sender>())), reusing result: map_prefixed_key%0#0
 debug: Terminated block@0
 debug: Building IR for function test_cases.state_mutations.contract.Contract.get
 debug: Sealing block@0
@@ -1085,7 +1085,7 @@ debug: Optimizer: Replace Aggregate Box Ops
 state_mutations/contract.py:41:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and Intrinsic `(len storage_value%0#0)`
 into box%box_len%0#0
-state_mutations/contract.py:42:9 debug: combined BoxRead `storage_value%1#0 = box_read(box_prefixed_key%0#0)`
+state_mutations/contract.py:42:9 debug: combined BoxRead `storage_value%1#0 = box_read(map_prefixed_key%0#0)`
 and Intrinsic `(len storage_value%1#0)`
 into box%box_len%1#0
 debug: Optimizer: Minimize Box Exist Asserts
@@ -1237,7 +1237,7 @@ debug: Optimizer: Replace Aggregate Box Ops
 state_mutations/contract.py:41:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and Intrinsic `(len storage_value%0#0)`
 into box%box_len%0#0
-state_mutations/contract.py:42:9 debug: combined BoxRead `storage_value%1#0 = box_read(box_prefixed_key%0#0)`
+state_mutations/contract.py:42:9 debug: combined BoxRead `storage_value%1#0 = box_read(map_prefixed_key%0#0)`
 and Intrinsic `(len storage_value%1#0)`
 into box%box_len%1#0
 debug: Optimizer: Minimize Box Exist Asserts
@@ -2397,7 +2397,7 @@ debug: Coalescing tmp%2#2 with [tmp%2#3]
 debug: Coalescing maybe_value%1#0 with [maybe_value%1#1]
 debug: Coalescing maybe_exists%1#0 with [maybe_exists%1#2, maybe_exists%1#1]
 debug: Coalescing materialized_values%0#0 with [materialized_values%0#3, materialized_values%0#2, materialized_values%0#1]
-debug: Coalescing box_prefixed_key%0#0 with [box_prefixed_key%0#3, box_prefixed_key%0#2, box_prefixed_key%0#1]
+debug: Coalescing map_prefixed_key%0#0 with [map_prefixed_key%0#3, map_prefixed_key%0#2, map_prefixed_key%0#1]
 debug: Coalescing tmp%0#2 with [tmp%0#4]
 debug: Coalescing resulted in 37 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
@@ -2490,8 +2490,8 @@ debug: Inserted main_abi_routing@4.ops[15]: 'l-store-copy tmp%6#0 0'
 debug: Replaced main_abi_routing@4.ops[20]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
 debug: Inserted main_append_route@6.ops[24]: 'l-store-copy tmp%2#2 0'
 debug: Replaced main_append_route@6.ops[26]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
-debug: Inserted main_append_route@6.ops[81]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_append_route@6.ops[83]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_append_route@6.ops[81]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_append_route@6.ops[83]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_append_route@6.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_append_route@6.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_append_route@6.ops[14]: 'l-store-copy extract_to_end%0#0 0'
@@ -2522,8 +2522,8 @@ debug: Inserted main_append_route@6.ops[63]: 'l-store-copy aggregate%box_get%0#0
 debug: Replaced main_append_route@6.ops[67]: 'v-load aggregate%box_get%0#0' with 'l-load aggregate%box_get%0#0'
 debug: Inserted main_append_route@6.ops[99]: 'l-store-copy aggregate%box_get%2#0 1'
 debug: Replaced main_append_route@6.ops[103]: 'v-load aggregate%box_get%2#0' with 'l-load aggregate%box_get%2#0'
-debug: Inserted main_append_route@6.ops[118]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_append_route@6.ops[121]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_append_route@6.ops[118]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_append_route@6.ops[121]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_append_route@6.ops[10]: 'l-store-copy maybe_value%0#0 0'
 debug: Replaced main_append_route@6.ops[14]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted main_append_route@6.ops[13]: 'l-store-copy extract_uint16%0#0 1'
@@ -2544,8 +2544,8 @@ debug: Inserted main_append_route@6.ops[86]: 'l-store-copy as_Encoded(len+(uint6
 debug: Replaced main_append_route@6.ops[92]: 'v-load as_Encoded(len+(uint64,(len+utf8[]))[])%2#0' with 'l-load as_Encoded(len+(uint64,(len+utf8[]))[])%2#0'
 debug: Inserted main_append_route@6.ops[125]: 'l-store-copy as_Encoded(len+(uint64,(len+utf8[]))[])%3#0 0'
 debug: Replaced main_append_route@6.ops[132]: 'v-load as_Encoded(len+(uint64,(len+utf8[]))[])%3#0' with 'l-load as_Encoded(len+(uint64,(len+utf8[]))[])%3#0'
-debug: Inserted main_append_route@6.ops[103]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_append_route@6.ops[128]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_append_route@6.ops[103]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_append_route@6.ops[128]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_append_route@6.ops[33]: 'l-store-copy tmp%2#2 0'
 debug: Replaced main_append_route@6.ops[60]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
 debug: Inserted main_modify_route@7.ops[38]: 'l-store-copy aggregate%substring3%0#0 0'
@@ -2562,8 +2562,8 @@ debug: Inserted main_modify_route@7.ops[170]: 'l-store-copy aggregate%substring3
 debug: Replaced main_modify_route@7.ops[172]: 'v-load aggregate%substring3%4#0' with 'l-load aggregate%substring3%4#0'
 debug: Inserted main_modify_route@7.ops[180]: 'l-store-copy aggregate%data_up_to_item%2#0 0'
 debug: Replaced main_modify_route@7.ops[182]: 'v-load aggregate%data_up_to_item%2#0' with 'l-load aggregate%data_up_to_item%2#0'
-debug: Inserted main_modify_route@7.ops[204]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_modify_route@7.ops[206]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_modify_route@7.ops[204]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_modify_route@7.ops[206]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_modify_route@7.ops[243]: 'l-store-copy aggregate%substring3%6#0 0'
 debug: Replaced main_modify_route@7.ops[245]: 'v-load aggregate%substring3%6#0' with 'l-load aggregate%substring3%6#0'
 debug: Inserted main_modify_route@7.ops[253]: 'l-store-copy aggregate%data_up_to_item%3#0 0'
@@ -2630,8 +2630,8 @@ debug: Inserted main_modify_route@7.ops[267]: 'l-store-copy aggregate%end_offset
 debug: Replaced main_modify_route@7.ops[271]: 'v-load aggregate%end_offset%3#0' with 'l-load aggregate%end_offset%3#0'
 debug: Inserted main_modify_route@7.ops[278]: 'l-store-copy aggregate%item_offset%7#0 0'
 debug: Replaced main_modify_route@7.ops[282]: 'v-load aggregate%item_offset%7#0' with 'l-load aggregate%item_offset%7#0'
-debug: Inserted main_modify_route@7.ops[298]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_modify_route@7.ops[301]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_modify_route@7.ops[298]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_modify_route@7.ops[301]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_modify_route@7.ops[47]: 'l-store-copy aggregate%substring3%0#0 0'
 debug: Replaced main_modify_route@7.ops[52]: 'v-load aggregate%substring3%0#0' with 'l-load aggregate%substring3%0#0'
 debug: Inserted main_modify_route@7.ops[61]: 'l-store-copy aggregate%updated_data%0#0 0'
@@ -2724,14 +2724,14 @@ debug: Inserted main_modify_route@7.ops[185]: 'l-store-copy aggregate%box_get%4#
 debug: Replaced main_modify_route@7.ops[244]: 'v-load aggregate%box_get%4#0' with 'l-load aggregate%box_get%4#0'
 debug: Inserted main_modify_route@7.ops[278]: 'l-store-copy aggregate%box_get%6#0 1'
 debug: Replaced main_modify_route@7.ops[337]: 'v-load aggregate%box_get%6#0' with 'l-load aggregate%box_get%6#0'
-debug: Inserted main_modify_route@7.ops[265]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_modify_route@7.ops[344]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_modify_route@7.ops[265]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_modify_route@7.ops[344]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_modify_route@7.ops[87]: 'l-store-copy tmp%2#2 0'
 debug: Replaced main_modify_route@7.ops[168]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
 debug: Inserted main_get_route@8.ops[8]: 'l-store-copy tmp%0#2 0'
 debug: Replaced main_get_route@8.ops[10]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
-debug: Inserted main_get_route@8.ops[29]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_get_route@8.ops[31]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_get_route@8.ops[29]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_get_route@8.ops[31]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_get_route@8.ops[40]: 'l-store-copy tmp%1#3 0'
 debug: Replaced main_get_route@8.ops[42]: 'v-load tmp%1#3' with 'l-load tmp%1#3'
 debug: Inserted main_get_route@8.ops[47]: 'l-store-copy tmp%2#1 0'
@@ -2774,12 +2774,12 @@ debug: Inserted main_opt_in@14.ops[1]: 'l-store-copy tmp%10#0 0'
 debug: Replaced main_opt_in@14.ops[3]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
 debug: Inserted main_opt_in@14.ops[15]: 'l-store-copy tmp%0#2 0'
 debug: Replaced main_opt_in@14.ops[17]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
-debug: Inserted main_opt_in@14.ops[26]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_opt_in@14.ops[28]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_opt_in@14.ops[26]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_opt_in@14.ops[28]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted main_opt_in@14.ops[22]: 'l-store-copy materialized_values%0#0 0'
 debug: Replaced main_opt_in@14.ops[25]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
-debug: Inserted main_opt_in@14.ops[30]: 'l-store-copy box_prefixed_key%0#0 0'
-debug: Replaced main_opt_in@14.ops[33]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
+debug: Inserted main_opt_in@14.ops[30]: 'l-store-copy map_prefixed_key%0#0 0'
+debug: Replaced main_opt_in@14.ops[33]: 'v-load map_prefixed_key%0#0' with 'l-load map_prefixed_key%0#0'
 debug: Inserted dynamic_array_concat_dynamic_element_block@0.ops[11]: 'l-store-copy value_internal%0#0 0'
 debug: Replaced dynamic_array_concat_dynamic_element_block@0.ops[13]: 'v-load value_internal%0#0' with 'l-load value_internal%0#0'
 debug: Inserted dynamic_array_concat_dynamic_element_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
