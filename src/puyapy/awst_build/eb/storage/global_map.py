@@ -6,8 +6,8 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
-    BoxPrefixedKeyExpression,
     Expression,
+    MapPrefixedKeyExpression,
     StateExists,
     StateGet,
     StateGetEx,
@@ -132,8 +132,8 @@ class GlobalMapProxyExpressionBuilder(
 
     def _build_global_map_key(
         self, key: InstanceBuilder, location: SourceLocation
-    ) -> BoxPrefixedKeyExpression:
-        return BoxPrefixedKeyExpression(
+    ) -> MapPrefixedKeyExpression:
+        return MapPrefixedKeyExpression(
             prefix=self.resolve(),
             key=key.resolve(),
             wtype=wtypes.state_key,
@@ -217,7 +217,7 @@ class _GlobalMapProxyExpressionBuilderFromConstructor(
 
 
 GlobalValueBuilder = Callable[[InstanceBuilder, SourceLocation], AppStateExpression]
-GlobalKeyBuilder = Callable[[InstanceBuilder, SourceLocation], BoxPrefixedKeyExpression]
+GlobalKeyBuilder = Callable[[InstanceBuilder, SourceLocation], MapPrefixedKeyExpression]
 
 
 class _MethodBase(FunctionBuilder, abc.ABC):
