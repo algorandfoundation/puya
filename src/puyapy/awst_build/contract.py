@@ -712,6 +712,8 @@ def _build_symbols_and_state(
                 match pytyp.generic:
                     case pytypes.GenericGlobalMapType:
                         kind = awst_nodes.AppStorageKind.app_global
+                    case pytypes.GenericLocalMapType:
+                        kind = awst_nodes.AppStorageKind.account_local
                     case pytypes.GenericBoxMapType:
                         kind = awst_nodes.AppStorageKind.box
                     case _:

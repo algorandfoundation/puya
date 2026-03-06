@@ -1120,6 +1120,10 @@ GenericGlobalMapType: typing.Final = _GenericType(
     name="algopy._state.GlobalMap",
     parameterise=functools.partial(_parameterise_storage_map, wtype=wtypes.state_key),
 )
+GenericLocalMapType: typing.Final = _GenericType(
+    name="algopy._state.LocalMap",
+    parameterise=functools.partial(_parameterise_storage_map, wtype=wtypes.state_key),
+)
 
 
 @attrs.frozen(order=False)
