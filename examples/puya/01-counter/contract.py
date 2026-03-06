@@ -17,6 +17,7 @@ Note: Educational only - not audited for production use.
 from algopy import ARC4Contract, UInt64, arc4
 
 
+# example: COUNTER
 class Counter(ARC4Contract):
     """Minimal counter contract demonstrating uint64 global state and ABI methods."""
 
@@ -73,3 +74,6 @@ class Counter(ARC4Contract):
         """
         self.counter //= divisor
         return self.counter
+
+
+# example: COUNTER

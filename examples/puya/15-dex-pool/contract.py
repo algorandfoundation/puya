@@ -16,8 +16,8 @@ Note: Educational only - not audited for production use.
 """
 
 from algopy import (
-    ARC4Contract,
     Account,
+    ARC4Contract,
     Asset,
     BigUInt,
     Global,
@@ -40,6 +40,7 @@ FEE = 30
 FACTOR = SCALE - FEE
 
 
+# example: DEX_POOL
 class DexPool(ARC4Contract):
     """Constant-product AMM pool for two Algorand Standard Assets.
 
@@ -340,3 +341,6 @@ def do_xfer(receiver: Account, asset: Asset, amount: UInt64) -> None:
         asset_amount=amount,
         asset_receiver=receiver,
     ).submit()
+
+
+# example: DEX_POOL

@@ -4,7 +4,6 @@ from random import randbytes
 
 import algokit_utils as au
 from nacl.signing import SigningKey
-
 from shared import (
     assert_equal,
     compile_contract,
@@ -51,9 +50,7 @@ factory = au.AppFactory(
         default_signer=creator.signer,
     )
 )
-client, _ = factory.send.bare.create(
-    au.AppFactoryCreateParams(note=randbytes(8))
-)
+client, _ = factory.send.bare.create(au.AppFactoryCreateParams(note=randbytes(8)))
 print_success(f"Contract deployed — App ID: {client.app_id}")
 
 
@@ -62,9 +59,7 @@ ALWAYS_APPROVE = "#pragma version 10\nint 1"
 
 def call(method: str, args: list[object]) -> au.SendAppTransactionResult:
     return client.send.call(
-        au.AppClientMethodCallParams(
-            method=method, args=args, note=randbytes(8)
-        )
+        au.AppClientMethodCallParams(method=method, args=args, note=randbytes(8))
     )
 
 
@@ -75,9 +70,7 @@ def call_with_budget(
     group = algorand.new_group()
     group.add_app_call_method_call(
         client.params.call(
-            au.AppClientMethodCallParams(
-                method=method, args=args, note=randbytes(8)
-            )
+            au.AppClientMethodCallParams(method=method, args=args, note=randbytes(8))
         )
     )
     for idx in range(num_op_ups):

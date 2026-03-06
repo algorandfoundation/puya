@@ -18,6 +18,7 @@ Note: Educational only — not audited for production use.
 from algopy import ARC4Contract, GlobalState, LocalState, Txn, UInt64, arc4, op
 
 
+# example: MEMBERSHIP_REGISTRY
 # Membership registry contract — users opt in to register and close out to leave
 class MembershipRegistry(ARC4Contract):
     """Manages member registration via LocalState with opt-in/close-out lifecycle."""
@@ -87,3 +88,6 @@ class MembershipRegistry(ARC4Contract):
             the member count
         """
         return self.member_count.value
+
+
+# example: MEMBERSHIP_REGISTRY

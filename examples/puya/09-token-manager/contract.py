@@ -16,8 +16,8 @@ Note: Educational only — not audited for production use.
 """
 
 from algopy import (
-    ARC4Contract,
     Account,
+    ARC4Contract,
     Asset,
     Global,
     Txn,
@@ -27,6 +27,7 @@ from algopy import (
 )
 
 
+# example: TOKEN_MANAGER
 class TokenManager(ARC4Contract):
     """Manages the full lifecycle of an Algorand Standard Asset (ASA)."""
 
@@ -169,3 +170,6 @@ class TokenManager(ARC4Contract):
         ).submit()
 
         self.asset_id = UInt64(0)
+
+
+# example: TOKEN_MANAGER

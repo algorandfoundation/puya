@@ -17,9 +17,10 @@ Prerequisites: LocalNet
 Note: Educational only - not audited for production use.
 """
 
-from algopy import ARC4Contract, BigUInt, Bytes, UInt64, arc4, op
+from algopy import ARC4Contract, Bytes, UInt64, arc4, op
 
 
+# example: TYPE_EXPLORER
 class TypeExplorer(ARC4Contract):
     """Type explorer contract showcasing primitive types, conversions, and low-level ops."""
 
@@ -144,3 +145,6 @@ class TypeExplorer(ARC4Contract):
         """
         high, low = op.mulw(a, b)
         return high, low
+
+
+# example: TYPE_EXPLORER

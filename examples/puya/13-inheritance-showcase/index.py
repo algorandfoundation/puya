@@ -2,13 +2,11 @@ from pathlib import Path
 from random import randbytes
 
 import algokit_utils as au
-
 from shared import (
     assert_equal,
     compile_contract,
     load_app_spec,
     print_header,
-    print_info,
     print_step,
     print_success,
 )
@@ -61,11 +59,11 @@ def deploy(app_spec: object, name: str, legs: int) -> au.AppClient:
     return client
 
 
-def call(client: au.AppClient, method: str, args: list[object] | None = None) -> au.SendAppTransactionResult:
+def call(
+    client: au.AppClient, method: str, args: list[object] | None = None
+) -> au.SendAppTransactionResult:
     return client.send.call(
-        au.AppClientMethodCallParams(
-            method=method, args=args or [], note=randbytes(8)
-        )
+        au.AppClientMethodCallParams(method=method, args=args or [], note=randbytes(8))
     )
 
 
@@ -142,5 +140,60 @@ print_success("get_awards() returned 2 (ShowDog's own method)")
 resp = call(show_dog, "species_type()string")
 assert_equal(resp.abi_return, "Animal", "ShowDog.species_type (final from Animal)")
 print_success("species_type() returned 'Animal' (final from Animal, 3 levels up)")
+
+# Step 9: Load MultiInheritanceShowcase app spec
+print_step(9, "Loading MultiInheritanceShowcase app spec...")
+multi_spec = load_app_spec(out_dir, "MultiInheritanceShowcase")
+print_success("App spec loaded")
+
+# Step 10: Deploy MultiInheritanceShowcase (multiple inheritance)
+print_step(10, "Deploying MultiInheritanceShowcase (Pausable + Describable)...")
+multi_factory = au.AppFactory(
+    au.AppFactoryParams(
+        algorand=algorand,
+        app_spec=multi_spec,
+        default_sender=creator.addr,
+        default_signer=creator.signer,
+    )
+)
+multi, _ = multi_factory.send.create(
+    au.AppFactoryCreateMethodCallParams(
+        method="create()void",
+        args=[],
+        note=randbytes(8),
+    )
+)
+print_success(f"Contract deployed — App ID: {multi.app_id}")
+
+# Step 11: Test MultiInheritanceShowcase
+print_step(11, "Testing MultiInheritanceShowcase methods...")
+
+resp = call(multi, "is_paused()bool")
+assert_equal(resp.abi_return, False, "initial is_paused")
+print_success("is_paused() returned False (initial state)")
+
+call(multi, "pause()void")
+resp = call(multi, "is_paused()bool")
+assert_equal(resp.abi_return, True, "paused")
+print_success("pause() + is_paused() returned True")
+
+call(multi, "unpause()void")
+resp = call(multi, "is_paused()bool")
+assert_equal(resp.abi_return, False, "unpaused")
+print_success("unpause() + is_paused() returned False")
+
+call(multi, "set_description(string)void", ["My contract"])
+resp = call(multi, "get_description()string")
+assert_equal(resp.abi_return, "My contract", "description")
+print_success("set_description/get_description returned 'My contract'")
+
+resp = call(multi, "get_status()string")
+assert_equal(resp.abi_return, "My contract", "status when not paused")
+print_success("get_status() returned 'My contract' (not paused)")
+
+call(multi, "pause()void")
+resp = call(multi, "get_status()string")
+assert_equal(resp.abi_return, "paused", "status when paused")
+print_success("get_status() returned 'paused' (when paused)")
 
 print_header("All assertions passed!")

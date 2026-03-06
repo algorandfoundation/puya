@@ -20,7 +20,7 @@ def print_step(step: int, description: str) -> None:
 
 
 def print_info(message: str) -> None:
-    print(f"  ℹ {message}")
+    print(f"  \u2139 {message}")
 
 
 def print_success(message: str) -> None:

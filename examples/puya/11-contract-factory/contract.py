@@ -17,8 +17,8 @@ Note: Educational only — not audited for production use.
 """
 
 from algopy import (
-    ARC4Contract,
     Application,
+    ARC4Contract,
     String,
     TemplateVar,
     UInt64,
@@ -28,6 +28,7 @@ from algopy import (
 )
 
 
+# example: CONTRACT_FACTORY
 class ChildContract(ARC4Contract):
     """A child contract that receives its greeting at create time."""
 
@@ -194,3 +195,6 @@ class ContractFactory(ARC4Contract):
         result, _txn = arc4.abi_call(ChildContract.greet, name, app_id=child_app)
         arc4.abi_call(ChildContract.delete, app_id=child_app)
         return result
+
+
+# example: CONTRACT_FACTORY

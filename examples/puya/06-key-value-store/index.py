@@ -2,7 +2,6 @@ from pathlib import Path
 from random import randbytes
 
 import algokit_utils as au
-
 from shared import (
     assert_equal,
     compile_contract,
@@ -143,7 +142,9 @@ assert_equal(
 print_success("map_exists(1) returned True")
 
 assert_equal(
-    call("map_get_default(uint64,string)string", [99, "unknown"], box_references=[map_box_key(99)]),
+    call(
+        "map_get_default(uint64,string)string", [99, "unknown"], box_references=[map_box_key(99)]
+    ),
     "unknown",
     "missing profile default",
 )

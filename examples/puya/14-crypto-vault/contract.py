@@ -14,10 +14,10 @@ Prerequisites: LocalNet
 Note: Educational only — not audited for production use.
 """
 
-import algopy
 from algopy import ARC4Contract, Bytes, UInt64, arc4, op
 
 
+# example: CRYPTO_VAULT
 class CryptoVault(ARC4Contract, scratch_slots=[0, 1]):
     """Demonstrates hash functions, Ed25519 verification, and scratch space."""
 
@@ -70,9 +70,7 @@ class CryptoVault(ARC4Contract, scratch_slots=[0, 1]):
         return op.keccak256(data)
 
     @arc4.abimethod()
-    def verify_ed25519(
-        self, data: Bytes, signature: Bytes, public_key: Bytes
-    ) -> bool:
+    def verify_ed25519(self, data: Bytes, signature: Bytes, public_key: Bytes) -> bool:
         """Verify an Ed25519 signature over data (bare, no program hash prefix).
 
         Args:
@@ -103,3 +101,6 @@ class CryptoVault(ARC4Contract, scratch_slots=[0, 1]):
         loaded_bytes = op.Scratch.load_bytes(1)
 
         return loaded_uint == value_uint and loaded_bytes == value_bytes
+
+
+# example: CRYPTO_VAULT

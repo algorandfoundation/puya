@@ -2,7 +2,6 @@ from pathlib import Path
 from random import randbytes
 
 import algokit_utils as au
-
 from shared import (
     assert_equal,
     compile_contract,
@@ -50,9 +49,7 @@ factory = au.AppFactory(
         default_signer=creator.signer,
     )
 )
-client, _ = factory.send.bare.create(
-    au.AppFactoryCreateParams(note=randbytes(8))
-)
+client, _ = factory.send.bare.create(au.AppFactoryCreateParams(note=randbytes(8)))
 print_success(f"Contract deployed — App ID: {client.app_id}")
 
 

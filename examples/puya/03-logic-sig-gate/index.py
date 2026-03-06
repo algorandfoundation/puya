@@ -16,7 +16,6 @@ from nacl.signing import SigningKey
 from shared import (
     compile_contract,
     print_header,
-    print_info,
     print_step,
     print_success,
     shorten_address,

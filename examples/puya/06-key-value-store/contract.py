@@ -19,6 +19,7 @@ Note: Educational only — not audited for production use.
 from algopy import Box, BoxMap, Bytes, GlobalState, StateTotals, String, UInt64, arc4
 
 
+# example: KEY_VALUE_STORE
 class KeyValueStore(
     arc4.ARC4Contract,
     state_totals=StateTotals(global_uints=1),
@@ -258,3 +259,6 @@ class KeyValueStore(
             the total number of write operations performed
         """
         return self.total_ops.value
+
+
+# example: KEY_VALUE_STORE

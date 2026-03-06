@@ -18,6 +18,7 @@ Note: Educational only — not audited for production use.
 from algopy import Bytes, TemplateVar, Txn, UInt64, logicsig, op
 
 
+# example: LOGIC_SIG_GATE
 @logicsig
 def gate() -> bool:
     """The single entry point — returns True to approve the transaction.
@@ -43,3 +44,6 @@ def gate() -> bool:
     assert Txn.close_remainder_to == op.Global.zero_address
 
     return True
+
+
+# example: LOGIC_SIG_GATE

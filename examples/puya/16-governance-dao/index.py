@@ -3,7 +3,6 @@ from pathlib import Path
 from random import randbytes
 
 import algokit_utils as au
-
 from shared import (
     assert_equal,
     compile_contract,
@@ -117,7 +116,7 @@ print_success("4 voter accounts created and funded")
 # Step 9: Vote on proposal 0 (3 yes, 1 no)
 print_step(9, "Voting on proposal 0 (3 yes, 1 no)...")
 votes = [True, True, True, False]
-for i, (voter, in_favor) in enumerate(zip(voters, votes)):
+for i, (voter, in_favor) in enumerate(zip(voters, votes, strict=False)):
     client.send.call(
         au.AppClientMethodCallParams(
             method="vote(uint64,bool)void",
@@ -151,7 +150,7 @@ try:
             note=randbytes(8),
         )
     )
-    raise AssertionError("Should have failed - duplicate vote")
+    assert False, "Should have failed - duplicate vote"
 except Exception as e:
     if "already voted" in str(e):
         print_success("Duplicate vote correctly rejected")
@@ -219,7 +218,7 @@ assert_equal(resp.abi_return, 1, "second proposal id")
 print_success("Proposal created — ID: 1")
 
 # Vote 1 yes, 3 no on proposal 1
-for i, (voter, in_favor) in enumerate(zip(voters, [False, False, False, True])):
+for voter, in_favor in zip(voters, [False, False, False, True], strict=False):
     client.send.call(
         au.AppClientMethodCallParams(
             method="vote(uint64,bool)void",

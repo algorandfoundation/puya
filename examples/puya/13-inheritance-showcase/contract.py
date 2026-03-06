@@ -1,10 +1,11 @@
 """Example 13: Inheritance Showcase
 
-This example demonstrates single and multi-level inheritance with abstract classes.
+This example demonstrates single, multi-level, and multiple inheritance with abstract classes.
 
 Features:
 - Single inheritance (extending a base class)
 - Multi-level inheritance (three levels deep)
+- Multiple inheritance (combining independent base contracts)
 - Abstract classes (abc.ABC prevents direct instantiation)
 - Method overrides (replacing parent behaviour in subclasses)
 - Super calls (super().method() in constructors and overrides)
@@ -22,6 +23,7 @@ import typing
 from algopy import ARC4Contract, GlobalState, String, UInt64, arc4, log
 
 
+# example: INHERITANCE_SHOWCASE
 class Animal(ARC4Contract, abc.ABC):
     """Abstract base class — every animal must implement speak().
 
@@ -208,7 +210,9 @@ class ShowDog(Dog):
             a string describing name, legs, trick, and awards
         """
         base = self.name.value + " has " + self._legs_str() + " legs"
-        return arc4.String(base + ", knows " + self.trick.value + ", awards: " + self._awards_str())
+        return arc4.String(
+            base + ", knows " + self.trick.value + ", awards: " + self._awards_str()
+        )
 
     @arc4.abimethod
     def win_award(self) -> UInt64:
@@ -241,3 +245,98 @@ class ShowDog(Dog):
         if a == UInt64(3):
             return String("3")
         return String("many")
+
+
+# --- Part C: Multiple inheritance ---
+
+
+class Pausable(ARC4Contract):
+    """Base contract providing pause/unpause functionality."""
+
+    def __init__(self) -> None:
+        self.paused = GlobalState(bool, key="paused")
+        super().__init__()
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        """Initialise paused state to False."""
+        self.paused.value = False
+
+    @arc4.abimethod
+    def pause(self) -> None:
+        """Pause the contract."""
+        self.paused.value = True
+
+    @arc4.abimethod
+    def unpause(self) -> None:
+        """Unpause the contract."""
+        self.paused.value = False
+
+    @arc4.abimethod(readonly=True)
+    def is_paused(self) -> bool:
+        """Return whether the contract is paused.
+
+        Returns:
+            True if paused, False otherwise
+        """
+        return self.paused.value
+
+
+class Describable(ARC4Contract):
+    """Base contract providing a mutable description."""
+
+    def __init__(self) -> None:
+        self.description = GlobalState(String, key="description")
+        super().__init__()
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        """Initialise description to empty string."""
+        self.description.value = String("")
+
+    @arc4.abimethod
+    def set_description(self, description: arc4.String) -> None:
+        """Set the description.
+
+        Args:
+            description: the new description
+        """
+        self.description.value = description.native
+
+    @arc4.abimethod(readonly=True)
+    def get_description(self) -> arc4.String:
+        """Return the current description.
+
+        Returns:
+            the description string
+        """
+        return arc4.String(self.description.value)
+
+
+class MultiInheritanceShowcase(Pausable, Describable):
+    """Multiple inheritance: combines Pausable and Describable.
+
+    Demonstrates Python MRO (Method Resolution Order) with two independent base contracts.
+    Overrides create to initialise both bases.
+    """
+
+    @typing.override
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        """Initialise both Pausable and Describable state."""
+        Pausable.create(self)
+        Describable.create(self)
+
+    @arc4.abimethod(readonly=True)
+    def get_status(self) -> arc4.String:
+        """Return status: 'paused' if paused, otherwise the description.
+
+        Returns:
+            status string
+        """
+        if self.paused.value:
+            return arc4.String("paused")
+        return arc4.String(self.description.value)
+
+
+# example: INHERITANCE_SHOWCASE

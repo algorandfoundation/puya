@@ -2,7 +2,6 @@ from pathlib import Path
 from random import randbytes
 
 import algokit_utils as au
-
 from shared import (
     assert_equal,
     compile_contract,
@@ -64,24 +63,18 @@ factory = au.AppFactory(
         default_signer=creator.signer,
     )
 )
-client, _ = factory.send.bare.create(
-    au.AppFactoryCreateParams(note=randbytes(8))
-)
+client, _ = factory.send.bare.create(au.AppFactoryCreateParams(note=randbytes(8)))
 print_success(f"Contract deployed — App ID: {client.app_id}")
 
 # Step 6: Opt in Alice and Bob via register
 print_step(6, "Opting in Alice and Bob...")
 client.send.bare.call(
-    au.AppClientBareCallParams(
-        sender=alice.addr, note=randbytes(8)
-    ),
+    au.AppClientBareCallParams(sender=alice.addr, note=randbytes(8)),
     on_complete=au.OnApplicationComplete.OptIn,
 )
 print_success("Alice opted in")
 client.send.bare.call(
-    au.AppClientBareCallParams(
-        sender=bob.addr, note=randbytes(8)
-    ),
+    au.AppClientBareCallParams(sender=bob.addr, note=randbytes(8)),
     on_complete=au.OnApplicationComplete.OptIn,
 )
 print_success("Bob opted in")
@@ -140,9 +133,7 @@ assert_equal(bob_nick, "Bob", "Bob nickname via ABI")
 # Step 10: Close out Bob
 print_step(10, "Closing out Bob...")
 client.send.bare.call(
-    au.AppClientBareCallParams(
-        sender=bob.addr, note=randbytes(8)
-    ),
+    au.AppClientBareCallParams(sender=bob.addr, note=randbytes(8)),
     on_complete=au.OnApplicationComplete.CloseOut,
 )
 count = client.send.call(

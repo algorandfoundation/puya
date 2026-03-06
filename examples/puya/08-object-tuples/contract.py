@@ -29,6 +29,7 @@ class UserProfile(Struct, frozen=True):
     score: UInt64
 
 
+# example: OBJECT_TUPLES
 class ObjectTuples(arc4.ARC4Contract):
     """Contract demonstrating Structs as object tuples: type definitions,
     params/returns, GlobalState, _replace, and copy."""
@@ -41,9 +42,7 @@ class ObjectTuples(arc4.ARC4Contract):
     def create(self) -> None:
         """Called once when the app is first deployed."""
         self.saved_point.value = Point(x=UInt64(0), y=UInt64(0))
-        self.profile.value = UserProfile(
-            name=String("anon"), age=UInt64(0), score=UInt64(0)
-        )
+        self.profile.value = UserProfile(name=String("anon"), age=UInt64(0), score=UInt64(0))
 
     # --- Struct as params and returns ---
 
@@ -152,3 +151,6 @@ class ObjectTuples(arc4.ARC4Contract):
         updated = p._replace(score=new_score)
         self.profile.value = updated
         return updated
+
+
+# example: OBJECT_TUPLES

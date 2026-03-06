@@ -41,6 +41,7 @@ class Proposal(arc4.Struct):
     rejected: arc4.Bool
 
 
+# example: GOVERNANCE_DAO
 class GovernanceDAO(ARC4Contract):
     """Governance DAO with Box/BoxMap storage for proposals and vote deduplication."""
 
@@ -105,7 +106,7 @@ class GovernanceDAO(ARC4Contract):
         assert not proposal.executed.native, "already executed"
         assert not proposal.rejected.native, "already rejected"
 
-        # Vote deduplication via Box — composite key: proposalId (8 bytes) + voter address (32 bytes)
+        # Vote deduplication via Box — composite key: proposalId + voter address
         vote_key = b"v" + op.itob(proposal_id) + Txn.sender.bytes
         vote_len, vote_exists = op.Box.length(vote_key)
         assert not vote_exists, "already voted"
@@ -113,9 +114,9 @@ class GovernanceDAO(ARC4Contract):
 
         # Update tally
         if in_favor:
-            proposal.yes_votes = arc4.UInt64(proposal.yes_votes.native + 1)
+            proposal.yes_votes = arc4.UInt64(proposal.yes_votes.as_uint64() + 1)
         else:
-            proposal.no_votes = arc4.UInt64(proposal.no_votes.native + 1)
+            proposal.no_votes = arc4.UInt64(proposal.no_votes.as_uint64() + 1)
         self.proposals[proposal_id] = proposal.copy()
 
     @arc4.abimethod(readonly=True)
@@ -155,10 +156,10 @@ class GovernanceDAO(ARC4Contract):
         assert not proposal.executed.native, "already executed"
         assert not proposal.rejected.native, "already rejected"
 
-        total_votes = proposal.yes_votes.native + proposal.no_votes.native
+        total_votes = proposal.yes_votes.as_uint64() + proposal.no_votes.as_uint64()
         assert total_votes >= self.quorum.value, "quorum not met"
 
-        if proposal.yes_votes.native > proposal.no_votes.native:
+        if proposal.yes_votes.as_uint64() > proposal.no_votes.as_uint64():
             proposal.executed = arc4.Bool(True)
             self.proposals[proposal_id] = proposal.copy()
             return True
@@ -166,3 +167,6 @@ class GovernanceDAO(ARC4Contract):
             proposal.rejected = arc4.Bool(True)
             self.proposals[proposal_id] = proposal.copy()
             return False
+
+
+# example: GOVERNANCE_DAO

@@ -22,8 +22,11 @@ import typing
 from algopy import Array, FixedArray, ImmutableArray, ReferenceArray, UInt64, arc4, urange
 
 
+# example: ARRAY_PLAYGROUND
 class ArrayPlayground(arc4.ARC4Contract):
-    """ABI-routed contract showcasing Array, ReferenceArray, ImmutableArray, FixedArray, freeze, and urange."""
+    """ABI-routed contract showcasing Array, ReferenceArray, ImmutableArray,
+    FixedArray, freeze, and urange."""
+
     @arc4.abimethod(create="require")
     def create(self) -> None:
         pass
@@ -120,7 +123,8 @@ class ArrayPlayground(arc4.ARC4Contract):
 
     @arc4.abimethod
     def test_fixed_array(self) -> tuple[UInt64, UInt64, UInt64]:
-        """Demonstrate FixedArray[T, N] — fixed-length construction with full(), indexing, iteration.
+        """Demonstrate FixedArray[T, N] — fixed-length construction,
+        indexing, iteration.
 
         Returns:
             Tuple of (length, sum_of_elements, replaced_first_element)
@@ -178,3 +182,6 @@ class ArrayPlayground(arc4.ARC4Contract):
         for i in urange(1, n + 1):
             total += i
         return total
+
+
+# example: ARRAY_PLAYGROUND

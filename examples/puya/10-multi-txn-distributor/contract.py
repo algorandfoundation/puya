@@ -14,8 +14,8 @@ Note: Educational only - not audited for production use.
 """
 
 from algopy import (
-    ARC4Contract,
     Account,
+    ARC4Contract,
     Global,
     UInt64,
     arc4,
@@ -26,6 +26,7 @@ from algopy import (
 )
 
 
+# example: MULTI_TXN_DISTRIBUTOR
 class MultiTxnDistributor(ARC4Contract):
     """Contract that distributes funds to multiple recipients via grouped inner transactions."""
 
@@ -104,3 +105,6 @@ class MultiTxnDistributor(ARC4Contract):
         assert op.GITxn.amount(0) == share, "first payment amount correct"
 
         return share
+
+
+# example: MULTI_TXN_DISTRIBUTOR

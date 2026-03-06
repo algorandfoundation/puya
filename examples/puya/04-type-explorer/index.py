@@ -2,7 +2,6 @@ from pathlib import Path
 from random import randbytes
 
 import algokit_utils as au
-
 from shared import (
     assert_equal,
     compile_contract,
@@ -57,9 +56,7 @@ print_success(f"Contract deployed — App ID: {client.app_id}")
 
 def call(method: str, args: list[object] | None = None) -> object:
     resp = client.send.call(
-        au.AppClientMethodCallParams(
-            method=method, args=args or [], note=randbytes(8)
-        )
+        au.AppClientMethodCallParams(method=method, args=args or [], note=randbytes(8))
     )
     return resp.abi_return
 

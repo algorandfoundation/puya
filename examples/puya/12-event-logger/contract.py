@@ -37,6 +37,7 @@ class SwappedNative(Struct):
     b: UInt64
 
 
+# example: EVENT_LOGGER
 class EventLogger(ARC4Contract):
     """ARC-28 event logger contract demonstrating multiple emit patterns."""
 
@@ -65,7 +66,7 @@ class EventLogger(ARC4Contract):
         arc4.emit(SwappedNative(a=b, b=a))
 
     @arc4.abimethod
-    def emit_by_name(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+    def emit_by_name(self, a: UInt64, b: UInt64) -> None:
         """Emit a Swapped event by name — signature inferred from arg types.
 
         ARC-28 prefix: "Swapped(uint64,uint64)"
@@ -77,7 +78,7 @@ class EventLogger(ARC4Contract):
         arc4.emit("Swapped", b, a)
 
     @arc4.abimethod
-    def emit_by_signature(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+    def emit_by_signature(self, a: UInt64, b: UInt64) -> None:
         """Emit a Swapped event with explicit ARC-28 signature string.
 
         ARC-28 prefix provided directly: "Swapped(uint64,uint64)"
@@ -89,11 +90,14 @@ class EventLogger(ARC4Contract):
         arc4.emit("Swapped(uint64,uint64)", b, a)
 
     @arc4.abimethod
-    def emit_multiple(self, x: arc4.UInt64) -> None:
+    def emit_multiple(self, x: UInt64) -> None:
         """Emit multiple events in a single call — demonstrates batching pattern.
 
         Args:
             x: value used in both events
         """
-        arc4.emit(Swapped(x, x))
+        arc4.emit(Swapped(arc4.UInt64(x), arc4.UInt64(x)))
         arc4.emit("ValueSet(uint64)", x)
+
+
+# example: EVENT_LOGGER

@@ -69,7 +69,23 @@ Ensure you are running examples with `uv run python` from the `examples/puya/` d
 ## Development — Adding New Examples
 
 1. Create a new directory following the naming convention: `NN-kebab-case-name/`
-2. Add a `contract.py` with a docstring header describing what the example demonstrates
-3. Add an `index.py` that compiles, deploys, and exercises the contract
-4. Add the directory name to the `EXAMPLES` array in `verify-all.sh`
-5. Add a row to the examples table in this README
+2. Add a `contract.py` with a docstring header describing what the example demonstrates:
+   ```python
+   """
+   Example: Your Example Name
+   Demonstrates ...
+   - Feature one
+   - Feature two
+   Prerequisites: LocalNet
+   """
+   ```
+3. Wrap the contract class with `# example: UPPER_SNAKE_CASE` markers:
+   ```python
+   # example: YOUR_EXAMPLE_NAME
+   class YourContract(ARC4Contract):
+       ...
+   # example: YOUR_EXAMPLE_NAME
+   ```
+4. Add an `index.py` that compiles, deploys, and exercises the contract
+5. Add the directory name to the `EXAMPLES` array in `verify-all.sh`
+6. Add a row to the examples table in this README

@@ -17,6 +17,7 @@ Note: Educational only - not audited for production use.
 from algopy import ARC4Contract, String, arc4
 
 
+# example: GREETER
 class Greeter(ARC4Contract):
     """Simple greeter contract demonstrating string handling and readonly methods."""
 
@@ -48,3 +49,6 @@ class Greeter(ARC4Contract):
             greeting: The new greeting to use.
         """
         self.greeting = greeting.native
+
+
+# example: GREETER
