@@ -40,6 +40,7 @@ class PuyaOptions:
     expand_all_bytes: bool = False
     validate_abi_args: bool = True
     validate_abi_return: bool = True
+    full_source_info: bool = True
 
     @cached_property
     def template_variables(self) -> Mapping[str, int | bytes]:

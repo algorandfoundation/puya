@@ -181,6 +181,7 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
                             approval_program=contract.approval_program,
                             clear_program=contract.clear_program,
                             template_prefix=options.template_vars_prefix,
+                            full_source_info=options.full_source_info,
                         )
                         arc56[contract.id] = contract_arc56
 
