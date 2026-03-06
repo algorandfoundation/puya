@@ -1,0 +1,315 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 32 1 0 12
+    bytecblock "map" 0x151f7c75 0x00
+    // local_map/account_struct.py:23-28
+    // class LocalMapAccountStruct(
+    //     ARC4Contract,
+    //     state_totals=StateTotals(
+    //         local_bytes=10,
+    //     ),
+    // ):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@4
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x6b16be5e 0xf2d08d65 0x6baf5d44 0x399d9766 0x087facf9 0xe3a3dd6d 0x196594f1 0xc4ab7776 // method "get(address,address)(uint64,byte[4])", method "get_with_default(address,address,(uint64,byte[4]))(uint64,byte[4])", method "set(address,address,(uint64,byte[4]))void", method "delete(address,address)void", method "in_(address,address)bool", method "prefix()byte[]", method "maybe(address,address)((uint64,byte[4]),bool)", method "get_via_state(address,address)(uint64,byte[4])"
+    txna ApplicationArgs 0
+    match get get_with_default set delete in_ main_prefix_route@12 maybe get_via_state
+    err
+
+main_prefix_route@12:
+    // local_map/account_struct.py:56
+    // @public
+    pushbytes 0x151f7c7500036d6170
+    log
+    intc_1 // 1
+    return
+
+main_create_route@4:
+    // local_map/account_struct.py:32
+    // @public(allow_actions=["OptIn"], create="require")
+    txn OnCompletion
+    intc_1 // OptIn
+    ==
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.local_map.account_struct.LocalMapAccountStruct.get[routing]() -> void:
+get:
+    // local_map/account_struct.py:36
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:38
+    // return self.map[account, key]
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_local_get_ex
+    assert // check self.map entry exists for account
+    // local_map/account_struct.py:36
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_default[routing]() -> void:
+get_with_default:
+    // local_map/account_struct.py:40
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 12
+    ==
+    assert // invalid number of bytes for test_cases.local_map.account_struct.Data
+    // local_map/account_struct.py:42
+    // return self.map.get(account, key, default=default)
+    bytec_0 // "map"
+    uncover 2
+    concat
+    uncover 2
+    intc_2 // 0
+    uncover 2
+    app_local_get_ex
+    select
+    // local_map/account_struct.py:40
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.account_struct.LocalMapAccountStruct.set[routing]() -> void:
+set:
+    // local_map/account_struct.py:44
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 12
+    ==
+    assert // invalid number of bytes for test_cases.local_map.account_struct.Data
+    // local_map/account_struct.py:46
+    // self.map[account, key] = value
+    bytec_0 // "map"
+    uncover 2
+    concat
+    swap
+    app_local_put
+    // local_map/account_struct.py:44
+    // @public
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.account_struct.LocalMapAccountStruct.delete[routing]() -> void:
+delete:
+    // local_map/account_struct.py:48
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:50
+    // del self.map[account, key]
+    bytec_0 // "map"
+    swap
+    concat
+    app_local_del
+    // local_map/account_struct.py:48
+    // @public
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.account_struct.LocalMapAccountStruct.in_[routing]() -> void:
+in_:
+    // local_map/account_struct.py:52
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:54
+    // return (account, key) in self.map
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_local_get_ex
+    bury 1
+    // local_map/account_struct.py:52
+    // @public
+    bytec_2 // 0x00
+    intc_2 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.account_struct.LocalMapAccountStruct.maybe[routing]() -> void:
+maybe:
+    // local_map/account_struct.py:60
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:62
+    // value, exists = self.map.maybe(account, key)
+    bytec_0 // "map"
+    swap
+    concat
+    intc_2 // 0
+    swap
+    app_local_get_ex
+    dup
+    uncover 2
+    swap
+    // local_map/account_struct.py:63
+    // if not exists:
+    bnz maybe_after_if_else@3
+    // local_map/account_struct.py:64-65
+    // # AVM actually returns a uint64 if value not present
+    // value = Data(foo=UInt64(), bar=Bytes4())
+    pushbytes 0x000000000000000000000000
+    bury 1
+
+maybe_after_if_else@3:
+    // local_map/account_struct.py:60
+    // @public
+    bytec_2 // 0x00
+    intc_2 // 0
+    dig 3
+    setbit
+    dig 1
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_state[routing]() -> void:
+get_via_state:
+    // local_map/account_struct.py:68
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:70
+    // local_state = self.map.state(key)
+    bytec_0 // "map"
+    swap
+    concat
+    // local_map/account_struct.py:71
+    // return local_state[account]
+    intc_2 // 0
+    swap
+    app_local_get_ex
+    assert // check LocalState exists for account
+    // local_map/account_struct.py:68
+    // @public
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

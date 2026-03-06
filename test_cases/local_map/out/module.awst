@@ -1,0 +1,238 @@
+contract LocalMapUInt64
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  locals {
+    ['map']: uint64 => uint64
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.local_map.uint64.LocalMapUInt64.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.create(): void
+  {
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.get(account: account, key: uint64): uint64
+  {
+    return LocalState[BoxMapKey(prefix='map', key=key), account]
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.get_with_default(account: account, key: uint64, default: uint64): uint64
+  {
+    return STATE_GET(LocalState[BoxMapKey(prefix='map', key=key), account], default=default)
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.set(account: account, key: uint64, value: uint64): void
+  {
+    LocalState[BoxMapKey(prefix='map', key=key), account]: uint64 = value
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.delete(account: account, key: uint64): void
+  {
+    STATE_DELETE(LocalState[BoxMapKey(prefix='map', key=key), account])
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.in_(account: account, key: uint64): bool
+  {
+    return STATE_EXISTS(LocalState[BoxMapKey(prefix='map', key=key), account])
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.prefix(): bytes
+  {
+    return reinterpret_cast<bytes>('map')
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.maybe(account: account, key: uint64): tuple<uint64,bool>
+  {
+    return STATE_GET_EX(LocalState[BoxMapKey(prefix='map', key=key), account])
+  }
+  
+  abimethod test_cases.local_map.uint64.LocalMapUInt64.get_via_state(account: account, key: uint64): uint64
+  {
+    state: state_key = BoxMapKey(prefix='map', key=key)
+    return LocalState[state, account]
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract LocalMapBytes
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  locals {
+    ['map']: bytes => bytes
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.local_map.bytes.LocalMapBytes.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.create(): void
+  {
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.get(account: account, key: bytes): bytes
+  {
+    return LocalState[BoxMapKey(prefix='map', key=key), account]
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.get_with_default(account: account, key: bytes, default: bytes): bytes
+  {
+    return STATE_GET(LocalState[BoxMapKey(prefix='map', key=key), account], default=default)
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.set(account: account, key: bytes, value: bytes): void
+  {
+    LocalState[BoxMapKey(prefix='map', key=key), account]: bytes = value
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.delete(account: account, key: bytes): void
+  {
+    STATE_DELETE(LocalState[BoxMapKey(prefix='map', key=key), account])
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.in_(account: account, key: bytes): bool
+  {
+    return STATE_EXISTS(LocalState[BoxMapKey(prefix='map', key=key), account])
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.prefix(): bytes
+  {
+    return reinterpret_cast<bytes>('map')
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.maybe(account: account, key: bytes): tuple<bytes,bool>
+  {
+    (value, exists): tuple<bytes,bool> = STATE_GET_EX(LocalState[BoxMapKey(prefix='map', key=key), account])
+    if (!(exists)) {
+      value: bytes = hex<"">
+    }
+    return (value, exists)
+  }
+  
+  abimethod test_cases.local_map.bytes.LocalMapBytes.get_via_state(account: account, key: bytes): bytes
+  {
+    state: state_key = BoxMapKey(prefix='map', key=key)
+    return LocalState[state, account]
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract LocalMapAccountStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  locals {
+    ['map']: account => test_cases.local_map.account_struct.Data
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.create(): void
+  {
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.get(account: account, key: account): test_cases.local_map.account_struct.Data
+  {
+    return LocalState[BoxMapKey(prefix='map', key=key), account]
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_default(account: account, key: account, default: test_cases.local_map.account_struct.Data): test_cases.local_map.account_struct.Data
+  {
+    return STATE_GET(LocalState[BoxMapKey(prefix='map', key=key), account], default=default)
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.set(account: account, key: account, value: test_cases.local_map.account_struct.Data): void
+  {
+    LocalState[BoxMapKey(prefix='map', key=key), account]: test_cases.local_map.account_struct.Data = value
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.delete(account: account, key: account): void
+  {
+    STATE_DELETE(LocalState[BoxMapKey(prefix='map', key=key), account])
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.in_(account: account, key: account): bool
+  {
+    return STATE_EXISTS(LocalState[BoxMapKey(prefix='map', key=key), account])
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.prefix(): bytes
+  {
+    return reinterpret_cast<bytes>('map')
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.maybe(account: account, key: account): tuple<test_cases.local_map.account_struct.Data,bool>
+  {
+    (value, exists): tuple<test_cases.local_map.account_struct.Data,bool> = STATE_GET_EX(LocalState[BoxMapKey(prefix='map', key=key), account])
+    if (!(exists)) {
+      value: test_cases.local_map.account_struct.Data = new test_cases.local_map.account_struct.Data(foo=0u, bar=bzero(4u))
+    }
+    return (value, exists)
+  }
+  
+  abimethod test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_state(account: account, key: account): test_cases.local_map.account_struct.Data
+  {
+    local_state: state_key = BoxMapKey(prefix='map', key=key)
+    return LocalState[local_state, account]
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
