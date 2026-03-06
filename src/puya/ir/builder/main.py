@@ -870,17 +870,17 @@ class FunctionIRBuilder(
     ) -> TExpression:
         return storage.visit_app_account_state_expression(self.context, expr)
 
-    def visit_box_prefixed_key_expression(
-        self, expr: awst_nodes.BoxPrefixedKeyExpression
+    def visit_map_prefixed_key_expression(
+        self, expr: awst_nodes.MapPrefixedKeyExpression
     ) -> TExpression:
         factory = OpFactory(self.context, expr.source_location)
-        prefix = self.visit_and_materialise_single(expr.prefix, temp_description="box_key_prefix")
+        prefix = self.visit_and_materialise_single(expr.prefix, temp_description="map_key_prefix")
         key_source = self.visit_and_materialise(expr.key, temp_description="materialized_values")
         codec = storage.get_storage_codec(
             expr.key.wtype, awst_nodes.AppStorageKind.box, expr.key.source_location
         )
         key = codec.encode(self.context, key_source, expr.key.source_location)
-        return factory.concat(prefix, key, "box_prefixed_key")
+        return factory.concat(prefix, key, "map_prefixed_key")
 
     def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
         return storage.visit_box_value(self.context, expr)

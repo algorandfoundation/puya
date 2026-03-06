@@ -5,9 +5,9 @@ from collections.abc import Callable, Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    BoxPrefixedKeyExpression,
     BoxValueExpression,
     Expression,
+    MapPrefixedKeyExpression,
     StateExists,
     StateGet,
     StateGetEx,
@@ -132,8 +132,8 @@ class BoxMapProxyExpressionBuilder(
 
     def _build_box_map_key(
         self, key: InstanceBuilder, location: SourceLocation
-    ) -> BoxPrefixedKeyExpression:
-        return BoxPrefixedKeyExpression(
+    ) -> MapPrefixedKeyExpression:
+        return MapPrefixedKeyExpression(
             prefix=self.resolve(),
             key=key.resolve(),
             wtype=wtypes.box_key,
@@ -219,7 +219,7 @@ class _BoxMapProxyExpressionBuilderFromConstructor(
 
 
 BoxValueBuilder = Callable[[InstanceBuilder, SourceLocation], BoxValueExpression]
-BoxKeyBuilder = Callable[[InstanceBuilder, SourceLocation], BoxPrefixedKeyExpression]
+BoxKeyBuilder = Callable[[InstanceBuilder, SourceLocation], MapPrefixedKeyExpression]
 
 
 class _MethodBase(FunctionBuilder, abc.ABC):

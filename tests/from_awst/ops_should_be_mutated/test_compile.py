@@ -1,9 +1,12 @@
 from pathlib import Path
 
+import pytest
+
 from tests import FROM_AWST_DIR
 from tests.from_awst.util import compile_contract
 
 
+@pytest.mark.filterwarnings("ignore:replaced by MapPrefixedKeyExpression")
 def test_compile() -> None:
     test_dir = Path(__file__).parent
     out_dir = test_dir / "out"

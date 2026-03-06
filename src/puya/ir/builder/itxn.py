@@ -1370,8 +1370,8 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         return self._empty_actions_from_wtype(expr)
 
     @typing.override
-    def visit_box_prefixed_key_expression(
-        self, expr: awst_nodes.BoxPrefixedKeyExpression
+    def visit_map_prefixed_key_expression(
+        self, expr: awst_nodes.MapPrefixedKeyExpression
     ) -> list[_SourceAction]:
         return self._empty_actions_from_wtype(expr)
 
