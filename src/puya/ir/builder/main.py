@@ -876,9 +876,7 @@ class FunctionIRBuilder(
         factory = OpFactory(self.context, expr.source_location)
         prefix = self.visit_and_materialise_single(expr.prefix, temp_description="map_key_prefix")
         key_source = self.visit_and_materialise(expr.key, temp_description="materialized_values")
-        codec = storage.get_storage_codec(
-            expr.key.wtype, awst_nodes.AppStorageKind.box, expr.key.source_location
-        )
+        codec = storage.get_storage_key_codec(expr.key.wtype, loc=expr.key.source_location)
         key = codec.encode(self.context, key_source, expr.key.source_location)
         return factory.concat(prefix, key, "map_prefixed_key")
 

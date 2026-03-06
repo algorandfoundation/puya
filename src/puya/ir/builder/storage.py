@@ -385,13 +385,25 @@ def _get_storage_codec_for_node(node: awst_nodes.StorageExpression) -> StorageCo
 def get_storage_codec(
     declared_type: wtypes.WType, storage_kind: awst_nodes.AppStorageKind, loc: SourceLocation
 ) -> StorageCodec:
+    return _get_storage_codec(
+        declared_type, bytes_only=storage_kind == awst_nodes.AppStorageKind.box, loc=loc
+    )
+
+
+def get_storage_key_codec(declared_type: wtypes.WType, loc: SourceLocation) -> StorageCodec:
+    return _get_storage_codec(declared_type, bytes_only=True, loc=loc)
+
+
+def _get_storage_codec(
+    declared_type: wtypes.WType,
+    *,
+    bytes_only: bool,
+    loc: SourceLocation,
+) -> StorageCodec:
     if not declared_type.persistable:
         raise InternalError(f"non-persistable storage type: {declared_type!r}", loc)
 
-    if (
-        declared_type.scalar_type is AVMType.uint64
-        and storage_kind is awst_nodes.AppStorageKind.box
-    ):
+    if declared_type.scalar_type is AVMType.uint64 and bytes_only:
         return _UInt64AsBytesStorageCodec()
 
     if isinstance(declared_type, wtypes.WTuple):
