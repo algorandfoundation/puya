@@ -23,6 +23,7 @@ from puyapy.awst_build.eb.storage import (
     BoxRefProxyExpressionBuilder,
     GlobalMapProxyExpressionBuilder,
     GlobalStateExpressionBuilder,
+    LocalMapProxyExpressionBuilder,
     LocalStateExpressionBuilder,
 )
 from puyapy.awst_build.eb.subroutine import (
@@ -141,7 +142,10 @@ def _builder_for_storage_access(
             else:
                 return GlobalStateExpressionBuilder(key, typ, member_name)
         case AppStorageKind.account_local:
-            return LocalStateExpressionBuilder(key, typ, member_name)
+            if isinstance(typ, pytypes.StorageMapProxyType):
+                return LocalMapProxyExpressionBuilder(key, typ, member_name)
+            else:
+                return LocalStateExpressionBuilder(key, typ, member_name)
         case AppStorageKind.box:
             if isinstance(typ, pytypes.StorageMapProxyType):
                 return BoxMapProxyExpressionBuilder(key, typ, member_name)

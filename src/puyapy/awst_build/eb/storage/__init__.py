@@ -22,6 +22,11 @@ from puyapy.awst_build.eb.storage.global_state import (
     GlobalStateGenericTypeBuilder,
     GlobalStateTypeBuilder,
 )
+from puyapy.awst_build.eb.storage.local_map import (
+    LocalMapGenericTypeExpressionBuilder,
+    LocalMapProxyExpressionBuilder,
+    LocalMapTypeBuilder,
+)
 from puyapy.awst_build.eb.storage.local_state import (
     LocalStateExpressionBuilder,
     LocalStateGenericTypeBuilder,
@@ -43,6 +48,9 @@ __all__ = [
     "GlobalMapTypeBuilder",
     "GlobalMapGenericTypeExpressionBuilder",
     "GlobalMapProxyExpressionBuilder",
+    "LocalMapTypeBuilder",
+    "LocalMapGenericTypeExpressionBuilder",
+    "LocalMapProxyExpressionBuilder",
     "LocalStateTypeBuilder",
     "LocalStateGenericTypeBuilder",
     "LocalStateExpressionBuilder",
