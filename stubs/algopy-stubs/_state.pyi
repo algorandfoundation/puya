@@ -235,3 +235,96 @@ class GlobalMap(typing.Generic[_TKey, _TValue]):
         """
         Returns a GlobalState for the value at key
         """
+
+@typing.final
+class LocalMap(typing.Generic[_TKey, _TValue]):
+    """
+    LocalMap abstracts the reading and writing of a set of local state values using a
+    common key and content type, associated with a specific account.
+    Adequate space must be allocated for the application on creation :see algopy.StateTotals
+    """
+
+    def __init__(
+        self,
+        key_type: type[_TKey],
+        value_type: type[_TValue],
+        /,
+        *,
+        key_prefix: bytes | str | Bytes | String = ...,
+    ) -> None:
+        """Declare a local map.
+
+        :arg key_type: The type of the keys
+        :arg value_type: The type of the values
+        :arg key_prefix: The value used as a prefix to key data, can be empty.
+                         When the LocalMap is being assigned to a member variable,
+                         this argument is optional and defaults to the member variable name,
+                         and if a custom value is supplied it must be static.
+        """
+
+    @property
+    def key_prefix(self) -> Bytes:
+        """Provides access to the raw storage key-prefix"""
+
+    def __getitem__(self, account_and_key: tuple[Account | UInt64 | int, _TKey]) -> _TValue:
+        """
+        Retrieve the value associated with account and key.
+        Fails if the key has not been defined.
+
+        ```python
+        value = self.map[account, key]
+        ```
+        """
+
+    def __setitem__(
+        self, account_and_key: tuple[Account | UInt64 | int, _TKey], value: _TValue
+    ) -> None:
+        """Write _value_ to local state for the given account and key.
+
+        ```python
+        self.map[account, key] = value
+        ```
+        """
+
+    def __delitem__(self, account_and_key: tuple[Account | UInt64 | int, _TKey]) -> None:
+        """Deletes a local state value for the given account and key.
+
+        ```python
+        del self.map[account, key]
+        ```
+        """
+
+    def __contains__(self, account_and_key: tuple[Account | UInt64 | int, _TKey]) -> bool:
+        """
+        Returns True if a specified key exists in the map for the given account,
+        regardless of the truthiness of the contents of the value.
+
+        ```python
+        assert (account, key) in self.map
+        ```
+        """
+
+    def get(self, account: Account | UInt64 | int, key: _TKey, *, default: _TValue) -> _TValue:
+        """
+        Retrieve the contents, or return the default value if the key is not present
+        for the given account.
+
+        :arg account: The account reference or foreign account index
+        :arg key: The key to get
+        :arg default: The default value to return if the key is not present.
+        """
+
+    def maybe(self, account: Account | UInt64 | int, key: _TKey) -> tuple[_TValue, bool]:
+        """
+        Retrieve the contents if it exists for the given account, and return a boolean
+        indicating if the key was present.
+
+        :arg account: The account reference or foreign account index
+        :arg key: The key to get
+        """
+
+    def state(self, key: _TKey) -> LocalState[_TValue]:
+        """
+        Returns a LocalState for the value at key.
+        The returned LocalState still requires an account to access its value.
+        """
