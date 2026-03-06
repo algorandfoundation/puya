@@ -15,7 +15,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.function_traverser import FunctionTraverser
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.ir import (
     types_ as types,
 )
@@ -89,10 +89,6 @@ def _translate_state(state: awst_nodes.AppStorageDefinition) -> models.ContractS
     storage_codec = get_storage_codec(state.storage_wtype, state.kind, state.source_location)
     storage_type = storage_codec.encoded_avm_type
     if state.key_wtype is not None:
-        if state.kind == awst_nodes.AppStorageKind.account_local:
-            raise InternalError(
-                f"maps of {state.kind} are not supported by IR backend yet", state.source_location
-            )
         arc56_key_type = _get_arc56_type(
             state.key_wtype, state.source_location, avm_uint64_supported=False
         )

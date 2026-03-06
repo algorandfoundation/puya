@@ -258,7 +258,7 @@ class LocalMap(typing.Generic[_TKey, _TValue]):
     """
     LocalMap abstracts the reading and writing of a set of local state values using a
     common key and content type, associated with a specific account.
-    Adequate space must be allocated for the application on creation :see algopy.StateTotals
+    Adequate space must be allocated for the application on creation (see algopy.StateTotals).
     """
 
     def __init__(
@@ -281,7 +281,7 @@ class LocalMap(typing.Generic[_TKey, _TValue]):
 
     @property
     def key_prefix(self) -> Bytes:
-        """Provides access to the raw storage key-prefix"""
+        """Provides access to the raw storage key-prefix."""
 
     def __getitem__(self, account_and_key: tuple[Account | UInt64 | int, _TKey]) -> _TValue:
         """
@@ -296,7 +296,7 @@ class LocalMap(typing.Generic[_TKey, _TValue]):
     def __setitem__(
         self, account_and_key: tuple[Account | UInt64 | int, _TKey], value: _TValue
     ) -> None:
-        """Write _value_ to local state for the given account and key.
+        """Write value to local state for the given account and key.
 
         ```python
         self.map[account, key] = value
@@ -344,4 +344,9 @@ class LocalMap(typing.Generic[_TKey, _TValue]):
         """
         Returns a LocalState for the value at key.
         The returned LocalState still requires an account to access its value.
+
+        ```python
+        state = self.map.state(key)
+        value = state[account]
+        ```
         """
