@@ -1349,22 +1349,25 @@ class AppAccountStateExpression(Expression):
 
 
 @attrs.frozen
-class BoxPrefixedKeyExpression(Expression):
+class MapPrefixedKeyExpression(Expression):
     """
-    Adds a prefix to a box key.
+    Adds a prefix to a map key.
 
-    Can be used to ensure a globally unique key for all possible keys in a Box Map
+    Can be used to ensure a globally unique key for all possible keys in a Storage Map
     """
 
     prefix: Expression
     key: Expression
-    wtype: WType = attrs.field(
-        validator=wtype_is_one_of(wtypes.box_key, wtypes.state_key),
-        default=wtypes.box_key,  # default is for compatability with existing JSON
-    )
+    wtype: WType = attrs.field(validator=wtype_is_one_of(wtypes.box_key, wtypes.state_key))
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_box_prefixed_key_expression(self)
+        return visitor.visit_map_prefixed_key_expression(self)
+
+
+@deprecated("replaced by MapPrefixedKeyExpression")
+@attrs.frozen
+class BoxPrefixedKeyExpression(MapPrefixedKeyExpression):
+    wtype: WType = attrs.field(default=wtypes.box_key, init=False)
 
 
 @attrs.frozen

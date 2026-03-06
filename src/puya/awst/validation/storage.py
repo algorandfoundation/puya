@@ -53,8 +53,8 @@ class StorageTypesValidator(AWSTTraverser):
         self._validate_usage(expr, AppStorageKind.box)
 
     @typing.override
-    def visit_box_prefixed_key_expression(self, expr: awst_nodes.BoxPrefixedKeyExpression) -> None:
-        super().visit_box_prefixed_key_expression(expr)
+    def visit_map_prefixed_key_expression(self, expr: awst_nodes.MapPrefixedKeyExpression) -> None:
+        super().visit_map_prefixed_key_expression(expr)
         _validate_persistable(expr.key.wtype, expr.key.source_location)
         _validate_persistable(expr.prefix.wtype, expr.prefix.source_location)
 

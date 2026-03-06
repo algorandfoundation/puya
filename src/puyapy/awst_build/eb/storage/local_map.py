@@ -6,10 +6,10 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppAccountStateExpression,
-    BoxPrefixedKeyExpression,
     Expression,
     ExpressionStatement,
     IntegerConstant,
+    MapPrefixedKeyExpression,
     StateDelete,
     StateExists,
     StateGet,
@@ -137,8 +137,8 @@ class LocalMapProxyExpressionBuilder(
 
     def _build_local_map_key(
         self, key: InstanceBuilder, location: SourceLocation
-    ) -> BoxPrefixedKeyExpression:
-        return BoxPrefixedKeyExpression(
+    ) -> MapPrefixedKeyExpression:
+        return MapPrefixedKeyExpression(
             prefix=self.resolve(),
             key=key.resolve(),
             wtype=wtypes.state_key,
@@ -256,7 +256,7 @@ def _resolve_account(account: InstanceBuilder) -> Expression:
 LocalValueBuilder = Callable[
     [InstanceBuilder, InstanceBuilder, SourceLocation], AppAccountStateExpression
 ]
-LocalKeyBuilder = Callable[[InstanceBuilder, SourceLocation], BoxPrefixedKeyExpression]
+LocalKeyBuilder = Callable[[InstanceBuilder, SourceLocation], MapPrefixedKeyExpression]
 
 
 class _MethodBase(FunctionBuilder, abc.ABC):
