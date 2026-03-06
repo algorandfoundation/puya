@@ -1,0 +1,254 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 8 1 32 0
+    bytecblock "map" 0x151f7c75 0x00
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@4
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x9ff1263a 0x78363a4f 0xa06f60ef 0x1208159e 0x7189d3f1 0xe3a3dd6d 0xc425527d 0x685eee4b // method "get(address,uint64)uint64", method "get_with_default(address,uint64,uint64)uint64", method "set(address,uint64,uint64)void", method "delete(address,uint64)void", method "in_(address,uint64)bool", method "prefix()byte[]", method "maybe(address,uint64)(uint64,bool)", method "get_via_state(address,uint64)uint64"
+    txna ApplicationArgs 0
+    match main_get_route@7 main_get_with_default_route@8 main_set_route@9 main_delete_route@10 main_in__route@11 main_prefix_route@12 main_maybe_route@13 main_get_via_state_route@14
+    err
+
+main_get_via_state_route@14:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_3 // 0
+    swap
+    app_local_get_ex
+    assert // check LocalState exists for account
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_maybe_route@13:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_3 // 0
+    swap
+    app_local_get_ex
+    swap
+    itob
+    bytec_2 // 0x00
+    intc_3 // 0
+    uncover 3
+    setbit
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_prefix_route@12:
+    pushbytes 0x151f7c7500036d6170
+    log
+    intc_1 // 1
+    return
+
+main_in__route@11:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_3 // 0
+    swap
+    app_local_get_ex
+    bury 1
+    bytec_2 // 0x00
+    intc_3 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_delete_route@10:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    app_local_del
+    intc_1 // 1
+    return
+
+main_set_route@9:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    swap
+    app_local_put
+    intc_1 // 1
+    return
+
+main_get_with_default_route@8:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    uncover 2
+    intc_3 // 0
+    uncover 2
+    app_local_get_ex
+    select
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_get_route@7:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itob
+    bytec_0 // "map"
+    swap
+    concat
+    intc_3 // 0
+    swap
+    app_local_get_ex
+    assert // check self.map entry exists for account
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_create_route@4:
+    txn OnCompletion
+    intc_1 // OptIn
+    ==
+    txn ApplicationID
+    !
+    &&
+    return
