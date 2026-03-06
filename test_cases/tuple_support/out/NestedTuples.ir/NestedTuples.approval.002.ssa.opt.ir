@@ -246,9 +246,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_bo
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
         let (key.a#0: uint64, key.b#0: uint64) = decode_bytes<(uint64,uint64,)>(tmp%0#0)
         let tmp%0#1: uint64 = (+ key.b#0 1u)
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
         let encoded_for_storage%1#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(key.a#0, tmp%0#1)
-        box_write(box_prefixed_key%0#0, encoded_for_storage%1#0)
+        box_write(map_prefixed_key%0#0, encoded_for_storage%1#0)
         exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[routing]() -> void:
@@ -257,8 +257,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[r
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len map_prefixed_key%0#0)
         let tmp%4#0: Encoded(bool8) = bytes_encode<bool8>(maybe_exists%0#0)
         let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
         (log tmp%5#0)
@@ -270,8 +270,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
-        let storage_value%0#0: bytes = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
+        let storage_value%0#0: bytes = box_read(map_prefixed_key%0#0)
         let tmp%6#0: bytes = (concat 0x151f7c75 storage_value%0#0)
         (log tmp%6#0)
         exit 1u
@@ -282,8 +282,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
-        let (maybe_value%0#0: bytes, exists#0: bool) = (box_get box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
+        let (maybe_value%0#0: bytes, exists#0: bool) = (box_get map_prefixed_key%0#0)
         goto exists#0 ? block@2 : block@3
     block@2: // ternary_true_L83
         let (ternary_result%0.a#0: uint64, ternary_result%0.b#0: uint64) = decode_bytes<(uint64,uint64,)>(maybe_value%0#0)
@@ -306,9 +306,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
-        let box_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box" tmp%0#0)
         let (tmp%0#1: uint64, tmp%1#1: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get map_prefixed_key%0#0)
         goto maybe_exists%0#0 ? block@2 : block@3
     block@2: // ternary_true_L88
         let (ternary_result%0.a#0: uint64, ternary_result%0.b#0: uint64) = decode_bytes<(uint64,uint64,)>(maybe_value%0#0)

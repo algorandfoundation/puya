@@ -531,8 +531,8 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let tmp%22#0: uint64 = (+ cumulative_offset#1 options_count#0)
         let cumulative_offset#2: uint64 = tmp%22#0
         let materialized_values%0#0: account = (txn Sender)
-        let box_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
-        box_write(box_prefixed_key%0#0, answer_ids#0)
+        let map_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
+        box_write(map_prefixed_key%0#0, answer_ids#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
         let tmp%23#0: uint64 = (+ maybe_value%2#0 1u)
@@ -576,8 +576,8 @@ subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:
 subroutine examples.voting.voting.VotingRoundApp.already_voted() -> bool:
     block@0: // L213
         let materialized_values%0#0: account = (txn Sender)
-        let box_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len map_prefixed_key%0#0)
         return maybe_exists%0#0
 
 subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: Encoded(len+uint8[])) -> Encoded(len+uint8[]):

@@ -136,10 +136,10 @@ subroutine get:
         // return self.map[account, key]
         byte "map"                                                                     account#0,key#0,"map"
         l-load key#0 1                                                                 account#0,"map",key#0
-        concat                                                                         account#0,box_prefixed_key%0#0
-        l-load account#0 1                                                             box_prefixed_key%0#0,account#0
-        int 0                                                                          box_prefixed_key%0#0,account#0,0
-        l-load box_prefixed_key%0#0 2                                                  account#0,0,box_prefixed_key%0#0
+        concat                                                                         account#0,map_prefixed_key%0#0
+        l-load account#0 1                                                             map_prefixed_key%0#0,account#0
+        int 0                                                                          map_prefixed_key%0#0,account#0,0
+        l-load map_prefixed_key%0#0 2                                                  account#0,0,map_prefixed_key%0#0
         app_local_get_ex                                                               maybe_value%0#0,maybe_exists%0#0
         assert // check self.map entry exists for account                              maybe_value%0#0
         // local_map/account_struct.py:36
@@ -179,10 +179,10 @@ subroutine get_with_default:
         // return self.map.get(account, key, default=default)
         byte "map"                                                                     account#0,key#0,default#0,"map"
         l-load key#0 2                                                                 account#0,default#0,"map",key#0
-        concat                                                                         account#0,default#0,box_prefixed_key%0#0
-        l-load account#0 2                                                             default#0,box_prefixed_key%0#0,account#0
-        int 0                                                                          default#0,box_prefixed_key%0#0,account#0,0
-        l-load box_prefixed_key%0#0 2                                                  default#0,account#0,0,box_prefixed_key%0#0
+        concat                                                                         account#0,default#0,map_prefixed_key%0#0
+        l-load account#0 2                                                             default#0,map_prefixed_key%0#0,account#0
+        int 0                                                                          default#0,map_prefixed_key%0#0,account#0,0
+        l-load map_prefixed_key%0#0 2                                                  default#0,account#0,0,map_prefixed_key%0#0
         app_local_get_ex                                                               default#0,maybe_value%0#0,maybe_exists%0#0
         l-load default#0 2                                                             maybe_value%0#0,maybe_exists%0#0,default#0
         l-load maybe_value%0#0 2                                                       maybe_exists%0#0,default#0,maybe_value%0#0
@@ -225,10 +225,10 @@ subroutine set:
         // self.map[account, key] = value
         byte "map"                                                                     account#0,key#0,value#0,"map"
         l-load key#0 2                                                                 account#0,value#0,"map",key#0
-        concat                                                                         account#0,value#0,box_prefixed_key%0#0
-        l-load account#0 2                                                             value#0,box_prefixed_key%0#0,account#0
-        l-load box_prefixed_key%0#0 1                                                  value#0,account#0,box_prefixed_key%0#0
-        l-load value#0 2                                                               account#0,box_prefixed_key%0#0,value#0
+        concat                                                                         account#0,value#0,map_prefixed_key%0#0
+        l-load account#0 2                                                             value#0,map_prefixed_key%0#0,account#0
+        l-load map_prefixed_key%0#0 1                                                  value#0,account#0,map_prefixed_key%0#0
+        l-load value#0 2                                                               account#0,map_prefixed_key%0#0,value#0
         app_local_put
         // local_map/account_struct.py:44
         // @public
@@ -257,9 +257,9 @@ subroutine delete:
         // del self.map[account, key]
         byte "map"                                                                     account#0,key#0,"map"
         l-load key#0 1                                                                 account#0,"map",key#0
-        concat                                                                         account#0,box_prefixed_key%0#0
-        l-load account#0 1                                                             box_prefixed_key%0#0,account#0
-        l-load box_prefixed_key%0#0 1                                                  account#0,box_prefixed_key%0#0
+        concat                                                                         account#0,map_prefixed_key%0#0
+        l-load account#0 1                                                             map_prefixed_key%0#0,account#0
+        l-load map_prefixed_key%0#0 1                                                  account#0,map_prefixed_key%0#0
         app_local_del
         // local_map/account_struct.py:48
         // @public
@@ -288,10 +288,10 @@ subroutine in_:
         // return (account, key) in self.map
         byte "map"                                                                     account#0,key#0,"map"
         l-load key#0 1                                                                 account#0,"map",key#0
-        concat                                                                         account#0,box_prefixed_key%0#0
-        l-load account#0 1                                                             box_prefixed_key%0#0,account#0
-        int 0                                                                          box_prefixed_key%0#0,account#0,0
-        l-load box_prefixed_key%0#0 2                                                  account#0,0,box_prefixed_key%0#0
+        concat                                                                         account#0,map_prefixed_key%0#0
+        l-load account#0 1                                                             map_prefixed_key%0#0,account#0
+        int 0                                                                          map_prefixed_key%0#0,account#0,0
+        l-load map_prefixed_key%0#0 2                                                  account#0,0,map_prefixed_key%0#0
         app_local_get_ex                                                               _%0#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                                     maybe_exists%0#0,_%0#0
         pop 1                                                                          maybe_exists%0#0
@@ -330,10 +330,10 @@ subroutine maybe:
         // value, exists = self.map.maybe(account, key)
         byte "map"                                                                     account#0,key#0,"map"
         l-load key#0 1                                                                 account#0,"map",key#0
-        concat                                                                         account#0,box_prefixed_key%0#0
-        l-load account#0 1                                                             box_prefixed_key%0#0,account#0
-        int 0                                                                          box_prefixed_key%0#0,account#0,0
-        l-load box_prefixed_key%0#0 2                                                  account#0,0,box_prefixed_key%0#0
+        concat                                                                         account#0,map_prefixed_key%0#0
+        l-load account#0 1                                                             map_prefixed_key%0#0,account#0
+        int 0                                                                          map_prefixed_key%0#0,account#0,0
+        l-load map_prefixed_key%0#0 2                                                  account#0,0,map_prefixed_key%0#0
         app_local_get_ex                                                               value#0,exists#0
         l-store-copy exists#0 1                                                        exists#0,value#0,exists#0
         f-store exists#0                                                               (𝕗) exists#0 | exists#0,value#0

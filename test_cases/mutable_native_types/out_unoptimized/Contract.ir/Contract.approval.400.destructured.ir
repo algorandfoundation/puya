@@ -604,9 +604,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         let aggregate%extract%0#0: bytes = (extract3 maybe_value%2#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = aggregate%extract%0#0
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let box%offset%0#0: uint64 = (+ 0u 0u)
-        (box_replace box_prefixed_key%0#0 box%offset%0#0 tuple_item%0#0) // on error: index out of bounds
+        (box_replace map_prefixed_key%0#0 box%offset%0#0 tuple_item%0#0) // on error: index out of bounds
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> Encoded(uint8[32],uint64,uint64):
@@ -653,8 +653,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.delete_storage(box_
         (app_local_del tmp%0#0 0x6c)
         (box_del "box")
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        (box_del box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        (box_del map_prefixed_key%0#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key: uint64, a: Encoded(uint64,uint64)) -> void:
@@ -678,9 +678,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
         let box%offset%0#0: uint64 = (+ 0u 0u)
         (box_replace "box" box%offset%0#0 a#0) // on error: index out of bounds
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let box%offset%1#0: uint64 = (+ 0u 0u)
-        (box_replace box_prefixed_key%0#0 box%offset%1#0 a#0) // on error: index out of bounds
+        (box_replace map_prefixed_key%0#0 box%offset%1#0 a#0) // on error: index out of bounds
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> Encoded(uint64,uint64):

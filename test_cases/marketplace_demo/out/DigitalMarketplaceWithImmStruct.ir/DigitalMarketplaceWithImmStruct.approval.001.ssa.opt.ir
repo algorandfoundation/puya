@@ -137,8 +137,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%9#0: account = (txn Sender)
         let tmp%10#0: uint64 = ((gtxns XferAsset) xfer#0)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(tmp%9#0, tmp%10#0, nonce#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len map_prefixed_key%0#0)
         let tmp%12#0: bool = (! maybe_exists%0#0)
         (assert tmp%12#0)
         let tmp%13#0: account = ((gtxns Sender) xfer#0)
@@ -154,7 +154,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         (assert tmp%19#0)
         let tmp%22#0: account = (global ZeroAddress)
         let tmp%23#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%19#0, unitary_price#0, tmp%22#0, 0u, 0u)
-        box_write(box_prefixed_key%0#0, tmp%23#0)
+        box_write(map_prefixed_key%0#0, tmp%23#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.deposit[routing]() -> void:
@@ -183,8 +183,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%9#0: uint64 = ((gtxns AssetAmount) xfer#0)
         let tmp%10#0: bool = (> tmp%9#0 0u)
         (assert tmp%9#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
-        let existing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
+        let existing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(map_prefixed_key%0#0)
         let tuple_item%0#0: Encoded(uint64) = extract_value(existing#0, 3)
         let tmp%11#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         let tuple_item%1#0: Encoded(uint64) = extract_value(existing#0, 4)
@@ -197,7 +197,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%15#0: uint64 = decode_bytes<uint64>(tuple_item%4#0)
         let tmp%17#0: uint64 = (+ tmp%15#0 tmp%9#0)
         let tmp%18#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%17#0, tmp%14#0, tmp%13#0, tmp%11#0, tmp%12#0)
-        box_write(box_prefixed_key%0#0, tmp%18#0)
+        box_write(map_prefixed_key%0#0, tmp%18#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.set_price[routing]() -> void:
@@ -219,8 +219,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let unitary_price#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         let tmp%0#1: account = (txn Sender)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(tmp%0#1, asset#0, nonce#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
-        let existing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
+        let existing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(map_prefixed_key%0#0)
         let tuple_item%0#0: Encoded(uint64) = extract_value(existing#0, 3)
         let tmp%2#1: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         let tuple_item%1#0: Encoded(uint64) = extract_value(existing#0, 4)
@@ -230,7 +230,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tuple_item%3#0: Encoded(uint64) = extract_value(existing#0, 0)
         let tmp%5#1: uint64 = decode_bytes<uint64>(tuple_item%3#0)
         let tmp%6#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%5#1, unitary_price#0, tmp%4#1, tmp%2#1, tmp%3#1)
-        box_write(box_prefixed_key%0#0, tmp%6#0)
+        box_write(map_prefixed_key%0#0, tmp%6#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.buy[routing]() -> void:
@@ -261,8 +261,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         (assert eq%3#0) // invalid number of bytes for arc4.uint64
         let quantity#0: uint64 = decode_bytes<uint64>(tmp%7#0)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(owner#0, asset#0, nonce#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
-        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
+        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(map_prefixed_key%0#0)
         let tuple_item%0#0: Encoded(uint64) = extract_value(listing#0, 1)
         let tmp%1#1: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         let (value%0#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
@@ -288,7 +288,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%14#0: uint64 = decode_bytes<uint64>(tuple_item%5#0)
         let tmp%15#0: uint64 = (- tmp%14#0 quantity#0)
         let tmp%16#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%15#0, tmp%1#1, tmp%12#0, tmp%10#0, tmp%11#0)
-        box_write(box_prefixed_key%0#0, tmp%16#0)
+        box_write(map_prefixed_key%0#0, tmp%16#0)
         itxn_begin
         let inner_txn_params%0%%param_AssetReceiver_idx_0#0: account = (txn Sender)
         ((itxn_field AssetAmount) quantity#0)
@@ -313,8 +313,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%0#1: account = (txn Sender)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(tmp%0#1, asset#0, nonce#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
-        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
+        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(map_prefixed_key%0#0)
         let tuple_item%0#0: Encoded(uint8[32]) = extract_value(listing#0, 2)
         let tmp%2#1: account = decode_bytes<account>(tuple_item%0#0)
         let tmp%3#1: account = (global ZeroAddress)
@@ -336,7 +336,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         itxn_submit
         goto block@4
     block@4: // after_if_else_L186
-        (box_del box_prefixed_key%0#0)
+        (box_del map_prefixed_key%0#0)
         itxn_begin
         let inner_txn_params%1%%param_Receiver_idx_0#0: account = (txn Sender)
         let inner_txn_params%1%%param_Amount_idx_0#0: uint64 = test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.listings_box_mbr()
@@ -390,8 +390,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         (assert eq%4#0) // invalid number of bytes for arc4.uint64
         let unitary_price#0: uint64 = decode_bytes<uint64>(tmp%9#0)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(owner#0, asset#0, nonce#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
-        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
+        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(map_prefixed_key%0#0)
         let tuple_item%0#0: Encoded(uint8[32]) = extract_value(listing#0, 2)
         let tmp%1#1: account = decode_bytes<account>(tuple_item%0#0)
         let tmp%2#1: account = (global ZeroAddress)
@@ -435,7 +435,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%20#0: uint64 = decode_bytes<uint64>(tuple_item%6#0)
         let tmp%21#0: account = (txn Sender)
         let tmp%22#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%19#0, tmp%20#0, tmp%21#0, quantity#0, unitary_price#0)
-        box_write(box_prefixed_key%0#0, tmp%22#0)
+        box_write(map_prefixed_key%0#0, tmp%22#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.accept_bid[routing]() -> void:
@@ -452,8 +452,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%0#1: account = (txn Sender)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(tmp%0#1, asset#0, nonce#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
-        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
+        let listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = box_read(map_prefixed_key%0#0)
         let tuple_item%0#0: Encoded(uint8[32]) = extract_value(listing#0, 2)
         let tmp%2#1: account = decode_bytes<account>(tuple_item%0#0)
         let tmp%3#1: account = (global ZeroAddress)
@@ -495,7 +495,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%17#0: uint64 = (- tmp%5#0 min_quantity#0)
         let tmp%19#0: uint64 = (- tmp%6#0 min_quantity#0)
         let tmp%20#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%17#0, tmp%15#0, tmp%2#1, tmp%19#0, tmp%10#0)
-        box_write(box_prefixed_key%0#0, tmp%20#0)
+        box_write(map_prefixed_key%0#0, tmp%20#0)
         exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.listings_box_mbr() -> uint64:

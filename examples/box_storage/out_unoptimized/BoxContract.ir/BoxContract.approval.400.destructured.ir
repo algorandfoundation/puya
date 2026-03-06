@@ -355,8 +355,8 @@ subroutine examples.box_storage.contract.get_box_map_value_from_key_plus_1(box_m
     block@0: // L449
         let materialized_values%0#0: uint64 = (+ key#0 1u)
         let encoded_value%0#0: bytes[8] = (itob materialized_values%0#0)
-        let box_prefixed_key%0#0: bytes = (concat box_map#0 encoded_value%0#0)
-        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat box_map#0 encoded_value%0#0)
+        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get map_prefixed_key%0#0)
         (assert aggregate%box_get%1#0) // check BoxMap entry exists
         let storage_value%0#0: bytes = aggregate%box_get%0#0
         return storage_value%0#0
@@ -2194,77 +2194,77 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
 subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
     block@0: // L398
         let encoded_value%0#0: bytes[8] = (itob 0u)
-        let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
-        (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 "Hmmmmm")
+        let map_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
+        (box_del map_prefixed_key%0#0)
+        (box_put map_prefixed_key%0#0 "Hmmmmm")
         let encoded_value%1#0: bytes[8] = (itob 0u)
-        let box_prefixed_key%1#0: bytes = (concat "" encoded_value%1#0)
-        let box_0#0: bytes = box_prefixed_key%1#0
+        let map_prefixed_key%1#0: bytes = (concat "" encoded_value%1#0)
+        let box_0#0: bytes = map_prefixed_key%1#0
         let encoded_value%2#0: bytes[8] = (itob 0u)
-        let box_prefixed_key%2#0: bytes = (concat "" encoded_value%2#0)
-        let (box%box_len%0#0: uint64, box%_%0#0: bool) = (box_len box_prefixed_key%2#0)
+        let map_prefixed_key%2#0: bytes = (concat "" encoded_value%2#0)
+        let (box%box_len%0#0: uint64, box%_%0#0: bool) = (box_len map_prefixed_key%2#0)
         let tmp%0#0: uint64 = box%box_len%0#0
         let tmp%1#0: uint64 = (len "Hmmmmm")
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0)
         let encoded_value%3#0: bytes[8] = (itob 0u)
-        let box_prefixed_key%3#0: bytes = (concat "" encoded_value%3#0)
-        let (box%box_len%1#0: uint64, box%_%1#0: bool) = (box_len box_prefixed_key%3#0)
+        let map_prefixed_key%3#0: bytes = (concat "" encoded_value%3#0)
+        let (box%box_len%1#0: uint64, box%_%1#0: bool) = (box_len map_prefixed_key%3#0)
         let tmp%3#0: uint64 = box%box_len%1#0
         let (value%0#0: uint64, check%0#0: bool) = (box_len box_0#0)
         (assert check%0#0) // check Box exists
         let tmp%4#0: bool = (== tmp%3#0 value%0#0)
         (assert tmp%4#0)
         let encoded_value%4#0: bytes[8] = (itob 0u)
-        let box_prefixed_key%4#0: bytes = (concat "" encoded_value%4#0)
-        let (value%1#0: uint64, check%1#0: bool) = (box_len box_prefixed_key%4#0)
+        let map_prefixed_key%4#0: bytes = (concat "" encoded_value%4#0)
+        let (value%1#0: uint64, check%1#0: bool) = (box_len map_prefixed_key%4#0)
         (assert check%1#0) // check self.box_map entry exists
         let tmp%5#0: uint64 = (len "Hmmmmm")
         let tmp%6#0: bool = (== value%1#0 tmp%5#0)
         (assert tmp%6#0)
         let encoded_value%5#0: bytes[8] = (itob 1u)
-        let box_prefixed_key%5#0: bytes = (concat "" encoded_value%5#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%5#0)
+        let map_prefixed_key%5#0: bytes = (concat "" encoded_value%5#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get map_prefixed_key%5#0)
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
         let tmp%7#0: bool = (== state_get%0#0 "default")
         (assert tmp%7#0)
         let encoded_value%6#0: bytes[8] = (itob 1u)
-        let box_prefixed_key%6#0: bytes = (concat "" encoded_value%6#0)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get box_prefixed_key%6#0)
+        let map_prefixed_key%6#0: bytes = (concat "" encoded_value%6#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get map_prefixed_key%6#0)
         let exists#0: bool = maybe_exists%1#0
         let tmp%8#0: bool = (! exists#0)
         (assert tmp%8#0)
         let encoded_value%7#0: bytes[8] = (itob 0u)
-        let box_prefixed_key%7#0: bytes = (concat "" encoded_value%7#0)
-        let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len box_prefixed_key%7#0)
+        let map_prefixed_key%7#0: bytes = (concat "" encoded_value%7#0)
+        let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len map_prefixed_key%7#0)
         (assert maybe_exists%2#0)
         let tmp%9#0: bool = (== "" 0x)
         (assert tmp%9#0)
         let encoded_value%8#0: bytes[8] = (itob 1u)
-        let box_prefixed_key%8#0: bytes = (concat 0x encoded_value%8#0)
-        (box_del box_prefixed_key%8#0)
-        (box_put box_prefixed_key%8#0 "hello")
+        let map_prefixed_key%8#0: bytes = (concat 0x encoded_value%8#0)
+        (box_del map_prefixed_key%8#0)
+        (box_put map_prefixed_key%8#0 "hello")
         let tmp%10#0: string = examples.box_storage.contract.get_box_map_value_from_key_plus_1(0x, 0u)
         let tmp%11#0: bool = (== tmp%10#0 "hello")
         (assert tmp%11#0)
         let encoded_value%9#0: bytes[8] = (itob 1u)
-        let box_prefixed_key%9#0: bytes = (concat 0x encoded_value%9#0)
-        (box_del box_prefixed_key%9#0)
+        let map_prefixed_key%9#0: bytes = (concat 0x encoded_value%9#0)
+        (box_del map_prefixed_key%9#0)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: string) -> void:
     block@0: // L422
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
-        (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 value#0)
+        let map_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
+        (box_del map_prefixed_key%0#0)
+        (box_put map_prefixed_key%0#0 value#0)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_get(key: uint64) -> string:
     block@0: // L426
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
-        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
+        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get map_prefixed_key%0#0)
         (assert aggregate%box_get%1#0) // check self.box_map entry exists
         let storage_value%0#0: bytes = aggregate%box_get%0#0
         return storage_value%0#0
@@ -2272,13 +2272,13 @@ subroutine examples.box_storage.contract.BoxContract.box_map_get(key: uint64) ->
 subroutine examples.box_storage.contract.BoxContract.box_map_del(key: uint64) -> void:
     block@0: // L430
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
-        (box_del box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
+        (box_del map_prefixed_key%0#0)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_exists(key: uint64) -> bool:
     block@0: // L434
         let encoded_value%0#0: bytes[8] = (itob key#0)
-        let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
+        let map_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len map_prefixed_key%0#0)
         return maybe_exists%0#0
