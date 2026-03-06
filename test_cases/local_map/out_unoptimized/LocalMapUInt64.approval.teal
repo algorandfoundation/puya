@@ -1,0 +1,614 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 8 32
+    bytecblock "map" 0x151f7c75 0x00
+    b main_block@0
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+    b main_call___init__@1
+
+main_call___init__@1:
+    callsub __init__
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    b main_block@3
+
+main_block@3:
+    // local_map/uint64.py:4-9
+    // class LocalMapUInt64(
+    //     ARC4Contract,
+    //     state_totals=StateTotals(
+    //         local_uints=10,
+    //     ),
+    // ):
+    txna ApplicationArgs 0
+    pushbytes 0x4c5c61ba // method "create()void"
+    uncover 1
+    match main_create_route@4
+    b main_switch_case_next@5
+
+main_switch_case_next@5:
+    // local_map/uint64.py:4-9
+    // class LocalMapUInt64(
+    //     ARC4Contract,
+    //     state_totals=StateTotals(
+    //         local_uints=10,
+    //     ),
+    // ):
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    bz main_create_NoOp@16
+    b main_call_NoOp@6
+
+main_call_NoOp@6:
+    // local_map/uint64.py:4-9
+    // class LocalMapUInt64(
+    //     ARC4Contract,
+    //     state_totals=StateTotals(
+    //         local_uints=10,
+    //     ),
+    // ):
+    txna ApplicationArgs 0
+    pushbytes 0x9ff1263a // method "get(address,uint64)uint64"
+    pushbytes 0x78363a4f // method "get_with_default(address,uint64,uint64)uint64"
+    pushbytes 0xa06f60ef // method "set(address,uint64,uint64)void"
+    pushbytes 0x1208159e // method "delete(address,uint64)void"
+    pushbytes 0x7189d3f1 // method "in_(address,uint64)bool"
+    pushbytes 0xe3a3dd6d // method "prefix()byte[]"
+    pushbytes 0xc425527d // method "maybe(address,uint64)(uint64,bool)"
+    pushbytes 0x685eee4b // method "get_via_state(address,uint64)uint64"
+    uncover 8
+    match main_get_route@7 main_get_with_default_route@8 main_set_route@9 main_delete_route@10 main_in__route@11 main_prefix_route@12 main_maybe_route@13 main_get_via_state_route@14
+    b main_switch_case_next@15
+
+main_switch_case_next@15:
+    b main_after_if_else@17
+
+main_after_if_else@17:
+    // local_map/uint64.py:4-9
+    // class LocalMapUInt64(
+    //     ARC4Contract,
+    //     state_totals=StateTotals(
+    //         local_uints=10,
+    //     ),
+    // ):
+    err
+
+main_get_via_state_route@14:
+    // local_map/uint64.py:45
+    // @public
+    callsub get_via_state
+    b main_switch_case_next@15
+
+main_maybe_route@13:
+    // local_map/uint64.py:41
+    // @public
+    callsub maybe
+    b main_switch_case_next@15
+
+main_prefix_route@12:
+    // local_map/uint64.py:37
+    // @public
+    callsub prefix
+    b main_switch_case_next@15
+
+main_in__route@11:
+    // local_map/uint64.py:33
+    // @public
+    callsub in_
+    b main_switch_case_next@15
+
+main_delete_route@10:
+    // local_map/uint64.py:29
+    // @public
+    callsub delete
+    b main_switch_case_next@15
+
+main_set_route@9:
+    // local_map/uint64.py:25
+    // @public
+    callsub set
+    b main_switch_case_next@15
+
+main_get_with_default_route@8:
+    // local_map/uint64.py:21
+    // @public
+    callsub get_with_default
+    b main_switch_case_next@15
+
+main_get_route@7:
+    // local_map/uint64.py:17
+    // @public
+    callsub get
+    b main_switch_case_next@15
+
+main_create_NoOp@16:
+    b main_after_if_else@17
+
+main_create_route@4:
+    // local_map/uint64.py:13
+    // @public(allow_actions=["OptIn"], create="require")
+    txn OnCompletion
+    intc_1 // OptIn
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    callsub create
+    b main_switch_case_next@5
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.create[routing]() -> void:
+create:
+    b create_block@0
+
+create_block@0:
+    // local_map/uint64.py:13
+    // @public(allow_actions=["OptIn"], create="require")
+    callsub test_cases.local_map.uint64.LocalMapUInt64.create
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.get[routing]() -> void:
+get:
+    b get_block@0
+
+get_block@0:
+    // local_map/uint64.py:17
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.local_map.uint64.LocalMapUInt64.get
+    itob
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.get_with_default[routing]() -> void:
+get_with_default:
+    b get_with_default_block@0
+
+get_with_default_block@0:
+    // local_map/uint64.py:21
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.local_map.uint64.LocalMapUInt64.get_with_default
+    itob
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.set[routing]() -> void:
+set:
+    b set_block@0
+
+set_block@0:
+    // local_map/uint64.py:25
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub test_cases.local_map.uint64.LocalMapUInt64.set
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.delete[routing]() -> void:
+delete:
+    b delete_block@0
+
+delete_block@0:
+    // local_map/uint64.py:29
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.local_map.uint64.LocalMapUInt64.delete
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.in_[routing]() -> void:
+in_:
+    b in__block@0
+
+in__block@0:
+    // local_map/uint64.py:33
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.local_map.uint64.LocalMapUInt64.in_
+    bytec_2 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.prefix[routing]() -> void:
+prefix:
+    b prefix_block@0
+
+prefix_block@0:
+    // local_map/uint64.py:37
+    // @public
+    callsub test_cases.local_map.uint64.LocalMapUInt64.prefix
+    dup
+    len
+    itob
+    extract 6 2
+    uncover 1
+    concat
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.maybe[routing]() -> void:
+maybe:
+    b maybe_block@0
+
+maybe_block@0:
+    // local_map/uint64.py:41
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.local_map.uint64.LocalMapUInt64.maybe
+    cover 1
+    itob
+    pushbytes 0x
+    uncover 1
+    concat
+    bytec_2 // 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    concat
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.get_via_state[routing]() -> void:
+get_via_state:
+    b get_via_state_block@0
+
+get_via_state_block@0:
+    // local_map/uint64.py:45
+    // @public
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cases.local_map.uint64.LocalMapUInt64.get_via_state
+    itob
+    bytec_1 // 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.__init__() -> void:
+__init__:
+    b __init___block@0
+
+__init___block@0:
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.create() -> void:
+test_cases.local_map.uint64.LocalMapUInt64.create:
+    b test_cases.local_map.uint64.LocalMapUInt64.create_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.create_block@0:
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.get(account: bytes, key: uint64) -> uint64:
+test_cases.local_map.uint64.LocalMapUInt64.get:
+    // local_map/uint64.py:17-18
+    // @public
+    // def get(self, account: Account, key: UInt64) -> UInt64:
+    proto 2 1
+    b test_cases.local_map.uint64.LocalMapUInt64.get_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.get_block@0:
+    // local_map/uint64.py:19
+    // return self.map[account, key]
+    frame_dig -1
+    itob
+    bytec_0 // "map"
+    uncover 1
+    concat
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    app_local_get_ex
+    assert // check self.map entry exists for account
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.get_with_default(account: bytes, key: uint64, default: uint64) -> uint64:
+test_cases.local_map.uint64.LocalMapUInt64.get_with_default:
+    // local_map/uint64.py:21-22
+    // @public
+    // def get_with_default(self, account: Account, key: UInt64, default: UInt64) -> UInt64:
+    proto 3 1
+    b test_cases.local_map.uint64.LocalMapUInt64.get_with_default_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.get_with_default_block@0:
+    // local_map/uint64.py:23
+    // return self.map.get(account, key, default=default)
+    frame_dig -2
+    itob
+    bytec_0 // "map"
+    uncover 1
+    concat
+    frame_dig -3
+    intc_0 // 0
+    uncover 2
+    app_local_get_ex
+    cover 1
+    frame_dig -1
+    uncover 1
+    uncover 2
+    select
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.set(account: bytes, key: uint64, value: uint64) -> void:
+test_cases.local_map.uint64.LocalMapUInt64.set:
+    // local_map/uint64.py:25-26
+    // @public
+    // def set(self, account: Account, key: UInt64, value: UInt64) -> None:
+    proto 3 0
+    b test_cases.local_map.uint64.LocalMapUInt64.set_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.set_block@0:
+    // local_map/uint64.py:27
+    // self.map[account, key] = value
+    frame_dig -2
+    itob
+    bytec_0 // "map"
+    uncover 1
+    concat
+    frame_dig -3
+    uncover 1
+    frame_dig -1
+    app_local_put
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.delete(account: bytes, key: uint64) -> void:
+test_cases.local_map.uint64.LocalMapUInt64.delete:
+    // local_map/uint64.py:29-30
+    // @public
+    // def delete(self, account: Account, key: UInt64) -> None:
+    proto 2 0
+    b test_cases.local_map.uint64.LocalMapUInt64.delete_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.delete_block@0:
+    // local_map/uint64.py:31
+    // del self.map[account, key]
+    frame_dig -1
+    itob
+    bytec_0 // "map"
+    uncover 1
+    concat
+    frame_dig -2
+    uncover 1
+    app_local_del
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.in_(account: bytes, key: uint64) -> uint64:
+test_cases.local_map.uint64.LocalMapUInt64.in_:
+    // local_map/uint64.py:33-34
+    // @public
+    // def in_(self, account: Account, key: UInt64) -> bool:
+    proto 2 1
+    b test_cases.local_map.uint64.LocalMapUInt64.in__block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.in__block@0:
+    // local_map/uint64.py:35
+    // return (account, key) in self.map
+    frame_dig -1
+    itob
+    bytec_0 // "map"
+    uncover 1
+    concat
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    app_local_get_ex
+    uncover 1
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.prefix() -> bytes:
+test_cases.local_map.uint64.LocalMapUInt64.prefix:
+    b test_cases.local_map.uint64.LocalMapUInt64.prefix_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.prefix_block@0:
+    // local_map/uint64.py:39
+    // return self.map.key_prefix
+    bytec_0 // "map"
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.maybe(account: bytes, key: uint64) -> uint64, uint64:
+test_cases.local_map.uint64.LocalMapUInt64.maybe:
+    // local_map/uint64.py:41-42
+    // @public
+    // def maybe(self, account: Account, key: UInt64) -> tuple[UInt64, bool]:
+    proto 2 2
+    b test_cases.local_map.uint64.LocalMapUInt64.maybe_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.maybe_block@0:
+    // local_map/uint64.py:43
+    // return self.map.maybe(account, key)
+    frame_dig -1
+    itob
+    bytec_0 // "map"
+    uncover 1
+    concat
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    app_local_get_ex
+    retsub
+
+
+// test_cases.local_map.uint64.LocalMapUInt64.get_via_state(account: bytes, key: uint64) -> uint64:
+test_cases.local_map.uint64.LocalMapUInt64.get_via_state:
+    // local_map/uint64.py:45-46
+    // @public
+    // def get_via_state(self, account: Account, key: UInt64) -> UInt64:
+    proto 2 1
+    b test_cases.local_map.uint64.LocalMapUInt64.get_via_state_block@0
+
+test_cases.local_map.uint64.LocalMapUInt64.get_via_state_block@0:
+    // local_map/uint64.py:47
+    // state = self.map.state(key)
+    frame_dig -1
+    itob
+    bytec_0 // "map"
+    uncover 1
+    concat
+    // local_map/uint64.py:48
+    // return state[account]
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    app_local_get_ex
+    assert // check LocalState exists for account
+    retsub
