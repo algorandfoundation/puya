@@ -86,6 +86,7 @@ def _compile_no_optimization(test_case: PuyaTestCase) -> None:
         output_teal=True,
         output_bytecode=True,
         output_destructured_ir=True,
+        output_assembly_report=True,
     )
 
 
@@ -106,6 +107,7 @@ def _compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
         output_destructured_ir=True,
         output_memory_ir=True,
         output_client=True,
+        output_assembly_report=True,
     )
 
 
@@ -119,6 +121,7 @@ def _compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
         output_teal=True,
         output_bytecode=True,
         output_destructured_ir=True,
+        output_assembly_report=True,
     )
 
 

@@ -1,0 +1,28 @@
+| PC | TEAL Bytes     | TEAL               | Source                                      | Location                                                               |
+|--: | :--------------| :------------------| :-------------------------------------------| :----------------------------------------------------------------------|
+|  0 | 0b             | #pragma version 11 |                                             |                                                                        |
+|    | # main         | main:              |                                             | test_cases.simple.contract.MyContract.clear_state_program() -> uint64: |
+|  1 | 42 00 00       |     b main_block@0 |                                             |                                                                        |
+|    | # main_block@0 | main_block@0:      |                                             |                                                                        |
+|    |                |                    | assert pkg_a.Txn2.num_app_args == 0         | simple/contract.py:26                                                  |
+|  4 | 31 1b          |     txn NumAppArgs |        -----------------------              | simple/contract.py:26:15-38                                            |
+|  6 | 81 00          |     pushint 0      |                                   -         | simple/contract.py:26:42-43                                            |
+|  8 | 12             |     ==             |        ----------------------------         | simple/contract.py:26:15-43                                            |
+|  9 | 44             |     assert         | -----------------------------------         | simple/contract.py:26:8-43                                             |
+|    |                |                    | return subs.zero() * pkg_a.pkg_1.subs.one() | simple/contract.py:27                                                  |
+| 10 | 88 00 05       |     callsub zero   |        -----------                          | simple/contract.py:27:15-26                                            |
+| 13 | 88 00 08       |     callsub one    |                      ---------------------- | simple/contract.py:27:29-51                                            |
+| 16 | 0b             |     *              |        ------------------------------------ | simple/contract.py:27:15-51                                            |
+| 17 | 43             |     return         | ------------------------------------------- | simple/contract.py:27:8-51                                             |
+|    | # zero         | zero:              |                                             | test_cases.simple.subs.zero() -> uint64:                               |
+| 18 | 42 00 00       |     b zero_block@0 |                                             |                                                                        |
+|    | # zero_block@0 | zero_block@0:      |                                             |                                                                        |
+|    |                |                    | return algopy.UInt64(0)                     | simple/subs.py:6                                                       |
+| 21 | 81 00          |     pushint 0      |        ----------------                     | simple/subs.py:6:11-27                                                 |
+| 23 | 89             |     retsub         | -----------------------                     | simple/subs.py:6:4-27                                                  |
+|    | # one          | one:               |                                             | test_cases.simple.pkg_a.pkg_1.subs.one() -> uint64:                    |
+| 24 | 42 00 00       |     b one_block@0  |                                             |                                                                        |
+|    | # one_block@0  | one_block@0:       |                                             |                                                                        |
+|    |                |                    | return algopy.UInt64(1)                     | simple/pkg_a/pkg_1/subs.py:6                                           |
+| 27 | 81 01          |     pushint 1      |        ----------------                     | simple/pkg_a/pkg_1/subs.py:6:11-27                                     |
+| 29 | 89             |     retsub         | -----------------------                     | simple/pkg_a/pkg_1/subs.py:6:4-27                                      |

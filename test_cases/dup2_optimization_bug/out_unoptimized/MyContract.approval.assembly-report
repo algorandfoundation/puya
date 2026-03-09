@@ -1,0 +1,24 @@
+| PC | TEAL Bytes     | TEAL                       | Source                      | Location                                                                        |
+|--: | :--------------| :--------------------------| :---------------------------| :-------------------------------------------------------------------------------|
+|  0 | 0b             | #pragma version 11         |                             |                                                                                 |
+|    | # main         | main:                      |                             | test_cases.dup2_optimization_bug.crash.MyContract.approval_program() -> uint64: |
+|  1 | 42 00 00       |     b main_block@0         |                             |                                                                                 |
+|    | # main_block@0 | main_block@0:              |                             |                                                                                 |
+|    |                |                            | a = Txn.application_args(0) | dup2_optimization_bug/crash.py:6                                                |
+|  4 | 36 1a 00       |     txna ApplicationArgs 0 |     ----------------------- | dup2_optimization_bug/crash.py:6:12-35                                          |
+|    |                |                            | b = Txn.application_args(1) | dup2_optimization_bug/crash.py:7                                                |
+|  7 | 36 1a 01       |     txna ApplicationArgs 1 |     ----------------------- | dup2_optimization_bug/crash.py:7:12-35                                          |
+|    |                |                            | assert a + b                | dup2_optimization_bug/crash.py:9                                                |
+| 10 | 4a             |     dup2                   |        -----                | dup2_optimization_bug/crash.py:9:15-20                                          |
+| 11 | 50             |     concat                 |        -----                | dup2_optimization_bug/crash.py:9:15-20                                          |
+| 12 | 15             |     len                    |        -----                | dup2_optimization_bug/crash.py:9:15-20                                          |
+| 13 | 81 00          |     pushint 0              |        -----                | dup2_optimization_bug/crash.py:9:15-20                                          |
+| 15 | 13             |     !=                     |        -----                | dup2_optimization_bug/crash.py:9:15-20                                          |
+| 16 | 44             |     assert                 | ------------                | dup2_optimization_bug/crash.py:9:8-20                                           |
+|    |                |                            | return (b + a).length > 0   | dup2_optimization_bug/crash.py:10                                               |
+| 17 | 4f 01          |     uncover 1              |         -----               | dup2_optimization_bug/crash.py:10:16-21                                         |
+| 19 | 50             |     concat                 |         -----               | dup2_optimization_bug/crash.py:10:16-21                                         |
+| 20 | 15             |     len                    |        --------------       | dup2_optimization_bug/crash.py:10:15-29                                         |
+| 21 | 81 00          |     pushint 0              |                         -   | dup2_optimization_bug/crash.py:10:32-33                                         |
+| 23 | 0d             |     >                      |        ------------------   | dup2_optimization_bug/crash.py:10:15-33                                         |
+| 24 | 43             |     return                 | -------------------------   | dup2_optimization_bug/crash.py:10:8-33                                          |

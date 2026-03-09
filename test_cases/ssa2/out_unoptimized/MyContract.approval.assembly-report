@@ -1,0 +1,54 @@
+| PC | TEAL Bytes          | TEAL                              | Source              | Location                                                          |
+|--: | :-------------------| :---------------------------------| :-------------------| :-----------------------------------------------------------------|
+|  0 | 0b                  | #pragma version 11                |                     |                                                                   |
+|    | # main              | main:                             |                     | test_cases.ssa2.contract.MyContract.approval_program() -> uint64: |
+|  1 | 20 02 01 05         |     intcblock 1 5                 |                     |                                                                   |
+|  5 | 42 00 00            |     b main_block@0                |                     |                                                                   |
+|    | # main_block@0      | main_block@0:                     |                     |                                                                   |
+|    |                     |                                   | a = UInt64(1) + 2   | ssa2/contract.py:8                                                |
+|  8 | 22                  |     intc_0 // 1                   |     ---------       | ssa2/contract.py:8:12-21                                          |
+|  9 | 81 02               |     pushint 2                     |                 -   | ssa2/contract.py:8:24-25                                          |
+| 11 | 08                  |     +                             |     -------------   | ssa2/contract.py:8:12-25                                          |
+|    |                     |                                   | b = UInt64(4) * 5   | ssa2/contract.py:9                                                |
+| 12 | 81 04               |     pushint 4                     |     ---------       | ssa2/contract.py:9:12-21                                          |
+| 14 | 23                  |     intc_1 // 5                   |                 -   | ssa2/contract.py:9:24-25                                          |
+| 15 | 0b                  |     *                             |     -------------   | ssa2/contract.py:9:12-25                                          |
+|    |                     |                                   | for i in urange(5): | ssa2/contract.py:15                                               |
+| 16 | 22                  |     intc_0 // 1                   |          ---------  | ssa2/contract.py:15:17-26                                         |
+| 17 | 44                  |     assert // Step cannot be zero |                     | ssa2/contract.py:15                                               |
+| 18 | 81 00               |     pushint 0                     |          ---------  | ssa2/contract.py:15:17-26                                         |
+| 20 | 42 00 00            |     b main_for_header@1           |                     |                                                                   |
+|    | # main_for_header@1 | main_for_header@1:                |                     |                                                                   |
+|    |                     |                                   | for i in urange(5): | ssa2/contract.py:15                                               |
+| 23 | 49                  |     dup                           |                     | ssa2/contract.py:15                                               |
+| 24 | 23                  |     intc_1 // 5                   |                 -   | ssa2/contract.py:15:24-25                                         |
+| 25 | 0c                  |     <                             |                     | ssa2/contract.py:15                                               |
+| 26 | 41 00 1c            |     bz main_after_for@4           |                     | ssa2/contract.py:15                                               |
+| 29 | 42 00 00            |     b main_for_body@2             |                     | ssa2/contract.py:15                                               |
+|    | # main_for_body@2   | main_for_body@2:                  |                     |                                                                   |
+|    |                     |                                   | for i in urange(5): | ssa2/contract.py:15                                               |
+| 32 | 49                  |     dup                           |     -               | ssa2/contract.py:15:12-13                                         |
+|    |                     |                                   | b = b + a           | ssa2/contract.py:16                                               |
+| 33 | 4b 02               |     dig 2                         |     -----           | ssa2/contract.py:16:16-21                                         |
+| 35 | 4b 04               |     dig 4                         |     -----           | ssa2/contract.py:16:16-21                                         |
+| 37 | 49                  |     dup                           |     -----           | ssa2/contract.py:16:16-21                                         |
+| 38 | 4e 02               |     cover 2                       |     -----           | ssa2/contract.py:16:16-21                                         |
+| 40 | 08                  |     +                             |     -----           | ssa2/contract.py:16:16-21                                         |
+| 41 | 45 04               |     bury 4                        | ---------           | ssa2/contract.py:16:12-21                                         |
+|    |                     |                                   | a = a + i           | ssa2/contract.py:17                                               |
+| 43 | 08                  |     +                             |     -----           | ssa2/contract.py:17:16-21                                         |
+| 44 | 45 03               |     bury 3                        | ---------           | ssa2/contract.py:17:12-21                                         |
+| 46 | 42 00 00            |     b main_for_footer@3           |                     |                                                                   |
+|    | # main_for_footer@3 | main_for_footer@3:                |                     |                                                                   |
+|    |                     |                                   | for i in urange(5): | ssa2/contract.py:15                                               |
+| 49 | 49                  |     dup                           |          ---------  | ssa2/contract.py:15:17-26                                         |
+| 50 | 22                  |     intc_0 // 1                   |          ---------  | ssa2/contract.py:15:17-26                                         |
+| 51 | 08                  |     +                             |          ---------  | ssa2/contract.py:15:17-26                                         |
+| 52 | 45 01               |     bury 1                        |          ---------  | ssa2/contract.py:15:17-26                                         |
+| 54 | 42 ff de            |     b main_for_header@1           |                     |                                                                   |
+|    | # main_after_for@4  | main_after_for@4:                 |                     |                                                                   |
+|    |                     |                                   | return a + b        | ssa2/contract.py:18                                               |
+| 57 | 4b 02               |     dig 2                         |        -----        | ssa2/contract.py:18:15-20                                         |
+| 59 | 4b 02               |     dig 2                         |        -----        | ssa2/contract.py:18:15-20                                         |
+| 61 | 08                  |     +                             |        -----        | ssa2/contract.py:18:15-20                                         |
+| 62 | 43                  |     return                        | ------------        | ssa2/contract.py:18:8-20                                          |

@@ -1,0 +1,39 @@
+| PC | TEAL Bytes             | TEAL                        | Source                             | Location                                                                    |
+|--: | :----------------------| :---------------------------| :----------------------------------| :---------------------------------------------------------------------------|
+|  0 | 0b                     | #pragma version 11          |                                    |                                                                             |
+|    | # main                 | main:                       |                                    | test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64: |
+|  1 | 83 02 00 01            |     pushints 0 1            |                                    | less_simple/contract.py:28-29:25-25                                         |
+|    | # main_for_header@1    | main_for_header@1:          |                                    |                                                                             |
+|    |                        |                             | for i in urange(1, 100):           | less_simple/contract.py:29                                                  |
+|  5 | 49                     |     dup                     |                                    | less_simple/contract.py:29                                                  |
+|  6 | 81 64                  |     pushint 100             |                    ---             | less_simple/contract.py:29:27-30                                            |
+|  8 | 0c                     |     <                       |                                    | less_simple/contract.py:29                                                  |
+|  9 | 41 00 1f               |     bz main_after_for@8     |                                    | less_simple/contract.py:29                                                  |
+|    |                        |                             | square_root = op.sqrt(i)           | less_simple/contract.py:30                                                  |
+| 12 | 47 02                  |     dupn 2                  |               ----------           | less_simple/contract.py:30:26-36                                            |
+| 14 | 92                     |     sqrt                    |               ----------           | less_simple/contract.py:30:26-36                                            |
+|    |                        |                             | if square_root * square_root == i: | less_simple/contract.py:31                                                  |
+| 15 | 49                     |     dup                     |    -------------------------       | less_simple/contract.py:31:15-40                                            |
+| 16 | 0b                     |     *                       |    -------------------------       | less_simple/contract.py:31:15-40                                            |
+| 17 | 12                     |     ==                      |    ------------------------------  | less_simple/contract.py:31:15-45                                            |
+| 18 | 41 00 04               |     bz main_after_if_else@4 |                                    | less_simple/contract.py:31                                                  |
+|    |                        |                             | sum_of_squares += i                | less_simple/contract.py:32                                                  |
+| 21 | 4a                     |     dup2                    | -------------------                | less_simple/contract.py:32:16-35                                            |
+| 22 | 08                     |     +                       | -------------------                | less_simple/contract.py:32:16-35                                            |
+| 23 | 45 02                  |     bury 2                  | -------------------                | less_simple/contract.py:32:16-35                                            |
+|    | # main_after_if_else@4 | main_after_if_else@4:       |                                    |                                                                             |
+|    |                        |                             | if sum_of_squares > 200:           | less_simple/contract.py:33                                                  |
+| 25 | 4b 01                  |     dig 1                   |    --------------------            | less_simple/contract.py:33:15-35                                            |
+| 27 | 81 c8 01               |     pushint 200             |                     ---            | less_simple/contract.py:33:32-35                                            |
+| 30 | 0d                     |     >                       |    --------------------            | less_simple/contract.py:33:15-35                                            |
+| 31 | 40 00 09               |     bnz main_after_for@8    |                                    | less_simple/contract.py:33                                                  |
+|    |                        |                             | for i in urange(1, 100):           | less_simple/contract.py:29                                                  |
+| 34 | 49                     |     dup                     |          --------------            | less_simple/contract.py:29:17-31                                            |
+| 35 | 81 01                  |     pushint 1               |          --------------            | less_simple/contract.py:29:17-31                                            |
+| 37 | 08                     |     +                       |          --------------            | less_simple/contract.py:29:17-31                                            |
+| 38 | 45 01                  |     bury 1                  |                                    |                                                                             |
+| 40 | 42 ff da               |     b main_for_header@1     |                                    |                                                                             |
+|    | # main_after_for@8     | main_after_for@8:           |                                    |                                                                             |
+|    |                        |                             | return sum_of_squares              | less_simple/contract.py:35                                                  |
+| 43 | 4b 01                  |     dig 1                   | ---------------------              | less_simple/contract.py:35:8-29                                             |
+| 45 | 43                     |     return                  | ---------------------              | less_simple/contract.py:35:8-29                                             |

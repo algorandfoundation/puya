@@ -1,0 +1,45 @@
+| PC | TEAL Bytes             | TEAL                         | Source                             | Location                                                      |
+|--: | :----------------------| :----------------------------| :----------------------------------| :-------------------------------------------------------------|
+|  0 | 0b                     | #pragma version 11           |                                    |                                                               |
+|    | # main                 | main:                        |                                    | algopy.arc4.ARC4Contract.approval_program() -> uint64:        |
+|  1 | 42 00 00               |     b main_block@0           |                                    |                                                               |
+|    | # main_block@0         | main_block@0:                |                                    |                                                               |
+|  4 | 31 18                  |     txn ApplicationID        |                                    | INTERNAL:1                                                    |
+|  6 | 40 00 09               |     bnz main_after_if_else@2 |                                    | INTERNAL:1                                                    |
+|  9 | 42 00 00               |     b main_call___init__@1   |                                    | INTERNAL:1                                                    |
+|    | # main_call___init__@1 | main_call___init__@1:        |                                    |                                                               |
+| 12 | 88 00 27               |     callsub __init__         |                                    | INTERNAL:1                                                    |
+| 15 | 42 00 00               |     b main_after_if_else@2   |                                    |                                                               |
+|    | # main_after_if_else@2 | main_after_if_else@2:        |                                    |                                                               |
+| 18 | 42 00 00               |     b main_block@3           |                                    | INTERNAL:1                                                    |
+|    | # main_block@3         | main_block@3:                |                                    |                                                               |
+| 21 | 31 1b                  |     txn NumAppArgs           |                                    | state_totals/contract.py:6-9                                  |
+| 23 | 81 00                  |     pushint 0                |                                    | state_totals/contract.py:6-9                                  |
+| 25 | 13                     |     !=                       |                                    | state_totals/contract.py:6-9                                  |
+| 26 | 41 00 07               |     bz main_create@5         |                                    | state_totals/contract.py:6-9                                  |
+| 29 | 42 00 00               |     b main_abi_routing@4     |                                    | state_totals/contract.py:6-9                                  |
+|    | # main_abi_routing@4   | main_abi_routing@4:          |                                    |                                                               |
+| 32 | 42 00 00               |     b main_after_if_else@6   |                                    |                                                               |
+|    | # main_after_if_else@6 | main_after_if_else@6:        |                                    |                                                               |
+| 35 | 00                     |     err                      |                                    | state_totals/contract.py:6-9                                  |
+|    | # main_create@5        | main_create@5:               |                                    |                                                               |
+|    |                        |                              | @arc4.baremethod(create="require") | state_totals/contract.py:14                                   |
+| 36 | 31 19                  |     txn OnCompletion         |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 38 | 81 00                  |     pushint 0 // NoOp        |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 40 | 12                     |     ==                       |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 41 | 31 18                  |     txn ApplicationID        |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 43 | 81 00                  |     pushint 0                |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 45 | 12                     |     ==                       |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 46 | 10                     |     &&                       |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 47 | 44                     |     assert                   |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 48 | 88 00 07               |     callsub create           |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 51 | 81 01                  |     pushint 1                |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+| 53 | 43                     |     return                   |  --------------------------------- | state_totals/contract.py:14:5-38                              |
+|    | # __init__             | __init__:                    |                                    | test_cases.state_totals.contract.Contract.__init__() -> void: |
+| 54 | 42 00 00               |     b __init___block@0       |                                    |                                                               |
+|    | # __init___block@0     | __init___block@0:            |                                    |                                                               |
+| 57 | 89                     |     retsub                   |                                    |                                                               |
+|    | # create               | create:                      |                                    | test_cases.state_totals.contract.Contract.create() -> void:   |
+| 58 | 42 00 00               |     b create_block@0         |                                    |                                                               |
+|    | # create_block@0       | create_block@0:              |                                    |                                                               |
+| 61 | 89                     |     retsub                   |                                    |                                                               |
