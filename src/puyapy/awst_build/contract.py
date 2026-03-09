@@ -26,6 +26,7 @@ from puyapy.awst_build.utils import get_decorators_by_fullname, get_subroutine_d
 from puyapy.models import (
     ARC4BareMethodData,
     ARC4MethodData,
+    ArgKind,
     ContractClassOptions,
     ContractFragmentBase,
     ContractFragmentMethod,
@@ -330,6 +331,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         ctx,
                         func_def=func_def,
                         source_location=source_location,
+                        is_method=True,
                         inline=inline,
                         contract_method_info=ContractMethodInfo(
                             fragment=self.fragment,
@@ -440,9 +442,10 @@ class _StaticContractBase(_UserContractBase):
         *,
         return_type: pytypes.RuntimeType = pytypes.BoolType,
     ) -> None:
+        self_arg = pytypes.FuncArg(pytypes.ContractBaseType, "self", ArgKind.ARG_POS)
         self.symbols[name] = pytypes.FuncType(
             name=".".join((self.id, name)),
-            args=(),
+            args=(self_arg,),
             ret_type=return_type,
         )
         implementation = awst_nodes.ContractMethod(
