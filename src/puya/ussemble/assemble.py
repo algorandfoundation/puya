@@ -129,6 +129,7 @@ def assemble_bytecode_and_debug_info(
             for var in ctx.template_variable_types
         },
         stats=_get_op_stats(op_stats),
+        instruction_boundaries=[*pc_ops.keys(), pc],
     )
 
 

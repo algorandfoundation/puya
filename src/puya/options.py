@@ -18,6 +18,7 @@ class LocalsCoalescingStrategy(enum.StrEnum):
 class PuyaOptions:
     output_teal: bool = False
     output_source_map: bool = False
+    output_assembly_report: bool = False
     output_arc32: bool = False
     output_arc56: bool = False
     output_ssa_ir: bool = False

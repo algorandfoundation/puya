@@ -36,3 +36,4 @@ class AssembledProgram:
     template_variables: Mapping[str, int | bytes | None]
     """Indicates template variable values used in compilation"""
     stats: Mapping[str, int]
+    instruction_boundaries: Sequence[int]
