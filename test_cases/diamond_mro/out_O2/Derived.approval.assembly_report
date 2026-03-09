@@ -1,0 +1,53 @@
+  0 | 0b                                               | #pragma version 11                            |                                   | 
+    | # main                                           | main:                                         |                                   | algopy.arc4.ARC4Contract.approval_program() -> uint64:
+  1 | 31 18                                            | txn ApplicationID                             |                                   | INTERNAL:1
+  3 | 40 00 43                                         | bnz main_after_if_else@2                      |                                   | INTERNAL:1
+    |                                                  |                                               | log("derived.__init__")           | diamond_mro/derived.py:9
+  6 | 80 10 64 65 72 69 76 65 64 2e 5f 5f 69 6e 69 74 5f 5f | pushbytes "derived.__init__"                  |     ------------------            | diamond_mro/derived.py:9:12-30
+ 24 | b0                                               | log                                           | -----------------------           | diamond_mro/derived.py:9:8-31
+    |                                                  |                                               | log("base1.__init__")             | diamond_mro/base1.py:8
+ 25 | 80 0e 62 61 73 65 31 2e 5f 5f 69 6e 69 74 5f 5f  | pushbytes "base1.__init__"                    |     ----------------              | diamond_mro/base1.py:8:12-28
+ 41 | b0                                               | log                                           | ---------------------             | diamond_mro/base1.py:8:8-29
+    |                                                  |                                               | log("base2.__init__")             | diamond_mro/base2.py:8
+ 42 | 80 0e 62 61 73 65 32 2e 5f 5f 69 6e 69 74 5f 5f  | pushbytes "base2.__init__"                    |     ----------------              | diamond_mro/base2.py:8:12-28
+ 58 | b0                                               | log                                           | ---------------------             | diamond_mro/base2.py:8:8-29
+    |                                                  |                                               | log("gp.__init__")                | diamond_mro/gp.py:8
+ 59 | 80 0b 67 70 2e 5f 5f 69 6e 69 74 5f 5f           | pushbytes "gp.__init__"                       |     -------------                 | diamond_mro/gp.py:8:12-25
+ 72 | b0                                               | log                                           | ------------------                | diamond_mro/gp.py:8:8-26
+    | # main_after_if_else@2                           | main_after_if_else@2:                         |                                   | 
+    |                                                  |                                               | class Derived(Base1, Base2):      | diamond_mro/derived.py:7
+ 73 | 31 19                                            | txn OnCompletion                              |                                   | diamond_mro/derived.py:7
+ 75 | 14                                               | !                                             |                                   | diamond_mro/derived.py:7
+ 76 | 44                                               | assert                                        |                                   | diamond_mro/derived.py:7
+ 77 | 31 18                                            | txn ApplicationID                             |                                   | diamond_mro/derived.py:7
+ 79 | 41 00 4c                                         | bz main_create_NoOp@7                         |                                   | diamond_mro/derived.py:7
+ 82 | 80 04 4f 04 5d 84                                | pushbytes 0x4f045d84 // method "method()void" |                                   | diamond_mro/derived.py:7
+ 88 | 36 1a 00                                         | txna ApplicationArgs 0                        |                                   | diamond_mro/derived.py:7
+ 91 | 8e 01 00 01                                      | match main_method_route@5                     |                                   | diamond_mro/derived.py:7
+ 95 | 00                                               | err                                           |                                   | diamond_mro/derived.py:7
+    | # main_method_route@5                            | main_method_route@5:                          |                                   | 
+    |                                                  |                                               | log("derived.method")             | diamond_mro/derived.py:14
+ 96 | 80 0e 64 65 72 69 76 65 64 2e 6d 65 74 68 6f 64  | pushbytes "derived.method"                    |     ----------------              | diamond_mro/derived.py:14:12-28
+112 | b0                                               | log                                           | ---------------------             | diamond_mro/derived.py:14:8-29
+    |                                                  |                                               | log("base1.method")               | diamond_mro/base1.py:13
+113 | 80 0c 62 61 73 65 31 2e 6d 65 74 68 6f 64        | pushbytes "base1.method"                      |     --------------                | diamond_mro/base1.py:13:12-26
+127 | b0                                               | log                                           | -------------------               | diamond_mro/base1.py:13:8-27
+    |                                                  |                                               | log("base2.method")               | diamond_mro/base2.py:13
+128 | 80 0c 62 61 73 65 32 2e 6d 65 74 68 6f 64        | pushbytes "base2.method"                      |     --------------                | diamond_mro/base2.py:13:12-26
+142 | b0                                               | log                                           | -------------------               | diamond_mro/base2.py:13:8-27
+    |                                                  |                                               | log("gp.method")                  | diamond_mro/gp.py:17
+143 | 80 09 67 70 2e 6d 65 74 68 6f 64                 | pushbytes "gp.method"                         |     -----------                   | diamond_mro/gp.py:17:12-23
+154 | b0                                               | log                                           | ----------------                  | diamond_mro/gp.py:17:8-24
+    |                                                  |                                               | @arc4.abimethod                   | diamond_mro/derived.py:12
+155 | 81 01                                            | pushint 1                                     |  --------------                   | diamond_mro/derived.py:12:5-19
+157 | 43                                               | return                                        |  --------------                   | diamond_mro/derived.py:12:5-19
+    | # main_create_NoOp@7                             | main_create_NoOp@7:                           |                                   | 
+    |                                                  |                                               | class Derived(Base1, Base2):      | diamond_mro/derived.py:7
+158 | 80 04 4c 5c 61 ba                                | pushbytes 0x4c5c61ba // method "create()void" |                                   | diamond_mro/derived.py:7
+164 | 36 1a 00                                         | txna ApplicationArgs 0                        |                                   | diamond_mro/derived.py:7
+167 | 8e 01 00 01                                      | match main_create_route@8                     |                                   | diamond_mro/derived.py:7
+171 | 00                                               | err                                           |                                   | diamond_mro/derived.py:7
+    | # main_create_route@8                            | main_create_route@8:                          |                                   | 
+    |                                                  |                                               | @arc4.abimethod(create="require") | diamond_mro/gp.py:11
+172 | 81 01                                            | pushint 1                                     |  -------------------------------- | diamond_mro/gp.py:11:5-37
+174 | 43                                               | return                                        |  -------------------------------- | diamond_mro/gp.py:11:5-37
