@@ -16,12 +16,16 @@ from puya.awst import (
 )
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import CodeError, InternalError
+from puya.ir import (
+    types_ as types,
+)
 from puya.ir._arc4_default_args import convert_default_args
 from puya.ir.arc4_types import (
     get_arc4_name,
     wtype_to_arc4,
     wtype_to_arc4_wtype,
 )
+from puya.ir.builder._utils import split_signature
 from puya.ir.builder.storage import get_storage_codec
 from puya.ir.context import IRBuildContext
 from puya.parse import SourceLocation
@@ -437,8 +441,17 @@ class _EventCollector(FunctionTraverser):
         self.emits[self.current_func].add(emit.value.wtype)
 
     def visit_emit_fields(self, emit: awst_nodes.EmitFields) -> None:
-        fields = {f"field{idx}": arg.wtype for idx, arg in enumerate(emit.values, start=1)}
-        name = emit.signature.split("(")[0]  # remove parameter list if present
+        name, maybe_args, _ = split_signature(emit.signature, emit.source_location)
+        if maybe_args is not None:
+            arg_abi_names = list(types.split_tuple_types(maybe_args))
+            field_types = [types.abi_name_to_wtype(arg_abi_name) for arg_abi_name in arg_abi_names]
+        else:
+            field_types = [
+                wtype_to_arc4_wtype(arg.wtype, arg.source_location) for arg in emit.values
+            ]
+
+        fields = {f"field{idx}": field_type for idx, field_type in enumerate(field_types, start=1)}
+
         struct_wtype = wtypes.ARC4Struct(
             name=name,
             fields=fields,
