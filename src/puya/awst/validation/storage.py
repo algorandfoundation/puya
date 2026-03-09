@@ -27,6 +27,9 @@ class StorageTypesValidator(AWSTTraverser):
     def __init__(self) -> None:
         super().__init__()
         self._seen_keys = defaultdict[AppStorageKind, set[bytes | str]](set)
+        self._seen_definitions = defaultdict[
+            AppStorageKind, dict[bytes, awst_nodes.AppStorageDefinition]
+        ](dict)
 
     @typing.override
     def visit_app_storage_definition(self, defn: awst_nodes.AppStorageDefinition) -> None:
@@ -34,6 +37,30 @@ class StorageTypesValidator(AWSTTraverser):
         _validate_persistable(defn.storage_wtype, defn.source_location)
         if defn.key_wtype is not None:
             _validate_persistable(defn.key_wtype, defn.source_location)
+        self._validate_definition_key_collisions(defn)
+
+    def _validate_definition_key_collisions(self, defn: awst_nodes.AppStorageDefinition) -> None:
+        kind_labels = {
+            AppStorageKind.app_global: "global state key",
+            AppStorageKind.account_local: "local state key",
+            AppStorageKind.box: "box key or prefix",
+        }
+        kind_label = kind_labels.get(defn.kind)
+        if kind_label is None:
+            return
+
+        existing = self._seen_definitions[defn.kind].get(defn.key.value)
+        if existing is not None:
+            logger.info(
+                f"previous definition of {kind_label} was here",
+                location=existing.source_location,
+            )
+            logger.error(
+                f"duplicate {kind_label} {defn.key.value!r}",
+                location=defn.source_location,
+            )
+        else:
+            self._seen_definitions[defn.kind][defn.key.value] = defn
 
     @typing.override
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> None:
