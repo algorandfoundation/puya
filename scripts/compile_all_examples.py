@@ -218,7 +218,7 @@ def _run(options: CompileAllOptions) -> None:
             item
             for root in CONTRACT_ROOT_DIRS
             for item in root.iterdir()
-            if item.is_dir() and any(item.glob("*.py"))
+            if item.is_dir() and item.name != "puya" and any(item.glob("*.py"))
         ]
 
     failures = list[tuple[str, str]]()
