@@ -146,6 +146,9 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "_BytesBase": SymbolData(fullname="algopy._primitives._BytesBase", module_public=True),
         "Bytes": SymbolData(fullname="algopy._primitives.Bytes", module_public=True),
         "BytesBacked": SymbolData(fullname="algopy._primitives.BytesBacked", module_public=True),
+        "_BytesConvertible": SymbolData(
+            fullname="algopy._primitives._BytesConvertible", module_public=True
+        ),
         "_TBytesLength": SymbolData(
             fullname="algopy._primitives._TBytesLength", module_public=True
         ),
@@ -253,7 +256,6 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "DynamicBytes": SymbolData(fullname="algopy.arc4.DynamicBytes", module_public=True),
         "_TTuple": SymbolData(fullname="algopy.arc4._TTuple", module_public=True),
         "Tuple": SymbolData(fullname="algopy.arc4.Tuple", module_public=True),
-        "_StructMeta": SymbolData(fullname="algopy.arc4._StructMeta", module_public=True),
         "Struct": SymbolData(fullname="algopy.arc4.Struct", module_public=True),
         "ARC4Client": SymbolData(fullname="algopy.arc4.ARC4Client", module_public=True),
         "_TABIResult_co": SymbolData(fullname="algopy.arc4._TABIResult_co", module_public=True),

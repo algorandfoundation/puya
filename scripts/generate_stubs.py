@@ -43,6 +43,7 @@ PYTYPE_TO_LITERAL: dict[pytypes.PyType, pytypes.LiteralOnlyType | None] = {
     pytypes.AssetType: pytypes.IntLiteralType,
     pytypes.TransactionTypeType: None,
     pytypes.OnCompleteActionType: None,
+    pytypes.BytesBackedType: pytypes.BytesLiteralType,
 }
 PYTYPE_REPR = {
     value: f"pytypes.{key}"
@@ -53,22 +54,22 @@ STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
     StackType.address_or_index: [pytypes.AccountType, pytypes.UInt64Type],
     StackType.application: [pytypes.ApplicationType, pytypes.UInt64Type],
     StackType.asset: [pytypes.AssetType, pytypes.UInt64Type],
-    StackType.bytes: [pytypes.BytesType],
-    StackType.bytes_8: [pytypes.BytesType],
-    StackType.bytes_32: [pytypes.BytesType],
-    StackType.bytes_33: [pytypes.BytesType],
-    StackType.bytes_64: [pytypes.BytesType],
-    StackType.bytes_80: [pytypes.BytesType],
-    StackType.bytes_1232: [pytypes.BytesType],
-    StackType.bytes_1793: [pytypes.BytesType],
+    StackType.bytes: [pytypes.BytesType, pytypes.BytesBackedType],
+    StackType.bytes_8: [pytypes.BytesType, pytypes.BytesBackedType],
+    StackType.bytes_32: [pytypes.BytesType, pytypes.BytesBackedType],
+    StackType.bytes_33: [pytypes.BytesType, pytypes.BytesBackedType],
+    StackType.bytes_64: [pytypes.BytesType, pytypes.BytesBackedType],
+    StackType.bytes_80: [pytypes.BytesType, pytypes.BytesBackedType],
+    StackType.bytes_1232: [pytypes.BytesType, pytypes.BytesBackedType],
+    StackType.bytes_1793: [pytypes.BytesType, pytypes.BytesBackedType],
     StackType.bool: [pytypes.BoolType, pytypes.UInt64Type],
     StackType.bool_only: [pytypes.BoolType],
     StackType.uint64: [pytypes.UInt64Type],
-    StackType.any: [pytypes.BytesType, pytypes.UInt64Type],
-    StackType.box_name: [pytypes.BytesType],  # TODO: should this be another type..?
+    StackType.any: [pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType],
+    StackType.box_name: [pytypes.BytesType, pytypes.BytesBackedType],
     StackType.address: [pytypes.AccountType],
     StackType.bigint: [pytypes.BigUIntType],
-    StackType.state_key: [pytypes.BytesType],  # TODO: should this be another type..?
+    StackType.state_key: [pytypes.BytesType, pytypes.BytesBackedType],
 }
 
 STUB_NAMESPACE = "op"
@@ -420,16 +421,23 @@ def main() -> None:
     output_awst_data(lang_spec, enum_names, function_defs, class_defs)
 
 
-def sub_types(type_name: StackType, *, covariant: bool) -> Sequence[pytypes.PyType]:
+def _stack_type_to_pytypes(type_name: StackType) -> Sequence[pytypes.PyType]:
     try:
-        typs = STACK_TYPE_MAPPING[type_name]
+        return STACK_TYPE_MAPPING[type_name]
     except KeyError as ex:
         raise NotImplementedError(
             f"Could not map stack type {type_name} to an algopy type"
         ) from ex
-    else:
-        last_index = None if covariant else 1
-        return typs[:last_index]
+
+
+def result_type(type_name: StackType) -> pytypes.PyType:
+    # the concrete pytype returned from ops with this stack type
+    return _stack_type_to_pytypes(type_name)[0]
+
+
+def accepted_types(type_name: StackType) -> Sequence[pytypes.PyType]:
+    # all pytypes (including subtypes) accepted by this stack type
+    return _stack_type_to_pytypes(type_name)
 
 
 def immediate_kind_to_type(kind: ImmediateKind) -> type[int | str]:
@@ -442,22 +450,25 @@ def immediate_kind_to_type(kind: ImmediateKind) -> type[int | str]:
             raise ValueError(f"Unexpected ImmediateKind: {kind}")
 
 
-def get_python_type(
-    typ: StackType | ImmediateKind | str, *, covariant: bool, any_as: str | None
-) -> str:
+def get_python_type(typ: StackType | ImmediateKind | str) -> str:
+    # get the python annotation string for a stub parameter (in input position)
     match typ:
         case StackType() as stack_type:
-            if any_as and stack_type == StackType.any:
-                return any_as
-            ptypes_ = sub_types(stack_type, covariant=covariant)
-            names = [str(wt).removeprefix("algopy.") for wt in ptypes_]
-            if covariant:
-                for pt in ptypes_:
-                    lit_t = PYTYPE_TO_LITERAL[pt]
-                    if lit_t is not None:
-                        lit_name = str(lit_t)
-                        if lit_name not in names:
-                            names.append(lit_name)
+            allowed_types = accepted_types(stack_type)
+            # filter types that are subtypes of other types in the list
+            # e.g. Bytes is redundant when BytesBacked is present here (Bytes is a BytesBacked)
+            displayed_types = [
+                t
+                for t in allowed_types
+                if not any(other < t for other in allowed_types if other != t)
+            ]
+            names = [str(wt).removeprefix("algopy.") for wt in displayed_types]
+            for pt in displayed_types:
+                lit_t = PYTYPE_TO_LITERAL[pt]
+                if lit_t is not None:
+                    lit_name = str(lit_t)
+                    if lit_name not in names:
+                        names.append(lit_name)
             return " | ".join(names)
         case ImmediateKind() as immediate_kind:
             return immediate_kind_to_type(immediate_kind).__name__
@@ -471,7 +482,7 @@ def build_method_stub(function: FunctionDef, prefix: str = "") -> Iterable[str]:
     signature.append(f"def {function.name}(")
     args = list[str]()
     for arg in function.args:
-        python_type = get_python_type(arg.type, covariant=True, any_as=None)
+        python_type = get_python_type(arg.type)
         args.append(f"{arg.name}: {python_type}")
         if arg.doc:
             doc.append(f":param {python_type} {arg.name}: {arg.doc}")
@@ -697,7 +708,7 @@ def build_operation_method(
         result_typ = pytypes.NeverType
     else:
         # replace immediate reference to arg enum with a constant enum value
-        result_ptypes = [sub_types(o.stack_type, covariant=False)[0] for o in op.stack_outputs]
+        result_ptypes = [result_type(o.stack_type) for o in op.stack_outputs]
         if not result_ptypes:
             result_typ = pytypes.NoneType
         elif len(op.stack_outputs) == 1:
@@ -730,7 +741,7 @@ def build_operation_method(
                 map_args_map[sig_idx] = idx
 
         for s_arg in map_op.stack_inputs:
-            allowed_types = tuple(sub_types(s_arg.stack_type, covariant=True))
+            allowed_types = tuple(accepted_types(s_arg.stack_type))
             sig_idx = name_to_sig_idx[s_arg.name]
             map_args_map[sig_idx] = allowed_types
 

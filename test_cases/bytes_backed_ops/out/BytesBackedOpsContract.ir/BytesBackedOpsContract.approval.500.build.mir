@@ -1,0 +1,148 @@
+// Op                                                                          Stack (out)
+// test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // bytes_backed_ops/contract.py:100
+        // acct = Account(op.Txn.sender.bytes)
+        txn Sender                                                             acct#1
+        v-store acct#1
+        // bytes_backed_ops/contract.py:69
+        // assert op.sha256(arc4.Tuple((arc4.UInt8(1), arc4.String("hello"))))
+        byte 0x000568656c6c6f                                                  0x000568656c6c6f
+        // bytes_backed_ops/contract.py:106
+        // assert op.concat(arc4.String("hello"), acct)
+        v-load acct#1                                                          0x000568656c6c6f,acct#1
+        concat                                                                 tmp%6#1
+        v-store tmp%6#1
+        v-load tmp%6#1                                                         tmp%6#1
+        len                                                                    tmp%7#1
+        v-store tmp%7#1
+        v-load tmp%7#1                                                         tmp%7#1
+        assert
+        // bytes_backed_ops/contract.py:107
+        // assert op.concat(acct, s)
+        v-load acct#1                                                          acct#1
+        // bytes_backed_ops/contract.py:99
+        // s = String("hello")
+        byte "hello"                                                           acct#1,"hello"
+        // bytes_backed_ops/contract.py:107
+        // assert op.concat(acct, s)
+        concat                                                                 tmp%9#1
+        v-store tmp%9#1
+        v-load tmp%9#1                                                         tmp%9#1
+        len                                                                    tmp%10#1
+        v-store tmp%10#1
+        v-load tmp%10#1                                                        tmp%10#1
+        assert
+        // bytes_backed_ops/contract.py:124
+        // assert op.getbyte(arc4.UInt64(42), 7) == 42
+        byte 0x000000000000002a                                                0x000000000000002a
+        int 7                                                                  0x000000000000002a,7
+        getbyte                                                                tmp%43#1
+        v-store tmp%43#1
+        v-load tmp%43#1                                                        tmp%43#1
+        int 42                                                                 tmp%43#1,42
+        ==                                                                     tmp%44#1
+        v-store tmp%44#1
+        v-load tmp%44#1                                                        tmp%44#1
+        assert
+        // bytes_backed_ops/contract.py:99
+        // s = String("hello")
+        byte "hello"                                                           "hello"
+        // bytes_backed_ops/contract.py:126
+        // assert op.getbyte(s, 0) == 104  # 'h'
+        int 0                                                                  "hello",0
+        getbyte                                                                tmp%47#1
+        v-store tmp%47#1
+        v-load tmp%47#1                                                        tmp%47#1
+        int 104                                                                tmp%47#1,104
+        ==                                                                     tmp%48#1
+        v-store tmp%48#1
+        v-load tmp%48#1                                                        tmp%48#1
+        assert
+        // bytes_backed_ops/contract.py:98
+        // fb = FixedBytes[typing.Literal[5]](b"hello")
+        byte 0x68656c6c6f                                                      0x68656c6c6f
+        // bytes_backed_ops/contract.py:129
+        // modified = op.setbyte(fb, 0, 72)
+        int 0                                                                  0x68656c6c6f,0
+        int 72                                                                 0x68656c6c6f,0,72
+        setbyte                                                                modified#0
+        v-store modified#0
+        // bytes_backed_ops/contract.py:130
+        // assert modified == b"Hello"
+        v-load modified#0                                                      modified#0
+        byte 0x48656c6c6f                                                      modified#0,0x48656c6c6f
+        ==                                                                     tmp%50#1
+        v-store tmp%50#1
+        v-load tmp%50#1                                                        tmp%50#1
+        assert
+        // bytes_backed_ops/contract.py:136
+        // replaced2 = op.replace(acct, 0, Bytes(b"\x00"))
+        v-load acct#1                                                          acct#1
+        byte 0x00                                                              acct#1,0x00
+        replace2 0                                                             replaced2#0
+        v-store replaced2#0
+        // bytes_backed_ops/contract.py:137
+        // assert replaced2
+        v-load replaced2#0                                                     replaced2#0
+        len                                                                    tmp%55#1
+        v-store tmp%55#1
+        v-load tmp%55#1                                                        tmp%55#1
+        assert
+        // bytes_backed_ops/contract.py:155
+        // encoded = Bytes(b"aGVsbG8=")
+        byte 0x614756736247383d                                                0x614756736247383d
+        // bytes_backed_ops/contract.py:156
+        // decoded = op.base64_decode(op.Base64.StdEncoding, encoded)
+        base64_decode StdEncoding                                              decoded#0
+        v-store decoded#0
+        // bytes_backed_ops/contract.py:157
+        // assert decoded == b"hello"
+        v-load decoded#0                                                       decoded#0
+        byte 0x68656c6c6f                                                      decoded#0,0x68656c6c6f
+        ==                                                                     tmp%7#2
+        v-store tmp%7#2
+        v-load tmp%7#2                                                         tmp%7#2
+        assert
+        // bytes_backed_ops/contract.py:164
+        // acct = Account(op.Txn.sender.bytes)
+        txn Sender                                                             acct#1
+        v-store acct#1
+        // bytes_backed_ops/contract.py:169
+        // assert op.bitlen(acct) > UInt64(0)
+        v-load acct#1                                                          acct#1
+        bitlen                                                                 tmp%6#3
+        v-store tmp%6#3
+        v-load tmp%6#3                                                         tmp%6#3
+        assert
+        // bytes_backed_ops/contract.py:203
+        // fb = FixedBytes[typing.Literal[4]](b"test")
+        byte 0x74657374                                                        0x74657374
+        // bytes_backed_ops/contract.py:205
+        // op.AppGlobal.delete(fb)
+        app_global_del
+        // bytes_backed_ops/contract.py:206
+        // op.AppLocal.delete(Txn.sender, fb)
+        txn Sender                                                             tmp%0#4
+        v-store tmp%0#4
+        v-load tmp%0#4                                                         tmp%0#4
+        // bytes_backed_ops/contract.py:203
+        // fb = FixedBytes[typing.Literal[4]](b"test")
+        byte 0x74657374                                                        tmp%0#4,0x74657374
+        // bytes_backed_ops/contract.py:206
+        // op.AppLocal.delete(Txn.sender, fb)
+        app_local_del
+        // bytes_backed_ops/contract.py:203
+        // fb = FixedBytes[typing.Literal[4]](b"test")
+        byte 0x74657374                                                        0x74657374
+        // bytes_backed_ops/contract.py:207
+        // op.Box.delete(fb)
+        box_del                                                                {box_del}
+        pop 1
+        // bytes_backed_ops/contract.py:38
+        // return True
+        int 1                                                                  1
+        return
+
+

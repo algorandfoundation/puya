@@ -91,7 +91,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             FunctionOpMapping(
                 "base64_decode",
                 immediates=[str],
-                args=[0, (pytypes.BytesType,)],
+                args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -101,7 +101,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "bitlen",
-                args=[(pytypes.BytesType, pytypes.UInt64Type)],
+                args=[(pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -121,7 +121,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "btoi",
-                args=[(pytypes.BytesType,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -141,7 +141,10 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "concat",
-                args=[(pytypes.BytesType,), (pytypes.BytesType,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                ],
             ),
         ],
     ),
@@ -182,7 +185,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             FunctionOpMapping(
                 "ecdsa_pk_decompress",
                 immediates=[str],
-                args=[0, (pytypes.BytesType,)],
+                args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -197,10 +200,10 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
                 immediates=[str],
                 args=[
                     0,
-                    (pytypes.BytesType,),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
                     (pytypes.UInt64Type,),
-                    (pytypes.BytesType,),
-                    (pytypes.BytesType,),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
                 ],
             ),
         ],
@@ -214,11 +217,11 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
                 immediates=[str],
                 args=[
                     0,
-                    (pytypes.BytesType,),
-                    (pytypes.BytesType,),
-                    (pytypes.BytesType,),
-                    (pytypes.BytesType,),
-                    (pytypes.BytesType,),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
                 ],
             ),
         ],
@@ -229,7 +232,11 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "ed25519verify",
-                args=[(pytypes.BytesType,), (pytypes.BytesType,), (pytypes.BytesType,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                ],
             ),
         ],
     ),
@@ -239,7 +246,11 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "ed25519verify_bare",
-                args=[(pytypes.BytesType,), (pytypes.BytesType,), (pytypes.BytesType,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                ],
             ),
         ],
     ),
@@ -281,12 +292,16 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "extract3",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.UInt64Type,),
+                    (pytypes.UInt64Type,),
+                ],
             ),
             FunctionOpMapping(
                 "extract",
                 immediates=[int, int],
-                args=[(pytypes.BytesType,), 0, 1],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType), 0, 1],
             ),
         ],
     ),
@@ -296,7 +311,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "extract_uint16",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
             ),
         ],
     ),
@@ -306,7 +321,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "extract_uint32",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
             ),
         ],
     ),
@@ -316,7 +331,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "extract_uint64",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
             ),
         ],
     ),
@@ -326,7 +341,11 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "falcon_verify",
-                args=[(pytypes.BytesType,), (pytypes.BytesType,), (pytypes.BytesType,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                ],
             ),
         ],
     ),
@@ -351,7 +370,10 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "getbit",
-                args=[(pytypes.BytesType, pytypes.UInt64Type), (pytypes.UInt64Type,)],
+                args=[
+                    (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
+                    (pytypes.UInt64Type,),
+                ],
             ),
         ],
     ),
@@ -361,7 +383,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "getbyte",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
             ),
         ],
     ),
@@ -421,7 +443,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "keccak256",
-                args=[(pytypes.BytesType,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -432,7 +454,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             FunctionOpMapping(
                 "mimc",
                 immediates=[str],
-                args=[0, (pytypes.BytesType,)],
+                args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -473,12 +495,20 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "replace3",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.BytesType,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.UInt64Type,),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                ],
             ),
             FunctionOpMapping(
                 "replace2",
                 immediates=[int],
-                args=[(pytypes.BytesType,), 0, (pytypes.BytesType,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    0,
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                ],
             ),
         ],
     ),
@@ -489,8 +519,8 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             FunctionOpMapping(
                 "select",
                 args=[
-                    (pytypes.BytesType,),
-                    (pytypes.BytesType,),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
                     (pytypes.BoolType, pytypes.UInt64Type),
                 ],
             ),
@@ -516,7 +546,11 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "setbit",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.BoolType,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.UInt64Type,),
+                    (pytypes.BoolType,),
+                ],
             ),
         ],
     ),
@@ -536,7 +570,11 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "setbyte",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.UInt64Type,),
+                    (pytypes.UInt64Type,),
+                ],
             ),
         ],
     ),
@@ -546,7 +584,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "sha256",
-                args=[(pytypes.BytesType,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -556,7 +594,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "sha3_256",
-                args=[(pytypes.BytesType,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -566,7 +604,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "sha512_256",
-                args=[(pytypes.BytesType,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -606,12 +644,16 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "substring3",
-                args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+                args=[
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.UInt64Type,),
+                    (pytypes.UInt64Type,),
+                ],
             ),
             FunctionOpMapping(
                 "substring",
                 immediates=[int, int],
-                args=[(pytypes.BytesType,), 0, 1],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType), 0, 1],
             ),
         ],
     ),
@@ -621,7 +663,7 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
         overloads=[
             FunctionOpMapping(
                 "sumhash512",
-                args=[(pytypes.BytesType,)],
+                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
             ),
         ],
     ),
@@ -634,7 +676,12 @@ FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
             FunctionOpMapping(
                 "vrf_verify",
                 immediates=[str],
-                args=[0, (pytypes.BytesType,), (pytypes.BytesType,), (pytypes.BytesType,)],
+                args=[
+                    0,
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                    (pytypes.BytesType, pytypes.BytesBackedType),
+                ],
             ),
         ],
     ),
@@ -846,7 +893,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -856,7 +903,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -868,7 +915,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get_ex",
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.ApplicationType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -880,7 +930,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_get_ex",
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.ApplicationType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -889,7 +942,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_del",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -898,7 +951,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_global_put",
-                    args=[(pytypes.BytesType,), (pytypes.BytesType, pytypes.UInt64Type)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -910,7 +966,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_local_get",
-                    args=[(pytypes.AccountType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.AccountType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -920,7 +979,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_local_get",
-                    args=[(pytypes.AccountType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.AccountType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -935,7 +997,7 @@ NAMESPACE_CLASSES: typing.Final[
                     args=[
                         (pytypes.AccountType, pytypes.UInt64Type),
                         (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                     ],
                 ),
             ],
@@ -951,7 +1013,7 @@ NAMESPACE_CLASSES: typing.Final[
                     args=[
                         (pytypes.AccountType, pytypes.UInt64Type),
                         (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                     ],
                 ),
             ],
@@ -961,7 +1023,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "app_local_del",
-                    args=[(pytypes.AccountType, pytypes.UInt64Type), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.AccountType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -972,8 +1037,8 @@ NAMESPACE_CLASSES: typing.Final[
                     "app_local_put",
                     args=[
                         (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.BytesType,),
-                        (pytypes.BytesType, pytypes.UInt64Type),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
                     ],
                 ),
             ],
@@ -1422,7 +1487,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_create",
-                    args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
                 ),
             ],
         ),
@@ -1432,7 +1497,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_del",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -1442,7 +1507,11 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_extract",
-                    args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.UInt64Type,),
+                        (pytypes.UInt64Type,),
+                    ],
                 ),
             ],
         ),
@@ -1454,7 +1523,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_get",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -1466,7 +1535,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_len",
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -1475,7 +1544,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_put",
-                    args=[(pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1484,7 +1556,11 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_replace",
-                    args=[(pytypes.BytesType,), (pytypes.UInt64Type,), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.UInt64Type,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1493,7 +1569,7 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "box_resize",
-                    args=[(pytypes.BytesType,), (pytypes.UInt64Type,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
                 ),
             ],
         ),
@@ -1503,10 +1579,10 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "box_splice",
                     args=[
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                         (pytypes.UInt64Type,),
                         (pytypes.UInt64Type,),
-                        (pytypes.BytesType,),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
                     ],
                 ),
             ],
@@ -1520,7 +1596,11 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "ec_add",
                     immediates=[str],
-                    args=[0, (pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        0,
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1531,7 +1611,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "ec_map_to",
                     immediates=[str],
-                    args=[0, (pytypes.BytesType,)],
+                    args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -1542,7 +1622,11 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "ec_multi_scalar_mul",
                     immediates=[str],
-                    args=[0, (pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        0,
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1553,7 +1637,11 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "ec_pairing_check",
                     immediates=[str],
-                    args=[0, (pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        0,
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1564,7 +1652,11 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "ec_scalar_mul",
                     immediates=[str],
-                    args=[0, (pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        0,
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -1575,7 +1667,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "ec_subgroup_check",
                     immediates=[str],
-                    args=[0, (pytypes.BytesType,)],
+                    args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4459,7 +4551,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["Note"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4499,7 +4591,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["VotePK"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4509,7 +4601,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["SelectionPK"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4549,7 +4641,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["Type"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4639,7 +4731,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ApplicationArgs"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4659,7 +4751,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ApprovalProgram"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4669,7 +4761,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ClearStateProgram"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4729,7 +4821,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ConfigAssetUnitName"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4739,7 +4831,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ConfigAssetName"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4749,7 +4841,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ConfigAssetURL"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4759,7 +4851,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ConfigAssetMetadataHash"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4919,7 +5011,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["StateProofPK"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4929,7 +5021,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ApprovalProgramPages"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4939,7 +5031,7 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "itxn_field",
                     immediates=["ClearStateProgramPages"],
-                    args=[(pytypes.BytesType,)],
+                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
                 ),
             ],
         ),
@@ -4962,7 +5054,10 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "json_ref",
                     immediates=["JSONString"],
-                    args=[(pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -4973,7 +5068,10 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "json_ref",
                     immediates=["JSONUint64"],
-                    args=[(pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -4984,7 +5082,10 @@ NAMESPACE_CLASSES: typing.Final[
                 FunctionOpMapping(
                     "json_ref",
                     immediates=["JSONObject"],
-                    args=[(pytypes.BytesType,), (pytypes.BytesType,)],
+                    args=[
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                        (pytypes.BytesType, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),
@@ -5015,7 +5116,10 @@ NAMESPACE_CLASSES: typing.Final[
             overloads=[
                 FunctionOpMapping(
                     "stores",
-                    args=[(pytypes.UInt64Type,), (pytypes.BytesType, pytypes.UInt64Type)],
+                    args=[
+                        (pytypes.UInt64Type,),
+                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
+                    ],
                 ),
             ],
         ),

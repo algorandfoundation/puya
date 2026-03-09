@@ -1,0 +1,1041 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
+main:
+    intcblock 0 2 1 3
+    bytecblock 0x74657374 0x68656c6c6f 0x000000000000002a 0x 0x00026869 0x01 0x03e8 0x00 0x02 0x2a 0x656c6c 0x000003e8
+    b main_block@0
+
+main_block@0:
+    // bytes_backed_ops/contract.py:33
+    // test_hash_ops()
+    callsub test_hash_ops
+    // bytes_backed_ops/contract.py:34
+    // test_byte_manipulation_ops()
+    callsub test_byte_manipulation_ops
+    // bytes_backed_ops/contract.py:35
+    // test_conversion_ops()
+    callsub test_conversion_ops
+    // bytes_backed_ops/contract.py:36
+    // test_bitwise_ops()
+    callsub test_bitwise_ops
+    // bytes_backed_ops/contract.py:37
+    // test_bytes_backed_state_keys()
+    callsub test_bytes_backed_state_keys
+    // bytes_backed_ops/contract.py:38
+    // return True
+    intc_2 // 1
+    return
+
+
+// test_cases.bytes_backed_ops.contract.test_hash_ops() -> void:
+test_hash_ops:
+    b test_hash_ops_block@0
+
+test_hash_ops_block@0:
+    // bytes_backed_ops/contract.py:48
+    // acct = Account(op.Txn.sender.bytes)
+    txn Sender
+    dup
+    len
+    pushint 32
+    ==
+    assert // Address length is 32 bytes
+    // bytes_backed_ops/contract.py:46
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:51-52
+    // # sha256 of various types
+    // assert op.sha256(fb)
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:47
+    // s = String("test")
+    bytec_0 // "test"
+    // bytes_backed_ops/contract.py:53
+    // assert op.sha256(s)
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:54
+    // assert op.sha256(acct)
+    dup
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:49
+    // big = BigUInt(42)
+    bytec 9 // 0x2a
+    // bytes_backed_ops/contract.py:55
+    // assert op.sha256(big)
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:56
+    // assert op.sha256(arc4.UInt64(42))
+    bytec_2 // 0x000000000000002a
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:57
+    // assert op.sha256(arc4.Byte(255))
+    pushbytes 0xff
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:58
+    // assert op.sha256(arc4.UInt16(1000))
+    bytec 6 // 0x03e8
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:59
+    // assert op.sha256(arc4.UInt32(100000))
+    pushbytes 0x000186a0
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:60
+    // assert op.sha256(arc4.UInt128(999999))
+    pushbytes 0x000000000000000000000000000f423f
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:61
+    // assert op.sha256(arc4.String("test"))
+    bytec_0 // "test"
+    len
+    itob
+    extract 6 2
+    bytec_0 // "test"
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:62
+    // assert op.sha256(arc4.Bool(True))
+    bytec 7 // 0x00
+    intc_0 // 0
+    intc_2 // 1
+    setbit
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:63
+    // assert op.sha256(arc4.Address(op.Txn.sender))
+    txn Sender
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:64
+    // assert op.sha256(arc4.DynamicBytes(b"\x00\x02hi"))
+    bytec 4 // 0x00026869
+    len
+    itob
+    extract 6 2
+    bytec 4 // 0x00026869
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:65
+    // assert op.sha256(arc4.UFixedNxM[typing.Literal[32], typing.Literal[8]]("1.0"))
+    pushbytes 0x05f5e100
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:66
+    // assert op.sha256(arc4.BigUFixedNxM[typing.Literal[256], typing.Literal[16]]("1.0"))
+    pushbytes 0x000000000000000000000000000000000000000000000000002386f26fc10000
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:67
+    // assert op.sha256(arc4.StaticArray(arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3)))
+    bytec_3 // 0x
+    bytec 5 // 0x01
+    concat
+    bytec 8 // 0x02
+    concat
+    pushbytes 0x03
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:68
+    // assert op.sha256(arc4.DynamicArray[arc4.UInt8](arc4.UInt8(1), arc4.UInt8(2)))
+    intc_1 // 2
+    itob
+    extract 6 2
+    bytec 5 // 0x01
+    concat
+    bytec 8 // 0x02
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:69
+    // assert op.sha256(arc4.Tuple((arc4.UInt8(1), arc4.String("hello"))))
+    bytec_1 // "hello"
+    len
+    itob
+    extract 6 2
+    bytec_1 // "hello"
+    concat
+    bytec_3 // 0x
+    bytec 5 // 0x01
+    concat
+    intc_3 // 3
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:70
+    // assert op.sha256(MyStruct(x=arc4.UInt64(42), y=arc4.UInt8(7)))
+    bytec_3 // 0x
+    bytec_2 // 0x000000000000002a
+    concat
+    pushbytes 0x07
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:71
+    // assert op.sha256(ImmutableArray((UInt64(1), UInt64(2), UInt64(3))))
+    intc_3 // 3
+    itob
+    extract 6 2
+    intc_2 // 1
+    itob
+    concat
+    intc_1 // 2
+    itob
+    concat
+    intc_3 // 3
+    itob
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:72
+    // assert op.sha256(Array((UInt64(10), UInt64(20))))
+    intc_1 // 2
+    itob
+    extract 6 2
+    pushint 10
+    itob
+    concat
+    pushint 20
+    itob
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:73
+    // assert op.sha256(NativeStruct(a=UInt64(1), b=UInt64(2)))
+    intc_2 // 1
+    itob
+    bytec_3 // 0x
+    uncover 1
+    concat
+    intc_1 // 2
+    itob
+    concat
+    sha256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:46
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:75-76
+    // # keccak256
+    // assert op.keccak256(fb)
+    keccak256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:77
+    // assert op.keccak256(acct)
+    keccak256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:78
+    // assert op.keccak256(arc4.UInt32(100))
+    pushbytes 0x00000064
+    keccak256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:79
+    // assert op.keccak256(arc4.DynamicArray[arc4.UInt8](arc4.UInt8(1), arc4.UInt8(2)))
+    intc_1 // 2
+    itob
+    extract 6 2
+    bytec 5 // 0x01
+    concat
+    bytec 8 // 0x02
+    concat
+    keccak256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:80
+    // assert op.keccak256(NativeStruct(a=UInt64(1), b=UInt64(2)))
+    intc_2 // 1
+    itob
+    bytec_3 // 0x
+    uncover 1
+    concat
+    intc_1 // 2
+    itob
+    concat
+    keccak256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:46
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:82-83
+    // # sha512_256
+    // assert op.sha512_256(fb)
+    sha512_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:84
+    // assert op.sha512_256(arc4.String("test"))
+    bytec_0 // "test"
+    len
+    itob
+    extract 6 2
+    bytec_0 // "test"
+    concat
+    sha512_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:85
+    // assert op.sha512_256(arc4.UInt64(42))
+    bytec_2 // 0x000000000000002a
+    sha512_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:86
+    // assert op.sha512_256(ImmutableArray((UInt64(1), UInt64(2))))
+    intc_1 // 2
+    itob
+    extract 6 2
+    intc_2 // 1
+    itob
+    concat
+    intc_1 // 2
+    itob
+    concat
+    sha512_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:46
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:88-89
+    // # sha3_256
+    // assert op.sha3_256(fb)
+    sha3_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:47
+    // s = String("test")
+    bytec_0 // "test"
+    // bytes_backed_ops/contract.py:90
+    // assert op.sha3_256(s)
+    sha3_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:49
+    // big = BigUInt(42)
+    bytec 9 // 0x2a
+    // bytes_backed_ops/contract.py:91
+    // assert op.sha3_256(big)
+    sha3_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:92
+    // assert op.sha3_256(arc4.StaticArray(arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3)))
+    bytec_3 // 0x
+    bytec 5 // 0x01
+    concat
+    bytec 8 // 0x02
+    concat
+    pushbytes 0x03
+    concat
+    sha3_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:93
+    // assert op.sha3_256(Array((UInt64(10), UInt64(20))))
+    intc_1 // 2
+    itob
+    extract 6 2
+    pushint 10
+    itob
+    concat
+    pushint 20
+    itob
+    concat
+    sha3_256
+    len
+    intc_0 // 0
+    !=
+    assert
+    retsub
+
+
+// test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops() -> void:
+test_byte_manipulation_ops:
+    b test_byte_manipulation_ops_block@0
+
+test_byte_manipulation_ops_block@0:
+    // bytes_backed_ops/contract.py:100
+    // acct = Account(op.Txn.sender.bytes)
+    txn Sender
+    dup
+    len
+    pushint 32
+    ==
+    assert // Address length is 32 bytes
+    // bytes_backed_ops/contract.py:98
+    // fb = FixedBytes[typing.Literal[5]](b"hello")
+    bytec_1 // 0x68656c6c6f
+    // bytes_backed_ops/contract.py:99
+    // s = String("hello")
+    bytec_1 // "hello"
+    // bytes_backed_ops/contract.py:102-103
+    // # concat mixing different BytesBacked types
+    // result = op.concat(fb, s)
+    concat
+    // bytes_backed_ops/contract.py:104
+    // assert result.length == UInt64(10)
+    len
+    pushint 10
+    ==
+    assert
+    // bytes_backed_ops/contract.py:106
+    // assert op.concat(arc4.String("hello"), acct)
+    bytec_1 // "hello"
+    len
+    itob
+    extract 6 2
+    bytec_1 // "hello"
+    concat
+    dig 1
+    concat
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:107
+    // assert op.concat(acct, s)
+    dup
+    // bytes_backed_ops/contract.py:99
+    // s = String("hello")
+    bytec_1 // "hello"
+    // bytes_backed_ops/contract.py:107
+    // assert op.concat(acct, s)
+    concat
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:108
+    // assert op.concat(BigUInt(1000), BigUInt(1000))
+    bytec 6 // 0x03e8
+    bytec 6 // 0x03e8
+    concat
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:109
+    // assert op.concat(arc4.DynamicBytes(b"\x00\x02hi"), fb)
+    bytec 4 // 0x00026869
+    len
+    itob
+    extract 6 2
+    bytec 4 // 0x00026869
+    concat
+    // bytes_backed_ops/contract.py:98
+    // fb = FixedBytes[typing.Literal[5]](b"hello")
+    bytec_1 // 0x68656c6c6f
+    // bytes_backed_ops/contract.py:109
+    // assert op.concat(arc4.DynamicBytes(b"\x00\x02hi"), fb)
+    concat
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:110
+    // assert op.concat(arc4.UInt64(42), arc4.UInt64(43))
+    bytec_2 // 0x000000000000002a
+    pushbytes 0x000000000000002b
+    concat
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:111
+    // assert op.concat(Array((UInt64(10), UInt64(20))), fb)
+    intc_1 // 2
+    itob
+    extract 6 2
+    pushint 10
+    itob
+    concat
+    pushint 20
+    itob
+    concat
+    // bytes_backed_ops/contract.py:98
+    // fb = FixedBytes[typing.Literal[5]](b"hello")
+    bytec_1 // 0x68656c6c6f
+    // bytes_backed_ops/contract.py:111
+    // assert op.concat(Array((UInt64(10), UInt64(20))), fb)
+    concat
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:112
+    // assert op.concat(ImmutableArray((UInt64(1),)), NativeStruct(a=UInt64(1), b=UInt64(2)))
+    intc_2 // 1
+    itob
+    extract 6 2
+    intc_2 // 1
+    itob
+    concat
+    intc_2 // 1
+    itob
+    bytec_3 // 0x
+    uncover 1
+    concat
+    intc_1 // 2
+    itob
+    concat
+    concat
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:99
+    // s = String("hello")
+    bytec_1 // "hello"
+    // bytes_backed_ops/contract.py:114-115
+    // # extract of various types
+    // assert op.extract(s, 1, 3) == b"ell"
+    extract 1 3
+    bytec 10 // 0x656c6c
+    ==
+    assert
+    // bytes_backed_ops/contract.py:116
+    // assert op.extract(acct, 0, 4)
+    dup
+    extract 0 4
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:117
+    // assert op.extract(arc4.String("hello"), 0, 2)
+    bytec_1 // "hello"
+    len
+    itob
+    extract 6 2
+    bytec_1 // "hello"
+    concat
+    extract 0 2
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:98
+    // fb = FixedBytes[typing.Literal[5]](b"hello")
+    bytec_1 // 0x68656c6c6f
+    // bytes_backed_ops/contract.py:119-120
+    // # substring
+    // assert op.substring(fb, 1, 4) == b"ell"
+    substring 1 4
+    bytec 10 // 0x656c6c
+    ==
+    assert
+    // bytes_backed_ops/contract.py:121
+    // assert op.substring(arc4.UInt64(42), 0, 4)
+    bytec_2 // 0x000000000000002a
+    substring 0 4
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:123-124
+    // # getbyte
+    // assert op.getbyte(arc4.UInt64(42), 7) == 42
+    bytec_2 // 0x000000000000002a
+    pushint 7
+    getbyte
+    pushint 42
+    ==
+    assert
+    // bytes_backed_ops/contract.py:125
+    // assert op.getbyte(BigUInt(1000), 0) >= UInt64(0)
+    bytec 6 // 0x03e8
+    intc_0 // 0
+    getbyte
+    intc_0 // 0
+    >=
+    assert
+    // bytes_backed_ops/contract.py:99
+    // s = String("hello")
+    bytec_1 // "hello"
+    // bytes_backed_ops/contract.py:126
+    // assert op.getbyte(s, 0) == 104  # 'h'
+    intc_0 // 0
+    getbyte
+    pushint 104
+    ==
+    assert
+    // bytes_backed_ops/contract.py:98
+    // fb = FixedBytes[typing.Literal[5]](b"hello")
+    bytec_1 // 0x68656c6c6f
+    // bytes_backed_ops/contract.py:128-129
+    // # setbyte
+    // modified = op.setbyte(fb, 0, 72)
+    intc_0 // 0
+    pushint 72
+    setbyte
+    // bytes_backed_ops/contract.py:130
+    // assert modified == b"Hello"
+    pushbytes 0x48656c6c6f
+    ==
+    assert
+    // bytes_backed_ops/contract.py:132-133
+    // # replace
+    // replaced = op.replace(BigUInt(256), 0, Bytes(b"\x00"))
+    pushbytes 0x0100
+    bytec 7 // 0x00
+    replace2 0
+    // bytes_backed_ops/contract.py:134
+    // assert replaced
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:136
+    // replaced2 = op.replace(acct, 0, Bytes(b"\x00"))
+    bytec 7 // 0x00
+    replace2 0
+    // bytes_backed_ops/contract.py:137
+    // assert replaced2
+    len
+    intc_0 // 0
+    !=
+    assert
+    // bytes_backed_ops/contract.py:139-140
+    // # extract_uint16/32/64
+    // fb8 = FixedBytes[typing.Literal[8]](b"\x00\x00\x00\x00\x00\x00\x00\x2a")
+    bytec_2 // 0x000000000000002a
+    // bytes_backed_ops/contract.py:141
+    // assert op.extract_uint64(fb8, 0) == 42
+    intc_0 // 0
+    extract_uint64
+    pushint 42
+    ==
+    assert
+    // bytes_backed_ops/contract.py:142
+    // assert op.extract_uint16(arc4.UInt32(1000), 0) >= UInt64(0)
+    bytec 11 // 0x000003e8
+    intc_0 // 0
+    extract_uint16
+    intc_0 // 0
+    >=
+    assert
+    // bytes_backed_ops/contract.py:143
+    // assert op.extract_uint32(arc4.UInt32(1000), 0) >= UInt64(0)
+    bytec 11 // 0x000003e8
+    intc_0 // 0
+    extract_uint32
+    intc_0 // 0
+    >=
+    assert
+    retsub
+
+
+// test_cases.bytes_backed_ops.contract.test_conversion_ops() -> void:
+test_conversion_ops:
+    b test_conversion_ops_block@0
+
+test_conversion_ops_block@0:
+    // bytes_backed_ops/contract.py:148-149
+    // # btoi of various types
+    // fb = FixedBytes[typing.Literal[8]](b"\x00\x00\x00\x00\x00\x00\x00\x2a")
+    bytec_2 // 0x000000000000002a
+    // bytes_backed_ops/contract.py:150
+    // assert op.btoi(fb) == 42
+    btoi
+    pushint 42
+    ==
+    assert
+    // bytes_backed_ops/contract.py:151
+    // assert op.btoi(arc4.UInt64(100)) == 100
+    pushbytes 0x0000000000000064
+    btoi
+    pushint 100
+    ==
+    assert
+    // bytes_backed_ops/contract.py:152
+    // assert op.btoi(Bytes(b"\x2a")) == 42
+    bytec 9 // 0x2a
+    btoi
+    pushint 42
+    ==
+    assert
+    // bytes_backed_ops/contract.py:154-155
+    // # base64_decode
+    // encoded = Bytes(b"aGVsbG8=")
+    pushbytes 0x614756736247383d
+    // bytes_backed_ops/contract.py:156
+    // decoded = op.base64_decode(op.Base64.StdEncoding, encoded)
+    base64_decode StdEncoding
+    // bytes_backed_ops/contract.py:157
+    // assert decoded == b"hello"
+    bytec_1 // 0x68656c6c6f
+    ==
+    assert
+    retsub
+
+
+// test_cases.bytes_backed_ops.contract.test_bitwise_ops() -> void:
+test_bitwise_ops:
+    b test_bitwise_ops_block@0
+
+test_bitwise_ops_block@0:
+    // bytes_backed_ops/contract.py:164
+    // acct = Account(op.Txn.sender.bytes)
+    txn Sender
+    dup
+    len
+    pushint 32
+    ==
+    assert // Address length is 32 bytes
+    // bytes_backed_ops/contract.py:162
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:166-167
+    // # bitlen of various types
+    // assert op.bitlen(fb) > UInt64(0)
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:163
+    // s = String("test")
+    bytec_0 // "test"
+    // bytes_backed_ops/contract.py:168
+    // assert op.bitlen(s) > UInt64(0)
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:169
+    // assert op.bitlen(acct) > UInt64(0)
+    dup
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:170
+    // assert op.bitlen(BigUInt(1000)) > UInt64(0)
+    bytec 6 // 0x03e8
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:171
+    // assert op.bitlen(arc4.UInt64(42)) > UInt64(0)
+    bytec_2 // 0x000000000000002a
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:172
+    // assert op.bitlen(arc4.String("hello")) > UInt64(0)
+    bytec_1 // "hello"
+    len
+    itob
+    extract 6 2
+    bytec_1 // "hello"
+    concat
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:173
+    // assert op.bitlen(arc4.DynamicBytes(b"\x00\x02hi")) > UInt64(0)
+    bytec 4 // 0x00026869
+    len
+    itob
+    extract 6 2
+    bytec 4 // 0x00026869
+    concat
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:174
+    // assert op.bitlen(arc4.Tuple((arc4.UInt8(1), arc4.String("hello")))) > UInt64(0)
+    bytec_1 // "hello"
+    len
+    itob
+    extract 6 2
+    bytec_1 // "hello"
+    concat
+    bytec_3 // 0x
+    bytec 5 // 0x01
+    concat
+    intc_3 // 3
+    itob
+    extract 6 2
+    concat
+    uncover 1
+    concat
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:175
+    // assert op.bitlen(MyStruct(x=arc4.UInt64(42), y=arc4.UInt8(7))) > UInt64(0)
+    bytec_3 // 0x
+    bytec_2 // 0x000000000000002a
+    concat
+    pushbytes 0x07
+    concat
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:176
+    // assert op.bitlen(ImmutableArray((UInt64(1), UInt64(2), UInt64(3)))) > UInt64(0)
+    intc_3 // 3
+    itob
+    extract 6 2
+    intc_2 // 1
+    itob
+    concat
+    intc_1 // 2
+    itob
+    concat
+    intc_3 // 3
+    itob
+    concat
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:177
+    // assert op.bitlen(NativeStruct(a=UInt64(1), b=UInt64(2))) > UInt64(0)
+    intc_2 // 1
+    itob
+    bytec_3 // 0x
+    uncover 1
+    concat
+    intc_1 // 2
+    itob
+    concat
+    bitlen
+    intc_0 // 0
+    >
+    assert
+    // bytes_backed_ops/contract.py:163
+    // s = String("test")
+    bytec_0 // "test"
+    // bytes_backed_ops/contract.py:179-180
+    // # getbit / setbit_bytes with String
+    // bit = op.getbit(s, 0)
+    intc_0 // 0
+    getbit
+    // bytes_backed_ops/contract.py:181
+    // result = op.setbit_bytes(s, 0, not bit)
+    !
+    // bytes_backed_ops/contract.py:163
+    // s = String("test")
+    bytec_0 // "test"
+    // bytes_backed_ops/contract.py:181
+    // result = op.setbit_bytes(s, 0, not bit)
+    intc_0 // 0
+    uncover 2
+    setbit
+    // bytes_backed_ops/contract.py:163
+    // s = String("test")
+    bytec_0 // "test"
+    // bytes_backed_ops/contract.py:182
+    // assert result != s.bytes
+    !=
+    assert
+    // bytes_backed_ops/contract.py:162
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:184-185
+    // # getbit / setbit_bytes with FixedBytes
+    // bit2 = op.getbit(fb, 0)
+    intc_0 // 0
+    getbit
+    // bytes_backed_ops/contract.py:186
+    // result2 = op.setbit_bytes(fb, 0, not bit2)
+    !
+    // bytes_backed_ops/contract.py:162
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:186
+    // result2 = op.setbit_bytes(fb, 0, not bit2)
+    intc_0 // 0
+    uncover 2
+    setbit
+    // bytes_backed_ops/contract.py:162
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:187
+    // assert result2 != fb.bytes
+    !=
+    assert
+    // bytes_backed_ops/contract.py:189-190
+    // # getbit / setbit_bytes with arc4.Bool
+    // arc4_bool = arc4.Bool(True)
+    bytec 7 // 0x00
+    intc_0 // 0
+    intc_2 // 1
+    setbit
+    // bytes_backed_ops/contract.py:191
+    // toggled = op.setbit_bytes(arc4_bool, 0, False)
+    dup
+    intc_0 // 0
+    intc_0 // 0
+    setbit
+    // bytes_backed_ops/contract.py:192
+    // assert toggled != arc4_bool.bytes
+    !=
+    assert
+    // bytes_backed_ops/contract.py:194-195
+    // # getbit with Account
+    // assert op.getbit(acct, 0) >= UInt64(0)
+    intc_0 // 0
+    getbit
+    intc_0 // 0
+    >=
+    assert
+    // bytes_backed_ops/contract.py:197-198
+    // # getbit with arc4.UInt64
+    // assert op.getbit(arc4.UInt64(42), 63) >= UInt64(0)
+    bytec_2 // 0x000000000000002a
+    pushint 63
+    getbit
+    intc_0 // 0
+    >=
+    assert
+    retsub
+
+
+// test_cases.bytes_backed_ops.contract.test_bytes_backed_state_keys() -> void:
+test_bytes_backed_state_keys:
+    b test_bytes_backed_state_keys_block@0
+
+test_bytes_backed_state_keys_block@0:
+    // bytes_backed_ops/contract.py:203
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:205
+    // op.AppGlobal.delete(fb)
+    app_global_del
+    // bytes_backed_ops/contract.py:206
+    // op.AppLocal.delete(Txn.sender, fb)
+    txn Sender
+    // bytes_backed_ops/contract.py:203
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:206
+    // op.AppLocal.delete(Txn.sender, fb)
+    app_local_del
+    // bytes_backed_ops/contract.py:203
+    // fb = FixedBytes[typing.Literal[4]](b"test")
+    bytec_0 // 0x74657374
+    // bytes_backed_ops/contract.py:207
+    // op.Box.delete(fb)
+    box_del
+    pop
+    retsub

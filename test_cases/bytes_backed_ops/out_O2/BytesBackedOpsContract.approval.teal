@@ -1,0 +1,57 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.bytes_backed_ops.contract.BytesBackedOpsContract.approval_program() -> uint64:
+main:
+    bytecblock 0x68656c6c6f 0x74657374
+    txn Sender
+    pushbytes 0x000568656c6c6f
+    dig 1
+    concat
+    len
+    assert
+    dup
+    bytec_0 // "hello"
+    concat
+    len
+    assert
+    pushbytes 0x000000000000002a
+    pushint 7
+    getbyte
+    pushint 42
+    ==
+    assert
+    bytec_0 // "hello"
+    pushint 0
+    getbyte
+    pushint 104
+    ==
+    assert
+    bytec_0 // 0x68656c6c6f
+    pushints 0 72
+    setbyte
+    pushbytes 0x48656c6c6f
+    ==
+    assert
+    pushbytes 0x00
+    replace2 0
+    len
+    assert
+    pushbytes 0x614756736247383d
+    base64_decode StdEncoding
+    bytec_0 // 0x68656c6c6f
+    ==
+    assert
+    txn Sender
+    bitlen
+    assert
+    bytec_1 // 0x74657374
+    app_global_del
+    txn Sender
+    bytec_1 // 0x74657374
+    app_local_del
+    bytec_1 // 0x74657374
+    box_del
+    pop
+    pushint 1
+    return

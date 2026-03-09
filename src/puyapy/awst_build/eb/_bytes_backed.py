@@ -20,7 +20,7 @@ _TPyType_co = typing_extensions.TypeVar(
 )
 
 
-class BytesBackedTypeBuilder(TypeBuilder[_TPyType_co], abc.ABC):
+class BytesConvertibleTypeBuilder(TypeBuilder[_TPyType_co], abc.ABC):
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         typ = self.produces()
