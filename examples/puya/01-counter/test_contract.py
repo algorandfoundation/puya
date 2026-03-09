@@ -5,16 +5,16 @@ from contract import Counter
 
 
 class TestCounter:
-    def test_create_initialises_counter_to_zero(self) -> None:
+    def test_init_sets_counter_to_zero(self) -> None:
         with algopy_testing_context():
             contract = Counter()
-            contract.create()
+
             assert contract.counter == 0
 
     def test_increment_returns_one(self) -> None:
         with algopy_testing_context():
             contract = Counter()
-            contract.create()
+
             result = contract.increment()
             assert result == 1
             assert contract.counter == 1
@@ -22,7 +22,7 @@ class TestCounter:
     def test_multiple_increments_accumulate(self) -> None:
         with algopy_testing_context():
             contract = Counter()
-            contract.create()
+
             contract.increment()
             contract.increment()
             result = contract.increment()
@@ -32,14 +32,14 @@ class TestCounter:
     def test_decrement_from_zero_raises(self) -> None:
         with algopy_testing_context():
             contract = Counter()
-            contract.create()
+
             with pytest.raises(ArithmeticError):
                 contract.decrement()
 
     def test_multiply_with_factor(self) -> None:
         with algopy_testing_context():
             contract = Counter()
-            contract.create()
+
             contract.increment()
             contract.increment()
             contract.increment()
@@ -50,7 +50,7 @@ class TestCounter:
     def test_divide_with_divisor(self) -> None:
         with algopy_testing_context():
             contract = Counter()
-            contract.create()
+
             for _ in range(8):
                 contract.increment()
             result = contract.divide(UInt64(4))
@@ -60,7 +60,7 @@ class TestCounter:
     def test_divide_by_zero_raises(self) -> None:
         with algopy_testing_context():
             contract = Counter()
-            contract.create()
+
             contract.increment()
             with pytest.raises(ZeroDivisionError):
                 contract.divide(UInt64(0))

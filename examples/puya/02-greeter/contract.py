@@ -25,12 +25,8 @@ class Greeter(ARC4Contract):
         """Initialise greeting to 'Hello'."""
         self.greeting = String("Hello")
 
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        """Called once when the app is first deployed."""
-
     @arc4.abimethod(readonly=True)
-    def hello(self, name: arc4.String) -> arc4.String:
+    def hello(self, name: String) -> String:
         """Greet a person by name.
 
         Args:
@@ -39,16 +35,16 @@ class Greeter(ARC4Contract):
         Returns:
             A personalised greeting string.
         """
-        return arc4.String(self.greeting + ", " + name.native + "!")
+        return self.greeting + ", " + name + "!"
 
     @arc4.abimethod
-    def set_greeting(self, greeting: arc4.String) -> None:
+    def set_greeting(self, greeting: String) -> None:
         """Update the greeting prefix.
 
         Args:
             greeting: The new greeting to use.
         """
-        self.greeting = greeting.native
+        self.greeting = greeting
 
 
 # example: GREETER

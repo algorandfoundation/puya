@@ -35,14 +35,10 @@ class ObjectTuples(arc4.ARC4Contract):
     params/returns, GlobalState, _replace, and copy."""
 
     def __init__(self) -> None:
-        self.saved_point = GlobalState(Point)
-        self.profile = GlobalState(UserProfile)
-
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        """Called once when the app is first deployed."""
-        self.saved_point.value = Point(x=UInt64(0), y=UInt64(0))
-        self.profile.value = UserProfile(name=String("anon"), age=UInt64(0), score=UInt64(0))
+        self.saved_point = GlobalState(Point(x=UInt64(0), y=UInt64(0)))
+        self.profile = GlobalState(
+            UserProfile(name=String("anon"), age=UInt64(0), score=UInt64(0))
+        )
 
     # --- Struct as params and returns ---
 

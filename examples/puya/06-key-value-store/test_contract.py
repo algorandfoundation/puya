@@ -1,12 +1,11 @@
+import pytest
 from algopy import Bytes, String, UInt64
 from algopy_testing import algopy_testing_context
 from contract import KeyValueStore
 
 
 def _create_contract() -> KeyValueStore:
-    contract = KeyValueStore()
-    contract.create()
-    return contract
+    return KeyValueStore()
 
 
 class TestBoxCounter:
@@ -152,3 +151,27 @@ class TestTotalOps:
             contract.map_set(UInt64(1), String("Alice"))
             contract.map_set(UInt64(2), String("Bob"))
             assert contract.get_total_ops() == 4
+
+
+class TestCreatorGuard:
+    def test_non_creator_rejected_on_set_counter(self) -> None:
+        with algopy_testing_context() as ctx:
+            contract = _create_contract()
+            non_creator = ctx.any.account()
+
+            with (
+                ctx.txn.create_group(active_txn_overrides={"sender": non_creator}),
+                pytest.raises(AssertionError, match="creator only"),
+            ):
+                contract.set_counter(UInt64(1))
+
+    def test_non_creator_rejected_on_map_set(self) -> None:
+        with algopy_testing_context() as ctx:
+            contract = _create_contract()
+            non_creator = ctx.any.account()
+
+            with (
+                ctx.txn.create_group(active_txn_overrides={"sender": non_creator}),
+                pytest.raises(AssertionError, match="creator only"),
+            ):
+                contract.map_set(UInt64(1), String("Alice"))

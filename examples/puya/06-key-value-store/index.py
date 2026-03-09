@@ -47,9 +47,7 @@ factory = au.AppFactory(
         default_signer=account.signer,
     )
 )
-client, result = factory.send.create(
-    au.AppFactoryCreateMethodCallParams(method="create()void", note=randbytes(8))
-)
+client, result = factory.send.bare.create(au.AppFactoryCreateParams(note=randbytes(8)))
 print_success(f"Contract deployed — App ID: {client.app_id}")
 
 # Step 6: Fund app for box MBR

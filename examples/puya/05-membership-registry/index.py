@@ -106,10 +106,9 @@ print_success("Nicknames set")
 # Step 8: Read local state directly
 print_step(8, "Reading local state directly...")
 alice_state = client.get_local_state(alice.addr)
-# nickname is arc4.String — raw value includes 2-byte ABI length prefix
-assert_equal(alice_state["nickname"].value[2:], "Alice", "Alice nickname via get_local_state")
+assert_equal(alice_state["nickname"].value, "Alice", "Alice nickname via get_local_state")
 bob_state = client.get_local_state(bob.addr)
-assert_equal(bob_state["nickname"].value[2:], "Bob", "Bob nickname via get_local_state")
+assert_equal(bob_state["nickname"].value, "Bob", "Bob nickname via get_local_state")
 
 # Step 9: Read nicknames via ABI method
 print_step(9, "Reading nicknames via ABI method...")

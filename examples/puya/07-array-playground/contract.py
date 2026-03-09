@@ -27,10 +27,6 @@ class ArrayPlayground(arc4.ARC4Contract):
     """ABI-routed contract showcasing Array, ReferenceArray, ImmutableArray,
     FixedArray, freeze, and urange."""
 
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        pass
-
     # --- Array (dynamic, mutable, stack-based) ---
 
     @arc4.abimethod

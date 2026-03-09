@@ -24,10 +24,6 @@ from algopy import ARC4Contract, Bytes, UInt64, arc4, op
 class TypeExplorer(ARC4Contract):
     """Type explorer contract showcasing primitive types, conversions, and low-level ops."""
 
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        """Called once when the app is first deployed."""
-
     @arc4.abimethod
     def uint64_add(self, a: UInt64, b: UInt64) -> UInt64:
         """Add two uint64 values.

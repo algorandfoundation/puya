@@ -16,7 +16,7 @@ Prerequisites: LocalNet
 Note: Educational only — not audited for production use.
 """
 
-from algopy import Box, BoxMap, Bytes, GlobalState, StateTotals, String, UInt64, arc4
+from algopy import Box, BoxMap, Bytes, GlobalState, StateTotals, String, Txn, UInt64, arc4, op
 
 
 # example: KEY_VALUE_STORE
@@ -33,9 +33,9 @@ class KeyValueStore(
         self.profiles = BoxMap(UInt64, String, key_prefix="p_")
         self.blob = Box(Bytes, key="blob")
 
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        """Called once on deploy."""
+    def _assert_creator(self) -> None:
+        """Guard — only the contract creator may call mutation methods."""
+        assert Txn.sender == op.Global.creator_address, "creator only"
 
     # --- Box CRUD ---
 
@@ -46,6 +46,7 @@ class KeyValueStore(
         Args:
             value: the UInt64 value to store
         """
+        self._assert_creator()
         self.counter.value = value
         self.total_ops.value += 1
 
@@ -65,6 +66,7 @@ class KeyValueStore(
         Returns:
             the new counter value after incrementing
         """
+        self._assert_creator()
         self.counter.value += 1
         self.total_ops.value += 1
         return self.counter.value
@@ -81,6 +83,7 @@ class KeyValueStore(
     @arc4.abimethod
     def delete_counter(self) -> None:
         """Demonstrate Box deletion — del box.value."""
+        self._assert_creator()
         del self.counter.value
 
     # --- Box with get/default ---
@@ -92,6 +95,7 @@ class KeyValueStore(
         Args:
             value: the string to store
         """
+        self._assert_creator()
         self.label.value = value
 
     @arc4.abimethod
@@ -118,6 +122,7 @@ class KeyValueStore(
     @arc4.abimethod
     def delete_label(self) -> None:
         """Demonstrate Box deletion for String type."""
+        self._assert_creator()
         del self.label.value
 
     # --- BoxMap CRUD ---
@@ -130,6 +135,7 @@ class KeyValueStore(
             key: the map key
             value: the string to store
         """
+        self._assert_creator()
         self.profiles[key] = value
         self.total_ops.value += 1
 
@@ -164,6 +170,7 @@ class KeyValueStore(
         Args:
             key: the map key to delete
         """
+        self._assert_creator()
         del self.profiles[key]
 
     @arc4.abimethod
@@ -188,6 +195,7 @@ class KeyValueStore(
         Args:
             size: byte length for the new box
         """
+        self._assert_creator()
         assert self.blob.create(size=size)
 
     @arc4.abimethod
@@ -197,6 +205,7 @@ class KeyValueStore(
         Args:
             value: raw bytes to store in the box
         """
+        self._assert_creator()
         self.blob.value = value
 
     @arc4.abimethod
@@ -220,6 +229,7 @@ class KeyValueStore(
             offset: byte offset to begin overwriting
             value: replacement bytes
         """
+        self._assert_creator()
         self.blob.replace(offset, value)
 
     @arc4.abimethod
@@ -247,6 +257,7 @@ class KeyValueStore(
     @arc4.abimethod
     def blob_delete(self) -> None:
         """Demonstrate Box deletion for raw bytes."""
+        self._assert_creator()
         del self.blob.value
 
     # --- Global state ---

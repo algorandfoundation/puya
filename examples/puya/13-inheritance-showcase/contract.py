@@ -37,19 +37,19 @@ class Animal(ARC4Contract, abc.ABC):
         super().__init__()
 
     @arc4.abimethod(create="require")
-    def create(self, name: arc4.String, legs: arc4.UInt64) -> None:
+    def create(self, name: String, legs: UInt64) -> None:
         """Set the initial name and legs.
 
         Args:
             name: the animal's name
             legs: the number of legs
         """
-        self.name.value = name.native
-        self.legs.value = legs.as_uint64()
+        self.name.value = name
+        self.legs.value = legs
 
     @abc.abstractmethod
     @arc4.abimethod
-    def speak(self) -> arc4.String:
+    def speak(self) -> String:
         """Return the animal's sound — must be implemented by subclasses.
 
         Returns:
@@ -58,22 +58,22 @@ class Animal(ARC4Contract, abc.ABC):
         ...
 
     @arc4.abimethod(readonly=True)
-    def describe(self) -> arc4.String:
+    def describe(self) -> String:
         """Return a description of the animal.
 
         Returns:
             a string describing the animal's name and legs
         """
-        return arc4.String(self.name.value + " has " + self._legs_str() + " legs")
+        return self.name.value + " has " + self._legs_str() + " legs"
 
     @arc4.abimethod(readonly=True)
-    def get_name(self) -> arc4.String:
+    def get_name(self) -> String:
         """Return the animal's name.
 
         Returns:
             the current name
         """
-        return arc4.String(self.name.value)
+        return self.name.value
 
     @arc4.abimethod(readonly=True)
     def get_legs(self) -> UInt64:
@@ -86,13 +86,13 @@ class Animal(ARC4Contract, abc.ABC):
 
     @typing.final
     @arc4.abimethod(readonly=True)
-    def species_type(self) -> arc4.String:
+    def species_type(self) -> String:
         """Final method — cannot be overridden by subclasses.
 
         Returns:
             the string "Animal"
         """
-        return arc4.String("Animal")
+        return String("Animal")
 
     def _legs_str(self) -> String:
         legs = self.legs.value
@@ -118,7 +118,7 @@ class Dog(Animal):
 
     @typing.override
     @arc4.abimethod(create="require")
-    def create(self, name: arc4.String, legs: arc4.UInt64) -> None:
+    def create(self, name: String, legs: UInt64) -> None:
         """Override create — super call chains to Animal.create, then sets default trick.
 
         Args:
@@ -130,42 +130,42 @@ class Dog(Animal):
 
     @typing.override
     @arc4.abimethod
-    def speak(self) -> arc4.String:
+    def speak(self) -> String:
         """Override Animal.speak with dog-specific sound.
 
         Returns:
             "{name} says Woof!"
         """
-        return arc4.String(self.name.value + " says Woof!")
+        return self.name.value + " says Woof!"
 
     @arc4.abimethod
-    def set_trick(self, trick: arc4.String) -> None:
+    def set_trick(self, trick: String) -> None:
         """Set the dog's trick.
 
         Args:
             trick: the new trick to store
         """
-        self.trick.value = trick.native
+        self.trick.value = trick
 
     @arc4.abimethod(readonly=True)
-    def get_trick(self) -> arc4.String:
+    def get_trick(self) -> String:
         """Return the dog's current trick.
 
         Returns:
             the current trick
         """
-        return arc4.String(self.trick.value)
+        return self.trick.value
 
     @typing.override
     @arc4.abimethod(readonly=True)
-    def describe(self) -> arc4.String:
+    def describe(self) -> String:
         """Override Animal.describe to include the trick.
 
         Returns:
             a string describing name, legs, and trick
         """
         base = self.name.value + " has " + self._legs_str() + " legs"
-        return arc4.String(base + " and knows " + self.trick.value)
+        return base + " and knows " + self.trick.value
 
 
 class ShowDog(Dog):
@@ -181,7 +181,7 @@ class ShowDog(Dog):
 
     @typing.override
     @arc4.abimethod(create="require")
-    def create(self, name: arc4.String, legs: arc4.UInt64) -> None:
+    def create(self, name: String, legs: UInt64) -> None:
         """Override create — super call chains through Dog to Animal, then initialises awards.
 
         Args:
@@ -193,26 +193,24 @@ class ShowDog(Dog):
 
     @typing.override
     @arc4.abimethod
-    def speak(self) -> arc4.String:
+    def speak(self) -> String:
         """Override Dog.speak with show-champion sound.
 
         Returns:
             "{name} says Woof! (Show champion)"
         """
-        return arc4.String(self.name.value + " says Woof! (Show champion)")
+        return self.name.value + " says Woof! (Show champion)"
 
     @typing.override
     @arc4.abimethod(readonly=True)
-    def describe(self) -> arc4.String:
+    def describe(self) -> String:
         """Override Dog.describe to include trick and awards.
 
         Returns:
             a string describing name, legs, trick, and awards
         """
         base = self.name.value + " has " + self._legs_str() + " legs"
-        return arc4.String(
-            base + ", knows " + self.trick.value + ", awards: " + self._awards_str()
-        )
+        return base + ", knows " + self.trick.value + ", awards: " + self._awards_str()
 
     @arc4.abimethod
     def win_award(self) -> UInt64:
@@ -295,22 +293,22 @@ class Describable(ARC4Contract):
         self.description.value = String("")
 
     @arc4.abimethod
-    def set_description(self, description: arc4.String) -> None:
+    def set_description(self, description: String) -> None:
         """Set the description.
 
         Args:
             description: the new description
         """
-        self.description.value = description.native
+        self.description.value = description
 
     @arc4.abimethod(readonly=True)
-    def get_description(self) -> arc4.String:
+    def get_description(self) -> String:
         """Return the current description.
 
         Returns:
             the description string
         """
-        return arc4.String(self.description.value)
+        return self.description.value
 
 
 class MultiInheritanceShowcase(Pausable, Describable):
@@ -328,15 +326,15 @@ class MultiInheritanceShowcase(Pausable, Describable):
         Describable.create(self)
 
     @arc4.abimethod(readonly=True)
-    def get_status(self) -> arc4.String:
+    def get_status(self) -> String:
         """Return status: 'paused' if paused, otherwise the description.
 
         Returns:
             status string
         """
         if self.paused.value:
-            return arc4.String("paused")
-        return arc4.String(self.description.value)
+            return String("paused")
+        return self.description.value
 
 
 # example: INHERITANCE_SHOWCASE

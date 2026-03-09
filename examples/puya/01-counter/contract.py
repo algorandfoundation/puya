@@ -25,10 +25,6 @@ class Counter(ARC4Contract):
         """Initialise counter to zero using Uint64() factory."""
         self.counter = UInt64(0)
 
-    @arc4.abimethod(create="require")
-    def create(self) -> None:
-        """Called once when the app is first deployed."""
-
     @arc4.abimethod
     def increment(self) -> UInt64:
         """Increment the counter by 1 using compound assignment (+=).
