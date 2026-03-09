@@ -64,6 +64,10 @@ class CompiledProgram(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def assembly_report(self) -> str | None: ...
+
+    @property
+    @abc.abstractmethod
     def template_variables(self) -> Mapping[str, int | bytes | None]: ...
 
     @property
