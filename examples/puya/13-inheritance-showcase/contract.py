@@ -1,0 +1,340 @@
+"""Example 13: Inheritance Showcase
+
+This example demonstrates single, multi-level, and multiple inheritance with abstract classes.
+
+Features:
+- Single inheritance (extending a base class)
+- Multi-level inheritance (three levels deep)
+- Multiple inheritance (combining independent base contracts)
+- Abstract classes (abc.ABC prevents direct instantiation)
+- Method overrides (replacing parent behaviour in subclasses)
+- Super calls (super().method() in constructors and overrides)
+- Constructor patterns (state initialization via __init__ and create)
+- Final methods (typing.final prevents override in subclasses)
+
+Prerequisites: LocalNet
+
+Note: Educational only — not audited for production use.
+"""
+
+import abc
+import typing
+
+from algopy import ARC4Contract, GlobalState, String, UInt64, arc4, log
+
+
+# example: INHERITANCE_SHOWCASE
+class Animal(ARC4Contract, abc.ABC):
+    """Abstract base class — every animal must implement speak().
+
+    Declares shared state (name, legs) and common methods.
+    Cannot be deployed directly due to abc.ABC.
+    """
+
+    def __init__(self) -> None:
+        self.name = GlobalState(String)
+        self.legs = GlobalState(UInt64)
+        super().__init__()
+
+    @arc4.abimethod(create="require")
+    def create(self, name: String, legs: UInt64) -> None:
+        """Set the initial name and legs.
+
+        Args:
+            name: the animal's name
+            legs: the number of legs
+        """
+        self.name.value = name
+        self.legs.value = legs
+
+    @abc.abstractmethod
+    @arc4.abimethod
+    def speak(self) -> String:
+        """Return the animal's sound — must be implemented by subclasses.
+
+        Returns:
+            the animal's sound as a string
+        """
+        ...
+
+    @arc4.abimethod(readonly=True)
+    def describe(self) -> String:
+        """Return a description of the animal.
+
+        Returns:
+            a string describing the animal's name and legs
+        """
+        return self.name.value + " has " + self._legs_str() + " legs"
+
+    @arc4.abimethod(readonly=True)
+    def get_name(self) -> String:
+        """Return the animal's name.
+
+        Returns:
+            the current name
+        """
+        return self.name.value
+
+    @arc4.abimethod(readonly=True)
+    def get_legs(self) -> UInt64:
+        """Return the number of legs.
+
+        Returns:
+            the current leg count
+        """
+        return self.legs.value
+
+    @typing.final
+    @arc4.abimethod(readonly=True)
+    def species_type(self) -> String:
+        """Final method — cannot be overridden by subclasses.
+
+        Returns:
+            the string "Animal"
+        """
+        return String("Animal")
+
+    def _legs_str(self) -> String:
+        legs = self.legs.value
+        if legs == UInt64(0):
+            return String("0")
+        if legs == UInt64(2):
+            return String("2")
+        if legs == UInt64(4):
+            return String("4")
+        return String("?")
+
+
+class Dog(Animal):
+    """Single-level inheritance: Dog extends Animal.
+
+    Overrides speak() and describe(), adds trick state and set_trick/get_trick methods.
+    Constructor chains to Animal via super().
+    """
+
+    def __init__(self) -> None:
+        self.trick = GlobalState(String)
+        super().__init__()
+
+    @typing.override
+    @arc4.abimethod(create="require")
+    def create(self, name: String, legs: UInt64) -> None:
+        """Override create — super call chains to Animal.create, then sets default trick.
+
+        Args:
+            name: the dog's name
+            legs: the number of legs
+        """
+        super().create(name, legs)
+        self.trick.value = String("sit")
+
+    @typing.override
+    @arc4.abimethod
+    def speak(self) -> String:
+        """Override Animal.speak with dog-specific sound.
+
+        Returns:
+            "{name} says Woof!"
+        """
+        return self.name.value + " says Woof!"
+
+    @arc4.abimethod
+    def set_trick(self, trick: String) -> None:
+        """Set the dog's trick.
+
+        Args:
+            trick: the new trick to store
+        """
+        self.trick.value = trick
+
+    @arc4.abimethod(readonly=True)
+    def get_trick(self) -> String:
+        """Return the dog's current trick.
+
+        Returns:
+            the current trick
+        """
+        return self.trick.value
+
+    @typing.override
+    @arc4.abimethod(readonly=True)
+    def describe(self) -> String:
+        """Override Animal.describe to include the trick.
+
+        Returns:
+            a string describing name, legs, and trick
+        """
+        base = self.name.value + " has " + self._legs_str() + " legs"
+        return base + " and knows " + self.trick.value
+
+
+class ShowDog(Dog):
+    """Multi-level inheritance: ShowDog -> Dog -> Animal (three levels deep).
+
+    Overrides speak() and describe(), adds awards state and win_award/get_awards methods.
+    Constructor chains through Dog to Animal via super().
+    """
+
+    def __init__(self) -> None:
+        self.awards = GlobalState(UInt64)
+        super().__init__()
+
+    @typing.override
+    @arc4.abimethod(create="require")
+    def create(self, name: String, legs: UInt64) -> None:
+        """Override create — super call chains through Dog to Animal, then initialises awards.
+
+        Args:
+            name: the show dog's name
+            legs: the number of legs
+        """
+        super().create(name, legs)
+        self.awards.value = UInt64(0)
+
+    @typing.override
+    @arc4.abimethod
+    def speak(self) -> String:
+        """Override Dog.speak with show-champion sound.
+
+        Returns:
+            "{name} says Woof! (Show champion)"
+        """
+        return self.name.value + " says Woof! (Show champion)"
+
+    @typing.override
+    @arc4.abimethod(readonly=True)
+    def describe(self) -> String:
+        """Override Dog.describe to include trick and awards.
+
+        Returns:
+            a string describing name, legs, trick, and awards
+        """
+        base = self.name.value + " has " + self._legs_str() + " legs"
+        return base + ", knows " + self.trick.value + ", awards: " + self._awards_str()
+
+    @arc4.abimethod
+    def win_award(self) -> UInt64:
+        """Increment and return the awards count.
+
+        Returns:
+            the new awards count after incrementing
+        """
+        self.awards.value += 1
+        log("Award won!")
+        return self.awards.value
+
+    @arc4.abimethod(readonly=True)
+    def get_awards(self) -> UInt64:
+        """Return the current awards count.
+
+        Returns:
+            the number of awards won
+        """
+        return self.awards.value
+
+    def _awards_str(self) -> String:
+        a = self.awards.value
+        if a == UInt64(0):
+            return String("0")
+        if a == UInt64(1):
+            return String("1")
+        if a == UInt64(2):
+            return String("2")
+        if a == UInt64(3):
+            return String("3")
+        return String("many")
+
+
+# --- Part C: Multiple inheritance ---
+
+
+class Pausable(ARC4Contract):
+    """Base contract providing pause/unpause functionality."""
+
+    def __init__(self) -> None:
+        self.paused = GlobalState(bool, key="paused")
+        super().__init__()
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        """Initialise paused state to False."""
+        self.paused.value = False
+
+    @arc4.abimethod
+    def pause(self) -> None:
+        """Pause the contract."""
+        self.paused.value = True
+
+    @arc4.abimethod
+    def unpause(self) -> None:
+        """Unpause the contract."""
+        self.paused.value = False
+
+    @arc4.abimethod(readonly=True)
+    def is_paused(self) -> bool:
+        """Return whether the contract is paused.
+
+        Returns:
+            True if paused, False otherwise
+        """
+        return self.paused.value
+
+
+class Describable(ARC4Contract):
+    """Base contract providing a mutable description."""
+
+    def __init__(self) -> None:
+        self.description = GlobalState(String, key="description")
+        super().__init__()
+
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        """Initialise description to empty string."""
+        self.description.value = String("")
+
+    @arc4.abimethod
+    def set_description(self, description: String) -> None:
+        """Set the description.
+
+        Args:
+            description: the new description
+        """
+        self.description.value = description
+
+    @arc4.abimethod(readonly=True)
+    def get_description(self) -> String:
+        """Return the current description.
+
+        Returns:
+            the description string
+        """
+        return self.description.value
+
+
+class MultiInheritanceShowcase(Pausable, Describable):
+    """Multiple inheritance: combines Pausable and Describable.
+
+    Demonstrates Python MRO (Method Resolution Order) with two independent base contracts.
+    Overrides create to initialise both bases.
+    """
+
+    @typing.override
+    @arc4.abimethod(create="require")
+    def create(self) -> None:
+        """Initialise both Pausable and Describable state."""
+        Pausable.create(self)
+        Describable.create(self)
+
+    @arc4.abimethod(readonly=True)
+    def get_status(self) -> String:
+        """Return status: 'paused' if paused, otherwise the description.
+
+        Returns:
+            status string
+        """
+        if self.paused.value:
+            return String("paused")
+        return self.description.value
+
+
+# example: INHERITANCE_SHOWCASE

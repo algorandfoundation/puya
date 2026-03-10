@@ -354,6 +354,34 @@ jobs:
         env:
           COVERAGE_CORE: sysmon
 
+  verify-examples:
+    runs-on: "ubuntu-latest"
+    needs:
+      - check-python
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+
+      - name: Install example dependencies
+        working-directory: examples/puya
+        run: uv sync
+
+      - name: Run example unit tests
+        working-directory: examples/puya
+        run: uv run pytest
+
+      - name: Start LocalNet
+        run: |
+          pipx install algokit
+          algokit localnet start
+
+      - name: Verify all examples
+        working-directory: examples/puya
+        run: bash verify-all.sh
+
   build-and-test-binaries:
     name: Build and test binaries
     uses: ./.github/workflows/build-binaries.yaml

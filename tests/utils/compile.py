@@ -70,7 +70,8 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
     with pushd(root_dir), logging_context() as log_ctx:
         # explicitly exclude out dirs as they can contain generated clients that get deleted
         out_dir_names = [f"out{suffix}" for suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2)]
-        parse_result = parse_python([root_dir], excluded_subdir_names=out_dir_names)
+        excluded = [*out_dir_names, "puya"]
+        parse_result = parse_python([root_dir], excluded_subdir_names=excluded)
         awst, compilation_set = transform_ast(parse_result, PuyaPyOptions())
     return _CompileCache(parse_result, awst, compilation_set, log_ctx.logs)
 
