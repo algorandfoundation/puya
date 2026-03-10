@@ -20,6 +20,7 @@ from algopy import (
     ARC4Contract,
     Asset,
     Global,
+    String,
     Txn,
     UInt64,
     arc4,
@@ -37,11 +38,11 @@ class TokenManager(ARC4Contract):
     @arc4.abimethod
     def create_asset(
         self,
-        name: arc4.String,
-        unit: arc4.String,
+        name: String,
+        unit: String,
         total: UInt64,
         decimals: UInt64,
-        default_frozen: arc4.Bool,
+        default_frozen: bool,
     ) -> UInt64:
         """Create a new ASA via inner transaction.
 
@@ -61,11 +62,11 @@ class TokenManager(ARC4Contract):
         assert self.asset_id == 0, "asset already created"
 
         result = itxn.AssetConfig(
-            asset_name=name.native,
-            unit_name=unit.native,
+            asset_name=name,
+            unit_name=unit,
             total=total,
             decimals=decimals,
-            default_frozen=default_frozen.native,
+            default_frozen=default_frozen,
             manager=Global.current_application_address,
             reserve=Global.current_application_address,
             freeze=Global.current_application_address,
@@ -112,7 +113,7 @@ class TokenManager(ARC4Contract):
         ).submit()
 
     @arc4.abimethod
-    def freeze_account(self, asset: Asset, account: Account, frozen: arc4.Bool) -> None:
+    def freeze_account(self, asset: Asset, account: Account, frozen: bool) -> None:
         """Freeze or unfreeze an account's holdings of the managed asset.
 
         Args:
@@ -126,7 +127,7 @@ class TokenManager(ARC4Contract):
         itxn.AssetFreeze(
             freeze_asset=asset,
             freeze_account=account,
-            frozen=frozen.native,
+            frozen=frozen,
         ).submit()
 
     @arc4.abimethod

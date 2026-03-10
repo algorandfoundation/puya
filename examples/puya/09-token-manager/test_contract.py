@@ -1,5 +1,5 @@
 import pytest
-from algopy import Asset, UInt64, arc4
+from algopy import Asset, String, UInt64
 from algopy_testing import algopy_testing_context
 from contract import TokenManager
 
@@ -7,11 +7,11 @@ from contract import TokenManager
 def _create_contract_with_asset() -> tuple[TokenManager, UInt64]:
     contract = TokenManager()
     asset_id = contract.create_asset(
-        arc4.String("TestToken"),
-        arc4.String("TT"),
+        String("TestToken"),
+        String("TT"),
         UInt64(1_000_000),
         UInt64(0),
-        arc4.Bool(False),
+        False,
     )
     return contract, asset_id
 
@@ -42,11 +42,11 @@ class TestCreateAsset:
                 pytest.raises(AssertionError, match="only creator"),
             ):
                 contract.create_asset(
-                    arc4.String("T"),
-                    arc4.String("T"),
+                    String("T"),
+                    String("T"),
                     UInt64(1),
                     UInt64(0),
-                    arc4.Bool(False),
+                    False,
                 )
 
     def test_rejects_double_creation(self) -> None:
@@ -55,11 +55,11 @@ class TestCreateAsset:
 
             with pytest.raises(AssertionError, match="asset already created"):
                 contract.create_asset(
-                    arc4.String("T2"),
-                    arc4.String("T2"),
+                    String("T2"),
+                    String("T2"),
                     UInt64(1),
                     UInt64(0),
-                    arc4.Bool(False),
+                    False,
                 )
 
 
@@ -98,7 +98,7 @@ class TestFreezeAccount:
             asset = Asset(asset_id)
             target = ctx.any.account()
 
-            contract.freeze_account(asset, target, arc4.Bool(True))
+            contract.freeze_account(asset, target, True)
 
             af = ctx.txn.last_group.last_itxn.asset_freeze
             assert af.freeze_asset.id == asset_id

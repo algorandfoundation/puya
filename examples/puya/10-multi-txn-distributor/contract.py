@@ -17,6 +17,7 @@ from algopy import (
     Account,
     ARC4Contract,
     Global,
+    ImmutableArray,
     UInt64,
     arc4,
     gtxn,
@@ -67,7 +68,7 @@ class MultiTxnDistributor(ARC4Contract):
     def distribute_dynamic(
         self,
         funds: gtxn.PaymentTransaction,
-        receivers: arc4.DynamicArray[arc4.Address],
+        receivers: ImmutableArray[Account],
     ) -> UInt64:
         """Distribute funds to a dynamic list of recipients using stage/submit_staged.
 
@@ -76,7 +77,7 @@ class MultiTxnDistributor(ARC4Contract):
 
         Args:
             funds: the outer group payment transaction funding the distribution
-            receivers: dynamic array of recipient addresses
+            receivers: array of recipient accounts
 
         Returns:
             The per-recipient share amount.
@@ -89,13 +90,13 @@ class MultiTxnDistributor(ARC4Contract):
         share = funds.amount // count
 
         itxn.Payment(
-            receiver=receivers[0].native,
+            receiver=receivers[0],
             amount=share,
         ).stage(begin_group=True)
 
         for i in urange(1, count):
             itxn.Payment(
-                receiver=receivers[i].native,
+                receiver=receivers[i],
                 amount=share,
             ).stage()
 

@@ -260,8 +260,8 @@ assert isinstance(proposal, dict)
 assert_equal(proposal["rejected"], True, "proposal is now rejected")
 print_success("Proposal 1 rejected and verified")
 
-# Step 14: Verify active proposals list (DynamicArray)
-print_step(14, "Verifying active proposals list (arc4.DynamicArray)...")
+# Step 14: Verify active proposals list
+print_step(14, "Verifying active proposals list...")
 resp = client.send.call(
     au.AppClientMethodCallParams(
         method="get_active_proposals()uint64[]",

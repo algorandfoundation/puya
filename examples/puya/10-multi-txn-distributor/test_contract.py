@@ -1,5 +1,5 @@
 import pytest
-from algopy import Account, UInt64, arc4
+from algopy import Account, ImmutableArray, UInt64
 from algopy_testing import AlgopyTestContext, algopy_testing_context
 from contract import MultiTxnDistributor
 
@@ -33,15 +33,16 @@ class TestDistributeFixed:
 
 class TestDistributeDynamic:
     @pytest.mark.xfail(
-        reason="itxn.Payment.stage() not implemented in algorand-python-testing",
-        raises=AttributeError,
+        reason="ImmutableArray and itxn.Payment.stage() not fully implemented"
+        " in algorand-python-testing",
+        raises=(TypeError, AttributeError),
     )
     def test_distributes_to_variable_length_receiver_list(self) -> None:
         with algopy_testing_context() as ctx:
             contract, app_account = _make_contract_and_app_account(ctx)
             r1, r2 = ctx.any.account(), ctx.any.account()
 
-            receivers = arc4.DynamicArray(arc4.Address(r1), arc4.Address(r2))
+            receivers = ImmutableArray(r1, r2)
             pay = ctx.any.txn.payment(receiver=app_account, amount=1000)
             share = contract.distribute_dynamic(pay, receivers)
 
@@ -51,7 +52,7 @@ class TestDistributeDynamic:
         with algopy_testing_context() as ctx:
             contract, app_account = _make_contract_and_app_account(ctx)
 
-            receivers = arc4.DynamicArray[arc4.Address]()
+            receivers = ImmutableArray[Account]()
             pay = ctx.any.txn.payment(receiver=app_account, amount=1000)
             with pytest.raises(AssertionError, match="must have at least one receiver"):
                 contract.distribute_dynamic(pay, receivers)

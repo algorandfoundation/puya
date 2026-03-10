@@ -4,10 +4,10 @@ This example demonstrates a full DAO proposal lifecycle using Box/BoxMap storage
 
 Features:
 - BoxMap<UInt64, Proposal> — proposals keyed by numeric ID
-- Box<arc4.DynamicArray> — dynamically built list of active proposal IDs
-- arc4.Struct — Proposal record with typed fields (module scope)
+- Box<Array> — dynamically built list of active proposal IDs
+- Struct — Proposal record with typed fields (module scope)
 - Vote deduplication via composite byte keys (proposalId + voter address)
-- arc4.DynamicArray<arc4.UInt64> — tracking active proposals
+- Array[UInt64] — tracking active proposals
 - ensure_budget() / OpUpFeeSource — opcode budget management
 - Full lifecycle: create → propose → vote → execute
 
@@ -17,11 +17,15 @@ Note: Educational only - not audited for production use.
 """
 
 from algopy import (
+    Account,
     ARC4Contract,
+    Array,
     Box,
     BoxMap,
     GlobalState,
     OpUpFeeSource,
+    String,
+    Struct,
     Txn,
     UInt64,
     arc4,
@@ -30,15 +34,15 @@ from algopy import (
 )
 
 
-class Proposal(arc4.Struct):
-    """On-chain proposal record stored in BoxMap — fields as arc4 types."""
+class Proposal(Struct):
+    """On-chain proposal record stored in BoxMap — fields as native types."""
 
-    title: arc4.String
-    creator: arc4.Address
-    yes_votes: arc4.UInt64
-    no_votes: arc4.UInt64
-    executed: arc4.Bool
-    rejected: arc4.Bool
+    title: String
+    creator: Account
+    yes_votes: UInt64
+    no_votes: UInt64
+    executed: bool
+    rejected: bool
 
 
 # example: GOVERNANCE_DAO
@@ -49,7 +53,7 @@ class GovernanceDAO(ARC4Contract):
         self.proposal_count = GlobalState(UInt64(0))
         self.quorum = GlobalState(UInt64(0))
         self.proposals = BoxMap(UInt64, Proposal, key_prefix="p_")
-        self.active_proposals = Box(arc4.DynamicArray[arc4.UInt64], key="active")
+        self.active_proposals = Box(Array[UInt64], key="active")
 
     @arc4.abimethod(create="require")
     def create(self, quorum: UInt64) -> None:
@@ -61,7 +65,7 @@ class GovernanceDAO(ARC4Contract):
         self.quorum.value = quorum
 
     @arc4.abimethod
-    def create_proposal(self, title: arc4.String) -> UInt64:
+    def create_proposal(self, title: String) -> UInt64:
         """Submit a new proposal and track it in the active proposals list.
 
         Args:
@@ -74,19 +78,19 @@ class GovernanceDAO(ARC4Contract):
         proposal_id = self.proposal_count.value
         self.proposals[proposal_id] = Proposal(
             title=title,
-            creator=arc4.Address(Txn.sender),
-            yes_votes=arc4.UInt64(0),
-            no_votes=arc4.UInt64(0),
-            executed=arc4.Bool(False),
-            rejected=arc4.Bool(False),
+            creator=Txn.sender,
+            yes_votes=UInt64(0),
+            no_votes=UInt64(0),
+            executed=False,
+            rejected=False,
         )
-        # Track active proposals using arc4.DynamicArray
+        # Track active proposals using Array
         if bool(self.active_proposals):
             active = self.active_proposals.value.copy()
             del self.active_proposals.value
         else:
-            active = arc4.DynamicArray[arc4.UInt64]()
-        active.append(arc4.UInt64(proposal_id))
+            active = Array[UInt64]()
+        active.append(proposal_id)
         self.active_proposals.value = active.copy()
 
         self.proposal_count.value = proposal_id + 1
@@ -103,8 +107,8 @@ class GovernanceDAO(ARC4Contract):
         ensure_budget(2000, fee_source=OpUpFeeSource.Any)
         assert proposal_id in self.proposals, "proposal not found"
         proposal = self.proposals[proposal_id].copy()
-        assert not proposal.executed.native, "already executed"
-        assert not proposal.rejected.native, "already rejected"
+        assert not proposal.executed, "already executed"
+        assert not proposal.rejected, "already rejected"
 
         # Vote deduplication via Box — composite key: proposalId + voter address
         vote_key = b"v" + op.itob(proposal_id) + Txn.sender.bytes
@@ -114,9 +118,9 @@ class GovernanceDAO(ARC4Contract):
 
         # Update tally
         if in_favor:
-            proposal.yes_votes = arc4.UInt64(proposal.yes_votes.as_uint64() + 1)
+            proposal.yes_votes += 1
         else:
-            proposal.no_votes = arc4.UInt64(proposal.no_votes.as_uint64() + 1)
+            proposal.no_votes += 1
         self.proposals[proposal_id] = proposal.copy()
 
     @arc4.abimethod(readonly=True)
@@ -132,11 +136,11 @@ class GovernanceDAO(ARC4Contract):
         return self.proposals[proposal_id]
 
     @arc4.abimethod(readonly=True)
-    def get_active_proposals(self) -> arc4.DynamicArray[arc4.UInt64]:
+    def get_active_proposals(self) -> Array[UInt64]:
         """Return the list of all active proposal IDs.
 
         Returns:
-            arc4.DynamicArray of proposal IDs
+            Array of proposal IDs
         """
         return self.active_proposals.value.copy()
 
@@ -153,18 +157,18 @@ class GovernanceDAO(ARC4Contract):
         ensure_budget(2000, fee_source=OpUpFeeSource.Any)
         assert proposal_id in self.proposals, "proposal not found"
         proposal = self.proposals[proposal_id].copy()
-        assert not proposal.executed.native, "already executed"
-        assert not proposal.rejected.native, "already rejected"
+        assert not proposal.executed, "already executed"
+        assert not proposal.rejected, "already rejected"
 
-        total_votes = proposal.yes_votes.as_uint64() + proposal.no_votes.as_uint64()
+        total_votes = proposal.yes_votes + proposal.no_votes
         assert total_votes >= self.quorum.value, "quorum not met"
 
-        if proposal.yes_votes.as_uint64() > proposal.no_votes.as_uint64():
-            proposal.executed = arc4.Bool(True)
+        if proposal.yes_votes > proposal.no_votes:
+            proposal.executed = True
             self.proposals[proposal_id] = proposal.copy()
             return True
         else:
-            proposal.rejected = arc4.Bool(True)
+            proposal.rejected = True
             self.proposals[proposal_id] = proposal.copy()
             return False
 
