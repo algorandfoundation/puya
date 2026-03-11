@@ -1046,7 +1046,7 @@ class NamedTupleExpression(Expression):
         if values.keys() != self.wtype.fields.keys():
             raise CodeError("invalid argument(s)", self.source_location)
         for field_name, field_value in self.values.items():
-            expected_wtype = self.wtype.fields[field_name]
+            expected_wtype = self.wtype.fields[field_name].wtype
             if field_value.wtype != expected_wtype:
                 raise CodeError("invalid argument type(s)", self.source_location)
 
@@ -1168,7 +1168,7 @@ class FieldExpression(Expression):
         dataclass_type = self.base.wtype
         assert isinstance(dataclass_type, wtypes.ARC4Struct | wtypes.WTuple)
         try:
-            return dataclass_type.fields[self.name]
+            return dataclass_type.fields[self.name].wtype
         except KeyError:
             raise CodeError(f"invalid field for {dataclass_type}", self.source_location) from None
 
@@ -2391,7 +2391,7 @@ class NewStruct(Expression):
             raise CodeError("Invalid argument(s)", self.source_location)
         for field_name, field_value in self.values.items():
             expected_wtype = self.wtype.fields[field_name]
-            if field_value.wtype != expected_wtype:
+            if field_value.wtype != expected_wtype.wtype:
                 raise CodeError("Invalid argument type(s)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

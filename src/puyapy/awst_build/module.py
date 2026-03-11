@@ -685,23 +685,37 @@ def _process_contract_class_options(
 
 def _process_dataclass_like_fields(
     context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef, base_type: pytypes.PyType
-) -> dict[str, pytypes.PyType] | None:
-    fields = dict[str, pytypes.PyType]()
+) -> list[pytypes.PyTypeField] | None:
+    fields = list[pytypes.PyTypeField]()
     has_error = False
-    for stmt in cdef.defs.body:
+    stmts = cdef.defs.body
+    for i, stmt in enumerate(stmts):
         stmt_loc = context.node_location(stmt)
         match stmt:
             case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
                 # ignore class docstring, already extracted
-                # TODO: should we capture field "docstrings"?
+                # field "docstrings" captured when looking at a field
                 pass
             case mypy.nodes.AssignmentStmt(
                 lvalues=[mypy.nodes.NameExpr(name=field_name)],
                 rvalue=mypy.nodes.TempNode(),
                 type=mypy.types.Type() as mypy_type,
             ):
+                # If possible: get the field docs at the next statement
+                description = None
+                if i + 1 < len(stmts):
+                    match stmts[i + 1]:
+                        case mypy.nodes.ExpressionStmt(
+                            expr=mypy.nodes.StrExpr() as field_description
+                        ):
+                            description = field_description.value
+                        case _:
+                            pass
+
                 pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
-                fields[field_name] = pytype
+                fields.append(
+                    pytypes.PyTypeField(name=field_name, type=pytype, description=description)
+                )
                 if isinstance((maybe_err := pytype.wtype), str):
                     logger.error(maybe_err, location=stmt_loc)
                     has_error = True

@@ -17,6 +17,7 @@ class ARC4StructField:
     name: str
     type: str
     struct: str | None
+    desc: str | None
 
 
 @attrs.frozen(kw_only=True)
