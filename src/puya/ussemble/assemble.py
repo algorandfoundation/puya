@@ -51,7 +51,6 @@ def assemble_bytecode_and_debug_info(
     pc_ops = dict[int, models.AVMOp]()
     label_pcs = dict[str, int]()
     op_stats = defaultdict[_OpKind, list[int]](list)
-    instruction_boundaries = list[int]()
 
     # pc includes version header
     pc = len(version_bytes)
@@ -71,9 +70,7 @@ def assemble_bytecode_and_debug_info(
                 op_size = len(_encode_op(avm_op, get_label_offset=lambda _: 0))
                 assert op_size, "expected non empty bytecode"
                 pc_ops[pc] = avm_op
-                instruction_boundaries.append(pc)
                 pc += op_size
-    instruction_boundaries.append(pc)
 
     # iterate again to capture debug info using calculated pcs
     if ctx.options.debug_level:
@@ -132,7 +129,7 @@ def assemble_bytecode_and_debug_info(
             for var in ctx.template_variable_types
         },
         stats=_get_op_stats(op_stats),
-        instruction_boundaries=instruction_boundaries,
+        instruction_boundaries=[*pc_ops.keys(), pc],
     )
 
 
