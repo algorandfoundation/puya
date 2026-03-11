@@ -1,0 +1,138 @@
+  0 | 0b                            | #pragma version 11                             |                                                                                   | 
+    | # main                        | main:                                          |                                                                                   | test_cases.application.contract.Reference.approval_program() -> uint64:
+  1 | 20 03 00 01 02                | intcblock 0 1 2                                |                                                                                   | 
+  6 | 42 00 00                      | b main_block@0                                 |                                                                                   | 
+    | # main_block@0                | main_block@0:                                  |                                                                                   | 
+  9 | 31 18                         | txn ApplicationID                              |                                                                                   | INTERNAL:1
+ 11 | 40 00 09                      | bnz main_after_if_else@2                       |                                                                                   | INTERNAL:1
+ 14 | 42 00 00                      | b main_call___init__@1                         |                                                                                   | INTERNAL:1
+    | # main_call___init__@1        | main_call___init__@1:                          |                                                                                   | 
+ 17 | 88 00 37                      | callsub __init__                               |                                                                                   | INTERNAL:1
+ 20 | 42 00 00                      | b main_after_if_else@2                         |                                                                                   | 
+    | # main_after_if_else@2        | main_after_if_else@2:                          |                                                                                   | 
+    |                               |                                                | assert bool(Application(1)) == bool(Application(2))                               | application/contract.py:27
+ 23 | 23                            | intc_1 // 1                                    |             --------------                                                        | application/contract.py:27:20-34
+ 24 | 22                            | intc_0 // 0                                    |        --------------------                                                       | application/contract.py:27:15-35
+ 25 | 13                            | !=                                             |        --------------------                                                       | application/contract.py:27:15-35
+ 26 | 24                            | intc_2 // 2                                    |                                     --------------                                | application/contract.py:27:44-58
+ 27 | 22                            | intc_0 // 0                                    |                                --------------------                               | application/contract.py:27:39-59
+ 28 | 13                            | !=                                             |                                --------------------                               | application/contract.py:27:39-59
+ 29 | 12                            | ==                                             |        --------------------------------------------                               | application/contract.py:27:15-59
+ 30 | 44                            | assert                                         | ---------------------------------------------------                               | application/contract.py:27:8-59
+    |                               |                                                | if op.Txn.num_app_args == 1:                                                      | application/contract.py:28
+ 31 | 31 1b                         | txn NumAppArgs                                 |    -------------------                                                            | application/contract.py:28:11-30
+ 33 | 23                            | intc_1 // 1                                    |                           -                                                       | application/contract.py:28:34-35
+ 34 | 12                            | ==                                             |    ------------------------                                                       | application/contract.py:28:11-35
+ 35 | 41 00 22                      | bz main_after_if_else@7                        |                                                                                   | application/contract.py:28
+ 38 | 42 00 00                      | b main_if_body@3                               |                                                                                   | application/contract.py:28
+    | # main_if_body@3              | main_if_body@3:                                |                                                                                   | 
+    |                               |                                                | if op.Txn.application_args(0) == b"validate":                                     | application/contract.py:29
+ 41 | 36 1a 00                      | txna ApplicationArgs 0                         |    --------------------------                                                     | application/contract.py:29:15-41
+ 44 | 80 08 76 61 6c 69 64 61 74 65 | pushbytes 0x76616c6964617465                   |                                  -----------                                      | application/contract.py:29:45-56
+ 54 | 12                            | ==                                             |    -----------------------------------------                                      | application/contract.py:29:15-56
+ 55 | 41 00 10                      | bz main_else_body@5                            |                                                                                   | application/contract.py:29
+ 58 | 42 00 00                      | b main_if_body@4                               |                                                                                   | application/contract.py:29
+    | # main_if_body@4              | main_if_body@4:                                |                                                                                   | 
+    |                               |                                                | self.validate_asset(op.Global.current_application_id)                             | application/contract.py:30
+ 61 | 32 08                         | global CurrentApplicationID                    |                     --------------------------------                              | application/contract.py:30:36-68
+ 63 | 88 00 2e                      | callsub validate_asset                         | -----------------------------------------------------                             | application/contract.py:30:16-69
+ 66 | 42 00 00                      | b main_after_if_else@6                         |                                                                                   | 
+    | # main_after_if_else@6        | main_after_if_else@6:                          |                                                                                   | 
+ 69 | 42 00 00                      | b main_after_if_else@7                         |                                                                                   | 
+    | # main_after_if_else@7        | main_after_if_else@7:                          |                                                                                   | 
+    |                               |                                                | return True                                                                       | application/contract.py:33
+ 72 | 23                            | intc_1 // 1                                    |        ----                                                                       | application/contract.py:33:15-19
+ 73 | 43                            | return                                         | -----------                                                                       | application/contract.py:33:8-19
+    | # main_else_body@5            | main_else_body@5:                              |                                                                                   | 
+    |                               |                                                | assert False, "Expected validate"                                                 | application/contract.py:32
+ 74 | 00                            | err // Expected validate                       | ---------------------------------                                                 | application/contract.py:32:16-49
+    | # __init__                    | __init__:                                      |                                                                                   | test_cases.application.contract.Reference.__init__() -> void:
+ 75 | 42 00 00                      | b __init___block@0                             |                                                                                   | 
+    | # __init___block@0            | __init___block@0:                              |                                                                                   | 
+    |                               |                                                | self.int_1 = UInt64(0)                                                            | application/contract.py:15
+ 78 | 80 05 69 6e 74 5f 31          | pushbytes "int_1"                              | ----------                                                                        | application/contract.py:15:8-18
+ 85 | 22                            | intc_0 // 0                                    |              ---------                                                            | application/contract.py:15:21-30
+ 86 | 67                            | app_global_put                                 | ----------------------                                                            | application/contract.py:15:8-30
+    |                               |                                                | self.bytes_1 = Bytes(b"")                                                         | application/contract.py:16
+ 87 | 80 07 62 79 74 65 73 5f 31    | pushbytes "bytes_1"                            | ------------                                                                      | application/contract.py:16:8-20
+ 96 | 80 00                         | pushbytes 0x                                   |                ----------                                                         | application/contract.py:16:23-33
+ 98 | 67                            | app_global_put                                 | -------------------------                                                         | application/contract.py:16:8-33
+    |                               |                                                | self.bytes_2 = Bytes(b"")                                                         | application/contract.py:17
+ 99 | 80 07 62 79 74 65 73 5f 32    | pushbytes "bytes_2"                            | ------------                                                                      | application/contract.py:17:8-20
+108 | 80 00                         | pushbytes 0x                                   |                ----------                                                         | application/contract.py:17:23-33
+110 | 67                            | app_global_put                                 | -------------------------                                                         | application/contract.py:17:8-33
+111 | 89                            | retsub                                         |                                                                                   | 
+    | # validate_asset              | validate_asset:                                |                                                                                   | test_cases.application.contract.Reference.validate_asset(app: uint64) -> void:
+112 | 8a 01 00                      | proto 1 0                                      |                                                                                   | application/contract.py:38-39:5-49
+115 | 42 00 00                      | b validate_asset_block@0                       |                                                                                   | 
+    | # validate_asset_block@0      | validate_asset_block@0:                        |                                                                                   | 
+    |                               |                                                | assert not Txn.sender.is_opted_in(app), "app opted in"                            | application/contract.py:40
+118 | 31 00                         | txn Sender                                     |            ----------                                                             | application/contract.py:40:19-29
+120 | 8b ff                         | frame_dig -1                                   |            ---------------------------                                            | application/contract.py:40:19-46
+122 | 61                            | app_opted_in                                   |            ---------------------------                                            | application/contract.py:40:19-46
+123 | 14                            | !                                              |        -------------------------------                                            | application/contract.py:40:15-46
+124 | 44                            | assert // app opted in                         | ------------------------------------------------------                            | application/contract.py:40:8-62
+    |                               |                                                | assert app.creator == op.Global.creator_address, "expected creator"               | application/contract.py:41
+125 | 8b ff                         | frame_dig -1                                   |        -----------                                                                | application/contract.py:41:15-26
+127 | 72 07                         | app_params_get AppCreator                      |        -----------                                                                | application/contract.py:41:15-26
+129 | 44                            | assert // application exists                   |        -----------                                                                | application/contract.py:41:15-26
+130 | 32 09                         | global CreatorAddress                          |                       -------------------------                                   | application/contract.py:41:30-55
+132 | 12                            | ==                                             |        ----------------------------------------                                   | application/contract.py:41:15-55
+133 | 44                            | assert // expected creator                     | -------------------------------------------------------------------               | application/contract.py:41:8-75
+    |                               |                                                | assert app.global_num_uint == 1, "expected global_num_uint"                       | application/contract.py:42
+134 | 8b ff                         | frame_dig -1                                   |        -------------------                                                        | application/contract.py:42:15-34
+136 | 72 02                         | app_params_get AppGlobalNumUint                |        -------------------                                                        | application/contract.py:42:15-34
+138 | 44                            | assert // application exists                   |        -------------------                                                        | application/contract.py:42:15-34
+139 | 23                            | intc_1 // 1                                    |                               -                                                   | application/contract.py:42:38-39
+140 | 12                            | ==                                             |        ------------------------                                                   | application/contract.py:42:15-39
+141 | 44                            | assert // expected global_num_uint             | -----------------------------------------------------------                       | application/contract.py:42:8-67
+    |                               |                                                | assert app.global_num_bytes == 2, "expected global_num_bytes"                     | application/contract.py:43
+142 | 8b ff                         | frame_dig -1                                   |        --------------------                                                       | application/contract.py:43:15-35
+144 | 72 03                         | app_params_get AppGlobalNumByteSlice           |        --------------------                                                       | application/contract.py:43:15-35
+146 | 44                            | assert // application exists                   |        --------------------                                                       | application/contract.py:43:15-35
+147 | 24                            | intc_2 // 2                                    |                                -                                                  | application/contract.py:43:39-40
+148 | 12                            | ==                                             |        -------------------------                                                  | application/contract.py:43:15-40
+149 | 44                            | assert // expected global_num_bytes            | -------------------------------------------------------------                     | application/contract.py:43:8-69
+    |                               |                                                | assert app.local_num_uint == 3, "expected local_num_uint"                         | application/contract.py:44
+150 | 8b ff                         | frame_dig -1                                   |        ------------------                                                         | application/contract.py:44:15-33
+152 | 72 04                         | app_params_get AppLocalNumUint                 |        ------------------                                                         | application/contract.py:44:15-33
+154 | 44                            | assert // application exists                   |        ------------------                                                         | application/contract.py:44:15-33
+155 | 81 03                         | pushint 3                                      |                              -                                                    | application/contract.py:44:37-38
+157 | 12                            | ==                                             |        -----------------------                                                    | application/contract.py:44:15-38
+158 | 44                            | assert // expected local_num_uint              | ---------------------------------------------------------                         | application/contract.py:44:8-65
+    |                               |                                                | assert app.local_num_bytes == 4, "expected local_num_bytes"                       | application/contract.py:45
+159 | 8b ff                         | frame_dig -1                                   |        -------------------                                                        | application/contract.py:45:15-34
+161 | 72 05                         | app_params_get AppLocalNumByteSlice            |        -------------------                                                        | application/contract.py:45:15-34
+163 | 44                            | assert // application exists                   |        -------------------                                                        | application/contract.py:45:15-34
+164 | 81 04                         | pushint 4                                      |                               -                                                   | application/contract.py:45:38-39
+166 | 12                            | ==                                             |        ------------------------                                                   | application/contract.py:45:15-39
+167 | 44                            | assert // expected local_num_bytes             | -----------------------------------------------------------                       | application/contract.py:45:8-67
+    |                               |                                                | assert app.approval_program, "expected approval_program"                          | application/contract.py:46
+168 | 8b ff                         | frame_dig -1                                   |        --------------------                                                       | application/contract.py:46:15-35
+170 | 72 00                         | app_params_get AppApprovalProgram              |        --------------------                                                       | application/contract.py:46:15-35
+172 | 44                            | assert // application exists                   |        --------------------                                                       | application/contract.py:46:15-35
+173 | 15                            | len                                            |        --------------------                                                       | application/contract.py:46:15-35
+174 | 22                            | intc_0 // 0                                    |        --------------------                                                       | application/contract.py:46:15-35
+175 | 13                            | !=                                             |        --------------------                                                       | application/contract.py:46:15-35
+176 | 44                            | assert // expected approval_program            | --------------------------------------------------------                          | application/contract.py:46:8-64
+    |                               |                                                | assert app.clear_state_program, "expected clear_state_program"                    | application/contract.py:47
+177 | 8b ff                         | frame_dig -1                                   |        -----------------------                                                    | application/contract.py:47:15-38
+179 | 72 01                         | app_params_get AppClearStateProgram            |        -----------------------                                                    | application/contract.py:47:15-38
+181 | 44                            | assert // application exists                   |        -----------------------                                                    | application/contract.py:47:15-38
+182 | 15                            | len                                            |        -----------------------                                                    | application/contract.py:47:15-38
+183 | 22                            | intc_0 // 0                                    |        -----------------------                                                    | application/contract.py:47:15-38
+184 | 13                            | !=                                             |        -----------------------                                                    | application/contract.py:47:15-38
+185 | 44                            | assert // expected clear_state_program         | --------------------------------------------------------------                    | application/contract.py:47:8-70
+    |                               |                                                | assert app == op.Global.current_application_id, "expected current_application_id" | application/contract.py:48
+186 | 32 08                         | global CurrentApplicationID                    |               --------------------------------                                    | application/contract.py:48:22-54
+188 | 8b ff                         | frame_dig -1                                   |        ---------------------------------------                                    | application/contract.py:48:15-54
+190 | 12                            | ==                                             |        ---------------------------------------                                    | application/contract.py:48:15-54
+191 | 44                            | assert // expected current_application_id      | --------------------------------------------------------------------------------- | application/contract.py:48:8-89
+    |                               |                                                | app.address == op.Global.current_application_address                              | application/contract.py:50
+192 | 8b ff                         | frame_dig -1                                   | -----------                                                                       | application/contract.py:50:12-23
+194 | 72 08                         | app_params_get AppAddress                      | -----------                                                                       | application/contract.py:50:12-23
+196 | 44                            | assert // application exists                   | -----------                                                                       | application/contract.py:50:12-23
+197 | 32 0a                         | global CurrentApplicationAddress               |                -------------------------------------                              | application/contract.py:50:27-64
+199 | 12                            | ==                                             | ----------------------------------------------------                              | application/contract.py:50:12-64
+200 | 44                            | assert // expected current_application_address |                                                                                   | application/contract.py:49-51:8-49
+201 | 89                            | retsub                                         |                                                                                   | 

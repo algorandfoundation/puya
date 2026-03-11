@@ -1,0 +1,51 @@
+ 0 | 0b                            | #pragma version 11                  |                                    | 
+   | # main                        | main:                               |                                    | test_cases.match.counter.Counter.approval_program() -> uint64:
+ 1 | 20 02 00 01                   | intcblock 0 1                       |                                    | 
+ 5 | 26 01 07 63 6f 75 6e 74 65 72 | bytecblock "counter"                |                                    | 
+15 | 42 00 00                      | b main_block@0                      |                                    | 
+   | # main_block@0                | main_block@0:                       |                                    | 
+18 | 31 18                         | txn ApplicationID                   |                                    | INTERNAL:1
+20 | 40 00 09                      | bnz main_after_if_else@2            |                                    | INTERNAL:1
+23 | 42 00 00                      | b main_call___init__@1              |                                    | INTERNAL:1
+   | # main_call___init__@1        | main_call___init__@1:               |                                    | 
+26 | 88 00 15                      | callsub __init__                    |                                    | INTERNAL:1
+29 | 42 00 00                      | b main_after_if_else@2              |                                    | 
+   | # main_after_if_else@2        | main_after_if_else@2:               |                                    | 
+   |                               |                                     | match algopy.Txn.on_completion:    | match/counter.py:9
+32 | 31 19                         | txn OnCompletion                    |       ------------------------     | match/counter.py:9:14-38
+   |                               |                                     | case algopy.OnCompleteAction.NoOp: | match/counter.py:10
+34 | 22                            | intc_0 // NoOp                      |      ----------------------------  | match/counter.py:10:17-45
+35 | 4f 01                         | uncover 1                           |                                    | match/counter.py:9-15:8-28
+37 | 8e 01 00 04                   | match main_switch_case_0@3          |                                    | match/counter.py:9-15:8-28
+41 | 42 00 00                      | b main_switch_case_default@4        |                                    | match/counter.py:9-15:8-28
+   | # main_switch_case_default@4  | main_switch_case_default@4:         |                                    | 
+   |                               |                                     | return False                       | match/counter.py:15
+44 | 00                            | err                                 | ------------                       | match/counter.py:15:16-28
+   | # main_switch_case_0@3        | main_switch_case_0@3:               |                                    | 
+   |                               |                                     | self.increment_counter()           | match/counter.py:11
+45 | 88 00 09                      | callsub increment_counter           | ------------------------           | match/counter.py:11:16-40
+   |                               |                                     | return True                        | match/counter.py:12
+48 | 23                            | intc_1 // 1                         |        ----                        | match/counter.py:12:23-27
+49 | 43                            | return                              | -----------                        | match/counter.py:12:16-27
+   | # __init__                    | __init__:                           |                                    | test_cases.match.counter.Counter.__init__() -> void:
+50 | 42 00 00                      | b __init___block@0                  |                                    | 
+   | # __init___block@0            | __init___block@0:                   |                                    | 
+   |                               |                                     | self.counter = algopy.UInt64(0)    | match/counter.py:6
+53 | 28                            | bytec_0 // "counter"                | ------------                       | match/counter.py:6:8-20
+54 | 22                            | intc_0 // 0                         |                ----------------    | match/counter.py:6:23-39
+55 | 67                            | app_global_put                      | -------------------------------    | match/counter.py:6:8-39
+56 | 89                            | retsub                              |                                    | 
+   | # increment_counter           | increment_counter:                  |                                    | test_cases.match.counter.Counter.increment_counter() -> void:
+57 | 42 00 00                      | b increment_counter_block@0         |                                    | 
+   | # increment_counter_block@0   | increment_counter_block@0:          |                                    | 
+   |                               |                                     | self.counter += 1                  | match/counter.py:22
+60 | 22                            | intc_0 // 0                         | ------------                       | match/counter.py:22:8-20
+61 | 28                            | bytec_0 // "counter"                | ------------                       | match/counter.py:22:8-20
+62 | 65                            | app_global_get_ex                   | ------------                       | match/counter.py:22:8-20
+63 | 44                            | assert // check self.counter exists | ------------                       | match/counter.py:22:8-20
+64 | 23                            | intc_1 // 1                         |                 -                  | match/counter.py:22:24-25
+65 | 08                            | +                                   | -----------------                  | match/counter.py:22:8-25
+66 | 28                            | bytec_0 // "counter"                | ------------                       | match/counter.py:22:8-20
+67 | 4f 01                         | uncover 1                           | -----------------                  | match/counter.py:22:8-25
+69 | 67                            | app_global_put                      | -----------------                  | match/counter.py:22:8-25
+70 | 89                            | retsub                              |                                    | 

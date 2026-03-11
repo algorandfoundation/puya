@@ -1,0 +1,132 @@
+  0 | 0b                                               | #pragma version 11                     |                                                             | 
+    | # main                                           | main:                                  |                                                             | test_cases.logic_signature.signature.pre_approved_sale() -> uint64:
+  1 | 20 04 01 00 01 01                                | intcblock 1 0 TMPL_PRICE TMPL_ASSET_ID |                                                             | 
+  7 | 26 02 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 | bytecblock "" TMPL_SELLER              |                                                             | 
+ 43 | 42 00 00                                         | b main_block@0                         |                                                             | 
+    | # main_block@0                                   | main_block@0:                          |                                                             | 
+    |                                                  |                                        | pay_txn = gtxn.PaymentTransaction(0)                        | logic_signature/signature.py:13
+ 46 | 23                                               | intc_1 // 0                            |           --------------------------                        | logic_signature/signature.py:13:14-40
+ 47 | 38 10                                            | gtxns TypeEnum                         |           --------------------------                        | logic_signature/signature.py:13:14-40
+ 49 | 22                                               | intc_0 // pay                          |           --------------------------                        | logic_signature/signature.py:13:14-40
+ 50 | 12                                               | ==                                     |           --------------------------                        | logic_signature/signature.py:13:14-40
+ 51 | 44                                               | assert // transaction type is pay      |           --------------------------                        | logic_signature/signature.py:13:14-40
+    |                                                  |                                        | asset_txn = gtxn.AssetTransferTransaction(1)                | logic_signature/signature.py:14
+ 52 | 22                                               | intc_0 // 1                            |             --------------------------------                | logic_signature/signature.py:14:16-48
+ 53 | 38 10                                            | gtxns TypeEnum                         |             --------------------------------                | logic_signature/signature.py:14:16-48
+ 55 | 81 04                                            | pushint 4 // axfer                     |             --------------------------------                | logic_signature/signature.py:14:16-48
+ 57 | 12                                               | ==                                     |             --------------------------------                | logic_signature/signature.py:14:16-48
+ 58 | 44                                               | assert // transaction type is axfer    |             --------------------------------                | logic_signature/signature.py:14:16-48
+    |                                                  |                                        | pay_txn = gtxn.PaymentTransaction(0)                        | logic_signature/signature.py:13
+ 59 | 23                                               | intc_1 // 0                            |           --------------------------                        | logic_signature/signature.py:13:14-40
+    |                                                  |                                        | assert_correct_payment(pay_txn)                             | logic_signature/signature.py:15
+ 60 | 88 00 14                                         | callsub assert_correct_payment         | -------------------------------                             | logic_signature/signature.py:15:4-35
+    |                                                  |                                        | asset_txn = gtxn.AssetTransferTransaction(1)                | logic_signature/signature.py:14
+ 63 | 22                                               | intc_0 // 1                            |             --------------------------------                | logic_signature/signature.py:14:16-48
+    |                                                  |                                        | assert_correct_asset(asset_txn)                             | logic_signature/signature.py:16
+ 64 | 88 00 3f                                         | callsub assert_correct_asset           | -------------------------------                             | logic_signature/signature.py:16:4-35
+    |                                                  |                                        | pay_txn = gtxn.PaymentTransaction(0)                        | logic_signature/signature.py:13
+ 67 | 23                                               | intc_1 // 0                            |           --------------------------                        | logic_signature/signature.py:13:14-40
+    |                                                  |                                        | assert pay_txn.sender == asset_txn.asset_receiver           | logic_signature/signature.py:17
+ 68 | 38 00                                            | gtxns Sender                           |        --------------                                       | logic_signature/signature.py:17:11-25
+    |                                                  |                                        | asset_txn = gtxn.AssetTransferTransaction(1)                | logic_signature/signature.py:14
+ 70 | 22                                               | intc_0 // 1                            |             --------------------------------                | logic_signature/signature.py:14:16-48
+    |                                                  |                                        | assert pay_txn.sender == asset_txn.asset_receiver           | logic_signature/signature.py:17
+ 71 | 38 14                                            | gtxns AssetReceiver                    |                          ------------------------           | logic_signature/signature.py:17:29-53
+ 73 | 12                                               | ==                                     |        ------------------------------------------           | logic_signature/signature.py:17:11-53
+ 74 | 44                                               | assert                                 | -------------------------------------------------           | logic_signature/signature.py:17:4-53
+    |                                                  |                                        | assert Global.group_size == 2                               | logic_signature/signature.py:18
+ 75 | 32 04                                            | global GroupSize                       |        -----------------                                    | logic_signature/signature.py:18:11-28
+ 77 | 81 02                                            | pushint 2                              |                             -                               | logic_signature/signature.py:18:32-33
+ 79 | 12                                               | ==                                     |        ----------------------                               | logic_signature/signature.py:18:11-33
+ 80 | 44                                               | assert                                 | -----------------------------                               | logic_signature/signature.py:18:4-33
+    |                                                  |                                        | return True                                                 | logic_signature/signature.py:19
+ 81 | 22                                               | intc_0 // 1                            |        ----                                                 | logic_signature/signature.py:19:11-15
+ 82 | 43                                               | return                                 | -----------                                                 | logic_signature/signature.py:19:4-15
+    | # assert_correct_payment                         | assert_correct_payment:                |                                                             | test_cases.logic_signature.signature.assert_correct_payment(txn: uint64) -> void:
+ 83 | 8a 01 00                                         | proto 1 0                              |                                                             | logic_signature/signature.py:22-23:1-5
+ 86 | 28                                               | bytec_0 // ""                          |                                                             | 
+ 87 | 42 00 00                                         | b assert_correct_payment_block@0       |                                                             | 
+    | # assert_correct_payment_block@0                 | assert_correct_payment_block@0:        |                                                             | 
+    |                                                  |                                        | assert txn.receiver == TemplateVar[Account]("SELLER") and ( | logic_signature/signature.py:24
+ 90 | 8b ff                                            | frame_dig -1                           |        ------------                                         | logic_signature/signature.py:24:11-23
+ 92 | 38 07                                            | gtxns Receiver                         |        ------------                                         | logic_signature/signature.py:24:11-23
+ 94 | 29                                               | bytec_1 // TMPL_SELLER                 |                        ------------------------------       | logic_signature/signature.py:24:27-57
+ 95 | 12                                               | ==                                     |        ----------------------------------------------       | logic_signature/signature.py:24:11-57
+ 96 | 41 00 19                                         | bz assert_correct_payment_bool_false@3 |                                                             | logic_signature/signature.py:24-26:11-5
+ 99 | 42 00 00                                         | b assert_correct_payment_and_contd@1   |                                                             | logic_signature/signature.py:24-26:11-5
+    | # assert_correct_payment_and_contd@1             | assert_correct_payment_and_contd@1:    |                                                             | 
+    |                                                  |                                        | txn.amount == TemplateVar[UInt64]("PRICE")                  | logic_signature/signature.py:25
+102 | 8b ff                                            | frame_dig -1                           | ----------                                                  | logic_signature/signature.py:25:8-18
+104 | 38 08                                            | gtxns Amount                           | ----------                                                  | logic_signature/signature.py:25:8-18
+106 | 24                                               | intc_2 // TMPL_PRICE                   |               ----------------------------                  | logic_signature/signature.py:25:22-50
+107 | 12                                               | ==                                     | ------------------------------------------                  | logic_signature/signature.py:25:8-50
+108 | 41 00 0d                                         | bz assert_correct_payment_bool_false@3 |                                                             | logic_signature/signature.py:24-26:11-5
+111 | 42 00 00                                         | b assert_correct_payment_bool_true@2   |                                                             | logic_signature/signature.py:24-26:11-5
+    | # assert_correct_payment_bool_true@2             | assert_correct_payment_bool_true@2:    |                                                             | 
+114 | 22                                               | intc_0 // 1                            |                                                             | 
+115 | 8c 00                                            | frame_bury 0                           |                                                             | 
+117 | 42 00 00                                         | b assert_correct_payment_bool_merge@4  |                                                             | 
+    | # assert_correct_payment_bool_merge@4            | assert_correct_payment_bool_merge@4:   |                                                             | 
+120 | 8b 00                                            | frame_dig 0                            |                                                             | logic_signature/signature.py:24-26:4-5
+122 | 44                                               | assert                                 |                                                             | logic_signature/signature.py:24-26:4-5
+123 | 89                                               | retsub                                 |                                                             | 
+    | # assert_correct_payment_bool_false@3            | assert_correct_payment_bool_false@3:   |                                                             | 
+124 | 23                                               | intc_1 // 0                            |                                                             | 
+125 | 8c 00                                            | frame_bury 0                           |                                                             | 
+127 | 42 ff f6                                         | b assert_correct_payment_bool_merge@4  |                                                             | 
+    | # assert_correct_asset                           | assert_correct_asset:                  |                                                             | test_cases.logic_signature.signature.assert_correct_asset(txn: uint64) -> void:
+130 | 8a 01 00                                         | proto 1 0                              |                                                             | logic_signature/signature.py:29-30:1-5
+133 | 28                                               | bytec_0 // ""                          |                                                             | 
+134 | 42 00 00                                         | b assert_correct_asset_block@0         |                                                             | 
+    | # assert_correct_asset_block@0                   | assert_correct_asset_block@0:          |                                                             | 
+    |                                                  |                                        | txn.asset_amount == 1                                       | logic_signature/signature.py:32
+137 | 8b ff                                            | frame_dig -1                           | ----------------                                            | logic_signature/signature.py:32:8-24
+139 | 38 12                                            | gtxns AssetAmount                      | ----------------                                            | logic_signature/signature.py:32:8-24
+141 | 22                                               | intc_0 // 1                            |                     -                                       | logic_signature/signature.py:32:28-29
+142 | 12                                               | ==                                     | ---------------------                                       | logic_signature/signature.py:32:8-29
+143 | 41 00 3f                                         | bz assert_correct_asset_bool_false@6   |                                                             | logic_signature/signature.py:32-36:8-47
+146 | 42 00 00                                         | b assert_correct_asset_and_contd@1     |                                                             | logic_signature/signature.py:32-36:8-47
+    | # assert_correct_asset_and_contd@1               | assert_correct_asset_and_contd@1:      |                                                             | 
+    |                                                  |                                        | and txn.sender == TemplateVar[Account]("SELLER")            | logic_signature/signature.py:33
+149 | 8b ff                                            | frame_dig -1                           |     ----------                                              | logic_signature/signature.py:33:12-22
+151 | 38 00                                            | gtxns Sender                           |     ----------                                              | logic_signature/signature.py:33:12-22
+153 | 29                                               | bytec_1 // TMPL_SELLER                 |                   ------------------------------            | logic_signature/signature.py:33:26-56
+154 | 12                                               | ==                                     |     --------------------------------------------            | logic_signature/signature.py:33:12-56
+155 | 41 00 33                                         | bz assert_correct_asset_bool_false@6   |                                                             | logic_signature/signature.py:32-36:8-47
+158 | 42 00 00                                         | b assert_correct_asset_and_contd@2     |                                                             | logic_signature/signature.py:32-36:8-47
+    | # assert_correct_asset_and_contd@2               | assert_correct_asset_and_contd@2:      |                                                             | 
+    |                                                  |                                        | and txn.xfer_asset == TemplateVar[Asset]("ASSET_ID")        | logic_signature/signature.py:34
+161 | 8b ff                                            | frame_dig -1                           |     --------------                                          | logic_signature/signature.py:34:12-26
+163 | 38 11                                            | gtxns XferAsset                        |     --------------                                          | logic_signature/signature.py:34:12-26
+165 | 25                                               | intc_3 // TMPL_ASSET_ID                |                       ------------------------------        | logic_signature/signature.py:34:30-60
+166 | 12                                               | ==                                     |     ------------------------------------------------        | logic_signature/signature.py:34:12-60
+167 | 41 00 27                                         | bz assert_correct_asset_bool_false@6   |                                                             | logic_signature/signature.py:32-36:8-47
+170 | 42 00 00                                         | b assert_correct_asset_and_contd@3     |                                                             | logic_signature/signature.py:32-36:8-47
+    | # assert_correct_asset_and_contd@3               | assert_correct_asset_and_contd@3:      |                                                             | 
+    |                                                  |                                        | and txn.asset_close_to == Global.zero_address               | logic_signature/signature.py:35
+173 | 8b ff                                            | frame_dig -1                           |     ------------------                                      | logic_signature/signature.py:35:12-30
+175 | 38 15                                            | gtxns AssetCloseTo                     |     ------------------                                      | logic_signature/signature.py:35:12-30
+177 | 32 03                                            | global ZeroAddress                     |                           -------------------               | logic_signature/signature.py:35:34-53
+179 | 12                                               | ==                                     |     -----------------------------------------               | logic_signature/signature.py:35:12-53
+180 | 41 00 1a                                         | bz assert_correct_asset_bool_false@6   |                                                             | logic_signature/signature.py:32-36:8-47
+183 | 42 00 00                                         | b assert_correct_asset_and_contd@4     |                                                             | logic_signature/signature.py:32-36:8-47
+    | # assert_correct_asset_and_contd@4               | assert_correct_asset_and_contd@4:      |                                                             | 
+    |                                                  |                                        | and txn.rekey_to == Global.zero_address                     | logic_signature/signature.py:36
+186 | 8b ff                                            | frame_dig -1                           |     ------------                                            | logic_signature/signature.py:36:12-24
+188 | 38 20                                            | gtxns RekeyTo                          |     ------------                                            | logic_signature/signature.py:36:12-24
+190 | 32 03                                            | global ZeroAddress                     |                     -------------------                     | logic_signature/signature.py:36:28-47
+192 | 12                                               | ==                                     |     -----------------------------------                     | logic_signature/signature.py:36:12-47
+193 | 41 00 0d                                         | bz assert_correct_asset_bool_false@6   |                                                             | logic_signature/signature.py:32-36:8-47
+196 | 42 00 00                                         | b assert_correct_asset_bool_true@5     |                                                             | logic_signature/signature.py:32-36:8-47
+    | # assert_correct_asset_bool_true@5               | assert_correct_asset_bool_true@5:      |                                                             | 
+199 | 22                                               | intc_0 // 1                            |                                                             | 
+200 | 8c 00                                            | frame_bury 0                           |                                                             | 
+202 | 42 00 00                                         | b assert_correct_asset_bool_merge@7    |                                                             | 
+    | # assert_correct_asset_bool_merge@7              | assert_correct_asset_bool_merge@7:     |                                                             | 
+205 | 8b 00                                            | frame_dig 0                            |                                                             | logic_signature/signature.py:31-37:4-5
+207 | 44                                               | assert                                 |                                                             | logic_signature/signature.py:31-37:4-5
+208 | 89                                               | retsub                                 |                                                             | 
+    | # assert_correct_asset_bool_false@6              | assert_correct_asset_bool_false@6:     |                                                             | 
+209 | 23                                               | intc_1 // 0                            |                                                             | 
+210 | 8c 00                                            | frame_bury 0                           |                                                             | 
+212 | 42 ff f6                                         | b assert_correct_asset_bool_merge@7    |                                                             | 

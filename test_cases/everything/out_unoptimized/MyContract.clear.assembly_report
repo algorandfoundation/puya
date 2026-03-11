@@ -1,0 +1,30 @@
+ 0 | 0b                            | #pragma version 11                  |                                | 
+   | # main                        | main:                               |                                | test_cases.everything.contract.Everything.clear_state_program() -> uint64:
+ 1 | 26 01 07 63 6f 75 6e 74 65 72 | bytecblock "counter"                |                                | 
+11 | 42 00 00                      | b main_block@0                      |                                | 
+   | # main_block@0                | main_block@0:                       |                                | 
+   |                               |                                     | self._remove_sender()          | everything/contract.py:74
+14 | 88 00 09                      | callsub _remove_sender              | ---------------------          | everything/contract.py:74:8-29
+   |                               |                                     | return True                    | everything/contract.py:75
+17 | 81 01                         | pushint 1                           |        ----                    | everything/contract.py:75:15-19
+19 | 43                            | return                              | -----------                    | everything/contract.py:75:8-19
+   | # positive_one                | positive_one:                       |                                | test_cases.everything.contract.positive_one() -> uint64:
+20 | 42 00 00                      | b positive_one_block@0              |                                | 
+   | # positive_one_block@0        | positive_one_block@0:               |                                | 
+   |                               |                                     | return UInt64(1)               | everything/contract.py:88
+23 | 81 01                         | pushint 1                           |        ---------               | everything/contract.py:88:11-20
+25 | 89                            | retsub                              | ----------------               | everything/contract.py:88:4-20
+   | # _remove_sender              | _remove_sender:                     |                                | test_cases.everything.contract.Everything._remove_sender() -> void:
+26 | 42 00 00                      | b _remove_sender_block@0            |                                | 
+   | # _remove_sender_block@0      | _remove_sender_block@0:             |                                | 
+   |                               |                                     | self.counter -= positive_one() | everything/contract.py:83
+29 | 81 00                         | pushint 0                           | ------------                   | everything/contract.py:83:8-20
+31 | 28                            | bytec_0 // "counter"                | ------------                   | everything/contract.py:83:8-20
+32 | 65                            | app_global_get_ex                   | ------------                   | everything/contract.py:83:8-20
+33 | 44                            | assert // check self.counter exists | ------------                   | everything/contract.py:83:8-20
+34 | 88 ff ef                      | callsub positive_one                |                 -------------- | everything/contract.py:83:24-38
+37 | 09                            | -                                   | ------------------------------ | everything/contract.py:83:8-38
+38 | 28                            | bytec_0 // "counter"                | ------------                   | everything/contract.py:83:8-20
+39 | 4f 01                         | uncover 1                           | ------------------------------ | everything/contract.py:83:8-38
+41 | 67                            | app_global_put                      | ------------------------------ | everything/contract.py:83:8-38
+42 | 89                            | retsub                              |                                | 

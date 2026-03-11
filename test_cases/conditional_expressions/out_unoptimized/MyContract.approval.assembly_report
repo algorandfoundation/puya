@@ -1,0 +1,215 @@
+  0 | 0b                                               | #pragma version 11            |                                                                         | 
+    | # main                                           | main:                         |                                                                         | test_cases.conditional_expressions.contract.MyContract.approval_program() -> uint64:
+  1 | 20 04 00 01 02 2a                                | intcblock 0 1 2 42            |                                                                         | 
+  7 | 26 01 00                                         | bytecblock ""                 |                                                                         | 
+ 10 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 11 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 12 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 13 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 14 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 15 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 16 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 17 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 18 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 19 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 20 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 21 | 28                                               | bytec_0 // ""                 |                                                                         | 
+ 22 | 42 00 00                                         | b main_block@0                |                                                                         | 
+    | # main_block@0                                   | main_block@0:                 |                                                                         | 
+    |                                                  |                               | a = UInt64(1)                                                           | conditional_expressions/contract.py:8
+ 25 | 23                                               | intc_1 // 1                   |     ---------                                                           | conditional_expressions/contract.py:8:12-21
+    |                                                  |                               | c = a or b                                                              | conditional_expressions/contract.py:11
+ 26 | 22                                               | intc_0 // 0                   |     ------                                                              | conditional_expressions/contract.py:11:12-18
+ 27 | 13                                               | !=                            |     ------                                                              | conditional_expressions/contract.py:11:12-18
+    |                                                  |                               | b = UInt64(2)                                                           | conditional_expressions/contract.py:9
+ 28 | 24                                               | intc_2 // 2                   |     ---------                                                           | conditional_expressions/contract.py:9:12-21
+    |                                                  |                               | a = UInt64(1)                                                           | conditional_expressions/contract.py:8
+ 29 | 23                                               | intc_1 // 1                   |     ---------                                                           | conditional_expressions/contract.py:8:12-21
+    |                                                  |                               | c = a or b                                                              | conditional_expressions/contract.py:11
+ 30 | 4f 02                                            | uncover 2                     |     ------                                                              | conditional_expressions/contract.py:11:12-18
+ 32 | 4d                                               | select                        |     ------                                                              | conditional_expressions/contract.py:11:12-18
+    |                                                  |                               | b = UInt64(2)                                                           | conditional_expressions/contract.py:9
+ 33 | 24                                               | intc_2 // 2                   |     ---------                                                           | conditional_expressions/contract.py:9:12-21
+    |                                                  |                               | d = b and a                                                             | conditional_expressions/contract.py:12
+ 34 | 22                                               | intc_0 // 0                   |     -------                                                             | conditional_expressions/contract.py:12:12-19
+ 35 | 12                                               | ==                            |     -------                                                             | conditional_expressions/contract.py:12:12-19
+    |                                                  |                               | a = UInt64(1)                                                           | conditional_expressions/contract.py:8
+ 36 | 23                                               | intc_1 // 1                   |     ---------                                                           | conditional_expressions/contract.py:8:12-21
+    |                                                  |                               | b = UInt64(2)                                                           | conditional_expressions/contract.py:9
+ 37 | 24                                               | intc_2 // 2                   |     ---------                                                           | conditional_expressions/contract.py:9:12-21
+    |                                                  |                               | d = b and a                                                             | conditional_expressions/contract.py:12
+ 38 | 4f 02                                            | uncover 2                     |     -------                                                             | conditional_expressions/contract.py:12:12-19
+ 40 | 4d                                               | select                        |     -------                                                             | conditional_expressions/contract.py:12:12-19
+    |                                                  |                               | e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))   | conditional_expressions/contract.py:14
+ 41 | 22                                               | intc_0 // 0                   |                       ---------                                         | conditional_expressions/contract.py:14:30-39
+ 42 | 88 00 bd                                         | callsub expensive_op          |     ----------------------------                                        | conditional_expressions/contract.py:14:12-40
+ 45 | 49                                               | dup                           |     ----------------------------                                        | conditional_expressions/contract.py:14:12-40
+ 46 | 22                                               | intc_0 // 0                   |     -----------------------------------------------------------------   | conditional_expressions/contract.py:14:12-77
+ 47 | 13                                               | !=                            |     -----------------------------------------------------------------   | conditional_expressions/contract.py:14:12-77
+ 48 | 41 00 ae                                         | bz main_ternary_false@2       |     -----------------------------------------------------------------   | conditional_expressions/contract.py:14:12-77
+ 51 | 42 00 00                                         | b main_ternary_true@1         |     -----------------------------------------------------------------   | conditional_expressions/contract.py:14:12-77
+    | # main_ternary_true@1                            | main_ternary_true@1:          |                                                                         | 
+    |                                                  |                               | e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))   | conditional_expressions/contract.py:14
+ 54 | 49                                               | dup                           |     ----------------------------                                        | conditional_expressions/contract.py:14:12-40
+ 55 | 45 08                                            | bury 8                        |     ----------------------------                                        | conditional_expressions/contract.py:14:12-40
+ 57 | 42 00 00                                         | b main_ternary_merge@3        |                                                                         | 
+    | # main_ternary_merge@3                           | main_ternary_merge@3:         |                                                                         | 
+    |                                                  |                               | e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))   | conditional_expressions/contract.py:14
+ 60 | 4b 07                                            | dig 7                         | ---------------------------------------------------------------------   | conditional_expressions/contract.py:14:8-77
+ 62 | 45 0c                                            | bury 12                       | ---------------------------------------------------------------------   | conditional_expressions/contract.py:14:8-77
+    |                                                  |                               | f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))  | conditional_expressions/contract.py:15
+ 64 | 81 03                                            | pushint 3                     |                       ---------                                         | conditional_expressions/contract.py:15:30-39
+ 66 | 88 00 a5                                         | callsub expensive_op          |     ----------------------------                                        | conditional_expressions/contract.py:15:12-40
+ 69 | 49                                               | dup                           |     ----------------------------                                        | conditional_expressions/contract.py:15:12-40
+ 70 | 45 10                                            | bury 16                       |     ----------------------------                                        | conditional_expressions/contract.py:15:12-40
+ 72 | 22                                               | intc_0 // 0                   |     ------------------------------------------------------------------  | conditional_expressions/contract.py:15:12-78
+ 73 | 13                                               | !=                            |     ------------------------------------------------------------------  | conditional_expressions/contract.py:15:12-78
+ 74 | 41 00 8b                                         | bz main_ternary_false@5       |     ------------------------------------------------------------------  | conditional_expressions/contract.py:15:12-78
+ 77 | 42 00 00                                         | b main_ternary_true@4         |     ------------------------------------------------------------------  | conditional_expressions/contract.py:15:12-78
+    | # main_ternary_true@4                            | main_ternary_true@4:          |                                                                         | 
+    |                                                  |                               | f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))  | conditional_expressions/contract.py:15
+ 80 | 4b 0e                                            | dig 14                        |     ----------------------------                                        | conditional_expressions/contract.py:15:12-40
+ 82 | 45 07                                            | bury 7                        |     ----------------------------                                        | conditional_expressions/contract.py:15:12-40
+ 84 | 42 00 00                                         | b main_ternary_merge@6        |                                                                         | 
+    | # main_ternary_merge@6                           | main_ternary_merge@6:         |                                                                         | 
+    |                                                  |                               | f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))  | conditional_expressions/contract.py:15
+ 87 | 4b 06                                            | dig 6                         | ----------------------------------------------------------------------  | conditional_expressions/contract.py:15:8-78
+ 89 | 45 0b                                            | bury 11                       | ----------------------------------------------------------------------  | conditional_expressions/contract.py:15:8-78
+    |                                                  |                               | g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42)) | conditional_expressions/contract.py:17
+ 91 | 22                                               | intc_0 // 0                   |                            ---------                                    | conditional_expressions/contract.py:17:35-44
+ 92 | 88 00 a8                                         | callsub side_effecting_op     |     ---------------------------------                                   | conditional_expressions/contract.py:17:12-45
+ 95 | 49                                               | dup                           |     ---------------------------------                                   | conditional_expressions/contract.py:17:12-45
+ 96 | 45 0f                                            | bury 15                       |     ---------------------------------                                   | conditional_expressions/contract.py:17:12-45
+ 98 | 22                                               | intc_0 // 0                   |     ------------------------------------------------------------------- | conditional_expressions/contract.py:17:12-79
+ 99 | 12                                               | ==                            |     ------------------------------------------------------------------- | conditional_expressions/contract.py:17:12-79
+100 | 41 00 68                                         | bz main_ternary_false@8       |     ------------------------------------------------------------------- | conditional_expressions/contract.py:17:12-79
+103 | 42 00 00                                         | b main_ternary_true@7         |     ------------------------------------------------------------------- | conditional_expressions/contract.py:17:12-79
+    | # main_ternary_true@7                            | main_ternary_true@7:          |                                                                         | 
+    |                                                  |                               | g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42)) | conditional_expressions/contract.py:17
+106 | 4b 0d                                            | dig 13                        |     ---------------------------------                                   | conditional_expressions/contract.py:17:12-45
+108 | 45 06                                            | bury 6                        |     ---------------------------------                                   | conditional_expressions/contract.py:17:12-45
+110 | 42 00 00                                         | b main_ternary_merge@9        |                                                                         | 
+    | # main_ternary_merge@9                           | main_ternary_merge@9:         |                                                                         | 
+    |                                                  |                               | g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42)) | conditional_expressions/contract.py:17
+113 | 4b 05                                            | dig 5                         | ----------------------------------------------------------------------- | conditional_expressions/contract.py:17:8-79
+115 | 45 0a                                            | bury 10                       | ----------------------------------------------------------------------- | conditional_expressions/contract.py:17:8-79
+    |                                                  |                               | h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))  | conditional_expressions/contract.py:18
+117 | 24                                               | intc_2 // 2                   |                            ---------                                    | conditional_expressions/contract.py:18:35-44
+118 | 88 00 8e                                         | callsub side_effecting_op     |     ---------------------------------                                   | conditional_expressions/contract.py:18:12-45
+121 | 49                                               | dup                           |     ---------------------------------                                   | conditional_expressions/contract.py:18:12-45
+122 | 45 0e                                            | bury 14                       |     ---------------------------------                                   | conditional_expressions/contract.py:18:12-45
+124 | 22                                               | intc_0 // 0                   |     ------------------------------------------------------------------  | conditional_expressions/contract.py:18:12-78
+125 | 12                                               | ==                            |     ------------------------------------------------------------------  | conditional_expressions/contract.py:18:12-78
+126 | 41 00 44                                         | bz main_ternary_false@11      |     ------------------------------------------------------------------  | conditional_expressions/contract.py:18:12-78
+129 | 42 00 00                                         | b main_ternary_true@10        |     ------------------------------------------------------------------  | conditional_expressions/contract.py:18:12-78
+    | # main_ternary_true@10                           | main_ternary_true@10:         |                                                                         | 
+    |                                                  |                               | h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))  | conditional_expressions/contract.py:18
+132 | 4b 0c                                            | dig 12                        |     ---------------------------------                                   | conditional_expressions/contract.py:18:12-45
+134 | 45 05                                            | bury 5                        |     ---------------------------------                                   | conditional_expressions/contract.py:18:12-45
+136 | 42 00 00                                         | b main_ternary_merge@12       |                                                                         | 
+    | # main_ternary_merge@12                          | main_ternary_merge@12:        |                                                                         | 
+    |                                                  |                               | h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))  | conditional_expressions/contract.py:18
+139 | 4b 04                                            | dig 4                         | ----------------------------------------------------------------------  | conditional_expressions/contract.py:18:8-78
+141 | 45 09                                            | bury 9                        | ----------------------------------------------------------------------  | conditional_expressions/contract.py:18:8-78
+    |                                                  |                               | b = UInt64(2)                                                           | conditional_expressions/contract.py:9
+143 | 24                                               | intc_2 // 2                   |     ---------                                                           | conditional_expressions/contract.py:9:12-21
+    |                                                  |                               | i = a if b < c else d + e                                               | conditional_expressions/contract.py:20
+144 | 4b 03                                            | dig 3                         |          -----                                                          | conditional_expressions/contract.py:20:17-22
+146 | 0c                                               | <                             |          -----                                                          | conditional_expressions/contract.py:20:17-22
+147 | 41 00 25                                         | bz main_ternary_false@14      |     ---------------------                                               | conditional_expressions/contract.py:20:12-33
+150 | 42 00 00                                         | b main_ternary_true@13        |     ---------------------                                               | conditional_expressions/contract.py:20:12-33
+    | # main_ternary_true@13                           | main_ternary_true@13:         |                                                                         | 
+    |                                                  |                               | a = UInt64(1)                                                           | conditional_expressions/contract.py:8
+153 | 23                                               | intc_1 // 1                   |     ---------                                                           | conditional_expressions/contract.py:8:12-21
+    |                                                  |                               | i = a if b < c else d + e                                               | conditional_expressions/contract.py:20
+154 | 45 04                                            | bury 4                        |     -                                                                   | conditional_expressions/contract.py:20:12-13
+156 | 42 00 00                                         | b main_ternary_merge@15       |                                                                         | 
+    | # main_ternary_merge@15                          | main_ternary_merge@15:        |                                                                         | 
+    |                                                  |                               | i = a if b < c else d + e                                               | conditional_expressions/contract.py:20
+159 | 4b 03                                            | dig 3                         | -------------------------                                               | conditional_expressions/contract.py:20:8-33
+    |                                                  |                               | a = UInt64(1)                                                           | conditional_expressions/contract.py:8
+161 | 23                                               | intc_1 // 1                   |     ---------                                                           | conditional_expressions/contract.py:8:12-21
+    |                                                  |                               | b = UInt64(2)                                                           | conditional_expressions/contract.py:9
+162 | 24                                               | intc_2 // 2                   |     ---------                                                           | conditional_expressions/contract.py:9:12-21
+    |                                                  |                               | result = a * b * c * d * f * h - e - g + i                              | conditional_expressions/contract.py:22
+163 | 0b                                               | *                             |          -----                                                          | conditional_expressions/contract.py:22:17-22
+164 | 4b 04                                            | dig 4                         |          ---------                                                      | conditional_expressions/contract.py:22:17-26
+166 | 0b                                               | *                             |          ---------                                                      | conditional_expressions/contract.py:22:17-26
+167 | 4b 03                                            | dig 3                         |          -------------                                                  | conditional_expressions/contract.py:22:17-30
+169 | 0b                                               | *                             |          -------------                                                  | conditional_expressions/contract.py:22:17-30
+170 | 4b 0c                                            | dig 12                        |          -----------------                                              | conditional_expressions/contract.py:22:17-34
+172 | 0b                                               | *                             |          -----------------                                              | conditional_expressions/contract.py:22:17-34
+173 | 4b 0a                                            | dig 10                        |          ---------------------                                          | conditional_expressions/contract.py:22:17-38
+175 | 0b                                               | *                             |          ---------------------                                          | conditional_expressions/contract.py:22:17-38
+176 | 4b 0d                                            | dig 13                        |          -------------------------                                      | conditional_expressions/contract.py:22:17-42
+178 | 09                                               | -                             |          -------------------------                                      | conditional_expressions/contract.py:22:17-42
+179 | 4b 0b                                            | dig 11                        |          -----------------------------                                  | conditional_expressions/contract.py:22:17-46
+181 | 09                                               | -                             |          -----------------------------                                  | conditional_expressions/contract.py:22:17-46
+182 | 08                                               | +                             |          ---------------------------------                              | conditional_expressions/contract.py:22:17-50
+    |                                                  |                               | log(op.itob(result))                                                    | conditional_expressions/contract.py:24
+183 | 49                                               | dup                           |     ---------------                                                     | conditional_expressions/contract.py:24:12-27
+184 | 16                                               | itob                          |     ---------------                                                     | conditional_expressions/contract.py:24:12-27
+185 | b0                                               | log                           | --------------------                                                    | conditional_expressions/contract.py:24:8-28
+    |                                                  |                               | return result                                                           | conditional_expressions/contract.py:26
+186 | 43                                               | return                        | -------------                                                           | conditional_expressions/contract.py:26:8-21
+    | # main_ternary_false@14                          | main_ternary_false@14:        |                                                                         | 
+    |                                                  |                               | i = a if b < c else d + e                                               | conditional_expressions/contract.py:20
+187 | 4b 01                                            | dig 1                         |                     -----                                               | conditional_expressions/contract.py:20:28-33
+189 | 4b 0c                                            | dig 12                        |                     -----                                               | conditional_expressions/contract.py:20:28-33
+191 | 08                                               | +                             |                     -----                                               | conditional_expressions/contract.py:20:28-33
+192 | 45 04                                            | bury 4                        |                     -----                                               | conditional_expressions/contract.py:20:28-33
+194 | 42 ff da                                         | b main_ternary_merge@15       |                                                                         | 
+    | # main_ternary_false@11                          | main_ternary_false@11:        |                                                                         | 
+    |                                                  |                               | h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))  | conditional_expressions/contract.py:18
+197 | 81 03                                            | pushint 3                     |                                                             ---------   | conditional_expressions/contract.py:18:68-77
+199 | 88 00 20                                         | callsub expensive_op          |                                           ----------------------------  | conditional_expressions/contract.py:18:50-78
+202 | 45 05                                            | bury 5                        |                                           ----------------------------  | conditional_expressions/contract.py:18:50-78
+204 | 42 ff bc                                         | b main_ternary_merge@12       |                                                                         | 
+    | # main_ternary_false@8                           | main_ternary_false@8:         |                                                                         | 
+    |                                                  |                               | g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42)) | conditional_expressions/contract.py:17
+207 | 25                                               | intc_3 // 42                  |                                                             ----------  | conditional_expressions/contract.py:17:68-78
+208 | 88 00 17                                         | callsub expensive_op          |                                           ----------------------------- | conditional_expressions/contract.py:17:50-79
+211 | 45 06                                            | bury 6                        |                                           ----------------------------- | conditional_expressions/contract.py:17:50-79
+213 | 42 ff 99                                         | b main_ternary_merge@9        |                                                                         | 
+    | # main_ternary_false@5                           | main_ternary_false@5:         |                                                                         | 
+    |                                                  |                               | f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))  | conditional_expressions/contract.py:15
+216 | 25                                               | intc_3 // 42                  |                                                            ----------   | conditional_expressions/contract.py:15:67-77
+217 | 88 00 2b                                         | callsub side_effecting_op     |                                     ----------------------------------  | conditional_expressions/contract.py:15:44-78
+220 | 45 07                                            | bury 7                        |                                     ----------------------------------  | conditional_expressions/contract.py:15:44-78
+222 | 42 ff 76                                         | b main_ternary_merge@6        |                                                                         | 
+    | # main_ternary_false@2                           | main_ternary_false@2:         |                                                                         | 
+    |                                                  |                               | e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))   | conditional_expressions/contract.py:14
+225 | 23                                               | intc_1 // 1                   |                                                            ---------    | conditional_expressions/contract.py:14:67-76
+226 | 88 00 22                                         | callsub side_effecting_op     |                                     ---------------------------------   | conditional_expressions/contract.py:14:44-77
+229 | 45 08                                            | bury 8                        |                                     ---------------------------------   | conditional_expressions/contract.py:14:44-77
+231 | 42 ff 52                                         | b main_ternary_merge@3        |                                                                         | 
+    | # expensive_op                                   | expensive_op:                 |                                                                         | test_cases.conditional_expressions.contract.MyContract.expensive_op(val: uint64) -> uint64:
+234 | 8a 01 01                                         | proto 1 1                     |                                                                         | conditional_expressions/contract.py:31-32:5-18
+237 | 42 00 00                                         | b expensive_op_block@0        |                                                                         | 
+    | # expensive_op_block@0                           | expensive_op_block@0:         |                                                                         | 
+    |                                                  |                               | assert val != 42, "Can't be 42"                                         | conditional_expressions/contract.py:33
+240 | 8b ff                                            | frame_dig -1                  |        ---------                                                        | conditional_expressions/contract.py:33:15-24
+242 | 25                                               | intc_3 // 42                  |               --                                                        | conditional_expressions/contract.py:33:22-24
+243 | 13                                               | !=                            |        ---------                                                        | conditional_expressions/contract.py:33:15-24
+244 | 44                                               | assert // Can't be 42         | -------------------------------                                         | conditional_expressions/contract.py:33:8-39
+    |                                                  |                               | log("expensive_op")                                                     | conditional_expressions/contract.py:34
+245 | 80 0c 65 78 70 65 6e 73 69 76 65 5f 6f 70        | pushbytes "expensive_op"      |     --------------                                                      | conditional_expressions/contract.py:34:12-26
+259 | b0                                               | log                           | -------------------                                                     | conditional_expressions/contract.py:34:8-27
+    |                                                  |                               | return val                                                              | conditional_expressions/contract.py:35
+260 | 8b ff                                            | frame_dig -1                  | ----------                                                              | conditional_expressions/contract.py:35:8-18
+262 | 89                                               | retsub                        | ----------                                                              | conditional_expressions/contract.py:35:8-18
+    | # side_effecting_op                              | side_effecting_op:            |                                                                         | test_cases.conditional_expressions.contract.MyContract.side_effecting_op(val: uint64) -> uint64:
+263 | 8a 01 01                                         | proto 1 1                     |                                                                         | conditional_expressions/contract.py:37-38:5-18
+266 | 42 00 00                                         | b side_effecting_op_block@0   |                                                                         | 
+    | # side_effecting_op_block@0                      | side_effecting_op_block@0:    |                                                                         | 
+    |                                                  |                               | assert val != 42, "Can't be 42"                                         | conditional_expressions/contract.py:39
+269 | 8b ff                                            | frame_dig -1                  |        ---------                                                        | conditional_expressions/contract.py:39:15-24
+271 | 25                                               | intc_3 // 42                  |               --                                                        | conditional_expressions/contract.py:39:22-24
+272 | 13                                               | !=                            |        ---------                                                        | conditional_expressions/contract.py:39:15-24
+273 | 44                                               | assert // Can't be 42         | -------------------------------                                         | conditional_expressions/contract.py:39:8-39
+    |                                                  |                               | log("side_effecting_op")                                                | conditional_expressions/contract.py:40
+274 | 80 11 73 69 64 65 5f 65 66 66 65 63 74 69 6e 67 5f 6f 70 | pushbytes "side_effecting_op" |     -------------------                                                 | conditional_expressions/contract.py:40:12-31
+293 | b0                                               | log                           | ------------------------                                                | conditional_expressions/contract.py:40:8-32
+    |                                                  |                               | return val                                                              | conditional_expressions/contract.py:41
+294 | 8b ff                                            | frame_dig -1                  | ----------                                                              | conditional_expressions/contract.py:41:8-18
+296 | 89                                               | retsub                        | ----------                                                              | conditional_expressions/contract.py:41:8-18

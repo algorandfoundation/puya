@@ -1,0 +1,64 @@
+ 0 | 0b                      | #pragma version 11       |                                                                     | 
+   | # main                  | main:                    |                                                                     | test_cases.undefined_phi_args.baddie.Baddie.approval_program() -> uint64:
+ 1 | 20 02 01 00             | intcblock 1 0            |                                                                     | 
+ 5 | 26 03 00 01 01 01 08    | bytecblock "" 0x01 0x08  |                                                                     | 
+   |                         |                          | test_case = op.Txn.application_args(0)                              | undefined_phi_args/baddie.py:6
+12 | 36 1a 00                | txna ApplicationArgs 0   |             --------------------------                              | undefined_phi_args/baddie.py:6:20-46
+   |                         |                          | op.Txn.num_app_args > 1 and op.btoi(op.Txn.application_args(1)) > 0 | undefined_phi_args/baddie.py:8
+15 | 31 1b                   | txn NumAppArgs           | -------------------                                                 | undefined_phi_args/baddie.py:8:12-31
+17 | 22                      | intc_0 // 1              |                       -                                             | undefined_phi_args/baddie.py:8:34-35
+18 | 0d                      | >                        | -----------------------                                             | undefined_phi_args/baddie.py:8:12-35
+19 | 41 00 3e                | bz main_bool_false@3     | ------------------------------------------------------------------- | undefined_phi_args/baddie.py:8:12-79
+22 | 36 1a 01                | txna ApplicationArgs 1   |                                     --------------------------      | undefined_phi_args/baddie.py:8:48-74
+25 | 17                      | btoi                     |                             -----------------------------------     | undefined_phi_args/baddie.py:8:40-75
+26 | 41 00 37                | bz main_bool_false@3     | ------------------------------------------------------------------- | undefined_phi_args/baddie.py:8:12-79
+29 | 22                      | intc_0 // 1              |                                                                     | 
+   | # main_bool_merge@4     | main_bool_merge@4:       |                                                                     | 
+   |                         |                          | if invert_second_condition:                                         | undefined_phi_args/baddie.py:11
+30 | 41 00 12                | bz main_after_if_else@19 |                                                                     | undefined_phi_args/baddie.py:11
+   |                         |                          | if test_case == b"uint":                                            | undefined_phi_args/baddie.py:12
+33 | 49                      | dup                      |    --------------------                                             | undefined_phi_args/baddie.py:12:15-35
+34 | 80 04 75 69 6e 74       | pushbytes 0x75696e74     |                 -------                                             | undefined_phi_args/baddie.py:12:28-35
+40 | 12                      | ==                       |    --------------------                                             | undefined_phi_args/baddie.py:12:15-35
+41 | 41 00 09                | bz main_else_body@7      |                                                                     | undefined_phi_args/baddie.py:12
+44 | 28                      | bytec_0 // ""            |                                                                     | 
+   |                         |                          | c = a + 1  # 💥                                                      | undefined_phi_args/baddie.py:46
+45 | 22                      | intc_0 // 1              |         -                                                           | undefined_phi_args/baddie.py:46:16-17
+46 | 08                      | +                        |     -----                                                           | undefined_phi_args/baddie.py:46:12-17
+   |                         |                          | assert test_uint_undefined(False, True) == 8  # should fail         | undefined_phi_args/baddie.py:14
+47 | 81 08                   | pushint 8                |                                            -                        | undefined_phi_args/baddie.py:14:59-60
+49 | 12                      | ==                       |        -------------------------------------                        | undefined_phi_args/baddie.py:14:23-60
+50 | 44                      | assert                   | --------------------------------------------                        | undefined_phi_args/baddie.py:14:16-60
+   | # main_after_if_else@19 | main_after_if_else@19:   |                                                                     | 
+   |                         |                          | return True                                                         | undefined_phi_args/baddie.py:31
+51 | 22                      | intc_0 // 1              |        ----                                                         | undefined_phi_args/baddie.py:31:15-19
+52 | 43                      | return                   | -----------                                                         | undefined_phi_args/baddie.py:31:8-19
+   | # main_else_body@7      | main_else_body@7:        |                                                                     | 
+   |                         |                          | elif test_case == b"bytes":                                         | undefined_phi_args/baddie.py:15
+53 | 49                      | dup                      |      ---------------------                                          | undefined_phi_args/baddie.py:15:17-38
+54 | 80 05 62 79 74 65 73    | pushbytes 0x6279746573   |                   --------                                          | undefined_phi_args/baddie.py:15:30-38
+61 | 12                      | ==                       |      ---------------------                                          | undefined_phi_args/baddie.py:15:17-38
+62 | 41 00 09                | bz main_else_body@9      |                                                                     | undefined_phi_args/baddie.py:15
+65 | 23                      | intc_1 // 0              |                                                                     | 
+   |                         |                          | c = a + 1  # 💥                                                      | undefined_phi_args/baddie.py:61
+66 | 29                      | bytec_1 // 0x01          |         -                                                           | undefined_phi_args/baddie.py:61:16-17
+67 | a0                      | b+                       |     -----                                                           | undefined_phi_args/baddie.py:61:12-17
+   |                         |                          | assert test_bytes_undefined(False, True) == 8  # should fail        | undefined_phi_args/baddie.py:17
+68 | 2a                      | bytec_2 // 0x08          |                                             -                       | undefined_phi_args/baddie.py:17:60-61
+69 | a8                      | b==                      |        --------------------------------------                       | undefined_phi_args/baddie.py:17:23-61
+70 | 44                      | assert                   | ---------------------------------------------                       | undefined_phi_args/baddie.py:17:16-61
+71 | 42 ff e9                | b main_after_if_else@19  |                                                                     | 
+   | # main_else_body@9      | main_else_body@9:        |                                                                     | 
+74 | 28                      | bytec_0 // ""            |                                                                     | 
+   |                         |                          | c = BigUInt(a) + BigUInt(1)  # 💥                                    | undefined_phi_args/baddie.py:76
+75 | 16                      | itob                     |     ----------                                                      | undefined_phi_args/baddie.py:76:12-22
+76 | 29                      | bytec_1 // 0x01          |                  ----------                                         | undefined_phi_args/baddie.py:76:25-35
+77 | a0                      | b+                       |     -----------------------                                         | undefined_phi_args/baddie.py:76:12-35
+   |                         |                          | assert test_mixed_undefined(False, True) == 8  # should fail        | undefined_phi_args/baddie.py:20
+78 | 2a                      | bytec_2 // 0x08          |                                             -                       | undefined_phi_args/baddie.py:20:60-61
+79 | a8                      | b==                      |        --------------------------------------                       | undefined_phi_args/baddie.py:20:23-61
+80 | 44                      | assert                   | ---------------------------------------------                       | undefined_phi_args/baddie.py:20:16-61
+81 | 42 ff df                | b main_after_if_else@19  |                                                                     | 
+   | # main_bool_false@3     | main_bool_false@3:       |                                                                     | 
+84 | 23                      | intc_1 // 0              |                                                                     | 
+85 | 42 ff c6                | b main_bool_merge@4      |                                                                     | 

@@ -1,0 +1,28 @@
+ 0 | 0b             | #pragma version 11 |                                 | 
+   | # main         | main:              |                                 | test_cases.callsub.contract.MyContract.approval_program() -> uint64:
+ 1 | 42 00 00       | b main_block@0     |                                 | 
+   | # main_block@0 | main_block@0:      |                                 | 
+   |                |                    | log(42)                         | callsub/contract.py:6
+ 4 | 81 2a          | pushint 42         |     --                          | callsub/contract.py:6:12-14
+ 6 | 16             | itob               |     --                          | callsub/contract.py:6:12-14
+ 7 | b0             | log                | -------                         | callsub/contract.py:6:8-15
+   |                |                    | self.echo(UInt64(1), UInt64(2)) | callsub/contract.py:7
+ 8 | 81 01          | pushint 1          |           ---------             | callsub/contract.py:7:18-27
+10 | 81 02          | pushint 2          |                      ---------  | callsub/contract.py:7:29-38
+12 | 88 00 03       | callsub echo       | ------------------------------- | callsub/contract.py:7:8-39
+   |                |                    | return UInt64(1)                | callsub/contract.py:8
+15 | 81 01          | pushint 1          |        ---------                | callsub/contract.py:8:15-24
+17 | 43             | return             | ----------------                | callsub/contract.py:8:8-24
+   | # echo         | echo:              |                                 | test_cases.callsub.contract.MyContract.echo(a: uint64, b: uint64) -> void:
+18 | 8a 02 00       | proto 2 0          |                                 | callsub/contract.py:10-11:5-14
+21 | 42 00 00       | b echo_block@0     |                                 | 
+   | # echo_block@0 | echo_block@0:      |                                 | 
+   |                |                    | log(a)                          | callsub/contract.py:12
+24 | 8b fe          | frame_dig -2       |     -                           | callsub/contract.py:12:12-13
+26 | 16             | itob               |     -                           | callsub/contract.py:12:12-13
+27 | b0             | log                | ------                          | callsub/contract.py:12:8-14
+   |                |                    | log(b)                          | callsub/contract.py:13
+28 | 8b ff          | frame_dig -1       |     -                           | callsub/contract.py:13:12-13
+30 | 16             | itob               |     -                           | callsub/contract.py:13:12-13
+31 | b0             | log                | ------                          | callsub/contract.py:13:8-14
+32 | 89             | retsub             |                                 | 

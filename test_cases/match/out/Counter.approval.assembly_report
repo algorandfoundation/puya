@@ -1,0 +1,30 @@
+ 0 | 0b                            | #pragma version 11                  |                                 | 
+   | # main                        | main:                               |                                 | test_cases.match.counter.Counter.approval_program() -> uint64:
+ 1 | 20 02 00 01                   | intcblock 0 1                       |                                 | 
+ 5 | 26 01 07 63 6f 75 6e 74 65 72 | bytecblock "counter"                |                                 | 
+15 | 31 18                         | txn ApplicationID                   |                                 | INTERNAL:1
+17 | 40 00 03                      | bnz main_after_if_else@2            |                                 | INTERNAL:1
+   |                               |                                     | self.counter = algopy.UInt64(0) | match/counter.py:6
+20 | 28                            | bytec_0 // "counter"                | ------------                    | match/counter.py:6:8-20
+21 | 22                            | intc_0 // 0                         |                ---------------- | match/counter.py:6:23-39
+22 | 67                            | app_global_put                      | ------------------------------- | match/counter.py:6:8-39
+   | # main_after_if_else@2        | main_after_if_else@2:               |                                 | 
+   |                               |                                     | match algopy.Txn.on_completion: | match/counter.py:9
+23 | 31 19                         | txn OnCompletion                    |       ------------------------  | match/counter.py:9:14-38
+25 | 40 00 0b                      | bnz main_switch_case_default@4      |                                 | match/counter.py:9-15:8-28
+   |                               |                                     | self.counter += 1               | match/counter.py:22
+28 | 22                            | intc_0 // 0                         | ------------                    | match/counter.py:22:8-20
+29 | 28                            | bytec_0 // "counter"                | ------------                    | match/counter.py:22:8-20
+30 | 65                            | app_global_get_ex                   | ------------                    | match/counter.py:22:8-20
+31 | 44                            | assert // check self.counter exists | ------------                    | match/counter.py:22:8-20
+32 | 23                            | intc_1 // 1                         |                 -               | match/counter.py:22:24-25
+33 | 08                            | +                                   | -----------------               | match/counter.py:22:8-25
+34 | 28                            | bytec_0 // "counter"                | ------------                    | match/counter.py:22:8-20
+35 | 4c                            | swap                                | -----------------               | match/counter.py:22:8-25
+36 | 67                            | app_global_put                      | -----------------               | match/counter.py:22:8-25
+   |                               |                                     | return True                     | match/counter.py:12
+37 | 23                            | intc_1 // 1                         |        ----                     | match/counter.py:12:23-27
+38 | 43                            | return                              | -----------                     | match/counter.py:12:16-27
+   | # main_switch_case_default@4  | main_switch_case_default@4:         |                                 | 
+   |                               |                                     | return False                    | match/counter.py:15
+39 | 00                            | err                                 | ------------                    | match/counter.py:15:16-28

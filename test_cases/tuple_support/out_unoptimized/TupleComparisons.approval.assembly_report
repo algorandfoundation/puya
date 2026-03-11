@@ -1,0 +1,116 @@
+  0 | 0b                             | #pragma version 11             |                                                                          | 
+    | # main                         | main:                          |                                                                          | test_cases.tuple_support.tuple_comparisons.TupleComparisons.approval_program() -> uint64:
+  1 | 20 04 01 03 02 00              | intcblock 1 3 2 0              |                                                                          | 
+  7 | 26 01 03 61 62 63              | bytecblock "abc"               |                                                                          | 
+ 13 | 42 00 00                       | b main_block@0                 |                                                                          | 
+    | # main_block@0                 | main_block@0:                  |                                                                          | 
+    |                                |                                | test_tuple_cmp_eval()                                                    | tuple_support/tuple_comparisons.py:6
+ 16 | 88 00 05                       | callsub test_tuple_cmp_eval    | ---------------------                                                    | tuple_support/tuple_comparisons.py:6:8-29
+    |                                |                                | test_tuple_cmp_empty()                                                   | tuple_support/tuple_comparisons.py:7
+ 19 | 88 00 51                       | callsub test_tuple_cmp_empty   | ----------------------                                                   | tuple_support/tuple_comparisons.py:7:8-30
+    |                                |                                | return True                                                              | tuple_support/tuple_comparisons.py:8
+ 22 | 22                             | intc_0 // 1                    |        ----                                                              | tuple_support/tuple_comparisons.py:8:15-19
+ 23 | 43                             | return                         | -----------                                                              | tuple_support/tuple_comparisons.py:8:8-19
+    | # test_tuple_cmp_eval          | test_tuple_cmp_eval:           |                                                                          | test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_eval() -> void:
+ 24 | 42 00 00                       | b test_tuple_cmp_eval_block@0  |                                                                          | 
+    | # test_tuple_cmp_eval_block@0  | test_tuple_cmp_eval_block@0:   |                                                                          | 
+    |                                |                                | String("abc"),                                                           | tuple_support/tuple_comparisons.py:17
+ 27 | 28                             | bytec_0 // "abc"               | -------------                                                            | tuple_support/tuple_comparisons.py:17:8-21
+    |                                |                                | ) != (String("abc"),)  # type: ignore[comparison-overlap]                | tuple_support/tuple_comparisons.py:19
+ 28 | 28                             | bytec_0 // "abc"               |       -------------                                                      | tuple_support/tuple_comparisons.py:19:10-23
+ 29 | 13                             | !=                             |                                                                          | tuple_support/tuple_comparisons.py:16-19:11-25
+    |                                |                                | log_and_return(UInt64(42)),                                              | tuple_support/tuple_comparisons.py:18
+ 30 | 81 2a                          | pushint 42                     |                ----------                                                | tuple_support/tuple_comparisons.py:18:23-33
+ 32 | 88 00 4e                       | callsub log_and_return         | --------------------------                                               | tuple_support/tuple_comparisons.py:18:8-34
+ 35 | 49                             | dup                            |                                                                          | tuple_support/tuple_comparisons.py:16-19:11-25
+ 36 | 12                             | ==                             |                                                                          | tuple_support/tuple_comparisons.py:16-19:11-25
+ 37 | 11                             | ||                             |                                                                          | tuple_support/tuple_comparisons.py:16-19:11-25
+ 38 | 44                             | assert                         |                                                                          | tuple_support/tuple_comparisons.py:16-19:4-25
+    |                                |                                | String("abc"),                                                           | tuple_support/tuple_comparisons.py:21
+ 39 | 28                             | bytec_0 // "abc"               | -------------                                                            | tuple_support/tuple_comparisons.py:21:8-21
+    |                                |                                | ) == (String("abc"),)  # type: ignore[comparison-overlap]                | tuple_support/tuple_comparisons.py:23
+ 40 | 28                             | bytec_0 // "abc"               |       -------------                                                      | tuple_support/tuple_comparisons.py:23:10-23
+ 41 | 12                             | ==                             |                                                                          | tuple_support/tuple_comparisons.py:20-23:10-25
+    |                                |                                | log_and_return(UInt64(43)),                                              | tuple_support/tuple_comparisons.py:22
+ 42 | 81 2b                          | pushint 43                     |                ----------                                                | tuple_support/tuple_comparisons.py:22:23-33
+ 44 | 88 00 42                       | callsub log_and_return         | --------------------------                                               | tuple_support/tuple_comparisons.py:22:8-34
+ 47 | 49                             | dup                            |                                                                          | tuple_support/tuple_comparisons.py:20-23:10-25
+ 48 | 13                             | !=                             |                                                                          | tuple_support/tuple_comparisons.py:20-23:10-25
+ 49 | 10                             | &&                             |                                                                          | tuple_support/tuple_comparisons.py:20-23:10-25
+    |                                |                                | assert not tmp                                                           | tuple_support/tuple_comparisons.py:24
+ 50 | 14                             | !                              |        -------                                                           | tuple_support/tuple_comparisons.py:24:11-18
+ 51 | 44                             | assert                         | --------------                                                           | tuple_support/tuple_comparisons.py:24:4-18
+    |                                |                                | assert (String("abc"),) != (                                             | tuple_support/tuple_comparisons.py:26
+ 52 | 28                             | bytec_0 // "abc"               |         -------------                                                    | tuple_support/tuple_comparisons.py:26:12-25
+    |                                |                                | String("abc"),                                                           | tuple_support/tuple_comparisons.py:27
+ 53 | 28                             | bytec_0 // "abc"               | -------------                                                            | tuple_support/tuple_comparisons.py:27:8-21
+ 54 | 13                             | !=                             |                                                                          | tuple_support/tuple_comparisons.py:26-29:11-5
+    |                                |                                | log_and_return(UInt64(44)),                                              | tuple_support/tuple_comparisons.py:28
+ 55 | 81 2c                          | pushint 44                     |                ----------                                                | tuple_support/tuple_comparisons.py:28:23-33
+ 57 | 88 00 35                       | callsub log_and_return         | --------------------------                                               | tuple_support/tuple_comparisons.py:28:8-34
+ 60 | 49                             | dup                            |                                                                          | tuple_support/tuple_comparisons.py:26-29:11-5
+ 61 | 12                             | ==                             |                                                                          | tuple_support/tuple_comparisons.py:26-29:11-5
+ 62 | 11                             | ||                             |                                                                          | tuple_support/tuple_comparisons.py:26-29:11-5
+ 63 | 44                             | assert                         |                                                                          | tuple_support/tuple_comparisons.py:26-29:4-5
+    |                                |                                | tmp = (String("abc"),) == (                                              | tuple_support/tuple_comparisons.py:30
+ 64 | 28                             | bytec_0 // "abc"               |        -------------                                                     | tuple_support/tuple_comparisons.py:30:11-24
+    |                                |                                | String("abc"),                                                           | tuple_support/tuple_comparisons.py:31
+ 65 | 28                             | bytec_0 // "abc"               | -------------                                                            | tuple_support/tuple_comparisons.py:31:8-21
+ 66 | 12                             | ==                             |                                                                          | tuple_support/tuple_comparisons.py:30-33:10-5
+    |                                |                                | log_and_return(UInt64(45)),                                              | tuple_support/tuple_comparisons.py:32
+ 67 | 81 2d                          | pushint 45                     |                ----------                                                | tuple_support/tuple_comparisons.py:32:23-33
+ 69 | 88 00 29                       | callsub log_and_return         | --------------------------                                               | tuple_support/tuple_comparisons.py:32:8-34
+ 72 | 49                             | dup                            |                                                                          | tuple_support/tuple_comparisons.py:30-33:10-5
+ 73 | 13                             | !=                             |                                                                          | tuple_support/tuple_comparisons.py:30-33:10-5
+ 74 | 10                             | &&                             |                                                                          | tuple_support/tuple_comparisons.py:30-33:10-5
+    |                                |                                | assert not tmp                                                           | tuple_support/tuple_comparisons.py:34
+ 75 | 14                             | !                              |        -------                                                           | tuple_support/tuple_comparisons.py:34:11-18
+ 76 | 44                             | assert                         | --------------                                                           | tuple_support/tuple_comparisons.py:34:4-18
+    |                                |                                | assert (UInt64(1), UInt64(2)) != (UInt64(3), log_and_return(UInt64(46))) | tuple_support/tuple_comparisons.py:36
+ 77 | 22                             | intc_0 // 1                    |         ---------                                                        | tuple_support/tuple_comparisons.py:36:12-21
+ 78 | 23                             | intc_1 // 3                    |                                   ---------                              | tuple_support/tuple_comparisons.py:36:38-47
+ 79 | 13                             | !=                             |        ----------------------------------------------------------------- | tuple_support/tuple_comparisons.py:36:11-76
+ 80 | 81 2e                          | pushint 46                     |                                                             ----------   | tuple_support/tuple_comparisons.py:36:64-74
+ 82 | 88 00 1c                       | callsub log_and_return         |                                              --------------------------  | tuple_support/tuple_comparisons.py:36:49-75
+ 85 | 24                             | intc_2 // 2                    |                    ---------                                             | tuple_support/tuple_comparisons.py:36:23-32
+ 86 | 13                             | !=                             |        ----------------------------------------------------------------- | tuple_support/tuple_comparisons.py:36:11-76
+ 87 | 11                             | ||                             |        ----------------------------------------------------------------- | tuple_support/tuple_comparisons.py:36:11-76
+ 88 | 44                             | assert                         | ------------------------------------------------------------------------ | tuple_support/tuple_comparisons.py:36:4-76
+    |                                |                                | tmp = (UInt64(1), UInt64(2)) == (UInt64(3), log_and_return(UInt64(47)))  | tuple_support/tuple_comparisons.py:37
+ 89 | 22                             | intc_0 // 1                    |        ---------                                                         | tuple_support/tuple_comparisons.py:37:11-20
+ 90 | 23                             | intc_1 // 3                    |                                  ---------                               | tuple_support/tuple_comparisons.py:37:37-46
+ 91 | 12                             | ==                             |       -----------------------------------------------------------------  | tuple_support/tuple_comparisons.py:37:10-75
+ 92 | 81 2f                          | pushint 47                     |                                                            ----------    | tuple_support/tuple_comparisons.py:37:63-73
+ 94 | 88 00 10                       | callsub log_and_return         |                                             --------------------------   | tuple_support/tuple_comparisons.py:37:48-74
+ 97 | 24                             | intc_2 // 2                    |                   ---------                                              | tuple_support/tuple_comparisons.py:37:22-31
+ 98 | 12                             | ==                             |       -----------------------------------------------------------------  | tuple_support/tuple_comparisons.py:37:10-75
+ 99 | 10                             | &&                             |       -----------------------------------------------------------------  | tuple_support/tuple_comparisons.py:37:10-75
+    |                                |                                | assert not tmp                                                           | tuple_support/tuple_comparisons.py:38
+100 | 14                             | !                              |        -------                                                           | tuple_support/tuple_comparisons.py:38:11-18
+101 | 44                             | assert                         | --------------                                                           | tuple_support/tuple_comparisons.py:38:4-18
+102 | 89                             | retsub                         |                                                                          | 
+    | # test_tuple_cmp_empty         | test_tuple_cmp_empty:          |                                                                          | test_cases.tuple_support.tuple_comparisons.test_tuple_cmp_empty() -> void:
+103 | 42 00 00                       | b test_tuple_cmp_empty_block@0 |                                                                          | 
+    | # test_tuple_cmp_empty_block@0 | test_tuple_cmp_empty_block@0:  |                                                                          | 
+    |                                |                                | tmp = () != ()                                                           | tuple_support/tuple_comparisons.py:44
+106 | 25                             | intc_3 // 0                    |       --------                                                           | tuple_support/tuple_comparisons.py:44:10-18
+    |                                |                                | assert not tmp                                                           | tuple_support/tuple_comparisons.py:45
+107 | 14                             | !                              |        -------                                                           | tuple_support/tuple_comparisons.py:45:11-18
+108 | 44                             | assert                         | --------------                                                           | tuple_support/tuple_comparisons.py:45:4-18
+    |                                |                                | tmp = () == ("a",)  # type: ignore[comparison-overlap]                   | tuple_support/tuple_comparisons.py:48
+109 | 25                             | intc_3 // 0                    |       ------------                                                       | tuple_support/tuple_comparisons.py:48:10-22
+    |                                |                                | assert not tmp                                                           | tuple_support/tuple_comparisons.py:49
+110 | 14                             | !                              |        -------                                                           | tuple_support/tuple_comparisons.py:49:11-18
+111 | 44                             | assert                         | --------------                                                           | tuple_support/tuple_comparisons.py:49:4-18
+112 | 89                             | retsub                         |                                                                          | 
+    | # log_and_return               | log_and_return:                |                                                                          | test_cases.tuple_support.tuple_comparisons.log_and_return(val: uint64) -> uint64:
+113 | 8a 01 01                       | proto 1 1                      |                                                                          | tuple_support/tuple_comparisons.py:52-53:1-14
+116 | 42 00 00                       | b log_and_return_block@0       |                                                                          | 
+    | # log_and_return_block@0       | log_and_return_block@0:        |                                                                          | 
+    |                                |                                | log(val)                                                                 | tuple_support/tuple_comparisons.py:54
+119 | 8b ff                          | frame_dig -1                   |     ---                                                                  | tuple_support/tuple_comparisons.py:54:8-11
+121 | 16                             | itob                           |     ---                                                                  | tuple_support/tuple_comparisons.py:54:8-11
+122 | b0                             | log                            | --------                                                                 | tuple_support/tuple_comparisons.py:54:4-12
+    |                                |                                | return val                                                               | tuple_support/tuple_comparisons.py:55
+123 | 8b ff                          | frame_dig -1                   | ----------                                                               | tuple_support/tuple_comparisons.py:55:4-14
+125 | 89                             | retsub                         | ----------                                                               | tuple_support/tuple_comparisons.py:55:4-14

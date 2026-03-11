@@ -1,0 +1,19 @@
+ 0 | 0b                      | #pragma version 11      |                                                                   | 
+   | # main                  | main:                   |                                                                   | test_cases.arc4_types.string.Arc4StringTypesContract.approval_program() -> uint64:
+ 1 | 26 01 05 00 03 62 65 65 | bytecblock 0x0003626565 |                                                                   | 
+   |                         |                         | assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee" | arc4_types/string.py:41
+ 9 | 31 1b                   | txn NumAppArgs          |                             ----------------                      | arc4_types/string.py:41:36-52
+11 | 41 00 0d                | bz main_ternary_false@2 |                    ------------------------------------           | arc4_types/string.py:41:27-63
+14 | 80 05 00 03 61 79 65    | pushbytes 0x0003617965  |        -------------------------------------------------          | arc4_types/string.py:41:15-64
+   | # main_ternary_merge@3  | main_ternary_merge@3:   |                                                                   | 
+   |                         |                         | assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee" | arc4_types/string.py:41
+21 | 28                      | bytec_0 // 0x0003626565 |                                                             ----- | arc4_types/string.py:41:68-73
+22 | 12                      | ==                      |                    ---------------------------------------------- | arc4_types/string.py:41:27-73
+23 | 44                      | assert                  | ----------------------------------------------------------------- | arc4_types/string.py:41:8-73
+   |                         |                         | return True                                                       | arc4_types/string.py:42
+24 | 81 01                   | pushint 1               |        ----                                                       | arc4_types/string.py:42:15-19
+26 | 43                      | return                  | -----------                                                       | arc4_types/string.py:42:8-19
+   | # main_ternary_false@2  | main_ternary_false@2:   |                                                                   | 
+   |                         |                         | assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee" | arc4_types/string.py:41
+27 | 28                      | bytec_0 // 0x0003626565 |        -------------------------------------------------          | arc4_types/string.py:41:15-64
+28 | 42 ff f6                | b main_ternary_merge@3  |                                                                   | 

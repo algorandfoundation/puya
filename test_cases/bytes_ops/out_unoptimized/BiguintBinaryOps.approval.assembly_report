@@ -1,0 +1,126 @@
+  0 | 0b                                    | #pragma version 11                    |                                                   | 
+    | # main                                | main:                                 |                                                   | test_cases.bytes_ops.contract.BiguintBinaryOps.approval_program() -> uint64:
+  1 | 26 04 01 05 01 ff 01 0f 01 00         | bytecblock 0x05 0xff 0x0f 0x00        |                                                   | 
+ 11 | 42 00 00                              | b main_block@0                        |                                                   | 
+    | # main_block@0                        | main_block@0:                         |                                                   | 
+    |                                       |                                       | left=Bytes.from_hex("FF"),                        | bytes_ops/contract.py:7
+ 14 | 29                                    | bytec_1 // 0xff                       |      --------------------                         | bytes_ops/contract.py:7:17-37
+    |                                       |                                       | right=Bytes.from_hex("0F"),                       | bytes_ops/contract.py:8
+ 15 | 2a                                    | bytec_2 // 0x0f                       |       --------------------                        | bytes_ops/contract.py:8:18-38
+    |                                       |                                       | concat=Bytes.from_hex("FF0F"),                    | bytes_ops/contract.py:9
+ 16 | 80 02 ff 0f                           | pushbytes 0xff0f                      |        ----------------------                     | bytes_ops/contract.py:9:19-41
+    |                                       |                                       | bitwise_or=Bytes.from_hex("FF"),                  | bytes_ops/contract.py:10
+ 20 | 29                                    | bytec_1 // 0xff                       |            --------------------                   | bytes_ops/contract.py:10:23-43
+    |                                       |                                       | bitwise_xor=Bytes.from_hex("F0"),                 | bytes_ops/contract.py:11
+ 21 | 80 01 f0                              | pushbytes 0xf0                        |             --------------------                  | bytes_ops/contract.py:11:24-44
+    |                                       |                                       | bitwise_and=Bytes.from_hex("0F"),                 | bytes_ops/contract.py:12
+ 24 | 2a                                    | bytec_2 // 0x0f                       |             --------------------                  | bytes_ops/contract.py:12:24-44
+ 25 | 88 00 07                              | callsub do_some_ops                   |                                                   | bytes_ops/contract.py:6-13:8-9
+    |                                       |                                       | do_augmented_assignment_ops(Bytes.from_hex("FF")) | bytes_ops/contract.py:14
+ 28 | 29                                    | bytec_1 // 0xff                       |                             --------------------  | bytes_ops/contract.py:14:36-56
+ 29 | 88 00 2e                              | callsub do_augmented_assignment_ops   | ------------------------------------------------- | bytes_ops/contract.py:14:8-57
+    |                                       |                                       | return True                                       | bytes_ops/contract.py:15
+ 32 | 81 01                                 | pushint 1                             |        ----                                       | bytes_ops/contract.py:15:15-19
+ 34 | 43                                    | return                                | -----------                                       | bytes_ops/contract.py:15:8-19
+    | # do_some_ops                         | do_some_ops:                          |                                                   | test_cases.bytes_ops.contract.do_some_ops(left: bytes, right: bytes, concat: bytes, bitwise_or: bytes, bitwise_xor: bytes, bitwise_and: bytes) -> void:
+ 35 | 8a 06 00                              | proto 6 0                             |                                                   | bytes_ops/contract.py:21-30:1-32
+ 38 | 42 00 00                              | b do_some_ops_block@0                 |                                                   | 
+    | # do_some_ops_block@0                 | do_some_ops_block@0:                  |                                                   | 
+    |                                       |                                       | result = left + right                             | bytes_ops/contract.py:31
+ 41 | 8b fa                                 | frame_dig -6                          |          ------------                             | bytes_ops/contract.py:31:13-25
+ 43 | 8b fb                                 | frame_dig -5                          |          ------------                             | bytes_ops/contract.py:31:13-25
+ 45 | 50                                    | concat                                |          ------------                             | bytes_ops/contract.py:31:13-25
+    |                                       |                                       | assert result == concat                           | bytes_ops/contract.py:32
+ 46 | 8b fc                                 | frame_dig -4                          |        ----------------                           | bytes_ops/contract.py:32:11-27
+ 48 | 12                                    | ==                                    |        ----------------                           | bytes_ops/contract.py:32:11-27
+ 49 | 44                                    | assert                                | -----------------------                           | bytes_ops/contract.py:32:4-27
+    |                                       |                                       | result = left | right                             | bytes_ops/contract.py:33
+ 50 | 8b fa                                 | frame_dig -6                          |          ------------                             | bytes_ops/contract.py:33:13-25
+ 52 | 8b fb                                 | frame_dig -5                          |          ------------                             | bytes_ops/contract.py:33:13-25
+ 54 | ab                                    | b|                                    |          ------------                             | bytes_ops/contract.py:33:13-25
+    |                                       |                                       | assert result == bitwise_or                       | bytes_ops/contract.py:34
+ 55 | 8b fd                                 | frame_dig -3                          |        --------------------                       | bytes_ops/contract.py:34:11-31
+ 57 | 12                                    | ==                                    |        --------------------                       | bytes_ops/contract.py:34:11-31
+ 58 | 44                                    | assert                                | ---------------------------                       | bytes_ops/contract.py:34:4-31
+    |                                       |                                       | result = left ^ right                             | bytes_ops/contract.py:35
+ 59 | 8b fa                                 | frame_dig -6                          |          ------------                             | bytes_ops/contract.py:35:13-25
+ 61 | 8b fb                                 | frame_dig -5                          |          ------------                             | bytes_ops/contract.py:35:13-25
+ 63 | ad                                    | b^                                    |          ------------                             | bytes_ops/contract.py:35:13-25
+    |                                       |                                       | assert result == bitwise_xor                      | bytes_ops/contract.py:36
+ 64 | 8b fe                                 | frame_dig -2                          |        ---------------------                      | bytes_ops/contract.py:36:11-32
+ 66 | 12                                    | ==                                    |        ---------------------                      | bytes_ops/contract.py:36:11-32
+ 67 | 44                                    | assert                                | ----------------------------                      | bytes_ops/contract.py:36:4-32
+    |                                       |                                       | result = left & right                             | bytes_ops/contract.py:37
+ 68 | 8b fa                                 | frame_dig -6                          |          ------------                             | bytes_ops/contract.py:37:13-25
+ 70 | 8b fb                                 | frame_dig -5                          |          ------------                             | bytes_ops/contract.py:37:13-25
+ 72 | ac                                    | b&                                    |          ------------                             | bytes_ops/contract.py:37:13-25
+    |                                       |                                       | assert result == bitwise_and                      | bytes_ops/contract.py:38
+ 73 | 8b ff                                 | frame_dig -1                          |        ---------------------                      | bytes_ops/contract.py:38:11-32
+ 75 | 12                                    | ==                                    |        ---------------------                      | bytes_ops/contract.py:38:11-32
+ 76 | 44                                    | assert                                | ----------------------------                      | bytes_ops/contract.py:38:4-32
+ 77 | 89                                    | retsub                                |                                                   | 
+    | # do_augmented_assignment_ops         | do_augmented_assignment_ops:          |                                                   | test_cases.bytes_ops.contract.do_augmented_assignment_ops(seed: bytes) -> void:
+ 78 | 8a 01 00                              | proto 1 0                             |                                                   | bytes_ops/contract.py:41-42:1-41
+ 81 | 42 00 00                              | b do_augmented_assignment_ops_block@0 |                                                   | 
+    | # do_augmented_assignment_ops_block@0 | do_augmented_assignment_ops_block@0:  |                                                   | 
+    |                                       |                                       | seed &= Bytes.from_hex("00")                      | bytes_ops/contract.py:43
+ 84 | 8b ff                                 | frame_dig -1                          | ----------------------------                      | bytes_ops/contract.py:43:4-32
+ 86 | 2b                                    | bytec_3 // 0x00                       |         --------------------                      | bytes_ops/contract.py:43:12-32
+ 87 | ac                                    | b&                                    | ----------------------------                      | bytes_ops/contract.py:43:4-32
+ 88 | 49                                    | dup                                   |                                                   | 
+ 89 | 8c ff                                 | frame_bury -1                         | ----------------------------                      | bytes_ops/contract.py:43:4-32
+    |                                       |                                       | assert seed == Bytes.from_hex("00")               | bytes_ops/contract.py:45
+ 91 | 2b                                    | bytec_3 // 0x00                       |                --------------------               | bytes_ops/contract.py:45:19-39
+ 92 | 12                                    | ==                                    |        ----------------------------               | bytes_ops/contract.py:45:11-39
+ 93 | 44                                    | assert                                | -----------------------------------               | bytes_ops/contract.py:45:4-39
+    |                                       |                                       | seed |= five                                      | bytes_ops/contract.py:49
+ 94 | 8b ff                                 | frame_dig -1                          | ------------                                      | bytes_ops/contract.py:49:4-16
+    |                                       |                                       | five = Bytes.from_hex("05")                       | bytes_ops/contract.py:47
+ 96 | 28                                    | bytec_0 // 0x05                       |        --------------------                       | bytes_ops/contract.py:47:11-31
+    |                                       |                                       | seed |= five                                      | bytes_ops/contract.py:49
+ 97 | ab                                    | b|                                    | ------------                                      | bytes_ops/contract.py:49:4-16
+ 98 | 49                                    | dup                                   |                                                   | 
+ 99 | 8c ff                                 | frame_bury -1                         | ------------                                      | bytes_ops/contract.py:49:4-16
+    |                                       |                                       | five = Bytes.from_hex("05")                       | bytes_ops/contract.py:47
+101 | 28                                    | bytec_0 // 0x05                       |        --------------------                       | bytes_ops/contract.py:47:11-31
+    |                                       |                                       | assert seed == five                               | bytes_ops/contract.py:51
+102 | 12                                    | ==                                    |        ------------                               | bytes_ops/contract.py:51:11-23
+103 | 44                                    | assert                                | -------------------                               | bytes_ops/contract.py:51:4-23
+    |                                       |                                       | seed ^= sixteen                                   | bytes_ops/contract.py:55
+104 | 8b ff                                 | frame_dig -1                          | ---------------                                   | bytes_ops/contract.py:55:4-19
+    |                                       |                                       | sixteen = Bytes.from_hex("10")                    | bytes_ops/contract.py:53
+106 | 80 01 10                              | pushbytes 0x10                        |           --------------------                    | bytes_ops/contract.py:53:14-34
+    |                                       |                                       | seed ^= sixteen                                   | bytes_ops/contract.py:55
+109 | ad                                    | b^                                    | ---------------                                   | bytes_ops/contract.py:55:4-19
+110 | 49                                    | dup                                   |                                                   | 
+111 | 8c ff                                 | frame_bury -1                         | ---------------                                   | bytes_ops/contract.py:55:4-19
+    |                                       |                                       | assert seed == Bytes.from_hex("15")               | bytes_ops/contract.py:57
+113 | 80 01 15                              | pushbytes 0x15                        |                --------------------               | bytes_ops/contract.py:57:19-39
+116 | 12                                    | ==                                    |        ----------------------------               | bytes_ops/contract.py:57:11-39
+117 | 44                                    | assert                                | -----------------------------------               | bytes_ops/contract.py:57:4-39
+    |                                       |                                       | seed ^= five                                      | bytes_ops/contract.py:59
+118 | 8b ff                                 | frame_dig -1                          | ------------                                      | bytes_ops/contract.py:59:4-16
+    |                                       |                                       | five = Bytes.from_hex("05")                       | bytes_ops/contract.py:47
+120 | 28                                    | bytec_0 // 0x05                       |        --------------------                       | bytes_ops/contract.py:47:11-31
+    |                                       |                                       | seed ^= five                                      | bytes_ops/contract.py:59
+121 | ad                                    | b^                                    | ------------                                      | bytes_ops/contract.py:59:4-16
+122 | 49                                    | dup                                   |                                                   | 
+123 | 8c ff                                 | frame_bury -1                         | ------------                                      | bytes_ops/contract.py:59:4-16
+    |                                       |                                       | sixteen = Bytes.from_hex("10")                    | bytes_ops/contract.py:53
+125 | 80 01 10                              | pushbytes 0x10                        |           --------------------                    | bytes_ops/contract.py:53:14-34
+    |                                       |                                       | assert seed == sixteen                            | bytes_ops/contract.py:61
+128 | 12                                    | ==                                    |        ---------------                            | bytes_ops/contract.py:61:11-26
+129 | 44                                    | assert                                | ----------------------                            | bytes_ops/contract.py:61:4-26
+    |                                       |                                       | seed += five                                      | bytes_ops/contract.py:63
+130 | 8b ff                                 | frame_dig -1                          | ------------                                      | bytes_ops/contract.py:63:4-16
+    |                                       |                                       | five = Bytes.from_hex("05")                       | bytes_ops/contract.py:47
+132 | 28                                    | bytec_0 // 0x05                       |        --------------------                       | bytes_ops/contract.py:47:11-31
+    |                                       |                                       | seed += five                                      | bytes_ops/contract.py:63
+133 | 50                                    | concat                                | ------------                                      | bytes_ops/contract.py:63:4-16
+134 | 49                                    | dup                                   |                                                   | 
+135 | 8c ff                                 | frame_bury -1                         | ------------                                      | bytes_ops/contract.py:63:4-16
+    |                                       |                                       | assert seed == Bytes.from_hex("1005")             | bytes_ops/contract.py:65
+137 | 80 02 10 05                           | pushbytes 0x1005                      |                ----------------------             | bytes_ops/contract.py:65:19-41
+141 | 12                                    | ==                                    |        ------------------------------             | bytes_ops/contract.py:65:11-41
+142 | 44                                    | assert                                | -------------------------------------             | bytes_ops/contract.py:65:4-41
+143 | 89                                    | retsub                                |                                                   | 

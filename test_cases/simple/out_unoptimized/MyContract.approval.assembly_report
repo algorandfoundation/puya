@@ -1,0 +1,60 @@
+ 0 | 0b                 | #pragma version 11  |                            | 
+   | # main             | main:               |                            | test_cases.simple.contract.MyContract.approval_program() -> uint64:
+ 1 | 20 03 02 03 04     | intcblock 2 3 4     |                            | 
+ 6 | 42 00 00           | b main_block@0      |                            | 
+   | # main_block@0     | main_block@0:       |                            | 
+   |                    |                     | a = algo.UInt64(1) + 2     | simple/contract.py:10
+ 9 | 81 01              | pushint 1           |     --------------         | simple/contract.py:10:12-26
+11 | 22                 | intc_0 // 2         |                      -     | simple/contract.py:10:29-30
+12 | 08                 | +                   |     ------------------     | simple/contract.py:10:12-30
+13 | 49                 | dup                 | ----------------------     | simple/contract.py:10:8-30
+   |                    |                     | b = algo.UInt64(4) * 5     | simple/contract.py:11
+14 | 24                 | intc_2 // 4         |     --------------         | simple/contract.py:11:12-26
+15 | 81 05              | pushint 5           |                      -     | simple/contract.py:11:29-30
+17 | 0b                 | *                   |     ------------------     | simple/contract.py:11:12-30
+18 | 4e 01              | cover 1             | ----------------------     | simple/contract.py:11:8-30
+   |                    |                     | if a == (1 + 2) * (4 - 3): | simple/contract.py:12
+20 | 23                 | intc_1 // 3         |         -----------------  | simple/contract.py:12:16-33
+21 | 12                 | ==                  |    ----------------------  | simple/contract.py:12:11-33
+22 | 41 00 27           | bz main_else_body@6 |                            | simple/contract.py:12
+25 | 42 00 00           | b main_if_body@1    |                            | simple/contract.py:12
+   | # main_if_body@1   | main_if_body@1:     |                            | 
+   |                    |                     | if b < 2:                  | simple/contract.py:13
+28 | 49                 | dup                 |    -----                   | simple/contract.py:13:15-20
+29 | 22                 | intc_0 // 2         |        -                   | simple/contract.py:13:19-20
+30 | 0c                 | <                   |    -----                   | simple/contract.py:13:15-20
+31 | 41 00 0a           | bz main_else_body@3 |                            | simple/contract.py:13
+34 | 42 00 00           | b main_if_body@2    |                            | simple/contract.py:13
+   | # main_if_body@2   | main_if_body@2:     |                            | 
+   |                    |                     | b = 3 + algo.UInt64(2)     | simple/contract.py:14
+37 | 23                 | intc_1 // 3         |     -                      | simple/contract.py:14:20-21
+38 | 22                 | intc_0 // 2         |         --------------     | simple/contract.py:14:24-38
+39 | 08                 | +                   |     ------------------     | simple/contract.py:14:20-38
+   |                    |                     | return a + b               | simple/contract.py:15
+40 | 4b 02              | dig 2               |        -----               | simple/contract.py:15:23-28
+42 | 08                 | +                   |        -----               | simple/contract.py:15:23-28
+43 | 43                 | return              | ------------               | simple/contract.py:15:16-28
+   | # main_else_body@3 | main_else_body@3:   |                            | 
+   |                    |                     | b = 2 * a                  | simple/contract.py:17
+44 | 22                 | intc_0 // 2         |     -                      | simple/contract.py:17:20-21
+45 | 4b 02              | dig 2               |     -----                  | simple/contract.py:17:20-25
+47 | 0b                 | *                   |     -----                  | simple/contract.py:17:20-25
+   |                    |                     | if ((3 * 4) + 2) * b:      | simple/contract.py:18
+48 | 81 0e              | pushint 14          |     -----------            | simple/contract.py:18:20-31
+50 | 0b                 | *                   |    -----------------       | simple/contract.py:18:19-36
+51 | 81 00              | pushint 0           |    -----------------       | simple/contract.py:18:19-36
+53 | 13                 | !=                  |    -----------------       | simple/contract.py:18:19-36
+54 | 41 00 05           | bz main_else_body@5 |                            | simple/contract.py:18
+57 | 42 00 00           | b main_if_body@4    |                            | simple/contract.py:18
+   | # main_if_body@4   | main_if_body@4:     |                            | 
+   |                    |                     | return algo.UInt64(2)      | simple/contract.py:19
+60 | 22                 | intc_0 // 2         |        --------------      | simple/contract.py:19:27-41
+61 | 43                 | return              | ---------------------      | simple/contract.py:19:20-41
+   | # main_else_body@5 | main_else_body@5:   |                            | 
+   |                    |                     | return algo.UInt64(3)      | simple/contract.py:21
+62 | 23                 | intc_1 // 3         |        --------------      | simple/contract.py:21:27-41
+63 | 43                 | return              | ---------------------      | simple/contract.py:21:20-41
+   | # main_else_body@6 | main_else_body@6:   |                            | 
+   |                    |                     | return pkg_a.MyUInt64(4)   | simple/contract.py:23
+64 | 24                 | intc_2 // 4         |        -----------------   | simple/contract.py:23:19-36
+65 | 43                 | return              | ------------------------   | simple/contract.py:23:12-36

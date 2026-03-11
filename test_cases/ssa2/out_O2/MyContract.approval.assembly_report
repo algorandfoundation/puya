@@ -1,0 +1,33 @@
+ 0 | 0b                  | #pragma version 11  |                     | 
+   | # main              | main:               |                     | test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
+ 1 | 83 03 03 14 00      | pushints 3 20 0     |                     | ssa2/contract.py:8-9:12-25
+   | # main_for_header@1 | main_for_header@1:  |                     | 
+   |                     |                     | for i in urange(5): | ssa2/contract.py:15
+ 6 | 49                  | dup                 |                     | ssa2/contract.py:15
+ 7 | 81 05               | pushint 5           |                 -   | ssa2/contract.py:15:24-25
+ 9 | 0c                  | <                   |                     | ssa2/contract.py:15
+10 | 41 00 1a            | bz main_after_for@4 |                     | ssa2/contract.py:15
+   |                     |                     | b = b + a           | ssa2/contract.py:16
+13 | 4b 01               | dig 1               |     -----           | ssa2/contract.py:16:16-21
+15 | 4b 03               | dig 3               |     -----           | ssa2/contract.py:16:16-21
+17 | 49                  | dup                 |     -----           | ssa2/contract.py:16:16-21
+18 | 4e 02               | cover 2             |     -----           | ssa2/contract.py:16:16-21
+20 | 08                  | +                   |     -----           | ssa2/contract.py:16:16-21
+21 | 45 03               | bury 3              |     -----           | ssa2/contract.py:16:16-21
+   |                     |                     | a = a + i           | ssa2/contract.py:17
+23 | 4b 01               | dig 1               |     -----           | ssa2/contract.py:17:16-21
+25 | 49                  | dup                 |     -----           | ssa2/contract.py:17:16-21
+26 | 4e 02               | cover 2             |     -----           | ssa2/contract.py:17:16-21
+28 | 08                  | +                   |     -----           | ssa2/contract.py:17:16-21
+29 | 45 04               | bury 4              |     -----           | ssa2/contract.py:17:16-21
+   |                     |                     | for i in urange(5): | ssa2/contract.py:15
+31 | 81 01               | pushint 1           |          ---------  | ssa2/contract.py:15:17-26
+33 | 08                  | +                   |          ---------  | ssa2/contract.py:15:17-26
+34 | 45 01               | bury 1              |                     | 
+36 | 42 ff df            | b main_for_header@1 |                     | 
+   | # main_after_for@4  | main_after_for@4:   |                     | 
+   |                     |                     | return a + b        | ssa2/contract.py:18
+39 | 4b 02               | dig 2               |        -----        | ssa2/contract.py:18:15-20
+41 | 4b 02               | dig 2               |        -----        | ssa2/contract.py:18:15-20
+43 | 08                  | +                   |        -----        | ssa2/contract.py:18:15-20
+44 | 43                  | return              | ------------        | ssa2/contract.py:18:8-20

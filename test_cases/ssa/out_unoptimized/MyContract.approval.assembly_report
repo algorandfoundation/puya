@@ -1,0 +1,237 @@
+  0 | 0b                                   | #pragma version 11                   |                                                  | 
+    | # main                               | main:                                |                                                  | test_cases.ssa.contract.MyContract.approval_program() -> uint64:
+  1 | 20 04 01 02 03 04                    | intcblock 1 2 3 4                    |                                                  | 
+  7 | 80 00                                | pushbytes ""                         |                                                  | 
+  9 | 80 00                                | pushbytes ""                         |                                                  | 
+ 11 | 42 00 00                             | b main_block@0                       |                                                  | 
+    | # main_block@0                       | main_block@0:                        |                                                  | 
+    |                                      |                                      | a = UInt64(1) + 2                                | ssa/contract.py:8
+ 14 | 22                                   | intc_0 // 1                          |     ---------                                    | ssa/contract.py:8:12-21
+ 15 | 23                                   | intc_1 // 2                          |                 -                                | ssa/contract.py:8:24-25
+ 16 | 08                                   | +                                    |     -------------                                | ssa/contract.py:8:12-25
+    |                                      |                                      | b = UInt64(4) * 5                                | ssa/contract.py:9
+ 17 | 25                                   | intc_3 // 4                          |     ---------                                    | ssa/contract.py:9:12-21
+ 18 | 81 05                                | pushint 5                            |                 -                                | ssa/contract.py:9:24-25
+ 20 | 0b                                   | *                                    |     -------------                                | ssa/contract.py:9:12-25
+    |                                      |                                      | a = a * b                                        | ssa/contract.py:11
+ 21 | 4f 01                                | uncover 1                            |     -----                                        | ssa/contract.py:11:12-17
+ 23 | 4b 01                                | dig 1                                |     -----                                        | ssa/contract.py:11:12-17
+ 25 | 0b                                   | *                                    |     -----                                        | ssa/contract.py:11:12-17
+ 26 | 49                                   | dup                                  | ---------                                        | ssa/contract.py:11:8-17
+ 27 | 4e 02                                | cover 2                              | ---------                                        | ssa/contract.py:11:8-17
+    |                                      |                                      | b = a + b                                        | ssa/contract.py:12
+ 29 | 08                                   | +                                    |     -----                                        | ssa/contract.py:12:12-17
+ 30 | 42 00 00                             | b main_while_top@1                   |                                                  | 
+    | # main_while_top@1                   | main_while_top@1:                    |                                                  | 
+    |                                      |                                      | while a < UInt64(5):                             | ssa/contract.py:14
+ 33 | 4b 01                                | dig 1                                |       -------------                              | ssa/contract.py:14:14-27
+ 35 | 81 05                                | pushint 5                            |           ---------                              | ssa/contract.py:14:18-27
+ 37 | 0c                                   | <                                    |       -------------                              | ssa/contract.py:14:14-27
+ 38 | 41 00 13                             | bz main_after_while@3                |                                                  | ssa/contract.py:14
+ 41 | 42 00 00                             | b main_while_body@2                  |                                                  | ssa/contract.py:14
+    | # main_while_body@2                  | main_while_body@2:                   |                                                  | 
+    |                                      |                                      | b = b + a                                        | ssa/contract.py:15
+ 44 | 49                                   | dup                                  |     -----                                        | ssa/contract.py:15:16-21
+ 45 | 4b 02                                | dig 2                                |     -----                                        | ssa/contract.py:15:16-21
+ 47 | 49                                   | dup                                  |     -----                                        | ssa/contract.py:15:16-21
+ 48 | 4e 02                                | cover 2                              |     -----                                        | ssa/contract.py:15:16-21
+ 50 | 08                                   | +                                    |     -----                                        | ssa/contract.py:15:16-21
+ 51 | 45 02                                | bury 2                               | ---------                                        | ssa/contract.py:15:12-21
+    |                                      |                                      | a = a + 1                                        | ssa/contract.py:16
+ 53 | 22                                   | intc_0 // 1                          |         -                                        | ssa/contract.py:16:20-21
+ 54 | 08                                   | +                                    |     -----                                        | ssa/contract.py:16:16-21
+ 55 | 45 02                                | bury 2                               | ---------                                        | ssa/contract.py:16:12-21
+ 57 | 42 ff e5                             | b main_while_top@1                   |                                                  | 
+    | # main_after_while@3                 | main_after_while@3:                  |                                                  | 
+    |                                      |                                      | for i in urange(5):                              | ssa/contract.py:18
+ 60 | 22                                   | intc_0 // 1                          |          ---------                               | ssa/contract.py:18:17-26
+ 61 | 44                                   | assert // Step cannot be zero        |                                                  | ssa/contract.py:18
+ 62 | 81 00                                | pushint 0                            |          ---------                               | ssa/contract.py:18:17-26
+ 64 | 45 03                                | bury 3                               |          ---------                               | ssa/contract.py:18:17-26
+ 66 | 42 00 00                             | b main_for_header@4                  |                                                  | 
+    | # main_for_header@4                  | main_for_header@4:                   |                                                  | 
+    |                                      |                                      | for i in urange(5):                              | ssa/contract.py:18
+ 69 | 4b 02                                | dig 2                                |                                                  | ssa/contract.py:18
+ 71 | 81 05                                | pushint 5                            |                 -                                | ssa/contract.py:18:24-25
+ 73 | 0c                                   | <                                    |                                                  | ssa/contract.py:18
+ 74 | 41 00 1e                             | bz main_after_for@7                  |                                                  | ssa/contract.py:18
+ 77 | 42 00 00                             | b main_for_body@5                    |                                                  | ssa/contract.py:18
+    | # main_for_body@5                    | main_for_body@5:                     |                                                  | 
+    |                                      |                                      | for i in urange(5):                              | ssa/contract.py:18
+ 80 | 4b 02                                | dig 2                                |     -                                            | ssa/contract.py:18:12-13
+    |                                      |                                      | b = b + a                                        | ssa/contract.py:19
+ 82 | 4b 01                                | dig 1                                |     -----                                        | ssa/contract.py:19:16-21
+ 84 | 4b 03                                | dig 3                                |     -----                                        | ssa/contract.py:19:16-21
+ 86 | 49                                   | dup                                  |     -----                                        | ssa/contract.py:19:16-21
+ 87 | 4e 02                                | cover 2                              |     -----                                        | ssa/contract.py:19:16-21
+ 89 | 08                                   | +                                    |     -----                                        | ssa/contract.py:19:16-21
+ 90 | 45 03                                | bury 3                               | ---------                                        | ssa/contract.py:19:12-21
+    |                                      |                                      | a = a + i                                        | ssa/contract.py:20
+ 92 | 08                                   | +                                    |     -----                                        | ssa/contract.py:20:16-21
+ 93 | 45 02                                | bury 2                               | ---------                                        | ssa/contract.py:20:12-21
+ 95 | 42 00 00                             | b main_for_footer@6                  |                                                  | 
+    | # main_for_footer@6                  | main_for_footer@6:                   |                                                  | 
+    |                                      |                                      | for i in urange(5):                              | ssa/contract.py:18
+ 98 | 4b 02                                | dig 2                                |          ---------                               | ssa/contract.py:18:17-26
+100 | 22                                   | intc_0 // 1                          |          ---------                               | ssa/contract.py:18:17-26
+101 | 08                                   | +                                    |          ---------                               | ssa/contract.py:18:17-26
+102 | 45 03                                | bury 3                               |          ---------                               | ssa/contract.py:18:17-26
+104 | 42 ff da                             | b main_for_header@4                  |                                                  | 
+    | # main_after_for@7                   | main_after_for@7:                    |                                                  | 
+    |                                      |                                      | if a < b:                                        | ssa/contract.py:22
+107 | 4a                                   | dup2                                 |    -----                                         | ssa/contract.py:22:11-16
+108 | 0c                                   | <                                    |    -----                                         | ssa/contract.py:22:11-16
+109 | 41 00 51                             | bz main_else_body@15                 |                                                  | ssa/contract.py:22
+112 | 42 00 00                             | b main_if_body@8                     |                                                  | ssa/contract.py:22
+    | # main_if_body@8                     | main_if_body@8:                      |                                                  | 
+    |                                      |                                      | if b < 2:                                        | ssa/contract.py:23
+115 | 49                                   | dup                                  |    -----                                         | ssa/contract.py:23:15-20
+116 | 23                                   | intc_1 // 2                          |        -                                         | ssa/contract.py:23:19-20
+117 | 0c                                   | <                                    |    -----                                         | ssa/contract.py:23:15-20
+118 | 41 00 2d                             | bz main_else_body@10                 |                                                  | ssa/contract.py:23
+121 | 42 00 00                             | b main_if_body@9                     |                                                  | ssa/contract.py:23
+    | # main_if_body@9                     | main_if_body@9:                      |                                                  | 
+    |                                      |                                      | b = 3 + UInt64(2)                                | ssa/contract.py:24
+124 | 24                                   | intc_2 // 3                          |     -                                            | ssa/contract.py:24:20-21
+125 | 23                                   | intc_1 // 2                          |         ---------                                | ssa/contract.py:24:24-33
+126 | 08                                   | +                                    |     -------------                                | ssa/contract.py:24:20-33
+    |                                      |                                      | c = a + b                                        | ssa/contract.py:25
+127 | 4b 02                                | dig 2                                |     -----                                        | ssa/contract.py:25:20-25
+129 | 08                                   | +                                    |     -----                                        | ssa/contract.py:25:20-25
+130 | 45 04                                | bury 4                               | ---------                                        | ssa/contract.py:25:16-25
+132 | 42 00 00                             | b main_after_if_else@14              |                                                  | 
+    | # main_after_if_else@14              | main_after_if_else@14:               |                                                  | 
+135 | 42 00 00                             | b main_after_if_else@19              |                                                  | 
+    | # main_after_if_else@19              | main_after_if_else@19:               |                                                  | 
+    |                                      |                                      | c = c + one_hundred(c)                           | ssa/contract.py:36
+138 | 4b 03                                | dig 3                                |         --------------                           | ssa/contract.py:36:16-30
+140 | 49                                   | dup                                  |         --------------                           | ssa/contract.py:36:16-30
+141 | 88 00 4c                             | callsub one_hundred                  |         --------------                           | ssa/contract.py:36:16-30
+144 | 08                                   | +                                    |     ------------------                           | ssa/contract.py:36:12-30
+    |                                      |                                      | c_bytes = op.itob(c)                             | ssa/contract.py:37
+145 | 49                                   | dup                                  |           ----------                             | ssa/contract.py:37:18-28
+146 | 16                                   | itob                                 |           ----------                             | ssa/contract.py:37:18-28
+    |                                      |                                      | log(c_bytes)                                     | ssa/contract.py:38
+147 | b0                                   | log                                  | ------------                                     | ssa/contract.py:38:8-20
+    |                                      |                                      | assert phi_in_equiv_class(UInt64(3), True) == 4  | ssa/contract.py:39
+148 | 24                                   | intc_2 // 3                          |                           ---------              | ssa/contract.py:39:34-43
+149 | 22                                   | intc_0 // 1                          |                                      ----        | ssa/contract.py:39:45-49
+150 | 88 00 6b                             | callsub phi_in_equiv_class           |        -----------------------------------       | ssa/contract.py:39:15-50
+153 | 25                                   | intc_3 // 4                          |                                               -  | ssa/contract.py:39:54-55
+154 | 12                                   | ==                                   |        ----------------------------------------  | ssa/contract.py:39:15-55
+155 | 44                                   | assert                               | -----------------------------------------------  | ssa/contract.py:39:8-55
+    |                                      |                                      | assert phi_in_equiv_class(UInt64(3), False) == 4 | ssa/contract.py:40
+156 | 24                                   | intc_2 // 3                          |                           ---------              | ssa/contract.py:40:34-43
+157 | 81 00                                | pushint 0                            |                                      -----       | ssa/contract.py:40:45-50
+159 | 88 00 62                             | callsub phi_in_equiv_class           |        ------------------------------------      | ssa/contract.py:40:15-51
+162 | 25                                   | intc_3 // 4                          |                                                - | ssa/contract.py:40:55-56
+163 | 12                                   | ==                                   |        ----------------------------------------- | ssa/contract.py:40:15-56
+164 | 44                                   | assert                               | ------------------------------------------------ | ssa/contract.py:40:8-56
+    |                                      |                                      | return c                                         | ssa/contract.py:41
+165 | 43                                   | return                               | --------                                         | ssa/contract.py:41:8-16
+    | # main_else_body@10                  | main_else_body@10:                   |                                                  | 
+    |                                      |                                      | b = 2 * a                                        | ssa/contract.py:27
+166 | 23                                   | intc_1 // 2                          |     -                                            | ssa/contract.py:27:20-21
+167 | 4b 02                                | dig 2                                |     -----                                        | ssa/contract.py:27:20-25
+169 | 0b                                   | *                                    |     -----                                        | ssa/contract.py:27:20-25
+    |                                      |                                      | if ((3 * 4) + 2) * b:                            | ssa/contract.py:28
+170 | 81 0e                                | pushint 14                           |     -----------                                  | ssa/contract.py:28:20-31
+172 | 0b                                   | *                                    |    -----------------                             | ssa/contract.py:28:19-36
+173 | 81 00                                | pushint 0                            |    -----------------                             | ssa/contract.py:28:19-36
+175 | 13                                   | !=                                   |    -----------------                             | ssa/contract.py:28:19-36
+176 | 41 00 0c                             | bz main_else_body@12                 |                                                  | ssa/contract.py:28
+179 | 42 00 00                             | b main_if_body@11                    |                                                  | ssa/contract.py:28
+    | # main_if_body@11                    | main_if_body@11:                     |                                                  | 
+    |                                      |                                      | c = UInt64(2)                                    | ssa/contract.py:29
+182 | 23                                   | intc_1 // 2                          |     ---------                                    | ssa/contract.py:29:24-33
+183 | 45 04                                | bury 4                               | -------------                                    | ssa/contract.py:29:20-33
+185 | 42 00 00                             | b main_after_if_else@13              |                                                  | 
+    | # main_after_if_else@13              | main_after_if_else@13:               |                                                  | 
+188 | 42 ff c8                             | b main_after_if_else@14              |                                                  | 
+    | # main_else_body@12                  | main_else_body@12:                   |                                                  | 
+    |                                      |                                      | return UInt64(3)                                 | ssa/contract.py:31
+191 | 24                                   | intc_2 // 3                          |        ---------                                 | ssa/contract.py:31:27-36
+192 | 43                                   | return                               | ----------------                                 | ssa/contract.py:31:20-36
+    | # main_else_body@15                  | main_else_body@15:                   |                                                  | 
+    |                                      |                                      | elif b == a:                                     | ssa/contract.py:32
+193 | 49                                   | dup                                  |      ------                                      | ssa/contract.py:32:13-19
+194 | 4b 02                                | dig 2                                |      ------                                      | ssa/contract.py:32:13-19
+196 | 12                                   | ==                                   |      ------                                      | ssa/contract.py:32:13-19
+197 | 41 00 0d                             | bz main_else_body@17                 |                                                  | ssa/contract.py:32
+200 | 42 00 00                             | b main_if_body@16                    |                                                  | ssa/contract.py:32
+    | # main_if_body@16                    | main_if_body@16:                     |                                                  | 
+    |                                      |                                      | c = a * b                                        | ssa/contract.py:33
+203 | 4a                                   | dup2                                 |     -----                                        | ssa/contract.py:33:16-21
+204 | 0b                                   | *                                    |     -----                                        | ssa/contract.py:33:16-21
+205 | 45 04                                | bury 4                               | ---------                                        | ssa/contract.py:33:12-21
+207 | 42 00 00                             | b main_after_if_else@18              |                                                  | 
+    | # main_after_if_else@18              | main_after_if_else@18:               |                                                  | 
+210 | 42 ff b5                             | b main_after_if_else@19              |                                                  | 
+    | # main_else_body@17                  | main_else_body@17:                   |                                                  | 
+    |                                      |                                      | c = a - b                                        | ssa/contract.py:35
+213 | 4a                                   | dup2                                 |     -----                                        | ssa/contract.py:35:16-21
+214 | 09                                   | -                                    |     -----                                        | ssa/contract.py:35:16-21
+215 | 45 04                                | bury 4                               | ---------                                        | ssa/contract.py:35:12-21
+217 | 42 ff f6                             | b main_after_if_else@18              |                                                  | 
+    | # one_hundred                        | one_hundred:                         |                                                  | test_cases.ssa.contract.one_hundred(c: uint64) -> uint64:
+220 | 8a 01 01                             | proto 1 1                            |                                                  | ssa/contract.py:47-48:1-16
+223 | 42 00 00                             | b one_hundred_block@0                |                                                  | 
+    | # one_hundred_block@0                | one_hundred_block@0:                 |                                                  | 
+    |                                      |                                      | a = UInt64(25)                                   | ssa/contract.py:49
+226 | 81 19                                | pushint 25                           |     ----------                                   | ssa/contract.py:49:8-18
+    |                                      |                                      | b = UInt64(2)                                    | ssa/contract.py:50
+228 | 23                                   | intc_1 // 2                          |     ---------                                    | ssa/contract.py:50:8-17
+    |                                      |                                      | a = UInt64(25)                                   | ssa/contract.py:49
+229 | 81 19                                | pushint 25                           |     ----------                                   | ssa/contract.py:49:8-18
+    |                                      |                                      | if a < c:                                        | ssa/contract.py:51
+231 | 8b ff                                | frame_dig -1                         |    -----                                         | ssa/contract.py:51:7-12
+233 | 0c                                   | <                                    |    -----                                         | ssa/contract.py:51:7-12
+234 | 41 00 0d                             | bz one_hundred_after_if_else@2       |                                                  | ssa/contract.py:51
+237 | 42 00 00                             | b one_hundred_if_body@1              |                                                  | ssa/contract.py:51
+    | # one_hundred_if_body@1              | one_hundred_if_body@1:               |                                                  | 
+    |                                      |                                      | b = UInt64(1)                                    | ssa/contract.py:52
+240 | 22                                   | intc_0 // 1                          |     ---------                                    | ssa/contract.py:52:12-21
+241 | 8c 01                                | frame_bury 1                         | -------------                                    | ssa/contract.py:52:8-21
+    |                                      |                                      | a = UInt64(100)                                  | ssa/contract.py:53
+243 | 81 64                                | pushint 100                          |     -----------                                  | ssa/contract.py:53:12-23
+245 | 8c 00                                | frame_bury 0                         | ---------------                                  | ssa/contract.py:53:8-23
+247 | 42 00 00                             | b one_hundred_after_if_else@2        |                                                  | 
+    | # one_hundred_after_if_else@2        | one_hundred_after_if_else@2:         |                                                  | 
+    |                                      |                                      | b *= b                                           | ssa/contract.py:55
+250 | 8b 01                                | frame_dig 1                          | ------                                           | ssa/contract.py:55:4-10
+252 | 49                                   | dup                                  | ------                                           | ssa/contract.py:55:4-10
+253 | 0b                                   | *                                    | ------                                           | ssa/contract.py:55:4-10
+    |                                      |                                      | return a * b                                     | ssa/contract.py:56
+254 | 8b 00                                | frame_dig 0                          |        -----                                     | ssa/contract.py:56:11-16
+256 | 0b                                   | *                                    |        -----                                     | ssa/contract.py:56:11-16
+257 | 8c 00                                | frame_bury 0                         | ------------                                     | ssa/contract.py:56:4-16
+259 | 89                                   | retsub                               | ------------                                     | ssa/contract.py:56:4-16
+    | # phi_in_equiv_class                 | phi_in_equiv_class:                  |                                                  | test_cases.ssa.contract.phi_in_equiv_class(y: uint64, b: uint64) -> uint64:
+260 | 8a 02 01                             | proto 2 1                            |                                                  | ssa/contract.py:59-60:1-12
+263 | 80 00                                | pushbytes ""                         |                                                  | 
+265 | 42 00 00                             | b phi_in_equiv_class_block@0         |                                                  | 
+    | # phi_in_equiv_class_block@0         | phi_in_equiv_class_block@0:          |                                                  | 
+    |                                      |                                      | if b:                                            | ssa/contract.py:61
+268 | 8b ff                                | frame_dig -1                         |                                                  | ssa/contract.py:61
+270 | 41 00 11                             | bz phi_in_equiv_class_else_body@2    |                                                  | ssa/contract.py:61
+273 | 42 00 00                             | b phi_in_equiv_class_if_body@1       |                                                  | ssa/contract.py:61
+    | # phi_in_equiv_class_if_body@1       | phi_in_equiv_class_if_body@1:        |                                                  | 
+    |                                      |                                      | tmp1 = y                                         | ssa/contract.py:62
+276 | 8b fe                                | frame_dig -2                         | --------                                         | ssa/contract.py:62:8-16
+    |                                      |                                      | x = tmp1                                         | ssa/contract.py:63
+278 | 8c 00                                | frame_bury 0                         | --------                                         | ssa/contract.py:63:8-16
+280 | 42 00 00                             | b phi_in_equiv_class_after_if_else@3 |                                                  | 
+    | # phi_in_equiv_class_after_if_else@3 | phi_in_equiv_class_after_if_else@3:  |                                                  | 
+    |                                      |                                      | x += 1                                           | ssa/contract.py:67
+283 | 8b 00                                | frame_dig 0                          | ------                                           | ssa/contract.py:67:4-10
+285 | 22                                   | intc_0 // 1                          |      -                                           | ssa/contract.py:67:9-10
+286 | 08                                   | +                                    | ------                                           | ssa/contract.py:67:4-10
+    |                                      |                                      | return x                                         | ssa/contract.py:68
+287 | 4f 01                                | uncover 1                            | --------                                         | ssa/contract.py:68:4-12
+289 | 89                                   | retsub                               | --------                                         | ssa/contract.py:68:4-12
+    | # phi_in_equiv_class_else_body@2     | phi_in_equiv_class_else_body@2:      |                                                  | 
+    |                                      |                                      | tmp2 = y                                         | ssa/contract.py:65
+290 | 8b fe                                | frame_dig -2                         | --------                                         | ssa/contract.py:65:8-16
+    |                                      |                                      | x = tmp2                                         | ssa/contract.py:66
+292 | 8c 00                                | frame_bury 0                         | --------                                         | ssa/contract.py:66:8-16
+294 | 42 ff f2                             | b phi_in_equiv_class_after_if_else@3 |                                                  | 
