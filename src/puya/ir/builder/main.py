@@ -1397,7 +1397,7 @@ class FunctionIRBuilder(
             array = array_or_slot
 
         # do concat
-        return array_or_slot, dynamic_array.concat(
+        concat_result = dynamic_array.concat(
             self.context,
             wtype=array_expr.wtype,
             array=array,
@@ -1405,6 +1405,7 @@ class FunctionIRBuilder(
             iterable_ir_type=iterable_ir_type,
             loc=loc,
         )
+        return array_or_slot, concat_result
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
         loc = expr.source_location

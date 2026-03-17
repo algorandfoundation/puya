@@ -259,10 +259,7 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
             method = PuyaLibIR.static_array_read_dynamic_element
             length = self._length(array)
             args = [array, index, length]
-        invoke = self.factory.invoke(
-            method,
-            args,
-        )
+        invoke = self.factory.invoke(method, args)
         return self.factory.materialise_single(invoke, "item")
 
     @typing.override
@@ -274,7 +271,6 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
         else:
             target = PuyaLibIR.static_array_replace_dynamic_element
             args = [array, value, index, self.array_encoding.size]
-
         invoke = self.factory.invoke(target, args)
         return self.factory.materialise_single(invoke, "updated_array")
 
