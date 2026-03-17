@@ -1,6 +1,7 @@
 import random
 
 import algokit_utils as au
+import attrs
 import pytest
 
 from tests import TEST_CASES_DIR
@@ -173,3 +174,52 @@ def test_mutable_native_types_itxn_abi_call(deployer: Deployer) -> None:
     call("test_fixed_array")
     call("test_native_array")
     call("test_log", num_txns=9)
+
+
+def test_fixed_array_dynamic_elements(deployer: Deployer) -> None:
+    client = deployer.create((_MUTABLE_NATIVE_TYPES_DIR, "FixedArrayDynamicElements")).client
+
+    @attrs.frozen
+    class Data:
+        timestamp: int
+        value: str
+
+    def read_at_index(index: int) -> Data:
+        response = client.send.call(
+            au.AppClientMethodCallParams(
+                method="read_at_index",
+                args=[index],
+                note=random.randbytes(8),
+            )
+        )
+        result = response.abi_return
+        assert isinstance(result, dict)
+        return Data(timestamp=result["timestamp"], value=result["value"])
+
+    def write_at_index(index: int, value: str) -> None:
+        client.send.call(
+            au.AppClientMethodCallParams(
+                method="write_at_index",
+                args=[index, value],
+            )
+        )
+
+    first = read_at_index(0)
+    last = read_at_index(2)
+    assert first.timestamp == last.timestamp
+    assert first.value == last.value == ""
+
+    with pytest.raises(au.LogicError, match="- would result negative"):
+        read_at_index(4)
+
+    write_at_index(0, "first")
+    write_at_index(2, "last")
+
+    first = read_at_index(0)
+    last = read_at_index(2)
+    assert first.value == "first"
+    assert last.value == "last"
+    assert first.timestamp <= last.timestamp
+
+    with pytest.raises(au.LogicError, match="- would result negative"):
+        write_at_index(3, "my spoon's too big")
