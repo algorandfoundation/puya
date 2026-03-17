@@ -10,6 +10,7 @@ contract BytesBackedOpsContract
     test_cases.bytes_backed_ops.contract.test_byte_manipulation_ops()
     test_cases.bytes_backed_ops.contract.test_conversion_ops()
     test_cases.bytes_backed_ops.contract.test_bitwise_ops()
+    test_cases.bytes_backed_ops.contract.test_bytes_backed_state_keys()
     return true
   }
   
@@ -139,4 +140,12 @@ subroutine test_bitwise_ops(): void
   assert(toggled != reinterpret_cast<bytes>(arc4_bool))
   assert(0u <= reinterpret_cast<uint64>(getbit(acct, 0u)))
   assert(0u <= reinterpret_cast<uint64>(getbit(42_arc4u64, 63u)))
+}
+
+subroutine test_bytes_backed_state_keys(): void
+{
+  fb: bytes[4] = hex<"74657374">
+  app_global_del(fb)
+  app_local_del(txn<Sender>(), fb)
+  box_del(fb)
 }
