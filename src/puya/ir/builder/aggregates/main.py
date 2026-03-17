@@ -151,12 +151,10 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
     def visit_replace_value(self, write: ir.ReplaceValue) -> ir.Value:
         loc = write.source_location
 
-        aggregate_encoding = write.base_type.encoding
         base = write.base
-        bases = []
-        base_encoding: Encoding = aggregate_encoding
-        for index in write.indexes:
-            bases.append((base, base_encoding))
+        base_encoding = write.base_type.encoding
+        bases = [(base, base_encoding)]
+        for index in write.indexes[:-1]:
             if isinstance(base_encoding, TupleEncoding):
                 assert isinstance(index, int), "expected int"
                 base = tup.read_at_index(self, base_encoding, base, index, loc)
@@ -168,6 +166,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
                 base_encoding = base_encoding.element
             else:
                 raise InternalError("invalid aggregate encoding and index", loc)
+            bases.append((base, base_encoding))
 
         value = write.value
         for index in reversed(write.indexes):
