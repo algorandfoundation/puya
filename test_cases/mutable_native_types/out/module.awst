@@ -1,3 +1,51 @@
+contract FixedArrayDynamicElements
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['data']: arc4.static_array<test_cases.mutable_native_types.fixed_array_dynamic_elements.Data, 3>
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.__init__(): void
+  {
+    default: test_cases.mutable_native_types.fixed_array_dynamic_elements.Data = new test_cases.mutable_native_types.fixed_array_dynamic_elements.Data(timestamp=global<LatestTimestamp>(), value='')
+    GlobalState['data']: arc4.static_array<test_cases.mutable_native_types.fixed_array_dynamic_elements.Data, 3> = new arc4.static_array<test_cases.mutable_native_types.fixed_array_dynamic_elements.Data, 3>(default.copy(), default.copy(), default.copy())
+  }
+  
+  abimethod test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.write_at_index(index: uint64, value: string): void
+  {
+    GlobalState['data'][index]: test_cases.mutable_native_types.fixed_array_dynamic_elements.Data = new test_cases.mutable_native_types.fixed_array_dynamic_elements.Data(timestamp=global<LatestTimestamp>(), value=value)
+  }
+  
+  abimethod test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.read_at_index(index: uint64): test_cases.mutable_native_types.fixed_array_dynamic_elements.Data
+  {
+    return GlobalState['data'][index]
+  }
+  
+  baremethod test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract Contract
 {
   method_resolution_order: (
