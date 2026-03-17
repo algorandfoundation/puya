@@ -744,10 +744,6 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array[r
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob 23u)
         let aggregate%as_Encoded(uint64)%3#0: Encoded(uint64) = aggregate%val_as_bytes%3#0
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%3#0
-        let aggregate%total_length%7#0: uint64 = (len arr#6)
-        let aggregate%array_trimmed%7#0: bytes = (substring3 arr#6 2u aggregate%total_length%7#0)
-        let aggregate%bytes_offset%7#0: uint64 = (* 2u 8u)
-        let aggregate%encoded_element%7#0: bytes = (extract3 aggregate%array_trimmed%7#0 aggregate%bytes_offset%7#0 8u) // on error: index access is out of bounds
         let aggregate%write_offset%0#0: uint64 = (* 2u 8u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
         let aggregate%updated_array%0#0: bytes = (replace3 arr#6 aggregate%write_offset_with_length_header%0#0 encoded_value%0#0) // on error: index access is out of bounds
@@ -756,11 +752,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array[r
         let tmp%49#0: uint64 = aggregate%array_length%13#0
         let tmp%50#0: bool = (== tmp%49#0 15u)
         (assert tmp%50#0)
-        let aggregate%total_length%8#0: uint64 = (len arr#7)
-        let aggregate%array_trimmed%8#0: bytes = (substring3 arr#7 2u aggregate%total_length%8#0)
-        let aggregate%bytes_offset%8#0: uint64 = (* 2u 8u)
-        let aggregate%encoded_element%8#0: bytes = (extract3 aggregate%array_trimmed%8#0 aggregate%bytes_offset%8#0 8u) // on error: index access is out of bounds
-        let array_item%7#0: Encoded(uint64) = aggregate%encoded_element%8#0
+        let aggregate%total_length%7#0: uint64 = (len arr#7)
+        let aggregate%array_trimmed%7#0: bytes = (substring3 arr#7 2u aggregate%total_length%7#0)
+        let aggregate%bytes_offset%7#0: uint64 = (* 2u 8u)
+        let aggregate%encoded_element%7#0: bytes = (extract3 aggregate%array_trimmed%7#0 aggregate%bytes_offset%7#0 8u) // on error: index access is out of bounds
+        let array_item%7#0: Encoded(uint64) = aggregate%encoded_element%7#0
         let tmp%51#0: uint64 = (btoi array_item%7#0)
         let tmp%52#0: bool = (== tmp%51#0 23u)
         (assert tmp%52#0)
@@ -2442,10 +2438,6 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4
         let aggregate%bytes_offset%0#0: uint64 = (* 0u 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
-        let aggregate%total_length%1#0: uint64 = (len imm#0)
-        let aggregate%array_trimmed%1#0: bytes = (substring3 imm#0 2u aggregate%total_length%1#0)
-        let aggregate%bytes_offset%1#0: uint64 = (* tmp%3#0 16u)
-        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%1#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
         let aggregate%write_offset%0#0: uint64 = (* tmp%3#0 16u)
         let aggregate%write_offset_with_length_header%0#0: uint64 = (+ aggregate%write_offset%0#0 2u)
         let aggregate%updated_array%0#0: bytes = (replace3 imm#0 aggregate%write_offset_with_length_header%0#0 array_item%0#0) // on error: index access is out of bounds
@@ -2484,8 +2476,6 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr[
         let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L460
-        let aggregate%bytes_offset%0#0: uint64 = (* i#0 16u)
-        let aggregate%encoded_element%0#0: bytes = (extract3 arr1#1 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let aggregate%write_offset%0#0: uint64 = (* i#0 16u)
         let aggregate%updated_array%0#0: bytes = (replace3 arr1#1 aggregate%write_offset%0#0 struct12#0) // on error: index access is out of bounds
         let arr1#2: Encoded((uint64,uint64)[3]) = aggregate%updated_array%0#0
@@ -2502,9 +2492,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr[
         let continue_looping%1#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%1#0 ? block@7 : block@9
     block@7: // for_body_L465
-        let aggregate%bytes_offset%1#0: uint64 = (* item_index_internal%0#1 16u)
-        let aggregate%encoded_element%1#0: bytes = (extract3 arr1#1 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
-        let struct_it#0: Encoded(uint64,uint64) = aggregate%encoded_element%1#0
+        let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#1 16u)
+        let aggregate%encoded_element%0#0: bytes = (extract3 arr1#1 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let struct_it#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0
         let tmp%9#0: bool = (== struct_it#0 struct12#0)
         (assert tmp%9#0) // expected items on iteration to be the same
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -2526,8 +2516,6 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr[
         let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%as_Encoded(uint64)%3#0)
         let aggregate%as_Encoded(uint64,uint64)%1#0: Encoded(uint64,uint64) = aggregate%head%6#0
         let tmp%15#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%1#0
-        let aggregate%bytes_offset%2#0: uint64 = (* 0u 16u)
-        let aggregate%encoded_element%2#0: bytes = (extract3 arr1#1 aggregate%bytes_offset%2#0 16u) // on error: index access is out of bounds
         let aggregate%write_offset%1#0: uint64 = (* 0u 16u)
         let aggregate%updated_array%1#0: bytes = (replace3 arr1#1 aggregate%write_offset%1#0 tmp%15#0) // on error: index access is out of bounds
         let mut_arr#1: Encoded((uint64,uint64)[3]) = aggregate%updated_array%1#0
