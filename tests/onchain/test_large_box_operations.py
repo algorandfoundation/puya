@@ -62,8 +62,8 @@ class ItemFactory(typing.Protocol):
     def __call__(self, index: int, /) -> object: ...
 
 
-_UNDERFLOW = "- would result negative"
 _OUT_OF_BOUNDS = "index out of bounds"
+_UNPOPPABLE = "cannot pop from empty array"
 
 
 @attrs.frozen(repr=False)
@@ -144,7 +144,7 @@ def test_no_unexpected_box_put_get(arc_56: au.Arc56Contract) -> None:
 
 
 def test_pop_empty(client: LargeBoxClient) -> None:
-    with pytest.raises(au.LogicError, match=_UNDERFLOW):
+    with pytest.raises(au.LogicError, match=_UNPOPPABLE):
         client.pop()
 
 

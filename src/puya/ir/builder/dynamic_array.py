@@ -64,7 +64,7 @@ def pop(
     )
     factory = OpFactory(context, loc)
     array_len = factory.materialise_single(get_length(array_encoding, array, loc))
-    last_index = factory.sub(array_len, 1)
+    last_index = factory.sub(array_len, 1, error_message="cannot pop from empty array")
     array_type = types.EncodedType(array_encoding)
     if array_encoding.element.is_bit:
         ir_type: types.IRType = types.bool_
