@@ -269,21 +269,12 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
         # no _assert_index_in_bounds here as end offset calculation implicitly checks
         if self.array_encoding.size is None:
-            array_type = "dynamic"
+            target = PuyaLibIR.dynamic_array_replace_dynamic_element
             args: list[ir.Value | int] = [array, value, index]
         else:
-            array_type = "static"
+            target = PuyaLibIR.static_array_replace_dynamic_element
             args = [array, value, index, self.array_encoding.size]
 
-        match self.array_encoding.element:
-            case ArrayEncoding(length_header=True, element=element) if element.num_bytes == 1:
-                # elements where their length header is also their size in bytes
-                # e.g. string, byte[], uint8[]
-                element_type = "byte_length_head"
-            case _:
-                element_type = "dynamic_element"
-
-        target = PuyaLibIR[f"{array_type}_array_replace_{element_type}"]
         invoke = self.factory.invoke(target, args)
         return self.factory.materialise_single(invoke, "updated_array")
 
