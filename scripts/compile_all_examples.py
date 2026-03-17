@@ -177,6 +177,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "-O0",
             "--no-output-arc32",
             "--no-output-arc56",
+            "--no-output-source-map",
             "--output-assembly-report",
         ]
         out_suffix = SUFFIX_O0
@@ -185,6 +186,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "-O2",
             "--no-output-arc32",
             "--no-output-arc56",
+            "--no-output-source-map",
             "--output-assembly-report",
             "-g0",
         ]

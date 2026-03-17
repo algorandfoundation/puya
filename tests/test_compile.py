@@ -85,7 +85,6 @@ def _compile_no_optimization(test_case: PuyaTestCase) -> None:
         optimization_level=0,
         output_teal=True,
         output_bytecode=True,
-        output_source_map=True,
         output_destructured_ir=True,
     )
 
@@ -119,7 +118,6 @@ def _compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
         debug_level=0,
         output_teal=True,
         output_bytecode=True,
-        output_source_map=True,
         output_destructured_ir=True,
     )
 
