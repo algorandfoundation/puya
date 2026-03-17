@@ -131,9 +131,7 @@ def _get_encoded_items(
                 context, array_encoding, iterable, iterable_ir_type, loc
             )
         else:
-            return _get_encoded_items_from_encoded_type(
-                context, array_encoding, iterable, iterable_ir_type, loc
-            )
+            return _get_encoded_items_from_encoded_type(context, iterable, iterable_ir_type, loc)
     else:
         typing.assert_type(iterable_ir_type, types.TupleIRType)
         if encodings.is_byte_length_dynamic_array(array_encoding.element):
@@ -148,7 +146,6 @@ def _get_encoded_items(
 
 def _get_encoded_items_from_encoded_type(
     context: IRRegisterContext,
-    array_encoding: encodings.ArrayEncoding,
     iterable: ValueProvider,
     iterable_ir_type: EncodedType,
     loc: SourceLocation,
@@ -166,22 +163,17 @@ def _get_encoded_items_from_encoded_type(
                 num_items=factory.materialise_single(length),
                 item_encoding=iterable_encoding.element,
             )
-        case encodings.TupleEncoding() if len(set(iterable_encoding.elements)) == 1:
+        case encodings.TupleEncoding(elements=tuple_elements):
+            item_encoding, *other = set(tuple_elements)
+            if other:
+                raise CodeError("expected a homogenous tuple", iterable.source_location or loc)
             return _EncodedItems(
                 items=iterable,
-                num_items=factory.constant(len(iterable_encoding.elements)),
-                item_encoding=iterable_encoding.elements[0],
+                num_items=factory.constant(len(tuple_elements)),
+                item_encoding=item_encoding,
             )
         case _:
-            logger.error(
-                f"cannot concat {array_encoding} and {iterable_encoding}",
-                location=loc,
-            )
-            return _EncodedItems(
-                items=iterable,
-                num_items=ir.Undefined(ir_type=types.uint64, source_location=loc),
-                item_encoding=iterable_encoding,
-            )
+            raise CodeError("expected an iterable type", iterable.source_location or loc)
 
 
 def _get_encoded_byte_length_items_from_encoded_type(
@@ -192,7 +184,7 @@ def _get_encoded_byte_length_items_from_encoded_type(
     loc: SourceLocation,
 ) -> _EncodedItems:
     encoded_iterable = _get_encoded_items_from_encoded_type(
-        context, array_encoding, iterable, iterable_ir_type, loc
+        context, iterable, iterable_ir_type, loc
     )
     factory = OpFactory(context, loc)
     # existing encoded items, byte length items should just be the tail portion
@@ -213,7 +205,7 @@ def _get_encoded_items_from_tuple_type(
     loc: SourceLocation,
 ) -> _EncodedItems:
     if len(set(iterable_ir_type.elements)) != 1:
-        raise InternalError("expected homogenous tuple for concatenation", loc)
+        raise CodeError("expected a homogenous tuple", iterable.source_location or loc)
     factory = OpFactory(context, loc)
     # the iterable could be either
     # a tuple of compatible native elements

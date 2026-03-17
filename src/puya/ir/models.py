@@ -483,9 +483,9 @@ class ArrayConcat(ValueProvider):
     def _validate_item_encoding(self, _: object, item_encoding: Encoding) -> None:
         if self.array_encoding.element.is_bit:
             if not isinstance(item_encoding, encodings.BoolEncoding | encodings.Bool8Encoding):
-                raise InternalError("expected bool array", self.items.source_location)
+                raise CodeError("expected bool array", self.items.source_location)
         elif self.array_encoding.element != item_encoding:
-            raise InternalError(
+            raise CodeError(
                 "expected item encoding to match array element encoding",
                 self.items.source_location,
             )
