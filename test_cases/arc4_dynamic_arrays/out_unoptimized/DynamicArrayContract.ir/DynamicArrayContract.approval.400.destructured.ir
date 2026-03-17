@@ -460,26 +460,26 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_sta
         let updated_array%0#0: Encoded(len+(uint64,uint8[2])[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+(uint64,uint8[2])[]) = updated_array%0#0
         (log array#0)
+        let aggregate%total_length%0#0: uint64 = (len array#0)
+        let aggregate%array_trimmed%0#0: bytes = (substring3 array#0 2u aggregate%total_length%0#0)
+        let aggregate%bytes_offset%0#0: uint64 = (* 0u 10u)
+        let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 10u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%0#0
+        (log array_item%0#0)
         let aggregate%total_length%1#0: uint64 = (len array#0)
         let aggregate%array_trimmed%1#0: bytes = (substring3 array#0 2u aggregate%total_length%1#0)
-        let aggregate%bytes_offset%1#0: uint64 = (* 0u 10u)
+        let aggregate%bytes_offset%1#0: uint64 = (* 1u 10u)
         let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%1#0 aggregate%bytes_offset%1#0 10u) // on error: index access is out of bounds
-        let array_item%0#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%1#0
-        (log array_item%0#0)
-        let aggregate%total_length%2#0: uint64 = (len array#0)
-        let aggregate%array_trimmed%2#0: bytes = (substring3 array#0 2u aggregate%total_length%2#0)
-        let aggregate%bytes_offset%2#0: uint64 = (* 1u 10u)
-        let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%array_trimmed%2#0 aggregate%bytes_offset%2#0 10u) // on error: index access is out of bounds
-        let array_item%1#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%2#0
+        let array_item%1#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%1#0
         (log array_item%1#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%8#0: uint64 = aggregate%array_length%0#0
         let sub%0#0: uint64 = (- tmp%8#0 1u)
-        let aggregate%total_length%3#0: uint64 = (len array#0)
-        let aggregate%array_trimmed%3#0: bytes = (substring3 array#0 2u aggregate%total_length%3#0)
-        let aggregate%bytes_offset%3#0: uint64 = (* sub%0#0 10u)
-        let aggregate%encoded_element%3#0: bytes = (extract3 aggregate%array_trimmed%3#0 aggregate%bytes_offset%3#0 10u) // on error: index access is out of bounds
-        let tmp%9#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%3#0
+        let aggregate%total_length%2#0: uint64 = (len array#0)
+        let aggregate%array_trimmed%2#0: bytes = (substring3 array#0 2u aggregate%total_length%2#0)
+        let aggregate%bytes_offset%2#0: uint64 = (* sub%0#0 10u)
+        let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%array_trimmed%2#0 aggregate%bytes_offset%2#0 10u) // on error: index access is out of bounds
+        let tmp%9#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%2#0
         let tmp%10#0: Encoded(len+(uint64,uint8[2])[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(array#0, 10u)
         let array#0: Encoded(len+(uint64,uint8[2])[]) = tmp%10#0
         let tmp%11#0: bool = (== tmp%9#0 struct2#0)
@@ -487,11 +487,11 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_sta
         let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%12#0: uint64 = aggregate%array_length%1#0
         let sub%1#0: uint64 = (- tmp%12#0 1u)
-        let aggregate%total_length%4#0: uint64 = (len array#0)
-        let aggregate%array_trimmed%4#0: bytes = (substring3 array#0 2u aggregate%total_length%4#0)
-        let aggregate%bytes_offset%4#0: uint64 = (* sub%1#0 10u)
-        let aggregate%encoded_element%4#0: bytes = (extract3 aggregate%array_trimmed%4#0 aggregate%bytes_offset%4#0 10u) // on error: index access is out of bounds
-        let tmp%13#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%4#0
+        let aggregate%total_length%3#0: uint64 = (len array#0)
+        let aggregate%array_trimmed%3#0: bytes = (substring3 array#0 2u aggregate%total_length%3#0)
+        let aggregate%bytes_offset%3#0: uint64 = (* sub%1#0 10u)
+        let aggregate%encoded_element%3#0: bytes = (extract3 aggregate%array_trimmed%3#0 aggregate%bytes_offset%3#0 10u) // on error: index access is out of bounds
+        let tmp%13#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%3#0
         let tmp%15#0: bool = (== tmp%13#0 struct1#0)
         (assert tmp%15#0)
         return 
@@ -555,20 +555,20 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let updated_array%0#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = updated_array%0#0
         (log array#0)
-        let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 0u)
-        let array_item%0#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%1#0
+        let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 0u)
+        let array_item%0#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%0#0
         (log array_item%0#0)
-        let aggregate%item%2#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 1u)
-        let array_item%1#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%2#0
+        let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 1u)
+        let array_item%1#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%1#0
         (log array_item%1#0)
-        let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 2u)
-        let array_item%2#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%3#0
+        let aggregate%item%2#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 2u)
+        let array_item%2#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%2#0
         (log array_item%2#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%8#0: uint64 = aggregate%array_length%0#0
         let sub%0#0: uint64 = (- tmp%8#0 1u)
-        let aggregate%item%4#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%0#0)
-        let tmp%9#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%4#0
+        let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%0#0)
+        let tmp%9#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%3#0
         let tmp%10#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#0)
         let array#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = tmp%10#0
         let tmp%11#0: bool = (== tmp%9#0 struct1#0)
@@ -577,8 +577,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%12#0: uint64 = aggregate%array_length%1#0
         let sub%1#0: uint64 = (- tmp%12#0 1u)
-        let aggregate%item%5#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%1#0)
-        let tmp%13#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%5#0
+        let aggregate%item%4#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%1#0)
+        let tmp%13#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%4#0
         let tmp%14#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#0)
         let array#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = tmp%14#0
         let tmp%15#0: bool = (== tmp%13#0 struct2#0)
@@ -587,8 +587,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let aggregate%array_length%2#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%16#0: uint64 = aggregate%array_length%2#0
         let sub%2#0: uint64 = (- tmp%16#0 1u)
-        let aggregate%item%6#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%2#0)
-        let tmp%17#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%6#0
+        let aggregate%item%5#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%2#0)
+        let tmp%17#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%item%5#0
         let tmp%18#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#0)
         let array#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = tmp%18#0
         let tmp%19#0: bool = (== tmp%17#0 struct1#0)
@@ -647,18 +647,18 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = updated_array%0#0
         (log array#0)
-        let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 0u)
-        let array_item%0#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%1#0
+        let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 0u)
+        let array_item%0#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%0#0
         (log array_item%0#0)
-        let aggregate%item%2#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 1u)
-        let array_item%1#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%2#0
+        let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 1u)
+        let array_item%1#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%1#0
         (log array_item%1#0)
         let array2#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = array#0
         let aggregate%array_length%0#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%12#0: uint64 = aggregate%array_length%0#0
         let sub%0#0: uint64 = (- tmp%12#0 1u)
-        let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%0#0)
-        let tmp%13#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%3#0
+        let aggregate%item%2#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%0#0)
+        let tmp%13#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%2#0
         let tmp%14#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#0)
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = tmp%14#0
         let tmp%15#0: bool = (== tmp%13#0 struct2#0)
@@ -666,8 +666,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%16#0: uint64 = aggregate%array_length%1#0
         let sub%1#0: uint64 = (- tmp%16#0 1u)
-        let aggregate%item%4#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%1#0)
-        let tmp%17#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%4#0
+        let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%1#0)
+        let tmp%17#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%3#0
         let tmp%19#0: bool = (== tmp%17#0 struct1#0)
         (assert tmp%19#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 array2#0 0u) // on error: invalid array length header
@@ -687,15 +687,15 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%array_length%5#0: uint64 = (extract_uint16 array2#0 0u) // on error: invalid array length header
         let tmp%26#0: uint64 = aggregate%array_length%5#0
         let tmp%27#0: uint64 = (- tmp%26#0 1u)
-        let aggregate%item%5#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array2#0, tmp%27#0)
-        let array_item%2#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%5#0
+        let aggregate%item%4#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array2#0, tmp%27#0)
+        let array_item%2#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%4#0
         let tmp%28#0: bool = (== array_item%2#0 struct2#0)
         (assert tmp%28#0)
         let aggregate%array_length%6#0: uint64 = (extract_uint16 array2#0 0u) // on error: invalid array length header
         let tmp%29#0: uint64 = aggregate%array_length%6#0
         let tmp%30#0: uint64 = (- tmp%29#0 2u)
-        let aggregate%item%6#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array2#0, tmp%30#0)
-        let array_item%3#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%6#0
+        let aggregate%item%5#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array2#0, tmp%30#0)
+        let array_item%3#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%item%5#0
         let tmp%31#0: bool = (== array_item%3#0 struct1#0)
         (assert tmp%31#0)
         return 
@@ -763,17 +763,17 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[]) = updated_array%0#0
         (log array#0)
-        let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 0u)
-        let array_item%0#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%1#0
+        let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 0u)
+        let array_item%0#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%0#0
         (log array_item%0#0)
-        let aggregate%item%2#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 1u)
-        let array_item%1#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%2#0
+        let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, 1u)
+        let array_item%1#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%1#0
         (log array_item%1#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%12#0: uint64 = aggregate%array_length%0#0
         let sub%0#0: uint64 = (- tmp%12#0 1u)
-        let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%0#0)
-        let tmp%13#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%3#0
+        let aggregate%item%2#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%0#0)
+        let tmp%13#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%2#0
         let tmp%14#0: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[]) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#0)
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[]) = tmp%14#0
         let tmp%15#0: bool = (== tmp%13#0 struct2#0)
@@ -781,8 +781,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
         let tmp%16#0: uint64 = aggregate%array_length%1#0
         let sub%1#0: uint64 = (- tmp%16#0 1u)
-        let aggregate%item%4#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%1#0)
-        let tmp%17#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%4#0
+        let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%1#0)
+        let tmp%17#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%item%3#0
         let tmp%19#0: bool = (== tmp%17#0 struct1#0)
         (assert tmp%19#0)
         return 
