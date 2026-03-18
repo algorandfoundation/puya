@@ -567,7 +567,7 @@ class ARC4StaticArray(ARC4Array):
 @attrs.frozen(kw_only=True)
 class ARC4Struct(_ARC4WTypeInstance):
     arc4_alias: None = attrs.field(default=None, init=False)
-    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict[str, WType])
+    fields: immutabledict[str, WType] = attrs.field(converter=immutabledict)
     frozen: bool
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
