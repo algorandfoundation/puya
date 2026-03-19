@@ -53,3 +53,81 @@ from algopy import *
 class StateProxyContract6(ARC4Contract):
     def __init__(self) -> None:
         self.global_ = GlobalState(UInt64(0), key=String("global3")) # type: ignore[call-overload] ## E: unable to resolve class storage member
+
+## case: test_global_map
+from algopy import *
+
+class MapContract(ARC4Contract):
+
+    def __init__(self) -> None:
+        self.map = GlobalMap(UInt64, UInt64)
+
+    @public
+    def wrong_key_type(self) -> None:
+        map_ = GlobalMap[UInt64, String](bool, String, key_prefix="test") # type: ignore[arg-type] ## E: explicit type annotation does not match arguments - suggest to remove the explicit type annotation, it shouldn't be required
+
+    @public
+    def wrong_value_type(self) -> None:
+        map_ = GlobalMap[UInt64, String](UInt64, Bytes, key_prefix="test")# type: ignore[arg-type] ## E: explicit type annotation does not match arguments - suggest to remove the explicit type annotation, it shouldn't be required
+
+    @public
+    def wrong_arg_types(self) -> None:
+        map_ = GlobalMap(True, UInt64(), key_prefix="test") # type: ignore[arg-type, var-annotated] ## E: first and second arguments must be type references
+
+    @public
+    def slice(self) -> None:
+        foo = self.map[:UInt64()] # type: ignore[index] ## E: slicing of GlobalMap is not supported
+
+    @public
+    def iterate(self) -> None:
+        for i in self.map: # type: ignore[attr-defined] ## E: iteration of GlobalMap is not supported
+            pass
+
+    @public
+    def truthy(self) -> None:
+        assert self.map ## E: cannot determine if a GlobalMap is empty or not
+
+## case: test_local_map
+from algopy import *
+
+class MapContract(ARC4Contract):
+
+    def __init__(self) -> None:
+        self.map = LocalMap(UInt64, UInt64)
+
+    @public
+    def wrong_key_type(self) -> None:
+        map_ = LocalMap[UInt64, String](bool, String, key_prefix="test") # type: ignore[arg-type] ## E: explicit type annotation does not match arguments - suggest to remove the explicit type annotation, it shouldn't be required
+
+    @public
+    def wrong_value_type(self) -> None:
+        map_ = LocalMap[UInt64, String](UInt64, Bytes, key_prefix="test")# type: ignore[arg-type] ## E: explicit type annotation does not match arguments - suggest to remove the explicit type annotation, it shouldn't be required
+
+    @public
+    def wrong_arg_types(self) -> None:
+        map_ = LocalMap(True, UInt64(), key_prefix="test") # type: ignore[arg-type, var-annotated] ## E: first and second arguments must be type references
+
+    @public
+    def slice(self) -> None:
+        foo = self.map[:UInt64()] # type: ignore[index] ## E: slicing of LocalMap is not supported
+
+    @public
+    def iterate(self) -> None:
+        for i in self.map: # type: ignore[attr-defined] ## E: iteration of LocalMap is not supported
+            pass
+
+    @public
+    def truthy(self) -> None:
+        assert self.map ## E: cannot determine if a LocalMap is empty or not
+
+    @public
+    def wrong_index_size(self) -> None:
+        value = self.map[1, 2, 3] # type: ignore[index] ## E: LocalMap requires a tuple of (account, key) for indexing
+
+    @public
+    def wrong_index_type(self) -> None:
+        value = self.map[1] # type: ignore[index] ## E: LocalMap requires a tuple of (account, key) for indexing
+
+    @public
+    def wrong_account_index(self) -> None:
+        value = self.map[5, UInt64()] ## E: account index should be between 0 and 4 inclusive
