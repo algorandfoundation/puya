@@ -89,43 +89,43 @@ main_after_if_else@18:
     err
 
 main_get_via_state_route@13:
-    // global_map/uint64.py:41
+    // global_map/uint64.py:44
     // @public
     callsub get_via_state
     b main_switch_case_next@14
 
 main_maybe_route@12:
-    // global_map/uint64.py:37
+    // global_map/uint64.py:40
     // @public
     callsub maybe
     b main_switch_case_next@14
 
 main_prefix_route@11:
-    // global_map/uint64.py:33
+    // global_map/uint64.py:36
     // @public
     callsub prefix
     b main_switch_case_next@14
 
 main_in__route@10:
-    // global_map/uint64.py:29
+    // global_map/uint64.py:32
     // @public
     callsub in_
     b main_switch_case_next@14
 
 main_delete_route@9:
-    // global_map/uint64.py:25
+    // global_map/uint64.py:28
     // @public
     callsub delete
     b main_switch_case_next@14
 
 main_set_route@8:
-    // global_map/uint64.py:21
+    // global_map/uint64.py:24
     // @public
     callsub set
     b main_switch_case_next@14
 
 main_get_with_default_route@7:
-    // global_map/uint64.py:17
+    // global_map/uint64.py:20
     // @public
     callsub get_with_default
     b main_switch_case_next@14
@@ -187,7 +187,7 @@ get_with_default:
     b get_with_default_block@0
 
 get_with_default_block@0:
-    // global_map/uint64.py:17
+    // global_map/uint64.py:20
     // @public
     txna ApplicationArgs 1
     dup
@@ -218,7 +218,7 @@ set:
     b set_block@0
 
 set_block@0:
-    // global_map/uint64.py:21
+    // global_map/uint64.py:24
     // @public
     txna ApplicationArgs 1
     dup
@@ -244,7 +244,7 @@ delete:
     b delete_block@0
 
 delete_block@0:
-    // global_map/uint64.py:25
+    // global_map/uint64.py:28
     // @public
     txna ApplicationArgs 1
     dup
@@ -263,7 +263,7 @@ in_:
     b in__block@0
 
 in__block@0:
-    // global_map/uint64.py:29
+    // global_map/uint64.py:32
     // @public
     txna ApplicationArgs 1
     dup
@@ -290,7 +290,7 @@ prefix:
     b prefix_block@0
 
 prefix_block@0:
-    // global_map/uint64.py:33
+    // global_map/uint64.py:36
     // @public
     callsub test_cases.global_map.uint64.GlobalMapUInt64.prefix
     dup
@@ -312,7 +312,7 @@ maybe:
     b maybe_block@0
 
 maybe_block@0:
-    // global_map/uint64.py:37
+    // global_map/uint64.py:40
     // @public
     txna ApplicationArgs 1
     dup
@@ -345,7 +345,7 @@ get_via_state:
     b get_via_state_block@0
 
 get_via_state_block@0:
-    // global_map/uint64.py:41
+    // global_map/uint64.py:44
     // @public
     txna ApplicationArgs 1
     dup
@@ -382,7 +382,7 @@ test_cases.global_map.uint64.GlobalMapUInt64.get:
 
 test_cases.global_map.uint64.GlobalMapUInt64.get_block@0:
     // global_map/uint64.py:15
-    // return self.map[key]
+    // result = self.map[key]
     frame_dig -1
     itob
     bytec_0 // "map"
@@ -392,19 +392,39 @@ test_cases.global_map.uint64.GlobalMapUInt64.get_block@0:
     uncover 1
     app_global_get_ex
     assert // check self.map entry exists
+    // global_map/uint64.py:17
+    // assert map_[key] == result
+    frame_dig -1
+    itob
+    // global_map/uint64.py:16
+    // map_ = GlobalMap(UInt64, UInt64, key_prefix=self.map.key_prefix)
+    bytec_0 // "map"
+    // global_map/uint64.py:17
+    // assert map_[key] == result
+    uncover 1
+    concat
+    intc_0 // 0
+    uncover 1
+    app_global_get_ex
+    assert // check GlobalMap entry exists
+    dig 1
+    ==
+    assert
+    // global_map/uint64.py:18
+    // return result
     retsub
 
 
 // test_cases.global_map.uint64.GlobalMapUInt64.get_with_default(key: uint64, default: uint64) -> uint64:
 test_cases.global_map.uint64.GlobalMapUInt64.get_with_default:
-    // global_map/uint64.py:17-18
+    // global_map/uint64.py:20-21
     // @public
     // def get_with_default(self, key: UInt64, default: UInt64) -> UInt64:
     proto 2 1
     b test_cases.global_map.uint64.GlobalMapUInt64.get_with_default_block@0
 
 test_cases.global_map.uint64.GlobalMapUInt64.get_with_default_block@0:
-    // global_map/uint64.py:19
+    // global_map/uint64.py:22
     // return self.map.get(key, default=default)
     frame_dig -2
     itob
@@ -424,14 +444,14 @@ test_cases.global_map.uint64.GlobalMapUInt64.get_with_default_block@0:
 
 // test_cases.global_map.uint64.GlobalMapUInt64.set(key: uint64, value: uint64) -> void:
 test_cases.global_map.uint64.GlobalMapUInt64.set:
-    // global_map/uint64.py:21-22
+    // global_map/uint64.py:24-25
     // @public
     // def set(self, key: UInt64, value: UInt64) -> None:
     proto 2 0
     b test_cases.global_map.uint64.GlobalMapUInt64.set_block@0
 
 test_cases.global_map.uint64.GlobalMapUInt64.set_block@0:
-    // global_map/uint64.py:23
+    // global_map/uint64.py:26
     // self.map[key] = value
     frame_dig -2
     itob
@@ -445,14 +465,14 @@ test_cases.global_map.uint64.GlobalMapUInt64.set_block@0:
 
 // test_cases.global_map.uint64.GlobalMapUInt64.delete(key: uint64) -> void:
 test_cases.global_map.uint64.GlobalMapUInt64.delete:
-    // global_map/uint64.py:25-26
+    // global_map/uint64.py:28-29
     // @public
     // def delete(self, key: UInt64) -> None:
     proto 1 0
     b test_cases.global_map.uint64.GlobalMapUInt64.delete_block@0
 
 test_cases.global_map.uint64.GlobalMapUInt64.delete_block@0:
-    // global_map/uint64.py:27
+    // global_map/uint64.py:30
     // del self.map[key]
     frame_dig -1
     itob
@@ -465,14 +485,14 @@ test_cases.global_map.uint64.GlobalMapUInt64.delete_block@0:
 
 // test_cases.global_map.uint64.GlobalMapUInt64.in_(key: uint64) -> uint64:
 test_cases.global_map.uint64.GlobalMapUInt64.in_:
-    // global_map/uint64.py:29-30
+    // global_map/uint64.py:32-33
     // @public
     // def in_(self, key: UInt64) -> bool:
     proto 1 1
     b test_cases.global_map.uint64.GlobalMapUInt64.in__block@0
 
 test_cases.global_map.uint64.GlobalMapUInt64.in__block@0:
-    // global_map/uint64.py:31
+    // global_map/uint64.py:34
     // return key in self.map
     frame_dig -1
     itob
@@ -491,7 +511,7 @@ test_cases.global_map.uint64.GlobalMapUInt64.prefix:
     b test_cases.global_map.uint64.GlobalMapUInt64.prefix_block@0
 
 test_cases.global_map.uint64.GlobalMapUInt64.prefix_block@0:
-    // global_map/uint64.py:35
+    // global_map/uint64.py:38
     // return self.map.key_prefix
     bytec_0 // "map"
     retsub
@@ -499,14 +519,14 @@ test_cases.global_map.uint64.GlobalMapUInt64.prefix_block@0:
 
 // test_cases.global_map.uint64.GlobalMapUInt64.maybe(key: uint64) -> uint64, uint64:
 test_cases.global_map.uint64.GlobalMapUInt64.maybe:
-    // global_map/uint64.py:37-38
+    // global_map/uint64.py:40-41
     // @public
     // def maybe(self, key: UInt64) -> tuple[UInt64, bool]:
     proto 1 2
     b test_cases.global_map.uint64.GlobalMapUInt64.maybe_block@0
 
 test_cases.global_map.uint64.GlobalMapUInt64.maybe_block@0:
-    // global_map/uint64.py:39
+    // global_map/uint64.py:42
     // return self.map.maybe(key)
     frame_dig -1
     itob
@@ -521,21 +541,21 @@ test_cases.global_map.uint64.GlobalMapUInt64.maybe_block@0:
 
 // test_cases.global_map.uint64.GlobalMapUInt64.get_via_state(key: uint64) -> uint64:
 test_cases.global_map.uint64.GlobalMapUInt64.get_via_state:
-    // global_map/uint64.py:41-42
+    // global_map/uint64.py:44-45
     // @public
     // def get_via_state(self, key: UInt64) -> UInt64:
     proto 1 1
     b test_cases.global_map.uint64.GlobalMapUInt64.get_via_state_block@0
 
 test_cases.global_map.uint64.GlobalMapUInt64.get_via_state_block@0:
-    // global_map/uint64.py:43
+    // global_map/uint64.py:46
     // state = self.map.state(key)
     frame_dig -1
     itob
     bytec_0 // "map"
     uncover 1
     concat
-    // global_map/uint64.py:44
+    // global_map/uint64.py:47
     // return state.value
     intc_0 // 0
     uncover 1

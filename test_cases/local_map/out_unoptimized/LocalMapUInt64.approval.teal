@@ -86,43 +86,43 @@ main_after_if_else@17:
     err
 
 main_get_via_state_route@14:
-    // local_map/uint64.py:45
+    // local_map/uint64.py:48
     // @public
     callsub get_via_state
     b main_switch_case_next@15
 
 main_maybe_route@13:
-    // local_map/uint64.py:41
+    // local_map/uint64.py:44
     // @public
     callsub maybe
     b main_switch_case_next@15
 
 main_prefix_route@12:
-    // local_map/uint64.py:37
+    // local_map/uint64.py:40
     // @public
     callsub prefix
     b main_switch_case_next@15
 
 main_in__route@11:
-    // local_map/uint64.py:33
+    // local_map/uint64.py:36
     // @public
     callsub in_
     b main_switch_case_next@15
 
 main_delete_route@10:
-    // local_map/uint64.py:29
+    // local_map/uint64.py:32
     // @public
     callsub delete
     b main_switch_case_next@15
 
 main_set_route@9:
-    // local_map/uint64.py:25
+    // local_map/uint64.py:28
     // @public
     callsub set
     b main_switch_case_next@15
 
 main_get_with_default_route@8:
-    // local_map/uint64.py:21
+    // local_map/uint64.py:24
     // @public
     callsub get_with_default
     b main_switch_case_next@15
@@ -198,7 +198,7 @@ get_with_default:
     b get_with_default_block@0
 
 get_with_default_block@0:
-    // local_map/uint64.py:21
+    // local_map/uint64.py:24
     // @public
     txna ApplicationArgs 1
     dup
@@ -238,7 +238,7 @@ set:
     b set_block@0
 
 set_block@0:
-    // local_map/uint64.py:25
+    // local_map/uint64.py:28
     // @public
     txna ApplicationArgs 1
     dup
@@ -273,7 +273,7 @@ delete:
     b delete_block@0
 
 delete_block@0:
-    // local_map/uint64.py:29
+    // local_map/uint64.py:32
     // @public
     txna ApplicationArgs 1
     dup
@@ -298,7 +298,7 @@ in_:
     b in__block@0
 
 in__block@0:
-    // local_map/uint64.py:33
+    // local_map/uint64.py:36
     // @public
     txna ApplicationArgs 1
     dup
@@ -331,7 +331,7 @@ prefix:
     b prefix_block@0
 
 prefix_block@0:
-    // local_map/uint64.py:37
+    // local_map/uint64.py:40
     // @public
     callsub test_cases.local_map.uint64.LocalMapUInt64.prefix
     dup
@@ -353,7 +353,7 @@ maybe:
     b maybe_block@0
 
 maybe_block@0:
-    // local_map/uint64.py:41
+    // local_map/uint64.py:44
     // @public
     txna ApplicationArgs 1
     dup
@@ -392,7 +392,7 @@ get_via_state:
     b get_via_state_block@0
 
 get_via_state_block@0:
-    // local_map/uint64.py:45
+    // local_map/uint64.py:48
     // @public
     txna ApplicationArgs 1
     dup
@@ -443,7 +443,7 @@ test_cases.local_map.uint64.LocalMapUInt64.get:
 
 test_cases.local_map.uint64.LocalMapUInt64.get_block@0:
     // local_map/uint64.py:19
-    // return self.map[account, key]
+    // result = self.map[account, key]
     frame_dig -1
     itob
     bytec_0 // "map"
@@ -454,19 +454,40 @@ test_cases.local_map.uint64.LocalMapUInt64.get_block@0:
     uncover 2
     app_local_get_ex
     assert // check self.map entry exists for account
+    // local_map/uint64.py:21
+    // assert map_[account, key] == result
+    frame_dig -1
+    itob
+    // local_map/uint64.py:20
+    // map_ = LocalMap(UInt64, UInt64, key_prefix=self.map.key_prefix)
+    bytec_0 // "map"
+    // local_map/uint64.py:21
+    // assert map_[account, key] == result
+    uncover 1
+    concat
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    app_local_get_ex
+    assert // check LocalMap entry exists for account
+    dig 1
+    ==
+    assert
+    // local_map/uint64.py:22
+    // return result
     retsub
 
 
 // test_cases.local_map.uint64.LocalMapUInt64.get_with_default(account: bytes, key: uint64, default: uint64) -> uint64:
 test_cases.local_map.uint64.LocalMapUInt64.get_with_default:
-    // local_map/uint64.py:21-22
+    // local_map/uint64.py:24-25
     // @public
     // def get_with_default(self, account: Account, key: UInt64, default: UInt64) -> UInt64:
     proto 3 1
     b test_cases.local_map.uint64.LocalMapUInt64.get_with_default_block@0
 
 test_cases.local_map.uint64.LocalMapUInt64.get_with_default_block@0:
-    // local_map/uint64.py:23
+    // local_map/uint64.py:26
     // return self.map.get(account, key, default=default)
     frame_dig -2
     itob
@@ -487,14 +508,14 @@ test_cases.local_map.uint64.LocalMapUInt64.get_with_default_block@0:
 
 // test_cases.local_map.uint64.LocalMapUInt64.set(account: bytes, key: uint64, value: uint64) -> void:
 test_cases.local_map.uint64.LocalMapUInt64.set:
-    // local_map/uint64.py:25-26
+    // local_map/uint64.py:28-29
     // @public
     // def set(self, account: Account, key: UInt64, value: UInt64) -> None:
     proto 3 0
     b test_cases.local_map.uint64.LocalMapUInt64.set_block@0
 
 test_cases.local_map.uint64.LocalMapUInt64.set_block@0:
-    // local_map/uint64.py:27
+    // local_map/uint64.py:30
     // self.map[account, key] = value
     frame_dig -2
     itob
@@ -510,14 +531,14 @@ test_cases.local_map.uint64.LocalMapUInt64.set_block@0:
 
 // test_cases.local_map.uint64.LocalMapUInt64.delete(account: bytes, key: uint64) -> void:
 test_cases.local_map.uint64.LocalMapUInt64.delete:
-    // local_map/uint64.py:29-30
+    // local_map/uint64.py:32-33
     // @public
     // def delete(self, account: Account, key: UInt64) -> None:
     proto 2 0
     b test_cases.local_map.uint64.LocalMapUInt64.delete_block@0
 
 test_cases.local_map.uint64.LocalMapUInt64.delete_block@0:
-    // local_map/uint64.py:31
+    // local_map/uint64.py:34
     // del self.map[account, key]
     frame_dig -1
     itob
@@ -532,14 +553,14 @@ test_cases.local_map.uint64.LocalMapUInt64.delete_block@0:
 
 // test_cases.local_map.uint64.LocalMapUInt64.in_(account: bytes, key: uint64) -> uint64:
 test_cases.local_map.uint64.LocalMapUInt64.in_:
-    // local_map/uint64.py:33-34
+    // local_map/uint64.py:36-37
     // @public
     // def in_(self, account: Account, key: UInt64) -> bool:
     proto 2 1
     b test_cases.local_map.uint64.LocalMapUInt64.in__block@0
 
 test_cases.local_map.uint64.LocalMapUInt64.in__block@0:
-    // local_map/uint64.py:35
+    // local_map/uint64.py:38
     // return (account, key) in self.map
     frame_dig -1
     itob
@@ -559,7 +580,7 @@ test_cases.local_map.uint64.LocalMapUInt64.prefix:
     b test_cases.local_map.uint64.LocalMapUInt64.prefix_block@0
 
 test_cases.local_map.uint64.LocalMapUInt64.prefix_block@0:
-    // local_map/uint64.py:39
+    // local_map/uint64.py:42
     // return self.map.key_prefix
     bytec_0 // "map"
     retsub
@@ -567,14 +588,14 @@ test_cases.local_map.uint64.LocalMapUInt64.prefix_block@0:
 
 // test_cases.local_map.uint64.LocalMapUInt64.maybe(account: bytes, key: uint64) -> uint64, uint64:
 test_cases.local_map.uint64.LocalMapUInt64.maybe:
-    // local_map/uint64.py:41-42
+    // local_map/uint64.py:44-45
     // @public
     // def maybe(self, account: Account, key: UInt64) -> tuple[UInt64, bool]:
     proto 2 2
     b test_cases.local_map.uint64.LocalMapUInt64.maybe_block@0
 
 test_cases.local_map.uint64.LocalMapUInt64.maybe_block@0:
-    // local_map/uint64.py:43
+    // local_map/uint64.py:46
     // return self.map.maybe(account, key)
     frame_dig -1
     itob
@@ -590,21 +611,21 @@ test_cases.local_map.uint64.LocalMapUInt64.maybe_block@0:
 
 // test_cases.local_map.uint64.LocalMapUInt64.get_via_state(account: bytes, key: uint64) -> uint64:
 test_cases.local_map.uint64.LocalMapUInt64.get_via_state:
-    // local_map/uint64.py:45-46
+    // local_map/uint64.py:48-49
     // @public
     // def get_via_state(self, account: Account, key: UInt64) -> UInt64:
     proto 2 1
     b test_cases.local_map.uint64.LocalMapUInt64.get_via_state_block@0
 
 test_cases.local_map.uint64.LocalMapUInt64.get_via_state_block@0:
-    // local_map/uint64.py:47
+    // local_map/uint64.py:50
     // state = self.map.state(key)
     frame_dig -1
     itob
     bytec_0 // "map"
     uncover 1
     concat
-    // local_map/uint64.py:48
+    // local_map/uint64.py:51
     // return state[account]
     frame_dig -2
     intc_0 // 0

@@ -31,7 +31,10 @@ contract LocalMapUInt64
   
   abimethod test_cases.local_map.uint64.LocalMapUInt64.get(account: account, key: uint64): uint64
   {
-    return LocalState[MapKey(prefix='map', key=key), account]
+    result: uint64 = LocalState[MapKey(prefix='map', key=key), account]
+    map_: state_key = reinterpret_cast<state_key>(reinterpret_cast<bytes>('map'))
+    assert(LocalState[MapKey(prefix=map_, key=key), account] == result)
+    return result
   }
   
   abimethod test_cases.local_map.uint64.LocalMapUInt64.get_with_default(account: account, key: uint64, default: uint64): uint64

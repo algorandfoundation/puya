@@ -27,7 +27,10 @@ contract GlobalMapUInt64
   
   abimethod test_cases.global_map.uint64.GlobalMapUInt64.get(key: uint64): uint64
   {
-    return GlobalState[MapKey(prefix='map', key=key)]
+    result: uint64 = GlobalState[MapKey(prefix='map', key=key)]
+    map_: state_key = reinterpret_cast<state_key>(reinterpret_cast<bytes>('map'))
+    assert(GlobalState[MapKey(prefix=map_, key=key)] == result)
+    return result
   }
   
   abimethod test_cases.global_map.uint64.GlobalMapUInt64.get_with_default(key: uint64, default: uint64): uint64

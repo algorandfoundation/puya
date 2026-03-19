@@ -67,31 +67,31 @@ subroutine main:
         b main_after_if_else@17
 
     main_get_with_default_route@8:
-        // local_map/uint64.py:21
+        // local_map/uint64.py:24
         // @public
         callsub get_with_default
         b main_after_if_else@17
 
     main_set_route@9:
-        // local_map/uint64.py:25
+        // local_map/uint64.py:28
         // @public
         callsub set
         b main_after_if_else@17
 
     main_delete_route@10:
-        // local_map/uint64.py:29
+        // local_map/uint64.py:32
         // @public
         callsub delete
         b main_after_if_else@17
 
     main_in__route@11:
-        // local_map/uint64.py:33
+        // local_map/uint64.py:36
         // @public
         callsub in_
         b main_after_if_else@17
 
     main_prefix_route@12:
-        // local_map/uint64.py:37
+        // local_map/uint64.py:40
         // @public
         byte 0x151f7c7500036d6170                                               0x151f7c7500036d6170
         log
@@ -99,13 +99,13 @@ subroutine main:
         return
 
     main_maybe_route@13:
-        // local_map/uint64.py:41
+        // local_map/uint64.py:44
         // @public
         callsub maybe
         b main_after_if_else@17
 
     main_get_via_state_route@14:
-        // local_map/uint64.py:45
+        // local_map/uint64.py:48
         // @public
         callsub get_via_state
         b main_after_if_else@17
@@ -145,7 +145,7 @@ subroutine get:
         l-load tmp%2#0 0                                                        account#0,tmp%2#0
         btoi                                                                    account#0,key#0
         // local_map/uint64.py:19
-        // return self.map[account, key]
+        // result = self.map[account, key]
         l-load key#0 0                                                          account#0,key#0
         itob                                                                    account#0,encoded_value%0#0
         byte "map"                                                              account#0,encoded_value%0#0,"map"
@@ -154,12 +154,12 @@ subroutine get:
         l-load account#0 1                                                      map_prefixed_key%0#0,account#0
         int 0                                                                   map_prefixed_key%0#0,account#0,0
         l-load map_prefixed_key%0#0 2                                           account#0,0,map_prefixed_key%0#0
-        app_local_get_ex                                                        maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                               maybe_value%0#0,maybe_exists%0#0
-        assert // check self.map entry exists for account                       maybe_value%0#0
+        app_local_get_ex                                                        result#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                               result#0,maybe_exists%0#0
+        assert // check self.map entry exists for account                       result#0
         // local_map/uint64.py:17
         // @public
-        l-load maybe_value%0#0 0                                                maybe_value%0#0
+        l-load result#0 0                                                       result#0
         itob                                                                    aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                         aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                                     0x151f7c75,aggregate%val_as_bytes%0#0
@@ -173,7 +173,7 @@ subroutine get:
 // test_cases.local_map.uint64.LocalMapUInt64.get_with_default[routing]() -> void:
 subroutine get_with_default:
     get_with_default_block@0:
-        // local_map/uint64.py:21
+        // local_map/uint64.py:24
         // @public
         txna ApplicationArgs 1                                                  account#0
         l-load-copy account#0 0                                                 account#0,account#0 (copy)
@@ -203,7 +203,7 @@ subroutine get_with_default:
         assert // invalid number of bytes for arc4.uint64                       account#0,key#0,tmp%4#0
         l-load tmp%4#0 0                                                        account#0,key#0,tmp%4#0
         btoi                                                                    account#0,key#0,default#0
-        // local_map/uint64.py:23
+        // local_map/uint64.py:26
         // return self.map.get(account, key, default=default)
         l-load key#0 1                                                          account#0,default#0,key#0
         itob                                                                    account#0,default#0,encoded_value%0#0
@@ -218,7 +218,7 @@ subroutine get_with_default:
         l-load maybe_value%0#0 2                                                maybe_exists%0#0,default#0,maybe_value%0#0
         l-load maybe_exists%0#0 2                                               default#0,maybe_value%0#0,maybe_exists%0#0
         select                                                                  state_get%0#0
-        // local_map/uint64.py:21
+        // local_map/uint64.py:24
         // @public
         l-load state_get%0#0 0                                                  state_get%0#0
         itob                                                                    aggregate%val_as_bytes%0#0
@@ -234,7 +234,7 @@ subroutine get_with_default:
 // test_cases.local_map.uint64.LocalMapUInt64.set[routing]() -> void:
 subroutine set:
     set_block@0:
-        // local_map/uint64.py:25
+        // local_map/uint64.py:28
         // @public
         txna ApplicationArgs 1                                                  account#0
         l-load-copy account#0 0                                                 account#0,account#0 (copy)
@@ -264,7 +264,7 @@ subroutine set:
         assert // invalid number of bytes for arc4.uint64                       account#0,key#0,tmp%4#0
         l-load tmp%4#0 0                                                        account#0,key#0,tmp%4#0
         btoi                                                                    account#0,key#0,value#0
-        // local_map/uint64.py:27
+        // local_map/uint64.py:30
         // self.map[account, key] = value
         l-load key#0 1                                                          account#0,value#0,key#0
         itob                                                                    account#0,value#0,encoded_value%0#0
@@ -275,7 +275,7 @@ subroutine set:
         l-load map_prefixed_key%0#0 1                                           value#0,account#0,map_prefixed_key%0#0
         l-load value#0 2                                                        account#0,map_prefixed_key%0#0,value#0
         app_local_put
-        // local_map/uint64.py:25
+        // local_map/uint64.py:28
         // @public
         int 1                                                                   1
         return
@@ -284,7 +284,7 @@ subroutine set:
 // test_cases.local_map.uint64.LocalMapUInt64.delete[routing]() -> void:
 subroutine delete:
     delete_block@0:
-        // local_map/uint64.py:29
+        // local_map/uint64.py:32
         // @public
         txna ApplicationArgs 1                                                  account#0
         l-load-copy account#0 0                                                 account#0,account#0 (copy)
@@ -304,7 +304,7 @@ subroutine delete:
         assert // invalid number of bytes for arc4.uint64                       account#0,tmp%2#0
         l-load tmp%2#0 0                                                        account#0,tmp%2#0
         btoi                                                                    account#0,key#0
-        // local_map/uint64.py:31
+        // local_map/uint64.py:34
         // del self.map[account, key]
         l-load key#0 0                                                          account#0,key#0
         itob                                                                    account#0,encoded_value%0#0
@@ -314,7 +314,7 @@ subroutine delete:
         l-load account#0 1                                                      map_prefixed_key%0#0,account#0
         l-load map_prefixed_key%0#0 1                                           account#0,map_prefixed_key%0#0
         app_local_del
-        // local_map/uint64.py:29
+        // local_map/uint64.py:32
         // @public
         int 1                                                                   1
         return
@@ -323,7 +323,7 @@ subroutine delete:
 // test_cases.local_map.uint64.LocalMapUInt64.in_[routing]() -> void:
 subroutine in_:
     in__block@0:
-        // local_map/uint64.py:33
+        // local_map/uint64.py:36
         // @public
         txna ApplicationArgs 1                                                  account#0
         l-load-copy account#0 0                                                 account#0,account#0 (copy)
@@ -343,7 +343,7 @@ subroutine in_:
         assert // invalid number of bytes for arc4.uint64                       account#0,tmp%2#0
         l-load tmp%2#0 0                                                        account#0,tmp%2#0
         btoi                                                                    account#0,key#0
-        // local_map/uint64.py:35
+        // local_map/uint64.py:38
         // return (account, key) in self.map
         l-load key#0 0                                                          account#0,key#0
         itob                                                                    account#0,encoded_value%0#0
@@ -356,7 +356,7 @@ subroutine in_:
         app_local_get_ex                                                        _%0#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                              maybe_exists%0#0,_%0#0
         v-store _%0#0                                                           maybe_exists%0#0
-        // local_map/uint64.py:33
+        // local_map/uint64.py:36
         // @public
         byte 0x00                                                               maybe_exists%0#0,0x00
         int 0                                                                   maybe_exists%0#0,0x00,0
@@ -374,7 +374,7 @@ subroutine in_:
 // test_cases.local_map.uint64.LocalMapUInt64.maybe[routing]() -> void:
 subroutine maybe:
     maybe_block@0:
-        // local_map/uint64.py:41
+        // local_map/uint64.py:44
         // @public
         txna ApplicationArgs 1                                                  account#0
         l-load-copy account#0 0                                                 account#0,account#0 (copy)
@@ -394,7 +394,7 @@ subroutine maybe:
         assert // invalid number of bytes for arc4.uint64                       account#0,tmp%2#0
         l-load tmp%2#0 0                                                        account#0,tmp%2#0
         btoi                                                                    account#0,key#0
-        // local_map/uint64.py:43
+        // local_map/uint64.py:46
         // return self.map.maybe(account, key)
         l-load key#0 0                                                          account#0,key#0
         itob                                                                    account#0,encoded_value%0#0
@@ -405,7 +405,7 @@ subroutine maybe:
         int 0                                                                   map_prefixed_key%0#0,account#0,0
         l-load map_prefixed_key%0#0 2                                           account#0,0,map_prefixed_key%0#0
         app_local_get_ex                                                        maybe_value%0#0,maybe_exists%0#0
-        // local_map/uint64.py:41
+        // local_map/uint64.py:44
         // @public
         l-load maybe_value%0#0 1                                                maybe_exists%0#0,maybe_value%0#0
         itob                                                                    maybe_exists%0#0,aggregate%val_as_bytes%0#0
@@ -428,7 +428,7 @@ subroutine maybe:
 // test_cases.local_map.uint64.LocalMapUInt64.get_via_state[routing]() -> void:
 subroutine get_via_state:
     get_via_state_block@0:
-        // local_map/uint64.py:45
+        // local_map/uint64.py:48
         // @public
         txna ApplicationArgs 1                                                  account#0
         l-load-copy account#0 0                                                 account#0,account#0 (copy)
@@ -448,14 +448,14 @@ subroutine get_via_state:
         assert // invalid number of bytes for arc4.uint64                       account#0,tmp%2#0
         l-load tmp%2#0 0                                                        account#0,tmp%2#0
         btoi                                                                    account#0,key#0
-        // local_map/uint64.py:47
+        // local_map/uint64.py:50
         // state = self.map.state(key)
         l-load key#0 0                                                          account#0,key#0
         itob                                                                    account#0,encoded_value%0#0
         byte "map"                                                              account#0,encoded_value%0#0,"map"
         l-load encoded_value%0#0 1                                              account#0,"map",encoded_value%0#0
         concat                                                                  account#0,state#0
-        // local_map/uint64.py:48
+        // local_map/uint64.py:51
         // return state[account]
         l-load account#0 1                                                      state#0,account#0
         int 0                                                                   state#0,account#0,0
@@ -463,7 +463,7 @@ subroutine get_via_state:
         app_local_get_ex                                                        maybe_value%0#0,maybe_exists%0#0
         l-load maybe_exists%0#0 0                                               maybe_value%0#0,maybe_exists%0#0
         assert // check LocalState exists for account                           maybe_value%0#0
-        // local_map/uint64.py:45
+        // local_map/uint64.py:48
         // @public
         l-load maybe_value%0#0 0                                                maybe_value%0#0
         itob                                                                    aggregate%val_as_bytes%0#0
