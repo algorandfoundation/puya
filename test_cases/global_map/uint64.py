@@ -12,7 +12,10 @@ class GlobalMapUInt64(
 
     @public
     def get(self, key: UInt64) -> UInt64:
-        return self.map[key]
+        result = self.map[key]
+        map_ = GlobalMap(UInt64, UInt64, key_prefix=self.map.key_prefix)
+        assert map_[key] == result
+        return result
 
     @public
     def get_with_default(self, key: UInt64, default: UInt64) -> UInt64:

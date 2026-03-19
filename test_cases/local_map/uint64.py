@@ -16,7 +16,10 @@ class LocalMapUInt64(
 
     @public
     def get(self, account: Account, key: UInt64) -> UInt64:
-        return self.map[account, key]
+        result = self.map[account, key]
+        map_ = LocalMap(UInt64, UInt64, key_prefix=self.map.key_prefix)
+        assert map_[account, key] == result
+        return result
 
     @public
     def get_with_default(self, account: Account, key: UInt64, default: UInt64) -> UInt64:

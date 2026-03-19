@@ -108,7 +108,7 @@ def _init(
         result_type = pytypes.GenericLocalMapType.parameterise([key, content], location)
     elif not (result_type.key == key and result_type.content == content):
         logger.error(
-            "explicit type annotation does not match first argument"
+            "explicit type annotation does not match arguments"
             " - suggest to remove the explicit type annotation, it shouldn't be required",
             location=location,
         )
@@ -212,7 +212,7 @@ class LocalMapProxyExpressionBuilder(
         raise CodeError("slicing of LocalMap is not supported", location)
 
     @typing.override
-    def iterate(self) -> typing.Never:  # pragma: no cover
+    def iterate(self) -> typing.Never:
         raise CodeError("iteration of LocalMap is not supported", self.source_location)
 
     @typing.override
