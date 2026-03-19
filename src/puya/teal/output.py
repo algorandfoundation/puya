@@ -93,7 +93,7 @@ def emit_assembly_report(
 
     indent = " " * 4  # Ident for TEAL code
     src = None
-    last_location_indent = 0
+    line_bytes = None
     isn_idx = 0
     for subroutine in program.all_subroutines:
         for block_idx, block in enumerate(subroutine.blocks):
@@ -121,15 +121,17 @@ def emit_assembly_report(
                         src = context.try_get_source(whole_lines_location)
                         if src is not None:
                             line = src[0]
-                            last_location_indent = len(line) - len(line.lstrip())
+                            line_bytes = line.encode('utf8')
                             writer.add_row(["", "", "", line.strip(), str(whole_lines_location)])
                     if (
                         op_loc.column is not None
                         and op_loc.end_column is not None
                         and src is not None
                     ):
-                        highlight_start = op_loc.column - last_location_indent
-                        highlight_width = op_loc.end_column - op_loc.column
+                        highlight_prefix = line_bytes[:op_loc.column].decode("utf8")
+                        highlight_start = len(highlight_prefix.lstrip())
+                        highlight_chars = line_bytes[op_loc.column:op_loc.end_column].decode("utf8")
+                        highlight_width = len(highlight_chars)
                         op_highlight = " " * highlight_start + "-" * highlight_width
                 writer.add_row(
                     [
