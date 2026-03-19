@@ -27,25 +27,25 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@7: // get_route_L17
         test_cases.local_map.uint64.LocalMapUInt64.get[routing]()
         goto block@17
-    block@8: // get_with_default_route_L21
+    block@8: // get_with_default_route_L24
         test_cases.local_map.uint64.LocalMapUInt64.get_with_default[routing]()
         goto block@17
-    block@9: // set_route_L25
+    block@9: // set_route_L28
         test_cases.local_map.uint64.LocalMapUInt64.set[routing]()
         goto block@17
-    block@10: // delete_route_L29
+    block@10: // delete_route_L32
         test_cases.local_map.uint64.LocalMapUInt64.delete[routing]()
         goto block@17
-    block@11: // in__route_L33
+    block@11: // in__route_L36
         test_cases.local_map.uint64.LocalMapUInt64.in_[routing]()
         goto block@17
-    block@12: // prefix_route_L37
+    block@12: // prefix_route_L40
         test_cases.local_map.uint64.LocalMapUInt64.prefix[routing]()
         goto block@17
-    block@13: // maybe_route_L41
+    block@13: // maybe_route_L44
         test_cases.local_map.uint64.LocalMapUInt64.maybe[routing]()
         goto block@17
-    block@14: // get_via_state_route_L45
+    block@14: // get_via_state_route_L48
         test_cases.local_map.uint64.LocalMapUInt64.get_via_state[routing]()
         goto block@17
     block@17: // after_if_else_L4
@@ -69,15 +69,19 @@ subroutine test_cases.local_map.uint64.LocalMapUInt64.get[routing]() -> void:
         let key#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
         let map_prefixed_key%0#0: bytes = (concat "map" encoded_value%0#0)
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
+        let (result#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.map entry exists for account
-        let tmp%5#0: Encoded(uint64) = bytes_encode<uint64>(maybe_value%0#0)
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
+        (assert maybe_exists%1#0) // check LocalMap entry exists for account
+        let tmp%0#1: bool = (== maybe_value%1#0 result#0)
+        (assert tmp%0#1)
+        let tmp%5#0: Encoded(uint64) = bytes_encode<uint64>(result#0)
         let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
         (log tmp%6#0)
         exit 1u
 
 subroutine test_cases.local_map.uint64.LocalMapUInt64.get_with_default[routing]() -> void:
-    block@0: // L21
+    block@0: // L24
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)
@@ -103,7 +107,7 @@ subroutine test_cases.local_map.uint64.LocalMapUInt64.get_with_default[routing](
         exit 1u
 
 subroutine test_cases.local_map.uint64.LocalMapUInt64.set[routing]() -> void:
-    block@0: // L25
+    block@0: // L28
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)
@@ -125,7 +129,7 @@ subroutine test_cases.local_map.uint64.LocalMapUInt64.set[routing]() -> void:
         exit 1u
 
 subroutine test_cases.local_map.uint64.LocalMapUInt64.delete[routing]() -> void:
-    block@0: // L29
+    block@0: // L32
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)
@@ -142,7 +146,7 @@ subroutine test_cases.local_map.uint64.LocalMapUInt64.delete[routing]() -> void:
         exit 1u
 
 subroutine test_cases.local_map.uint64.LocalMapUInt64.in_[routing]() -> void:
-    block@0: // L33
+    block@0: // L36
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)
@@ -162,14 +166,14 @@ subroutine test_cases.local_map.uint64.LocalMapUInt64.in_[routing]() -> void:
         exit 1u
 
 subroutine test_cases.local_map.uint64.LocalMapUInt64.prefix[routing]() -> void:
-    block@0: // L37
+    block@0: // L40
         let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>("map")
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
         exit 1u
 
 subroutine test_cases.local_map.uint64.LocalMapUInt64.maybe[routing]() -> void:
-    block@0: // L41
+    block@0: // L44
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)
@@ -189,7 +193,7 @@ subroutine test_cases.local_map.uint64.LocalMapUInt64.maybe[routing]() -> void:
         exit 1u
 
 subroutine test_cases.local_map.uint64.LocalMapUInt64.get_via_state[routing]() -> void:
-    block@0: // L45
+    block@0: // L48
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 32u)

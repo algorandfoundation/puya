@@ -48,31 +48,31 @@ subroutine main:
         b main_after_if_else@16
 
     main_get_with_default_route@7:
-        // global_map/uint64.py:17
+        // global_map/uint64.py:20
         // @public
         callsub get_with_default
         b main_after_if_else@16
 
     main_set_route@8:
-        // global_map/uint64.py:21
+        // global_map/uint64.py:24
         // @public
         callsub set
         b main_after_if_else@16
 
     main_delete_route@9:
-        // global_map/uint64.py:25
+        // global_map/uint64.py:28
         // @public
         callsub delete
         b main_after_if_else@16
 
     main_in__route@10:
-        // global_map/uint64.py:29
+        // global_map/uint64.py:32
         // @public
         callsub in_
         b main_after_if_else@16
 
     main_prefix_route@11:
-        // global_map/uint64.py:33
+        // global_map/uint64.py:36
         // @public
         byte 0x151f7c7500036d6170                                 0x151f7c7500036d6170
         log
@@ -80,13 +80,13 @@ subroutine main:
         return
 
     main_maybe_route@12:
-        // global_map/uint64.py:37
+        // global_map/uint64.py:40
         // @public
         callsub maybe
         b main_after_if_else@16
 
     main_get_via_state_route@13:
-        // global_map/uint64.py:41
+        // global_map/uint64.py:44
         // @public
         callsub get_via_state
         b main_after_if_else@16
@@ -133,7 +133,7 @@ subroutine get:
         l-load tmp%0#0 0                                          tmp%0#0
         btoi                                                      key#0
         // global_map/uint64.py:15
-        // return self.map[key]
+        // result = self.map[key]
         l-load key#0 0                                            key#0
         itob                                                      encoded_value%0#0
         byte "map"                                                encoded_value%0#0,"map"
@@ -141,12 +141,12 @@ subroutine get:
         concat                                                    map_prefixed_key%0#0
         int 0                                                     map_prefixed_key%0#0,0
         l-load map_prefixed_key%0#0 1                             0,map_prefixed_key%0#0
-        app_global_get_ex                                         maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                 maybe_value%0#0,maybe_exists%0#0
-        assert // check self.map entry exists                     maybe_value%0#0
+        app_global_get_ex                                         result#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                 result#0,maybe_exists%0#0
+        assert // check self.map entry exists                     result#0
         // global_map/uint64.py:13
         // @public
-        l-load maybe_value%0#0 0                                  maybe_value%0#0
+        l-load result#0 0                                         result#0
         itob                                                      aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                           aggregate%val_as_bytes%0#0,0x151f7c75
         l-load aggregate%val_as_bytes%0#0 1                       0x151f7c75,aggregate%val_as_bytes%0#0
@@ -160,7 +160,7 @@ subroutine get:
 // test_cases.global_map.uint64.GlobalMapUInt64.get_with_default[routing]() -> void:
 subroutine get_with_default:
     get_with_default_block@0:
-        // global_map/uint64.py:17
+        // global_map/uint64.py:20
         // @public
         txna ApplicationArgs 1                                    tmp%0#0
         l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
@@ -182,7 +182,7 @@ subroutine get_with_default:
         assert // invalid number of bytes for arc4.uint64         key#0,tmp%2#0
         l-load tmp%2#0 0                                          key#0,tmp%2#0
         btoi                                                      key#0,default#0
-        // global_map/uint64.py:19
+        // global_map/uint64.py:22
         // return self.map.get(key, default=default)
         l-load key#0 1                                            default#0,key#0
         itob                                                      default#0,encoded_value%0#0
@@ -196,7 +196,7 @@ subroutine get_with_default:
         l-load maybe_value%0#0 2                                  maybe_exists%0#0,default#0,maybe_value%0#0
         l-load maybe_exists%0#0 2                                 default#0,maybe_value%0#0,maybe_exists%0#0
         select                                                    state_get%0#0
-        // global_map/uint64.py:17
+        // global_map/uint64.py:20
         // @public
         l-load state_get%0#0 0                                    state_get%0#0
         itob                                                      aggregate%val_as_bytes%0#0
@@ -212,7 +212,7 @@ subroutine get_with_default:
 // test_cases.global_map.uint64.GlobalMapUInt64.set[routing]() -> void:
 subroutine set:
     set_block@0:
-        // global_map/uint64.py:21
+        // global_map/uint64.py:24
         // @public
         txna ApplicationArgs 1                                    tmp%0#0
         l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
@@ -234,7 +234,7 @@ subroutine set:
         assert // invalid number of bytes for arc4.uint64         key#0,tmp%2#0
         l-load tmp%2#0 0                                          key#0,tmp%2#0
         btoi                                                      key#0,value#0
-        // global_map/uint64.py:23
+        // global_map/uint64.py:26
         // self.map[key] = value
         l-load key#0 1                                            value#0,key#0
         itob                                                      value#0,encoded_value%0#0
@@ -244,7 +244,7 @@ subroutine set:
         l-load map_prefixed_key%0#0 0                             value#0,map_prefixed_key%0#0
         l-load value#0 1                                          map_prefixed_key%0#0,value#0
         app_global_put
-        // global_map/uint64.py:21
+        // global_map/uint64.py:24
         // @public
         int 1                                                     1
         return
@@ -253,7 +253,7 @@ subroutine set:
 // test_cases.global_map.uint64.GlobalMapUInt64.delete[routing]() -> void:
 subroutine delete:
     delete_block@0:
-        // global_map/uint64.py:25
+        // global_map/uint64.py:28
         // @public
         txna ApplicationArgs 1                                    tmp%0#0
         l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
@@ -265,7 +265,7 @@ subroutine delete:
         assert // invalid number of bytes for arc4.uint64         tmp%0#0
         l-load tmp%0#0 0                                          tmp%0#0
         btoi                                                      key#0
-        // global_map/uint64.py:27
+        // global_map/uint64.py:30
         // del self.map[key]
         l-load key#0 0                                            key#0
         itob                                                      encoded_value%0#0
@@ -274,7 +274,7 @@ subroutine delete:
         concat                                                    map_prefixed_key%0#0
         l-load map_prefixed_key%0#0 0                             map_prefixed_key%0#0
         app_global_del
-        // global_map/uint64.py:25
+        // global_map/uint64.py:28
         // @public
         int 1                                                     1
         return
@@ -283,7 +283,7 @@ subroutine delete:
 // test_cases.global_map.uint64.GlobalMapUInt64.in_[routing]() -> void:
 subroutine in_:
     in__block@0:
-        // global_map/uint64.py:29
+        // global_map/uint64.py:32
         // @public
         txna ApplicationArgs 1                                    tmp%0#0
         l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
@@ -295,7 +295,7 @@ subroutine in_:
         assert // invalid number of bytes for arc4.uint64         tmp%0#0
         l-load tmp%0#0 0                                          tmp%0#0
         btoi                                                      key#0
-        // global_map/uint64.py:31
+        // global_map/uint64.py:34
         // return key in self.map
         l-load key#0 0                                            key#0
         itob                                                      encoded_value%0#0
@@ -307,7 +307,7 @@ subroutine in_:
         app_global_get_ex                                         _%0#0,maybe_exists%0#0
         l-store maybe_exists%0#0 1                                maybe_exists%0#0,_%0#0
         v-store _%0#0                                             maybe_exists%0#0
-        // global_map/uint64.py:29
+        // global_map/uint64.py:32
         // @public
         byte 0x00                                                 maybe_exists%0#0,0x00
         int 0                                                     maybe_exists%0#0,0x00,0
@@ -325,7 +325,7 @@ subroutine in_:
 // test_cases.global_map.uint64.GlobalMapUInt64.maybe[routing]() -> void:
 subroutine maybe:
     maybe_block@0:
-        // global_map/uint64.py:37
+        // global_map/uint64.py:40
         // @public
         txna ApplicationArgs 1                                    tmp%0#0
         l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
@@ -337,7 +337,7 @@ subroutine maybe:
         assert // invalid number of bytes for arc4.uint64         tmp%0#0
         l-load tmp%0#0 0                                          tmp%0#0
         btoi                                                      key#0
-        // global_map/uint64.py:39
+        // global_map/uint64.py:42
         // return self.map.maybe(key)
         l-load key#0 0                                            key#0
         itob                                                      encoded_value%0#0
@@ -347,7 +347,7 @@ subroutine maybe:
         int 0                                                     map_prefixed_key%0#0,0
         l-load map_prefixed_key%0#0 1                             0,map_prefixed_key%0#0
         app_global_get_ex                                         maybe_value%0#0,maybe_exists%0#0
-        // global_map/uint64.py:37
+        // global_map/uint64.py:40
         // @public
         l-load maybe_value%0#0 1                                  maybe_exists%0#0,maybe_value%0#0
         itob                                                      maybe_exists%0#0,aggregate%val_as_bytes%0#0
@@ -370,7 +370,7 @@ subroutine maybe:
 // test_cases.global_map.uint64.GlobalMapUInt64.get_via_state[routing]() -> void:
 subroutine get_via_state:
     get_via_state_block@0:
-        // global_map/uint64.py:41
+        // global_map/uint64.py:44
         // @public
         txna ApplicationArgs 1                                    tmp%0#0
         l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
@@ -382,21 +382,21 @@ subroutine get_via_state:
         assert // invalid number of bytes for arc4.uint64         tmp%0#0
         l-load tmp%0#0 0                                          tmp%0#0
         btoi                                                      key#0
-        // global_map/uint64.py:43
+        // global_map/uint64.py:46
         // state = self.map.state(key)
         l-load key#0 0                                            key#0
         itob                                                      encoded_value%0#0
         byte "map"                                                encoded_value%0#0,"map"
         l-load encoded_value%0#0 1                                "map",encoded_value%0#0
         concat                                                    state#0
-        // global_map/uint64.py:44
+        // global_map/uint64.py:47
         // return state.value
         int 0                                                     state#0,0
         l-load state#0 1                                          0,state#0
         app_global_get_ex                                         maybe_value%0#0,maybe_exists%0#0
         l-load maybe_exists%0#0 0                                 maybe_value%0#0,maybe_exists%0#0
         assert // check GlobalState exists                        maybe_value%0#0
-        // global_map/uint64.py:41
+        // global_map/uint64.py:44
         // @public
         l-load maybe_value%0#0 0                                  maybe_value%0#0
         itob                                                      aggregate%val_as_bytes%0#0
