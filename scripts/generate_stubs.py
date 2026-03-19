@@ -432,6 +432,7 @@ def _stack_type_to_pytypes(type_name: StackType) -> Sequence[pytypes.PyType]:
 
 def result_type(type_name: StackType) -> pytypes.PyType:
     # the concrete pytype returned from ops with this stack type
+    assert type_name is not StackType.any
     return _stack_type_to_pytypes(type_name)[0]
 
 
