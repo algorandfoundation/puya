@@ -2,6 +2,7 @@ import typing
 from collections import defaultdict
 
 from puya import log
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -58,6 +59,13 @@ class StorageTypesValidator(AWSTTraverser):
         _validate_persistable(expr.key.wtype, expr.key.source_location)
         _validate_persistable(expr.prefix.wtype, expr.prefix.source_location)
 
+    @typing.override
+    def visit_contract(self, statement: awst_nodes.Contract) -> None:
+        super().visit_contract(statement)
+        state_totals = statement.state_totals or awst_nodes.StateTotals()
+        for state in statement.app_state:
+            _check_map_state_totals(state, state_totals, statement.source_location)
+
     def _validate_usage(self, expr: awst_nodes.StorageExpression, kind: AppStorageKind) -> None:
         key = _unwrap_reinterpret_casts(expr.key)
         if isinstance(key, awst_nodes.BytesConstant | awst_nodes.StringConstant) and not set_add(
@@ -65,6 +73,30 @@ class StorageTypesValidator(AWSTTraverser):
         ):
             return
         _validate_persistable(expr.wtype, expr.source_location)
+
+
+def _check_map_state_totals(
+    state: awst_nodes.AppStorageDefinition,
+    state_totals: awst_nodes.StateTotals,
+    contract_loc: SourceLocation,
+) -> None:
+    if not state.key_wtype:
+        return
+    match state.kind, state.storage_wtype.scalar_type:
+        case (AppStorageKind.account_local, AVMType.uint64) if state_totals.local_uints is None:
+            desc = "local uint"
+        case (AppStorageKind.account_local, AVMType.bytes) if state_totals.local_bytes is None:
+            desc = "local bytes"
+        case (AppStorageKind.app_global, AVMType.uint64) if state_totals.global_uints is None:
+            desc = "global uint"
+        case (AppStorageKind.app_global, AVMType.bytes) if state_totals.global_bytes is None:
+            desc = "global bytes"
+        case _:
+            return
+    logger.warning(
+        f"no {desc} state total defined for contract but {state.member_name!r} map is defined",
+        location=contract_loc,
+    )
 
 
 def _validate_persistable(wtype: wtypes.WType, location: SourceLocation) -> bool:
