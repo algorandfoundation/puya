@@ -91,7 +91,9 @@ def get_converter() -> JsonConverter:
     @functools.wraps(structure_method)
     def wrapped_structure[T](obj: object, cl: type[T]) -> T:
         try:
-            return structure_method(obj, cl)
+            # ignore DeprecationWarning while structuring
+            with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
+                return structure_method(obj, cl)
         except PuyaError:
             raise
         except (ValueError, TypeError) as err:
@@ -111,9 +113,7 @@ def awst_to_json(awst: nodes.AWST) -> str:
 
 
 def awst_from_json(json: str) -> nodes.AWST:
-    # ignore DeprecationWarning while deserializing
-    with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
-        return get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
+    return get_converter().loads(json, nodes.AWST)  # type: ignore[type-abstract]
 
 
 def source_annotations_to_json(sources_by_path: Mapping[Path, Sequence[str] | None]) -> str:
