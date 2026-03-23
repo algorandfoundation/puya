@@ -8,7 +8,6 @@ from puya.awst.nodes import (
     AppAccountStateExpression,
     Expression,
     ExpressionStatement,
-    IntegerConstant,
     StateDelete,
     StateExists,
     StateGet,
@@ -36,6 +35,7 @@ from puyapy.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
     parse_storage_proxy_constructor_args,
 )
+from puyapy.awst_build.eb.storage._util import resolve_account
 from puyapy.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
 from puyapy.awst_build.utils import get_arg_mapping
@@ -177,26 +177,7 @@ def _build_field(
     index: NodeBuilder,
     location: SourceLocation,
 ) -> AppAccountStateExpression:
-    # TODO: maybe resolve literal should allow functions, so we can validate
-    #       constant values inside e.g. conditional expressions, not just plain constants
-    #       like we check below with matching on IntegerConstant
-    index_expr = expect.argument_of_type_else_dummy(
-        index,
-        # UInt64 comes first since we want to resolve int literals,
-        # str literals for account not currently supported
-        pytypes.UInt64Type,
-        pytypes.AccountType,
-        resolve_literal=True,
-    ).resolve()
-    # https://dev.algorand.co/concepts/smart-contracts/resource-usage/
-    # Note that the sender address is implicitly included in the array,
-    # but doesn't count towards the limit of 4, so the <= 4 below is correct
-    # and intended
-    if isinstance(index_expr, IntegerConstant) and not (0 <= index_expr.value <= 4):
-        logger.error(
-            "account index should be between 0 and 4 inclusive",
-            location=index.source_location,
-        )
+    index_expr = resolve_account(index)
     if self.member_name:
         exists_assertion_message = f"check self.{self.member_name} exists for account"
     else:
