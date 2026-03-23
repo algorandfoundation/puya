@@ -139,7 +139,8 @@ Namely you can pass in:
 -   `scratch_slots` - Which allows you to mark a slot ID or range of slot IDs as "off limits" to Puya
     so you can manually use them.
 -   `state_totals` - Which allows defining what values should be used for global and local uint and bytes storage values
-    when creating a contract and will appear in ARC-32/ARC-56 app spec.
+    when creating a contract and will appear in ARC-32/ARC-56 app spec. These values are fixed at contract creation,
+    and cannot be edited on contract upgrade, so be sure to consider current and future needs carefully.
 
 Full example:
 
