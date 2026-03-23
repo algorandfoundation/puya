@@ -8,7 +8,6 @@ from puya.awst.nodes import (
     AppAccountStateExpression,
     Expression,
     ExpressionStatement,
-    IntegerConstant,
     MapPrefixedKeyExpression,
     StateDelete,
     StateExists,
@@ -38,6 +37,7 @@ from puyapy.awst_build.eb.storage._storage import (
     StorageProxyDefinitionBuilder,
     parse_storage_proxy_constructor_args,
 )
+from puyapy.awst_build.eb.storage._util import resolve_account
 from puyapy.awst_build.eb.storage._value_proxy import ValueProxyExpressionBuilder
 from puyapy.awst_build.eb.storage.local_state import (
     LocalStateExpressionBuilder,
@@ -151,7 +151,7 @@ class LocalMapProxyExpressionBuilder(
         key: InstanceBuilder,
         location: SourceLocation,
     ) -> AppAccountStateExpression:
-        account_expr = _resolve_account(account)
+        account_expr = resolve_account(account)
         if self._member_name:
             exists_assertion_message = f"check self.{self._member_name} entry exists for account"
         else:
@@ -236,21 +236,6 @@ class _LocalMapProxyExpressionBuilderFromConstructor(
     @property
     def args(self) -> StorageProxyConstructorArgs:
         return self._args
-
-
-def _resolve_account(account: InstanceBuilder) -> Expression:
-    account_expr = expect.argument_of_type_else_dummy(
-        account,
-        pytypes.UInt64Type,
-        pytypes.AccountType,
-        resolve_literal=True,
-    ).resolve()
-    if isinstance(account_expr, IntegerConstant) and not (0 <= account_expr.value <= 4):
-        logger.error(
-            "account index should be between 0 and 4 inclusive",
-            location=account_expr.source_location,
-        )
-    return account_expr
 
 
 LocalValueBuilder = Callable[
