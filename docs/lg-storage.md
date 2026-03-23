@@ -50,6 +50,65 @@ These values can be assigned anywhere you have access to `self` i.e. any instanc
 global storage is automatically included in the ARC-32/ARC-56 app spec file and thus will automatically appear within
 any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients).
 
+[`GlobalMap`](./api-algopy.md#algopy.GlobalMap) is similar to `GlobalState`, but allows for grouping a set of global state values with a common key and content type.
+A custom `key_prefix` can optionally be provided, with the default being to use the member variable name as the prefix.
+The final state key is the combination of `key_prefix + key`.
+
+```{note}
+Contracts using `GlobalMap` must specify adequate [`state_totals`](./lg-structure.md#contract-class-configuration) to
+allocate enough global storage slots for the application on creation.
+```
+
+```python
+from algopy import ARC4Contract, Bytes, GlobalMap, StateTotals, UInt64, public
+
+
+class MyContract(
+    ARC4Contract,
+    state_totals=StateTotals(global_uints=10),
+):
+    def __init__(self) -> None:
+        self.counters = GlobalMap(UInt64, UInt64)
+
+    @public
+    def set_counter(self, key: UInt64, value: UInt64) -> None:
+        self.counters[key] = value
+
+    @public
+    def get_counter(self, key: UInt64) -> UInt64:
+        return self.counters[key]
+
+    @public
+    def get_counter_or_default(self, key: UInt64, default: UInt64) -> UInt64:
+        return self.counters.get(key, default=default)
+
+    @public
+    def check_counter(self, key: UInt64) -> tuple[UInt64, bool]:
+        return self.counters.maybe(key)
+
+    @public
+    def delete_counter(self, key: UInt64) -> None:
+        del self.counters[key]
+
+    @public
+    def has_counter(self, key: UInt64) -> bool:
+        return key in self.counters
+```
+
+A `GlobalMap` can also be constructed as a local variable by providing the `key_prefix` explicitly, which is useful when the prefix needs to be dynamic:
+
+```python
+map_ = GlobalMap(UInt64, UInt64, key_prefix=self.counters.key_prefix)
+value = map_[key]
+```
+
+The `.state(key)` method returns a `GlobalState` proxy for the value at a given key, which can be useful when you need to pass a reference to a single entry:
+
+```python
+state = self.counters.state(key)
+value = state.value
+```
+
 ## Local storage
 
 Local storage is state that is stored against the contract instance for a specific account and can be retrieved
@@ -90,6 +149,65 @@ def delete_data(self, for_account: Account) -> None:
 These values can be assigned anywhere you have access to `self` i.e. any instance methods/subroutines. The information about
 local storage is automatically included in the ARC-32/ARC-56 app spec file and thus will automatically appear within
 any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients).
+
+[`LocalMap`](./api-algopy.md#algopy.LocalMap) is similar to `LocalState`, but allows for grouping a set of local state values with a common key and content type.
+A custom `key_prefix` can optionally be provided, with the default being to use the member variable name as the prefix.
+The final state key is the combination of `key_prefix + key`. All access requires both an account reference and a key.
+
+```{note}
+Contracts using `LocalMap` must specify adequate [`state_totals`](./lg-structure.md#contract-class-configuration) to
+allocate enough local storage slots for the application on creation.
+```
+
+```python
+from algopy import Account, ARC4Contract, Bytes, LocalMap, StateTotals, public
+
+
+class MyContract(
+    ARC4Contract,
+    state_totals=StateTotals(local_bytes=10),
+):
+    def __init__(self) -> None:
+        self.data = LocalMap(Bytes, Bytes)
+
+    @public(allow_actions=["OptIn"], create="require")
+    def create(self) -> None:
+        pass
+
+    @public
+    def set_data(self, account: Account, key: Bytes, value: Bytes) -> None:
+        self.data[account, key] = value
+
+    @public
+    def get_data(self, account: Account, key: Bytes) -> Bytes:
+        return self.data[account, key]
+
+    @public
+    def get_data_or_default(self, account: Account, key: Bytes, default: Bytes) -> Bytes:
+        return self.data.get(account, key, default=default)
+
+    @public
+    def check_data(self, account: Account, key: Bytes) -> tuple[Bytes, bool]:
+        value, exists = self.data.maybe(account, key)
+        if not exists:
+            value = Bytes()
+        return value, exists
+
+    @public
+    def delete_data(self, account: Account, key: Bytes) -> None:
+        del self.data[account, key]
+
+    @public
+    def has_data(self, account: Account, key: Bytes) -> bool:
+        return (account, key) in self.data
+```
+
+The `.state(key)` method returns a `LocalState` proxy for the value at a given key. The returned proxy still requires an account to access its value:
+
+```python
+state = self.data.state(key)
+value = state[account]
+```
 
 ## Box storage
 
