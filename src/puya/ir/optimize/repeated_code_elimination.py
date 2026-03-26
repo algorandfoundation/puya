@@ -7,7 +7,10 @@ import networkx as nx  # type: ignore[import-untyped]
 from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
-from puya.ir import models
+from puya.ir import (
+    models,
+    types_ as types,
+)
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
@@ -138,6 +141,12 @@ class RCEVisitor(NoOpIRVisitor[None]):
     def visit_decode_bytes(self, decode: models.DecodeBytes) -> None:
         if self._assignment is not None:
             key = decode.freeze()
+            self._cache_or_replace(self._assignment, key)
+
+    @typing.override
+    def visit_array_length(self, read: models.ArrayLength) -> None:
+        if self._assignment is not None and not isinstance(read.base_type, types.SlotType):
+            key = read.freeze()
             self._cache_or_replace(self._assignment, key)
 
     def _cache_or_replace(self, ass: models.Assignment, key: object) -> None:
