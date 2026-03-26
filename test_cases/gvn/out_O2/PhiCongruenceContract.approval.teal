@@ -1,0 +1,124 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.phi_congruence.PhiCongruenceContract.approval_program() -> uint64:
+main:
+    intcblock 0 5 1 10
+    pushint 42
+    callsub test_cross_assignment
+    pushint 84
+    ==
+    assert
+    intc_0 // 0
+    callsub test_cross_assignment
+    !
+    assert
+    intc_3 // 10
+    callsub test_triple_cycle
+    pushint 30
+    ==
+    assert
+    txn NumAppArgs
+    intc_1 // 5
+    callsub test_redundant_phi
+    txn NumAppArgs
+    intc_1 // 5
+    |
+    ==
+    assert
+    intc_2 // 1
+    return
+
+
+// test_cases.gvn.phi_congruence.test_redundant_phi(a: uint64, b: uint64) -> uint64:
+test_redundant_phi:
+    proto 2 1
+    frame_dig -2
+    frame_dig -1
+    |
+    frame_dig -1
+    frame_dig -2
+    |
+    frame_dig -2
+    frame_dig -1
+    >
+    bz test_redundant_phi_else_body@2
+    frame_dig -2
+    itob
+    log
+    frame_dig 0
+
+test_redundant_phi_after_if_else@3:
+    frame_bury 0
+    retsub
+
+test_redundant_phi_else_body@2:
+    frame_dig -1
+    itob
+    log
+    frame_dig 1
+    b test_redundant_phi_after_if_else@3
+
+
+// test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
+test_cross_assignment:
+    proto 1 1
+    frame_dig -1
+    dup
+    intc_0 // 0
+
+test_cross_assignment_for_header@1:
+    frame_dig 2
+    intc_3 // 10
+    <
+    bz test_cross_assignment_after_for@4
+    frame_dig 2
+    intc_2 // 1
+    +
+    frame_bury 2
+    frame_dig 0
+    frame_dig 1
+    frame_bury 0
+    frame_bury 1
+    b test_cross_assignment_for_header@1
+
+test_cross_assignment_after_for@4:
+    frame_dig 1
+    frame_dig 0
+    +
+    frame_bury 0
+    retsub
+
+
+// test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
+test_triple_cycle:
+    proto 1 1
+    frame_dig -1
+    dupn 2
+    intc_0 // 0
+
+test_triple_cycle_for_header@1:
+    frame_dig 3
+    intc_1 // 5
+    <
+    bz test_triple_cycle_after_for@4
+    frame_dig 3
+    intc_2 // 1
+    +
+    frame_bury 3
+    frame_dig 0
+    frame_dig 1
+    frame_bury 0
+    frame_dig 2
+    frame_bury 1
+    frame_bury 2
+    b test_triple_cycle_for_header@1
+
+test_triple_cycle_after_for@4:
+    frame_dig 2
+    frame_dig 1
+    +
+    frame_dig 0
+    +
+    frame_bury 0
+    retsub

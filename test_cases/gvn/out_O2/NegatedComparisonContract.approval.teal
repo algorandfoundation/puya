@@ -1,0 +1,84 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.negated_comparisons.NegatedComparisonContract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    dup
+    pushint 1
+    +
+    dup2
+    callsub test_uint64_negated
+    swap
+    itob
+    swap
+    itob
+    callsub test_biguint_negated
+    pushint 1
+    return
+
+
+// test_cases.gvn.negated_comparisons.test_uint64_negated(a: uint64, b: uint64) -> void:
+test_uint64_negated:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    frame_dig -2
+    frame_dig -1
+    >=
+    !
+    assert
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    frame_dig -2
+    frame_dig -1
+    >
+    !
+    assert
+    frame_dig -2
+    frame_dig -1
+    !=
+    assert
+    frame_dig -2
+    frame_dig -1
+    ==
+    !
+    assert
+    retsub
+
+
+// test_cases.gvn.negated_comparisons.test_biguint_negated(a: bytes, b: bytes) -> void:
+test_biguint_negated:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    frame_dig -2
+    frame_dig -1
+    b>=
+    !
+    assert
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    frame_dig -2
+    frame_dig -1
+    b>
+    !
+    assert
+    frame_dig -2
+    frame_dig -1
+    b!=
+    assert
+    frame_dig -2
+    frame_dig -1
+    b==
+    !
+    assert
+    retsub

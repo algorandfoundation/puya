@@ -1,0 +1,58 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.comparison_swaps.ComparisonSwapsContract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    dup
+    pushint 1
+    +
+    callsub test_uint64_swaps
+    pushbytess 0x01 0x02
+    callsub test_biguint_swaps
+    pushint 1
+    return
+
+
+// test_cases.gvn.comparison_swaps.test_uint64_swaps(a: uint64, b: uint64) -> void:
+test_uint64_swaps:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    frame_dig -1
+    frame_dig -2
+    >
+    assert
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    frame_dig -1
+    frame_dig -2
+    >=
+    assert
+    retsub
+
+
+// test_cases.gvn.comparison_swaps.test_biguint_swaps(a: bytes, b: bytes) -> void:
+test_biguint_swaps:
+    proto 2 0
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    frame_dig -1
+    frame_dig -2
+    b>
+    assert
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    frame_dig -1
+    frame_dig -2
+    b>=
+    assert
+    retsub
