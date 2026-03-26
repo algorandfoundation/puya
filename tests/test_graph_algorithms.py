@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import attrs
 import pytest
 
-from puya.ir.optimize.repeated_code_elimination import compute_dominator_tree
+from puya.ir.optimize._utils import compute_dominator_tree
 
 
 @attrs.frozen(kw_only=True)
