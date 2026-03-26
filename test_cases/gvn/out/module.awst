@@ -1,0 +1,151 @@
+contract PhiCongruenceContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.approval_program(): bool
+  {
+    assert(test_cases.gvn.phi_congruence.test_cross_assignment(42u) == 84u)
+    assert(test_cases.gvn.phi_congruence.test_cross_assignment(0u) == 0u)
+    assert(test_cases.gvn.phi_congruence.test_triple_cycle(10u) == 30u)
+    assert(test_cases.gvn.phi_congruence.test_redundant_phi(txn<NumAppArgs>(), 5u) == txn<NumAppArgs>() | 5u)
+    return true
+  }
+  
+  subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_redundant_phi(a: uint64, b: uint64): uint64
+{
+  val1: uint64 = a | b
+  val2: uint64 = b | a
+  if (a > b) {
+    log(itob(a))
+    result: uint64 = val1
+  } else {
+    log(itob(b))
+    result: uint64 = val2
+  }
+  return result
+}
+
+subroutine test_cross_assignment(n: uint64): uint64
+{
+  x: uint64 = n
+  y: uint64 = n
+  for _i in range(0u, 10u, 1u) {
+    tmp: uint64 = x
+    x: uint64 = y
+    y: uint64 = tmp
+  }
+  return x + y
+}
+
+subroutine test_triple_cycle(n: uint64): uint64
+{
+  a: uint64 = n
+  b: uint64 = n
+  c: uint64 = n
+  for _i in range(0u, 5u, 1u) {
+    tmp_a: uint64 = a
+    tmp_b: uint64 = b
+    a: uint64 = c
+    b: uint64 = tmp_a
+    c: uint64 = tmp_b
+  }
+  return a + b + c
+}
+
+contract NegatedComparisonContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.negated_comparisons.NegatedComparisonContract.approval_program(): bool
+  {
+    a: uint64 = txn<NumAppArgs>()
+    b: uint64 = a + 1u
+    test_cases.gvn.negated_comparisons.test_uint64_negated(a, b)
+    test_cases.gvn.negated_comparisons.test_biguint_negated(itob(a), itob(b))
+    return true
+  }
+  
+  subroutine test_cases.gvn.negated_comparisons.NegatedComparisonContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_uint64_negated(a: uint64, b: uint64): void
+{
+  assert(a < b)
+  assert(!(a >= b))
+  assert(a <= b)
+  assert(!(a > b))
+  assert(a != b)
+  eq_result: bool = a == b
+  assert(!(eq_result))
+}
+
+subroutine test_biguint_negated(a: biguint, b: biguint): void
+{
+  assert(a < b)
+  assert(!(a >= b))
+  assert(a <= b)
+  assert(!(a > b))
+  assert(a != b)
+  eq_result: bool = a == b
+  assert(!(eq_result))
+}
+
+contract ComparisonSwapsContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.comparison_swaps.ComparisonSwapsContract.approval_program(): bool
+  {
+    test_cases.gvn.comparison_swaps.test_uint64_swaps(txn<NumAppArgs>(), txn<NumAppArgs>() + 1u)
+    test_cases.gvn.comparison_swaps.test_biguint_swaps(1n, 2n)
+    return true
+  }
+  
+  subroutine test_cases.gvn.comparison_swaps.ComparisonSwapsContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_uint64_swaps(a: uint64, b: uint64): void
+{
+  assert(a < b)
+  assert(b > a)
+  assert(a <= b)
+  assert(b >= a)
+}
+
+subroutine test_biguint_swaps(a: biguint, b: biguint): void
+{
+  assert(a < b)
+  assert(b > a)
+  assert(a <= b)
+  assert(b >= a)
+}
