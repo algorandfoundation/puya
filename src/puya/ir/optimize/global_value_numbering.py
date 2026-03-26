@@ -32,8 +32,8 @@ from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models
+from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
-from puya.ir.optimize.repeated_code_elimination import compute_dominator_tree
 from puya.ir.types_ import SlotType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
