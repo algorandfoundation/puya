@@ -32,9 +32,17 @@ def merge_blocks(_context: CompileContext, subroutine: models.Subroutine) -> boo
         if len(block.predecessors) == 1:
             (predecessor,) = block.predecessors
             if type(predecessor.terminator) is models.Goto:
-                assert predecessor.terminator.target is block
                 # can merge blocks when there is an unconditional jump between them
-                predecessor.phis.extend(block.phis)
+                assert predecessor.terminator.target is block
+                if block.phis:
+                    # note: we currently can't hit this case, as trivial phis are removed during
+                    # construction, and we prevent them from occurring after that
+                    # in BasicBlock.remove_predecessor.
+                    # If this changes, we can easily implement this case here by converting the
+                    # phi into an assignment and appending it to predecessor.ops, but leaving
+                    # unimplemented as currently can't generate a test case to hit it.
+                    logger.debug("skipping merge_blocks because target has phi nodes")
+                    continue
                 predecessor.ops.extend(block.ops)
                 predecessor.terminator = block.terminator
 
