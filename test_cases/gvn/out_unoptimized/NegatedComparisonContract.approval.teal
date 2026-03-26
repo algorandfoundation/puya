@@ -1,0 +1,137 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.negated_comparisons.NegatedComparisonContract.approval_program() -> uint64:
+main:
+    b main_block@0
+
+main_block@0:
+    // gvn/negated_comparisons.py:12
+    // a = Txn.num_app_args
+    txn NumAppArgs
+    // gvn/negated_comparisons.py:13
+    // b = a + 1  # a < b always holds
+    dup
+    pushint 1
+    +
+    // gvn/negated_comparisons.py:14
+    // test_uint64_negated(a, b)
+    dup2
+    callsub test_uint64_negated
+    // gvn/negated_comparisons.py:15
+    // test_biguint_negated(BigUInt(a), BigUInt(b))
+    uncover 1
+    itob
+    uncover 1
+    itob
+    callsub test_biguint_negated
+    // gvn/negated_comparisons.py:16
+    // return True
+    pushint 1
+    return
+
+
+// test_cases.gvn.negated_comparisons.test_uint64_negated(a: uint64, b: uint64) -> void:
+test_uint64_negated:
+    // gvn/negated_comparisons.py:22-23
+    // @subroutine(inline=False)
+    // def test_uint64_negated(a: UInt64, b: UInt64) -> None:
+    proto 2 0
+    b test_uint64_negated_block@0
+
+test_uint64_negated_block@0:
+    // gvn/negated_comparisons.py:29
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    // gvn/negated_comparisons.py:30
+    // assert not (a >= b)  # inverse of <
+    frame_dig -2
+    frame_dig -1
+    >=
+    !
+    assert
+    // gvn/negated_comparisons.py:32
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    // gvn/negated_comparisons.py:33
+    // assert not (a > b)  # inverse of <=
+    frame_dig -2
+    frame_dig -1
+    >
+    !
+    assert
+    // gvn/negated_comparisons.py:35
+    // assert a != b
+    frame_dig -2
+    frame_dig -1
+    !=
+    assert
+    // gvn/negated_comparisons.py:36
+    // eq_result = a == b
+    frame_dig -2
+    frame_dig -1
+    ==
+    // gvn/negated_comparisons.py:37
+    // assert not eq_result  # !(==) should get same VN as !=
+    !
+    assert
+    retsub
+
+
+// test_cases.gvn.negated_comparisons.test_biguint_negated(a: bytes, b: bytes) -> void:
+test_biguint_negated:
+    // gvn/negated_comparisons.py:40-41
+    // @subroutine(inline=False)
+    // def test_biguint_negated(a: BigUInt, b: BigUInt) -> None:
+    proto 2 0
+    b test_biguint_negated_block@0
+
+test_biguint_negated_block@0:
+    // gvn/negated_comparisons.py:43
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    // gvn/negated_comparisons.py:44
+    // assert not (a >= b)  # inverse of b<
+    frame_dig -2
+    frame_dig -1
+    b>=
+    !
+    assert
+    // gvn/negated_comparisons.py:46
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    // gvn/negated_comparisons.py:47
+    // assert not (a > b)  # inverse of b<=
+    frame_dig -2
+    frame_dig -1
+    b>
+    !
+    assert
+    // gvn/negated_comparisons.py:49
+    // assert a != b
+    frame_dig -2
+    frame_dig -1
+    b!=
+    assert
+    // gvn/negated_comparisons.py:50
+    // eq_result = a == b
+    frame_dig -2
+    frame_dig -1
+    b==
+    // gvn/negated_comparisons.py:51
+    // assert not eq_result  # !(b==) should get same VN as b!=
+    !
+    assert
+    retsub

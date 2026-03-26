@@ -1,0 +1,86 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.comparison_swaps.ComparisonSwapsContract.approval_program() -> uint64:
+main:
+    // gvn/comparison_swaps.py:13
+    // test_uint64_swaps(Txn.num_app_args, Txn.num_app_args + 1)
+    txn NumAppArgs
+    dup
+    pushint 1
+    +
+    callsub test_uint64_swaps
+    // gvn/comparison_swaps.py:14
+    // test_biguint_swaps(BigUInt(1), BigUInt(2))
+    pushbytess 0x01 0x02
+    callsub test_biguint_swaps
+    // gvn/comparison_swaps.py:15
+    // return True
+    pushint 1
+    return
+
+
+// test_cases.gvn.comparison_swaps.test_uint64_swaps(a: uint64, b: uint64) -> void:
+test_uint64_swaps:
+    // gvn/comparison_swaps.py:21-22
+    // @subroutine(inline=False)
+    // def test_uint64_swaps(a: UInt64, b: UInt64) -> None:
+    proto 2 0
+    // gvn/comparison_swaps.py:29
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    <
+    assert
+    // gvn/comparison_swaps.py:30
+    // assert b > a  # converse of a < b
+    frame_dig -1
+    frame_dig -2
+    >
+    assert
+    // gvn/comparison_swaps.py:32
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    <=
+    assert
+    // gvn/comparison_swaps.py:33
+    // assert b >= a  # converse of a <= b
+    frame_dig -1
+    frame_dig -2
+    >=
+    assert
+    retsub
+
+
+// test_cases.gvn.comparison_swaps.test_biguint_swaps(a: bytes, b: bytes) -> void:
+test_biguint_swaps:
+    // gvn/comparison_swaps.py:36-37
+    // @subroutine(inline=False)
+    // def test_biguint_swaps(a: BigUInt, b: BigUInt) -> None:
+    proto 2 0
+    // gvn/comparison_swaps.py:39
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    b<
+    assert
+    // gvn/comparison_swaps.py:40
+    // assert b > a  # converse of a < b
+    frame_dig -1
+    frame_dig -2
+    b>
+    assert
+    // gvn/comparison_swaps.py:42
+    // assert a <= b
+    frame_dig -2
+    frame_dig -1
+    b<=
+    assert
+    // gvn/comparison_swaps.py:43
+    // assert b >= a  # converse of a <= b
+    frame_dig -1
+    frame_dig -2
+    b>=
+    assert
+    retsub
