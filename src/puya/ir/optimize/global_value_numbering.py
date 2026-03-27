@@ -172,6 +172,9 @@ class _ScopeDelta:
     expr_keys: list[_ValueKey] = attrs.field(factory=list)
 
 
+_ConstType = models.Constant | models.TemplateVar
+
+
 class _GVNTables:
     """Value numbering state, supporting scoped save/restore for dominator-tree walk."""
 
@@ -185,8 +188,8 @@ class _GVNTables:
         # VN -> the first register assigned that VN (the representative).
         # VNs are globally unique (monotonic counter), so entries never collide.
         self._vn_to_register = dict[VN, models.Register]()
-        # Constant value (frozen) -> VN. Constants are immutable and globally valid.
-        self._const_vn = dict[object, VN]()
+        # Constant value -> VN. Constants are immutable and globally valid.
+        self._const_vn = dict[_ConstType, VN]()
         # VN -> canonical comparison expression key.
         # Used by negation-aware numbering to resolve !(comparison) to the
         # inverse comparison's expression key.
@@ -240,14 +243,15 @@ class _GVNTables:
             vn = self.fresh_vn()
             self.set_register_vn(value, vn)
             return vn
-        # Constants: intern by frozen value so identical constants share a VN.
+        if not isinstance(value, _ConstType):
+            return self.fresh_vn()
+        # Constants: intern by value so identical constants share a VN.
         # Unscoped: constants are globally valid and immutable.
-        key = value.freeze()
-        existing = self._const_vn.get(key)
+        existing = self._const_vn.get(value)
         if existing is not None:
             return existing
         vn = self.fresh_vn()
-        self._const_vn[key] = vn
+        self._const_vn[value] = vn
         return vn
 
     def push_scope(self) -> None:
