@@ -56,7 +56,7 @@ def puyapy(
     ] = None,
     log_level: Annotated[LogLevel, cyclopts.Parameter(group=_outputs_group)] = LogLevel.info,
     output_teal: _OutputToggle = True,
-    output_assembly_report: _OutputToggle = True,
+    output_assembly_report: _OutputToggle = False,
     output_source_map: _OutputToggle = True,
     output_arc56: _OutputToggle = True,
     output_arc32: _OutputToggle = False,
