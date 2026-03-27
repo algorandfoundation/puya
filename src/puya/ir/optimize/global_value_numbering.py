@@ -166,12 +166,10 @@ class _PhiKey(_ValueKey):
 
 @attrs.define
 class _ScopeDelta:
-    """Keys added to each table during a scope, removed on pop."""
+    """Keys added to each scoped table during a scope, removed on pop."""
 
     register_keys: list[models.Register] = attrs.field(factory=list)
     expr_keys: list[_ValueKey] = attrs.field(factory=list)
-    vn_keys: list[VN] = attrs.field(factory=list)
-    const_keys: list[object] = attrs.field(factory=list)
 
 
 class _GVNTables:
@@ -183,17 +181,20 @@ class _GVNTables:
         self._register_vn = dict[models.Register, VN]()
         # Canonical expression -> (VN, representative register(s))
         self._expr_table = dict[_ValueKey, tuple[VN, Sequence[models.Register]]]()
-        # VN -> the first register assigned that VN (the representative)
+        # --- Unscoped tables (globally valid, never rolled back) ---
+        # VN -> the first register assigned that VN (the representative).
+        # VNs are globally unique (monotonic counter), so entries never collide.
         self._vn_to_register = dict[VN, models.Register]()
-        # Constant value (frozen) -> VN
+        # Constant value (frozen) -> VN. Constants are immutable and globally valid.
         self._const_vn = dict[object, VN]()
-        # Stack of deltas for scoped dominator-tree walk; entries added in each
-        # scope are tracked so they can be removed on pop_scope()
-        self._scope_stack = list[_ScopeDelta]()
-        # VN -> canonical comparison expression key (unscoped: VNs are unique)
+        # VN -> canonical comparison expression key.
         # Used by negation-aware numbering to resolve !(comparison) to the
         # inverse comparison's expression key.
         self._comparison_exprs = dict[VN, _IntrinsicKey]()
+        # --- Scope management for dominator-tree walk ---
+        # Only _register_vn and _expr_table are scoped: entries added in each
+        # scope are tracked so they can be removed on pop_scope().
+        self._scope_stack = list[_ScopeDelta]()
 
     def fresh_vn(self) -> VN:
         return next(self._vn_counter)
@@ -202,10 +203,10 @@ class _GVNTables:
         if self._scope_stack and reg not in self._register_vn:
             self._scope_stack[-1].register_keys.append(reg)
         self._register_vn[reg] = vn
-        # First register to receive this VN becomes the representative
+        # First register to receive this VN becomes the representative.
+        # Unscoped: VNs are globally unique (monotonic counter), so entries
+        # from popped scopes never collide with new ones.
         if vn not in self._vn_to_register:
-            if self._scope_stack:
-                self._scope_stack[-1].vn_keys.append(vn)
             self._vn_to_register[vn] = reg
 
     def lookup_expr(self, expr: _ValueKey) -> tuple[VN, Sequence[models.Register]] | None:
@@ -239,14 +240,13 @@ class _GVNTables:
             vn = self.fresh_vn()
             self.set_register_vn(value, vn)
             return vn
-        # Constants: intern by frozen value so identical constants share a VN
+        # Constants: intern by frozen value so identical constants share a VN.
+        # Unscoped: constants are globally valid and immutable.
         key = value.freeze()
         existing = self._const_vn.get(key)
         if existing is not None:
             return existing
         vn = self.fresh_vn()
-        if self._scope_stack:
-            self._scope_stack[-1].const_keys.append(key)
         self._const_vn[key] = vn
         return vn
 
@@ -261,10 +261,6 @@ class _GVNTables:
             del self._register_vn[reg]
         for expr in delta.expr_keys:
             del self._expr_table[expr]
-        for vn in delta.vn_keys:
-            del self._vn_to_register[vn]
-        for key in delta.const_keys:
-            del self._const_vn[key]
 
 
 def _index_vns(
