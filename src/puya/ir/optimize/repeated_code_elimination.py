@@ -17,9 +17,7 @@ def repeated_expression_elimination(
 ) -> bool:
     # TODO: consider merging this pass with GVN so we only compute this tree once
     start, dom_tree = compute_dominator_tree(subroutine)
-    modified = False
-    if _remove_repeated_assertions(dom_tree, start, asserted=set()):
-        modified = True
+    modified = _remove_repeated_assertions(dom_tree, start, asserted=set())
     return modified
 
 
