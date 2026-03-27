@@ -109,6 +109,14 @@ class _ValueKey:
 
 
 @attrs.frozen(kw_only=True)
+class _IndexVN:
+    """Tagged index for aggregate ops — distinguishes static int indices from dynamic VNs."""
+
+    kind: typing.Literal["static", "value"]
+    index: int
+
+
+@attrs.frozen(kw_only=True)
 class _IntrinsicKey(_ValueKey):
     op: AVMOp
     immediates: tuple[str | int, ...]
@@ -119,7 +127,7 @@ class _IntrinsicKey(_ValueKey):
 class _ExtractKey(_ValueKey):
     base_vn: VN
     base_type: types.EncodedType
-    index_vns: tuple[VN, ...]
+    index_vns: tuple[_IndexVN, ...]
     check_bounds: bool
 
 
@@ -127,7 +135,7 @@ class _ExtractKey(_ValueKey):
 class _ReplaceKey(_ValueKey):
     base_vn: VN
     base_type: types.EncodedType
-    index_vns: tuple[VN, ...]
+    index_vns: tuple[_IndexVN, ...]
     value_vn: VN
 
 
@@ -248,10 +256,15 @@ class _GVNTables:
 
 def _index_vns(
     tables: _GVNTables, indexes: tuple[int | models.Value, ...]
-) -> tuple[int | VN, ...]:
-    """Compute VNs for aggregate indexes (ints pass through, Values get numbered)."""
+) -> tuple[_IndexVN, ...]:
+    """Compute VNs for aggregate indexes, tagging static ints vs dynamic VNs."""
     return tuple(
-        tables.lookup_vn(idx) if isinstance(idx, models.Value) else idx for idx in indexes
+        (
+            _IndexVN(kind="value", index=tables.lookup_vn(idx))
+            if isinstance(idx, models.Value)
+            else _IndexVN(kind="static", index=idx)
+        )
+        for idx in indexes
     )
 
 
