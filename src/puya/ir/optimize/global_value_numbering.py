@@ -22,88 +22,145 @@ Correctness:
     3. Conservative default: anything not explicitly handled gets a fresh VN.
 """
 
-from collections.abc import Mapping, Sequence
-from typing import TypeAlias
+import typing
+from collections.abc import Mapping, Sequence, Set
 
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
+from immutabledict import immutabledict
 
 from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
-from puya.ir import models
+from puya.ir import (
+    encodings,
+    models,
+    types_ as types,
+)
+from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
-from puya.ir.types_ import SlotType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
+from puya.utils import symmetric_mapping
 
 logger = log.get_logger(__name__)
 
-VN: TypeAlias = int
+VN: typing.TypeAlias = int
 
 # Commutative AVM ops: sorting operand VNs lets us recognise a+b == b+a.
-_COMMUTATIVE_OPS: frozenset[str] = frozenset(
+_COMMUTATIVE_OPS: typing.Final[Set[AVMOp]] = frozenset(
     [
         # uint64 arithmetic
-        "+",
-        "*",
+        AVMOp.add,
+        AVMOp.mul,
         # uint64 comparison
-        "==",
-        "!=",
+        AVMOp.eq,
+        AVMOp.neq,
         # uint64 bitwise
-        "&",
-        "|",
-        "^",
+        AVMOp.bitwise_and,
+        AVMOp.bitwise_or,
+        AVMOp.bitwise_xor,
         # uint64 logical
-        "&&",
-        "||",
+        AVMOp.and_,
+        AVMOp.or_,
         # wide uint64 arithmetic
-        "addw",
-        "mulw",
+        AVMOp.addw,
+        AVMOp.mulw,
         # bytes arithmetic
-        "b+",
-        "b*",
+        AVMOp.add_bytes,
+        AVMOp.mul_bytes,
         # bytes comparison
-        "b==",
-        "b!=",
+        AVMOp.eq_bytes,
+        AVMOp.neq_bytes,
         # bytes bitwise
-        "b&",
-        "b|",
-        "b^",
+        AVMOp.bitwise_and_bytes,
+        AVMOp.bitwise_or_bytes,
+        AVMOp.bitwise_xor_bytes,
     ]
 )
 
 # Ordering ops: swapping operands requires mirroring the predicate.
 # Sorting operand VNs (as with commutative ops) and adjusting the op code
 # lets us recognise a<b == b>a, a<=b == b>=a, etc.
-_MIRROR_OPS: dict[str, str] = {
-    "<": ">",
-    ">": "<",
-    "<=": ">=",
-    ">=": "<=",
-    "b<": "b>",
-    "b>": "b<",
-    "b<=": "b>=",
-    "b>=": "b<=",
-}
+_MIRROR_OPS: typing.Final = symmetric_mapping(
+    (AVMOp.lt, AVMOp.gt),
+    (AVMOp.lte, AVMOp.gte),
+    (AVMOp.lt_bytes, AVMOp.gt_bytes),
+    (AVMOp.lte_bytes, AVMOp.gte_bytes),
+)
 
 # Inverse comparisons: !(a < b) == (a >= b), etc.
 # Used for negation-aware numbering: when GVN sees !(comparison),
 # it returns the inverse comparison's expression key.
-_INVERSE_COMPARISONS: dict[str, str] = {
-    "<": ">=",
-    ">=": "<",
-    ">": "<=",
-    "<=": ">",
-    "==": "!=",
-    "!=": "==",
-    "b<": "b>=",
-    "b>=": "b<",
-    "b>": "b<=",
-    "b<=": "b>",
-    "b==": "b!=",
-    "b!=": "b==",
-}
+_INVERSE_COMPARISONS: typing.Final = symmetric_mapping(
+    (AVMOp.lt, AVMOp.gte),
+    (AVMOp.gt, AVMOp.lte),
+    (AVMOp.eq, AVMOp.neq),
+    (AVMOp.lt_bytes, AVMOp.gte_bytes),
+    (AVMOp.gt_bytes, AVMOp.lte_bytes),
+    (AVMOp.eq_bytes, AVMOp.neq_bytes),
+)
+
+
+@attrs.frozen(kw_only=True)
+class _ValueKey:
+    """Base class for canonical value expression keys used in the GVN expression table."""
+
+
+@attrs.frozen(kw_only=True)
+class _IntrinsicKey(_ValueKey):
+    op: AVMOp
+    immediates: tuple[str | int, ...]
+    arg_vns: tuple[VN, ...]
+
+
+@attrs.frozen(kw_only=True)
+class _ExtractKey(_ValueKey):
+    base_vn: VN
+    base_type: types.EncodedType
+    index_vns: tuple[VN, ...]
+    check_bounds: bool
+
+
+@attrs.frozen(kw_only=True)
+class _ReplaceKey(_ValueKey):
+    base_vn: VN
+    base_type: types.EncodedType
+    index_vns: tuple[VN, ...]
+    value_vn: VN
+
+
+@attrs.frozen(kw_only=True)
+class _ArrayLengthKey(_ValueKey):
+    base_vn: VN
+    base_type: types.IRType
+    array_encoding: encodings.ArrayEncoding
+
+
+@attrs.frozen(kw_only=True)
+class _EncodeKey(_ValueKey):
+    encoding: encodings.Encoding
+    value_vns: tuple[VN, ...]
+    values_type: types.IRType | types.TupleIRType
+
+
+@attrs.frozen(kw_only=True)
+class _DecodeKey(_ValueKey):
+    encoding: encodings.Encoding
+    value_vn: VN
+    ir_type: types.IRType | types.TupleIRType
+
+
+@attrs.frozen(kw_only=True)
+class _CallSubKey(_ValueKey):
+    target_id: str
+    arg_vns: tuple[VN, ...]
+
+
+@attrs.frozen(kw_only=True)
+class _PhiKey(_ValueKey):
+    block: models.BasicBlock
+    args: immutabledict[models.BasicBlock, VN]
 
 
 @attrs.define
@@ -111,7 +168,7 @@ class _ScopeDelta:
     """Keys added to each table during a scope, removed on pop."""
 
     register_keys: list[models.Register] = attrs.field(factory=list)
-    expr_keys: list[object] = attrs.field(factory=list)
+    expr_keys: list[_ValueKey] = attrs.field(factory=list)
     vn_keys: list[VN] = attrs.field(factory=list)
     const_keys: list[object] = attrs.field(factory=list)
 
@@ -124,7 +181,7 @@ class _GVNTables:
         # VN assigned to each SSA register
         self._register_vn: dict[models.Register, VN] = {}
         # Canonical expression -> (VN, representative register(s))
-        self._expr_table: dict[object, tuple[VN, Sequence[models.Register]]] = {}
+        self._expr_table: dict[_ValueKey, tuple[VN, Sequence[models.Register]]] = {}
         # VN -> the first register assigned that VN (the representative)
         self._vn_to_register: dict[VN, models.Register] = {}
         # Constant value (frozen) -> VN
@@ -135,9 +192,7 @@ class _GVNTables:
         # VN -> canonical comparison expression key (unscoped: VNs are unique)
         # Used by negation-aware numbering to resolve !(comparison) to the
         # inverse comparison's expression key.
-        # Stores (op_code, immediates, arg_vns) — the components needed to
-        # construct the inverse comparison's expression key.
-        self._comparison_exprs: dict[VN, tuple[str, tuple[object, ...], tuple[VN, ...]]] = {}
+        self._comparison_exprs: dict[VN, _IntrinsicKey] = {}
 
     def fresh_vn(self) -> VN:
         vn = self._next_vn
@@ -154,10 +209,10 @@ class _GVNTables:
                 self._scope_stack[-1].vn_keys.append(vn)
             self._vn_to_register[vn] = reg
 
-    def lookup_expr(self, expr: object) -> tuple[VN, Sequence[models.Register]] | None:
+    def lookup_expr(self, expr: _ValueKey) -> tuple[VN, Sequence[models.Register]] | None:
         return self._expr_table.get(expr)
 
-    def store_expr(self, expr: object, vn: VN, targets: Sequence[models.Register]) -> None:
+    def store_expr(self, expr: _ValueKey, vn: VN, targets: Sequence[models.Register]) -> None:
         if self._scope_stack and expr not in self._expr_table:
             self._scope_stack[-1].expr_keys.append(expr)
         self._expr_table[expr] = (vn, targets)
@@ -165,16 +220,10 @@ class _GVNTables:
     def representative(self, vn: VN) -> models.Register | None:
         return self._vn_to_register.get(vn)
 
-    def record_comparison(
-        self,
-        vn: VN,
-        op_code: str,
-        immediates: tuple[object, ...],
-        arg_vns: tuple[VN, ...],
-    ) -> None:
-        self._comparison_exprs[vn] = (op_code, immediates, arg_vns)
+    def record_comparison(self, vn: VN, key: _IntrinsicKey) -> None:
+        self._comparison_exprs[vn] = key
 
-    def get_comparison_expr(self, vn: VN) -> tuple[str, tuple[object, ...], tuple[VN, ...]] | None:
+    def get_comparison_expr(self, vn: VN) -> _IntrinsicKey | None:
         return self._comparison_exprs.get(vn)
 
     def lookup_vn(self, value: models.Value) -> VN:
@@ -231,7 +280,7 @@ def _index_vns(
 def _build_value_expr(
     tables: _GVNTables,
     source: models.ValueProvider,
-) -> object | None:
+) -> _ValueKey | None:
     """Build a canonical, hashable value expression for a ValueProvider.
 
     Returns None for side-effecting or unrecognised operations (they get a fresh VN).
@@ -245,64 +294,72 @@ def _build_value_expr(
             arg_vns = tuple(tables.lookup_vn(a) for a in args)
             # Negation-aware numbering: !(comparison) -> inverse comparison.
             # e.g. !(a < b) gets the same key as (a >= b).
-            if op.code == "!" and len(arg_vns) == 1:
+            if op == AVMOp.not_ and len(arg_vns) == 1:
                 comp = tables.get_comparison_expr(arg_vns[0])
                 if comp is not None:
-                    comp_op, comp_imm, comp_arg_vns = comp
-                    inverse_op = _INVERSE_COMPARISONS.get(comp_op)
+                    inverse_op = _INVERSE_COMPARISONS.get(comp.op)
                     if inverse_op is not None:
-                        return ("intrinsic", inverse_op, comp_imm, comp_arg_vns)
-            op_key = op.code
-            if op.code in _COMMUTATIVE_OPS:
+                        return _IntrinsicKey(
+                            op=inverse_op,
+                            immediates=comp.immediates,
+                            arg_vns=comp.arg_vns,
+                        )
+            op_key = op
+            if op in _COMMUTATIVE_OPS:
                 arg_vns = tuple(sorted(arg_vns))
-            elif op.code in _MIRROR_OPS and arg_vns[0] > arg_vns[1]:
+            elif op in _MIRROR_OPS and arg_vns[0] > arg_vns[1]:
                 # Canonicalize ordering ops by sorting operand VNs,
                 # mirroring the predicate to preserve semantics.
                 # e.g. a<b and b>a get the same canonical key.
                 arg_vns = (arg_vns[1], arg_vns[0])
-                op_key = _MIRROR_OPS[op.code]
-            return ("intrinsic", op_key, tuple(immediates), arg_vns)
+                op_key = _MIRROR_OPS[op]
+            return _IntrinsicKey(op=op_key, immediates=tuple(immediates), arg_vns=arg_vns)
 
         case models.ExtractValue(
             base=base, base_type=base_type, indexes=indexes, check_bounds=check_bounds
         ):
-            return (
-                "extract",
-                tables.lookup_vn(base),
-                base_type,
-                _index_vns(tables, indexes),
-                check_bounds,
+            return _ExtractKey(
+                base_vn=tables.lookup_vn(base),
+                base_type=base_type,
+                index_vns=_index_vns(tables, indexes),
+                check_bounds=check_bounds,
             )
 
         case models.ReplaceValue(base=base, base_type=base_type, indexes=indexes, value=value):
-            return (
-                "replace",
-                tables.lookup_vn(base),
-                base_type,
-                _index_vns(tables, indexes),
-                tables.lookup_vn(value),
+            return _ReplaceKey(
+                base_vn=tables.lookup_vn(base),
+                base_type=base_type,
+                index_vns=_index_vns(tables, indexes),
+                value_vn=tables.lookup_vn(value),
             )
 
         case models.BytesEncode(encoding=encoding, values=values, values_type=values_type):
-            return (
-                "encode",
-                encoding,
-                tuple(tables.lookup_vn(v) for v in values),
-                values_type,
+            return _EncodeKey(
+                encoding=encoding,
+                value_vns=tuple(tables.lookup_vn(v) for v in values),
+                values_type=values_type,
             )
 
         case models.DecodeBytes(encoding=encoding, value=value, ir_type=ir_type):
-            return ("decode", encoding, tables.lookup_vn(value), ir_type)
+            return _DecodeKey(
+                encoding=encoding,
+                value_vn=tables.lookup_vn(value),
+                ir_type=ir_type,
+            )
 
         case models.ArrayLength(
             base=base, base_type=base_type, array_encoding=array_encoding
-        ) if not isinstance(base_type, SlotType):
+        ) if not isinstance(base_type, types.SlotType):
             # Only pure when the base is a stack value, not a slot reference.
-            return ("array_length", tables.lookup_vn(base), base_type, array_encoding)
+            return _ArrayLengthKey(
+                base_vn=tables.lookup_vn(base),
+                base_type=base_type,
+                array_encoding=array_encoding,
+            )
 
         case models.InvokeSubroutine(target=target, args=args) if target.pure:
             arg_vns = tuple(tables.lookup_vn(a) for a in args)
-            return ("callsub", target.id, arg_vns)
+            return _CallSubKey(target_id=target.id, arg_vns=arg_vns)
 
         case _:
             # Side-effecting, non-deterministic, or unrecognised — conservative fresh VN
@@ -345,9 +402,11 @@ def _process_phi(
         tables.set_register_vn(phi.register, vn)
         return
 
-    arg_vns = [tables.lookup_vn(arg.value) for arg in phi.args]
+    phi_arg_vns = immutabledict[models.BasicBlock, VN](
+        (arg.through, tables.lookup_vn(arg.value)) for arg in phi.args
+    )
 
-    unique_vns = set(arg_vns)
+    unique_vns = set(phi_arg_vns.values())
     if len(unique_vns) == 1:
         # Redundant phi: all arguments have the same VN
         (the_vn,) = unique_vns
@@ -362,10 +421,7 @@ def _process_phi(
         return
 
     # Non-redundant phi: hash by (block_id, arg_vns) to detect congruent phis
-    phi_args = tuple(
-        sorted((arg_vn, arg.through.id) for arg_vn, arg in zip(arg_vns, phi.args, strict=True))
-    )
-    phi_expr = ("phi", block.id, phi_args)
+    phi_expr = _PhiKey(block=block, args=phi_arg_vns)
     existing = tables.lookup_expr(phi_expr)
     if existing is not None:
         existing_vn, (existing_reg,) = existing
@@ -433,10 +489,8 @@ def _process_assignment(
 
     # Track comparison expressions for negation-aware numbering.
     # Single-target only — comparisons always produce one result.
-    if len(targets) == 1 and isinstance(expr, tuple) and len(expr) == 4:
-        _, op_code, imm, cmp_arg_vns = expr
-        if isinstance(op_code, str) and op_code in _INVERSE_COMPARISONS:
-            tables.record_comparison(tables.lookup_vn(targets[0]), op_code, imm, cmp_arg_vns)
+    if len(targets) == 1 and isinstance(expr, _IntrinsicKey) and expr.op in _INVERSE_COMPARISONS:
+        tables.record_comparison(tables.lookup_vn(targets[0]), expr)
 
 
 def _process_block(
