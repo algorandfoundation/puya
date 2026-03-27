@@ -22,6 +22,7 @@ Correctness:
     3. Conservative default: anything not explicitly handled gets a fresh VN.
 """
 
+import itertools
 import typing
 from collections.abc import Mapping, Sequence, Set
 
@@ -177,27 +178,25 @@ class _GVNTables:
     """Value numbering state, supporting scoped save/restore for dominator-tree walk."""
 
     def __init__(self) -> None:
-        self._next_vn: VN = 0
+        self._vn_counter = itertools.count()
         # VN assigned to each SSA register
-        self._register_vn: dict[models.Register, VN] = {}
+        self._register_vn = dict[models.Register, VN]()
         # Canonical expression -> (VN, representative register(s))
-        self._expr_table: dict[_ValueKey, tuple[VN, Sequence[models.Register]]] = {}
+        self._expr_table = dict[_ValueKey, tuple[VN, Sequence[models.Register]]]()
         # VN -> the first register assigned that VN (the representative)
-        self._vn_to_register: dict[VN, models.Register] = {}
+        self._vn_to_register = dict[VN, models.Register]()
         # Constant value (frozen) -> VN
-        self._const_vn: dict[object, VN] = {}
+        self._const_vn = dict[object, VN]()
         # Stack of deltas for scoped dominator-tree walk; entries added in each
         # scope are tracked so they can be removed on pop_scope()
-        self._scope_stack: list[_ScopeDelta] = []
+        self._scope_stack = list[_ScopeDelta]()
         # VN -> canonical comparison expression key (unscoped: VNs are unique)
         # Used by negation-aware numbering to resolve !(comparison) to the
         # inverse comparison's expression key.
-        self._comparison_exprs: dict[VN, _IntrinsicKey] = {}
+        self._comparison_exprs = dict[VN, _IntrinsicKey]()
 
     def fresh_vn(self) -> VN:
-        vn = self._next_vn
-        self._next_vn += 1
-        return vn
+        return next(self._vn_counter)
 
     def set_register_vn(self, reg: models.Register, vn: VN) -> None:
         if self._scope_stack and reg not in self._register_vn:
