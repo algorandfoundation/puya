@@ -5,7 +5,16 @@ import gzip
 import math
 import os
 import typing
-from collections.abc import Callable, Iterable, Iterator, MutableMapping, MutableSet, Sequence, Set
+from collections.abc import (
+    Callable,
+    Iterable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    MutableSet,
+    Sequence,
+    Set,
+)
 from contextvars import ContextVar
 from pathlib import Path
 
@@ -384,3 +393,8 @@ def read_text_from_maybe_compressed_file(path: Path) -> str:
             return fp.read()
     else:
         return path.read_text("utf8")
+
+
+def symmetric_mapping[T](*pairs: tuple[T, T]) -> Mapping[T, T]:
+    """Generate a symmetric mapping from a sequence of key-value pairs."""
+    return {k: v for a, b in pairs for k, v in ((a, b), (b, a))}
