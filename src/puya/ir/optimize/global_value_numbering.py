@@ -164,51 +164,45 @@ class _PhiKey(_ValueKey):
     args: immutabledict[models.BasicBlock, VN]
 
 
-@attrs.define
-class _ScopeDelta:
-    """Keys added to each scoped table during a scope, removed on pop."""
-
-    register_keys: list[models.Register] = attrs.field(factory=list)
-    expr_keys: list[_ValueKey] = attrs.field(factory=list)
-
-
 _ConstType = models.Constant | models.TemplateVar
 
 
+@attrs.define
 class _GVNTables:
-    """Value numbering state, supporting scoped save/restore for dominator-tree walk."""
+    """Value numbering state, supporting scoped save/restore for dominator-tree walk.
 
-    def __init__(self) -> None:
-        self._vn_counter = itertools.count()
-        # VN assigned to each SSA register
-        self._register_vn = dict[models.Register, VN]()
-        # Canonical expression -> (VN, representative register(s))
-        self._expr_table = dict[_ValueKey, tuple[VN, Sequence[models.Register]]]()
-        # --- Unscoped tables (globally valid, never rolled back) ---
-        # VN -> the first register assigned that VN (the representative).
-        # VNs are globally unique (monotonic counter), so entries never collide.
-        self._vn_to_register = dict[VN, models.Register]()
-        # Constant value -> VN. Constants are immutable and globally valid.
-        self._const_vn = dict[_ConstType, VN]()
-        # VN -> canonical comparison expression key.
-        # Used by negation-aware numbering to resolve !(comparison) to the
-        # inverse comparison's expression key.
-        self._comparison_exprs = dict[VN, _IntrinsicKey]()
-        # --- Scope management for dominator-tree walk ---
-        # Only _register_vn and _expr_table are scoped: entries added in each
-        # scope are tracked so they can be removed on pop_scope().
-        self._scope_stack = list[_ScopeDelta]()
+    Scoped state (_register_vn, _expr_table) is copied on child_scope() so that
+    siblings in the dominator tree don't see each other's definitions.
+    Global state (_vn_counter, _vn_to_register, _const_vn, _comparison_exprs)
+    is shared by reference across all scopes.
+    """
+
+    # --- Scoped: copied on child_scope() ---
+    _register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
+    _expr_table: dict[_ValueKey, tuple[VN, Sequence[models.Register]]] = attrs.field(factory=dict)
+    # --- Global: shared by reference across all scopes ---
+    _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
+    _vn_to_register: dict[VN, models.Register] = attrs.field(factory=dict)
+    _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
+    _comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
+
+    def child_scope(self) -> typing.Self:
+        """Create a child scope for dominator-tree descent.
+
+        Scoped dicts are copied; global state is shared by reference.
+        """
+        return attrs.evolve(
+            self,
+            register_vn=dict(self._register_vn),
+            expr_table=dict(self._expr_table),
+        )
 
     def fresh_vn(self) -> VN:
         return next(self._vn_counter)
 
     def set_register_vn(self, reg: models.Register, vn: VN) -> None:
-        if self._scope_stack and reg not in self._register_vn:
-            self._scope_stack[-1].register_keys.append(reg)
         self._register_vn[reg] = vn
         # First register to receive this VN becomes the representative.
-        # Unscoped: VNs are globally unique (monotonic counter), so entries
-        # from popped scopes never collide with new ones.
         if vn not in self._vn_to_register:
             self._vn_to_register[vn] = reg
 
@@ -216,8 +210,6 @@ class _GVNTables:
         return self._expr_table.get(expr)
 
     def store_expr(self, expr: _ValueKey, vn: VN, targets: Sequence[models.Register]) -> None:
-        if self._scope_stack and expr not in self._expr_table:
-            self._scope_stack[-1].expr_keys.append(expr)
         self._expr_table[expr] = (vn, targets)
 
     def representative(self, vn: VN) -> models.Register | None:
@@ -246,25 +238,12 @@ class _GVNTables:
         if not isinstance(value, _ConstType):
             return self.fresh_vn()
         # Constants: intern by value so identical constants share a VN.
-        # Unscoped: constants are globally valid and immutable.
         existing = self._const_vn.get(value)
         if existing is not None:
             return existing
         vn = self.fresh_vn()
         self._const_vn[value] = vn
         return vn
-
-    def push_scope(self) -> None:
-        """Begin a new scope for dominator-tree walk."""
-        self._scope_stack.append(_ScopeDelta())
-
-    def pop_scope(self) -> None:
-        """Remove entries added in the current scope."""
-        delta = self._scope_stack.pop()
-        for reg in delta.register_keys:
-            del self._register_vn[reg]
-        for expr in delta.expr_keys:
-            del self._expr_table[expr]
 
 
 def _index_vns(
@@ -500,10 +479,10 @@ def _process_block(
 ) -> None:
     """Process a single block in the dominator-tree preorder walk.
 
-    Scopes the tables so that entries added in this block are visible to
-    dominated children but rolled back when returning to siblings.
+    Creates a child scope so entries added in this block are visible to
+    dominated children but not to siblings.
     """
-    tables.push_scope()
+    tables = tables.child_scope()
 
     for phi in block.phis:
         _process_phi(tables, block, phi, replacements)
@@ -514,8 +493,6 @@ def _process_block(
 
     for child in dom_tree.get(block, []):
         _process_block(tables, dom_tree, child, replacements)
-
-    tables.pop_scope()
 
 
 def _apply_replacements(
