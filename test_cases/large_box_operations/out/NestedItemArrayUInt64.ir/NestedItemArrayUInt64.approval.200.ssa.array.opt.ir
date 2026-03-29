@@ -291,7 +291,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.pop
     block@0: // L68
         let box%box_extract%2#0: bytes = (box_extract "box" 24u 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%2#0)
-        let sub%0#0: uint64 = (- box%btoi%1#0 1u)
+        let sub%0#0: uint64 = (- box%btoi%1#0 1u) // on error: cannot pop from empty array
         let box%index_ok%0#0: bool = (< sub%0#0 box%btoi%1#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%element_offset%0#0: uint64 = (* sub%0#0 17u)
@@ -455,7 +455,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let box%offset%5#0: uint64 = (+ box%offset%4#0 2u)
         let box%box_extract%8#0: bytes = (box_extract "box" box%offset%5#0 2u)
         let box%btoi%7#0: uint64 = (btoi box%box_extract%8#0)
-        let sub%0#0: uint64 = (- box%btoi%7#0 1u)
+        let sub%0#0: uint64 = (- box%btoi%7#0 1u) // on error: cannot pop from empty array
         let box%box_extract%9#0: bytes = box%box_extract%0#0
         let box%btoi%8#0: uint64 = (btoi box%box_extract%9#0)
         let box%box_extract%10#0: bytes = (box_extract "box" box%btoi%8#0 2u)
@@ -540,7 +540,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dyn
         let box%btoi%0#0: uint64 = (btoi box%box_extract%0#0)
         let box%box_extract%1#0: bytes = (box_extract "box" box%btoi%0#0 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%1#0)
-        let sub%0#0: uint64 = (- box%btoi%1#0 1u)
+        let sub%0#0: uint64 = (- box%btoi%1#0 1u) // on error: cannot pop from empty array
         let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_dynamic_element(array#0, sub%0#0)
         let array_length#0: uint64 = (extract_uint16 array#0 0u)
         let length_minus_1#0: uint64 = (- array_length#0 1u)
