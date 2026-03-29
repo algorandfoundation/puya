@@ -766,7 +766,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.pop
         let tuple_item%0#0: Encoded(uint64,(len+((uint64,bool1),uint64)[]),uint64) = extract_value(storage_value%0#0, 0)
         let tuple_item%1#0: Encoded(len+((uint64,bool1),uint64)[]) = extract_value(tuple_item%0#0, 1)
         let tmp%0#0: uint64 = array_len(tuple_item%1#0)
-        let sub%0#0: uint64 = (- tmp%0#0 1u)
+        let sub%0#0: uint64 = (- tmp%0#0 1u) // on error: cannot pop from empty array
         let tmp%1#0: Encoded((uint64,bool1),uint64) = extract_value(tuple_item%1#0, sub%0#0)
         let tmp%2#0: Encoded(len+((uint64,bool1),uint64)[]) = array_pop(tuple_item%1#0)
         let updated_tuple%0#0: Encoded((uint64,(len+((uint64,bool1),uint64)[]),uint64),(len+uint8[4096][]),(len+((len+uint64[]))[])) = replace_value(storage_value%0#0, 0, 1, tmp%2#0)
@@ -814,7 +814,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
         let array_item%0#0: Encoded((len+uint64[])) = extract_value(tuple_item%0#0, item_idx#0)
         let tuple_item%1#0: Encoded(len+uint64[]) = extract_value(array_item%0#0, 0)
         let tmp%0#0: uint64 = array_len(tuple_item%1#0)
-        let sub%0#0: uint64 = (- tmp%0#0 1u)
+        let sub%0#0: uint64 = (- tmp%0#0 1u) // on error: cannot pop from empty array
         let tmp%1#0: Encoded(uint64) = extract_value(tuple_item%1#0, sub%0#0)
         let tmp%2#0: uint64 = decode_bytes<uint64>(tmp%1#0)
         let tmp%3#0: Encoded(len+uint64[]) = array_pop(tuple_item%1#0)
@@ -837,7 +837,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dyn
         let storage_value%0#0: bytes = box_read("box")
         let tuple_item%0#0: Encoded(len+((len+uint64[]))[]) = extract_value(storage_value%0#0, 2)
         let tmp%0#0: uint64 = array_len(tuple_item%0#0)
-        let sub%0#0: uint64 = (- tmp%0#0 1u)
+        let sub%0#0: uint64 = (- tmp%0#0 1u) // on error: cannot pop from empty array
         let tmp%1#0: Encoded((len+uint64[])) = extract_value(tuple_item%0#0, sub%0#0)
         let tmp%2#0: Encoded(len+((len+uint64[]))[]) = array_pop(tuple_item%0#0)
         let updated_tuple%0#0: Encoded((uint64,(len+((uint64,bool1),uint64)[]),uint64),(len+uint8[4096][]),(len+((len+uint64[]))[])) = replace_value(storage_value%0#0, 2, tmp%2#0)
@@ -849,7 +849,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.cle
         let storage_value%0#0: bytes = box_read("box")
         let tuple_item%0#0: Encoded(len+uint8[4096][]) = extract_value(storage_value%0#0, 1)
         let tmp%0#0: uint64 = array_len(tuple_item%0#0)
-        let sub%0#0: uint64 = (- tmp%0#0 1u)
+        let sub%0#0: uint64 = (- tmp%0#0 1u) // on error: cannot pop from empty array
         let tmp%1#0: Encoded(uint8[4096]) = extract_value(tuple_item%0#0, sub%0#0)
         let tmp%2#0: bytes[4096] = decode_bytes<bytes[4096]>(tmp%1#0)
         let tmp%3#0: Encoded(len+uint8[4096][]) = array_pop(tuple_item%0#0)
