@@ -41,6 +41,7 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
+from puya.ir.visitor import ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.utils import symmetric_mapping
 
@@ -126,7 +127,7 @@ class _IntrinsicKey(_ValueKey):
 @attrs.frozen(kw_only=True)
 class _ExtractKey(_ValueKey):
     base_vn: VN
-    base_type: types.EncodedType
+    base_type: types.EncodedType  # important if there's aliasing through storage
     index_vns: tuple[_IndexVN, ...]
     check_bounds: bool
 
@@ -143,7 +144,21 @@ class _ReplaceKey(_ValueKey):
 class _ArrayLengthKey(_ValueKey):
     base_vn: VN
     base_type: types.IRType
-    array_encoding: encodings.ArrayEncoding
+
+
+@attrs.frozen(kw_only=True)
+class _ArrayPopKey(_ValueKey):
+    base_vn: VN
+    base_type: types.EncodedType
+
+
+@attrs.frozen(kw_only=True)
+class _ArrayConcatKey(_ValueKey):
+    base_vn: VN
+    base_type: types.EncodedType
+    items_vn: VN
+    item_encoding: encodings.Encoding
+    # num_items: redundant in combination with all other data above
 
 
 @attrs.frozen(kw_only=True)
@@ -268,93 +283,189 @@ def _index_vns(
     )
 
 
-def _build_value_expr(
-    tables: _GVNTables,
-    source: models.ValueProvider,
-) -> _ValueKey | None:
+class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
     """Build a canonical, hashable value expression for a ValueProvider.
 
     Returns None for side-effecting or unrecognised operations (they get a fresh VN).
     """
-    match source:
-        case models.Intrinsic(op=op, immediates=immediates, args=args) if (
-            args  # TODO: handle no-args by keeping the definition but assigning same VN,
-            #             and then using that VN in comparison / algebraic identities
-            and op.code in PURE_AVM_OPS
-        ):
-            arg_vns = tuple(tables.lookup_vn(a) for a in args)
-            # Negation-aware numbering: !(comparison) -> inverse comparison.
-            # e.g. !(a < b) gets the same key as (a >= b).
-            if op == AVMOp.not_ and len(arg_vns) == 1:
-                comp = tables.get_comparison_expr(arg_vns[0])
-                if comp is not None:
-                    inverse_op = _INVERSE_COMPARISONS.get(comp.op)
-                    if inverse_op is not None:
-                        return _IntrinsicKey(
-                            op=inverse_op,
-                            immediates=comp.immediates,
-                            arg_vns=comp.arg_vns,
-                        )
-            op_key = op
-            if op in _COMMUTATIVE_OPS:
-                arg_vns = tuple(sorted(arg_vns))
-            elif op in _MIRROR_OPS and arg_vns[0] > arg_vns[1]:
-                # Canonicalize ordering ops by sorting operand VNs,
-                # mirroring the predicate to preserve semantics.
-                # e.g. a<b and b>a get the same canonical key.
-                arg_vns = (arg_vns[1], arg_vns[0])
-                op_key = _MIRROR_OPS[op]
-            return _IntrinsicKey(op=op_key, immediates=tuple(immediates), arg_vns=arg_vns)
 
-        case models.ExtractValue(
-            base=base, base_type=base_type, indexes=indexes, check_bounds=check_bounds
-        ):
-            return _ExtractKey(
-                base_vn=tables.lookup_vn(base),
-                base_type=base_type,
-                index_vns=_index_vns(tables, indexes),
-                check_bounds=check_bounds,
-            )
+    def __init__(self, tables: _GVNTables) -> None:
+        self._tables = tables
 
-        case models.ReplaceValue(base=base, base_type=base_type, indexes=indexes, value=value):
-            return _ReplaceKey(
-                base_vn=tables.lookup_vn(base),
-                base_type=base_type,
-                index_vns=_index_vns(tables, indexes),
-                value_vn=tables.lookup_vn(value),
-            )
+    @typing.override
+    def visit_extract_value(self, read: models.ExtractValue) -> _ValueKey | None:
+        return _ExtractKey(
+            base_vn=self._tables.lookup_vn(read.base),
+            base_type=read.base_type,
+            index_vns=_index_vns(self._tables, read.indexes),
+            check_bounds=read.check_bounds,
+        )
 
-        case models.BytesEncode(encoding=encoding, values=values, values_type=values_type):
-            return _EncodeKey(
-                encoding=encoding,
-                value_vns=tuple(tables.lookup_vn(v) for v in values),
-                values_type=values_type,
-            )
+    @typing.override
+    def visit_replace_value(self, write: models.ReplaceValue) -> _ValueKey | None:
+        return _ReplaceKey(
+            base_vn=self._tables.lookup_vn(write.base),
+            base_type=write.base_type,
+            index_vns=_index_vns(self._tables, write.indexes),
+            value_vn=self._tables.lookup_vn(write.value),
+        )
 
-        case models.DecodeBytes(encoding=encoding, value=value, ir_type=ir_type):
-            return _DecodeKey(
-                encoding=encoding,
-                value_vn=tables.lookup_vn(value),
-                ir_type=ir_type,
-            )
+    @typing.override
+    def visit_array_concat(self, concat: models.ArrayConcat) -> _ValueKey:
+        return _ArrayConcatKey(
+            base_vn=self._tables.lookup_vn(concat.base),
+            base_type=concat.base_type,
+            items_vn=self._tables.lookup_vn(concat.items),
+            item_encoding=concat.item_encoding,
+        )
 
-        case models.ArrayLength(
-            base=base, base_type=base_type, array_encoding=array_encoding
-        ) if not isinstance(base_type, types.SlotType):
-            # Only pure when the base is a stack value, not a slot reference.
-            return _ArrayLengthKey(
-                base_vn=tables.lookup_vn(base),
-                base_type=base_type,
-                array_encoding=array_encoding,
-            )
-
-        case models.InvokeSubroutine(target=target, args=args) if target.pure:
-            arg_vns = tuple(tables.lookup_vn(a) for a in args)
-            return _CallSubKey(target_id=target.id, arg_vns=arg_vns)
-
-        case _:
-            # Side-effecting, non-deterministic, or unrecognised — conservative fresh VN
+    @typing.override
+    def visit_array_length(self, length: models.ArrayLength) -> _ValueKey | None:
+        # Only pure when the base is a stack value, not a slot reference.
+        if isinstance(length.base_type, types.SlotType):
             return None
+        return _ArrayLengthKey(
+            base_vn=self._tables.lookup_vn(length.base),
+            base_type=length.base_type,
+        )
+
+    @typing.override
+    def visit_array_pop(self, pop: models.ArrayPop) -> _ValueKey:
+        return _ArrayPopKey(
+            base_vn=self._tables.lookup_vn(pop.base),
+            base_type=pop.base_type,
+        )
+
+    @typing.override
+    def visit_box_read(self, read: models.BoxRead) -> None:
+        return None  # stateful, leave this up to repeated-reads
+
+    @typing.override
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> _ValueKey | None:
+        return _EncodeKey(
+            encoding=encode.encoding,
+            value_vns=tuple(self._tables.lookup_vn(v) for v in encode.values),
+            values_type=encode.values_type,
+        )
+
+    @typing.override
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> _ValueKey | None:
+        return _DecodeKey(
+            encoding=decode.encoding,
+            value_vn=self._tables.lookup_vn(decode.value),
+            ir_type=decode.ir_type,
+        )
+
+    @typing.override
+    def visit_inner_transaction_field(self, intrinsic: models.InnerTransactionField) -> None:
+        return None  # stateful - implicitly depends on the most recent itxn_submit
+
+    @typing.override
+    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> _ValueKey | None:
+        op = intrinsic.op
+        if op.code not in PURE_AVM_OPS:
+            return None
+        args = intrinsic.args
+        if not args:
+            # TODO: handle no-args by keeping the definition but assigning same VN,
+            #       and then using that VN in comparison / algebraic identities
+            return None
+        arg_vns = tuple(self._tables.lookup_vn(a) for a in args)
+        # Negation-aware numbering: !(comparison) -> inverse comparison.
+        # e.g. !(a < b) gets the same key as (a >= b).
+        if op == AVMOp.not_ and len(arg_vns) == 1:
+            comp = self._tables.get_comparison_expr(arg_vns[0])
+            if comp is not None:
+                inverse_op = _INVERSE_COMPARISONS.get(comp.op)
+                if inverse_op is not None:
+                    return _IntrinsicKey(
+                        op=inverse_op,
+                        immediates=comp.immediates,
+                        arg_vns=comp.arg_vns,
+                    )
+        op_key = op
+        if op in _COMMUTATIVE_OPS:
+            arg_vns = tuple(sorted(arg_vns))
+        elif op in _MIRROR_OPS and arg_vns[0] > arg_vns[1]:
+            # Canonicalize ordering ops by sorting operand VNs,
+            # mirroring the predicate to preserve semantics.
+            # e.g. a<b and b>a get the same canonical key.
+            arg_vns = (arg_vns[1], arg_vns[0])
+            op_key = _MIRROR_OPS[op]
+        return _IntrinsicKey(op=op_key, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
+
+    @typing.override
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> _ValueKey | None:
+        if not callsub.target.pure:
+            return None
+        arg_vns = tuple(self._tables.lookup_vn(a) for a in callsub.args)
+        return _CallSubKey(target_id=callsub.target.id, arg_vns=arg_vns)
+
+    @typing.override
+    def visit_new_slot(self, new_slot: models.NewSlot) -> None:
+        return None  # side-effecting
+
+    @typing.override
+    def visit_read_slot(self, read_slot: models.ReadSlot) -> None:
+        return None  # stateful, leave this up to repeated-reads
+
+    @typing.override
+    def visit_value_tuple(self, tup: models.ValueTuple) -> None:
+        return None  # catch these on the next pass
+
+    # -- Value subtypes: should be handled specially before reaching the visitor --
+
+    @typing.override
+    def visit_register(self, reg: models.Register) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_undefined(self, val: models.Undefined) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_uint64_constant(self, const: models.UInt64Constant) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_biguint_constant(self, const: models.BigUIntConstant) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_bytes_constant(self, const: models.BytesConstant) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_address_constant(self, const: models.AddressConstant) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_method_constant(self, const: models.MethodConstant) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_itxn_constant(self, const: models.ITxnConstant) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_slot_constant(self, const: models.SlotConstant) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_template_var(self, deploy_var: models.TemplateVar) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_compiled_contract_reference(
+        self, const: models.CompiledContractReference
+    ) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
+
+    @typing.override
+    def visit_compiled_logicsig_reference(
+        self, const: models.CompiledLogicSigReference
+    ) -> typing.Never:
+        raise InternalError("shouldn't get here, Value should be handled specially")
 
 
 def _try_replace(
@@ -443,15 +554,16 @@ def _process_assignment(
     source = assignment.source
 
     # Copy assignment: propagate VN directly
-    if isinstance(source, models.Register) and len(assignment.targets) == 1:
-        target = assignment.targets[0]
+    if isinstance(source, models.Value):
+        (target,) = assignment.targets
         vn = tables.lookup_vn(source)
         tables.set_register_vn(target, vn)
-        _try_replace(target, tables.representative(vn), replacements)
+        if isinstance(source, models.Register):
+            _try_replace(target, tables.representative(vn), replacements)
         return
 
     targets = assignment.targets
-    expr = _build_value_expr(tables, source)
+    expr = source.accept(_ValueExprBuilder(tables))
     if expr is None:
         # Not a pure expression — fresh VN per target
         for reg in targets:
