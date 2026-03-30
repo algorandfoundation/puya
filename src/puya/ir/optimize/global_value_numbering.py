@@ -269,20 +269,6 @@ class _GVNTables:
         return vn
 
 
-def _index_vns(
-    tables: _GVNTables, indexes: tuple[int | models.Value, ...]
-) -> tuple[_IndexVN, ...]:
-    """Compute VNs for aggregate indexes, tagging static ints vs dynamic VNs."""
-    return tuple(
-        (
-            _IndexVN(kind="value", index=tables.lookup_vn(idx))
-            if isinstance(idx, models.Value)
-            else _IndexVN(kind="static", index=idx)
-        )
-        for idx in indexes
-    )
-
-
 class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
     """Build a canonical, hashable value expression for a ValueProvider.
 
@@ -297,7 +283,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         return _ExtractKey(
             base_vn=self._tables.lookup_vn(read.base),
             base_type=read.base_type,
-            index_vns=_index_vns(self._tables, read.indexes),
+            index_vns=self._index_vns(read.indexes),
             check_bounds=read.check_bounds,
         )
 
@@ -306,7 +292,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         return _ReplaceKey(
             base_vn=self._tables.lookup_vn(write.base),
             base_type=write.base_type,
-            index_vns=_index_vns(self._tables, write.indexes),
+            index_vns=self._index_vns(write.indexes),
             value_vn=self._tables.lookup_vn(write.value),
         )
 
@@ -317,6 +303,17 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
             base_type=concat.base_type,
             items_vn=self._tables.lookup_vn(concat.items),
             item_encoding=concat.item_encoding,
+        )
+
+    def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
+        """Compute VNs for aggregate indexes, tagging static ints vs dynamic VNs."""
+        return tuple(
+            (
+                _IndexVN(kind="value", index=self._tables.lookup_vn(idx))
+                if isinstance(idx, models.Value)
+                else _IndexVN(kind="static", index=idx)
+            )
+            for idx in indexes
         )
 
     @typing.override
