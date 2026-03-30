@@ -1,7 +1,11 @@
 from algopy import Contract, UInt64, log, op, subroutine, urange
 
 
-class UnSSAContract(Contract):
+class UnSSAContractNoInlining(Contract):
+    # This contract exists as a duplicate of the one in unssa/contract.py, but
+    # where everything is marked as inline=False.
+    # The reason for the duplication is that these contain convoluted phi-webs,
+    # which we want to test the inlining of, but which we also want to test without inlining
     def approval_program(self) -> bool:
         test_self_ref_phi()
         result1 = test_swap(UInt64(1))
@@ -29,7 +33,7 @@ class UnSSAContract(Contract):
         return True
 
 
-@subroutine
+@subroutine(inline=False)
 def test_self_ref_phi() -> UInt64:
     a = UInt64(1)
     while a < 100:
@@ -41,7 +45,7 @@ def test_self_ref_phi() -> UInt64:
     return a
 
 
-@subroutine
+@subroutine(inline=False)
 def test_swap(i: UInt64) -> UInt64:
     x = UInt64(1)
     y = UInt64(2)
@@ -53,7 +57,7 @@ def test_swap(i: UInt64) -> UInt64:
     return x
 
 
-@subroutine
+@subroutine(inline=False)
 def test_swap_loop(i: UInt64, j: UInt64) -> UInt64:
     x = UInt64(1)
     y = UInt64(2)
@@ -67,14 +71,14 @@ def test_swap_loop(i: UInt64, j: UInt64) -> UInt64:
     return x
 
 
-@subroutine
+@subroutine(inline=False)
 def test_tuple_swap(a: UInt64, b: UInt64, i: UInt64) -> tuple[UInt64, UInt64]:
     for _item in urange(i):
         (a, b) = (b, a)
     return a, b
 
 
-@subroutine
+@subroutine(inline=False)
 def test_param_update_with_reentrant_entry_block(x: UInt64) -> UInt64:
     while True:
         x = x + 1
@@ -83,7 +87,7 @@ def test_param_update_with_reentrant_entry_block(x: UInt64) -> UInt64:
     return x
 
 
-@subroutine
+@subroutine(inline=False)
 def test_param_update_with_reentrant_entry_block_v2(x: UInt64) -> UInt64:
     x = x + 1
     while True:
@@ -92,24 +96,24 @@ def test_param_update_with_reentrant_entry_block_v2(x: UInt64) -> UInt64:
     return x
 
 
-@subroutine
+@subroutine(inline=False)
 def test_param_update_with_reentrant_entry_block_v3() -> None:
     while True:
         if one():
             break
 
 
-@subroutine
+@subroutine(inline=False)
 def one() -> UInt64:
     return UInt64(1)
 
 
-@subroutine
+@subroutine(inline=False)
 def swap_args(a: UInt64, b: UInt64) -> tuple[UInt64, UInt64]:
     return b, a
 
 
-@subroutine
+@subroutine(inline=False)
 def test_swap_args() -> None:
     a = one() + 123
     b = one() + 234
