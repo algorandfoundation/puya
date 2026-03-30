@@ -14,10 +14,9 @@ from algokit_utils import (
 from algokit_utils.transactions.transaction_composer import TransactionComposerError
 
 from puya.compilation_artifacts import CompiledLogicSig
-from puyapy.options import PuyaPyOptions
 from tests import TEST_CASES_DIR
-from tests.utils import arc4_encode
-from tests.utils.compile import compile_src_from_options
+from tests.utils import PuyaTestCase, arc4_encode
+from tests.utils.compile import compile_from_test_case
 
 pytestmark = pytest.mark.localnet
 
@@ -30,14 +29,12 @@ def compile_logic_sig(
     debug_level: int = 2,
     template_variables: Mapping[str, int | bytes] | None = None,
 ) -> bytes:
-    result = compile_src_from_options(
-        PuyaPyOptions(
-            paths=(src_path,),
-            optimization_level=optimization_level,
-            debug_level=debug_level,
-            output_bytecode=True,
-            cli_template_definitions=template_variables or {},
-        )
+    result = compile_from_test_case(
+        PuyaTestCase(src_path),
+        optimization_level=optimization_level,
+        debug_level=debug_level,
+        output_bytecode=True,
+        cli_template_definitions=template_variables or {},
     )
     if name is None:
         (logic_sig,) = result.teal

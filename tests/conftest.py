@@ -6,8 +6,7 @@ import pytest
 from _pytest.mark import ParameterSet
 
 from puya import log
-from tests import EXAMPLES_DIR, TEST_CASES_DIR
-from tests.utils import PuyaTestCase
+from tests.utils import get_test_cases
 from tests.utils.deployer import Deployer
 
 
@@ -19,12 +18,10 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
         if not mark or "test_case" not in mark.args[0]:
             params = [
                 ParameterSet.param(
-                    PuyaTestCase(item),
-                    marks=[pytest.mark.slow] if item.name == "stress_tests" else [],
+                    test_case,
+                    marks=[pytest.mark.slow] if test_case.name == "stress_tests" else [],
                 )
-                for root in (EXAMPLES_DIR, TEST_CASES_DIR)
-                for item in root.iterdir()
-                if item.is_dir() and not item.name.startswith((".", "_"))
+                for test_case in get_test_cases()
             ]
             metafunc.parametrize("test_case", params, ids=lambda t: t.id)
 

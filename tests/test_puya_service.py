@@ -30,7 +30,7 @@ _ANALYSE_DIR = VCS_ROOT / "tests" / "analyse"
 _HELLO_WORLD_PATH = EXAMPLES_DIR / "hello_world_arc4"
 _EXPECTED_ANALYSE_OUTPUT = {
     _HELLO_WORLD_PATH: [],
-    _ANALYSE_DIR / "reti.awst.json.zip": [
+    _ANALYSE_DIR / "reti.awst.json.gz": [
         "warning: Variable tokenPayoutRatio potentially used before assignment",
     ],
     _ANALYSE_DIR / "valid_awst_with_error": [
@@ -100,7 +100,7 @@ async def test_compile_hello_world(client: JsonRPCClient, tmp_path: Path) -> Non
 
 
 async def test_compile_warn_as_err(client: JsonRPCClient, tmp_path: Path) -> None:
-    path = _ANALYSE_DIR / "reti.awst.json.zip"
+    path = _ANALYSE_DIR / "reti.awst.json.gz"
     awst = _create_analyse_params(path).awst
     compile_params = CompileParams(
         awst=awst,

@@ -8,21 +8,22 @@ from algokit_common import ProgramSourceMap
 
 from puya.arc56 import create_arc56_json
 from puya.compilation_artifacts import CompiledContract, DebugInfo
-from puyapy.options import PuyaPyOptions
 from tests import TEST_CASES_DIR
-from tests.utils.compile import compile_src_from_options
+from tests.utils import PuyaTestCase
+from tests.utils.compile import compile_from_test_case
 
 pytestmark = pytest.mark.localnet
 
 
 def test_debug(localnet: au.AlgorandClient, account: au.AddressWithSigners) -> None:
-    contract_src = TEST_CASES_DIR / "debug" / "contract.py"
-    result = compile_src_from_options(
-        PuyaPyOptions(
-            paths=(contract_src,),
-            optimization_level=1,
-            debug_level=2,
-        )
+    # do not load default template vars
+    test_case = PuyaTestCase(
+        path=TEST_CASES_DIR / "debug" / "contract.py", template_vars_path=None
+    )
+    result = compile_from_test_case(
+        test_case,
+        optimization_level=1,
+        debug_level=2,
     )
     (contract,) = result.teal
     assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
