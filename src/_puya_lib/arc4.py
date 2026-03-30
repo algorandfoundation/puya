@@ -79,7 +79,7 @@ def dynamic_array_pop_byte_length_head(array: Bytes) -> Bytes:
     Pop the last item from an arc4 dynamic array of items that are prefixed with their length in
     bytes, e.g. arc4.String, arc4.DynamicBytes
 
-    source: The bytes for the source array
+    array: The bytes for the source array
 
     returns: The updated bytes for the source array
     """
@@ -239,12 +239,12 @@ def dynamic_array_concat_byte_length_head(
     array: Bytes, new_items_bytes: Bytes, new_items_count: UInt64
 ) -> Bytes:
     """
-    Replace a single item in an arc4 dynamic array of items that are prefixed with
+    Concat new items in an arc4 dynamic array of items that are prefixed with
     their byte length
 
     array: The bytes of the source array
     new_items_bytes: The bytes for all new items, concatenated
-    new_items_counts: The count of new items being added
+    new_items_count: The count of new items being added
 
     returns: The updated bytes for the source array
     """
