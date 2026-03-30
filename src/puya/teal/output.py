@@ -94,10 +94,10 @@ def emit_assembly_report(
     indent = " " * 4  # Ident for TEAL code
     src = None
     line_bytes = None
+    last_location = None
     isn_idx = 0
     for subroutine in program.all_subroutines:
         for block_idx, block in enumerate(subroutine.blocks):
-            last_location = None
             if block_idx == 0:
                 writer.add_row(
                     ["", f"# {block.label}", f"{block.label}:", "", str(subroutine.signature)]
