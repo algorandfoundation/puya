@@ -7,11 +7,13 @@ import attrs
 from algokit_abi import arc56
 from algokit_algod_client import models as algod
 
+from tests.utils import PuyaTestCase
 from tests.utils.compile import compile_arc56
 
 _ALWAYS_APPROVE = "#pragma version 10\nint 1"
 
-Contract = Path | tuple[Path, str] | au.Arc56Contract
+_TestCase = PuyaTestCase | Path
+Contract = _TestCase | tuple[_TestCase, str] | au.Arc56Contract
 
 
 @attrs.frozen
@@ -162,7 +164,7 @@ class Deployer:
     def _get_factory(self, contract: Contract) -> au.AppFactory:
         if isinstance(contract, au.Arc56Contract):
             app_spec = contract
-        elif isinstance(contract, Path):
+        elif isinstance(contract, _TestCase):
             app_spec = compile_arc56(
                 contract,
                 optimization_level=self.optimization_level,

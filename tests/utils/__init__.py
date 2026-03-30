@@ -1,3 +1,5 @@
+import typing
+from collections.abc import Mapping
 from pathlib import Path
 
 import attrs
@@ -6,10 +8,65 @@ from algokit_algod_client import models as algod
 
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
 from puyapy.template import parse_template_key_value
+from tests import AWST_DIR, EXAMPLES_DIR, TEST_CASES_DIR
 
-SUFFIX_O0 = "_unoptimized"
-SUFFIX_O1 = ""
-SUFFIX_O2 = "_O2"
+OPT_SUFFIXES = {0: "_unoptimized", 1: "", 2: "_O2"}
+
+
+class PuyaPyOptionsKwargs(typing.TypedDict, total=False):
+    debug_level: int
+    optimization_level: int
+    output_awst: bool
+    output_awst_json: bool
+    output_client: bool
+    output_teal: bool
+    output_source_map: bool
+    output_assembly_report: bool
+    output_arc32: bool
+    output_arc56: bool
+    output_ssa_ir: bool
+    output_optimization_ir: bool
+    output_destructured_ir: bool
+    output_memory_ir: bool
+    output_bytecode: bool
+    output_teal_intermediates: bool
+    output_op_statistics: bool
+    cli_template_definitions: Mapping[str, int | bytes]
+    template_vars_prefix: str
+    optimizations_override: Mapping[str, bool]
+    expand_all_bytes: bool
+    validate_abi_args: bool
+    validate_abi_return: bool
+
+
+# note these options are shared by compile all scripts and test suite
+def get_puya_options_for_optimization(optimization_level: int) -> PuyaPyOptionsKwargs:
+    options = PuyaPyOptionsKwargs(
+        optimization_level=optimization_level,
+        output_teal=True,
+        output_bytecode=True,
+        output_destructured_ir=True,
+        output_op_statistics=True,
+        output_assembly_report=True,
+    )
+    if optimization_level == 0:
+        options["output_arc56"] = False
+        options["output_source_map"] = False
+    elif optimization_level == 2:
+        options["output_arc56"] = False
+        options["output_source_map"] = False
+        options["debug_level"] = 0
+    else:
+        assert optimization_level == 1
+        options["output_arc56"] = True
+        options["output_ssa_ir"] = True
+        options["output_optimization_ir"] = True
+        options["output_memory_ir"] = True
+        options["output_source_map"] = True
+        # note: the following options will be ignored when used in AWST test cases
+        options["output_client"] = True
+        options["output_awst"] = True
+    return options
 
 
 def narrowed_parse_result(parse_result: ParseResult, src_path: Path) -> ParseResult:
@@ -28,23 +85,50 @@ def narrowed_parse_result(parse_result: ParseResult, src_path: Path) -> ParseRes
 @attrs.frozen
 class PuyaTestCase:
     path: Path
+    template_vars_path: Path | None = attrs.field()
 
     @property
     def root(self) -> Path:
-        return self.path.parent
+        return self.test_case.parent
+
+    @property
+    def test_case(self) -> Path:
+        if self.path.is_dir():
+            return self.path
+        else:
+            # path may refer to a specific contract in a test case
+            # this assumes all contracts are in a test case root folder
+            return self.path.parent
+
+    @property
+    def is_awst(self) -> bool:
+        return self.root == AWST_DIR
 
     @property
     def name(self) -> str:
-        return self.path.name
+        return self.path.relative_to(self.root).as_posix()
 
-    @property
-    def template_vars_path(self) -> Path | None:
-        template_vars_path = self.path / "template.vars"
+    @template_vars_path.default
+    def _template_vars_path_factory(self) -> Path | None:
+        template_vars_path = self.test_case / "template.vars"
         return template_vars_path.resolve() if template_vars_path.exists() else None
 
     @property
     def id(self) -> str:
         return f"{self.root.stem}/{self.name}"
+
+
+def get_test_cases() -> list[PuyaTestCase]:
+    return [
+        PuyaTestCase(item)
+        for root in (EXAMPLES_DIR, TEST_CASES_DIR, AWST_DIR)
+        for item in root.iterdir()
+        if item.is_dir() and not item.name.startswith((".", "_")) and _has_test_case(item)
+    ]
+
+
+def _has_test_case(path: Path) -> bool:
+    return any(any(path.glob(f"*.{ext}")) for ext in ("py", "json", "json.gz"))
 
 
 def load_template_vars(path: Path | None) -> tuple[str, dict[str, int | bytes]]:

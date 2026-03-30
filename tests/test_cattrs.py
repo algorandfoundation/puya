@@ -6,12 +6,15 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.log import Log, LogLevel
 from puya.parse import SourceLocation
 from tests.utils import PuyaTestCase
-from tests.utils.compile import get_awst_cache
+from tests.utils.compile import get_awst_cache, load_test_case_awst
 
 
 def test_cattrs(test_case: PuyaTestCase) -> None:
-    cache = get_awst_cache(test_case.root)
-    awst = [a for a in cache.module_awst if _is_case_awst(test_case, a)]
+    if test_case.is_awst:
+        awst = load_test_case_awst(test_case.path)
+    else:
+        cache = get_awst_cache(test_case.root)
+        awst = [a for a in cache.module_awst if _is_case_awst(test_case, a)]
     json = serialize.awst_to_json(awst)
     cloned = serialize.awst_from_json(json)
     assert len(cloned) == len(awst)

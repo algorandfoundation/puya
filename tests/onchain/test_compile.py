@@ -1,11 +1,14 @@
 import algokit_utils as au
 
 from tests import TEST_CASES_DIR
+from tests.utils import PuyaTestCase
 from tests.utils.deployer import Deployer
 
 
 def test_compile(deployer: Deployer) -> None:
-    client = deployer.create((TEST_CASES_DIR / "compile", "HelloFactory")).client
+    # do not load template vars for onchain test
+    test_case = PuyaTestCase(TEST_CASES_DIR / "compile", template_vars_path=None)
+    client = deployer.create((test_case, "HelloFactory")).client
 
     fee = au.AlgoAmount.from_micro_algo(6000)
 
