@@ -121,16 +121,18 @@ def emit_assembly_report(
                         src = context.try_get_source(whole_lines_location)
                         if src is not None:
                             line = src[0]
-                            line_bytes = line.encode('utf8')
+                            line_bytes = line.encode("utf8")
                             writer.add_row(["", "", "", line.strip(), str(whole_lines_location)])
                     if (
                         op_loc.column is not None
                         and op_loc.end_column is not None
-                        and src is not None
+                        and line_bytes is not None
                     ):
-                        highlight_prefix = line_bytes[:op_loc.column].decode("utf8")
+                        highlight_prefix = line_bytes[: op_loc.column].decode("utf8")
                         highlight_start = len(highlight_prefix.lstrip())
-                        highlight_chars = line_bytes[op_loc.column:op_loc.end_column].decode("utf8")
+                        highlight_chars = line_bytes[op_loc.column : op_loc.end_column].decode(
+                            "utf8"
+                        )
                         highlight_width = len(highlight_chars)
                         op_highlight = " " * highlight_start + "-" * highlight_width
                 writer.add_row(
