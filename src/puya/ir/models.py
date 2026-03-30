@@ -408,6 +408,8 @@ class MethodConstant(Constant):
 
 @attrs.define(eq=False)
 class InnerTransactionField(ValueProvider):
+    """Read a field from a submitted inner transaction"""
+
     field: str
     group_index: Value
     is_last_in_group: Value
@@ -427,6 +429,8 @@ class InnerTransactionField(ValueProvider):
 
 @attrs.define(eq=False, kw_only=True)
 class ArrayLength(ValueProvider):
+    """Get the number of items in an Array - can handle reading from slots"""
+
     base: Value = attrs.field()
     # we retain the original type of the aggregate, in case this is lost during optimisations
     base_type: IRType = attrs.field(repr=lambda x: x.name)
@@ -445,6 +449,8 @@ class ArrayLength(ValueProvider):
 
 @attrs.define(eq=False, kw_only=True)
 class ArrayPop(ValueProvider):
+    """Returns a mutated array without the last element, fails if empty."""
+
     base: Value = attrs.field()
     base_type: EncodedType = attrs.field(repr=lambda x: x.name)
     array_encoding: ArrayEncoding = attrs.field(init=False)
@@ -534,6 +540,8 @@ class _Aggregate(ValueProvider, abc.ABC):
 
 @attrs.define(eq=False)
 class ExtractValue(_Aggregate):
+    """Extract an indexed item from an aggregate."""
+
     check_bounds: bool
     ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
@@ -550,6 +558,8 @@ class ExtractValue(_Aggregate):
 
 @attrs.define(eq=False)
 class ReplaceValue(_Aggregate):
+    """Returns a mutated aggregate with the indexed element updated."""
+
     value: Value
 
     def _frozen_data(self) -> object:
