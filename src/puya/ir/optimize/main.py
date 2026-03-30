@@ -4,6 +4,7 @@ import attrs
 
 from puya import log
 from puya.context import ArtifactCompileContext
+from puya.errors import InternalError
 from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.optimize.add_box_extract_replace import replace_aggregate_box_ops
@@ -107,6 +108,15 @@ def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine)
         modified = False
         for op in block.ops:
             if isinstance(op, models.Assignment) and isinstance(op.source, models.ValueTuple):
+                if set(op.targets).intersection(op.source.values):
+                    # We only introduce ValueTuples in a few places - none of which should have
+                    # any possibility of this occurring.
+                    # If a new code path introduces ValueTuples and this is a possibility,
+                    # that should be safeguarded against at that point, rather than relying
+                    # on this (rather uninformative) test.
+                    raise InternalError(
+                        "tuple copy requires sequentialization", op.source_location
+                    )
                 for dst, src in zip(op.targets, op.source.values, strict=True):
                     modified = True
                     ops.append(
