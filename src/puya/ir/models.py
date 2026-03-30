@@ -27,7 +27,7 @@ from puya.ir.types_ import (
     UnionType,
     ir_type_to_ir_types,
 )
-from puya.ir.visitor import IRVisitor
+from puya.ir.visitor import IRVisitor, ValueProviderVisitor
 from puya.parse import SourceLocation
 from puya.program_refs import (
     ContractReference,
@@ -78,6 +78,10 @@ class ValueProvider(IRVisitable, _Freezable, abc.ABC):
 
     source_location: SourceLocation | None = attrs.field(eq=False)
 
+    @typing.override
+    @abc.abstractmethod
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T: ...
+
     @property
     @abc.abstractmethod
     def types(self) -> Sequence[IRType]: ...
@@ -125,7 +129,7 @@ def _narrow_to_slot_type(typ: IRType) -> SlotType:
 
 @attrs.frozen
 class Undefined(Value):
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_undefined(self)
 
 
@@ -173,7 +177,7 @@ class Register(Value):
     name: str
     version: int
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_register(self)
 
     @property
@@ -255,7 +259,7 @@ class UInt64Constant(Constant):
                 f"Invalid type for UInt64Constant: {ir_type}", self.source_location
             )
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_uint64_constant(self)
 
 
@@ -282,7 +286,7 @@ class ITxnConstant(Constant):
         ):
             raise InternalError(f"invalid type for ITxnConstant: {ir_type}", self.source_location)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_itxn_constant(self)
 
 
@@ -301,7 +305,7 @@ class SlotConstant(Constant):
     """Used to determine a unique slot in a functions f-stack for this variable"""
     ir_type: SlotType = attrs.field(converter=_narrow_to_slot_type)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_slot_constant(self)
 
 
@@ -310,7 +314,7 @@ class BigUIntConstant(Constant):
     value: int
     ir_type: IRType = attrs.field(default=PrimitiveIRType.biguint, init=False)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_biguint_constant(self)
 
 
@@ -319,7 +323,7 @@ class TemplateVar(Value):
     name: str
     ir_type: IRType
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_template_var(self)
 
 
@@ -345,7 +349,7 @@ class BytesConstant(Constant):
                 self.source_location,
             )
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
 
 
@@ -366,7 +370,7 @@ class CompiledContractReference(Value):
     source_location: SourceLocation | None = attrs.field(eq=False)
     program_page: int | None = None  # used for approval and clear_state fields
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_compiled_contract_reference(self)
 
 
@@ -376,7 +380,7 @@ class CompiledLogicSigReference(Value):
     template_variables: Mapping[str, Value] = attrs.field(converter=immutabledict)
     source_location: SourceLocation | None = attrs.field(eq=False)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_compiled_logicsig_reference(self)
 
 
@@ -387,7 +391,7 @@ class AddressConstant(Constant):
     ir_type: IRType = attrs.field(default=PrimitiveIRType.account, init=False)
     value: str = attrs.field()
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
 
 
@@ -398,7 +402,7 @@ class MethodConstant(Constant):
     ir_type: IRType = attrs.field(default=SizedBytesType(4), init=False)
     value: str
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_method_constant(self)
 
 
@@ -413,7 +417,7 @@ class InnerTransactionField(ValueProvider):
     def _frozen_data(self) -> object:
         return self.field, self.group_index, self.is_last_in_group, self.array_index, self.type
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_inner_transaction_field(self)
 
     @property
@@ -435,7 +439,7 @@ class ArrayLength(ValueProvider):
     def _frozen_data(self) -> object:
         return self.base_type, self.base, self.array_encoding
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_array_length(self)
 
 
@@ -459,7 +463,7 @@ class ArrayPop(ValueProvider):
     def _frozen_data(self) -> object:
         return self.base_type, self.base
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_array_pop(self)
 
 
@@ -507,7 +511,7 @@ class ArrayConcat(ValueProvider):
             self.num_items,
         )
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_array_concat(self)
 
 
@@ -540,7 +544,7 @@ class ExtractValue(_Aggregate):
     def _frozen_data(self) -> object:
         return self.base_type, self.base, self.indexes, self.check_bounds
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_extract_value(self)
 
 
@@ -555,7 +559,7 @@ class ReplaceValue(_Aggregate):
     def types(self) -> Sequence[IRType]:
         return (self.base_type,)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_replace_value(self)
 
 
@@ -572,7 +576,7 @@ class BoxRead(ValueProvider):
     def types(self) -> Sequence[IRType]:
         return (self.value_type,)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_box_read(self)
 
 
@@ -643,7 +647,7 @@ class BytesEncode(ValueProvider):
     def types(self) -> Sequence[IRType]:
         return (EncodedType(self.encoding),)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_bytes_encode(self)
 
 
@@ -688,7 +692,7 @@ class DecodeBytes(ValueProvider):
     def types(self) -> Sequence[IRType]:
         return ir_type_to_ir_types(self.ir_type)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_decode_bytes(self)
 
 
@@ -719,7 +723,7 @@ class NewSlot(ValueProvider):
     def _frozen_data(self) -> object:
         return self.ir_type
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_new_slot(self)
 
     @property
@@ -734,7 +738,7 @@ class ReadSlot(ValueProvider):
     def _frozen_data(self) -> object:
         return self.slot
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_read_slot(self)
 
     @property
@@ -802,7 +806,7 @@ class Intrinsic(Op, ValueProvider):
     def _frozen_data(self) -> object:
         return self.op, tuple(self.immediates), tuple(self.args), self.error_message
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_intrinsic_op(self)
 
     @property
@@ -882,7 +886,7 @@ class InvokeSubroutine(Op, ValueProvider):
     def _frozen_data(self) -> object:
         return self.target.id, tuple(self.args)
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_invoke_subroutine(self)
 
     @property
@@ -907,7 +911,7 @@ class ValueTuple(ValueProvider):
                 self.source_location,
             )
 
-    def accept(self, visitor: IRVisitor[T]) -> T:
+    def accept(self, visitor: ValueProviderVisitor[T]) -> T:
         return visitor.visit_value_tuple(self)
 
     @property
