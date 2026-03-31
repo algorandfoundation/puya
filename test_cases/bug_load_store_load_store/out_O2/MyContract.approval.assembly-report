@@ -1,0 +1,42 @@
+| PC | TEAL Bytes             | TEAL                         | Source                           | Location                                                                               |
+|--: | :----------------------| :----------------------------| :--------------------------------| :--------------------------------------------------------------------------------------|
+|  0 | 0b                     | #pragma version 11           |                                  |                                                                                        |
+|    | # main                 | main:                        |                                  | test_cases.bug_load_store_load_store.contract.MyContract.approval_program() -> uint64: |
+|    |                        |                              | val = UInt64(0)                  | bug_load_store_load_store/contract.py:11                                               |
+|  1 | 81 00                  |     pushint 0                |       ---------                  | bug_load_store_load_store/contract.py:11:14-23                                         |
+|    |                        |                              | for _idx in urange(2):           | bug_load_store_load_store/contract.py:12                                               |
+|  3 | 49                     |     dup                      |             ---------            | bug_load_store_load_store/contract.py:12:20-29                                         |
+|    | # main_for_header@1    | main_for_header@1:           |                                  |                                                                                        |
+|  4 | 49                     |     dup                      |                                  | bug_load_store_load_store/contract.py:12                                               |
+|  5 | 81 02                  |     pushint 2                |                    -             | bug_load_store_load_store/contract.py:12:27-28                                         |
+|  7 | 0c                     |     <                        |                                  | bug_load_store_load_store/contract.py:12                                               |
+|  8 | 41 00 22               |     bz main_after_for@11     |                                  | bug_load_store_load_store/contract.py:12                                               |
+|    |                        |                              | if get_bool():                   | bug_load_store_load_store/contract.py:13                                               |
+| 11 | 88 00 22               |     callsub get_bool         |    ----------                    | bug_load_store_load_store/contract.py:13:15-25                                         |
+| 14 | 40 00 13               |     bnz main_after_if_else@9 |                                  | bug_load_store_load_store/contract.py:13                                               |
+|    |                        |                              | elif get_bool():  # noqa: SIM102 | bug_load_store_load_store/contract.py:15                                               |
+| 17 | 88 00 1c               |     callsub get_bool         |      ----------                  | bug_load_store_load_store/contract.py:15:17-27                                         |
+| 20 | 41 00 0d               |     bz main_after_if_else@9  |                                  | bug_load_store_load_store/contract.py:15                                               |
+|    |                        |                              | if not get_bool():               | bug_load_store_load_store/contract.py:16                                               |
+| 23 | 88 00 16               |     callsub get_bool         |        ----------                | bug_load_store_load_store/contract.py:16:23-33                                         |
+| 26 | 40 00 07               |     bnz main_after_if_else@9 |    --------------                | bug_load_store_load_store/contract.py:16:19-33                                         |
+|    |                        |                              | val += UInt64(123)               | bug_load_store_load_store/contract.py:17                                               |
+| 29 | 4b 01                  |     dig 1                    | ------------------               | bug_load_store_load_store/contract.py:17:20-38                                         |
+| 31 | 81 7b                  |     pushint 123              |        -----------               | bug_load_store_load_store/contract.py:17:27-38                                         |
+| 33 | 08                     |     +                        | ------------------               | bug_load_store_load_store/contract.py:17:20-38                                         |
+| 34 | 45 02                  |     bury 2                   | ------------------               | bug_load_store_load_store/contract.py:17:20-38                                         |
+|    | # main_after_if_else@9 | main_after_if_else@9:        |                                  |                                                                                        |
+|    |                        |                              | for _idx in urange(2):           | bug_load_store_load_store/contract.py:12                                               |
+| 36 | 49                     |     dup                      |             ---------            | bug_load_store_load_store/contract.py:12:20-29                                         |
+| 37 | 81 01                  |     pushint 1                |             ---------            | bug_load_store_load_store/contract.py:12:20-29                                         |
+| 39 | 08                     |     +                        |             ---------            | bug_load_store_load_store/contract.py:12:20-29                                         |
+| 40 | 45 01                  |     bury 1                   |                                  |                                                                                        |
+| 42 | 42 ff d7               |     b main_for_header@1      |                                  |                                                                                        |
+|    | # main_after_for@11    | main_after_for@11:           |                                  |                                                                                        |
+|    |                        |                              | return val                       | bug_load_store_load_store/contract.py:18                                               |
+| 45 | 4b 01                  |     dig 1                    | ----------                       | bug_load_store_load_store/contract.py:18:8-18                                          |
+| 47 | 43                     |     return                   | ----------                       | bug_load_store_load_store/contract.py:18:8-18                                          |
+|    | # get_bool             | get_bool:                    |                                  | test_cases.bug_load_store_load_store.contract.get_bool() -> uint64:                    |
+|    |                        |                              | return True                      | bug_load_store_load_store/contract.py:6                                                |
+| 48 | 81 01                  |     pushint 1                |        ----                      | bug_load_store_load_store/contract.py:6:11-15                                          |
+| 50 | 89                     |     retsub                   | -----------                      | bug_load_store_load_store/contract.py:6:4-15                                           |

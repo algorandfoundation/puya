@@ -56,6 +56,7 @@ def puyapy(
     ] = None,
     log_level: Annotated[LogLevel, cyclopts.Parameter(group=_outputs_group)] = LogLevel.info,
     output_teal: _OutputToggle = True,
+    output_assembly_report: _OutputToggle = False,
     output_source_map: _OutputToggle = True,
     output_arc56: _OutputToggle = True,
     output_arc32: _OutputToggle = False,
@@ -113,6 +114,7 @@ def puyapy(
     Parameters:
         paths: Files or directories to compile
         output_teal: Output TEAL code
+        output_assembly_report: Output "human-readable" source map
         output_source_map: Output debug source maps
         output_arc32: Output {contract}.arc32.json ARC-32 app spec file
         output_arc56: Output {contract}.arc56.json ARC-56 app spec file
@@ -175,6 +177,7 @@ def puyapy(
         out_dir=out_dir,
         log_level=log_level,
         output_teal=output_teal,
+        output_assembly_report=output_assembly_report,
         output_source_map=output_source_map,
         output_arc56=output_arc56,
         output_arc32=output_arc32,

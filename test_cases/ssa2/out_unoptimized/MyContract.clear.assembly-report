@@ -1,0 +1,43 @@
+| PC | TEAL Bytes                    | TEAL                               | Source                         | Location                                                             |
+|--: | :-----------------------------| :----------------------------------| :------------------------------| :--------------------------------------------------------------------|
+|  0 | 0b                            | #pragma version 11                 |                                |                                                                      |
+|    | # main                        | main:                              |                                | test_cases.ssa2.contract.MyContract.clear_state_program() -> uint64: |
+|  1 | 42 00 00                      |     b main_block@0                 |                                |                                                                      |
+|    | # main_block@0                | main_block@0:                      |                                |                                                                      |
+|    |                               |                                    | return one_hundred(UInt64(40)) | ssa2/contract.py:38                                                  |
+|  4 | 81 28                         |     pushint 40                     |                    ----------  | ssa2/contract.py:38:27-37                                            |
+|  6 | 88 00 01                      |     callsub one_hundred            |        ----------------------- | ssa2/contract.py:38:15-38                                            |
+|  9 | 43                            |     return                         | ------------------------------ | ssa2/contract.py:38:8-38                                             |
+|    | # one_hundred                 | one_hundred:                       |                                | test_cases.ssa2.contract.one_hundred(c: uint64) -> uint64:           |
+| 10 | 8a 01 01                      |     proto 1 1                      |                                | ssa2/contract.py:41-42:1-16                                          |
+| 13 | 42 00 00                      |     b one_hundred_block@0          |                                |                                                                      |
+|    | # one_hundred_block@0         | one_hundred_block@0:               |                                |                                                                      |
+|    |                               |                                    | a = UInt64(25)                 | ssa2/contract.py:43                                                  |
+| 16 | 81 19                         |     pushint 25                     |     ----------                 | ssa2/contract.py:43:8-18                                             |
+|    |                               |                                    | b = UInt64(2)                  | ssa2/contract.py:44                                                  |
+| 18 | 81 02                         |     pushint 2                      |     ---------                  | ssa2/contract.py:44:8-17                                             |
+|    |                               |                                    | a = UInt64(25)                 | ssa2/contract.py:43                                                  |
+| 20 | 81 19                         |     pushint 25                     |     ----------                 | ssa2/contract.py:43:8-18                                             |
+|    |                               |                                    | if a < c:                      | ssa2/contract.py:45                                                  |
+| 22 | 8b ff                         |     frame_dig -1                   |    -----                       | ssa2/contract.py:45:7-12                                             |
+| 24 | 0c                            |     <                              |    -----                       | ssa2/contract.py:45:7-12                                             |
+| 25 | 41 00 0e                      |     bz one_hundred_after_if_else@2 |                                | ssa2/contract.py:45                                                  |
+| 28 | 42 00 00                      |     b one_hundred_if_body@1        |                                | ssa2/contract.py:45                                                  |
+|    | # one_hundred_if_body@1       | one_hundred_if_body@1:             |                                |                                                                      |
+|    |                               |                                    | b = UInt64(1)                  | ssa2/contract.py:46                                                  |
+| 31 | 81 01                         |     pushint 1                      |     ---------                  | ssa2/contract.py:46:12-21                                            |
+| 33 | 8c 01                         |     frame_bury 1                   | -------------                  | ssa2/contract.py:46:8-21                                             |
+|    |                               |                                    | a = UInt64(100)                | ssa2/contract.py:47                                                  |
+| 35 | 81 64                         |     pushint 100                    |     -----------                | ssa2/contract.py:47:12-23                                            |
+| 37 | 8c 00                         |     frame_bury 0                   | ---------------                | ssa2/contract.py:47:8-23                                             |
+| 39 | 42 00 00                      |     b one_hundred_after_if_else@2  |                                |                                                                      |
+|    | # one_hundred_after_if_else@2 | one_hundred_after_if_else@2:       |                                |                                                                      |
+|    |                               |                                    | b *= b                         | ssa2/contract.py:49                                                  |
+| 42 | 8b 01                         |     frame_dig 1                    | ------                         | ssa2/contract.py:49:4-10                                             |
+| 44 | 49                            |     dup                            | ------                         | ssa2/contract.py:49:4-10                                             |
+| 45 | 0b                            |     *                              | ------                         | ssa2/contract.py:49:4-10                                             |
+|    |                               |                                    | return a * b                   | ssa2/contract.py:50                                                  |
+| 46 | 8b 00                         |     frame_dig 0                    |        -----                   | ssa2/contract.py:50:11-16                                            |
+| 48 | 0b                            |     *                              |        -----                   | ssa2/contract.py:50:11-16                                            |
+| 49 | 8c 00                         |     frame_bury 0                   | ------------                   | ssa2/contract.py:50:4-16                                             |
+| 51 | 89                            |     retsub                         | ------------                   | ssa2/contract.py:50:4-16                                             |

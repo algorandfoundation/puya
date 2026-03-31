@@ -1,0 +1,65 @@
+| PC | TEAL Bytes                     | TEAL                                | Source                      | Location                                                                 |
+|--: | :------------------------------| :-----------------------------------| :---------------------------| :------------------------------------------------------------------------|
+|  0 | 0b                             | #pragma version 11                  |                             |                                                                          |
+|    | # main                         | main:                               |                             | test_cases.literals.folding.LiteralFolding.approval_program() -> uint64: |
+|  1 | 20 02 01 00                    |     intcblock 1 0                   |                             |                                                                          |
+|  5 | 26 02 01 61 01 62              |     bytecblock "a" "b"              |                             |                                                                          |
+|    |                                |                                     | assert "a" not in b         | literals/folding.py:26                                                   |
+| 11 | 28                             |     bytec_0 // "a"                  |        ---                  | literals/folding.py:26:11-14                                             |
+|    |                                |                                     | b = String("b")             | literals/folding.py:23                                                   |
+| 12 | 29                             |     bytec_1 // "b"                  |     -----------             | literals/folding.py:23:8-19                                              |
+|    |                                |                                     | assert "a" not in b         | literals/folding.py:26                                                   |
+| 13 | 88 00 15                       |     callsub is_substring            |        ------------         | literals/folding.py:26:11-23                                             |
+| 16 | 14                             |     !                               |        ------------         | literals/folding.py:26:11-23                                             |
+| 17 | 44                             |     assert                          | -------------------         | literals/folding.py:26:4-23                                              |
+|    |                                |                                     | assert not ("a" in b)       | literals/folding.py:27                                                   |
+| 18 | 28                             |     bytec_0 // "a"                  |             ---             | literals/folding.py:27:16-19                                             |
+|    |                                |                                     | b = String("b")             | literals/folding.py:23                                                   |
+| 19 | 29                             |     bytec_1 // "b"                  |     -----------             | literals/folding.py:23:8-19                                              |
+|    |                                |                                     | assert not ("a" in b)       | literals/folding.py:27                                                   |
+| 20 | 88 00 0e                       |     callsub is_substring            |             --------        | literals/folding.py:27:16-24                                             |
+| 23 | 14                             |     !                               |        --------------       | literals/folding.py:27:11-25                                             |
+| 24 | 44                             |     assert                          | ---------------------       | literals/folding.py:27:4-25                                              |
+|    |                                |                                     | assert "a" in String("abc") | literals/folding.py:28                                                   |
+| 25 | 28                             |     bytec_0 // "a"                  |        ---                  | literals/folding.py:28:11-14                                             |
+| 26 | 80 03 61 62 63                 |     pushbytes "abc"                 |               ------------- | literals/folding.py:28:18-31                                             |
+| 31 | 88 00 03                       |     callsub is_substring            |        -------------------- | literals/folding.py:28:11-31                                             |
+| 34 | 44                             |     assert                          | --------------------------- | literals/folding.py:28:4-31                                              |
+|    |                                |                                     | return True                 | literals/folding.py:103                                                  |
+| 35 | 22                             |     intc_0 // 1                     |        ----                 | literals/folding.py:103:15-19                                            |
+| 36 | 43                             |     return                          | -----------                 | literals/folding.py:103:8-19                                             |
+|    | # is_substring                 | is_substring:                       |                             | _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:   |
+| 37 | 8a 02 01                       |     proto 2 1                       |                             | INTERNAL:5-7:1-16                                                        |
+| 40 | 80 00                          |     pushbytes ""                    |                             |                                                                          |
+| 42 | 23                             |     intc_1 // 0                     |     -------                 | INTERNAL:12:12-21                                                        |
+|    | # is_substring_while_top@1     | is_substring_while_top@1:           |                             |                                                                          |
+| 43 | 8b fe                          |     frame_dig -2                    |           -                 | INTERNAL:13:18-29                                                        |
+| 45 | 15                             |     len                             |           -                 | INTERNAL:13:18-29                                                        |
+| 46 | 8b 01                          |     frame_dig 1                     |   ---------                 | INTERNAL:13:10-29                                                        |
+| 48 | 08                             |     +                               |   ---------                 | INTERNAL:13:10-29                                                        |
+| 49 | 49                             |     dup                             |   ---------                 | INTERNAL:13:10-29                                                        |
+| 50 | 8c 00                          |     frame_bury 0                    |   ---------                 | INTERNAL:13:10-29                                                        |
+| 52 | 8b ff                          |     frame_dig -1                    |                             | INTERNAL:13:33-48                                                        |
+| 54 | 15                             |     len                             |                             | INTERNAL:13:33-48                                                        |
+| 55 | 0e                             |     <=                              |   ---------                 | INTERNAL:13:10-48                                                        |
+| 56 | 41 00 1a                       |     bz is_substring_after_while@5   |                             | INTERNAL:13                                                              |
+| 59 | 8b ff                          |     frame_dig -1                    |                             | INTERNAL:14:19-69                                                        |
+| 61 | 8b 01                          |     frame_dig 1                     |                             | INTERNAL:14:19-69                                                        |
+| 63 | 8b 00                          |     frame_dig 0                     |                             | INTERNAL:14:19-69                                                        |
+| 65 | 52                             |     substring3                      |                             | INTERNAL:14:19-69                                                        |
+| 66 | 8b fe                          |     frame_dig -2                    |    --------                 | INTERNAL:14:11-69                                                        |
+| 68 | 12                             |     ==                              |    --------                 | INTERNAL:14:11-69                                                        |
+| 69 | 41 00 04                       |     bz is_substring_after_if_else@4 |                             | INTERNAL:14                                                              |
+| 72 | 22                             |     intc_0 // 1                     |                             | INTERNAL:15:19-23                                                        |
+| 73 | 8c 00                          |     frame_bury 0                    |     -------                 | INTERNAL:15:12-23                                                        |
+| 75 | 89                             |     retsub                          |     -------                 | INTERNAL:15:12-23                                                        |
+|    | # is_substring_after_if_else@4 | is_substring_after_if_else@4:       |                             |                                                                          |
+| 76 | 8b 01                          |     frame_dig 1                     | ----------                  | INTERNAL:16:8-18                                                         |
+| 78 | 22                             |     intc_0 // 1                     |          -                  | INTERNAL:16:17-18                                                        |
+| 79 | 08                             |     +                               | ----------                  | INTERNAL:16:8-18                                                         |
+| 80 | 8c 01                          |     frame_bury 1                    | ----------                  | INTERNAL:16:8-18                                                         |
+| 82 | 42 ff d6                       |     b is_substring_while_top@1      |                             |                                                                          |
+|    | # is_substring_after_while@5   | is_substring_after_while@5:         |                             |                                                                          |
+| 85 | 23                             |     intc_1 // 0                     |    -----                    | INTERNAL:17:11-16                                                        |
+| 86 | 8c 00                          |     frame_bury 0                    | ------------                | INTERNAL:17:4-16                                                         |
+| 88 | 89                             |     retsub                          | ------------                | INTERNAL:17:4-16                                                         |

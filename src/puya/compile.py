@@ -41,7 +41,7 @@ from puya.parse import SourceLocation
 from puya.program_refs import ContractReference, LogicSigReference, ProgramKind
 from puya.teal.main import mir_to_teal
 from puya.teal.models import TealProgram
-from puya.teal.output import emit_teal
+from puya.teal.output import emit_assembly_report, emit_teal
 from puya.ussemble.main import assemble_program
 from puya.utils import attrs_extend, make_path_relative_to, make_path_relative_to_cwd
 
@@ -231,6 +231,7 @@ class _CompiledProgram(CompiledProgram):
     template_variables: Mapping[str, int | bytes | None]
     stats: Mapping[str, int]
     debug_info: DebugInfo | None = None
+    assembly_report: str | None = None
     bytecode: bytes | None = None
 
 
@@ -287,11 +288,18 @@ def _compile_program(
 ) -> _CompiledProgram:
     teal_src = emit_teal(context, program)
     assembled = assemble_program(context, ref, program)
+    if context.options.output_assembly_report:
+        assembly_report = emit_assembly_report(
+            context, program, assembled.bytecode, assembled.instruction_boundaries
+        )
+    else:
+        assembly_report = None
     return _CompiledProgram(
         teal=program,
         teal_src=teal_src,
         bytecode=assembled.bytecode,
         debug_info=assembled.debug_info,
+        assembly_report=assembly_report,
         template_variables=assembled.template_variables,
         stats=assembled.stats,
     )
@@ -363,6 +371,15 @@ def _write_artifacts(
                         f"{stat} = {value}" for stat, value in program.stats.items()
                     ).encode("utf8")
                     for suffix, program in programs.items()
+                },
+            )
+        if context.options.output_assembly_report:
+            _write_output(
+                artifact_base_path,
+                {
+                    f"{suffix}.assembly-report": program.assembly_report.encode("utf8")
+                    for suffix, program in programs.items()
+                    if program.assembly_report is not None
                 },
             )
         if context.options.output_source_map:

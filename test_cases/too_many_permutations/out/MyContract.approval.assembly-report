@@ -1,0 +1,55 @@
+| PC | TEAL Bytes          | TEAL                       | Source                            | Location                                                                           |
+|--: | :-------------------| :--------------------------| :---------------------------------| :----------------------------------------------------------------------------------|
+|  0 | 0b                  | #pragma version 11         |                                   |                                                                                    |
+|    | # main              | main:                      |                                   | test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64: |
+|    |                     |                            | a = op.Txn.application_args(0)    | too_many_permutations/contract.py:6                                                |
+|  1 | 36 1a 00            |     txna ApplicationArgs 0 |     --------------------------    | too_many_permutations/contract.py:6:12-38                                          |
+|    |                     |                            | b = op.Txn.application_args(1)    | too_many_permutations/contract.py:7                                                |
+|  4 | 36 1a 01            |     txna ApplicationArgs 1 |     --------------------------    | too_many_permutations/contract.py:7:12-38                                          |
+|    |                     |                            | c = op.Txn.application_args(2)    | too_many_permutations/contract.py:8                                                |
+|  7 | 36 1a 02            |     txna ApplicationArgs 2 |     --------------------------    | too_many_permutations/contract.py:8:12-38                                          |
+|    |                     |                            | d = op.Txn.application_args(3)    | too_many_permutations/contract.py:9                                                |
+| 10 | 36 1a 03            |     txna ApplicationArgs 3 |     --------------------------    | too_many_permutations/contract.py:9:12-38                                          |
+|    |                     |                            | a = op.Txn.application_args(0)    | too_many_permutations/contract.py:6                                                |
+| 13 | 36 1a 00            |     txna ApplicationArgs 0 |     --------------------------    | too_many_permutations/contract.py:6:12-38                                          |
+|    |                     |                            | c = op.Txn.application_args(2)    | too_many_permutations/contract.py:8                                                |
+| 16 | 36 1a 02            |     txna ApplicationArgs 2 |     --------------------------    | too_many_permutations/contract.py:8:12-38                                          |
+|    |                     |                            | assert (a != c) or (b != d)       | too_many_permutations/contract.py:11                                               |
+| 19 | 13                  |     !=                     |         ------                    | too_many_permutations/contract.py:11:16-22                                         |
+| 20 | 40 00 08            |     bnz main_bool_true@2   |        --------------------       | too_many_permutations/contract.py:11:15-35                                         |
+| 23 | 4b 02               |     dig 2                  |                     ------        | too_many_permutations/contract.py:11:28-34                                         |
+| 25 | 4b 01               |     dig 1                  |                     ------        | too_many_permutations/contract.py:11:28-34                                         |
+| 27 | 13                  |     !=                     |                     ------        | too_many_permutations/contract.py:11:28-34                                         |
+| 28 | 41 00 1f            |     bz main_bool_false@3   |        --------------------       | too_many_permutations/contract.py:11:15-35                                         |
+|    | # main_bool_true@2  | main_bool_true@2:          |                                   |                                                                                    |
+| 31 | 81 01               |     pushint 1              |                                   |                                                                                    |
+|    | # main_bool_merge@4 | main_bool_merge@4:         |                                   |                                                                                    |
+| 33 | 44                  |     assert                 | ---------------------------       | too_many_permutations/contract.py:11:8-35                                          |
+|    |                     |                            | return (a + b + c + d).length > 0 | too_many_permutations/contract.py:24                                               |
+| 34 | 4b 03               |     dig 3                  |         -----                     | too_many_permutations/contract.py:24:12-17                                         |
+| 36 | 4b 03               |     dig 3                  |         -----                     | too_many_permutations/contract.py:24:12-17                                         |
+| 38 | 50                  |     concat                 |         -----                     | too_many_permutations/contract.py:24:12-17                                         |
+| 39 | 49                  |     dup                    |         ---------                 | too_many_permutations/contract.py:24:12-21                                         |
+| 40 | 4b 03               |     dig 3                  |         ---------                 | too_many_permutations/contract.py:24:12-21                                         |
+| 42 | 49                  |     dup                    |         ---------                 | too_many_permutations/contract.py:24:12-21                                         |
+| 43 | 4e 03               |     cover 3                |         ---------                 | too_many_permutations/contract.py:24:12-21                                         |
+| 45 | 50                  |     concat                 |         ---------                 | too_many_permutations/contract.py:24:12-21                                         |
+| 46 | 4b 03               |     dig 3                  |         -------------             | too_many_permutations/contract.py:24:12-25                                         |
+| 48 | 49                  |     dup                    |         -------------             | too_many_permutations/contract.py:24:12-25                                         |
+| 49 | 4e 03               |     cover 3                |         -------------             | too_many_permutations/contract.py:24:12-25                                         |
+| 51 | 50                  |     concat                 |         -------------             | too_many_permutations/contract.py:24:12-25                                         |
+| 52 | 15                  |     len                    |        ----------------------     | too_many_permutations/contract.py:24:11-33                                         |
+|    |                     |                            | assert four_args(a, b, c, d)      | too_many_permutations/contract.py:12                                               |
+| 53 | 44                  |     assert                 | ----------------------------      | too_many_permutations/contract.py:12:8-36                                          |
+|    |                     |                            | assert a + b                      | too_many_permutations/contract.py:29                                               |
+| 54 | 15                  |     len                    |        -----                      | too_many_permutations/contract.py:29:11-16                                         |
+| 55 | 44                  |     assert                 | ------------                      | too_many_permutations/contract.py:29:4-16                                          |
+| 56 | 50                  |     concat                 |        -----                      | too_many_permutations/contract.py:29:11-16                                         |
+| 57 | 15                  |     len                    |        -----                      | too_many_permutations/contract.py:29:11-16                                         |
+| 58 | 44                  |     assert                 | ------------                      | too_many_permutations/contract.py:29:4-16                                          |
+|    |                     |                            | return True                       | too_many_permutations/contract.py:16                                               |
+| 59 | 81 01               |     pushint 1              |        ----                       | too_many_permutations/contract.py:16:15-19                                         |
+| 61 | 43                  |     return                 | -----------                       | too_many_permutations/contract.py:16:8-19                                          |
+|    | # main_bool_false@3 | main_bool_false@3:         |                                   |                                                                                    |
+| 62 | 81 00               |     pushint 0              |                                   |                                                                                    |
+| 64 | 42 ff de            |     b main_bool_merge@4    |                                   |                                                                                    |
