@@ -74,7 +74,6 @@ class CodeAnalyser:
     ) -> dict[URI, DocumentAnalysis]:
         # parse Typed AST
         puyapy_options = PuyaPyOptions(
-            log_level=LogLevel.info,
             paths=paths,
             # don't need optimization for analysis
             optimization_level=0,

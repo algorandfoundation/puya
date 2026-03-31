@@ -175,7 +175,6 @@ def puyapy(
     options = PuyaPyOptions(
         paths=paths,
         out_dir=out_dir,
-        log_level=log_level,
         output_teal=output_teal,
         output_assembly_report=output_assembly_report,
         output_source_map=output_source_map,

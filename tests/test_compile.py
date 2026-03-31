@@ -5,7 +5,6 @@ from pathlib import Path
 
 import attrs
 
-from puya import log
 from puyapy.options import PuyaPyOptions
 from tests import VCS_ROOT
 from tests.utils import (
@@ -45,7 +44,6 @@ def _compile_test_case(
     puya_options = PuyaPyOptions(
         paths=(test_case.path,),
         out_dir=dst_out_dir,
-        log_level=log.LogLevel.debug,
         template_vars_prefix=prefix,
         cli_template_definitions=template_vars,
         output_op_statistics=True,
