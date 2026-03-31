@@ -6,7 +6,6 @@ from pathlib import Path
 
 import attrs
 
-from puya.log import LogLevel
 from puya.options import PuyaOptions
 
 
@@ -19,7 +18,6 @@ class PuyaPyOptions(PuyaOptions):
     output_source_annotations_json: bool = False
     output_client: bool = False
     out_dir: Path | None = attrs.field(default=None, repr=False)
-    log_level: LogLevel = LogLevel.info
 
     @staticmethod
     def get() -> "PuyaPyOptions":
