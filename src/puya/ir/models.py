@@ -1035,6 +1035,23 @@ class BasicBlock(Context):
                     targets.append(phi.register)
                     (phi_arg,) = phi.args
                     source_values.append(phi_arg.value)
+                # It is possible for phi nodes to be defined in terms of other phi nodes, like:
+                #   x#1 = phi(x#0 <- block@0, y#1 <- block@2)
+                #   y#1 = phi(y#0 <- block@0, x#1 <- block@2)
+                # This is valid because all phi-nodes are considered to execute in parallel
+                # on block entry.
+                # An example of where this situation could arise is a swap-inside-loop
+                # (see test_cases/unssa) - so on the first iteration via block@0, the variables
+                # are all initialised correctly, regardless of order, and subsequent iterations
+                # via block@2 work as long as they are sequentialized correctly..
+                # However, if the block@0 predecessor was removed, there is no way for this to
+                # resolve correctly, and you have a (rather complicated) use-before-def situation.
+                if intersection := set(targets).intersection(source_values):
+                    raise InternalError(
+                        f"removing predecessor {predecessor} from {self} results in use-before-def"
+                        f" due to trivial phi nodes being collapsed (registers: {intersection})",
+                        self.source_location,
+                    )
                 loc = None  # phis have no location
                 # phi nodes execute in parallel, so construct a single assignment
                 source: ValueProvider

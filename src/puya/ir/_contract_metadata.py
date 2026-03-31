@@ -130,8 +130,8 @@ def _build_state_totals(
     local_state: Mapping[str, models.ContractState],
     location: SourceLocation,
 ) -> models.StateTotals:
-    global_by_type = Counter(s.storage_type for s in global_state.values())
-    local_by_type = Counter(s.storage_type for s in local_state.values())
+    global_by_type = Counter(s.storage_type for s in global_state.values() if not s.is_map)
+    local_by_type = Counter(s.storage_type for s in local_state.values() if not s.is_map)
     merged = models.StateTotals(
         global_uints=global_by_type[AVMType.uint64],
         global_bytes=global_by_type[AVMType.bytes],
