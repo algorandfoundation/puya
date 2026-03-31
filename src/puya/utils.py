@@ -1,6 +1,7 @@
 import base64
 import contextlib
 import functools
+import gzip
 import math
 import os
 import typing
@@ -376,3 +377,11 @@ def not_none[T](x: T | None) -> T:
 
 def chunk_array[T](arr: list[T], size: int) -> list[list[T]]:
     return [arr[i : i + size] for i in range(0, len(arr), size)]
+
+
+def read_text_from_maybe_compressed_file(path: Path) -> str:
+    if path.suffix in (".gz", ".gzip"):
+        with gzip.open(path, mode="rt", encoding="utf8") as fp:
+            return fp.read()
+    else:
+        return path.read_text("utf8")
