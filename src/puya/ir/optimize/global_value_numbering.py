@@ -200,11 +200,11 @@ class _GVNTables:
     is shared by reference across all scopes.
     """
 
+    # --- Global: shared by reference across all scopes ---
+    _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     # --- Scoped: copied on child_scope() ---
     _register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     _expr_table: dict[_ValueKey, tuple[VN, Sequence[models.Register]]] = attrs.field(factory=dict)
-    # --- Global: shared by reference across all scopes ---
-    _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     _vn_to_register: dict[VN, models.Register] = attrs.field(factory=dict)
     _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
     _comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
@@ -218,6 +218,9 @@ class _GVNTables:
             self,
             register_vn=dict(self._register_vn),
             expr_table=dict(self._expr_table),
+            vn_to_register=dict(self._vn_to_register),
+            const_vn=dict(self._const_vn),
+            comparison_exprs=dict(self._comparison_exprs),
         )
 
     def fresh_vn(self) -> VN:
