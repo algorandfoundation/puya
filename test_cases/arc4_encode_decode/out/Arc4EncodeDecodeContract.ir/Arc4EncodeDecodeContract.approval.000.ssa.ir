@@ -1,0 +1,238 @@
+main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_program:
+    block@0: // L34
+        test_cases.arc4_encode_decode.contract.test_native_struct()
+        test_cases.arc4_encode_decode.contract.test_arc4_struct()
+        test_cases.arc4_encode_decode.contract.test_uint64()
+        test_cases.arc4_encode_decode.contract.test_biguint()
+        test_cases.arc4_encode_decode.contract.test_string()
+        test_cases.arc4_encode_decode.contract.test_bytes()
+        test_cases.arc4_encode_decode.contract.test_bool()
+        test_cases.arc4_encode_decode.contract.test_account()
+        test_cases.arc4_encode_decode.contract.test_asset()
+        test_cases.arc4_encode_decode.contract.test_application()
+        test_cases.arc4_encode_decode.contract.test_arc4_uint64()
+        test_cases.arc4_encode_decode.contract.test_arc4_string()
+        test_cases.arc4_encode_decode.contract.test_tuple()
+        test_cases.arc4_encode_decode.contract.test_named_tuple()
+        test_cases.arc4_encode_decode.contract.test_arc4_dynamic_array()
+        test_cases.arc4_encode_decode.contract.test_arc4_static_array()
+        return 1u
+
+subroutine test_cases.arc4_encode_decode.contract.test_native_struct() -> void:
+    block@0: // L57
+        let tmp%0#0: Encoded(uint64,bool1) = bytes_encode<(uint64,bool1)>(1u, 1u)
+        let original#0: Encoded(uint64,bool1) = tmp%0#0
+        let encoded#0: bytes = original#0
+        let tmp%1#0: bool = (== encoded#0 0x000000000000000180)
+        (assert tmp%1#0)
+        let as_Encoded(uint64,bool1)%0#0: Encoded(uint64,bool1) = encoded#0
+        let decoded#0: Encoded(uint64,bool1) = as_Encoded(uint64,bool1)%0#0
+        let tmp%2#0: bool = (== decoded#0 original#0)
+        (assert tmp%2#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_arc4_struct() -> void:
+    block@0: // L66
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
+        let tmp%1#0: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(0x000000000000002a, tmp%0#0)
+        let original#0: Encoded(uint64,(len+utf8[])) = tmp%1#0
+        let encoded#0: bytes = original#0
+        let as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = encoded#0
+        let decoded#0: Encoded(uint64,(len+utf8[])) = as_Encoded(uint64,(len+utf8[]))%0#0
+        let tmp%2#0: bool = (== decoded#0 original#0)
+        (assert tmp%2#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_uint64() -> void:
+    block@0: // L74
+        let value#0: uint64 = 42u
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(value#0)
+        let encoded#0: bytes = tmp%0#0
+        let tmp%1#0: bool = (== encoded#0 0x000000000000002a)
+        (assert tmp%1#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
+        let tmp%2#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let decoded#0: uint64 = tmp%2#0
+        let tmp%3#0: bool = (== decoded#0 value#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_biguint() -> void:
+    block@0: // L84
+        let value#0: biguint = 42b
+        let tmp%0#0: Encoded(uint512) = bytes_encode<uint512>(value#0)
+        let encoded#0: bytes = tmp%0#0
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = encoded#0
+        let tmp%1#0: biguint = decode_bytes<biguint>(as_Encoded(uint512)%0#0)
+        let decoded#0: biguint = tmp%1#0
+        let tmp%2#0: bool = (b== decoded#0 value#0)
+        (assert tmp%2#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_string() -> void:
+    block@0: // L92
+        let value#0: string = "hello"
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(value#0)
+        let encoded#0: bytes = tmp%0#0
+        let tmp%1#0: bool = (== encoded#0 0x000568656c6c6f)
+        (assert tmp%1#0)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded#0
+        let tmp%2#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
+        let decoded#0: string = tmp%2#0
+        let tmp%3#0: bool = (== decoded#0 value#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_bytes() -> void:
+    block@0: // L102
+        let value#0: bytes = 0x010203
+        let tmp%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(value#0)
+        let encoded#0: bytes = tmp%0#0
+        let tmp%1#0: bool = (== encoded#0 0x0003010203)
+        (assert tmp%1#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded#0
+        let tmp%2#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
+        let decoded#0: bytes = tmp%2#0
+        let tmp%3#0: bool = (== decoded#0 value#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_bool() -> void:
+    block@0: // L112
+        let tmp%0#0: Encoded(bool8) = bytes_encode<bool8>(1u)
+        let encoded_true#0: bytes = tmp%0#0
+        let tmp%1#0: bool = (== encoded_true#0 0x80)
+        (assert tmp%1#0)
+        let as_Encoded(bool8)%0#0: Encoded(bool8) = encoded_true#0
+        let tmp%2#0: bool = decode_bytes<bool>(as_Encoded(bool8)%0#0)
+        let decoded_true#0: bool = tmp%2#0
+        (assert decoded_true#0)
+        let tmp%3#0: Encoded(bool8) = bytes_encode<bool8>(0u)
+        let encoded_false#0: bytes = tmp%3#0
+        let tmp%4#0: bool = (== encoded_false#0 0x00)
+        (assert tmp%4#0)
+        let as_Encoded(bool8)%1#0: Encoded(bool8) = encoded_false#0
+        let tmp%5#0: bool = decode_bytes<bool>(as_Encoded(bool8)%1#0)
+        let decoded_false#0: bool = tmp%5#0
+        let tmp%6#0: bool = (! decoded_false#0)
+        (assert tmp%6#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_account() -> void:
+    block@0: // L125
+        let value#0: account = addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
+        let tmp%0#0: Encoded(uint8[32]) = bytes_encode<uint8[32]>(value#0)
+        let encoded#0: bytes = tmp%0#0
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = encoded#0
+        let tmp%1#0: account = decode_bytes<account>(as_Encoded(uint8[32])%0#0)
+        let decoded#0: account = tmp%1#0
+        let tmp%2#0: bool = (== decoded#0 value#0)
+        (assert tmp%2#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_asset() -> void:
+    block@0: // L133
+        let value#0: uint64 = 42u
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(value#0)
+        let encoded#0: bytes = tmp%0#0
+        let tmp%1#0: bool = (== encoded#0 0x000000000000002a)
+        (assert tmp%1#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
+        let tmp%2#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let decoded#0: uint64 = tmp%2#0
+        let tmp%3#0: bool = (== decoded#0 value#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_application() -> void:
+    block@0: // L142
+        let value#0: uint64 = 123u
+        let tmp%0#0: Encoded(uint64) = bytes_encode<uint64>(value#0)
+        let encoded#0: bytes = tmp%0#0
+        let tmp%1#0: bool = (== encoded#0 0x000000000000007b)
+        (assert tmp%1#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
+        let tmp%2#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
+        let decoded#0: uint64 = tmp%2#0
+        let tmp%3#0: bool = (== decoded#0 value#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_arc4_uint64() -> void:
+    block@0: // L151
+        let value#0: Encoded(uint64) = 0x000000000000002a
+        let encoded#0: bytes = value#0
+        let tmp%0#0: bool = (== encoded#0 0x000000000000002a)
+        (assert tmp%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
+        let decoded#0: Encoded(uint64) = as_Encoded(uint64)%0#0
+        let reinterpret_biguint%0#0: biguint = decoded#0
+        let reinterpret_biguint%1#0: biguint = value#0
+        let tmp%1#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        (assert tmp%1#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_arc4_string() -> void:
+    block@0: // L160
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello")
+        let value#0: Encoded(len+utf8[]) = tmp%0#0
+        let encoded#0: bytes = value#0
+        let tmp%1#0: bool = (== encoded#0 0x000568656c6c6f)
+        (assert tmp%1#0)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded#0
+        let decoded#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
+        let tmp%2#0: bool = (== decoded#0 value#0)
+        (assert tmp%2#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_tuple() -> void:
+    block@0: // L169
+        let (value.0#0: uint64, value.1#0: uint64) = (1u, 2u)
+        let tmp%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(value.0#0, value.1#0)
+        let encoded#0: bytes = tmp%0#0
+        let tmp%1#0: bool = (== encoded#0 0x00000000000000010000000000000002)
+        (assert tmp%1#0)
+        let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = encoded#0
+        let (tmp%2#0: uint64, tmp%3#0: uint64) = decode_bytes<(uint64,uint64,)>(as_Encoded(uint64,uint64)%0#0)
+        let (decoded.0#0: uint64, decoded.1#0: uint64) = (tmp%2#0, tmp%3#0)
+        let tmp%4#0: bool = (== decoded.0#0 value.0#0)
+        let tmp%5#0: bool = (== decoded.1#0 value.1#0)
+        let tmp%6#0: bool = (&& tmp%4#0 tmp%5#0)
+        (assert tmp%6#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_named_tuple() -> void:
+    block@0: // L178
+        let (value.x#0: uint64, value.y#0: string) = (5u, "test")
+        let tmp%0#0: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(value.x#0, value.y#0)
+        let encoded#0: bytes = tmp%0#0
+        let as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = encoded#0
+        let (tmp%1#0: uint64, tmp%2#0: string) = decode_bytes<(uint64,string,)>(as_Encoded(uint64,(len+utf8[]))%0#0)
+        let (decoded.x#0: uint64, decoded.y#0: string) = (tmp%1#0, tmp%2#0)
+        let tmp%3#0: bool = (== decoded.x#0 value.x#0)
+        let tmp%4#0: bool = (== decoded.y#0 value.y#0)
+        let tmp%5#0: bool = (&& tmp%3#0 tmp%4#0)
+        (assert tmp%5#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_arc4_dynamic_array() -> void:
+    block@0: // L186
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000001, 0x0000000000000002, 0x0000000000000003)
+        let value#0: Encoded(len+uint64[]) = encoded_array%0#0
+        let encoded#0: bytes = value#0
+        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = encoded#0
+        let decoded#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let tmp%0#0: bool = (== decoded#0 value#0)
+        (assert tmp%0#0)
+        return 
+
+subroutine test_cases.arc4_encode_decode.contract.test_arc4_static_array() -> void:
+    block@0: // L194
+        let encoded_array%0#0: Encoded(uint64[2]) = bytes_encode<uint64[2]>(0x000000000000000a, 0x0000000000000014)
+        let value#0: Encoded(uint64[2]) = encoded_array%0#0
+        let encoded#0: bytes = value#0
+        let as_Encoded(uint64[2])%0#0: Encoded(uint64[2]) = encoded#0
+        let decoded#0: Encoded(uint64[2]) = as_Encoded(uint64[2])%0#0
+        let tmp%0#0: bool = (== decoded#0 value#0)
+        (assert tmp%0#0)
+        return 
