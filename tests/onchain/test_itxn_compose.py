@@ -1,34 +1,27 @@
 from pathlib import Path
 
 import algokit_utils as au
-import pytest
 
-from tests import FROM_AWST_DIR
-from tests.from_awst.util import compile_contract_and_clients
+from puya.compilation_artifacts import CompiledContract
+from tests import AWST_DIR
+from tests.utils import PuyaTestCase
+from tests.utils.compile import arc56_from_compiled_contract, compile_from_test_case
+from tests.utils.deployer import Deployer
 
 
-@pytest.mark.localnet
-def test_compile_and_run(
-    localnet: au.AlgorandClient,
-    account: au.AddressWithSigners,
+def test_itxn_compose(
+    localnet: au.AlgorandClient, account: au.AddressWithSigners, deployer: Deployer, tmp_path: Path
 ) -> None:
-    test_dir = Path(__file__).parent
-    out_dir = test_dir / "out"
-
-    clients = compile_contract_and_clients(
-        algorand=localnet,
-        account=account,
-        awst_path=FROM_AWST_DIR / "itxn_compose" / "module.awst.json",
-        compilation_set={
-            "tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo": out_dir,
-            "tests/approvals/itxn-compose.algo.ts::VerifierContract": out_dir,
-        },
-    )
-    app_client_verify_factory = clients["tests/approvals/itxn-compose.algo.ts::VerifierContract"]
-    app_client_itxn_factory = clients["tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo"]
-
-    app_client_verify, _ = app_client_verify_factory.send.bare.create()
-    app_client_itxn, _ = app_client_itxn_factory.send.bare.create()
+    test_case = PuyaTestCase(AWST_DIR / "itxn_compose")
+    contracts = {
+        artifact.id.removeprefix(
+            "tests/approvals/itxn-compose.algo.ts::"
+        ): arc56_from_compiled_contract(artifact)
+        for artifact in compile_from_test_case(test_case, out_dir=tmp_path).teal
+        if isinstance(artifact, CompiledContract)
+    }
+    app_client_verify = deployer.create(contracts["VerifierContract"]).client
+    app_client_itxn = deployer.create(contracts["ItxnComposeAlgo"]).client
 
     localnet.account.ensure_funded(
         account_to_fund=app_client_itxn.app_address,
