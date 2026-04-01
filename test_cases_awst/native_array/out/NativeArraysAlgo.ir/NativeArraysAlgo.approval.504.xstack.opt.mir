@@ -1,0 +1,751 @@
+// Op                                                                                Stack (out)
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+subroutine main:
+    main_block@0:
+        txn NumAppArgs                                                               tmp%0#1
+        bz main___algots__.defaultCreate@9 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        txn OnCompletion                                                             tmp%2#0
+        !                                                                            tmp%3#0
+        assert
+        txn ApplicationID                                                            tmp%4#0
+        assert
+        txna ApplicationArgs 0                                                       tmp%6#0
+        method buildArray()uint64[]                                                  tmp%6#0,Method(buildArray()uint64[])
+        method doThings()void                                                        tmp%6#0,Method(buildArray()uint64[]),Method(doThings()void)
+        l-load tmp%6#0 2                                                             Method(buildArray()uint64[]),Method(doThings()void),tmp%6#0
+        match main_buildArray_route@4 main_doThings_route@5 ; b main_after_if_else@8
+
+    main_buildArray_route@4:
+        byte 0x151f7c7500040000000000000001000000000000000200000000000000030000000000000004 0x151f7c7500040000000000000001000000000000000200000000000000030000000000000004
+        log
+        int 1                                                                        1
+        return
+
+    main_doThings_route@5:
+        callsub doThings
+        b main_after_if_else@8
+
+    main_after_if_else@8:
+        err
+
+    main___algots__.defaultCreate@9:
+        txn OnCompletion                                                             tmp%7#0
+        !                                                                            tmp%8#0
+        txn ApplicationID                                                            tmp%8#0,tmp%9#0
+        !                                                                            tmp%8#0,tmp%10#0
+        l-load tmp%8#0 1                                                             tmp%10#0,tmp%8#0
+        l-load tmp%10#0 1                                                            tmp%8#0,tmp%10#0
+        &&                                                                           tmp%11#0
+        assert
+        int 1                                                                        1
+        return
+
+
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
+subroutine dynamic_array_pop_fixed_size:
+    dynamic_array_pop_fixed_size_block@0:                                            (𝕡) array#0,fixed_byte_size#0 |
+        p-load array#0                                                               (𝕡) array#0,fixed_byte_size#0 | array#0 (copy)
+        len                                                                          (𝕡) array#0,fixed_byte_size#0 | tmp%0#1
+        p-load fixed_byte_size#0                                                     (𝕡) array#0,fixed_byte_size#0 | tmp%0#1,fixed_byte_size#0 (copy)
+        -                                                                            (𝕡) array#0,fixed_byte_size#0 | tmp%1#1
+        p-load array#0                                                               (𝕡) array#0,fixed_byte_size#0 | tmp%1#1,array#0 (copy)
+        int 0                                                                        (𝕡) array#0,fixed_byte_size#0 | tmp%1#1,array#0 (copy),0
+        l-load tmp%1#1 2                                                             (𝕡) array#0,fixed_byte_size#0 | array#0 (copy),0,tmp%1#1
+        substring3                                                                   (𝕡) array#0,fixed_byte_size#0 | result#0
+        l-load-copy result#0 0                                                       (𝕡) array#0,fixed_byte_size#0 | result#0,result#0 (copy)
+        int 0                                                                        (𝕡) array#0,fixed_byte_size#0 | result#0,result#0 (copy),0
+        extract_uint16                                                               (𝕡) array#0,fixed_byte_size#0 | result#0,array_length#0
+        int 1                                                                        (𝕡) array#0,fixed_byte_size#0 | result#0,array_length#0,1
+        -                                                                            (𝕡) array#0,fixed_byte_size#0 | result#0,length_minus_1#0
+        itob                                                                         (𝕡) array#0,fixed_byte_size#0 | result#0,tmp%0#2
+        extract 6 0                                                                  (𝕡) array#0,fixed_byte_size#0 | result#0,tmp%1#2
+        l-load result#0 1                                                            (𝕡) array#0,fixed_byte_size#0 | tmp%1#2,result#0
+        l-load tmp%1#2 1                                                             (𝕡) array#0,fixed_byte_size#0 | result#0,tmp%1#2
+        replace2 0                                                                   (𝕡) array#0,fixed_byte_size#0 | tmp%4#0
+        retsub                                                                       tmp%4#0
+
+
+// tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[routing]() -> void:
+subroutine doThings:
+    doThings_block@0:
+        int 5                                                                        5
+        itob                                                                         new_items_bytes#1
+        v-store new_items_bytes#1
+        byte 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005
+        int 8                                                                        0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005,8
+        callsub dynamic_array_pop_fixed_size                                         arr#2
+        l-store-copy arr#2 0                                                         arr#2,arr#2 (copy)
+        v-store arr#2                                                                arr#2
+        l-load arr#2 0                                                               arr#2
+        int 0                                                                        arr#2,0
+        extract_uint16 // on error: invalid array length header                      array_length#8
+        l-store-copy array_length#8 0                                                array_length#8,array_length#8 (copy)
+        v-store array_length#8                                                       array_length#8
+        l-load array_length#8 0                                                      array_length#8
+        int 4                                                                        array_length#8,4
+        ==                                                                           tmp%10#0
+        bz doThings_bool_false@7 ; b doThings_and_contd@2
+
+    doThings_and_contd@2:
+        v-load arr#2                                                                 arr#2
+        int 2                                                                        arr#2,2
+        extract_uint64                                                               tmp%11#0
+        int 1                                                                        tmp%11#0,1
+        ==                                                                           tmp%12#0
+        bz doThings_bool_false@7 ; b doThings_and_contd@3
+
+    doThings_and_contd@3:
+        v-load arr#2                                                                 arr#2
+        int 10                                                                       arr#2,10
+        extract_uint64                                                               tmp%13#0
+        int 2                                                                        tmp%13#0,2
+        ==                                                                           tmp%14#0
+        bz doThings_bool_false@7 ; b doThings_and_contd@4
+
+    doThings_and_contd@4:
+        v-load arr#2                                                                 arr#2
+        int 18                                                                       arr#2,18
+        extract_uint64                                                               tmp%15#0
+        int 3                                                                        tmp%15#0,3
+        ==                                                                           tmp%16#0
+        bz doThings_bool_false@7 ; b doThings_and_contd@5
+
+    doThings_and_contd@5:
+        v-load arr#2                                                                 arr#2
+        int 26                                                                       arr#2,26
+        extract_uint64                                                               tmp%17#0
+        int 4                                                                        tmp%17#0,4
+        ==                                                                           tmp%18#0
+        bz doThings_bool_false@7 ; b doThings_bool_true@6
+
+    doThings_bool_true@6:
+        int 1                                                                        and_result%0#0
+        x-store and_result%0#0                                                       (𝕏) and_result%0#0 |
+        b doThings_bool_merge@8                                                      (𝕏) and_result%0#0 |
+
+    doThings_bool_false@7:
+        int 0                                                                        and_result%0#0
+        x-store and_result%0#0                                                       (𝕏) and_result%0#0 |
+        b doThings_bool_merge@8                                                      (𝕏) and_result%0#0 |
+
+    doThings_bool_merge@8:                                                           (𝕏) and_result%0#0 |
+        x-load and_result%0#0                                                        and_result%0#0
+        assert // assert target is match for conditions
+        v-load arr#2                                                                 arr#2
+        l-store-copy arr#2 0                                                         arr#2,arr#2 (copy)
+        extract 2 0                                                                  arr#2,aggregate%array_trimmed%5#0
+        l-load-copy arr#2 1                                                          arr#2,aggregate%array_trimmed%5#0,arr#2 (copy)
+        int 2                                                                        arr#2,aggregate%array_trimmed%5#0,arr#2 (copy),2
+        extract_uint64                                                               arr#2,aggregate%array_trimmed%5#0,tmp%19#0
+        int 1                                                                        arr#2,aggregate%array_trimmed%5#0,tmp%19#0,1
+        ==                                                                           arr#2,aggregate%array_trimmed%5#0,tmp%20#0
+        assert                                                                       arr#2,aggregate%array_trimmed%5#0
+        v-load array_length#8                                                        arr#2,aggregate%array_trimmed%5#0,array_length#8
+        l-store-copy array_length#8 0                                                arr#2,aggregate%array_trimmed%5#0,array_length#8,array_length#8 (copy)
+        int 1                                                                        arr#2,aggregate%array_trimmed%5#0,array_length#8,array_length#8 (copy),1
+        -                                                                            arr#2,aggregate%array_trimmed%5#0,array_length#8,tmp%22#0
+        int 8                                                                        arr#2,aggregate%array_trimmed%5#0,array_length#8,tmp%22#0,8
+        *                                                                            arr#2,aggregate%array_trimmed%5#0,array_length#8,aggregate%bytes_offset%6#0
+        l-load aggregate%array_trimmed%5#0 2                                         arr#2,array_length#8,aggregate%bytes_offset%6#0,aggregate%array_trimmed%5#0
+        l-load aggregate%bytes_offset%6#0 1                                          arr#2,array_length#8,aggregate%array_trimmed%5#0,aggregate%bytes_offset%6#0
+        extract_uint64                                                               arr#2,array_length#8,tmp%23#0
+        int 4                                                                        arr#2,array_length#8,tmp%23#0,4
+        ==                                                                           arr#2,array_length#8,tmp%24#0
+        assert                                                                       arr#2,array_length#8
+        l-load array_length#8 0                                                      arr#2,array_length#8
+        int 1                                                                        arr#2,array_length#8,1
+        +                                                                            arr#2,new_array_length#0
+        itob                                                                         arr#2,tmp%0#1
+        extract 6 0                                                                  arr#2,new_len_u16#0
+        l-load arr#2 1                                                               new_len_u16#0,arr#2
+        l-load new_len_u16#0 1                                                       arr#2,new_len_u16#0
+        replace2 0                                                                   result#0
+        v-load new_items_bytes#1                                                     result#0,new_items_bytes#1
+        concat                                                                       arr#2
+        l-store-copy arr#2 0                                                         arr#2,arr#2 (copy)
+        v-store arr#2                                                                arr#2
+        l-load arr#2 0                                                               arr#2
+        int 0                                                                        arr#2,0
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%3#0
+        l-store-copy aggregate%array_length%3#0 0                                    aggregate%array_length%3#0,aggregate%array_length%3#0 (copy)
+        v-store aggregate%array_length%3#0                                           aggregate%array_length%3#0
+        l-load aggregate%array_length%3#0 0                                          aggregate%array_length%3#0
+        int 5                                                                        aggregate%array_length%3#0,5
+        ==                                                                           tmp%29#0
+        bz doThings_bool_false@15 ; b doThings_and_contd@9
+
+    doThings_and_contd@9:
+        v-load arr#2                                                                 arr#2
+        int 2                                                                        arr#2,2
+        extract_uint64                                                               tmp%30#0
+        int 1                                                                        tmp%30#0,1
+        ==                                                                           tmp%31#0
+        bz doThings_bool_false@15 ; b doThings_and_contd@10
+
+    doThings_and_contd@10:
+        v-load arr#2                                                                 arr#2
+        int 10                                                                       arr#2,10
+        extract_uint64                                                               tmp%32#0
+        int 2                                                                        tmp%32#0,2
+        ==                                                                           tmp%33#0
+        bz doThings_bool_false@15 ; b doThings_and_contd@11
+
+    doThings_and_contd@11:
+        v-load arr#2                                                                 arr#2
+        int 18                                                                       arr#2,18
+        extract_uint64                                                               tmp%34#0
+        int 3                                                                        tmp%34#0,3
+        ==                                                                           tmp%35#0
+        bz doThings_bool_false@15 ; b doThings_and_contd@12
+
+    doThings_and_contd@12:
+        v-load arr#2                                                                 arr#2
+        int 26                                                                       arr#2,26
+        extract_uint64                                                               tmp%36#0
+        int 4                                                                        tmp%36#0,4
+        ==                                                                           tmp%37#0
+        bz doThings_bool_false@15 ; b doThings_and_contd@13
+
+    doThings_and_contd@13:
+        v-load arr#2                                                                 arr#2
+        int 34                                                                       arr#2,34
+        extract_uint64                                                               tmp%38#0
+        int 5                                                                        tmp%38#0,5
+        ==                                                                           tmp%39#0
+        bz doThings_bool_false@15 ; b doThings_bool_true@14
+
+    doThings_bool_true@14:
+        int 1                                                                        and_result%1#0
+        x-store and_result%1#0                                                       (𝕏) and_result%1#0 |
+        b doThings_bool_merge@16                                                     (𝕏) and_result%1#0 |
+
+    doThings_bool_false@15:
+        int 0                                                                        and_result%1#0
+        x-store and_result%1#0                                                       (𝕏) and_result%1#0 |
+        b doThings_bool_merge@16                                                     (𝕏) and_result%1#0 |
+
+    doThings_bool_merge@16:                                                          (𝕏) and_result%1#0 |
+        x-load and_result%1#0                                                        and_result%1#0
+        assert // assert target is match for conditions
+        v-load aggregate%array_length%3#0                                            aggregate%array_length%3#0
+        int 1                                                                        aggregate%array_length%3#0,1
+        - // on error: cannot pop from empty array                                   sub%1#0
+        v-load arr#2                                                                 sub%1#0,arr#2
+        l-store-copy arr#2 1                                                         arr#2,sub%1#0,arr#2 (copy)
+        extract 2 0                                                                  arr#2,sub%1#0,aggregate%array_trimmed%12#0
+        l-load sub%1#0 1                                                             arr#2,aggregate%array_trimmed%12#0,sub%1#0
+        int 8                                                                        arr#2,aggregate%array_trimmed%12#0,sub%1#0,8
+        *                                                                            arr#2,aggregate%array_trimmed%12#0,aggregate%bytes_offset%12#0
+        l-load aggregate%array_trimmed%12#0 1                                        arr#2,aggregate%bytes_offset%12#0,aggregate%array_trimmed%12#0
+        l-load aggregate%bytes_offset%12#0 1                                         arr#2,aggregate%array_trimmed%12#0,aggregate%bytes_offset%12#0
+        extract_uint64                                                               arr#2,top#0
+        l-load arr#2 1                                                               top#0,arr#2
+        int 8                                                                        top#0,arr#2,8
+        callsub dynamic_array_pop_fixed_size                                         top#0,arr#2
+        l-store-copy arr#2 1                                                         arr#2,top#0,arr#2 (copy)
+        v-store arr#2                                                                arr#2,top#0
+        l-load top#0 0                                                               arr#2,top#0
+        int 5                                                                        arr#2,top#0,5
+        ==                                                                           arr#2,tmp%44#0
+        assert                                                                       arr#2
+        l-load arr#2 0                                                               arr#2
+        int 0                                                                        arr#2,0
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%5#0
+        int 1                                                                        aggregate%array_length%5#0,1
+        ==                                                                           tmp%46#0
+        bz doThings_bool_false@19 ; b doThings_and_contd@17
+
+    doThings_and_contd@17:
+        v-load arr#2                                                                 arr#2
+        int 2                                                                        arr#2,2
+        extract_uint64                                                               tmp%47#0
+        int 1                                                                        tmp%47#0,1
+        ==                                                                           tmp%48#0
+        bz doThings_bool_false@19 ; b doThings_bool_true@18
+
+    doThings_bool_true@18:
+        int 1                                                                        and_result%2#0
+        x-store and_result%2#0                                                       (𝕏) and_result%2#0 |
+        b doThings_bool_merge@20                                                     (𝕏) and_result%2#0 |
+
+    doThings_bool_false@19:
+        int 0                                                                        and_result%2#0
+        x-store and_result%2#0                                                       (𝕏) and_result%2#0 |
+        b doThings_bool_merge@20                                                     (𝕏) and_result%2#0 |
+
+    doThings_bool_merge@20:                                                          (𝕏) and_result%2#0 |
+        x-load and_result%2#0                                                        and_result%2#0
+        assert // assert target is match for conditions
+        int 10                                                                       10
+        itob                                                                         aggregate%val_as_bytes%1#0
+        v-load arr#2                                                                 aggregate%val_as_bytes%1#0,arr#2
+        l-load aggregate%val_as_bytes%1#0 1                                          arr#2,aggregate%val_as_bytes%1#0
+        replace2 10 // on error: index access is out of bounds                       arr#2
+        l-load-copy arr#2 0                                                          arr#2,arr#2 (copy)
+        extract 2 0                                                                  arr#2,new_items_bytes#1
+        l-load-copy arr#2 1                                                          arr#2,new_items_bytes#1,arr#2 (copy)
+        int 0                                                                        arr#2,new_items_bytes#1,arr#2 (copy),0
+        extract_uint16 // on error: invalid array length header                      arr#2,new_items_bytes#1,new_items_count#1
+        l-load-copy new_items_count#1 0                                              arr#2,new_items_bytes#1,new_items_count#1,new_items_count#1 (copy)
+        l-load new_items_count#1 1                                                   arr#2,new_items_bytes#1,new_items_count#1 (copy),new_items_count#1
+        +                                                                            arr#2,new_items_bytes#1,new_array_length#0
+        itob                                                                         arr#2,new_items_bytes#1,tmp%0#1
+        extract 6 0                                                                  arr#2,new_items_bytes#1,new_len_u16#0
+        l-load arr#2 2                                                               new_items_bytes#1,new_len_u16#0,arr#2
+        l-load new_len_u16#0 1                                                       new_items_bytes#1,arr#2,new_len_u16#0
+        replace2 0                                                                   new_items_bytes#1,result#0
+        l-load new_items_bytes#1 1                                                   result#0,new_items_bytes#1
+        concat                                                                       array#8
+        int 11                                                                       array#8,11
+        itob                                                                         array#8,new_items_bytes#1
+        l-load-copy array#8 1                                                        array#8,new_items_bytes#1,array#8 (copy)
+        int 0                                                                        array#8,new_items_bytes#1,array#8 (copy),0
+        extract_uint16                                                               array#8,new_items_bytes#1,array_length#8
+        int 1                                                                        array#8,new_items_bytes#1,array_length#8,1
+        +                                                                            array#8,new_items_bytes#1,new_array_length#0
+        itob                                                                         array#8,new_items_bytes#1,tmp%0#1
+        extract 6 0                                                                  array#8,new_items_bytes#1,new_len_u16#0
+        l-load array#8 2                                                             new_items_bytes#1,new_len_u16#0,array#8
+        l-load new_len_u16#0 1                                                       new_items_bytes#1,array#8,new_len_u16#0
+        replace2 0                                                                   new_items_bytes#1,result#0
+        l-load new_items_bytes#1 1                                                   result#0,new_items_bytes#1
+        concat                                                                       array#8
+        l-load-copy array#8 0                                                        array#8,array#8 (copy)
+        int 0                                                                        array#8,array#8 (copy),0
+        extract_uint16                                                               array#8,array_length#8
+        int 2                                                                        array#8,array_length#8,2
+        +                                                                            array#8,new_array_length#0
+        itob                                                                         array#8,tmp%0#1
+        extract 6 0                                                                  array#8,new_len_u16#0
+        l-load array#8 1                                                             new_len_u16#0,array#8
+        l-load new_len_u16#0 1                                                       array#8,new_len_u16#0
+        replace2 0                                                                   result#0
+        byte 0x000000000000000c000000000000000d                                      result#0,0x000000000000000c000000000000000d
+        concat                                                                       arr#2
+        l-store-copy arr#2 0                                                         arr#2,arr#2 (copy)
+        v-store arr#2                                                                arr#2
+        l-load arr#2 0                                                               arr#2
+        int 0                                                                        arr#2,0
+        extract_uint16 // on error: invalid array length header                      new_items_count#1
+        l-store-copy new_items_count#1 0                                             new_items_count#1,new_items_count#1 (copy)
+        v-store new_items_count#1                                                    new_items_count#1
+        l-load new_items_count#1 0                                                   new_items_count#1
+        int 11                                                                       new_items_count#1,11
+        ==                                                                           tmp%59#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@21
+
+    doThings_and_contd@21:
+        v-load arr#2                                                                 arr#2
+        int 2                                                                        arr#2,2
+        extract_uint64                                                               tmp%60#0
+        int 1                                                                        tmp%60#0,1
+        ==                                                                           tmp%61#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@22
+
+    doThings_and_contd@22:
+        v-load arr#2                                                                 arr#2
+        int 10                                                                       arr#2,10
+        extract_uint64                                                               tmp%62#0
+        int 10                                                                       tmp%62#0,10
+        ==                                                                           tmp%63#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@23
+
+    doThings_and_contd@23:
+        v-load arr#2                                                                 arr#2
+        int 18                                                                       arr#2,18
+        extract_uint64                                                               tmp%64#0
+        int 3                                                                        tmp%64#0,3
+        ==                                                                           tmp%65#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@24
+
+    doThings_and_contd@24:
+        v-load arr#2                                                                 arr#2
+        int 26                                                                       arr#2,26
+        extract_uint64                                                               tmp%66#0
+        int 4                                                                        tmp%66#0,4
+        ==                                                                           tmp%67#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@25
+
+    doThings_and_contd@25:
+        v-load arr#2                                                                 arr#2
+        int 34                                                                       arr#2,34
+        extract_uint64                                                               tmp%68#0
+        int 1                                                                        tmp%68#0,1
+        ==                                                                           tmp%69#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@26
+
+    doThings_and_contd@26:
+        v-load arr#2                                                                 arr#2
+        int 42                                                                       arr#2,42
+        extract_uint64                                                               tmp%70#0
+        int 10                                                                       tmp%70#0,10
+        ==                                                                           tmp%71#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@27
+
+    doThings_and_contd@27:
+        v-load arr#2                                                                 arr#2
+        int 50                                                                       arr#2,50
+        extract_uint64                                                               tmp%72#0
+        int 3                                                                        tmp%72#0,3
+        ==                                                                           tmp%73#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@28
+
+    doThings_and_contd@28:
+        v-load arr#2                                                                 arr#2
+        int 58                                                                       arr#2,58
+        extract_uint64                                                               tmp%74#0
+        int 4                                                                        tmp%74#0,4
+        ==                                                                           tmp%75#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@29
+
+    doThings_and_contd@29:
+        v-load arr#2                                                                 arr#2
+        int 66                                                                       arr#2,66
+        extract_uint64                                                               tmp%76#0
+        int 11                                                                       tmp%76#0,11
+        ==                                                                           tmp%77#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@30
+
+    doThings_and_contd@30:
+        v-load arr#2                                                                 arr#2
+        int 74                                                                       arr#2,74
+        extract_uint64                                                               tmp%78#0
+        int 12                                                                       tmp%78#0,12
+        ==                                                                           tmp%79#0
+        bz doThings_bool_false@33 ; b doThings_and_contd@31
+
+    doThings_and_contd@31:
+        v-load arr#2                                                                 arr#2
+        int 82                                                                       arr#2,82
+        extract_uint64                                                               tmp%80#0
+        int 13                                                                       tmp%80#0,13
+        ==                                                                           tmp%81#0
+        bz doThings_bool_false@33 ; b doThings_bool_true@32
+
+    doThings_bool_true@32:
+        int 1                                                                        and_result%3#0
+        x-store and_result%3#0                                                       (𝕏) and_result%3#0 |
+        b doThings_bool_merge@34                                                     (𝕏) and_result%3#0 |
+
+    doThings_bool_false@33:
+        int 0                                                                        and_result%3#0
+        x-store and_result%3#0                                                       (𝕏) and_result%3#0 |
+        b doThings_bool_merge@34                                                     (𝕏) and_result%3#0 |
+
+    doThings_bool_merge@34:                                                          (𝕏) and_result%3#0 |
+        x-load and_result%3#0                                                        and_result%3#0
+        assert // assert target is match for conditions
+        v-load arr#2                                                                 arr#2
+        extract 2 0                                                                  new_items_bytes#1
+        l-store-copy new_items_bytes#1 0                                             new_items_bytes#1,new_items_bytes#1 (copy)
+        v-store new_items_bytes#1                                                    new_items_bytes#1
+        int 4                                                                        new_items_bytes#1,4
+        v-load new_items_count#1                                                     new_items_bytes#1,4,new_items_count#1
+        +                                                                            new_items_bytes#1,new_array_length#0
+        itob                                                                         new_items_bytes#1,tmp%0#1
+        extract 6 0                                                                  new_items_bytes#1,new_len_u16#0
+        byte 0x00040000000000000000000000000000000000000000000000000000000000000000  new_items_bytes#1,new_len_u16#0,0x00040000000000000000000000000000000000000000000000000000000000000000
+        l-load new_len_u16#0 1                                                       new_items_bytes#1,0x00040000000000000000000000000000000000000000000000000000000000000000,new_len_u16#0
+        replace2 0                                                                   new_items_bytes#1,result#0
+        l-load new_items_bytes#1 1                                                   result#0,new_items_bytes#1
+        concat                                                                       arr8#0
+        l-store-copy arr8#0 0                                                        arr8#0,arr8#0 (copy)
+        v-store arr8#0                                                               arr8#0
+        l-load arr8#0 0                                                              arr8#0
+        int 0                                                                        arr8#0,0
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%17#0
+        int 15                                                                       aggregate%array_length%17#0,15
+        ==                                                                           tmp%194#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@89
+
+    doThings_and_contd@89:
+        v-load arr8#0                                                                arr8#0
+        int 2                                                                        arr8#0,2
+        extract_uint64                                                               tmp%195#0
+        bz doThings_and_contd@90 ; b doThings_bool_false@105
+
+    doThings_and_contd@90:
+        v-load arr8#0                                                                arr8#0
+        int 10                                                                       arr8#0,10
+        extract_uint64                                                               tmp%197#0
+        bz doThings_and_contd@91 ; b doThings_bool_false@105
+
+    doThings_and_contd@91:
+        v-load arr8#0                                                                arr8#0
+        int 18                                                                       arr8#0,18
+        extract_uint64                                                               tmp%199#0
+        bz doThings_and_contd@92 ; b doThings_bool_false@105
+
+    doThings_and_contd@92:
+        v-load arr8#0                                                                arr8#0
+        int 26                                                                       arr8#0,26
+        extract_uint64                                                               tmp%201#0
+        bz doThings_and_contd@93 ; b doThings_bool_false@105
+
+    doThings_and_contd@93:
+        v-load arr8#0                                                                arr8#0
+        int 34                                                                       arr8#0,34
+        extract_uint64                                                               tmp%203#0
+        int 1                                                                        tmp%203#0,1
+        ==                                                                           tmp%204#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@94
+
+    doThings_and_contd@94:
+        v-load arr8#0                                                                arr8#0
+        int 42                                                                       arr8#0,42
+        extract_uint64                                                               tmp%205#0
+        int 10                                                                       tmp%205#0,10
+        ==                                                                           tmp%206#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@95
+
+    doThings_and_contd@95:
+        v-load arr8#0                                                                arr8#0
+        int 50                                                                       arr8#0,50
+        extract_uint64                                                               tmp%207#0
+        int 3                                                                        tmp%207#0,3
+        ==                                                                           tmp%208#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@96
+
+    doThings_and_contd@96:
+        v-load arr8#0                                                                arr8#0
+        int 58                                                                       arr8#0,58
+        extract_uint64                                                               tmp%209#0
+        int 4                                                                        tmp%209#0,4
+        ==                                                                           tmp%210#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@97
+
+    doThings_and_contd@97:
+        v-load arr8#0                                                                arr8#0
+        int 66                                                                       arr8#0,66
+        extract_uint64                                                               tmp%211#0
+        int 1                                                                        tmp%211#0,1
+        ==                                                                           tmp%212#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@98
+
+    doThings_and_contd@98:
+        v-load arr8#0                                                                arr8#0
+        int 74                                                                       arr8#0,74
+        extract_uint64                                                               tmp%213#0
+        int 10                                                                       tmp%213#0,10
+        ==                                                                           tmp%214#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@99
+
+    doThings_and_contd@99:
+        v-load arr8#0                                                                arr8#0
+        int 82                                                                       arr8#0,82
+        extract_uint64                                                               tmp%215#0
+        int 3                                                                        tmp%215#0,3
+        ==                                                                           tmp%216#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@100
+
+    doThings_and_contd@100:
+        v-load arr8#0                                                                arr8#0
+        int 90                                                                       arr8#0,90
+        extract_uint64                                                               tmp%217#0
+        int 4                                                                        tmp%217#0,4
+        ==                                                                           tmp%218#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@101
+
+    doThings_and_contd@101:
+        v-load arr8#0                                                                arr8#0
+        int 98                                                                       arr8#0,98
+        extract_uint64                                                               tmp%219#0
+        int 11                                                                       tmp%219#0,11
+        ==                                                                           tmp%220#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@102
+
+    doThings_and_contd@102:
+        v-load arr8#0                                                                arr8#0
+        int 106                                                                      arr8#0,106
+        extract_uint64                                                               tmp%221#0
+        int 12                                                                       tmp%221#0,12
+        ==                                                                           tmp%222#0
+        bz doThings_bool_false@105 ; b doThings_and_contd@103
+
+    doThings_and_contd@103:
+        v-load arr8#0                                                                arr8#0
+        int 114                                                                      arr8#0,114
+        extract_uint64                                                               tmp%223#0
+        int 13                                                                       tmp%223#0,13
+        ==                                                                           tmp%224#0
+        bz doThings_bool_false@105 ; b doThings_bool_true@104
+
+    doThings_bool_true@104:
+        int 1                                                                        and_result%9#0
+        x-store and_result%9#0                                                       (𝕏) and_result%9#0 |
+        b doThings_bool_merge@106                                                    (𝕏) and_result%9#0 |
+
+    doThings_bool_false@105:
+        int 0                                                                        and_result%9#0
+        x-store and_result%9#0                                                       (𝕏) and_result%9#0 |
+        b doThings_bool_merge@106                                                    (𝕏) and_result%9#0 |
+
+    doThings_bool_merge@106:                                                         (𝕏) and_result%9#0 |
+        x-load and_result%9#0                                                        and_result%9#0
+        assert // assert target is match for conditions
+        int 5                                                                        5
+        v-load new_items_count#1                                                     5,new_items_count#1
+        +                                                                            new_array_length#0
+        itob                                                                         tmp%0#1
+        extract 6 0                                                                  new_len_u16#0
+        byte 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005 new_len_u16#0,0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005
+        l-load new_len_u16#0 1                                                       0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005,new_len_u16#0
+        replace2 0                                                                   result#0
+        v-load new_items_bytes#1                                                     result#0,new_items_bytes#1
+        concat                                                                       arr5#0
+        l-store-copy arr5#0 0                                                        arr5#0,arr5#0 (copy)
+        v-store arr5#0                                                               arr5#0
+        l-load arr5#0 0                                                              arr5#0
+        int 0                                                                        arr5#0,0
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%19#0
+        int 16                                                                       aggregate%array_length%19#0,16
+        ==                                                                           tmp%230#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@107
+
+    doThings_and_contd@107:
+        v-load arr5#0                                                                arr5#0
+        int 2                                                                        arr5#0,2
+        extract_uint64                                                               tmp%231#0
+        int 1                                                                        tmp%231#0,1
+        ==                                                                           tmp%232#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@108
+
+    doThings_and_contd@108:
+        v-load arr5#0                                                                arr5#0
+        int 10                                                                       arr5#0,10
+        extract_uint64                                                               tmp%233#0
+        int 2                                                                        tmp%233#0,2
+        ==                                                                           tmp%234#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@109
+
+    doThings_and_contd@109:
+        v-load arr5#0                                                                arr5#0
+        int 18                                                                       arr5#0,18
+        extract_uint64                                                               tmp%235#0
+        int 3                                                                        tmp%235#0,3
+        ==                                                                           tmp%236#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@110
+
+    doThings_and_contd@110:
+        v-load arr5#0                                                                arr5#0
+        int 26                                                                       arr5#0,26
+        extract_uint64                                                               tmp%237#0
+        int 4                                                                        tmp%237#0,4
+        ==                                                                           tmp%238#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@111
+
+    doThings_and_contd@111:
+        v-load arr5#0                                                                arr5#0
+        int 34                                                                       arr5#0,34
+        extract_uint64                                                               tmp%239#0
+        int 5                                                                        tmp%239#0,5
+        ==                                                                           tmp%240#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@112
+
+    doThings_and_contd@112:
+        v-load arr5#0                                                                arr5#0
+        int 42                                                                       arr5#0,42
+        extract_uint64                                                               tmp%241#0
+        int 1                                                                        tmp%241#0,1
+        ==                                                                           tmp%242#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@113
+
+    doThings_and_contd@113:
+        v-load arr5#0                                                                arr5#0
+        int 50                                                                       arr5#0,50
+        extract_uint64                                                               tmp%243#0
+        int 10                                                                       tmp%243#0,10
+        ==                                                                           tmp%244#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@114
+
+    doThings_and_contd@114:
+        v-load arr5#0                                                                arr5#0
+        int 58                                                                       arr5#0,58
+        extract_uint64                                                               tmp%245#0
+        int 3                                                                        tmp%245#0,3
+        ==                                                                           tmp%246#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@115
+
+    doThings_and_contd@115:
+        v-load arr5#0                                                                arr5#0
+        int 66                                                                       arr5#0,66
+        extract_uint64                                                               tmp%247#0
+        int 4                                                                        tmp%247#0,4
+        ==                                                                           tmp%248#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@116
+
+    doThings_and_contd@116:
+        v-load arr5#0                                                                arr5#0
+        int 74                                                                       arr5#0,74
+        extract_uint64                                                               tmp%249#0
+        int 1                                                                        tmp%249#0,1
+        ==                                                                           tmp%250#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@117
+
+    doThings_and_contd@117:
+        v-load arr5#0                                                                arr5#0
+        int 82                                                                       arr5#0,82
+        extract_uint64                                                               tmp%251#0
+        int 10                                                                       tmp%251#0,10
+        ==                                                                           tmp%252#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@118
+
+    doThings_and_contd@118:
+        v-load arr5#0                                                                arr5#0
+        int 90                                                                       arr5#0,90
+        extract_uint64                                                               tmp%253#0
+        int 3                                                                        tmp%253#0,3
+        ==                                                                           tmp%254#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@119
+
+    doThings_and_contd@119:
+        v-load arr5#0                                                                arr5#0
+        int 98                                                                       arr5#0,98
+        extract_uint64                                                               tmp%255#0
+        int 4                                                                        tmp%255#0,4
+        ==                                                                           tmp%256#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@120
+
+    doThings_and_contd@120:
+        v-load arr5#0                                                                arr5#0
+        int 106                                                                      arr5#0,106
+        extract_uint64                                                               tmp%257#0
+        int 11                                                                       tmp%257#0,11
+        ==                                                                           tmp%258#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@121
+
+    doThings_and_contd@121:
+        v-load arr5#0                                                                arr5#0
+        int 114                                                                      arr5#0,114
+        extract_uint64                                                               tmp%259#0
+        int 12                                                                       tmp%259#0,12
+        ==                                                                           tmp%260#0
+        bz doThings_bool_false@124 ; b doThings_and_contd@122
+
+    doThings_and_contd@122:
+        v-load arr5#0                                                                arr5#0
+        int 122                                                                      arr5#0,122
+        extract_uint64                                                               tmp%261#0
+        int 13                                                                       tmp%261#0,13
+        ==                                                                           tmp%262#0
+        bz doThings_bool_false@124 ; b doThings_bool_true@123
+
+    doThings_bool_true@123:
+        int 1                                                                        and_result%10#0
+        x-store and_result%10#0                                                      (𝕏) and_result%10#0 |
+        b doThings_bool_merge@125                                                    (𝕏) and_result%10#0 |
+
+    doThings_bool_false@124:
+        int 0                                                                        and_result%10#0
+        x-store and_result%10#0                                                      (𝕏) and_result%10#0 |
+        b doThings_bool_merge@125                                                    (𝕏) and_result%10#0 |
+
+    doThings_bool_merge@125:                                                         (𝕏) and_result%10#0 |
+        x-load and_result%10#0                                                       and_result%10#0
+        assert // assert target is match for conditions
+        int 1                                                                        1
+        return
+
+

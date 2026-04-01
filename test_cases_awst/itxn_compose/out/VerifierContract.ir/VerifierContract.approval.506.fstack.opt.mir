@@ -1,0 +1,72 @@
+// Op                                                             Stack (out)
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+subroutine main:
+    main_block@0:
+        txn NumAppArgs                                            tmp%0#1
+        bz main___algots__.defaultCreate@5 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        txna ApplicationArgs 0                                    tmp%2#0
+        method verify()void                                       tmp%2#0,Method(verify()void)
+        l-load tmp%2#0 1                                          Method(verify()void),tmp%2#0
+        match main_verify_route@3 ; b main_switch_case_next@4
+
+    main_verify_route@3:
+        txn OnCompletion                                          tmp%3#0
+        !                                                         tmp%4#0
+        txn ApplicationID                                         tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                          tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                          tmp%4#0,tmp%5#0
+        &&                                                        tmp%7#0
+        assert
+        callsub verify
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        err
+
+    main___algots__.defaultCreate@5:
+        txn OnCompletion                                          tmp%8#0
+        !                                                         tmp%9#0
+        txn ApplicationID                                         tmp%9#0,tmp%10#0
+        !                                                         tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                          tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                         tmp%9#0,tmp%11#0
+        &&                                                        tmp%12#0
+        assert
+        int 1                                                     1
+        return
+
+
+// tests/approvals/itxn-compose.algo.ts::VerifierContract.verify[routing]() -> void:
+subroutine verify:
+    verify_block@0:
+        int 0                                                     i#0
+        f-store i#0                                               (𝕗) i#0 |
+        b verify_while_top@2                                      (𝕗) i#0 |
+
+    verify_while_top@2:                                           (𝕗) i#0 |
+        txn GroupIndex                                            (𝕗) i#0 | tmp%0#0
+        f-load i#0                                                (𝕗) i#0 | tmp%0#0,i#0
+        l-load tmp%0#0 1                                          (𝕗) i#0 | i#0,tmp%0#0
+        <                                                         (𝕗) i#0 | tmp%1#0
+        bz verify_after_while@4 ; b verify_while_body@3           (𝕗) i#0 |
+
+    verify_while_body@3:                                          (𝕗) i#0 |
+        f-load i#0                                                (𝕗) i#0 | i#0
+        l-store-copy i#0 0                                        (𝕗) i#0 | i#0,i#0 (copy)
+        gtxns TypeEnum                                            (𝕗) i#0 | i#0,tmp%2#0
+        int 1                                                     (𝕗) i#0 | i#0,tmp%2#0,1
+        ==                                                        (𝕗) i#0 | i#0,tmp%3#0
+        assert // Txn must be pay                                 (𝕗) i#0 | i#0
+        l-load i#0 0                                              (𝕗) i#0 | i#0
+        int 1                                                     (𝕗) i#0 | i#0,1
+        +                                                         (𝕗) i#0 | i#0
+        f-store i#0                                               (𝕗) i#0 |
+        b verify_while_top@2                                      (𝕗) i#0 |
+
+    verify_after_while@4:                                         (𝕗) i#0 |
+        int 1                                                     (𝕗) i#0 | 1
+        return                                                    (𝕗) i#0 |
+
+
