@@ -1,0 +1,177 @@
+contract Arc4EncodeDecodeContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_program(): bool
+  {
+    test_cases.arc4_encode_decode.contract.test_native_struct()
+    test_cases.arc4_encode_decode.contract.test_arc4_struct()
+    test_cases.arc4_encode_decode.contract.test_uint64()
+    test_cases.arc4_encode_decode.contract.test_biguint()
+    test_cases.arc4_encode_decode.contract.test_string()
+    test_cases.arc4_encode_decode.contract.test_bytes()
+    test_cases.arc4_encode_decode.contract.test_bool()
+    test_cases.arc4_encode_decode.contract.test_account()
+    test_cases.arc4_encode_decode.contract.test_asset()
+    test_cases.arc4_encode_decode.contract.test_application()
+    test_cases.arc4_encode_decode.contract.test_arc4_uint64()
+    test_cases.arc4_encode_decode.contract.test_arc4_string()
+    test_cases.arc4_encode_decode.contract.test_tuple()
+    test_cases.arc4_encode_decode.contract.test_named_tuple()
+    test_cases.arc4_encode_decode.contract.test_arc4_dynamic_array()
+    test_cases.arc4_encode_decode.contract.test_arc4_static_array()
+    return true
+  }
+  
+  subroutine test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_native_struct(): void
+{
+  original: test_cases.arc4_encode_decode.contract.NativeStruct = new test_cases.arc4_encode_decode.contract.NativeStruct(a=1u, b=true)
+  encoded: bytes = reinterpret_cast<bytes>(original)
+  assert(encoded == hex<"000000000000000180">)
+  decoded: test_cases.arc4_encode_decode.contract.NativeStruct = arc4_validate(encoded, test_cases.arc4_encode_decode.contract.NativeStruct)
+  assert(decoded == original)
+}
+
+subroutine test_arc4_struct(): void
+{
+  original: test_cases.arc4_encode_decode.contract.Arc4Struct = new test_cases.arc4_encode_decode.contract.Arc4Struct(x=42_arc4u64, y='hello')
+  encoded: bytes = reinterpret_cast<bytes>(original)
+  decoded: test_cases.arc4_encode_decode.contract.Arc4Struct = arc4_validate(encoded, test_cases.arc4_encode_decode.contract.Arc4Struct)
+  assert(decoded == original)
+}
+
+subroutine test_uint64(): void
+{
+  value: uint64 = 42u
+  encoded: bytes = arc4_encode(value, bytes)
+  assert(encoded == hex<"000000000000002A">)
+  decoded: uint64 = arc4_validate(encoded, uint64)
+  assert(decoded == value)
+}
+
+subroutine test_biguint(): void
+{
+  value: biguint = 42n
+  encoded: bytes = arc4_encode(value, bytes)
+  decoded: biguint = arc4_validate(encoded, biguint)
+  assert(decoded == value)
+}
+
+subroutine test_string(): void
+{
+  value: string = 'hello'
+  encoded: bytes = arc4_encode(value, bytes)
+  assert(encoded == hex<"000568656C6C6F">)
+  decoded: string = arc4_validate(encoded, string)
+  assert(decoded == value)
+}
+
+subroutine test_bytes(): void
+{
+  value: bytes = hex<"010203">
+  encoded: bytes = arc4_encode(value, bytes)
+  assert(encoded == hex<"0003010203">)
+  decoded: bytes = arc4_validate(encoded, bytes)
+  assert(decoded == value)
+}
+
+subroutine test_bool(): void
+{
+  encoded_true: bytes = arc4_encode(true, bytes)
+  assert(encoded_true == hex<"80">)
+  decoded_true: bool = arc4_validate(encoded_true, bool)
+  assert(decoded_true)
+  encoded_false: bytes = arc4_encode(false, bytes)
+  assert(encoded_false == hex<"00">)
+  decoded_false: bool = arc4_validate(encoded_false, bool)
+  assert(!(decoded_false))
+}
+
+subroutine test_account(): void
+{
+  value: account = Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ")
+  encoded: bytes = arc4_encode(value, bytes)
+  decoded: account = arc4_validate(encoded, account)
+  assert(decoded == value)
+}
+
+subroutine test_asset(): void
+{
+  value: asset = reinterpret_cast<asset>(42u)
+  encoded: bytes = arc4_encode(value, bytes)
+  assert(encoded == hex<"000000000000002A">)
+  decoded: asset = arc4_validate(encoded, asset)
+  assert(decoded == value)
+}
+
+subroutine test_application(): void
+{
+  value: application = reinterpret_cast<application>(123u)
+  encoded: bytes = arc4_encode(value, bytes)
+  assert(encoded == hex<"000000000000007B">)
+  decoded: application = arc4_validate(encoded, application)
+  assert(decoded == value)
+}
+
+subroutine test_arc4_uint64(): void
+{
+  value: arc4.uint64 = 42_arc4u64
+  encoded: bytes = reinterpret_cast<bytes>(value)
+  assert(encoded == hex<"000000000000002A">)
+  decoded: arc4.uint64 = arc4_validate(encoded, arc4.uint64)
+  assert(reinterpret_cast<biguint>(decoded) == reinterpret_cast<biguint>(value))
+}
+
+subroutine test_arc4_string(): void
+{
+  value: arc4.dynamic_array<arc4.uint8> = 'hello'
+  encoded: bytes = reinterpret_cast<bytes>(value)
+  assert(encoded == hex<"000568656C6C6F">)
+  decoded: arc4.dynamic_array<arc4.uint8> = arc4_validate(encoded, arc4.dynamic_array<arc4.uint8>)
+  assert(decoded == value)
+}
+
+subroutine test_tuple(): void
+{
+  value: tuple<uint64,uint64> = (1u, 2u)
+  encoded: bytes = arc4_encode(value, bytes)
+  assert(encoded == hex<"00000000000000010000000000000002">)
+  decoded: tuple<uint64,uint64> = arc4_validate(encoded, tuple<uint64,uint64>)
+  assert(&&(decoded[0] == value[0], decoded[1] == value[1]))
+}
+
+subroutine test_named_tuple(): void
+{
+  value: test_cases.arc4_encode_decode.contract.MyNamedTuple = (x=5u, y='test')
+  encoded: bytes = arc4_encode(value, bytes)
+  decoded: test_cases.arc4_encode_decode.contract.MyNamedTuple = arc4_validate(encoded, test_cases.arc4_encode_decode.contract.MyNamedTuple)
+  assert(&&(decoded[0] == value[0], decoded[1] == value[1]))
+}
+
+subroutine test_arc4_dynamic_array(): void
+{
+  value: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>(1_arc4u64, 2_arc4u64, 3_arc4u64)
+  encoded: bytes = reinterpret_cast<bytes>(value)
+  decoded: arc4.dynamic_array<arc4.uint64> = arc4_validate(encoded, arc4.dynamic_array<arc4.uint64>)
+  assert(decoded == value)
+}
+
+subroutine test_arc4_static_array(): void
+{
+  value: arc4.static_array<arc4.uint64, 2> = new arc4.static_array<arc4.uint64, 2>(10_arc4u64, 20_arc4u64)
+  encoded: bytes = reinterpret_cast<bytes>(value)
+  decoded: arc4.static_array<arc4.uint64, 2> = arc4_validate(encoded, arc4.static_array<arc4.uint64, 2>)
+  assert(decoded == value)
+}
