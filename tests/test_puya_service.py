@@ -1,5 +1,4 @@
 import asyncio
-import gzip
 import shutil
 import sys
 import typing
@@ -20,6 +19,7 @@ from puya.awst import nodes as awst_nodes
 from puya.awst.serialize import awst_from_json, get_converter
 from puya.main import PuyaOptionsWithCompilationSet
 from puya.service import AnalyseParams, AnalyseResult, CompileParams, CompileResult, PuyaProtocol
+from puya.utils import read_text_from_maybe_compressed_file
 from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils.compile import get_awst_cache, log_to_str
 
@@ -123,6 +123,23 @@ async def test_compile_warn_as_err(client: JsonRPCClient, tmp_path: Path) -> Non
     ], "warning not reported as error"
 
 
+async def test_label_validation(client: JsonRPCClient) -> None:
+    path = _ANALYSE_DIR / "invalid_labels.awst.json"
+    awst = _create_analyse_params(path).awst
+    compile_params = AnalyseParams(awst=awst)
+
+    response = await client.protocol.send_request_async("analyse", compile_params)
+    assert isinstance(response, AnalyseResult)
+
+    logs = [log_to_str(log, path) for log in response.logs]
+
+    assert logs == [
+        "error: block has duplicate label repeat_label",
+        "info: label first seen here",
+        "error: label target nonexistent_label does not exist",
+    ], "label validation did not occur"
+
+
 @pytest_asyncio.fixture(loop_scope="module", scope="module")
 async def client() -> AsyncGenerator[JsonRPCClient]:
     client = await _start_client("serve", "--log-level=info")
@@ -222,8 +239,7 @@ def _create_analyse_params(path: Path) -> AnalyseParams:
         cache = get_awst_cache(path)
         awst = cache.module_awst
     else:
-        assert path.suffix == ".zip", "expected dir or zip"
-        json_str = gzip.decompress(path.read_bytes()).decode("utf-8")
+        json_str = read_text_from_maybe_compressed_file(path)
         awst = awst_from_json(json_str)
 
     return AnalyseParams(awst=awst)
