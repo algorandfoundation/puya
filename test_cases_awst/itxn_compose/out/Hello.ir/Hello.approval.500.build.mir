@@ -1,0 +1,315 @@
+// Op                                                                                 Stack (out)
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                                             reinterpret_bool%0#0
+        v-store reinterpret_bool%0#0
+        v-load reinterpret_bool%0#0                                                   reinterpret_bool%0#0
+        bz main_if_body@1 ; b main_after_if_else@2
+
+    main_if_body@1:
+        byte "greeting"                                                               "greeting"
+        byte ""                                                                       "greeting",""
+        app_global_put
+        b main_after_if_else@2
+
+    main_after_if_else@2:
+        txna ApplicationArgs 0                                                        tmp%0#1
+        v-store tmp%0#1
+        method delete()void                                                           Method(delete()void)
+        method update()void                                                           Method(delete()void),Method(update()void)
+        v-load tmp%0#1                                                                Method(delete()void),Method(update()void),tmp%0#1
+        match main_delete_route@4 main_update_route@5 ; b main_switch_case_next@6
+
+    main_delete_route@4:
+        txn OnCompletion                                                              tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                tmp%1#0
+        int DeleteApplication                                                         tmp%1#0,DeleteApplication
+        ==                                                                            tmp%2#0
+        v-store tmp%2#0
+        txn ApplicationID                                                             tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%2#0                                                                tmp%2#0
+        v-load tmp%3#0                                                                tmp%2#0,tmp%3#0
+        &&                                                                            tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                tmp%5#0
+        assert
+        int 1                                                                         1
+        return
+
+    main_update_route@5:
+        txn OnCompletion                                                              tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                tmp%6#0
+        int UpdateApplication                                                         tmp%6#0,UpdateApplication
+        ==                                                                            tmp%7#0
+        v-store tmp%7#0
+        txn ApplicationID                                                             tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%7#0                                                                tmp%7#0
+        v-load tmp%8#0                                                                tmp%7#0,tmp%8#0
+        &&                                                                            tmp%10#0
+        v-store tmp%10#0
+        v-load tmp%10#0                                                               tmp%10#0
+        assert
+        int 1                                                                         1
+        return
+
+    main_switch_case_next@6:
+        txn OnCompletion                                                              tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                               tmp%11#0
+        !                                                                             tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                               tmp%12#0
+        assert
+        txn ApplicationID                                                             tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                               tmp%13#0
+        bz main_create_NoOp@11 ; b main_call_NoOp@7
+
+    main_call_NoOp@7:
+        txna ApplicationArgs 0                                                        tmp%15#0
+        v-store tmp%15#0
+        method greet(string)string                                                    Method(greet(string)string)
+        method sendGreetings((string,string))string                                   Method(greet(string)string),Method(sendGreetings((string,string))string)
+        v-load tmp%15#0                                                               Method(greet(string)string),Method(sendGreetings((string,string))string),tmp%15#0
+        match main_greet_route@8 main_sendGreetings_route@9 ; b main_after_if_else@14
+
+    main_greet_route@8:
+        callsub greet
+        b main_after_if_else@14
+
+    main_sendGreetings_route@9:
+        callsub sendGreetings
+        b main_after_if_else@14
+
+    main_create_NoOp@11:
+        txna ApplicationArgs 0                                                        tmp%16#0
+        v-store tmp%16#0
+        method helloCreate(string)void                                                Method(helloCreate(string)void)
+        v-load tmp%16#0                                                               Method(helloCreate(string)void),tmp%16#0
+        match main_helloCreate_route@12 ; b main_after_if_else@14
+
+    main_helloCreate_route@12:
+        callsub create
+        b main_after_if_else@14
+
+    main_after_if_else@14:
+        err
+
+
+// tests/approvals/precompiled-apps.algo.ts::Hello.create[routing]() -> void:
+subroutine create:
+    create_block@0:
+        txna ApplicationArgs 1                                                        tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                tmp%0#0
+        int 0                                                                         tmp%0#0,0
+        extract_uint16 // on error: invalid array length header                       aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                             aggregate%array_length%0#0
+        int 2                                                                         aggregate%array_length%0#0,2
+        +                                                                             add%0#0
+        v-store add%0#0
+        v-load tmp%0#0                                                                tmp%0#0
+        len                                                                           len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                len%0#0
+        v-load add%0#0                                                                len%0#0,add%0#0
+        ==                                                                            eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                 eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        v-load tmp%0#0                                                                tmp%0#0
+        extract 2 0                                                                   greeting#0
+        v-store greeting#0
+        byte "greeting"                                                               "greeting"
+        v-load greeting#0                                                             "greeting",greeting#0
+        app_global_put
+        int 1                                                                         1
+        return
+
+
+// tests/approvals/precompiled-apps.algo.ts::HelloBase.greet[routing]() -> void:
+subroutine greet:
+    greet_block@0:
+        txna ApplicationArgs 1                                                        tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                tmp%0#0
+        int 0                                                                         tmp%0#0,0
+        extract_uint16 // on error: invalid array length header                       aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                             aggregate%array_length%0#0
+        int 2                                                                         aggregate%array_length%0#0,2
+        +                                                                             add%0#0
+        v-store add%0#0
+        v-load tmp%0#0                                                                tmp%0#0
+        len                                                                           len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                len%0#0
+        v-load add%0#0                                                                len%0#0,add%0#0
+        ==                                                                            eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                 eq%0#0
+        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        v-load tmp%0#0                                                                tmp%0#0
+        extract 2 0                                                                   name#0
+        v-store name#0
+        int 0                                                                         0
+        byte "greeting"                                                               0,"greeting"
+        app_global_get_ex                                                             maybe_value%0#0,maybe_exists%0#0
+        v-store maybe_exists%0#0                                                      maybe_value%0#0
+        v-store maybe_value%0#0
+        v-load maybe_exists%0#0                                                       maybe_exists%0#0
+        assert // check GlobalState exists
+        v-load maybe_value%0#0                                                        maybe_value%0#0
+        byte " "                                                                      maybe_value%0#0," "
+        concat                                                                        tmp%1#1
+        v-store tmp%1#1
+        v-load tmp%1#1                                                                tmp%1#1
+        v-load name#0                                                                 tmp%1#1,name#0
+        concat                                                                        tmp%2#1
+        v-store tmp%2#1
+        v-load tmp%2#1                                                                tmp%2#1
+        len                                                                           aggregate%length%0#0
+        v-store aggregate%length%0#0
+        v-load aggregate%length%0#0                                                   aggregate%length%0#0
+        itob                                                                          aggregate%as_bytes%0#0
+        v-store aggregate%as_bytes%0#0
+        v-load aggregate%as_bytes%0#0                                                 aggregate%as_bytes%0#0
+        extract 6 2                                                                   aggregate%length_uint16%0#0
+        v-store aggregate%length_uint16%0#0
+        v-load aggregate%length_uint16%0#0                                            aggregate%length_uint16%0#0
+        v-load tmp%2#1                                                                aggregate%length_uint16%0#0,tmp%2#1
+        concat                                                                        aggregate%encoded_value%0#0
+        v-store aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                               0x151f7c75
+        v-load aggregate%encoded_value%0#0                                            0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                        tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                tmp%4#0
+        log
+        int 1                                                                         1
+        return
+
+
+// tests/approvals/precompiled-apps.algo.ts::HelloBase.sendGreetings[routing]() -> void:
+subroutine sendGreetings:
+    sendGreetings_block@0:
+        txna ApplicationArgs 1                                                        a#0
+        v-store a#0
+        v-load a#0                                                                    a#0
+        len                                                                           tuple_len%0#0
+        v-store tuple_len%0#0
+        v-load a#0                                                                    a#0
+        int 0                                                                         a#0,0
+        extract_uint16 // on error: invalid tuple encoding                            extract_uint16%0#0
+        v-store extract_uint16%0#0
+        v-load extract_uint16%0#0                                                     extract_uint16%0#0
+        int 4                                                                         extract_uint16%0#0,4
+        ==                                                                            eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                 eq%0#0
+        assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+        v-load a#0                                                                    a#0
+        v-load extract_uint16%0#0                                                     a#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                          a#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                    substring3%0#0
+        v-store substring3%0#0
+        v-load substring3%0#0                                                         substring3%0#0
+        int 0                                                                         substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                       aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                             aggregate%array_length%0#0
+        int 6                                                                         aggregate%array_length%0#0,6
+        +                                                                             add%1#0
+        v-store add%1#0
+        v-load a#0                                                                    a#0
+        int 2                                                                         a#0,2
+        extract_uint16 // on error: invalid tuple encoding                            extract_uint16%1#0
+        v-store extract_uint16%1#0
+        v-load extract_uint16%1#0                                                     extract_uint16%1#0
+        v-load add%1#0                                                                extract_uint16%1#0,add%1#0
+        ==                                                                            eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                 eq%1#0
+        assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+        v-load a#0                                                                    a#0
+        v-load extract_uint16%1#0                                                     a#0,extract_uint16%1#0
+        v-load tuple_len%0#0                                                          a#0,extract_uint16%1#0,tuple_len%0#0
+        substring3                                                                    substring3%1#0
+        v-store substring3%1#0
+        v-load substring3%1#0                                                         substring3%1#0
+        int 0                                                                         substring3%1#0,0
+        extract_uint16 // on error: invalid array length header                       aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                             aggregate%array_length%1#0
+        int 2                                                                         aggregate%array_length%1#0,2
+        +                                                                             add%2#0
+        v-store add%2#0
+        v-load add%1#0                                                                add%1#0
+        v-load add%2#0                                                                add%1#0,add%2#0
+        +                                                                             add%3#0
+        v-store add%3#0
+        v-load tuple_len%0#0                                                          tuple_len%0#0
+        v-load add%3#0                                                                tuple_len%0#0,add%3#0
+        ==                                                                            eq%2#0
+        v-store eq%2#0
+        v-load eq%2#0                                                                 eq%2#0
+        assert // invalid number of bytes for tests/approvals/precompiled-apps.algo.ts::Greeting 
+        int 0                                                                         0
+        byte "greeting"                                                               0,"greeting"
+        app_global_get_ex                                                             maybe_value%0#0,maybe_exists%0#0
+        v-store maybe_exists%0#0                                                      maybe_value%0#0
+        v-store maybe_value%0#0
+        v-load maybe_exists%0#0                                                       maybe_exists%0#0
+        assert // check GlobalState exists
+        v-load maybe_value%0#0                                                        maybe_value%0#0
+        byte " "                                                                      maybe_value%0#0," "
+        concat                                                                        tmp%1#1
+        v-store tmp%1#1
+        v-load a#0                                                                    a#0
+        v-load extract_uint16%0#0                                                     a#0,extract_uint16%0#0
+        v-load extract_uint16%1#0                                                     a#0,extract_uint16%0#0,extract_uint16%1#0
+        substring3                                                                    aggregate%substring3%0#0
+        v-store aggregate%substring3%0#0
+        v-load aggregate%substring3%0#0                                               aggregate%substring3%0#0
+        extract 2 0                                                                   tmp%2#1
+        v-store tmp%2#1
+        v-load tmp%1#1                                                                tmp%1#1
+        v-load tmp%2#1                                                                tmp%1#1,tmp%2#1
+        concat                                                                        tmp%3#0
+        v-store tmp%3#0
+        v-load substring3%1#0                                                         substring3%1#0
+        extract 2 0                                                                   tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%3#0                                                                tmp%3#0
+        v-load tmp%4#0                                                                tmp%3#0,tmp%4#0
+        concat                                                                        tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                tmp%5#0
+        len                                                                           aggregate%length%0#0
+        v-store aggregate%length%0#0
+        v-load aggregate%length%0#0                                                   aggregate%length%0#0
+        itob                                                                          aggregate%as_bytes%0#0
+        v-store aggregate%as_bytes%0#0
+        v-load aggregate%as_bytes%0#0                                                 aggregate%as_bytes%0#0
+        extract 6 2                                                                   aggregate%length_uint16%0#0
+        v-store aggregate%length_uint16%0#0
+        v-load aggregate%length_uint16%0#0                                            aggregate%length_uint16%0#0
+        v-load tmp%5#0                                                                aggregate%length_uint16%0#0,tmp%5#0
+        concat                                                                        aggregate%encoded_value%0#0
+        v-store aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                               0x151f7c75
+        v-load aggregate%encoded_value%0#0                                            0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                        tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                tmp%3#0
+        log
+        int 1                                                                         1
+        return
+
+

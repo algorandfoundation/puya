@@ -1,0 +1,48 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    pushbytes ""
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x65a9aecc // method "verify()void"
+    txna ApplicationArgs 0
+    match main_verify_route@3
+    err
+
+main_verify_route@3:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    pushint 0
+    bury 1
+
+main_while_top@9:
+    dup
+    txn GroupIndex
+    <
+    bz main_after_while@11
+    dupn 2
+    gtxns TypeEnum
+    pushint 1
+    ==
+    assert // Txn must be pay
+    pushint 1
+    +
+    bury 1
+    b main_while_top@9
+
+main_after_while@11:
+    pushint 1
+    return
+
+main___algots__.defaultCreate@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return

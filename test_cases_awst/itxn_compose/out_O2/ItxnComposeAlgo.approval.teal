@@ -1,0 +1,241 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 6 8
+    bytecblock 0xd0a28200 0x0002686f
+    intc_0 // 0
+    pushbytes ""
+    dupn 6
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@9
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x1ecad34c 0x90d29762 // method "distribute(address[],pay,uint64)void", method "conditionalBegin(uint64)void"
+    txna ApplicationArgs 0
+    match main_distribute_route@4 main_conditionalBegin_route@5
+    err
+
+main_conditionalBegin_route@5:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    bury 5
+    itxn_begin
+    pushbytes 0x009225ae // method "helloCreate(string)void"
+    itxn_field ApplicationArgs
+    pushbytes 0x00024869
+    itxn_field ApplicationArgs
+    intc_1 // 1
+    itxn_field GlobalNumByteSlice
+    pushbytes base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyAEAAIBBCYDCGdyZWV0aW5nASAEFR98dTEYQAAEKIAAZ4ICBCQ3jTwEoOgYcjYaAI4CAMcAvzEZFEQxGEEAk4ICBNCiggAEUYC6IDYaAI4CAFgAAQA2GgFJFUsBIllJJRJESwJLAUsDUiJZgQYISwMjWUlLAhJESwRLAUsFUkkiWSMITwMITwQSRCIoZUQpUE4ETgRSVwIAUExXAgBQSRUWVwYCTFAqTFCwJEM2GgFJIlkjCEsBFRJEVwIAIihlRClQTFBJFRZXBgJMUCpMULAkQ4AEAJIlrjYaAI4BAAEANhoBSSJZIwhLARUSRFcCAChMZyRDMRklEjEYEEMxGYEFEjEYEEM=)
+    itxn_field ApprovalProgramPages
+    intc_0 // 0
+    itxn_field OnCompletion
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 0 CreatedApplicationID
+    bury 6
+    intc_0 // 0
+    bury 4
+
+main_for_header@13:
+    dig 3
+    dig 5
+    <
+    bz main_after_for@18
+    dig 3
+    bnz main_else_body@16
+    itxn_begin
+    bytec_0 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec_1 // 0x0002686f
+    itxn_field ApplicationArgs
+    dig 5
+    itxn_field ApplicationID
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+main_after_if_else@17:
+    dig 3
+    intc_1 // 1
+    +
+    bury 4
+    b main_for_header@13
+
+main_else_body@16:
+    itxn_next
+    bytec_0 // method "greet(string)string"
+    itxn_field ApplicationArgs
+    bytec_1 // 0x0002686f
+    itxn_field ApplicationArgs
+    dig 5
+    itxn_field ApplicationID
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    b main_after_if_else@17
+
+main_after_for@18:
+    itxn_submit
+    intc_1 // 1
+    return
+
+main_distribute_route@4:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 9
+    dup
+    pushint 32
+    *
+    pushint 2
+    +
+    dig 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    bury 4
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert // assert target is match for conditions
+    dig 1
+    assert // must provide some accounts
+    gtxns Amount
+    swap
+    /
+    dig 1
+    extract 2 0
+    bury 10
+    swap
+    extract 2 32
+    intc_1 // 1
+    itob
+    uncover 2
+    itob
+    concat
+    pushbytes 0x0020
+    uncover 2
+    concat
+    swap
+    pushbytes 0x0012
+    concat
+    swap
+    concat
+    itxn_begin
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    cover 2
+    bury 5
+    dup
+    intc_3 // 8
+    extract_uint64
+    dup
+    cover 2
+    bury 5
+    dup
+    pushint 16
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    itxn_field Receiver
+    itxn_field Amount
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    intc_1 // 1
+    bury 4
+
+main_for_header@21:
+    dig 3
+    dig 7
+    <
+    bz main_after_for@23
+    dig 3
+    dup
+    pushint 32
+    *
+    dig 9
+    swap
+    pushint 32
+    extract3 // on error: index access is out of bounds
+    itxn_next
+    itxn_field Receiver
+    dig 2
+    itxn_field Amount
+    dig 3
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    intc_1 // 1
+    +
+    bury 4
+    b main_for_header@21
+
+main_after_for@23:
+    itxn_next
+    dup
+    itxn_field ApplicationID
+    pushbytes 0x65a9aecc // method "verify()void"
+    itxn_field ApplicationArgs
+    intc_2 // 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    pushbytes "abc"
+    itxn_field ConfigAssetName
+    pushint 3
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_1 // 1
+    return
+
+main___algots__.defaultCreate@9:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
