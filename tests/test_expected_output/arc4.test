@@ -1024,3 +1024,18 @@ class MyAbiMethodNameTests(ARC4Contract):
         assert arc4.arc4_signature(MyAbiMethodNameTests.test_3) ## W: method name 'test_3*' does not conform to ARC-4 spec
         assert arc4.arc4_signature(MyAbiMethodNameTests.test_4) ## W: method name '' does not conform to ARC-4 spec
         assert arc4.arc4_signature(MyAbiMethodNameTests.test_5) == arc4.arc4_signature("if()void")
+
+
+## case: test_arc4_encode_invalid_type
+from algopy import *
+
+@subroutine
+def bad_encode() -> None:
+    encoded = arc4.encode(gtxn.Transaction(0))  # type: ignore[arg-type] ## E: argument must be a type with an ARC-4 encoding
+
+## case: test_arc4_decode_invalid_type
+from algopy import *
+
+@subroutine
+def bad_decode() -> None:
+    decoded = arc4.decode(gtxn.Transaction, Bytes(b"\x00"))  # type: ignore[arg-type] ## E: expected an ARC-4 encodable type and a Bytes argument
