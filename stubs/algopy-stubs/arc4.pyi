@@ -789,3 +789,60 @@ def emit(event: str | Struct | algopy.Struct, /, *args: object) -> None:
             arc4.emit("Swapped", b, a)
     ```
     """
+
+_TNativeStruct = typing.TypeVar("_TNativeStruct", bound=algopy.Struct)
+_TABIEncoded = typing.TypeVar("_TABIEncoded", bound=_ABIEncoded)
+_TNamedTuple = typing.TypeVar("_TNamedTuple", bound=typing.NamedTuple)
+
+_ARC4Encodable: typing.TypeAlias = (
+    algopy.UInt64
+    | algopy.BigUInt
+    | algopy.String
+    | algopy.Bytes
+    | bool
+    | algopy.Account
+    | algopy.Asset
+    | algopy.Application
+    | algopy.Struct
+    | _ABIEncoded
+    | tuple  # type: ignore[type-arg]
+)
+
+def encode(value: _ARC4Encodable, /) -> algopy.Bytes:
+    """Encode a value to ARC-4 bytes.
+
+    When given a native value, performs ARC-4 encoding.
+    When given an already ARC-4 encoded value, reinterprets the underlying bytes.
+    """
+
+@typing.overload
+def decode(typ: type[algopy.UInt64], value: algopy.Bytes | bytes, /) -> algopy.UInt64: ...
+@typing.overload
+def decode(typ: type[algopy.BigUInt], value: algopy.Bytes | bytes, /) -> algopy.BigUInt: ...
+@typing.overload
+def decode(typ: type[algopy.String], value: algopy.Bytes | bytes, /) -> algopy.String: ...
+@typing.overload
+def decode(typ: type[algopy.Bytes], value: algopy.Bytes | bytes, /) -> algopy.Bytes: ...
+@typing.overload
+def decode(typ: type[bool], value: algopy.Bytes | bytes, /) -> bool: ...
+@typing.overload
+def decode(typ: type[algopy.Account], value: algopy.Bytes | bytes, /) -> algopy.Account: ...
+@typing.overload
+def decode(typ: type[algopy.Asset], value: algopy.Bytes | bytes, /) -> algopy.Asset: ...
+@typing.overload
+def decode(
+    typ: type[algopy.Application], value: algopy.Bytes | bytes, /
+) -> algopy.Application: ...
+@typing.overload
+def decode(typ: type[_TNativeStruct], value: algopy.Bytes | bytes, /) -> _TNativeStruct: ...
+@typing.overload
+def decode(typ: type[_TABIEncoded], value: algopy.Bytes | bytes, /) -> _TABIEncoded: ...
+@typing.overload
+def decode(typ: type[_TNamedTuple], value: algopy.Bytes | bytes, /) -> _TNamedTuple: ...
+@typing.overload
+def decode(
+    typ: type[tuple[typing.Unpack[_TTuple]]], value: algopy.Bytes | bytes, /
+) -> tuple[typing.Unpack[_TTuple]]: ...
+@typing.overload
+def decode(typ: type[_ARC4Encodable], value: algopy.Bytes | bytes, /) -> _ARC4Encodable:
+    """Decode ARC-4 encoded bytes to a value of the specified type."""

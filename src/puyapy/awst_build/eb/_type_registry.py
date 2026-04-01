@@ -47,6 +47,8 @@ FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy._util.log": log.LogBuilder,
     "algopy._util.size_of": size_of.SizeOfBuilder,
     "algopy.arc4.emit": arc4.EmitBuilder,
+    "algopy.arc4.encode": arc4.EncodeBuilder,
+    "algopy.arc4.decode": arc4.DecodeBuilder,
     "algopy.itxn.submit_txns": transaction.SubmitInnerTransactionExpressionBuilder,
     "algopy.itxn.submit_staged": transaction.SubmitStagedInnerTransactionsExpressionBuilder,
     "algopy.itxn.abi_call": itxn_abi_call.ABICallGenericTypeBuilder,
