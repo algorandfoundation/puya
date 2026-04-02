@@ -663,68 +663,65 @@ def _apply_replacements(
 
 
 def _refine_phi_congruence(
-    tables: _GVNTables,
     subroutine: models.Subroutine,
+    eliminated: set[models.Register],
+    register_map: dict[models.Register, models.Register],
 ) -> None:
-    """Phase 2: Find phi-cycle equivalences that hash-based numbering missed.
+    """Find phi-cycle equivalences that hash-based numbering missed.
 
-    Builds a dependency graph of phis, finds SCCs, and checks if all phis
-    in an SCC have the same set of external (non-SCC) argument VNs. If so,
-    they're all congruent and can be merged.
+    Resolves phi args through the replacement map (from build_replacements),
+    builds a dependency graph of the remaining phis, finds SCCs, and checks
+    if all phis in an SCC resolve to the same single external register.
 
     This catches patterns like:
         x = phi(a, y)
         y = phi(b, x)
-    where a and b have the same VN — hash-based GVN assigns x and y different
-    VNs (due to back-edge conservatism), but SCC analysis reveals they're equal.
+    where a and b resolve to the same representative — hash-based GVN assigns
+    x and y different VNs (due to back-edge conservatism), but SCC analysis
+    reveals they're equal.
+
+    Analogous to how copy_propagation resolves phi args through its replacement
+    map to find trivially redundant phis.
     """
-    # Collect all phi registers and their phis
+    # Collect phis not already handled by build_replacements
     phi_by_register = dict[models.Register, models.Phi]()
     for block in subroutine.body:
         for phi in block.phis:
-            phi_by_register[phi.register] = phi
+            if phi.register not in register_map:
+                phi_by_register[phi.register] = phi
 
     if not phi_by_register:
         return
 
-    # Build phi dependency graph: edge from P to Q if Q's register is an arg of P
-    phi_regs = frozenset(phi_by_register.keys())
     graph = nx.DiGraph()
-    for reg in phi_regs:
-        graph.add_node(reg)
-    for reg, phi in phi_by_register.items():
+    for phi in phi_by_register.values():
         for arg in phi.args:
-            if arg.value in phi_regs:
-                graph.add_edge(reg, arg.value)
+            resolved = register_map.get(arg.value, arg.value)
+            if resolved in phi_by_register:
+                graph.add_edge(phi.register, resolved)
 
-    # Find SCCs
     for scc_set in nx.strongly_connected_components(graph):
         if len(scc_set) <= 1:
             continue
 
-        # For each phi in the SCC, collect VNs of external arguments
-        # (arguments whose value is NOT a register in this SCC)
-        external_vn_sets = dict[models.Register, frozenset[VN]]()
+        external_regs = set[models.Register]()
         for reg in scc_set:
             phi = phi_by_register[reg]
-            ext_vns = frozenset(
-                tables.lookup_vn(arg.value) for arg in phi.args if arg.value not in scc_set
-            )
-            external_vn_sets[reg] = ext_vns
+            for arg in phi.args:
+                resolved = register_map.get(arg.value, arg.value)
+                if resolved not in scc_set:
+                    external_regs.add(resolved)
 
-        # All phis in the SCC must have the same single external VN
-        all_ext = set(external_vn_sets.values())
-        if len(all_ext) != 1:
-            continue
-        (common_ext,) = all_ext
-        if len(common_ext) != 1:
+        if len(external_regs) != 1:
             continue
 
-        # All external args resolve to one VN — the whole SCC is equivalent
-        (target_vn,) = common_ext
+        (target,) = external_regs
         for reg in sorted(scc_set, key=lambda r: r.local_id):
-            tables.set_register_vn(reg, target_vn)
-            logger.debug(f"GVN: SCC phi congruence {reg.local_id} (VN={target_vn})")
+            if reg.ir_type.maybe_avm_type != target.ir_type.maybe_avm_type:
+                continue
+            eliminated.add(reg)
+            register_map[reg] = target
+            logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
 
 
 def _number_values(subroutine: models.Subroutine) -> _GVNTables:
@@ -746,9 +743,9 @@ def global_value_numbering(_context: CompileContext, subroutine: models.Subrouti
     Flow: hash-based numbering -> SCC phi congruence -> build replacements -> eliminate.
     """
     tables = _number_values(subroutine)
-    _refine_phi_congruence(tables, subroutine)
-
     eliminated, register_map = tables.build_replacements()
+    _refine_phi_congruence(subroutine, eliminated, register_map)
+
     if not register_map:
         return False
 
