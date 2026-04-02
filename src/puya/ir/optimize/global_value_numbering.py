@@ -718,10 +718,7 @@ def _refine_phi_congruence(
             continue
         (common_ext,) = all_ext
         if len(common_ext) != 1:
-            raise InternalError(
-                "GVN: SCC phis have multiple distinct external VNs"
-                " — expected exactly one for structured control flow"
-            )
+            continue
 
         # All external args resolve to one VN — the whole SCC is equivalent
         (target_vn,) = common_ext
