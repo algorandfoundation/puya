@@ -200,10 +200,10 @@ class _GVNTables:
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     # --- Scoped: copied on child_scope() ---
     _register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
-    _expr_table: dict[_ValueKey, tuple[VN, ...]] = attrs.field(factory=dict)
+    expr_table: dict[_ValueKey, tuple[VN, ...]] = attrs.field(factory=dict)
     _vn_to_register: dict[VN, models.Register] = attrs.field(factory=dict)
     _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
-    _comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
+    comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
 
     def child_scope(self) -> typing.Self:
         """Create a child scope for dominator-tree descent.
@@ -213,10 +213,10 @@ class _GVNTables:
         return attrs.evolve(
             self,
             register_vn=dict(self._register_vn),
-            expr_table=dict(self._expr_table),
+            expr_table=dict(self.expr_table),
             vn_to_register=dict(self._vn_to_register),
             const_vn=dict(self._const_vn),
-            comparison_exprs=dict(self._comparison_exprs),
+            comparison_exprs=dict(self.comparison_exprs),
         )
 
     def _next_vn(self) -> VN:
@@ -227,26 +227,14 @@ class _GVNTables:
         # First register to receive this VN becomes the representative.
         return self._vn_to_register.setdefault(vn, reg)
 
+    def representative(self, vn: VN) -> models.Register | None:
+        return self._vn_to_register.get(vn)
+
     def assign_register_fresh_vn(self, reg: models.Register) -> VN:
         vn = self._next_vn()
         rep = self.set_register_vn(reg, vn)
         assert rep is reg
         return vn
-
-    def lookup_expr(self, expr: _ValueKey) -> tuple[VN, ...] | None:
-        return self._expr_table.get(expr)
-
-    def store_expr(self, expr: _ValueKey, target_vns: tuple[VN, ...]) -> None:
-        self._expr_table[expr] = target_vns
-
-    def representative(self, vn: VN) -> models.Register | None:
-        return self._vn_to_register.get(vn)
-
-    def record_comparison(self, vn: VN, key: _IntrinsicKey) -> None:
-        self._comparison_exprs[vn] = key
-
-    def get_comparison_expr(self, vn: VN) -> _IntrinsicKey | None:
-        return self._comparison_exprs.get(vn)
 
     def lookup_vn(self, value: models.Value) -> VN:
         """Get the VN for any Value (register or constant).
@@ -255,20 +243,20 @@ class _GVNTables:
         it is conservatively assigned a fresh VN.
         """
         if isinstance(value, models.Register):
-            existing = self._register_vn.get(value)
-            if existing is not None:
-                return existing
-            # Back-edge or otherwise not-yet-visited register: fresh VN
-            return self.assign_register_fresh_vn(value)
+            try:
+                return self._register_vn[value]
+            except KeyError:
+                # Back-edge or otherwise not-yet-visited register: fresh VN
+                return self.assign_register_fresh_vn(value)
         if not isinstance(value, _ConstType):
             return self._next_vn()
         # Constants: intern by value so identical constants share a VN.
-        existing = self._const_vn.get(value)
-        if existing is not None:
-            return existing
-        vn = self._next_vn()
-        self._const_vn[value] = vn
-        return vn
+        try:
+            return self._const_vn[value]
+        except KeyError:
+            vn = self._next_vn()
+            self._const_vn[value] = vn
+            return vn
 
 
 class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
@@ -372,8 +360,9 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         arg_vns = tuple(self._tables.lookup_vn(a) for a in args)
         # Negation-aware numbering: !(comparison) -> inverse comparison.
         # e.g. !(a < b) gets the same key as (a >= b).
-        if op == AVMOp.not_ and len(arg_vns) == 1:
-            comp = self._tables.get_comparison_expr(arg_vns[0])
+        if op == AVMOp.not_:
+            (vn,) = arg_vns
+            comp = self._tables.comparison_exprs.get(vn)
             if comp is not None:
                 inverse_op = _INVERSE_COMPARISONS.get(comp.op)
                 if inverse_op is not None:
@@ -560,7 +549,7 @@ def _process_assignment(
             tables.assign_register_fresh_vn(reg)
         return
 
-    existing_vns = tables.lookup_expr(expr)
+    existing_vns = tables.expr_table.get(expr)
     if existing_vns is not None:
         if len(existing_vns) != len(targets):
             raise InternalError(
@@ -575,12 +564,14 @@ def _process_assignment(
                 )
     else:
         target_vns = tuple(tables.assign_register_fresh_vn(r) for r in targets)
-        tables.store_expr(expr, target_vns)
+        tables.expr_table[expr] = target_vns
 
     # Track comparison expressions for negation-aware numbering.
     # Single-target only — comparisons always produce one result.
     if len(targets) == 1 and isinstance(expr, _IntrinsicKey) and expr.op in _INVERSE_COMPARISONS:
-        tables.record_comparison(tables.lookup_vn(targets[0]), expr)
+        (target,) = targets
+        vn = tables.lookup_vn(target)
+        tables.comparison_exprs[vn] = expr
 
 
 def _process_block(
