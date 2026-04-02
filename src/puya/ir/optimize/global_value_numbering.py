@@ -724,8 +724,10 @@ def _refine_phi_congruence(
             logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
 
 
-def _number_values(subroutine: models.Subroutine) -> _GVNTables:
-    """Phase 1: Assign value numbers to all definitions and find full redundancies."""
+def _find_redundancies(
+    subroutine: models.Subroutine,
+) -> tuple[set[models.Register], dict[models.Register, models.Register]]:
+    """Assign value numbers to all definitions and build the replacement map."""
     start, dom_tree = compute_dominator_tree(subroutine)
 
     tables = _GVNTables()
@@ -734,16 +736,15 @@ def _number_values(subroutine: models.Subroutine) -> _GVNTables:
         tables.assign_register_fresh_vn(param)
 
     _process_block(tables, dom_tree, start)
-    return tables
+    return tables.build_replacements()
 
 
 def global_value_numbering(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     """Run GVN on a subroutine.
 
-    Flow: hash-based numbering -> SCC phi congruence -> build replacements -> eliminate.
+    Flow: hash-based numbering -> SCC phi congruence -> eliminate.
     """
-    tables = _number_values(subroutine)
-    eliminated, register_map = tables.build_replacements()
+    eliminated, register_map = _find_redundancies(subroutine)
     _refine_phi_congruence(subroutine, eliminated, register_map)
 
     if not register_map:
