@@ -200,7 +200,7 @@ class _GVNTables:
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     # --- Scoped: copied on child_scope() ---
     _register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
-    _expr_table: dict[_ValueKey, tuple[VN, Sequence[models.Register]]] = attrs.field(factory=dict)
+    _expr_table: dict[_ValueKey, tuple[VN, ...]] = attrs.field(factory=dict)
     _vn_to_register: dict[VN, models.Register] = attrs.field(factory=dict)
     _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
     _comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
@@ -219,20 +219,25 @@ class _GVNTables:
             comparison_exprs=dict(self._comparison_exprs),
         )
 
-    def fresh_vn(self) -> VN:
+    def _next_vn(self) -> VN:
         return next(self._vn_counter)
 
-    def set_register_vn(self, reg: models.Register, vn: VN) -> None:
+    def set_register_vn(self, reg: models.Register, vn: VN) -> models.Register:
         self._register_vn[reg] = vn
         # First register to receive this VN becomes the representative.
-        if vn not in self._vn_to_register:
-            self._vn_to_register[vn] = reg
+        return self._vn_to_register.setdefault(vn, reg)
 
-    def lookup_expr(self, expr: _ValueKey) -> tuple[VN, Sequence[models.Register]] | None:
+    def assign_register_fresh_vn(self, reg: models.Register) -> VN:
+        vn = self._next_vn()
+        rep = self.set_register_vn(reg, vn)
+        assert rep is reg
+        return vn
+
+    def lookup_expr(self, expr: _ValueKey) -> tuple[VN, ...] | None:
         return self._expr_table.get(expr)
 
-    def store_expr(self, expr: _ValueKey, vn: VN, targets: Sequence[models.Register]) -> None:
-        self._expr_table[expr] = (vn, targets)
+    def store_expr(self, expr: _ValueKey, target_vns: tuple[VN, ...]) -> None:
+        self._expr_table[expr] = target_vns
 
     def representative(self, vn: VN) -> models.Register | None:
         return self._vn_to_register.get(vn)
@@ -254,16 +259,14 @@ class _GVNTables:
             if existing is not None:
                 return existing
             # Back-edge or otherwise not-yet-visited register: fresh VN
-            vn = self.fresh_vn()
-            self.set_register_vn(value, vn)
-            return vn
+            return self.assign_register_fresh_vn(value)
         if not isinstance(value, _ConstType):
-            return self.fresh_vn()
+            return self._next_vn()
         # Constants: intern by value so identical constants share a VN.
         existing = self._const_vn.get(value)
         if existing is not None:
             return existing
-        vn = self.fresh_vn()
+        vn = self._next_vn()
         self._const_vn[value] = vn
         return vn
 
@@ -488,7 +491,7 @@ def _process_phi(
     tables: _GVNTables,
     phi: models.Phi,
     replacements: dict[models.Register, models.Register],
-    phi_table: dict[_PhiArgVNs, tuple[VN, models.Register]],
+    phi_table: dict[_PhiArgVNs, VN],
 ) -> None:
     """Assign a VN to a phi node's register.
 
@@ -496,8 +499,7 @@ def _process_phi(
     Non-redundant phis are hashed to detect congruent phis at the same block.
     """
     if not phi.args:
-        vn = tables.fresh_vn()
-        tables.set_register_vn(phi.register, vn)
+        tables.assign_register_fresh_vn(phi.register)
         return
 
     phi_arg_vns = _PhiArgVNs((arg.through, tables.lookup_vn(arg.value)) for arg in phi.args)
@@ -506,10 +508,8 @@ def _process_phi(
     if len(unique_vns) == 1:
         # Redundant phi: all arguments have the same VN
         (the_vn,) = unique_vns
-        tables.set_register_vn(phi.register, the_vn)
-        representative = tables.representative(the_vn)
+        representative = tables.set_register_vn(phi.register, the_vn)
         if _try_replace(phi.register, representative, replacements):
-            assert representative is not None
             logger.debug(
                 f"GVN: redundant phi {phi.register.local_id}"
                 f" -> {representative.local_id} (VN={the_vn})"
@@ -517,19 +517,16 @@ def _process_phi(
         return
 
     # Non-redundant phi: hash by arg VNs to detect congruent phis at the same block
-    existing = phi_table.get(phi_arg_vns)
-    if existing is not None:
-        existing_vn, existing_reg = existing
-        tables.set_register_vn(phi.register, existing_vn)
-        if _try_replace(phi.register, existing_reg, replacements):
+    existing_vn = phi_table.get(phi_arg_vns)
+    if existing_vn is not None:
+        representative = tables.set_register_vn(phi.register, existing_vn)
+        if _try_replace(phi.register, representative, replacements):
             logger.debug(
                 f"GVN: congruent phi {phi.register.local_id}"
-                f" -> {existing_reg.local_id} (VN={existing_vn})"
+                f" -> {representative.local_id} (VN={existing_vn})"
             )
     else:
-        vn = tables.fresh_vn()
-        tables.set_register_vn(phi.register, vn)
-        phi_table[phi_arg_vns] = (vn, phi.register)
+        phi_table[phi_arg_vns] = tables.assign_register_fresh_vn(phi.register)
 
 
 def _process_assignment(
@@ -550,9 +547,9 @@ def _process_assignment(
     if isinstance(source, models.Value):
         (target,) = assignment.targets
         vn = tables.lookup_vn(source)
-        tables.set_register_vn(target, vn)
+        representative = tables.set_register_vn(target, vn)
         if isinstance(source, models.Register):
-            _try_replace(target, tables.representative(vn), replacements)
+            _try_replace(target, representative, replacements)
         return
 
     targets = assignment.targets
@@ -560,28 +557,25 @@ def _process_assignment(
     if expr is None:
         # Not a pure expression — fresh VN per target
         for reg in targets:
-            tables.set_register_vn(reg, tables.fresh_vn())
+            tables.assign_register_fresh_vn(reg)
         return
 
-    existing = tables.lookup_expr(expr)
-    if existing is not None:
-        existing_vn, existing_regs = existing
-        if len(existing_regs) != len(targets):
+    existing_vns = tables.lookup_expr(expr)
+    if existing_vns is not None:
+        if len(existing_vns) != len(targets):
             raise InternalError(
-                f"GVN: expression arity mismatch:" f" {len(existing_regs)} vs {len(targets)}"
+                f"GVN: expression arity mismatch: {len(existing_vns)} vs {len(targets)}"
             )
-        for target, existing_reg in zip(targets, existing_regs, strict=True):
-            tables.set_register_vn(target, tables.lookup_vn(existing_reg))
-            if _try_replace(target, existing_reg, replacements):
+        for target, existing_vn in zip(targets, existing_vns, strict=True):
+            representative = tables.set_register_vn(target, existing_vn)
+            if _try_replace(target, representative, replacements):
                 logger.debug(
                     f"GVN: redundant expr {target.local_id}"
-                    f" -> {existing_reg.local_id} (VN={existing_vn})"
+                    f" -> {representative.local_id} (VN={existing_vn})"
                 )
     else:
-        vn = tables.fresh_vn()
-        for target in targets:
-            tables.set_register_vn(target, tables.fresh_vn())
-        tables.store_expr(expr, vn, targets)
+        target_vns = tuple(tables.assign_register_fresh_vn(r) for r in targets)
+        tables.store_expr(expr, target_vns)
 
     # Track comparison expressions for negation-aware numbering.
     # Single-target only — comparisons always produce one result.
@@ -602,7 +596,7 @@ def _process_block(
     """
     tables = tables.child_scope()
 
-    phi_table = dict[_PhiArgVNs, tuple[VN, models.Register]]()
+    phi_table = dict[_PhiArgVNs, VN]()
     for phi in block.phis:
         _process_phi(tables, phi, replacements, phi_table)
 
@@ -729,7 +723,7 @@ def _number_values(
     replacements = dict[models.Register, models.Register]()
 
     for param in subroutine.parameters:
-        tables.set_register_vn(param, tables.fresh_vn())
+        tables.assign_register_fresh_vn(param)
 
     _process_block(tables, dom_tree, start, replacements)
     return tables, replacements
