@@ -181,11 +181,7 @@ class _CallSubKey(_ValueKey):
     arg_vns: tuple[VN, ...]
 
 
-@attrs.frozen(kw_only=True)
-class _PhiKey(_ValueKey):
-    block: models.BasicBlock
-    args: immutabledict[models.BasicBlock, VN]
-
+_PhiArgVNs: typing.TypeAlias = immutabledict[models.BasicBlock, VN]
 
 _ConstType = models.Constant | models.TemplateVar
 
@@ -490,9 +486,9 @@ def _try_replace(
 
 def _process_phi(
     tables: _GVNTables,
-    block: models.BasicBlock,
     phi: models.Phi,
     replacements: dict[models.Register, models.Register],
+    phi_table: dict[_PhiArgVNs, tuple[VN, models.Register]],
 ) -> None:
     """Assign a VN to a phi node's register.
 
@@ -504,9 +500,7 @@ def _process_phi(
         tables.set_register_vn(phi.register, vn)
         return
 
-    phi_arg_vns = immutabledict[models.BasicBlock, VN](
-        (arg.through, tables.lookup_vn(arg.value)) for arg in phi.args
-    )
+    phi_arg_vns = _PhiArgVNs((arg.through, tables.lookup_vn(arg.value)) for arg in phi.args)
 
     unique_vns = set(phi_arg_vns.values())
     if len(unique_vns) == 1:
@@ -522,11 +516,10 @@ def _process_phi(
             )
         return
 
-    # Non-redundant phi: hash by (block_id, arg_vns) to detect congruent phis
-    phi_expr = _PhiKey(block=block, args=phi_arg_vns)
-    existing = tables.lookup_expr(phi_expr)
+    # Non-redundant phi: hash by arg VNs to detect congruent phis at the same block
+    existing = phi_table.get(phi_arg_vns)
     if existing is not None:
-        existing_vn, (existing_reg,) = existing
+        existing_vn, existing_reg = existing
         tables.set_register_vn(phi.register, existing_vn)
         if _try_replace(phi.register, existing_reg, replacements):
             logger.debug(
@@ -536,7 +529,7 @@ def _process_phi(
     else:
         vn = tables.fresh_vn()
         tables.set_register_vn(phi.register, vn)
-        tables.store_expr(phi_expr, vn, [phi.register])
+        phi_table[phi_arg_vns] = (vn, phi.register)
 
 
 def _process_assignment(
@@ -609,8 +602,9 @@ def _process_block(
     """
     tables = tables.child_scope()
 
+    phi_table = dict[_PhiArgVNs, tuple[VN, models.Register]]()
     for phi in block.phis:
-        _process_phi(tables, block, phi, replacements)
+        _process_phi(tables, phi, replacements, phi_table)
 
     for op in block.ops:
         if isinstance(op, models.Assignment):
