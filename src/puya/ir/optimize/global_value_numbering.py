@@ -223,6 +223,8 @@ class _GVNTables:
     expr_table: dict[_ValueKey, tuple[VN, ...]] = attrs.field(factory=dict)
     _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
     comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
+    # --- Per-scope, lazily created (reset to None by attrs.evolve on child_scope) ---
+    _expr_builder: "_ValueExprBuilder | None" = attrs.field(default=None, init=False, eq=False)
 
     def child_scope(self) -> typing.Self:
         """Create a child scope for dominator-tree descent.
@@ -276,6 +278,11 @@ class _GVNTables:
             vn = self._next_vn()
             self._const_vn[value] = vn
             return vn
+
+    def build_expr(self, source: models.ValueProvider) -> _ValueKey | None:
+        if self._expr_builder is None:
+            self._expr_builder = _ValueExprBuilder(self)
+        return source.accept(self._expr_builder)
 
     def build_replacements(
         self,
@@ -333,14 +340,14 @@ class _GVNTables:
         return eliminated, register_map
 
 
+@attrs.frozen
 class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
     """Build a canonical, hashable value expression for a ValueProvider.
 
     Returns None for side-effecting or unrecognised operations (they get a fresh VN).
     """
 
-    def __init__(self, tables: _GVNTables) -> None:
-        self._tables = tables
+    _tables: _GVNTables
 
     @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> _ValueKey | None:
@@ -586,7 +593,7 @@ def _process_assignment(
         return
 
     targets = assignment.targets
-    expr = source.accept(_ValueExprBuilder(tables))
+    expr = tables.build_expr(source)
     if expr is None:
         # Not a pure expression — fresh VN per target
         for reg in targets:
