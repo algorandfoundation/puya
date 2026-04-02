@@ -2,6 +2,7 @@
 import argparse
 import contextlib
 import enum
+import hashlib
 import io
 import subprocess
 import tarfile
@@ -100,7 +101,9 @@ def _get_git_files(tag: str) -> dict[str, str]:
         stash_ouput = subprocess.run(
             ["git", "stash", "create"], capture_output=True, check=True, cwd=_ROOT_DIR
         )
-        tag = stash_ouput.stdout.decode("utf8").strip()
+        # if nothing to stash output will be empty
+        tag = stash_ouput.stdout.decode("utf8").strip() or "HEAD"
+    # note: cmd will fail if there is not at least one match for each glob
     cmd_result = subprocess.run(
         [
             "git",
@@ -108,16 +111,14 @@ def _get_git_files(tag: str) -> dict[str, str]:
             tag,
             "--",
             ":(glob)examples/*/*.py",
-            ":(glob)test_cases/*/*.py",
+            ":(glob)test_cases*/*/*",  # .py, .awst.json, .awst.json.gz
             ":(glob)examples/**/*.stats.txt",
-            ":(glob)test_cases/**/*.stats.txt",
+            ":(glob)test_cases*/**/*.stats.txt",
         ],
         capture_output=True,
         check=False,
         cwd=_ROOT_DIR,
     )
-    if cmd_result.returncode == 128 and cmd_result.stderr.endswith(b"did not match any files\n"):
-        return {}
     assert cmd_result.returncode == 0, f"git cmd failed: {cmd_result.stderr.decode('utf8')}"
 
     result = {}
@@ -128,9 +129,13 @@ def _get_git_files(tag: str) -> dict[str, str]:
             file = tar.extractfile(member)
             assert file is not None, f"could not read file: {member.name}"
             content = file.read()
-            with contextlib.suppress(UnicodeDecodeError):
-                # uh oh 🍝
-                result[member.name] = content.decode("utf8")
+            if member.name.endswith(".gz"):
+                # just hash gz files
+                result[member.name] = hashlib.sha512(content).hexdigest()
+            else:
+                with contextlib.suppress(UnicodeDecodeError):
+                    # uh oh 🍝
+                    result[member.name] = content.decode("utf8")
     return result
 
 
@@ -182,15 +187,29 @@ def _find_artifact_src(
 ) -> str | None:
     artifacts = artifact_srcs.get(artifact.test_case, {})
     name = artifact.name
-    for search in (
-        # check for name overrides before class/def incase there is aliasing
-        f'name="{name}"',
-        f"class {name}",
-        f"def {name}",
-    ):
-        for contents in artifacts.values():
-            if search in contents:
+    if artifact.test_case.root == "test_cases_awst":
+        awst_files = [
+            contents
+            for file, contents in artifacts.items()
+            if file.endswith((".awst.json", ".awst.json.gz"))
+        ]
+        match awst_files:
+            case []:
+                return None
+            case [contents]:
                 return contents
+            case _:
+                raise Exception("expected a single AWST file per test case")
+    else:
+        for search in (
+            # check for name overrides before class/def incase there is aliasing
+            f'name="{name}"',
+            f"class {name}",
+            f"def {name}",
+        ):
+            for contents in artifacts.values():
+                if search in contents:
+                    return contents
     return None
 
 
@@ -211,7 +230,7 @@ def _group_contracts_by_test_case(files: dict[str, str]) -> dict[TestCase, dict[
     result = dict[TestCase, dict[str, str]]()
     for path_str, contents in files.items():
         path = Path(path_str)
-        if path.suffix != ".py":
+        if path.suffix not in (".py", ".json", ".gz"):
             continue
         *test_case_parts, contract = path.parts
         test_case = TestCase(*test_case_parts)
