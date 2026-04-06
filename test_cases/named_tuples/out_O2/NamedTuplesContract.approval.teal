@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 64
+    intcblock 0 1 2 76
     txn NumAppArgs
     bz main___algopy_default_create@10
     txn OnCompletion
@@ -24,7 +24,7 @@ main_test_tuple_route@6:
     pushint 72
     extract_uint16 // on error: invalid tuple encoding
     dup
-    pushint 76
+    intc_3 // 76
     ==
     assert // invalid tail pointer at index 2 of (uint64,uint512,(len+utf8[]),(len+uint8[]))
     dig 2
@@ -46,11 +46,7 @@ main_test_tuple_route@6:
     dig 1
     dig 5
     substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
+    callsub __outlined0
     uncover 3
     +
     uncover 4
@@ -113,21 +109,13 @@ main_build_tuple_route@4:
     txna ApplicationArgs 2
     dup
     len
-    dup
-    intc_3 // 64
-    ==
-    assert // invalid number of bytes for arc4.uint512
-    txna ApplicationArgs 3
+    callsub __outlined0
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
+    callsub __outlined0
     txna ApplicationArgs 4
     dup
     intc_0 // 0
@@ -142,10 +130,10 @@ main_build_tuple_route@4:
     uncover 4
     itob
     uncover 3
-    intc_3 // 64
+    pushint 64
     <=
     assert // overflow
-    intc_3 // 64
+    pushint 64
     bzero
     uncover 4
     b|
@@ -161,7 +149,7 @@ main_build_tuple_route@4:
     concat
     dig 1
     len
-    pushint 76
+    intc_3 // 76
     +
     dig 3
     len
@@ -193,3 +181,13 @@ main___algopy_default_create@10:
     !
     &&
     return
+
+
+// __outlined0(__outlined0_param0: any) -> any, any:
+__outlined0:
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    retsub

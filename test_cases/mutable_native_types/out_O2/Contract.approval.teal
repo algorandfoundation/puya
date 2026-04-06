@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 16
-    bytecblock "nested" 0x151f7c75 "num_payments" "payments" 0x70 0x6c "box" "box_map" 0x0000
+    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" 0x0000 "box_map"
     intc_0 // 0
     dup
     pushbytes ""
@@ -56,12 +56,12 @@ main:
     pushbytes "dyn"
     swap
     app_global_put
-    bytec_2 // "num_payments"
+    bytec_1 // "num_payments"
     intc_0 // 0
     app_global_put
     pushint 96
     bzero
-    bytec_3 // "payments"
+    bytec_2 // "payments"
     swap
     app_global_put
 
@@ -95,12 +95,7 @@ main_after_inlined_test_cases.mutable_native_types.contract.Contract.test_match_
     intc_0 // 0
     uncover 2
     setbit
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
+    callsub __outlined3
 
 main_switch_case_0@26:
     intc_1 // 1
@@ -189,12 +184,12 @@ main_test_arr_route@17:
     dig 3
     ==
     assert // expected arrays to be the same
-    bytec 8 // 0x0000
+    bytec 7 // 0x0000
     swap
     uncover 2
     itob
     extract 6 0
-    bytec 8 // 0x0000
+    bytec 7 // 0x0000
     swap
     replace2 0
     swap
@@ -289,17 +284,8 @@ main_after_for@35:
     assert // and the sum shall be 41
     pushbytes "arr"
     dig 1
-    app_global_put
-    dig 2
-    len
-    intc_3 // 16
-    /
-    assert
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
+    callsub __outlined3
+    callsub __outlined5
     return
 
 main_calculate_sum_route@16:
@@ -346,48 +332,37 @@ main_calculate_sum_route@16:
     +
 
 main_after_if_else@39:
-    itob
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
+    callsub __outlined3
+    callsub __outlined7
 
 main_tup_return_route@15:
-    intc_0 // 0
-    bytec_0 // "nested"
-    app_global_get_ex
-    assert // check self.nested exists
+    callsub __outlined3
     extract 32 16
-    bytec_1 // 0x151f7c75
+    bytec_3 // 0x151f7c75
     swap
     concat
+    callsub __outlined5
     log
     intc_1 // 1
     return
 
 main_struct_return_route@14:
+    callsub __outlined3
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
     assert // check self.nested exists
     extract 0 16
-    bytec_1 // 0x151f7c75
+    bytec_3 // 0x151f7c75
     swap
+    callsub __outlined5
     concat
     log
     intc_1 // 1
     return
 
 main_struct_arg_route@13:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined0
     txna ApplicationArgs 2
     dup
     len
@@ -429,7 +404,7 @@ main_struct_arg_route@13:
     box_replace // on error: index out of bounds
     swap
     itob
-    bytec 7 // "box_map"
+    bytec 8 // "box_map"
     swap
     concat
     intc_0 // 0
@@ -439,12 +414,7 @@ main_struct_arg_route@13:
     return
 
 main_delete_storage_route@12:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined1
     btoi
     bytec 4 // 0x70
     app_global_del
@@ -455,7 +425,8 @@ main_delete_storage_route@12:
     box_del
     pop
     itob
-    bytec 7 // "box_map"
+    callsub __outlined0
+    bytec 8 // "box_map"
     swap
     concat
     box_del
@@ -486,22 +457,12 @@ main_local_struct_route@11:
     swap
     assert // use bar
     assert // use baz
-    callsub do_something
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
+    callsub __outlined3
     return
 
 main_create_storage_route@10:
     txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined2
     intc_0 // 0
     bytec_0 // "nested"
     app_global_get_ex
@@ -518,14 +479,9 @@ main_create_storage_route@10:
     dig 2
     app_local_put
     bytec 6 // "box"
-    pushint 2064
-    box_create
-    assert // expected box to not exist
-    extract 0 16
+    callsub __outlined0
     swap
-    itob
-    bytec 7 // "box_map"
-    swap
+    callsub __outlined1
     concat
     intc_0 // 0
     uncover 2
@@ -534,46 +490,29 @@ main_create_storage_route@10:
     return
 
 main_increment_payment_route@9:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
+    callsub __outlined4
     assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined6
     intc_0 // 0
-    bytec_2 // "num_payments"
+    bytec_1 // "num_payments"
     app_global_get_ex
     assert // check self.num_payments exists
     dig 2
     >
     assert // invalid payment index
     intc_0 // 0
-    bytec_3 // "payments"
-    app_global_get_ex
-    assert // check self.payments exists
-    uncover 2
-    pushint 48
-    *
-    dup2
-    pushint 48
+    bytec_2 // "payments"
+    callsub __outlined0
     extract3 // on error: index access is out of bounds
     dup
-    pushint 40
-    extract_uint64
-    uncover 4
-    +
-    itob
-    replace2 40
+    callsub __outlined1
     replace3 // on error: index access is out of bounds
-    bytec_3 // "payments"
+    callsub __outlined2
+    bytec_2 // "payments"
+    callsub __outlined2
     swap
     app_global_put
     intc_1 // 1
@@ -587,7 +526,7 @@ main_add_payment_route@8:
     ==
     assert // invalid number of bytes for test_cases.mutable_native_types.contract.Payment
     intc_0 // 0
-    bytec_2 // "num_payments"
+    bytec_1 // "num_payments"
     app_global_get_ex
     assert // check self.num_payments exists
     dup
@@ -595,7 +534,7 @@ main_add_payment_route@8:
     <
     assert // too many payments
     intc_0 // 0
-    bytec_3 // "payments"
+    bytec_2 // "payments"
     app_global_get_ex
     assert // check self.payments exists
     swap
@@ -603,16 +542,16 @@ main_add_payment_route@8:
     *
     uncover 2
     replace3 // on error: index access is out of bounds
-    bytec_3 // "payments"
+    bytec_2 // "payments"
     swap
     app_global_put
     intc_0 // 0
-    bytec_2 // "num_payments"
+    bytec_1 // "num_payments"
     app_global_get_ex
     assert // check self.num_payments exists
     intc_1 // 1
     +
-    bytec_2 // "num_payments"
+    bytec_1 // "num_payments"
     swap
     app_global_put
     intc_1 // 1
@@ -677,4 +616,94 @@ sum_frozen_arr_after_for@4:
 do_something:
     proto 1 1
     frame_dig -1
+    retsub
+
+
+// __outlined0() -> any:
+__outlined0:
+    callsub __outlined2
+    callsub __outlined1
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    callsub __outlined4
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined1() -> any:
+__outlined1:
+    callsub __outlined4
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
+
+
+// __outlined2(__outlined2_param0: any) -> any:
+__outlined2:
+    dup
+    len
+    intc_2 // 8
+    callsub __outlined6
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined3(__outlined3_param0: any) -> void:
+__outlined3:
+    callsub __outlined5
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    callsub __outlined7
+    intc_1 // 1
+    return
+    retsub
+
+
+// __outlined4() -> any, any:
+__outlined4:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    retsub
+
+
+// __outlined5(__outlined5_param0: any) -> any:
+__outlined5:
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    retsub
+
+
+// __outlined6(__outlined6_param0: any, __outlined6_param1: any) -> any:
+__outlined6:
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> void:
+__outlined7:
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
     retsub

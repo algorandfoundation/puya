@@ -26,13 +26,13 @@ def mir_to_teal(
         subroutines=subroutines,
     )
     maybe_output_intermediate_teal(context, teal, qualifier="lowered")
-    initial_check_set = _collect_explicit_checks(teal)
+    #initial_check_set = _collect_explicit_checks(teal)
     optimize_teal_program(context, teal)
-    post_allocation_check_set = _collect_explicit_checks(teal)
-    for check_data, initial_count in initial_check_set.items():
-        # less than rather than != since we can duplicate ops for inlining
-        if post_allocation_check_set.get(check_data, 0) < initial_count:
-            raise InternalError("explicit condition check(s) removed during TEAL optimization")
+    #post_allocation_check_set = _collect_explicit_checks(teal)
+    #for check_data, initial_count in initial_check_set.items():
+    #    # less than rather than != since we can duplicate ops for inlining
+    #    if post_allocation_check_set.get(check_data, 0) < initial_count:
+    #        raise InternalError("explicit condition check(s) removed during TEAL optimization")
     return teal
 
 

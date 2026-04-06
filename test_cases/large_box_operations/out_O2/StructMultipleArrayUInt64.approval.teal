@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 8 1 12 4096
+    intcblock 2 8 1 0 4096
     bytecblock "box" 0x151f7c75 0x068101
     txn NumAppArgs
     bz main___algopy_default_create@16
@@ -20,7 +20,7 @@ main:
 main_verify_route@12:
     txna ApplicationArgs 1
     dup
-    pushint 0
+    intc_3 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 8
     *
@@ -36,26 +36,12 @@ main_verify_route@12:
     return
 
 main_set_route@11:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined9
     txna ApplicationArgs 2
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined16
     dup
     btoi
-    bytec_0 // "box"
-    pushint 24
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined17
     dig 3
     >
     assert // index out of bounds
@@ -73,16 +59,7 @@ main_set_route@11:
     intc_2 // 1
     +
     itob
-    bytec_0 // "box"
-    pushint 10
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined2
     dig 5
     >
     assert // index out of bounds
@@ -98,16 +75,7 @@ main_set_route@11:
     intc_0 // 2
     +
     itob
-    bytec_0 // "box"
-    intc_3 // 12
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined3
     uncover 4
     >
     assert // index out of bounds
@@ -123,12 +91,7 @@ main_set_route@11:
     return
 
 main_get_route@10:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined11
     btoi
     bytec_0 // "box"
     pushint 24
@@ -140,25 +103,8 @@ main_get_route@10:
     assert // index out of bounds
     dup
     intc_1 // 8
-    *
-    pushint 26
-    dig 1
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 8
-    box_extract // on error: index out of bounds
-    dup
-    btoi
-    bytec_0 // "box"
-    pushint 10
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
+    callsub __outlined2
+    callsub __outlined4
     btoi
     dig 5
     >
@@ -166,47 +112,28 @@ main_get_route@10:
     intc_0 // 2
     +
     dig 3
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 8
-    box_extract // on error: index out of bounds
-    btoi
+    callsub __outlined14
     dig 1
     intc_2 // 1
     +
-    ==
-    assert
-    bytec_0 // "box"
-    intc_3 // 12
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined0
     uncover 5
     >
     assert // index out of bounds
     intc_0 // 2
     +
-    uncover 3
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 8
-    box_extract // on error: index out of bounds
+    callsub __outlined14
     btoi
     swap
     intc_0 // 2
     +
     ==
+    callsub __outlined9
     assert
     bytec_1 // 0x151f7c75
     swap
     concat
+    callsub __outlined17
     log
     intc_2 // 1
     return
@@ -216,113 +143,36 @@ main_pop_route@9:
     pushint 24
     intc_0 // 2
     box_extract
-    btoi
-    dup
-    intc_2 // 1
-    - // on error: cannot pop from empty array
-    dup
-    uncover 2
-    <
-    assert // index out of bounds
+    callsub __outlined7
     intc_1 // 8
     *
     pushint 26
     +
     bytec_0 // "box"
     swap
+    callsub __outlined2
     intc_1 // 8
-    box_extract // on error: index out of bounds
-    dup
-    btoi
-    bytec_0 // "box"
-    pushint 10
-    intc_1 // 8
-    callsub box_update_offset_dec
-    bytec_0 // "box"
-    intc_3 // 12
-    intc_1 // 8
-    callsub box_update_offset_dec
-    bytec_0 // "box"
-    pushint 22
-    intc_1 // 8
-    callsub box_update_offset_dec
-    bytec_0 // "box"
-    pushint 24
-    intc_1 // 8
-    callsub box_dynamic_array_pop_fixed_size
+    callsub __outlined4
     bytec_0 // "box"
     pushint 10
     intc_0 // 2
     box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    dup
-    intc_2 // 1
-    - // on error: cannot pop from empty array
-    dup
-    uncover 2
-    <
-    assert // index out of bounds
+    callsub __outlined14
     dig 1
     intc_0 // 2
     +
     swap
     intc_1 // 8
     *
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 8
-    box_extract // on error: index out of bounds
-    btoi
-    bytec_0 // "box"
-    intc_3 // 12
-    intc_1 // 8
-    callsub box_update_offset_dec
-    bytec_0 // "box"
-    pushint 22
-    intc_1 // 8
-    callsub box_update_offset_dec
-    bytec_0 // "box"
-    uncover 2
-    intc_1 // 8
-    callsub box_dynamic_array_pop_fixed_size
-    dig 1
-    intc_2 // 1
-    +
-    ==
-    assert
-    bytec_0 // "box"
-    intc_3 // 12
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    dup
-    intc_2 // 1
-    - // on error: cannot pop from empty array
-    dup
-    uncover 2
-    <
+    callsub __outlined18
+    callsub __outlined14
     assert // index out of bounds
     dig 1
     intc_0 // 2
     +
     swap
     intc_1 // 8
-    *
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 8
+    callsub __outlined18
     box_extract // on error: index out of bounds
     btoi
     bytec_0 // "box"
@@ -348,11 +198,7 @@ main_pop_route@9:
 main_concat_route@8:
     txna ApplicationArgs 1
     dup
-    pushint 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    intc_1 // 8
-    *
+    callsub __outlined19
     dup
     intc_0 // 2
     +
@@ -367,14 +213,10 @@ main_concat_route@8:
     dig 3
     callsub box_update_offset_inc
     bytec_0 // "box"
-    intc_3 // 12
+    pushint 12
     dig 3
     callsub box_update_offset_inc
-    bytec_0 // "box"
-    pushint 22
-    uncover 3
-    callsub box_update_offset_inc
-    bytec_0 // "box"
+    callsub __outlined20
     pushint 24
     uncover 2
     uncover 3
@@ -384,25 +226,12 @@ main_concat_route@8:
     callsub inc_array
     dig 1
     extract 2 0
-    uncover 2
-    pushint 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    intc_1 // 8
+    callsub __outlined19
     *
-    bytec_0 // "box"
-    pushint 10
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    intc_3 // 12
+    callsub __outlined15
+    pushint 12
     dig 3
-    callsub box_update_offset_inc
-    bytec_0 // "box"
-    pushint 22
-    uncover 3
-    callsub box_update_offset_inc
+    callsub __outlined20
     bytec_0 // "box"
     cover 3
     cover 2
@@ -412,21 +241,13 @@ main_concat_route@8:
     callsub inc_array
     pop
     dup
-    extract 2 0
-    swap
-    pushint 0
-    extract_uint16 // on error: invalid array length header
-    dup
+    callsub __outlined19
     intc_1 // 8
     *
     bytec_0 // "box"
-    intc_3 // 12
+    pushint 12
     intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    pushint 22
-    uncover 3
+    callsub __outlined20
     callsub box_update_offset_inc
     bytec_0 // "box"
     cover 3
@@ -451,7 +272,7 @@ main_append_route@7:
     intc_1 // 8
     callsub box_update_offset_inc
     bytec_0 // "box"
-    intc_3 // 12
+    pushint 12
     intc_1 // 8
     callsub box_update_offset_inc
     bytec_0 // "box"
@@ -462,19 +283,14 @@ main_append_route@7:
     pushint 24
     uncover 2
     intc_2 // 1
-    intc_1 // 8
-    callsub box_dynamic_array_concat_fixed
-    dup
-    intc_2 // 1
-    +
-    itob
+    callsub __outlined15
     bytec_0 // "box"
     pushint 10
     intc_0 // 2
     box_extract
     btoi
     bytec_0 // "box"
-    intc_3 // 12
+    pushint 12
     intc_1 // 8
     callsub box_update_offset_inc
     bytec_0 // "box"
@@ -491,18 +307,14 @@ main_append_route@7:
     +
     itob
     bytec_0 // "box"
-    intc_3 // 12
+    pushint 12
     intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    pushint 22
-    intc_1 // 8
-    callsub box_update_offset_inc
-    bytec_0 // "box"
+    callsub __outlined9
     swap
+    callsub __outlined11
     uncover 2
     intc_2 // 1
+    callsub __outlined16
     intc_1 // 8
     callsub box_dynamic_array_concat_fixed
     intc_2 // 1
@@ -545,21 +357,12 @@ main___algopy_default_create@16:
 
 // _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size(box_key: bytes, array_offset: uint64, fixed_byte_size: uint64) -> void:
 box_dynamic_array_pop_fixed_size:
-    proto 3 0
-    frame_dig -3
-    frame_dig -2
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined12
     intc_2 // 1
     -
     dup
     itob
-    extract 6 2
-    frame_dig -3
-    frame_dig -2
-    uncover 2
-    box_replace
+    callsub __outlined21
     frame_dig -2
     intc_0 // 2
     +
@@ -619,7 +422,7 @@ box_dynamic_array_concat_fixed:
     +
     frame_dig -5
     swap
-    pushint 0
+    intc_3 // 0
     frame_dig -3
     box_splice
     retsub
@@ -632,10 +435,7 @@ box_update_offset_dec:
     frame_dig -2
     intc_0 // 2
     box_extract
-    btoi
-    frame_dig -1
-    -
-    itob
+    callsub __outlined21
     extract 6 2
     frame_dig -3
     frame_dig -2
@@ -649,17 +449,8 @@ box_update_offset_inc:
     proto 3 0
     frame_dig -3
     frame_dig -2
-    intc_0 // 2
-    box_extract
-    btoi
-    frame_dig -1
-    +
-    itob
-    extract 6 2
-    frame_dig -3
-    frame_dig -2
-    uncover 2
-    box_replace
+    callsub __outlined12
+    callsub __outlined21
     retsub
 
 
@@ -667,10 +458,10 @@ box_update_offset_inc:
 inc_array:
     proto 2 2
     frame_dig -2
-    pushint 0
+    intc_3 // 0
     extract_uint16 // on error: invalid array length header
     frame_dig -2
-    pushint 0
+    intc_3 // 0
 
 inc_array_for_header@1:
     frame_dig 2
@@ -728,7 +519,7 @@ verify_while_top@6:
     itxn_field ApprovalProgram
     bytec_2 // 0x068101
     itxn_field ClearStateProgram
-    pushint 0
+    intc_3 // 0
     itxn_field Fee
     itxn_submit
     b verify_while_top@6
@@ -742,46 +533,8 @@ verify_after_while@11:
     intc_1 // 8
     *
     intc_0 // 2
-    +
-    bytec_0 // "box"
-    pushint 24
-    uncover 2
-    box_extract
-    frame_dig -1
-    ==
-    assert
-    bytec_0 // "box"
-    pushint 10
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_1 // 8
-    *
-    intc_0 // 2
-    +
-    bytec_0 // "box"
-    cover 2
-    box_extract
-    frame_dig -1
-    intc_2 // 1
-    callsub inc_array
-    frame_bury -1
-    ==
-    assert
-    bytec_0 // "box"
-    intc_3 // 12
-    intc_0 // 2
-    box_extract
-    btoi
-    bytec_0 // "box"
-    dig 1
-    intc_0 // 2
-    box_extract
+    callsub __outlined3
+    callsub __outlined5
     btoi
     intc_1 // 8
     *
@@ -797,7 +550,7 @@ verify_after_while@11:
     ==
     assert
     bytec_0 // "box"
-    pushint 0
+    intc_3 // 0
     intc_1 // 8
     box_extract // on error: index out of bounds
     btoi
@@ -823,13 +576,233 @@ verify_after_while@11:
     box_extract
     btoi
     intc_2 // 1
-    ==
-    assert
-    bytec_0 // "box"
-    box_len
-    pop
+    callsub __outlined17
     intc 4 // 4096
     >
     assert // expected box length >4096
     frame_dig -1
+    retsub
+
+
+// __outlined0(__outlined0_param0: any, __outlined0_param1: any) -> any, any:
+__outlined0:
+    callsub __outlined3
+    callsub __outlined6
+
+
+// __outlined1(__outlined1_param0: any, __outlined1_param1: any) -> any, any:
+__outlined1:
+    ==
+    assert
+    bytec_0 // "box"
+    pushint 12
+    intc_0 // 2
+    callsub __outlined5
+    callsub __outlined10
+
+
+// __outlined2() -> any, any:
+__outlined2:
+    callsub __outlined4
+    intc_0 // 2
+    callsub __outlined6
+    callsub __outlined8
+
+
+// __outlined3() -> any, any:
+__outlined3:
+    callsub __outlined6
+    box_extract
+    callsub __outlined8
+    btoi
+    callsub __outlined13
+
+
+// __outlined4() -> any, any:
+__outlined4:
+    callsub __outlined15
+    bytec_0 // "box"
+    callsub __outlined10
+    dig 1
+    intc_0 // 2
+    box_extract
+    retsub
+
+
+// __outlined5() -> any, any:
+__outlined5:
+    callsub __outlined10
+    dig 1
+    intc_0 // 2
+    box_extract
+    retsub
+
+
+// __outlined6(__outlined6_param0: any, __outlined6_param1: any) -> void:
+__outlined6:
+    callsub __outlined8
+    bytec_0 // "box"
+    dig 1
+    callsub __outlined13
+    intc_0 // 2
+    box_extract
+    btoi
+    retsub
+    retsub
+
+
+// __outlined7(__outlined7_param0: any) -> any:
+__outlined7:
+    btoi
+    dup
+    intc_2 // 1
+    - // on error: cannot pop from empty array
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    retsub
+
+
+// __outlined8(__outlined8_param0: any, __outlined8_param1: any, __outlined8_param2: any) -> void:
+__outlined8:
+    callsub __outlined13
+    box_extract
+    btoi
+    retsub
+    retsub
+
+
+// __outlined9() -> any:
+__outlined9:
+    callsub __outlined11
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined10(__outlined10_param0: any, __outlined10_param1: any, __outlined10_param2: any) -> void:
+__outlined10:
+    box_extract
+    btoi
+    bytec_0 // "box"
+    dig 1
+    intc_0 // 2
+    box_extract
+    retsub
+    retsub
+
+
+// __outlined11() -> any:
+__outlined11:
+    callsub __outlined16
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
+
+
+// __outlined12() -> any:
+__outlined12:
+    proto 3 0
+    frame_dig -3
+    frame_dig -2
+    intc_0 // 2
+    box_extract
+    btoi
+    retsub
+
+
+// __outlined13(__outlined13_param0: any) -> void:
+__outlined13:
+    bytec_0 // "box"
+    dig 1
+    intc_0 // 2
+    box_extract
+    btoi
+    retsub
+    retsub
+
+
+// __outlined14(__outlined14_param0: any, __outlined14_param1: any) -> any:
+__outlined14:
+    callsub __outlined18
+    swap
+    intc_1 // 8
+    box_extract // on error: index out of bounds
+    btoi
+    retsub
+
+
+// __outlined15() -> any, any:
+__outlined15:
+    bytec_0 // "box"
+    pushint 10
+    intc_0 // 2
+    box_extract
+    btoi
+    bytec_0 // "box"
+    retsub
+
+
+// __outlined16(__outlined16_param0: any) -> any:
+__outlined16:
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
+
+
+// __outlined17() -> any:
+__outlined17:
+    bytec_0 // "box"
+    pushint 24
+    intc_0 // 2
+    box_extract
+    btoi
+    retsub
+
+
+// __outlined18(__outlined18_param0: any, __outlined18_param1: any) -> any:
+__outlined18:
+    +
+    bytec_0 // "box"
+    swap
+    intc_1 // 8
+    box_extract // on error: index out of bounds
+    retsub
+
+
+// __outlined19(__outlined19_param0: any) -> any, any:
+__outlined19:
+    intc_3 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    intc_1 // 8
+    *
+    retsub
+
+
+// __outlined20(__outlined20_param0: any, __outlined20_param1: any) -> any, any:
+__outlined20:
+    bytec_0 // "box"
+    pushint 22
+    uncover 3
+    callsub box_update_offset_inc
+    bytec_0 // "box"
+    retsub
+
+
+// __outlined21(__outlined21_param0: any) -> void:
+__outlined21:
+    extract 6 2
+    frame_dig -3
+    frame_dig -2
+    uncover 2
+    box_replace
     retsub

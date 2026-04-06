@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 2 1 8
-    bytecblock "TEST" "TST" 0x151f7c75 0x31 0x6d4700ad
+    intcblock 0 1 8 6
+    bytecblock 0x31 0x151f7c75 "TST"
     txn NumAppArgs
     bz main___algopy_default_create@11
     txn OnCompletion
@@ -18,130 +18,31 @@ main:
     err
 
 main_test_call_with_acfg_no_return_route@7:
-    txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 2
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 3
-    dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itxn_begin
-    intc_2 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "TEST"
-    itxn_field ConfigAssetName
-    bytec_1 // "TST"
-    itxn_field ConfigAssetUnitName
-    pushint 3 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    bytec_3 // 0x31
+    callsub __outlined1
+    callsub __outlined2
+    bytec_0 // 0x31
     itxn_field Note
     itxn_field ApplicationID
     pushbytes 0xc840077d // method "call_with_acfg_no_return(byte[],acfg,byte[])void"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
+    callsub __outlined4
     itxn Note
-    bytec_3 // 0x31
+    bytec_0 // 0x31
     ==
     assert
     gitxn 0 CreatedAssetID
     assert // expected asset to be created
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_test_call_with_infer_route@6:
-    txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
+    callsub __outlined0
+    pushbytes 0x6d4700ad // method "call_with_acfg(byte[],acfg,byte[])uint64"
+    callsub __outlined3
     len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 2
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 3
-    dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itxn_begin
-    intc_2 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "TEST"
-    itxn_field ConfigAssetName
-    bytec_1 // "TST"
-    itxn_field ConfigAssetUnitName
-    pushint 3 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    itxn_field ApplicationID
-    bytec 4 // method "call_with_acfg(byte[],acfg,byte[])uint64"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 0 4
-    bytec_2 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
-    extract 4 0
-    len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_test_call_with_acfg_route@5:
@@ -149,132 +50,35 @@ main_test_call_with_acfg_route@5:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 2
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 3
-    dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itxn_begin
-    intc_2 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "TEST"
-    itxn_field ConfigAssetName
-    bytec_1 // "TST"
-    itxn_field ConfigAssetUnitName
-    pushint 3 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    itxn_field ApplicationID
-    bytec 4 // method "call_with_acfg(byte[],acfg,byte[])uint64"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
+    callsub __outlined4
+    callsub __outlined6
     itxn_submit
     itxn LastLog
-    dup
-    extract 0 4
-    bytec_2 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
-    extract 4 0
+    callsub __outlined8
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_test_call_with_txn_route@4:
-    txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 2
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    txna ApplicationArgs 3
-    dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itxn_begin
-    intc_2 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "TEST"
-    itxn_field ConfigAssetName
-    bytec_1 // "TST"
-    itxn_field ConfigAssetUnitName
-    pushint 3 // acfg
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    itxn_field ApplicationID
-    pushbytes 0xa1f5040d // method "call_with_txn(byte[],txn,byte[])uint64"
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
+    callsub __outlined8
     dup
     extract 0 4
-    bytec_2 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
     btoi
     assert // expected asset id
-    intc_2 // 1
+    callsub __outlined4
+    intc_1 // 1
     return
 
 main___algopy_default_create@11:
@@ -284,3 +88,143 @@ main___algopy_default_create@11:
     !
     &&
     return
+
+
+// __outlined0() -> any, any:
+__outlined0:
+    callsub __outlined2
+    itxn_field ConfigAssetName
+    bytec_2 // "TST"
+    itxn_field ConfigAssetUnitName
+    callsub __outlined5
+    callsub __outlined9
+    itxn_field ApplicationID
+    retsub
+
+
+// __outlined1() -> any, any, any, any:
+__outlined1:
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    retsub
+
+
+// __outlined2(__outlined2_param0: any, __outlined2_param1: any) -> any:
+__outlined2:
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    intc_1 // 1
+    itxn_field ConfigAssetTotal
+    callsub __outlined9
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    retsub
+
+
+// __outlined3(__outlined3_param0: any, __outlined3_param1: any, __outlined3_param2: any) -> any:
+__outlined3:
+    callsub __outlined4
+    itxn_field ApplicationArgs
+    swap
+    callsub __outlined8
+    extract 4 0
+    retsub
+
+
+// __outlined4(__outlined4_param0: any, __outlined4_param1: any, __outlined4_param2: any) -> void:
+__outlined4:
+    callsub __outlined6
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    callsub __outlined7
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// __outlined5(__outlined5_param0: any) -> void:
+__outlined5:
+    itxn_field ConfigAssetName
+    bytec_2 // "TST"
+    callsub __outlined9
+    itxn_next
+    retsub
+
+
+// __outlined6(__outlined6_param0: any, __outlined6_param1: any, __outlined6_param2: any) -> void:
+__outlined6:
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    retsub
+
+
+// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> void:
+__outlined7:
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// __outlined8(__outlined8_param0: any) -> any:
+__outlined8:
+    dup
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    extract 4 0
+    retsub
+
+
+// __outlined9() -> void:
+__outlined9:
+    pushint 3 // acfg
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    retsub

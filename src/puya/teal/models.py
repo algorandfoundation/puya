@@ -463,7 +463,7 @@ class TemplateVar(TealOp):
 
 @attrs.frozen
 class Intrinsic(TealOp):
-    immediates: Sequence[int | str]
+    immediates: Sequence[int | str] = attrs.field(converter=tuple[int | str, ...])
     error_message: str | None
 
     @typing.override

@@ -95,13 +95,7 @@ main_else_body@20:
     pushbytes 0x746573745f6175676d656e7465645f6f725f61737369676e6d656e745f776974685f6279746573
     ==
     bz main_else_body@23
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_0 // 1
-    ==
-    assert // expected bytes to be length 1
+    callsub __outlined1
     b|
     log
     b main_after_if_else@34
@@ -113,11 +107,8 @@ main_else_body@23:
     bz main_else_body@25
     txna ApplicationArgs 1
     txna ApplicationArgs 2
-    dup
-    len
-    intc_0 // 1
-    ==
-    assert // expected bytes to be length 1
+    callsub __outlined2
+    callsub __outlined1
     b&
     log
     b main_after_if_else@34
@@ -127,13 +118,7 @@ main_else_body@25:
     pushbytes 0x746573745f6175676d656e7465645f786f725f61737369676e6d656e745f776974685f6279746573
     ==
     bz main_after_if_else@34
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_0 // 1
-    ==
-    assert // expected bytes to be length 1
+    callsub __outlined1
     b^
     log
     b main_after_if_else@34
@@ -195,11 +180,7 @@ main_for_header@62:
     <
     bz main_after_for@65
     bytec_2 // 0xabcdef
-    dig 2
-    dup
-    cover 2
-    intc_0 // 1
-    extract3
+    callsub __outlined2
     dup
     len
     intc_0 // 1
@@ -269,33 +250,9 @@ main_after_for@71:
     callsub is_substring
     !
     !
-    assert
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
+    callsub __outlined0
     callsub is_substring
-    !
-    assert
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    callsub is_substring
-    assert
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    callsub is_substring
-    !
-    assert
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    callsub is_substring
-    !
-    !
-    assert
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    callsub is_substring
-    !
-    assert
-    bytec_1 // 0xcd12
+    callsub __outlined0
     bytec_0 // 0xabcd1234
     callsub is_substring
     assert
@@ -431,4 +388,36 @@ test_sequence_ops_after_for@8:
     intc_2 // 4
     ==
     assert
+    retsub
+
+
+// __outlined0(__outlined0_param0: any) -> any:
+__outlined0:
+    assert
+    bytec_0 // 0xabcd1234
+    bytec_1 // 0xcd12
+    callsub is_substring
+    !
+    assert
+    bytec_1 // 0xcd12
+    bytec_0 // 0xabcd1234
+    callsub is_substring
+    retsub
+
+
+// __outlined1() -> any, any:
+__outlined1:
+    callsub __outlined2
+    ==
+    assert // expected bytes to be length 1
+    retsub
+
+
+// __outlined2(__outlined2_param0: any) -> any:
+__outlined2:
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // expected bytes to be length 1
     retsub

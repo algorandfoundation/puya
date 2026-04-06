@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 32 1 22 4096
-    bytecblock "box" 0x151f7c75
+    intcblock 2 32 1 22
+    bytecblock "box"
     txn NumAppArgs
     bz main___algopy_default_create@16
     txn OnCompletion
@@ -49,11 +49,7 @@ main_set_route@11:
     intc_1 // 32
     ==
     assert // invalid number of bytes for test_cases.large_box_operations.nested.Parent
-    bytec_0 // "box"
-    intc_3 // 22
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined3
     dig 2
     >
     assert // index out of bounds
@@ -72,11 +68,7 @@ main_set_route@11:
 main_get_route@10:
     txna ApplicationArgs 1
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined3
     bytec_0 // "box"
     intc_3 // 22
     intc_0 // 2
@@ -85,15 +77,9 @@ main_get_route@10:
     dig 1
     >
     assert // index out of bounds
-    intc_1 // 32
-    *
-    pushint 24
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 32
+    callsub __outlined0
     box_extract // on error: index out of bounds
-    bytec_1 // 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
@@ -104,28 +90,9 @@ main_pop_route@9:
     bytec_0 // "box"
     intc_3 // 22
     intc_0 // 2
-    box_extract
-    btoi
-    dup
-    intc_2 // 1
-    - // on error: cannot pop from empty array
-    dup
-    uncover 2
-    <
-    assert // index out of bounds
-    intc_1 // 32
-    *
-    pushint 24
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 32
+    callsub __outlined3
     box_extract // on error: index out of bounds
-    bytec_0 // "box"
-    intc_0 // 2
-    dup
-    box_extract
-    btoi
+    callsub __outlined2
     intc_1 // 32
     -
     itob
@@ -140,20 +107,9 @@ main_pop_route@9:
     box_extract
     btoi
     intc_2 // 1
-    -
-    dup
-    itob
-    extract 6 2
-    bytec_0 // "box"
-    intc_3 // 22
-    uncover 2
+    callsub __outlined0
     box_replace
-    intc_1 // 32
-    *
-    pushint 24
-    +
-    bytec_0 // "box"
-    swap
+    callsub __outlined1
     intc_1 // 32
     pushbytes 0x
     box_splice
@@ -161,11 +117,7 @@ main_pop_route@9:
     box_len
     pop
     intc_1 // 32
-    -
-    bytec_0 // "box"
-    swap
-    box_resize
-    bytec_1 // 0x151f7c75
+    callsub __outlined3
     swap
     concat
     log
@@ -226,11 +178,7 @@ main_bootstrap_route@6:
     bytec_0 // "box"
     box_del
     pop
-    bytec_0 // "box"
-    pushbytes 0x0004001800000000000000010012000000000000000200000000
-    box_put
-    intc 4 // 4096
-    bzero
+    callsub __outlined2
     bytec_0 // "box"
     intc_0 // 2
     dup
@@ -240,7 +188,7 @@ main_bootstrap_route@6:
     swap
     uncover 2
     intc_2 // 1
-    intc 4 // 4096
+    pushint 4096
     callsub box_dynamic_array_concat_fixed
     pushbytes 0x0000
     callsub verify
@@ -342,10 +290,7 @@ verify:
     box_extract // on error: index out of bounds
     btoi
     intc_2 // 1
-    ==
-    assert
-    bytec_0 // "box"
-    pushints 14 8
+    callsub __outlined2
     box_extract // on error: index out of bounds
     btoi
     intc_0 // 2
@@ -353,11 +298,7 @@ verify:
     assert
     bytec_0 // "box"
     intc_0 // 2
-    dup
-    box_extract
-    btoi
-    bytec_0 // "box"
-    swap
+    callsub __outlined3
     intc_0 // 2
     box_extract
     btoi
@@ -367,8 +308,49 @@ verify:
     bytec_0 // "box"
     box_len
     pop
-    intc 4 // 4096
+    pushint 4096
     >
     assert // expected box length >4096
     frame_dig -1
+    retsub
+
+
+// __outlined0(__outlined0_param0: any) -> any, any, any:
+__outlined0:
+    callsub __outlined1
+    +
+    bytec_0 // "box"
+    swap
+    intc_1 // 32
+    retsub
+
+
+// __outlined1(__outlined1_param0: any, __outlined1_param1: any) -> any, any, any:
+__outlined1:
+    *
+    pushint 24
+    +
+    bytec_0 // "box"
+    swap
+    intc_1 // 32
+    retsub
+
+
+// __outlined2() -> any:
+__outlined2:
+    bytec_0 // "box"
+    intc_0 // 2
+    dup
+    box_extract
+    btoi
+    retsub
+
+
+// __outlined3() -> any:
+__outlined3:
+    bytec_0 // "box"
+    intc_3 // 22
+    intc_0 // 2
+    box_extract
+    btoi
     retsub

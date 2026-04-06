@@ -4,7 +4,7 @@
 // test_cases.logic_signature.lsig_args_complex.args_complex_no_validation() -> uint64:
 main:
     intcblock 0 1 8 2
-    bytecblock 0x21 0x00 0xff 0x01
+    bytecblock 0x00 0xff 0x01 0x21
     arg_0
     btoi
     arg_1
@@ -205,34 +205,21 @@ main:
     arg 20
     ==
     assert
-    uncover 21
-    intc_1 // 1
-    +
-    uncover 21
-    bytec_0 // 0x21
-    concat
-    uncover 21
-    bytec_3 // 0x01
+    callsub __outlined2
+    bytec_2 // 0x01
     b+
     pushbytes "hello_"
     uncover 22
     concat
     uncover 21
     btoi
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
+    callsub __outlined1
     uncover 21
     btoi
     intc_1 // 1
     +
     uncover 21
-    bytec_3 // 0x01
+    bytec_2 // 0x01
     b+
     dup
     len
@@ -252,7 +239,7 @@ main:
     concat
     uncover 21
     extract 2 0
-    bytec_1 // 0x00
+    bytec_0 // 0x00
     concat
     dup
     len
@@ -261,7 +248,7 @@ main:
     swap
     concat
     uncover 21
-    bytec_2 // 0xff
+    bytec_1 // 0xff
     replace2 0 // on error: index access is out of bounds
     dig 21
     intc_0 // 0
@@ -272,33 +259,9 @@ main:
     uncover 22
     extract 8 8
     concat
-    dig 21
-    intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
-    extract 7 1
-    uncover 22
+    callsub __outlined0
     extract 1 16
-    concat
-    dig 21
-    intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
-    extract 7 1
+    callsub __outlined0
     uncover 22
     intc_1 // 1
     extract_uint64
@@ -308,53 +271,28 @@ main:
     concat
     uncover 21
     intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
+    callsub __outlined1
+    callsub __outlined2
     uncover 21
     intc_1 // 1
     +
     uncover 21
-    bytec_0 // 0x21
+    bytec_3 // 0x21
     concat
     uncover 21
-    intc_1 // 1
-    +
-    uncover 21
-    bytec_0 // 0x21
-    concat
-    uncover 21
-    intc_1 // 1
-    +
-    dig 21
-    intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
+    callsub __outlined0
     extract 7 1
     uncover 22
     intc_2 // 8
     getbit
-    bytec_1 // 0x00
+    bytec_0 // 0x00
     intc_0 // 0
     uncover 2
     setbit
     intc_0 // 0
     getbit
     !
-    bytec_1 // 0x00
+    bytec_0 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -369,7 +307,7 @@ main:
     uncover 22
     swap
     replace2 0
-    bytec_2 // 0xff
+    bytec_1 // 0xff
     concat
     uncover 21
     assert
@@ -402,7 +340,7 @@ main:
     assert
     uncover 11
     extract 0 1 // on error: index access is out of bounds
-    bytec_2 // 0xff
+    bytec_1 // 0xff
     b==
     assert
     uncover 10
@@ -441,3 +379,39 @@ main:
     extract_uint16 // on error: invalid array length header
     assert
     return
+
+
+// __outlined0(__outlined0_param0: any, __outlined0_param1: any, __outlined0_param2: any, __outlined0_param3: any, __outlined0_param4: any, __outlined0_param5: any, __outlined0_param6: any, __outlined0_param7: any, __outlined0_param8: any, __outlined0_param9: any, __outlined0_param10: any, __outlined0_param11: any, __outlined0_param12: any, __outlined0_param13: any, __outlined0_param14: any, __outlined0_param15: any, __outlined0_param16: any, __outlined0_param17: any, __outlined0_param18: any, __outlined0_param19: any, __outlined0_param20: any, __outlined0_param21: any) -> any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any:
+__outlined0:
+    dig 21
+    callsub __outlined1
+    <=
+    assert // overflow
+    extract 7 1
+    uncover 22
+    retsub
+
+
+// __outlined1(__outlined1_param0: any) -> any:
+__outlined1:
+    intc_1 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    retsub
+
+
+// __outlined2(__outlined2_param0: any, __outlined2_param1: any, __outlined2_param2: any, __outlined2_param3: any, __outlined2_param4: any, __outlined2_param5: any, __outlined2_param6: any, __outlined2_param7: any, __outlined2_param8: any, __outlined2_param9: any, __outlined2_param10: any, __outlined2_param11: any, __outlined2_param12: any, __outlined2_param13: any, __outlined2_param14: any, __outlined2_param15: any, __outlined2_param16: any, __outlined2_param17: any, __outlined2_param18: any, __outlined2_param19: any, __outlined2_param20: any, __outlined2_param21: any) -> any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any:
+__outlined2:
+    uncover 21
+    intc_1 // 1
+    +
+    uncover 21
+    bytec_3 // 0x21
+    concat
+    uncover 21
+    retsub

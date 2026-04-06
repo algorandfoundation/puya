@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 4
-    bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
+    bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "claim" "asa"
     pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
@@ -17,7 +17,7 @@ main:
     bytec_3 // "asa_amount"
     intc_0 // 0
     app_global_put
-    bytec 4 // "asa"
+    bytec 5 // "asa"
     intc_0 // 0
     app_global_put
     bytec_2 // "previous_bidder"
@@ -38,13 +38,7 @@ main_after_if_else@2:
     err
 
 main_claim_asset_route@11:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined0
     global LatestTimestamp
     intc_0 // 0
     bytec_0 // "auction_end"
@@ -77,7 +71,7 @@ main_claim_asset_route@11:
 main_claim_bids_route@10:
     txn Sender
     intc_0 // 0
-    bytec 5 // "claim"
+    bytec 4 // "claim"
     app_local_get_ex
     swap
     bury 2
@@ -106,7 +100,7 @@ main_after_if_else@22:
     swap
     -
     txn Sender
-    bytec 5 // "claim"
+    bytec 4 // "claim"
     uncover 2
     app_local_put
     intc_1 // 1
@@ -160,7 +154,7 @@ main_bid_route@9:
     uncover 2
     app_global_put
     txn Sender
-    bytec 5 // "claim"
+    bytec 4 // "claim"
     uncover 2
     app_local_put
     intc_1 // 1
@@ -171,20 +165,10 @@ main_opt_in_route@8:
     return
 
 main_start_auction_route@7:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined1
     btoi
     txna ApplicationArgs 2
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined2
     txn GroupIndex
     intc_1 // 1
     -
@@ -215,6 +199,7 @@ main_start_auction_route@7:
     global LatestTimestamp
     +
     bytec_0 // "auction_end"
+    callsub __outlined0
     swap
     app_global_put
     bytec_1 // "previous_bid"
@@ -225,31 +210,23 @@ main_start_auction_route@7:
 
 main_opt_into_asset_route@6:
     txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined3
     btoi
     txn Sender
     global CreatorAddress
     ==
     assert // Only creator can opt in to ASA
     intc_0 // 0
-    bytec 4 // "asa"
+    bytec 5 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     !
     assert // ASA already opted in
-    bytec 4 // "asa"
-    dig 1
-    app_global_put
-    itxn_begin
-    global CurrentApplicationAddress
-    itxn_field AssetReceiver
-    itxn_field XferAsset
+    callsub __outlined0
     intc_3 // axfer
+    callsub __outlined1
     itxn_field TypeEnum
+    callsub __outlined2
     intc_0 // 0
     itxn_field Fee
     itxn_submit
@@ -263,3 +240,46 @@ main___algopy_default_create@15:
     !
     &&
     return
+
+
+// __outlined0() -> any:
+__outlined0:
+    callsub __outlined1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined1() -> any:
+__outlined1:
+    txna ApplicationArgs 1
+    dup
+    len
+    callsub __outlined3
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
+
+
+// __outlined2(__outlined2_param0: any) -> any:
+__outlined2:
+    callsub __outlined3
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined3(__outlined3_param0: any) -> any:
+__outlined3:
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub

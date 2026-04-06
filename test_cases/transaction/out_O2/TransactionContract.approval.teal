@@ -147,11 +147,7 @@ main_for_header_1@33:
     b main_for_body@32
 
 main_application_call_route@8:
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
+    callsub __outlined0
     pushint 6 // appl
     ==
     assert // transaction type is appl
@@ -257,6 +253,7 @@ main_asset_freeze_route@7:
     gtxns FreezeAssetAccount
     global ZeroAddress
     !=
+    callsub __outlined0
     assert // freeze_account
     gtxns FreezeAssetFrozen
     assert // frozen
@@ -286,11 +283,7 @@ main_asset_transfer_route@6:
     !=
     assert // asset_sender
     dup
-    gtxns AssetReceiver
-    global ZeroAddress
-    !=
-    assert // asset_receiver
-    gtxns AssetCloseTo
+    callsub __outlined0
     global ZeroAddress
     !=
     assert // asset_close_to
@@ -338,11 +331,7 @@ main_asset_config_route@5:
     !=
     assert // manager
     dup
-    gtxns ConfigAssetReserve
-    global ZeroAddress
-    !=
-    assert // reserve
-    dup
+    callsub __outlined0
     gtxns ConfigAssetFreeze
     global ZeroAddress
     !=
@@ -358,11 +347,7 @@ main_key_route@4:
     txn GroupIndex
     intc_0 // 1
     -
-    dup
-    gtxns TypeEnum
-    intc_2 // keyreg
-    ==
-    assert // transaction type is keyreg
+    callsub __outlined0
     dup
     callsub _common_checks
     dup
@@ -381,11 +366,7 @@ main_key_route@4:
 
 main_pay_route@3:
     txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_0 // pay
+    callsub __outlined0
     ==
     assert // transaction type is pay
     dup
@@ -452,4 +433,14 @@ _common_checks:
     global ZeroAddress
     ==
     assert // rekey_to
+    retsub
+
+
+// __outlined0() -> any, any:
+__outlined0:
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
     retsub

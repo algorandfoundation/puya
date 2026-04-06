@@ -31,13 +31,7 @@ main:
     callsub dynamic_array_concat_bits
     dup
     pushbytes 0x0009aa80
-    ==
-    assert
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 1
-    - // on error: cannot pop from empty array
+    callsub __outlined0
     intc_3 // 16
     +
     dig 1
@@ -50,13 +44,7 @@ main:
     swap
     callsub dynamic_array_pop_bit
     swap
-    bytec_1 // 0x80
-    ==
-    assert
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 1
+    callsub __outlined0
     - // on error: cannot pop from empty array
     intc_3 // 16
     +
@@ -115,26 +103,14 @@ main:
     bytec 4 // 0x000548656c6c6f
     pushint 5
     callsub dynamic_array_replace_byte_length_head
-    dup
-    pushbytes 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
-    ==
-    assert
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
+    callsub __outlined0
     intc_2 // 1
     - // on error: cannot pop from empty array
     dig 1
     swap
     callsub dynamic_array_read_byte_length_element
     swap
-    callsub dynamic_array_pop_byte_length_head
-    swap
-    pushbytes 0x0003426172
-    ==
-    assert
-    dup
-    intc_0 // 0
+    callsub __outlined0
     extract_uint16 // on error: invalid array length header
     intc_2 // 1
     - // on error: cannot pop from empty array
@@ -511,4 +487,16 @@ _recalculate_head_for_elements_with_byte_length_head_for_header@1:
 _recalculate_head_for_elements_with_byte_length_head_after_for@4:
     frame_dig -3
     frame_bury 0
+    retsub
+
+
+// __outlined0(__outlined0_param0: any, __outlined0_param1: any, __outlined0_param2: any) -> any, any:
+__outlined0:
+    ==
+    assert
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 1
+    - // on error: cannot pop from empty array
     retsub

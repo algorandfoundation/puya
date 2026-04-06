@@ -13,14 +13,7 @@ main:
     assert // invalid number of bytes for uint64
     btoi
     arg_1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
+    callsub __outlined2
     assert // invalid number of bytes for bytes
     extract 2 0
     arg_2
@@ -29,14 +22,7 @@ main:
     pushint 64
     ==
     assert // invalid number of bytes for biguint
-    arg_3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
-    len
+    callsub __outlined2
     ==
     assert // invalid number of bytes for string
     extract 2 0
@@ -77,23 +63,9 @@ main:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for arc4.bool
-    arg 10
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
+    callsub __outlined2
     len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    arg 11
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
+    callsub __outlined2
     dig 1
     len
     ==
@@ -368,14 +340,7 @@ main:
     concat
     uncover 22
     btoi
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
+    callsub __outlined1
     uncover 22
     btoi
     intc_1 // 1
@@ -421,50 +386,17 @@ main:
     itob
     uncover 22
     extract 8 8
-    concat
-    dig 21
-    intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
-    assert // overflow
+    callsub __outlined0
     extract 7 1
     uncover 22
-    extract 1 16
-    concat
-    dig 21
-    intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
+    callsub __outlined0
     assert // overflow
     extract 7 1
     uncover 22
     intc_1 // 1
     extract_uint64
     intc_1 // 1
-    +
-    itob
-    concat
-    dig 21
-    intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
+    callsub __outlined0
     <=
     assert // overflow
     uncover 22
@@ -489,14 +421,7 @@ main:
     +
     dig 22
     intc_0 // 0
-    getbyte
-    intc_1 // 1
-    +
-    itob
-    dup
-    bitlen
-    intc_2 // 8
-    <=
+    callsub __outlined1
     assert // overflow
     extract 7 1
     uncover 23
@@ -622,3 +547,39 @@ main_after_if_else@2:
     assert
     dig 1
     return
+
+
+// __outlined0(__outlined0_param0: any, __outlined0_param1: any, __outlined0_param2: any, __outlined0_param3: any, __outlined0_param4: any, __outlined0_param5: any, __outlined0_param6: any, __outlined0_param7: any, __outlined0_param8: any, __outlined0_param9: any, __outlined0_param10: any, __outlined0_param11: any, __outlined0_param12: any, __outlined0_param13: any, __outlined0_param14: any, __outlined0_param15: any, __outlined0_param16: any, __outlined0_param17: any, __outlined0_param18: any, __outlined0_param19: any, __outlined0_param20: any, __outlined0_param21: any, __outlined0_param22: any) -> any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any:
+__outlined0:
+    concat
+    callsub __outlined1
+    intc_2 // 8
+    <=
+    assert // overflow
+    retsub
+
+
+// __outlined1(__outlined1_param0: any) -> any:
+__outlined1:
+    intc_1 // 1
+    +
+    itob
+    dup
+    bitlen
+    intc_2 // 8
+    <=
+    assert // overflow
+    retsub
+
+
+// __outlined2(__outlined2_param0: any) -> any, any:
+__outlined2:
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    retsub

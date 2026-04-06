@@ -1,11 +1,14 @@
 import itertools
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import attrs
 
 from puya import log
+from puya.avm import AVMType
 from puya.context import ArtifactCompileContext, CompileContext
+from puya.mir.models import Signature, Parameter
 from puya.teal import models
+from puya.teal.models import TealSubroutine, TealBlock, CallSub, RetSub, TealProgram
 from puya.teal.optimize.combine_pushes import combine_pushes
 from puya.teal.optimize.constant_block import gather_program_constants
 from puya.teal.optimize.constant_stack_shuffling import (
@@ -43,11 +46,94 @@ def optimize_teal_program(
             _optimize_subroutine_blocks(context, teal_sub, branchable_subroutine_entry_blocks)
         maybe_output_intermediate_teal(context, teal_program, qualifier="block")
 
+    if context.options.optimization_level > 1:
+        outline_idx = 0
+        for wsize in range(40, 4, -1):
+            outline_idx = do_outlining_for(teal_program, wsize, outline_idx)
+
     # O0 still needs to gather template vars into constant blocks
     # to compute pc offset according to arc56
     gather_program_constants(teal_program)
     if context.options.optimization_level > 0:
         combine_pushes(teal_program)
+
+
+def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) -> int:
+    # TODO: Measure in bytes (at least approximate)
+    windows = (
+        tuple(block.ops[i:i + wsize])
+        for teal_sub in teal_program.all_subroutines
+        for block in teal_sub.blocks
+        for i in range(len(block.ops) - wsize + 1)
+    )
+    gadget_appearances = Counter(windows)
+
+    sorted_gadgets = sorted(gadget_appearances.items(), key=lambda item: (-len(item[0]), item[1]))
+    for (win, count) in sorted_gadgets:
+        if count < 3: continue
+        stack_height = 0
+        entry_height = 0
+        for op in win:
+            stack_height -= op.consumes
+            entry_height = min(entry_height, stack_height)
+            stack_height += op.produces
+        entry_height = -entry_height
+        exit_height = entry_height + stack_height
+
+        sub_name = f"__outlined{outline_idx}"
+        block = TealBlock(
+            label=sub_name,
+            ops=list(win) + [RetSub(consumes=exit_height, source_location=None)],
+            x_stack_in=(),
+            entry_stack_height=entry_height,
+            exit_stack_height=exit_height,
+        )
+        sub = TealSubroutine(
+            is_main=False,
+            signature=Signature(
+                name=sub_name,
+                parameters=[
+                    Parameter(
+                        name=f"{sub_name}_param{i}",
+                        local_id=f"_param{i}",
+                        atype=AVMType.any
+                    ) for i in range(entry_height)
+                ],
+                returns=(AVMType.any,) * exit_height,
+            ),
+            blocks=[block],
+            source_location=None,
+        )
+
+        def get_matches() -> list[tuple[TealBlock, int]]:
+            matches = list[tuple[TealBlock, int]]()
+            for sub in teal_program.all_subroutines:
+                for block in sub.blocks:
+                    i = 0
+                    lasti = len(block.ops) - wsize + 1
+                    while i < lasti:
+                        if tuple(block.ops[i:i + wsize]) == win:
+                            matches.append((block, i - len(matches) * wsize))
+                            # Guard against overlapping matches!
+                            i += wsize
+                        else:
+                            i += 1
+            return matches
+
+        win_matches = get_matches()
+        if len(win_matches) > 1:
+            for block, i in win_matches:
+                callsub = CallSub(
+                    target=sub_name,
+                    consumes=entry_height,
+                    produces=exit_height,
+                    source_location=None
+                )
+                block.ops[i:i + wsize] = (callsub,)
+            teal_program.subroutines.append(sub)
+            outline_idx += 1
+
+    return outline_idx
 
 
 def _optimize_subroutine_ops(context: CompileContext, teal_sub: models.TealSubroutine) -> None:

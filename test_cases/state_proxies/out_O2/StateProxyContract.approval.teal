@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 42 0
-    bytecblock "l1" "g1" "box_map" 0x6c32
+    bytecblock "box_map" "g1" "l1" 0x6c32
     txn ApplicationID
     bnz main_after_if_else@2
     pushbytes 0x6732
@@ -32,7 +32,7 @@ main_after_if_else@2:
 
 main_order_of_eval_box_route@10:
     callsub get_key
-    bytec_2 // "box_map"
+    bytec_0 // "box_map"
     swap
     concat
     callsub default_value
@@ -41,20 +41,10 @@ main_order_of_eval_box_route@10:
     swap
     btoi
     swap
-    select
-    intc_1 // 42
-    ==
-    assert
-    intc_0 // 1
-    return
+    callsub __outlined0
 
 main_order_of_eval_local_route@9:
-    callsub get_account
-    callsub default_value
-    swap
-    intc_2 // 0
-    bytec_0 // "l1"
-    app_local_get_ex
+    callsub __outlined0
     select
     intc_1 // 42
     ==
@@ -65,12 +55,7 @@ main_order_of_eval_local_route@9:
 main_order_of_eval_global_route@8:
     callsub default_value
     intc_2 // 0
-    bytec_1 // "g1"
-    app_global_get_ex
-    select
-    intc_1 // 42
-    ==
-    assert
+    callsub __outlined0
     intc_0 // 1
     return
 
@@ -78,13 +63,13 @@ main_clear_route@7:
     bytec_1 // "g1"
     app_global_del
     txn Sender
-    bytec_0 // "l1"
+    bytec_2 // "l1"
     app_local_del
     txn Sender
     bytec_3 // 0x6c32
     app_local_del
     callsub get_key
-    bytec_2 // "box_map"
+    bytec_0 // "box_map"
     swap
     concat
     box_del
@@ -104,7 +89,7 @@ main_create_route@4:
     intc_0 // 1
     app_global_put
     txn Sender
-    bytec_0 // "l1"
+    bytec_2 // "l1"
     pushint 2
     app_local_put
     txn Sender
@@ -136,4 +121,15 @@ default_value:
     pushbytes "default"
     log
     intc_1 // 42
+    retsub
+
+
+// __outlined0(__outlined0_param0: any, __outlined0_param1: any, __outlined0_param2: any) -> void:
+__outlined0:
+    select
+    intc_1 // 42
+    ==
+    assert
+    intc_0 // 1
+    return
     retsub

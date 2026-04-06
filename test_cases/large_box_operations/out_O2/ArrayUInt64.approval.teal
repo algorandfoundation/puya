@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 8 0 2 1
-    bytecblock "box" 0x 0x151f7c75
+    bytecblock "box" 0x
     intc_1 // 0
     bytec_1 // ""
     dup
@@ -29,11 +29,7 @@ main_verify_route@12:
     extract_uint16 // on error: invalid array length header
     dup
     bury 4
-    dup
-    intc_0 // 8
-    *
-    intc_2 // 2
-    +
+    callsub __outlined1
     uncover 2
     len
     ==
@@ -80,25 +76,11 @@ main_after_for@22:
     return
 
 main_set_route@11:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined0
     txna ApplicationArgs 2
-    dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined2
     swap
-    intc_0 // 8
-    *
-    intc_2 // 2
-    +
-    bytec_0 // "box"
+    callsub __outlined3
     swap
     uncover 2
     box_replace // on error: index out of bounds
@@ -108,11 +90,7 @@ main_set_route@11:
 main_get_route@10:
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined3
     intc_0 // 8
     *
     intc_2 // 2
@@ -120,9 +98,11 @@ main_get_route@10:
     bytec_0 // "box"
     swap
     intc_0 // 8
+    callsub __outlined0
     box_extract // on error: index out of bounds
-    bytec_2 // 0x151f7c75
+    pushbytes 0x151f7c75
     swap
+    callsub __outlined2
     concat
     log
     intc_3 // 1
@@ -131,11 +111,7 @@ main_get_route@10:
 main_pop_route@9:
     bytec_0 // "box"
     intc_1 // 0
-    intc_2 // 2
-    box_extract
-    btoi
-    intc_3 // 1
-    - // on error: cannot pop from empty array
+    callsub __outlined1
     dup
     intc_0 // 8
     *
@@ -165,11 +141,7 @@ main_pop_route@9:
     bytec_0 // "box"
     swap
     box_resize
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_3 // 1
+    callsub __outlined3
     return
 
 main_concat_route@8:
@@ -190,23 +162,13 @@ main_concat_route@8:
     extract 2 0
     bytec_0 // "box"
     intc_1 // 0
-    uncover 2
-    uncover 3
-    intc_0 // 8
-    callsub box_dynamic_array_concat_fixed
-    intc_3 // 1
+    callsub __outlined1
     return
 
 main_append_route@7:
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itob
-    bytec_0 // "box"
+    callsub __outlined0
     intc_1 // 0
     uncover 2
     intc_3 // 1
@@ -273,4 +235,43 @@ box_dynamic_array_concat_fixed:
     intc_1 // 0
     frame_dig -3
     box_splice
+    retsub
+
+
+// __outlined0() -> any:
+__outlined0:
+    callsub __outlined2
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined1(__outlined1_param0: any) -> any, any:
+__outlined1:
+    dup
+    intc_0 // 8
+    *
+    intc_2 // 2
+    +
+    retsub
+
+
+// __outlined2(__outlined2_param0: any) -> any:
+__outlined2:
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
+
+
+// __outlined3(__outlined3_param0: any) -> any, any:
+__outlined3:
+    intc_0 // 8
+    *
+    intc_2 // 2
+    +
+    bytec_0 // "box"
     retsub

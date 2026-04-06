@@ -23,11 +23,7 @@ main_emit_ufixed_route@6:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.ufixed256x16
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_0 // 8
-    ==
+    callsub __outlined0
     assert // invalid number of bytes for arc4.ufixed64x2
     concat
     pushbytes 0x7389b1ba // method "AnEvent(ufixed256x16,ufixed64x2)"
@@ -40,17 +36,9 @@ main_emit_ufixed_route@6:
 main_emit_native_swapped_route@5:
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined0
     txna ApplicationArgs 2
-    dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined1
     btoi
     itob
     swap
@@ -84,7 +72,10 @@ main_emit_swapped_route@4:
     dup
     log
     dup
+    callsub __outlined0
+    callsub __outlined1
     log
+    callsub __outlined1
     log
     intc_1 // 1
     return
@@ -96,3 +87,23 @@ main___algopy_default_create@10:
     !
     &&
     return
+
+
+// __outlined0() -> any, any:
+__outlined0:
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    retsub
+
+
+// __outlined1(__outlined1_param0: any) -> any:
+__outlined1:
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
