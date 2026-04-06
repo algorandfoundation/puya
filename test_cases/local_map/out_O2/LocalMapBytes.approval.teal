@@ -71,7 +71,11 @@ main_prefix_route@12:
 
 main_in__route@11:
     callsub __outlined0
-    callsub __outlined10
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     bytec_0 // "map"
     swap
@@ -147,7 +151,11 @@ __outlined0:
     callsub __outlined1
     callsub __outlined6
     callsub __outlined4
-    callsub __outlined11
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    bytec_0 // "map"
+    swap
+    concat
     intc_0 // 0
     swap
     app_local_get_ex
@@ -177,7 +185,11 @@ __outlined2:
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
-    callsub __outlined10
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    callsub __outlined6
+    intc_3 // 2
     +
     dig 1
     len
@@ -189,7 +201,11 @@ __outlined2:
 
 // __outlined3() -> any, any:
 __outlined3:
-    callsub __outlined10
+    callsub __outlined6
+    intc_3 // 2
+    +
+    dig 1
+    len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub
@@ -201,7 +217,11 @@ __outlined4:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
-    callsub __outlined11
+    +
+    dig 1
+    callsub __outlined8
+    len
+    ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     bytec_0 // "map"
@@ -260,24 +280,4 @@ __outlined9:
     log
     intc_1 // 1
     return
-    retsub
-
-
-// __outlined10(__outlined10_param0: any, __outlined10_param1: any, __outlined10_param2: any) -> any:
-__outlined10:
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    retsub
-
-
-// __outlined11(__outlined11_param0: any, __outlined11_param1: any) -> any:
-__outlined11:
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    bytec_0 // "map"
-    swap
-    concat
     retsub

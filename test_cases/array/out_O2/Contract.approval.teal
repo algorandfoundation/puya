@@ -128,7 +128,11 @@ main_for_header@28:
     dig 1
     loads
     dig 6
-    callsub __outlined7
+    dup
+    cover 2
+    intc_0 // 8
+    *
+    extract_uint64
     dup
     dig 7
     >=
@@ -184,7 +188,11 @@ main_after_for@35:
 
 main_for_header@36:
     dig 6
-    callsub __outlined7
+    dig 14
+    <
+    bz main_after_for@38
+    dig 17
+    dig 7
     dup
     cover 2
     intc_0 // 8
@@ -225,7 +233,6 @@ main_for_header@39:
     dig 1
     ==
     assert // incorrect array value
-    callsub __outlined7
     intc_1 // 1
     +
     bury 8
@@ -372,7 +379,11 @@ main_for_header@50:
 main_test_array_assignment_maximum_cursage_route@11:
     callsub _puya_lib.mem.new_slot
     pushint 3
-    callsub __outlined8
+    itob
+    dig 1
+    swap
+    stores
+    dup
     callsub append_length_and_return
     pushint 42
     itob
@@ -381,7 +392,7 @@ main_test_array_assignment_maximum_cursage_route@11:
     swap
     replace2 0 // on error: index access is out of bounds
     stores
-    callsub __outlined11
+    callsub __outlined6
     pushint 2
     ==
     assert
@@ -446,7 +457,7 @@ main_test_array_evaluation_order_route@10:
     assert
     dup
     pushint 32
-    callsub __outlined11
+    callsub __outlined6
     loads
     dup
     len
@@ -472,7 +483,11 @@ main_test_array_evaluation_order_route@10:
     replace3 // on error: index access is out of bounds
     swap
     dig 1
-    callsub __outlined9
+    stores
+    dup
+    len
+    intc_0 // 8
+    /
     intc_0 // 8
     ==
     assert
@@ -492,7 +507,6 @@ main_test_array_evaluation_order_route@10:
     extract_uint64
     pushint 6
     ==
-    callsub __outlined8
     assert
     intc_1 // 1
     return
@@ -532,7 +546,7 @@ main_after_for@61:
     ==
     assert // expected 5
     dig 1
-    callsub __outlined12
+    callsub __outlined7
     callsub __outlined0
     extract_uint64
     pushint 4
@@ -666,22 +680,23 @@ main_test_array_extend_route@5:
 
 main_test_array_route@4:
     callsub _puya_lib.mem.new_slot
-    dup
-    bury 12
-    pushint 42
-    itob
-    dig 1
-    swap
-    stores
-    dup
-    intc_3 // 5
-    callsub add_x
-    callsub __outlined5
-    pushint 6
     callsub __outlined6
+    swap
+    callsub __outlined7
+    dup
+    len
+    intc_0 // 8
+    /
+    dup
+    pushint 6
+    callsub __outlined5
     extract_uint64
     pushint 4
-    callsub __outlined8
+    ==
+    assert
+    pushint 4
+    bury 10
+    intc_2 // 0
     bury 15
 
 main_for_header@68:
@@ -732,8 +747,12 @@ main_after_for@70:
     dig 10
     dup
     loads
-    callsub __outlined6
-    callsub __outlined12
+    callsub __outlined7
+    intc_0 // 8
+    *
+    callsub __outlined0
+    dup2
+    stores
     dup
     len
     intc_0 // 8
@@ -747,12 +766,12 @@ main_after_for@70:
     dup
     pushint 10
     callsub add_x
-    dup
-    loads
-    dup
-    callsub __outlined4
-    extract_uint64
-    callsub __outlined12
+    callsub __outlined7
+    pushint 9
+    ==
+    assert
+    pushint 44
+    itob
     concat // on error: max array length exceeded
     dup
     len
@@ -769,8 +788,12 @@ main_after_for@70:
     itob
     concat // on error: max array length exceeded
     pushint 100
+    callsub __outlined7
+    pushint 2
+    +
     itob
-    callsub __outlined12
+    replace2 0 // on error: index access is out of bounds
+    swap
     dig 1
     stores
     dup
@@ -798,7 +821,6 @@ main_after_for@70:
     pushint 100
     callsub __outlined3
     callsub __outlined0
-    callsub __outlined5
     ==
     assert
     intc_1 // 1
@@ -862,7 +884,11 @@ quicksort_window_while_top@6:
     frame_dig 2
     >
     bz quicksort_window_after_while@10
-    callsub __outlined10
+    frame_dig 3
+    bz quicksort_window_after_while@22
+    frame_dig 3
+    intc_1 // 1
+    -
     frame_bury 3
     b quicksort_window_while_top@6
 
@@ -914,7 +940,11 @@ quicksort_window_after_while@10:
     replace3 // on error: index access is out of bounds
     frame_dig -3
     swap
-    callsub __outlined10
+    stores
+    frame_dig 4
+    intc_1 // 1
+    +
+    frame_bury 4
     frame_dig 3
     bz quicksort_window_after_while@22
     frame_dig 3
@@ -941,7 +971,6 @@ quicksort_window_after_if_else@16:
     frame_dig 3
     intc_1 // 1
     -
-    callsub __outlined10
     frame_bury 3
     b quicksort_window_after_while@22
 
@@ -1023,12 +1052,12 @@ add_x_after_for@4:
 // test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
 append_length_and_return:
     proto 1 1
+    callsub __outlined6
+    /
+    itob
+    concat // on error: max array length exceeded
     frame_dig -1
-    loads
-    dup
-    len
-    intc_0 // 8
-    callsub __outlined11
+    swap
     stores
     frame_dig -1
     retsub
@@ -1063,7 +1092,7 @@ __outlined0:
 
 // __outlined1(__outlined1_param0: any, __outlined1_param1: any, __outlined1_param2: any, __outlined1_param3: any) -> any, any, any:
 __outlined1:
-    callsub __outlined6
+    callsub __outlined5
     -
     intc_0 // 8
     *
@@ -1074,7 +1103,7 @@ __outlined1:
 
 // __outlined2(__outlined2_param0: any) -> any, any:
 __outlined2:
-    callsub __outlined11
+    callsub __outlined6
     loads
     dup
     len
@@ -1087,7 +1116,7 @@ __outlined2:
 
 // __outlined3(__outlined3_param0: any) -> any, any, any:
 __outlined3:
-    callsub __outlined11
+    callsub __outlined6
     dup
     loads
     dup
@@ -1099,7 +1128,7 @@ __outlined3:
 
 // __outlined4(__outlined4_param0: any, __outlined4_param1: any) -> any, any, any:
 __outlined4:
-    callsub __outlined12
+    callsub __outlined7
     concat // on error: max array length exceeded
     dup
     len
@@ -1109,21 +1138,8 @@ __outlined4:
     retsub
 
 
-// __outlined5(__outlined5_param0: any) -> any, any, any:
+// __outlined5(__outlined5_param0: any, __outlined5_param1: any, __outlined5_param2: any) -> any:
 __outlined5:
-    callsub __outlined12
-    callsub __outlined11
-    loads
-    dup
-    len
-    intc_0 // 8
-    /
-    dup
-    retsub
-
-
-// __outlined6(__outlined6_param0: any, __outlined6_param1: any, __outlined6_param2: any) -> any:
-__outlined6:
     ==
     assert
     intc_1 // 1
@@ -1133,48 +1149,8 @@ __outlined6:
     retsub
 
 
-// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> any, any:
-__outlined7:
-    dup
-    cover 2
-    intc_0 // 8
-    *
-    extract_uint64
-    retsub
-
-
-// __outlined8(__outlined8_param0: any, __outlined8_param1: any) -> any, any:
-__outlined8:
-    itob
-    dig 1
-    swap
-    stores
-    dup
-    retsub
-
-
-// __outlined9(__outlined9_param0: any, __outlined9_param1: any, __outlined9_param2: any) -> any, any:
-__outlined9:
-    stores
-    dup
-    len
-    intc_0 // 8
-    /
-    retsub
-
-
-// __outlined10() -> any:
-__outlined10:
-    frame_dig 3
-    bz quicksort_window_after_while@22
-    frame_dig 3
-    intc_1 // 1
-    -
-    retsub
-
-
-// __outlined11(__outlined11_param0: any) -> any, any:
-__outlined11:
+// __outlined6(__outlined6_param0: any) -> any, any:
+__outlined6:
     loads
     dup
     len
@@ -1183,8 +1159,8 @@ __outlined11:
     retsub
 
 
-// __outlined12(__outlined12_param0: any) -> any, any, any:
-__outlined12:
+// __outlined7(__outlined7_param0: any) -> any, any, any:
+__outlined7:
     dup
     len
     intc_0 // 8

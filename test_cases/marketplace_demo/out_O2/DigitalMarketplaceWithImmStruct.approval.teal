@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 8 56
+    intcblock 1 0 8 56 50500
     bytecblock 0x6c697374696e6773
     intc_1 // 0
     dupn 4
@@ -28,7 +28,7 @@ main_after_if_else@2:
     err
 
 main_acceptBid_route@14:
-    callsub __outlined13
+    callsub __outlined12
     dup
     bury 7
     txna ApplicationArgs 2
@@ -76,7 +76,7 @@ main_ternary_merge@24:
     txn Sender
     itxn_field Receiver
     itxn_field Amount
-    callsub __outlined28
+    callsub __outlined21
     itxn_begin
     dup
     itxn_field AssetAmount
@@ -85,7 +85,7 @@ main_ternary_merge@24:
     cover 2
     itxn_field AssetReceiver
     uncover 3
-    callsub __outlined15
+    callsub __outlined14
     uncover 3
     extract 8 8
     dig 6
@@ -101,7 +101,11 @@ main_ternary_merge@24:
     uncover 2
     concat
     swap
-    callsub __outlined23
+    itob
+    concat
+    swap
+    itob
+    concat
     dig 7
     swap
     box_put
@@ -119,10 +123,11 @@ main_bid_route@13:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    callsub __outlined14
+    callsub __outlined13
     dup
     bury 8
-    callsub __outlined10
+    txna ApplicationArgs 3
+    callsub __outlined20
     txn GroupIndex
     intc_0 // 1
     -
@@ -158,7 +163,7 @@ main_bid_route@13:
     itxn_begin
     itxn_field Amount
     dig 9
-    callsub __outlined16
+    callsub __outlined15
 
 main_after_if_else@28:
     dig 5
@@ -203,7 +208,11 @@ main_after_if_else@28:
     return
 
 main_withdraw_route@12:
-    callsub __outlined24
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
     callsub __outlined1
     concat
     swap
@@ -231,17 +240,21 @@ main_withdraw_route@12:
     pushint 10
     uncover 3
     expw
-    divmodw
-    popn 2
-    swap
-    callsub __outlined16
-    callsub __outlined25
+    callsub __outlined21
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
     itxn_submit
 
 main_after_if_else@32:
     dig 6
     box_del
-    callsub __outlined25
+    pop
+    itxn_begin
+    txn Sender
+    intc 4 // 50500
+    itxn_field Amount
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -252,24 +265,21 @@ main_after_if_else@32:
     txn Sender
     dig 8
     intc_1 // 0
-    callsub __outlined16
+    callsub __outlined15
     extract_uint64
     itxn_field AssetAmount
     itxn_field AssetReceiver
+    callsub __outlined21
     dig 5
-    callsub __outlined28
     callsub __outlined5
 
 main_buy_route@11:
     txna ApplicationArgs 1
     dup
     len
-    pushint 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    callsub __outlined10
-    txna ApplicationArgs 3
+    callsub __outlined20
     callsub __outlined22
+    btoi
     txn GroupIndex
     intc_0 // 1
     callsub __outlined17
@@ -281,7 +291,7 @@ main_buy_route@11:
     callsub __outlined7
     dup
     callsub __outlined8
-    callsub __outlined11
+    callsub __outlined10
     assert
     dig 5
     gtxns Sender
@@ -316,16 +326,18 @@ main_buy_route@11:
     concat
     uncover 2
     callsub __outlined5
-    callsub __outlined12
+    callsub __outlined11
+    callsub __outlined13
     return
 
 main_setPrice_route@10:
-    callsub __outlined18
-    btoi
+    txna ApplicationArgs 1
+    dup
+    callsub __outlined23
     txna ApplicationArgs 2
     callsub __outlined9
     dup
-    callsub __outlined19
+    callsub __outlined18
     uncover 3
     itob
     concat
@@ -341,28 +353,24 @@ main_setPrice_route@10:
     dup
     extract 48 8
     dig 1
-    extract 56 8
-    dig 2
-    extract 16 32
-    callsub __outlined13
-    uncover 3
-    extract 0 8
+    callsub __outlined20
     uncover 5
+    callsub __outlined22
     itob
     callsub __outlined6
     intc_0 // 1
     return
 
 main_deposit_route@9:
-    txn GroupIndex
-    intc_0 // 1
-    callsub __outlined18
-    txna ApplicationArgs 1
-    dup
+    callsub __outlined23
     len
     intc_2 // 8
     ==
-    callsub __outlined23
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txn Sender
+    dig 2
+    gtxns XferAsset
     itob
     concat
     swap
@@ -401,33 +409,26 @@ main_deposit_route@9:
     concat
     uncover 2
     concat
-    callsub __outlined13
+    callsub __outlined12
     callsub __outlined9
     swap
     concat
     box_put
     intc_0 // 1
-    callsub __outlined22
-    callsub __outlined24
-    callsub __outlined19
     return
 
 main_firstDeposit_route@8:
-    txn GroupIndex
-    pushint 2
-    -
-    dup
-    gtxns TypeEnum
-    intc_0 // pay
-    callsub __outlined22
-    gtxns TypeEnum
-    pushint 4 // axfer
-    ==
-    assert // transaction type is axfer
-    callsub __outlined14
+    callsub __outlined23
+    callsub __outlined13
+    txna ApplicationArgs 1
+    callsub __outlined16
     txna ApplicationArgs 2
     dup
-    callsub __outlined29
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
     dig 3
     gtxns Sender
     txn Sender
@@ -436,7 +437,11 @@ main_firstDeposit_route@8:
     dig 3
     gtxns Receiver
     global CurrentApplicationAddress
-    callsub __outlined23
+    ==
+    assert
+    uncover 3
+    gtxns Amount
+    intc 4 // 50500
     ==
     assert
     txn Sender
@@ -482,8 +487,9 @@ main_firstDeposit_route@8:
     swap
     dig 1
     concat
-    callsub __outlined13
+    callsub __outlined12
     swap
+    callsub __outlined20
     callsub __outlined17
     concat
     box_put
@@ -542,14 +548,14 @@ __outlined1:
     callsub __outlined3
     dup
     bury 8
-    callsub __outlined20
+    callsub __outlined19
 
 
 // __outlined2(__outlined2_param0: any, __outlined2_param1: any, __outlined2_param2: any, __outlined2_param3: any, __outlined2_param4: any, __outlined2_param5: any, __outlined2_param6: any, __outlined2_param7: any, __outlined2_param8: any, __outlined2_param9: any) -> any, any, any, any, any, any, any, any, any, any:
 __outlined2:
     callsub __outlined3
     box_get
-    callsub __outlined20
+    callsub __outlined19
     swap
     dup
     cover 2
@@ -561,7 +567,7 @@ __outlined2:
 __outlined3:
     swap
     concat
-    callsub __outlined20
+    callsub __outlined19
     bury 10
     retsub
 
@@ -579,7 +585,7 @@ __outlined4:
 
 // __outlined5(__outlined5_param0: any) -> void:
 __outlined5:
-    callsub __outlined12
+    callsub __outlined11
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
@@ -607,18 +613,21 @@ __outlined7:
     mulw
     pushint 10
     uncover 3
-    callsub __outlined11
-    callsub __outlined26
+    callsub __outlined10
+    expw
+    divmodw
+    popn 2
+    swap
+    !
     retsub
 
 
 // __outlined8(__outlined8_param0: any, __outlined8_param1: any, __outlined8_param2: any) -> any:
 __outlined8:
-    callsub __outlined11
+    callsub __outlined10
     expw
     divmodw
     popn 2
-    callsub __outlined26
     swap
     !
     assert
@@ -627,7 +636,7 @@ __outlined8:
 
 // __outlined9(__outlined9_param0: any) -> any, any:
 __outlined9:
-    callsub __outlined19
+    callsub __outlined18
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -635,24 +644,21 @@ __outlined9:
     retsub
 
 
-// __outlined10() -> any:
+// __outlined10(__outlined10_param0: any, __outlined10_param1: any, __outlined10_param2: any) -> any, any:
 __outlined10:
-    txna ApplicationArgs 3
-    dup
-    callsub __outlined21
-
-
-// __outlined11(__outlined11_param0: any, __outlined11_param1: any, __outlined11_param2: any) -> any, any:
-__outlined11:
-    callsub __outlined26
+    pushint 10
+    uncover 3
+    expw
+    divmodw
+    popn 2
     swap
     !
     retsub
 
 
-// __outlined12(__outlined12_param0: any) -> any:
-__outlined12:
-    callsub __outlined15
+// __outlined11(__outlined11_param0: any) -> any:
+__outlined11:
+    callsub __outlined14
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
@@ -661,25 +667,32 @@ __outlined12:
     retsub
 
 
-// __outlined13() -> any:
-__outlined13:
-    callsub __outlined18
+// __outlined12() -> any:
+__outlined12:
+    callsub __outlined23
+    dup
     len
-    callsub __outlined21
-    callsub __outlined27
-
-
-// __outlined14() -> any:
-__outlined14:
-    callsub __outlined21
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
     retsub
 
 
-// __outlined15(__outlined15_param0: any) -> void:
-__outlined15:
+// __outlined13() -> any:
+__outlined13:
+    callsub __outlined23
+    callsub __outlined16
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    retsub
+
+
+// __outlined14(__outlined14_param0: any) -> void:
+__outlined14:
     itxn_field XferAsset
     pushint 4 // axfer
     itxn_field TypeEnum
@@ -689,13 +702,27 @@ __outlined15:
     retsub
 
 
-// __outlined16(__outlined16_param0: any) -> void:
-__outlined16:
-    callsub __outlined25
+// __outlined15(__outlined15_param0: any) -> void:
+__outlined15:
+    callsub __outlined21
+    itxn_field Receiver
+    intc_0 // pay
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
     itxn_submit
+    retsub
+
+
+// __outlined16() -> any:
+__outlined16:
+    callsub __outlined22
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     retsub
 
 
@@ -710,21 +737,11 @@ __outlined17:
     retsub
 
 
-// __outlined18() -> any:
+// __outlined18(__outlined18_param0: any, __outlined18_param1: any) -> any, any:
 __outlined18:
-    callsub __outlined24
+    callsub __outlined23
     len
     intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined19(__outlined19_param0: any, __outlined19_param1: any) -> any, any:
-__outlined19:
-    len
-    intc_2 // 8
-    callsub __outlined29
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -732,8 +749,8 @@ __outlined19:
     retsub
 
 
-// __outlined20(__outlined20_param0: any, __outlined20_param1: any, __outlined20_param2: any, __outlined20_param3: any, __outlined20_param4: any, __outlined20_param5: any, __outlined20_param6: any, __outlined20_param7: any, __outlined20_param8: any) -> void:
-__outlined20:
+// __outlined19(__outlined19_param0: any, __outlined19_param1: any, __outlined19_param2: any, __outlined19_param3: any, __outlined19_param4: any, __outlined19_param5: any, __outlined19_param6: any, __outlined19_param7: any, __outlined19_param8: any) -> void:
+__outlined19:
     box_get
     swap
     dup
@@ -743,78 +760,21 @@ __outlined20:
     retsub
 
 
-// __outlined21(__outlined21_param0: any, __outlined21_param1: any) -> void:
-__outlined21:
-    len
-    intc_2 // 8
-    ==
-    callsub __outlined27
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    retsub
-    retsub
-
-
-// __outlined22(__outlined22_param0: any) -> any:
-__outlined22:
-    callsub __outlined27
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    retsub
-
-
-// __outlined23(__outlined23_param0: any, __outlined23_param1: any, __outlined23_param2: any) -> any:
-__outlined23:
-    itob
-    concat
-    swap
-    itob
-    concat
-    retsub
-
-
-// __outlined24() -> any, any:
-__outlined24:
-    txna ApplicationArgs 1
+// __outlined20(__outlined20_param0: any) -> any:
+__outlined20:
+    callsub __outlined23
+    callsub __outlined22
     dup
     len
     intc_2 // 8
     ==
-    retsub
-
-
-// __outlined25(__outlined25_param0: any) -> void:
-__outlined25:
-    itxn_field Receiver
-    intc_0 // pay
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    retsub
-
-
-// __outlined26(__outlined26_param0: any, __outlined26_param1: any, __outlined26_param2: any, __outlined26_param3: any) -> any, any:
-__outlined26:
-    expw
-    divmodw
-    popn 2
-    swap
-    !
-    retsub
-
-
-// __outlined27(__outlined27_param0: any, __outlined27_param1: any) -> void:
-__outlined27:
-    intc_2 // 8
-    ==
     assert // invalid number of bytes for arc4.uint64
     btoi
     retsub
-    retsub
 
 
-// __outlined28() -> void:
-__outlined28:
+// __outlined21() -> void:
+__outlined21:
     intc_0 // pay
     itxn_field TypeEnum
     intc_1 // 0
@@ -823,8 +783,18 @@ __outlined28:
     retsub
 
 
-// __outlined29(__outlined29_param0: any, __outlined29_param1: any) -> any:
-__outlined29:
+// __outlined22(__outlined22_param0: any) -> any:
+__outlined22:
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
+
+
+// __outlined23(__outlined23_param0: any, __outlined23_param1: any) -> any:
+__outlined23:
     len
     intc_2 // 8
     ==

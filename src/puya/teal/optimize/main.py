@@ -121,7 +121,7 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
             return matches
 
         win_matches = get_matches()
-        if len(win_matches) > 1:
+        if wsize + 3 * len(win_matches) + 1 < wsize * len(win_matches):
             for block, i in win_matches:
                 callsub = CallSub(
                     target=sub_name,

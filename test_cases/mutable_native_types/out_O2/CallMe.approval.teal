@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 16 2
-    bytecblock "dynamic_struct" "fixed_arr" "native_arr" 0x151f7c75 "fixed_struct" "nested_struct"
+    bytecblock 0x151f7c75 "fixed_struct" "dynamic_struct" "fixed_arr" "native_arr" "nested_struct"
     txn NumAppArgs
     bz main___algopy_default_create@22
     pushbytes 0x24378d3c // method "delete()void"
@@ -22,7 +22,7 @@ main:
 
 main_log_it_route@18:
     intc_0 // 0
-    bytec 4 // "fixed_struct"
+    bytec_1 // "fixed_struct"
     app_global_get_ex
     assert // check self.fixed_struct exists
     log
@@ -32,17 +32,17 @@ main_log_it_route@18:
     assert // check self.nested_struct exists
     log
     intc_0 // 0
-    bytec_0 // "dynamic_struct"
+    bytec_2 // "dynamic_struct"
     app_global_get_ex
     assert // check self.dynamic_struct exists
     log
     intc_0 // 0
-    bytec_1 // "fixed_arr"
+    bytec_3 // "fixed_arr"
     app_global_get_ex
     assert // check self.fixed_arr exists
     log
     intc_0 // 0
-    bytec_2 // "native_arr"
+    bytec 4 // "native_arr"
     app_global_get_ex
     assert // check self.native_arr exists
     log
@@ -51,7 +51,7 @@ main_log_it_route@18:
 
 main_native_arr_ret_route@17:
     intc_0 // 0
-    bytec_2 // "native_arr"
+    bytec 4 // "native_arr"
     app_global_get_ex
     assert // check self.native_arr exists
     callsub __outlined0
@@ -69,7 +69,7 @@ main_native_arr_arg_route@16:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
-    bytec_2 // "native_arr"
+    bytec 4 // "native_arr"
     swap
     app_global_put
     intc_1 // 1
@@ -77,10 +77,10 @@ main_native_arr_arg_route@16:
 
 main_fixed_arr_ret_route@15:
     intc_0 // 0
-    bytec_1 // "fixed_arr"
+    bytec_3 // "fixed_arr"
     app_global_get_ex
     assert // check self.fixed_arr exists
-    bytec_3 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -95,7 +95,7 @@ main_fixed_arr_arg_route@14:
     pushint 48
     ==
     assert // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
-    bytec_1 // "fixed_arr"
+    bytec_3 // "fixed_arr"
     swap
     app_global_put
     intc_1 // 1
@@ -103,7 +103,7 @@ main_fixed_arr_arg_route@14:
 
 main_dynamic_struct_ret_route@13:
     intc_0 // 0
-    bytec_0 // "dynamic_struct"
+    bytec_2 // "dynamic_struct"
     callsub __outlined0
     intc_1 // 1
     return
@@ -163,7 +163,7 @@ main_dynamic_struct_arg_route@12:
     +
     ==
     assert // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
-    bytec_0 // "dynamic_struct"
+    bytec_2 // "dynamic_struct"
     swap
     app_global_put
     intc_1 // 1
@@ -173,7 +173,11 @@ main_nested_struct_ret_route@11:
     callsub __outlined0
     app_global_get_ex
     assert // check self.nested_struct exists
-    callsub __outlined1
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
     return
 
 main_nested_struct_arg_route@10:
@@ -190,8 +194,12 @@ main_nested_struct_arg_route@10:
     return
 
 main_fixed_struct_ret_route@9:
-    callsub __outlined1
-    bytec_3 // 0x151f7c75
+    callsub __outlined0
+    intc_0 // 0
+    bytec_1 // "fixed_struct"
+    app_global_get_ex
+    assert // check self.fixed_struct exists
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -205,7 +213,7 @@ main_fixed_struct_arg_route@8:
     intc_2 // 16
     ==
     assert // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct
-    bytec 4 // "fixed_struct"
+    bytec_1 // "fixed_struct"
     swap
     app_global_put
     intc_1 // 1
@@ -230,19 +238,10 @@ main___algopy_default_create@22:
 
 // __outlined0(__outlined0_param0: any) -> void:
 __outlined0:
-    callsub __outlined1
-    concat
-    log
-    intc_1 // 1
-    return
-    retsub
-
-
-// __outlined1(__outlined1_param0: any) -> any:
-__outlined1:
-    bytec_3 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
+    return
     retsub

@@ -69,7 +69,11 @@ main_mutate_local_route@11:
     return
 
 main_mutate_global_route@10:
-    callsub __outlined4
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
     assert // invalid number of bytes for arc4.uint64
     intc_0 // 0
     bytec_3 // "glob"
@@ -111,7 +115,6 @@ main_mutate_box_route@9:
     itob
     callsub __outlined3
     pop
-    callsub __outlined4
     bytec_2 // "box"
     swap
     box_put
@@ -230,19 +233,10 @@ __outlined2:
 
 // __outlined3() -> any:
 __outlined3:
-    callsub __outlined4
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined4() -> any, any:
-__outlined4:
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
+    assert // invalid number of bytes for arc4.uint64
     retsub

@@ -77,7 +77,7 @@ main_logs_are_equal_route@23:
     cover 2
     callsub __outlined0
     callsub __outlined18
-    callsub __outlined26
+    callsub __outlined22
     return
 
 main_return_args_after_14th_route@22:
@@ -422,9 +422,13 @@ main_echo_resource_by_value_route@19:
     callsub __outlined12
     txna ApplicationArgs 2
     dup
-    callsub __outlined25
-    txna ApplicationArgs 3
     callsub __outlined20
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub __outlined6
     callsub __outlined17
     assert // expected application to be passed by value
@@ -468,12 +472,12 @@ main_echo_native_biguint_route@17:
     pushint 64
     callsub __outlined18
     pushint 64
-    callsub __outlined26
+    callsub __outlined22
     bytec_0 // 0x151f7c75
-    callsub __outlined27
+    callsub __outlined23
 
 main_echo_native_uint64_route@16:
-    callsub __outlined26
+    callsub __outlined22
     concat
     log
     intc_0 // 1
@@ -491,10 +495,14 @@ main_echo_native_string_route@14:
     txna ApplicationArgs 1
     dup
     intc_2 // 0
-    callsub __outlined21
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
     callsub __outlined3
     itob
-    callsub __outlined27
+    callsub __outlined23
     swap
     concat
     log
@@ -507,14 +515,17 @@ main_log_route@13:
     len
     pushint 32
     ==
-    callsub __outlined20
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     log
     intc_0 // 1
     return
 
 main_log_route@12:
-    callsub __outlined22
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
     assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
@@ -529,8 +540,8 @@ main_log_route@12:
     callsub __outlined17
     assert // application exists
     concat
-    log
     callsub __outlined20
+    log
     intc_0 // 1
     return
 
@@ -694,7 +705,11 @@ __outlined3:
     bytec_0 // 0x151f7c75
     swap
     callsub __outlined9
-    callsub __outlined23
+    concat
+    log
+    intc_0 // 1
+    return
+    retsub
 
 
 // __outlined4() -> any:
@@ -703,18 +718,14 @@ __outlined4:
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     callsub __outlined14
-    +
-    callsub __outlined24
+    callsub __outlined21
+    retsub
 
 
 // __outlined5(__outlined5_param0: any) -> any:
 __outlined5:
     callsub __outlined7
-    dup
-    intc_2 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    callsub __outlined8
+    callsub __outlined21
     +
     dig 1
     len
@@ -734,7 +745,6 @@ __outlined6:
 __outlined7:
     callsub __outlined14
     dig 1
-    callsub __outlined24
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
@@ -748,12 +758,7 @@ __outlined8:
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
-    dig 1
-    len
-    ==
     callsub __outlined21
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
     retsub
 
 
@@ -773,7 +778,7 @@ __outlined9:
 
 // __outlined10(__outlined10_param0: any, __outlined10_param1: any, __outlined10_param2: any) -> any:
 __outlined10:
-    callsub __outlined26
+    callsub __outlined22
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -797,18 +802,13 @@ __outlined12:
     callsub __outlined16
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    callsub __outlined22
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined20
     retsub
 
 
 // __outlined13(__outlined13_param0: any, __outlined13_param1: any) -> any:
 __outlined13:
-    callsub __outlined26
+    callsub __outlined22
     swap
     concat
     bytec_0 // 0x151f7c75
@@ -821,7 +821,11 @@ __outlined13:
 
 // __outlined14(__outlined14_param0: any, __outlined14_param1: any, __outlined14_param2: any) -> any:
 __outlined14:
-    callsub __outlined24
+    callsub __outlined21
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
@@ -830,10 +834,8 @@ __outlined14:
 
 // __outlined15(__outlined15_param0: any, __outlined15_param1: any) -> void:
 __outlined15:
-    swap
-    concat
-    log
     callsub __outlined23
+    log
     intc_0 // 1
     return
     retsub
@@ -842,7 +844,8 @@ __outlined15:
 
 // __outlined16() -> any:
 __outlined16:
-    callsub __outlined22
+    txna ApplicationArgs 1
+    dup
     len
     intc_1 // 8
     ==
@@ -852,10 +855,10 @@ __outlined16:
 
 // __outlined17(__outlined17_param0: any) -> any:
 __outlined17:
+    callsub __outlined20
     dup
     len
     intc_1 // 8
-    callsub __outlined25
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -865,6 +868,11 @@ __outlined17:
 // __outlined18(__outlined18_param0: any) -> void:
 __outlined18:
     callsub __outlined23
+    callsub __outlined22
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
     intc_0 // 1
     return
     retsub
@@ -881,58 +889,8 @@ __outlined19:
     retsub
 
 
-// __outlined20(__outlined20_param0: any) -> any:
+// __outlined20(__outlined20_param0: any, __outlined20_param1: any) -> any:
 __outlined20:
-    dup
-    len
-    pushint 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    retsub
-
-
-// __outlined21(__outlined21_param0: any, __outlined21_param1: any, __outlined21_param2: any) -> any, any, any:
-__outlined21:
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
-    len
-    retsub
-
-
-// __outlined22() -> any, any:
-__outlined22:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_1 // 8
-    ==
-    retsub
-
-
-// __outlined23(__outlined23_param0: any, __outlined23_param1: any) -> void:
-__outlined23:
-    concat
-    log
-    intc_0 // 1
-    return
-    retsub
-    retsub
-
-
-// __outlined24(__outlined24_param0: any, __outlined24_param1: any) -> void:
-__outlined24:
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    retsub
-    retsub
-
-
-// __outlined25(__outlined25_param0: any, __outlined25_param1: any) -> any:
-__outlined25:
     len
     intc_1 // 8
     ==
@@ -941,8 +899,18 @@ __outlined25:
     retsub
 
 
-// __outlined26(__outlined26_param0: any) -> any:
-__outlined26:
+// __outlined21(__outlined21_param0: any, __outlined21_param1: any, __outlined21_param2: any) -> any:
+__outlined21:
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    retsub
+
+
+// __outlined22(__outlined22_param0: any) -> any:
+__outlined22:
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -951,8 +919,8 @@ __outlined26:
     retsub
 
 
-// __outlined27(__outlined27_param0: any, __outlined27_param1: any) -> void:
-__outlined27:
+// __outlined23(__outlined23_param0: any, __outlined23_param1: any) -> void:
+__outlined23:
     swap
     concat
     log

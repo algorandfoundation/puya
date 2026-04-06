@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 8 16
+    intcblock 0 1 16 8
     bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" 0x0000 "box_map"
     intc_0 // 0
     dup
@@ -82,7 +82,7 @@ main_test_match_struct_route@18:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 16
+    intc_2 // 16
     ==
     assert // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct
     pushbytes 0x00000000000000010000000000000002
@@ -107,7 +107,7 @@ main_test_arr_route@17:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    intc_3 // 16
+    intc_2 // 16
     *
     pushint 2
     +
@@ -122,7 +122,7 @@ main_test_arr_route@17:
     extract 2 0
     dup
     len
-    intc_3 // 16
+    intc_2 // 16
     /
     dig 2
     dig 1
@@ -240,7 +240,7 @@ main_after_for@35:
     assert // expected sum to be 21
     dup
     len
-    intc_3 // 16
+    intc_2 // 16
     -
     dig 1
     intc_0 // 0
@@ -285,7 +285,7 @@ main_after_for@35:
     pushbytes "arr"
     dig 1
     callsub __outlined3
-    callsub __outlined5
+    callsub __outlined4
     return
 
 main_calculate_sum_route@16:
@@ -301,14 +301,14 @@ main_calculate_sum_route@16:
     intc_0 // 0
     extract_uint64
     uncover 2
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     +
     dig 1
     intc_0 // 0
     extract_uint64
     uncover 2
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     +
     +
@@ -325,7 +325,7 @@ main_calculate_sum_route@16:
     intc_0 // 0
     extract_uint64
     swap
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     cover 2
     +
@@ -333,7 +333,11 @@ main_calculate_sum_route@16:
 
 main_after_if_else@39:
     callsub __outlined3
-    callsub __outlined7
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
 
 main_tup_return_route@15:
     callsub __outlined3
@@ -341,7 +345,7 @@ main_tup_return_route@15:
     bytec_3 // 0x151f7c75
     swap
     concat
-    callsub __outlined5
+    callsub __outlined4
     log
     intc_1 // 1
     return
@@ -355,7 +359,7 @@ main_struct_return_route@14:
     extract 0 16
     bytec_3 // 0x151f7c75
     swap
-    callsub __outlined5
+    callsub __outlined4
     concat
     log
     intc_1 // 1
@@ -366,7 +370,7 @@ main_struct_arg_route@13:
     txna ApplicationArgs 2
     dup
     len
-    intc_3 // 16
+    intc_2 // 16
     ==
     assert // invalid number of bytes for test_cases.mutable_native_types.contract.FixedStruct
     intc_0 // 0
@@ -490,12 +494,12 @@ main_create_storage_route@10:
     return
 
 main_increment_payment_route@9:
-    callsub __outlined4
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 2
+    txna ApplicationArgs 1
     dup
-    callsub __outlined6
+    callsub __outlined5
+    txna ApplicationArgs 2
+    callsub __outlined5
+    btoi
     intc_0 // 0
     bytec_1 // "num_payments"
     app_global_get_ex
@@ -589,9 +593,9 @@ sum_frozen_arr_for_header@1:
     frame_dig 2
     dup
     cover 2
-    intc_3 // 16
+    intc_2 // 16
     *
-    intc_3 // 16
+    intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
@@ -599,7 +603,7 @@ sum_frozen_arr_for_header@1:
     frame_dig 0
     +
     swap
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     +
     frame_bury 0
@@ -625,20 +629,16 @@ __outlined0:
     callsub __outlined1
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    callsub __outlined4
-    assert // invalid number of bytes for arc4.uint64
-    btoi
+    callsub __outlined5
     retsub
 
 
 // __outlined1() -> any:
 __outlined1:
-    callsub __outlined4
+    txna ApplicationArgs 1
+    dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     retsub
@@ -646,10 +646,10 @@ __outlined1:
 
 // __outlined2(__outlined2_param0: any) -> any:
 __outlined2:
+    callsub __outlined5
     dup
     len
-    intc_2 // 8
-    callsub __outlined6
+    intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -658,29 +658,18 @@ __outlined2:
 
 // __outlined3(__outlined3_param0: any) -> void:
 __outlined3:
-    callsub __outlined5
+    callsub __outlined4
     bytec_3 // 0x151f7c75
     swap
     concat
     log
-    callsub __outlined7
     intc_1 // 1
     return
     retsub
 
 
-// __outlined4() -> any, any:
+// __outlined4(__outlined4_param0: any) -> any:
 __outlined4:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    retsub
-
-
-// __outlined5(__outlined5_param0: any) -> any:
-__outlined5:
     bytec_3 // 0x151f7c75
     swap
     concat
@@ -689,21 +678,11 @@ __outlined5:
     retsub
 
 
-// __outlined6(__outlined6_param0: any, __outlined6_param1: any) -> any:
-__outlined6:
+// __outlined5(__outlined5_param0: any, __outlined5_param1: any) -> any:
+__outlined5:
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    retsub
-
-
-// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> void:
-__outlined7:
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
     retsub

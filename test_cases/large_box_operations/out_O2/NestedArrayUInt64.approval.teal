@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 32 1 22
+    intcblock 2 32 1 22 4096
     bytecblock "box"
     txn NumAppArgs
     bz main___algopy_default_create@16
@@ -49,7 +49,7 @@ main_set_route@11:
     intc_1 // 32
     ==
     assert // invalid number of bytes for test_cases.large_box_operations.nested.Parent
-    callsub __outlined3
+    callsub __outlined2
     dig 2
     >
     assert // index out of bounds
@@ -68,7 +68,7 @@ main_set_route@11:
 main_get_route@10:
     txna ApplicationArgs 1
     dup
-    callsub __outlined3
+    callsub __outlined2
     bytec_0 // "box"
     intc_3 // 22
     intc_0 // 2
@@ -90,9 +90,13 @@ main_pop_route@9:
     bytec_0 // "box"
     intc_3 // 22
     intc_0 // 2
-    callsub __outlined3
-    box_extract // on error: index out of bounds
+    box_extract
+    btoi
+    callsub __outlined0
+    intc_1 // 32
     callsub __outlined2
+    box_extract
+    btoi
     intc_1 // 32
     -
     itob
@@ -117,7 +121,7 @@ main_pop_route@9:
     box_len
     pop
     intc_1 // 32
-    callsub __outlined3
+    callsub __outlined2
     swap
     concat
     log
@@ -178,7 +182,11 @@ main_bootstrap_route@6:
     bytec_0 // "box"
     box_del
     pop
-    callsub __outlined2
+    bytec_0 // "box"
+    pushbytes 0x0004001800000000000000010012000000000000000200000000
+    box_put
+    intc 4 // 4096
+    bzero
     bytec_0 // "box"
     intc_0 // 2
     dup
@@ -188,7 +196,7 @@ main_bootstrap_route@6:
     swap
     uncover 2
     intc_2 // 1
-    pushint 4096
+    intc 4 // 4096
     callsub box_dynamic_array_concat_fixed
     pushbytes 0x0000
     callsub verify
@@ -290,7 +298,10 @@ verify:
     box_extract // on error: index out of bounds
     btoi
     intc_2 // 1
-    callsub __outlined2
+    ==
+    assert
+    bytec_0 // "box"
+    pushints 14 8
     box_extract // on error: index out of bounds
     btoi
     intc_0 // 2
@@ -298,7 +309,7 @@ verify:
     assert
     bytec_0 // "box"
     intc_0 // 2
-    callsub __outlined3
+    callsub __outlined2
     intc_0 // 2
     box_extract
     btoi
@@ -308,7 +319,7 @@ verify:
     bytec_0 // "box"
     box_len
     pop
-    pushint 4096
+    intc 4 // 4096
     >
     assert // expected box length >4096
     frame_dig -1
@@ -338,16 +349,6 @@ __outlined1:
 
 // __outlined2() -> any:
 __outlined2:
-    bytec_0 // "box"
-    intc_0 // 2
-    dup
-    box_extract
-    btoi
-    retsub
-
-
-// __outlined3() -> any:
-__outlined3:
     bytec_0 // "box"
     intc_3 // 22
     intc_0 // 2

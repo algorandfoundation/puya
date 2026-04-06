@@ -168,7 +168,12 @@ main_start_auction_route@7:
     callsub __outlined1
     btoi
     txna ApplicationArgs 2
-    callsub __outlined2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
     txn GroupIndex
     intc_1 // 1
     -
@@ -210,7 +215,11 @@ main_start_auction_route@7:
 
 main_opt_into_asset_route@6:
     txna ApplicationArgs 1
-    callsub __outlined3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txn Sender
     global CreatorAddress
@@ -226,7 +235,6 @@ main_opt_into_asset_route@6:
     intc_3 // axfer
     callsub __outlined1
     itxn_field TypeEnum
-    callsub __outlined2
     intc_0 // 0
     itxn_field Fee
     itxn_submit
@@ -256,27 +264,6 @@ __outlined0:
 // __outlined1() -> any:
 __outlined1:
     txna ApplicationArgs 1
-    dup
-    len
-    callsub __outlined3
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined2(__outlined2_param0: any) -> any:
-__outlined2:
-    callsub __outlined3
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    retsub
-
-
-// __outlined3(__outlined3_param0: any) -> any:
-__outlined3:
     dup
     len
     intc_2 // 8

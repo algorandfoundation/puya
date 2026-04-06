@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 2
-    bytecblock 0x151f7c75 0x9bf81913 0x0000000000000001000a00056c6f672031 "echo: s1" 0x00026231 0x16e03919 0x01 0x48142d5e 0xb862ee19 0xab271ce4 0x03 0x00027331 0x000000000000002a 0x00086563686f3a207332 0x0000000000000003 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0xb4b4334e 0x0f101112deadbeef14
+    bytecblock 0x151f7c75 0x0000000000000001000a00056c6f672031 "echo: s1" 0x00026231 0x01 0x48142d5e 0xb862ee19 0xab271ce4 0x16e03919 0x00027331 0x9bf81913 0x000000000000002a 0x00086563686f3a207332 0x0000000000000003 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0xb4b4334e 0x0f101112deadbeef14
     txn NumAppArgs
     bz main___algopy_default_create@26
     txn OnCompletion
@@ -18,7 +18,7 @@ main:
     err
 
 main_test_resource_encoding_route@22:
-    callsub __outlined63
+    callsub __outlined62
     txna ApplicationArgs 2
     callsub __outlined50
     global CurrentApplicationID
@@ -32,11 +32,11 @@ main_test_resource_encoding_route@22:
     itxn_field Applications
     dup
     callsub __outlined51
-    bytec 6 // 0x01
+    bytec 4 // 0x01
     callsub __outlined10
     dig 5
     ==
-    callsub __outlined65
+    callsub __outlined64
     ==
     &&
     assert // expected echo to return same resources
@@ -45,7 +45,7 @@ main_test_resource_encoding_route@22:
     itob
     dig 5
     itxn_field ApplicationID
-    bytec 7 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
+    bytec 5 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     dig 4
     itxn_field ApplicationArgs
@@ -63,7 +63,7 @@ main_test_resource_encoding_route@22:
     callsub __outlined0
     dig 5
     itxn_field ApplicationID
-    bytec 7 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
+    bytec 5 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     dig 4
     itxn_field ApplicationArgs
@@ -76,7 +76,7 @@ main_test_resource_encoding_route@22:
     itxn_field Assets
     dig 2
     callsub __outlined51
-    bytec 6 // 0x01
+    bytec 4 // 0x01
     itxn_field ApplicationArgs
     callsub __outlined10
     uncover 2
@@ -94,7 +94,7 @@ main_test_resource_encoding_route@22:
     itxn_begin
     uncover 5
     itxn_field ApplicationID
-    bytec 7 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
+    bytec 5 // method "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     uncover 4
     itxn_field ApplicationArgs
@@ -127,14 +127,14 @@ main_test_arc4_struct_route@21:
     pushint 10
     ==
     assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    callsub __outlined66
+    callsub __outlined65
     pushint 12
     +
     ==
     assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
     itxn LastLog
     swap
-    bytec_2 // 0x0000000000000001000a00056c6f672031
+    bytec_1 // 0x0000000000000001000a00056c6f672031
     ==
     assert // expected output to match input
     callsub __outlined43
@@ -144,23 +144,23 @@ main_test_arc4_struct_route@21:
     dup
     pushint 10
     ==
-    callsub __outlined66
+    callsub __outlined65
     extract_uint16 // on error: invalid array length header
     pushint 12
     +
     ==
     assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
-    bytec_2 // 0x0000000000000001000a00056c6f672031
+    bytec_1 // 0x0000000000000001000a00056c6f672031
     ==
     assert // expected output to match input
     intc_1 // 1
     return
 
 main_test_named_tuples_route@20:
-    callsub __outlined76
+    callsub __outlined73
     btoi
     callsub __outlined18
-    callsub __outlined80
+    callsub __outlined77
     intc_1 // 1
     ==
     assert // invalid number of bytes for bool
@@ -173,12 +173,12 @@ main_test_named_tuples_route@20:
     itxn_field ApplicationArgs
     pushbytes 0x0000000000000002000a00056c6f672032
     itxn_field ApplicationArgs
-    bytec_2 // 0x0000000000000001000a00056c6f672031
+    bytec_1 // 0x0000000000000001000a00056c6f672031
     callsub __outlined24
     intc_1 // 1
     ==
     assert // invalid number of bytes for bool
-    callsub __outlined63
+    callsub __outlined62
     intc_0 // 0
     getbit
     callsub __outlined18
@@ -189,19 +189,19 @@ main_test_named_tuples_route@20:
 
 main_test_no_args_route@19:
     callsub __outlined35
-    bytec 8 // method "no_args()uint64"
+    bytec 6 // method "no_args()uint64"
     callsub __outlined16
     pushint 42
-    callsub __outlined97
-    bytec 8 // method "no_args()uint64"
+    callsub __outlined81
+    bytec 6 // method "no_args()uint64"
     callsub __outlined19
     assert // invalid number of bytes for arc4.uint64
-    bytec 12 // 0x000000000000002a
+    bytec 11 // 0x000000000000002a
     b==
     assert
     itxn_begin
     itxn_field ApplicationID
-    bytec 8 // method "no_args()uint64"
+    bytec 6 // method "no_args()uint64"
     callsub __outlined29
     len
     intc_2 // 8
@@ -211,7 +211,7 @@ main_test_no_args_route@19:
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    bytec 12 // 0x000000000000002a
+    bytec 11 // 0x000000000000002a
     b==
     assert
     intc_1 // 1
@@ -220,7 +220,7 @@ main_test_no_args_route@19:
 main_test_nested_tuples_route@18:
     txna ApplicationArgs 1
     callsub __outlined40
-    bytec 9 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    bytec 7 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     itxn_field ApplicationArgs
     pushbytes 0x00040010000400080002733100027332000000000000000100000000000000020012000133
     callsub __outlined1
@@ -230,13 +230,21 @@ main_test_nested_tuples_route@18:
     assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
     cover 2
     cover 3
-    callsub __outlined67
+    callsub __outlined66
     pushint 4
     +
     dig 3
-    callsub __outlined84
+    intc_3 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
     assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
-    callsub __outlined85
+    dig 4
+    dig 1
+    dig 5
+    substring3
+    dup
     len
     dig 1
     pushint 16
@@ -247,24 +255,24 @@ main_test_nested_tuples_route@18:
     uncover 4
     extract 2 0
     uncover 4
-    bytec_3 // "echo: s1"
+    bytec_2 // "echo: s1"
     ==
     assert
     uncover 3
-    bytec 13 // 0x00086563686f3a207332
+    bytec 12 // 0x00086563686f3a207332
     ==
     assert
     uncover 2
     intc_3 // 2
     ==
     assert
-    callsub __outlined97
+    callsub __outlined81
     ==
     assert
     itxn_begin
     dup
     itxn_field ApplicationID
-    bytec 9 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    bytec 7 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     itxn_field ApplicationArgs
     callsub __outlined1
     callsub __outlined2
@@ -310,11 +318,11 @@ main_test_nested_tuples_route@18:
     uncover 4
     extract 2 0
     uncover 4
-    bytec_3 // "echo: s1"
+    bytec_2 // "echo: s1"
     ==
     assert
     uncover 3
-    bytec 13 // 0x00086563686f3a207332
+    bytec 12 // 0x00086563686f3a207332
     ==
     assert
     uncover 2
@@ -322,7 +330,7 @@ main_test_nested_tuples_route@18:
     ==
     assert
     swap
-    bytec 14 // 0x0000000000000003
+    bytec 13 // 0x0000000000000003
     b==
     assert
     pushbytes 0x6563686f3a2033
@@ -330,7 +338,7 @@ main_test_nested_tuples_route@18:
     assert
     itxn_begin
     itxn_field ApplicationID
-    bytec 9 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
+    bytec 7 // method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
     callsub __outlined1
     callsub __outlined3
     extract 8 8
@@ -364,13 +372,13 @@ main_test_native_tuple_method_ref_route@17:
     intc_1 // 1
     itob
     dig 1
-    callsub __outlined59
+    callsub __outlined58
     dup
     callsub __outlined25
     callsub __outlined5
     callsub __outlined34
     dig 3
-    bytec_3 // "echo: s1"
+    bytec_2 // "echo: s1"
     ==
     assert
     dig 2
@@ -382,32 +390,40 @@ main_test_native_tuple_method_ref_route@17:
     ==
     assert
     dup
-    bytec 10 // 0x03
+    pushbytes 0x03
     b==
     assert
     itxn_begin
-    callsub __outlined59
+    callsub __outlined58
     itxn_field ApplicationArgs
     uncover 4
     callsub __outlined11
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
     callsub __outlined4
-    callsub __outlined65
-    callsub __outlined86
+    callsub __outlined64
+    uncover 2
+    dig 4
+    ==
+    &&
+    swap
     dig 2
     b==
     &&
     assert // expected native arguments to give the same result
-    callsub __outlined59
-    bytec 4 // 0x00026231
+    callsub __outlined58
+    bytec_3 // 0x00026231
     itxn_field ApplicationArgs
     callsub __outlined11
     pushint 76
     ==
     callsub __outlined4
-    callsub __outlined65
-    callsub __outlined86
+    callsub __outlined64
+    &&
+    uncover 2
+    dig 4
+    ==
+    &&
     swap
     dig 2
     b==
@@ -415,12 +431,7 @@ main_test_native_tuple_method_ref_route@17:
     assert // expected arc4 arguments to give the same result
     itxn_begin
     uncover 4
-    itxn_field ApplicationID
-    bytec 5 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-    itxn_field ApplicationArgs
-    bytec 11 // 0x00027331
-    itxn_field ApplicationArgs
-    bytec 4 // 0x00026231
+    callsub __outlined74
     callsub __outlined11
     dup
     pushint 76
@@ -446,10 +457,10 @@ main_test_native_tuple_method_ref_route@17:
     return
 
 main_test_native_tuple_route@16:
-    callsub __outlined98
+    callsub __outlined82
     callsub __outlined25
     itxn_field ApplicationArgs
-    bytec 15 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    bytec 14 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     callsub __outlined31
     callsub __outlined6
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
@@ -462,8 +473,8 @@ main_test_native_tuple_route@16:
     swap
     extract 2 0
     dup
-    bytec_3 // "echo: s1"
-    callsub __outlined59
+    bytec_2 // "echo: s1"
+    callsub __outlined58
     assert
     uncover 4
     intc_2 // 8
@@ -472,23 +483,27 @@ main_test_native_tuple_route@16:
     intc_3 // 2
     ==
     assert
-    dig 3
-    bytec 10 // 0x03
-    b==
-    assert
-    itxn_begin
-    dig 6
+    callsub __outlined74
     itxn_field ApplicationID
-    callsub __outlined68
+    bytec 8 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    bytec 9 // 0x00027331
+    itxn_field ApplicationArgs
+    bytec_3 // 0x00026231
+    itxn_field ApplicationArgs
     uncover 5
     itxn_field ApplicationArgs
-    bytec 15 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    bytec 14 // 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
     callsub __outlined15
     pushint 76
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    callsub __outlined67
-    callsub __outlined87
+    callsub __outlined66
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
     +
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
@@ -498,22 +513,26 @@ main_test_native_tuple_route@16:
     itxn_begin
     dig 5
     itxn_field ApplicationID
-    bytec 5 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-    callsub __outlined66
+    bytec 8 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    callsub __outlined65
     itxn_field ApplicationArgs
     callsub __outlined15
     dup
     pushint 76
     ==
     assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    callsub __outlined88
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     callsub __outlined34
     cover 3
     substring3
     extract 2 0
     swap
-    callsub __outlined69
+    callsub __outlined67
     uncover 6
     uncover 4
     ==
@@ -534,7 +553,7 @@ main_test_native_biguint_route@15:
     callsub __outlined41
     callsub __outlined12
     dup
-    bytec 10 // 0x03
+    pushbytes 0x03
     b==
     assert
     itxn_begin
@@ -564,7 +583,7 @@ main_test_native_uint64_route@14:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    callsub __outlined98
+    callsub __outlined82
     callsub __outlined16
     ==
     assert
@@ -597,7 +616,7 @@ main_test_native_bytes_route@13:
 main_test_native_string_route@12:
     txna ApplicationArgs 1
     dup
-    callsub __outlined61
+    callsub __outlined60
     callsub __outlined41
     ==
     assert
@@ -616,7 +635,7 @@ main_test_account_to_address_route@11:
     dup
     len
     intc_2 // 8
-    callsub __outlined63
+    callsub __outlined62
     itxn_submit
     itxn LastLog
     global CurrentApplicationAddress
@@ -627,9 +646,9 @@ main_test_account_to_address_route@11:
 
 main_test_ref_types_route@10:
     txna ApplicationArgs 1
-    callsub __outlined70
+    callsub __outlined68
     btoi
-    callsub __outlined70
+    callsub __outlined68
     dup
     btoi
     itxn_begin
@@ -642,7 +661,7 @@ main_test_ref_types_route@10:
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     uncover 2
-    callsub __outlined62
+    callsub __outlined61
     swap
     asset_params_get AssetName
     assert // asset exists
@@ -663,24 +682,24 @@ main_test_void_route@9:
     txna ApplicationArgs 1
     dup
     callsub __outlined45
-    bytec 16 // method "log(string)void"
+    bytec 15 // method "log(string)void"
     itxn_field ApplicationArgs
     pushbytes 0x0006576f726c6431
     itxn_field ApplicationArgs
     pushint 6 // appl
-    callsub __outlined62
+    callsub __outlined61
     assert
     itxn_begin
     dup
     itxn_field ApplicationID
-    bytec 16 // method "log(string)void"
+    bytec 15 // method "log(string)void"
     itxn_field ApplicationArgs
     pushbytes 0x0006576f726c6432
-    callsub __outlined81
+    callsub __outlined78
     itxn LastLog
     pushbytes 0x576f726c6432
     callsub __outlined41
-    callsub __outlined82
+    callsub __outlined79
     callsub __outlined35
     itxn_field TypeEnum
     intc_0 // 0
@@ -692,7 +711,7 @@ main_test_void_route@9:
     ==
     assert
     intc_1 // 1
-    callsub __outlined62
+    callsub __outlined61
     return
 
 main_test_15plus_args_route@8:
@@ -705,7 +724,7 @@ main_test_15plus_args_route@8:
     itxn_field ApplicationArgs
     pushbytes 0x0000000000000002
     itxn_field ApplicationArgs
-    bytec 14 // 0x0000000000000003
+    bytec 13 // 0x0000000000000003
     itxn_field ApplicationArgs
     pushbytes 0x0000000000000004
     itxn_field ApplicationArgs
@@ -722,12 +741,12 @@ main_test_15plus_args_route@8:
     itxn_field ApplicationArgs
     pushbytes 0x000000000000000e
     itxn_field ApplicationArgs
-    bytec 17 // 0x0f101112deadbeef14
+    bytec 16 // 0x0f101112deadbeef14
     callsub __outlined13
     callsub __outlined42
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 6 0
-    bytec 17 // 0x0f101112deadbeef14
+    bytec 16 // 0x0f101112deadbeef14
     ==
     assert
     intc_1 // 1
@@ -735,32 +754,36 @@ main_test_15plus_args_route@8:
 
 main_test_arg_conversion_route@7:
     txna ApplicationArgs 1
-    callsub __outlined81
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    callsub __outlined89
+    callsub __outlined78
+    callsub __outlined83
+    itxn_submit
+    itxn LastLog
     pushbytes 0x636f6e76657274656431
     ==
     assert
     itxn_begin
-    callsub __outlined81
-    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
-    callsub __outlined99
+    callsub __outlined78
+    callsub __outlined83
+    itxn_field Fee
     itxn_submit
-    callsub __outlined62
+    callsub __outlined61
     callsub __outlined45
     itxn LastLog
     pushbytes 0x54727565
     ==
-    callsub __outlined62
-    callsub __outlined82
+    callsub __outlined61
+    callsub __outlined79
     assert
     intc_1 // 1
     return
 
 main_test_method_overload_route@6:
     callsub __outlined41
-    callsub __outlined90
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec 10 // method "echo(string)string"
+    itxn_field ApplicationArgs
     pushbytes 0x000e7479706564202b2069676e6f7265
     callsub __outlined17
     swap
@@ -783,7 +806,7 @@ main_test_method_overload_route@6:
     assert
     itxn_begin
     itxn_field ApplicationID
-    bytec_1 // method "echo(string)string"
+    bytec 10 // method "echo(string)string"
     callsub __outlined14
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
@@ -796,30 +819,30 @@ main_test_method_overload_route@6:
 main_test_method_selector_kinds_route@5:
     callsub __outlined35
     itxn_field ApplicationID
-    bytec_1 // method "echo(string)string"
-    itxn_field ApplicationArgs
-    pushbytes 0x00057465737431
-    callsub __outlined20
-    +
+    callsub __outlined81
     dig 1
     len
-    callsub __outlined90
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_1 // method "echo(string)string"
-    itxn_field ApplicationArgs
-    callsub __outlined20
-    intc_3 // 2
-    callsub __outlined14
-    +
-    dig 1
-    callsub __outlined90
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushbytes 0x000b6563686f3a207465737431
+    ==
     assert
     itxn_begin
     dup
     itxn_field ApplicationID
-    bytec_1 // method "echo(string)string"
+    callsub __outlined81
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushbytes 0x000b6563686f3a207465737432
+    ==
+    assert
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    bytec 10 // method "echo(string)string"
     itxn_field ApplicationArgs
     callsub __outlined17
     callsub __outlined14
@@ -834,7 +857,7 @@ main_test_is_a_b_route@4:
     callsub __outlined38
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 3
-    callsub __outlined64
+    callsub __outlined63
     itxn_field ApplicationID
     pushbytes 0xc77212bc // method "is_a_b(byte[],byte[])void"
     callsub __outlined42
@@ -894,7 +917,11 @@ __outlined1:
     dig 2
     dig 1
     dig 3
-    callsub __outlined88
+    substring3
+    callsub __outlined69
+    pushint 4
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
     dig 2
     swap
     dig 2
@@ -906,7 +933,7 @@ __outlined1:
 // __outlined2(__outlined2_param0: any, __outlined2_param1: any, __outlined2_param2: any, __outlined2_param3: any, __outlined2_param4: any, __outlined2_param5: any) -> any, any, any, any, any, any, any, any, any:
 __outlined2:
     intc_0 // 0
-    callsub __outlined67
+    callsub __outlined66
     dup
     dig 2
     ==
@@ -917,7 +944,11 @@ __outlined2:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
-    callsub __outlined84
+    +
+    +
+    pushint 4
+    +
+    dig 3
     intc_3 // 2
     extract_uint16 // on error: invalid tuple encoding
     dup
@@ -984,7 +1015,7 @@ __outlined4:
     extract 2 0
     dig 2
     intc_2 // 8
-    callsub __outlined69
+    callsub __outlined67
     extract_uint64
     uncover 3
     extract 16 64
@@ -1015,7 +1046,7 @@ __outlined5:
     dig 3
     intc_3 // 2
     extract_uint16 // on error: invalid tuple encoding
-    callsub __outlined71
+    callsub __outlined69
     dup
     callsub __outlined9
     callsub __outlined21
@@ -1025,12 +1056,20 @@ __outlined5:
 
 // __outlined6(__outlined6_param0: any) -> any, any, any, any, any, any:
 __outlined6:
-    callsub __outlined85
+    callsub __outlined9
+    dig 2
+    ==
+    callsub __outlined21
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
     dig 4
     dig 1
     dig 5
     substring3
-    callsub __outlined91
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
     uncover 3
     +
     uncover 4
@@ -1040,11 +1079,11 @@ __outlined6:
 
 // __outlined7(__outlined7_param0: any) -> any:
 __outlined7:
-    callsub __outlined62
+    callsub __outlined61
     itxn_field ApplicationID
     pushbytes 0x2659e818 // method "echo_native_bytes(byte[])byte[]"
     itxn_field ApplicationArgs
-    callsub __outlined81
+    callsub __outlined78
     itxn_submit
     itxn LastLog
     callsub __outlined13
@@ -1117,11 +1156,11 @@ __outlined10:
 // __outlined11(__outlined11_param0: any) -> any, any, any, any, any, any:
 __outlined11:
     callsub __outlined25
-    callsub __outlined72
+    callsub __outlined70
     dup
     len
     dig 1
-    callsub __outlined71
+    callsub __outlined69
     intc_0 // 0
     extract_uint16 // on error: invalid tuple encoding
     dup
@@ -1156,14 +1195,14 @@ __outlined13:
 // __outlined14(__outlined14_param0: any) -> any:
 __outlined14:
     callsub __outlined38
-    callsub __outlined73
+    callsub __outlined71
 
 
 // __outlined15(__outlined15_param0: any) -> any, any, any, any:
 __outlined15:
     callsub __outlined24
     callsub __outlined43
-    callsub __outlined74
+    callsub __outlined75
     dup
     len
     dig 1
@@ -1193,7 +1232,6 @@ __outlined17:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    callsub __outlined91
     intc_3 // 2
     +
     retsub
@@ -1203,7 +1241,7 @@ __outlined17:
 __outlined18:
     callsub __outlined24
     itxn_field ApplicationArgs
-    bytec_2 // 0x0000000000000001000a00056c6f672031
+    bytec_1 // 0x0000000000000001000a00056c6f672031
     itxn_field ApplicationArgs
     callsub __outlined28
     retsub
@@ -1225,12 +1263,7 @@ __outlined20:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    callsub __outlined29
-    itxn_submit
-    callsub __outlined46
-    callsub __outlined99
+    callsub __outlined83
     intc_0 // 0
     callsub __outlined36
     extract_uint16 // on error: invalid array length header
@@ -1250,7 +1283,11 @@ __outlined21:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    callsub __outlined85
+    intc_3 // 2
+    +
+    uncover 3
+    +
+    uncover 4
     ==
     retsub
 
@@ -1258,14 +1295,18 @@ __outlined21:
 // __outlined22(__outlined22_param0: any) -> any:
 __outlined22:
     callsub __outlined38
-    callsub __outlined73
-    callsub __outlined100
+    callsub __outlined71
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub
 
 
 // __outlined23(__outlined23_param0: any) -> any, any:
 __outlined23:
-    callsub __outlined92
+    callsub __outlined84
     dup
     extract 4 0
     dup
@@ -1273,7 +1314,7 @@ __outlined23:
     extract_uint16 // on error: invalid array length header
     callsub __outlined55
     intc_3 // 2
-    callsub __outlined72
+    callsub __outlined70
     +
     swap
     len
@@ -1321,7 +1362,7 @@ __outlined27:
     callsub __outlined57
     itxn_submit
     itxn LastLog
-    callsub __outlined72
+    callsub __outlined70
     extract 4 0
     retsub
 
@@ -1331,13 +1372,20 @@ __outlined28:
     callsub __outlined39
     extract 0 4
     callsub __outlined44
-    callsub __outlined60
+    callsub __outlined59
 
 
 // __outlined29(__outlined29_param0: any) -> any:
 __outlined29:
     callsub __outlined32
-    callsub __outlined58
+    itxn LastLog
+    dup
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    callsub __outlined75
+    ==
+    assert // application log value is not the result of an ABI return
+    extract 4 0
     retsub
 
 
@@ -1345,8 +1393,8 @@ __outlined29:
 __outlined30:
     callsub __outlined36
     bytec_0 // 0x151f7c75
-    callsub __outlined60
-    callsub __outlined83
+    callsub __outlined59
+    callsub __outlined80
 
 
 // __outlined31(__outlined31_param0: any) -> any:
@@ -1378,7 +1426,7 @@ __outlined32:
 // __outlined33(__outlined33_param0: any) -> any, any:
 __outlined33:
     callsub __outlined37
-    callsub __outlined78
+    callsub __outlined76
     retsub
 
 
@@ -1387,7 +1435,7 @@ __outlined34:
     cover 3
     substring3
     extract 2 0
-    callsub __outlined69
+    callsub __outlined67
     extract 16 64
     retsub
 
@@ -1408,7 +1456,12 @@ __outlined36:
     itxn LastLog
     dup
     callsub __outlined46
-    callsub __outlined77
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // application log value is not the result of an ABI return
+    extract 4 0
+    dup
     retsub
 
 
@@ -1420,9 +1473,8 @@ __outlined37:
     itxn_submit
     itxn LastLog
     dup
-    callsub __outlined89
     extract 0 4
-    callsub __outlined78
+    callsub __outlined76
     bytec_0 // 0x151f7c75
     ==
     retsub
@@ -1432,25 +1484,30 @@ __outlined37:
 __outlined38:
     dup
     intc_0 // 0
-    callsub __outlined73
+    callsub __outlined71
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub
 
 
 // __outlined39() -> any, any:
 __outlined39:
-    callsub __outlined60
+    callsub __outlined59
     ==
-    callsub __outlined83
-    callsub __outlined102
+    callsub __outlined80
+    callsub __outlined85
 
 
 // __outlined40(__outlined40_param0: any) -> any:
 __outlined40:
     callsub __outlined48
     callsub __outlined45
-    callsub __outlined79
-    callsub __outlined64
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub __outlined63
     itxn_begin
     callsub __outlined54
     dup
@@ -1460,14 +1517,13 @@ __outlined40:
 
 // __outlined41() -> any, any:
 __outlined41:
-    callsub __outlined63
+    callsub __outlined62
     callsub __outlined48
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
-    ==
-    callsub __outlined98
+    callsub __outlined82
     itxn_begin
     dup
     retsub
@@ -1486,12 +1542,12 @@ __outlined42:
 
 // __outlined43(__outlined43_param0: any) -> any, any:
 __outlined43:
-    callsub __outlined60
+    callsub __outlined59
     callsub __outlined44
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    callsub __outlined80
+    callsub __outlined77
     extract 4 0
     dup
     len
@@ -1500,8 +1556,12 @@ __outlined43:
 
 // __outlined44(__outlined44_param0: any, __outlined44_param1: any) -> void:
 __outlined44:
-    callsub __outlined83
-    callsub __outlined93
+    callsub __outlined80
+    extract 4 0
+    dup
+    len
+    retsub
+    retsub
 
 
 // __outlined45(__outlined45_param0: any, __outlined45_param1: any) -> any:
@@ -1517,14 +1577,9 @@ __outlined45:
 
 // __outlined46() -> any, any:
 __outlined46:
-    itxn LastLog
-    dup
-    callsub __outlined58
-    extract 0 4
-    bytec_0 // 0x151f7c75
+    callsub __outlined75
     ==
     assert // application log value is not the result of an ABI return
-    callsub __outlined77
     extract 4 0
     dup
     retsub
@@ -1532,29 +1587,42 @@ __outlined46:
 
 // __outlined47() -> any:
 __outlined47:
+    callsub __outlined75
     callsub __outlined57
     dup
     extract 0 4
-    callsub __outlined74
-    callsub __outlined94
+    bytec_0 // 0x151f7c75
+    ==
+    callsub __outlined84
+    assert // application log value is not the result of an ABI return
+    extract 4 0
+    retsub
 
 
 // __outlined48(__outlined48_param0: any) -> any, any:
 __outlined48:
-    callsub __outlined61
-    callsub __outlined95
+    callsub __outlined60
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    dup
     retsub
 
 
 // __outlined49() -> any:
 __outlined49:
-    callsub __outlined64
-    callsub __outlined96
+    callsub __outlined63
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    retsub
 
 
 // __outlined50(__outlined50_param0: any) -> any, any:
 __outlined50:
-    callsub __outlined70
+    callsub __outlined68
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
@@ -1570,14 +1638,18 @@ __outlined51:
     itxn_field ApplicationArgs
     pushbytes 0x00
     itxn_field ApplicationArgs
-    bytec 6 // 0x01
+    bytec 4 // 0x01
     itxn_field ApplicationArgs
     retsub
 
 
 // __outlined52(__outlined52_param0: any, __outlined52_param1: any, __outlined52_param2: any, __outlined52_param3: any) -> any, any, any, any, any:
 __outlined52:
-    callsub __outlined84
+    +
+    dig 2
+    intc_3 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
     dig 2
     ==
     retsub
@@ -1585,7 +1657,7 @@ __outlined52:
 
 // __outlined53(__outlined53_param0: any, __outlined53_param1: any) -> void:
 __outlined53:
-    callsub __outlined75
+    callsub __outlined72
     itxn_field ApplicationID
     retsub
 
@@ -1596,7 +1668,6 @@ __outlined54:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    callsub __outlined95
     itxn_begin
     dup
     itxn_field ApplicationID
@@ -1618,8 +1689,6 @@ __outlined55:
 // __outlined56(__outlined56_param0: any, __outlined56_param1: any) -> any, any:
 __outlined56:
     callsub __outlined77
-    assert // application log value is not the result of an ABI return
-    callsub __outlined102
     extract 4 0
     dup
     len
@@ -1628,73 +1697,64 @@ __outlined56:
 
 // __outlined57() -> any:
 __outlined57:
-    callsub __outlined78
-    dup
-    extract 0 4
-    callsub __outlined92
+    callsub __outlined84
     bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     retsub
 
 
-// __outlined58() -> any:
+// __outlined58(__outlined58_param0: any) -> void:
 __outlined58:
     callsub __outlined74
+    itxn_field ApplicationArgs
+    bytec 9 // 0x00027331
+    itxn_field ApplicationArgs
+    bytec_3 // 0x00026231
+    itxn_field ApplicationArgs
+    retsub
+
+
+// __outlined59(__outlined59_param0: any, __outlined59_param1: any) -> void:
+__outlined59:
+    callsub __outlined80
+    callsub __outlined77
     bytec_0 // 0x151f7c75
-    callsub __outlined94
     ==
     assert // application log value is not the result of an ABI return
     extract 4 0
-    retsub
-
-
-// __outlined59(__outlined59_param0: any) -> void:
-__outlined59:
-    itxn_field ApplicationID
-    bytec 5 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-    itxn_field ApplicationArgs
-    callsub __outlined68
-    bytec 11 // 0x00027331
-    itxn_field ApplicationArgs
-    bytec 4 // 0x00026231
-    itxn_field ApplicationArgs
-    retsub
-
-
-// __outlined60(__outlined60_param0: any, __outlined60_param1: any) -> void:
-__outlined60:
-    callsub __outlined80
-    assert // application log value is not the result of an ABI return
-    extract 4 0
     dup
-    callsub __outlined93
     len
     retsub
+    callsub __outlined85
     retsub
 
 
-// __outlined61(__outlined61_param0: any, __outlined61_param1: any) -> any, any:
-__outlined61:
+// __outlined60(__outlined60_param0: any, __outlined60_param1: any) -> any, any:
+__outlined60:
     len
     intc_2 // 8
-    callsub __outlined95
+    callsub __outlined72
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
     dup
     retsub
 
 
-// __outlined62(__outlined62_param0: any) -> any:
-__outlined62:
-    callsub __outlined82
+// __outlined61(__outlined61_param0: any) -> any:
+__outlined61:
+    callsub __outlined79
     itxn_field Fee
     itxn_submit
     itxn LastLog
     retsub
 
 
-// __outlined63() -> any:
-__outlined63:
-    callsub __outlined76
+// __outlined62() -> any:
+__outlined62:
+    callsub __outlined73
     len
     intc_2 // 8
     ==
@@ -1703,20 +1763,20 @@ __outlined63:
     retsub
 
 
-// __outlined64(__outlined64_param0: any) -> any:
-__outlined64:
-    callsub __outlined75
+// __outlined63(__outlined63_param0: any) -> any:
+__outlined63:
+    callsub __outlined72
     ==
-    callsub __outlined96
     assert // invalid number of bytes for arc4.uint64
     btoi
     itxn_begin
     retsub
 
 
-// __outlined65(__outlined65_param0: any, __outlined65_param1: any, __outlined65_param2: any, __outlined65_param3: any, __outlined65_param4: any) -> any, any, any, any, any:
-__outlined65:
-    callsub __outlined86
+// __outlined64(__outlined64_param0: any, __outlined64_param1: any, __outlined64_param2: any, __outlined64_param3: any, __outlined64_param4: any) -> any, any, any, any, any:
+__outlined64:
+    uncover 2
+    dig 4
     ==
     &&
     swap
@@ -1724,9 +1784,10 @@ __outlined65:
     retsub
 
 
-// __outlined66(__outlined66_param0: any, __outlined66_param1: any, __outlined66_param2: any) -> any, any, any:
-__outlined66:
-    callsub __outlined88
+// __outlined65(__outlined65_param0: any, __outlined65_param1: any, __outlined65_param2: any) -> any, any, any:
+__outlined65:
+    dig 2
+    swap
     dig 2
     substring3
     intc_0 // 0
@@ -1734,11 +1795,10 @@ __outlined66:
     retsub
 
 
-// __outlined67(__outlined67_param0: any, __outlined67_param1: any, __outlined67_param2: any, __outlined67_param3: any) -> any:
-__outlined67:
+// __outlined66(__outlined66_param0: any, __outlined66_param1: any, __outlined66_param2: any, __outlined66_param3: any) -> any:
+__outlined66:
     substring3
     intc_0 // 0
-    callsub __outlined87
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
@@ -1746,19 +1806,8 @@ __outlined67:
     retsub
 
 
-// __outlined68() -> void:
-__outlined68:
-    bytec 5 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-    itxn_field ApplicationArgs
-    bytec 11 // 0x00027331
-    itxn_field ApplicationArgs
-    bytec 4 // 0x00026231
-    itxn_field ApplicationArgs
-    retsub
-
-
-// __outlined69(__outlined69_param0: any, __outlined69_param1: any, __outlined69_param2: any) -> any, any, any, any:
-__outlined69:
+// __outlined67(__outlined67_param0: any, __outlined67_param1: any, __outlined67_param2: any) -> any, any, any, any:
+__outlined67:
     extract 2 0
     dig 2
     intc_2 // 8
@@ -1768,15 +1817,19 @@ __outlined69:
     retsub
 
 
-// __outlined70(__outlined70_param0: any) -> any, any:
-__outlined70:
-    callsub __outlined101
+// __outlined68(__outlined68_param0: any) -> any, any:
+__outlined68:
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     dup
     retsub
 
 
-// __outlined71(__outlined71_param0: any) -> any, any, any, any:
-__outlined71:
+// __outlined69(__outlined69_param0: any) -> any, any, any, any:
+__outlined69:
     dup
     len
     dig 1
@@ -1786,8 +1839,8 @@ __outlined71:
     retsub
 
 
-// __outlined72(__outlined72_param0: any, __outlined72_param1: any) -> any, any:
-__outlined72:
+// __outlined70(__outlined70_param0: any, __outlined70_param1: any) -> any, any:
+__outlined70:
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -1797,11 +1850,10 @@ __outlined72:
     retsub
 
 
-// __outlined73(__outlined73_param0: any, __outlined73_param1: any, __outlined73_param2: any) -> void:
-__outlined73:
+// __outlined71(__outlined71_param0: any, __outlined71_param1: any, __outlined71_param2: any) -> void:
+__outlined71:
     +
     dig 1
-    callsub __outlined100
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
@@ -1809,235 +1861,108 @@ __outlined73:
     retsub
 
 
+// __outlined72(__outlined72_param0: any, __outlined72_param1: any) -> any:
+__outlined72:
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    itxn_begin
+    retsub
+
+
+// __outlined73() -> any:
+__outlined73:
+    callsub __outlined82
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    retsub
+
+
 // __outlined74(__outlined74_param0: any) -> any:
 __outlined74:
-    callsub __outlined94
+    itxn_field ApplicationID
+    bytec 8 // method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    bytec 9 // 0x00027331
+    itxn_field ApplicationArgs
+    bytec_3 // 0x00026231
+    retsub
+
+
+// __outlined75(__outlined75_param0: any) -> any:
+__outlined75:
+    callsub __outlined84
+    dup
+    extract 0 4
+    bytec_0 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
     extract 4 0
     retsub
 
 
-// __outlined75(__outlined75_param0: any, __outlined75_param1: any) -> any:
-__outlined75:
-    callsub __outlined96
-    btoi
-    itxn_begin
-    retsub
-
-
-// __outlined76() -> any:
+// __outlined76() -> any, any:
 __outlined76:
-    callsub __outlined98
-    txna ApplicationArgs 1
+    itxn_submit
+    itxn LastLog
     dup
-    len
-    intc_2 // 8
-    callsub __outlined101
+    extract 0 4
+    bytec_0 // 0x151f7c75
     ==
-    assert // invalid number of bytes for arc4.uint64
     retsub
 
 
 // __outlined77(__outlined77_param0: any, __outlined77_param1: any) -> any, any:
 __outlined77:
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
-    extract 4 0
-    dup
+    callsub __outlined80
+    callsub __outlined85
+    len
     retsub
 
 
-// __outlined78() -> any, any:
+// __outlined78(__outlined78_param0: any) -> void:
 __outlined78:
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    retsub
-
-
-// __outlined79(__outlined79_param0: any) -> any:
-__outlined79:
-    callsub __outlined101
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    retsub
-
-
-// __outlined80(__outlined80_param0: any, __outlined80_param1: any) -> any, any:
-__outlined80:
     callsub __outlined83
-    callsub __outlined102
-    len
-    retsub
-
-
-// __outlined81(__outlined81_param0: any) -> void:
-__outlined81:
-    callsub __outlined99
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    retsub
-
-
-// __outlined82() -> any:
-__outlined82:
-    callsub __outlined89
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    retsub
-
-
-// __outlined83(__outlined83_param0: any, __outlined83_param1: any, __outlined83_param2: any) -> void:
-__outlined83:
-    callsub __outlined93
-    len
-    retsub
-    retsub
-
-
-// __outlined84(__outlined84_param0: any, __outlined84_param1: any) -> any, any, any:
-__outlined84:
-    intc_3 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    retsub
-
-
-// __outlined85(__outlined85_param0: any, __outlined85_param1: any, __outlined85_param2: any, __outlined85_param3: any, __outlined85_param4: any) -> any, any, any, any, any, any, any:
-__outlined85:
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    retsub
-
-
-// __outlined86(__outlined86_param0: any, __outlined86_param1: any, __outlined86_param2: any, __outlined86_param3: any, __outlined86_param4: any) -> any, any, any, any:
-__outlined86:
-    uncover 2
-    dig 4
-    ==
-    &&
-    swap
-    retsub
-
-
-// __outlined87(__outlined87_param0: any, __outlined87_param1: any, __outlined87_param2: any) -> any:
-__outlined87:
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    retsub
-
-
-// __outlined88(__outlined88_param0: any, __outlined88_param1: any, __outlined88_param2: any) -> any, any, any, any:
-__outlined88:
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    retsub
-
-
-// __outlined89(__outlined89_param0: any) -> any:
-__outlined89:
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    retsub
-
-
-// __outlined90(__outlined90_param0: any) -> any:
-__outlined90:
-    itxn_begin
-    dup
-    itxn_field ApplicationID
-    bytec_1 // method "echo(string)string"
     itxn_field ApplicationArgs
-    retsub
-
-
-// __outlined91(__outlined91_param0: any) -> any, any:
-__outlined91:
-    dup
+    pushint 6 // appl
+    itxn_field TypeEnum
     intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
+    itxn_field Fee
+    itxn_submit
     retsub
 
 
-// __outlined92(__outlined92_param0: any) -> any:
-__outlined92:
-    dup
-    extract 0 4
-    bytec_0 // 0x151f7c75
+// __outlined79() -> any:
+__outlined79:
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    retsub
+
+
+// __outlined80(__outlined80_param0: any, __outlined80_param1: any, __outlined80_param2: any) -> void:
+__outlined80:
+    callsub __outlined85
     ==
     assert // application log value is not the result of an ABI return
-    retsub
-
-
-// __outlined93(__outlined93_param0: any) -> void:
-__outlined93:
     extract 4 0
     dup
     len
     retsub
     retsub
-    retsub
 
 
-// __outlined94(__outlined94_param0: any, __outlined94_param1: any) -> void:
-__outlined94:
-    bytec_0 // 0x151f7c75
-    ==
-    assert // application log value is not the result of an ABI return
-    extract 4 0
-    retsub
-    retsub
-
-
-// __outlined95(__outlined95_param0: any, __outlined95_param1: any, __outlined95_param2: any) -> any, any:
-__outlined95:
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itxn_begin
-    dup
-    retsub
-
-
-// __outlined96(__outlined96_param0: any, __outlined96_param1: any, __outlined96_param2: any) -> void:
-__outlined96:
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itxn_begin
-    retsub
-    retsub
-
-
-// __outlined97(__outlined97_param0: any, __outlined97_param1: any, __outlined97_param2: any) -> any:
-__outlined97:
+// __outlined81(__outlined81_param0: any, __outlined81_param1: any, __outlined81_param2: any) -> any:
+__outlined81:
     ==
     assert
     itxn_begin
@@ -2046,8 +1971,8 @@ __outlined97:
     retsub
 
 
-// __outlined98() -> any, any:
-__outlined98:
+// __outlined82() -> any, any:
+__outlined82:
     txna ApplicationArgs 1
     dup
     len
@@ -2056,8 +1981,8 @@ __outlined98:
     retsub
 
 
-// __outlined99(__outlined99_param0: any) -> void:
-__outlined99:
+// __outlined83(__outlined83_param0: any) -> void:
+__outlined83:
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -2066,28 +1991,18 @@ __outlined99:
     retsub
 
 
-// __outlined100(__outlined100_param0: any, __outlined100_param1: any, __outlined100_param2: any) -> any:
-__outlined100:
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    retsub
-
-
-// __outlined101(__outlined101_param0: any) -> any:
-__outlined101:
+// __outlined84(__outlined84_param0: any) -> any:
+__outlined84:
     dup
-    len
-    intc_2 // 8
+    extract 0 4
+    bytec_0 // 0x151f7c75
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // application log value is not the result of an ABI return
     retsub
 
 
-// __outlined102(__outlined102_param0: any, __outlined102_param1: any) -> void:
-__outlined102:
+// __outlined85(__outlined85_param0: any, __outlined85_param1: any) -> void:
+__outlined85:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup

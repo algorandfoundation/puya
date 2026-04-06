@@ -68,7 +68,7 @@ main_after_itxn_begin_next@19:
     dig 12
     itxn_field Receiver
     dig 1
-    callsub __outlined8
+    callsub __outlined6
     intc_1 // 0
     bury 4
     dig 2
@@ -131,7 +131,7 @@ main_test_firstly_abi_call_route@6:
     itxn_field Receiver
     itxn_field Amount
     callsub __outlined0
-    callsub __outlined7
+    callsub __outlined5
     bury 5
 
 main_for_header@23:
@@ -166,7 +166,11 @@ main_test_looply_route@5:
     intc_0 // 1
     -
     dup
-    callsub __outlined5
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 2
     callsub __outlined0
     intc_0 // 1
     bury 4
@@ -204,7 +208,7 @@ main_after_itxn_begin_next@32:
     dig 2
     intc_0 // 1
     +
-    callsub __outlined8
+    callsub __outlined6
     bury 3
     b main_for_header@28
 
@@ -239,9 +243,13 @@ main_test_firstly_route@4:
     callsub __outlined3
     global CurrentApplicationAddress
     ==
-    callsub __outlined6
+    assert // Funds must be sent to app
+    dig 1
+    assert // must provide some accounts
+    gtxns Amount
+    swap
     /
-    callsub __outlined7
+    callsub __outlined5
     intc_0 // pay
     itxn_field TypeEnum
     intc_1 // 0
@@ -251,7 +259,7 @@ main_test_firstly_route@4:
 
 main_for_header@36:
     dig 4
-    callsub __outlined7
+    callsub __outlined5
     extract3 // on error: index access is out of bounds
     itxn_next
     itxn_field Receiver
@@ -261,7 +269,7 @@ main_for_header@36:
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
-    callsub __outlined8
+    callsub __outlined6
     intc_0 // 1
     +
     bury 5
@@ -287,7 +295,6 @@ __outlined0:
     dup
     len
     pushint 8
-    callsub __outlined5
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
@@ -306,7 +313,6 @@ __outlined1:
     gtxns TypeEnum
     intc_0 // pay
     ==
-    callsub __outlined5
     assert // transaction type is pay
     txna ApplicationArgs 2
     retsub
@@ -318,7 +324,6 @@ __outlined2:
     assert // Funds must be sent to app
     dig 1
     assert // must provide some accounts
-    callsub __outlined6
     gtxns Amount
     swap
     /
@@ -327,7 +332,11 @@ __outlined2:
 
 // __outlined3(__outlined3_param0: any, __outlined3_param1: any, __outlined3_param2: any) -> any, any:
 __outlined3:
-    callsub __outlined6
+    global CurrentApplicationAddress
+    ==
+    assert // Funds must be sent to app
+    dig 1
+    assert // must provide some accounts
     gtxns Amount
     swap
     retsub
@@ -335,8 +344,8 @@ __outlined3:
 
 // __outlined4(__outlined4_param0: any) -> any:
 __outlined4:
-    callsub __outlined8
-    callsub __outlined7
+    callsub __outlined6
+    callsub __outlined5
     itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
@@ -346,28 +355,8 @@ __outlined4:
     retsub
 
 
-// __outlined5(__outlined5_param0: any) -> any:
+// __outlined5() -> any:
 __outlined5:
-    gtxns TypeEnum
-    intc_0 // pay
-    ==
-    assert // transaction type is pay
-    txna ApplicationArgs 2
-    retsub
-
-
-// __outlined6(__outlined6_param0: any, __outlined6_param1: any, __outlined6_param2: any) -> any, any:
-__outlined6:
-    assert // Funds must be sent to app
-    dig 1
-    assert // must provide some accounts
-    gtxns Amount
-    swap
-    retsub
-
-
-// __outlined7() -> any:
-__outlined7:
     intc_0 // pay
     itxn_field TypeEnum
     intc_1 // 0
@@ -376,8 +365,8 @@ __outlined7:
     retsub
 
 
-// __outlined8(__outlined8_param0: any) -> void:
-__outlined8:
+// __outlined6(__outlined6_param0: any) -> void:
+__outlined6:
     itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum

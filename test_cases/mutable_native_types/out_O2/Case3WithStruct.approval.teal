@@ -69,7 +69,7 @@ main_get_3_tups_route@15:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    callsub __outlined7
+    callsub __outlined6
     dig 1
     pushint 3
     +
@@ -147,8 +147,9 @@ main_set_a_route@13:
     txna ApplicationArgs 1
     dup
     callsub __outlined2
-    bytec_0 // "tup_bag"
     callsub __outlined3
+    intc_2 // 0
+    bury 3
 
 main_for_header@36:
     dig 2
@@ -290,7 +291,7 @@ main_after_for@53:
 main_get_tup_route@9:
     txna ApplicationArgs 1
     dup
-    callsub __outlined7
+    callsub __outlined6
     bytec_0 // "tup_bag"
     intc_2 // 0
     intc_3 // 8
@@ -303,7 +304,11 @@ main_get_tup_route@9:
     *
     intc_0 // 16
     extract3 // on error: index access is out of bounds
-    callsub __outlined6
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
     return
 
 main_add_tup_route@8:
@@ -326,7 +331,6 @@ main_num_tups_route@7:
     swap
     concat
     log
-    callsub __outlined6
     intc_1 // 1
     return
 
@@ -374,7 +378,7 @@ add_tup:
     callsub _check_owner
     bytec_0 // "tup_bag"
     intc_2 // 0
-    callsub __outlined7
+    callsub __outlined6
     <
     assert // too many tups
     intc_0 // 16
@@ -391,7 +395,7 @@ add_tup:
     box_extract // on error: index out of bounds
     btoi
     intc_1 // 1
-    callsub __outlined7
+    callsub __outlined6
     box_replace // on error: index out of bounds
     frame_dig -1
     retsub
@@ -451,9 +455,7 @@ __outlined1:
 
 // __outlined2(__outlined2_param0: any, __outlined2_param1: any) -> any, any, any:
 __outlined2:
-    callsub __outlined7
-    bytec_0 // "tup_bag"
-    intc_2 // 0
+    callsub __outlined3
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
@@ -462,15 +464,15 @@ __outlined2:
     retsub
 
 
-// __outlined3(__outlined3_param0: any, __outlined3_param1: any, __outlined3_param2: any, __outlined3_param3: any) -> any, any, any:
+// __outlined3(__outlined3_param0: any, __outlined3_param1: any) -> any, any:
 __outlined3:
+    callsub __outlined6
+    bytec_0 // "tup_bag"
     intc_2 // 0
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
     bury 2
-    intc_2 // 0
-    bury 3
     retsub
 
 
@@ -487,7 +489,8 @@ __outlined4:
 
 // __outlined5(__outlined5_param0: any) -> void:
 __outlined5:
-    callsub __outlined6
+    bytec_1 // 0x151f7c75
+    swap
     concat
     log
     intc_1 // 1
@@ -495,18 +498,8 @@ __outlined5:
     retsub
 
 
-// __outlined6(__outlined6_param0: any) -> any:
+// __outlined6() -> any:
 __outlined6:
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    retsub
-
-
-// __outlined7() -> any:
-__outlined7:
     bytec_0 // "tup_bag"
     intc_2 // 0
     intc_3 // 8

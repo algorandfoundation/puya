@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 8 32
-    bytecblock "map" 0x151f7c75 0x00
+    bytecblock 0x151f7c75 "map" 0x00
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
     match main_create_route@4
@@ -34,7 +34,12 @@ main_maybe_route@13:
     uncover 3
     setbit
     concat
-    callsub __outlined11
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 main_prefix_route@12:
     pushbytes 0x151f7c7500036d6170
@@ -47,7 +52,7 @@ main_in__route@11:
     assert // invalid number of bytes for arc4.uint64
     btoi
     itob
-    bytec_0 // "map"
+    bytec_1 // "map"
     swap
     concat
     intc_1 // 0
@@ -58,7 +63,7 @@ main_in__route@11:
     intc_1 // 0
     uncover 2
     setbit
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     callsub __outlined8
     concat
@@ -85,7 +90,7 @@ main_set_route@9:
     btoi
     swap
     itob
-    bytec_0 // "map"
+    bytec_1 // "map"
     swap
     concat
     swap
@@ -103,8 +108,17 @@ main_get_with_default_route@8:
 main_get_route@7:
     callsub __outlined0
     txna ApplicationArgs 1
-    callsub __outlined11
-    callsub __outlined12
+    callsub __outlined7
+    len
+    callsub __outlined6
+    swap
+    callsub __outlined9
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
     return
 
 main_create_route@4:
@@ -146,7 +160,7 @@ __outlined1:
     btoi
     callsub __outlined7
     itob
-    bytec_0 // "map"
+    bytec_1 // "map"
     swap
     concat
     retsub
@@ -225,7 +239,7 @@ __outlined7:
 // __outlined8(__outlined8_param0: any, __outlined8_param1: any) -> any, any:
 __outlined8:
     itob
-    bytec_0 // "map"
+    bytec_1 // "map"
     swap
     concat
     intc_1 // 0
@@ -237,9 +251,8 @@ __outlined8:
 // __outlined9(__outlined9_param0: any) -> any:
 __outlined9:
     itob
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
-    callsub __outlined12
     concat
     log
     intc_0 // 1
@@ -254,24 +267,4 @@ __outlined10:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    retsub
-
-
-// __outlined11(__outlined11_param0: any) -> void:
-__outlined11:
-    callsub __outlined12
-    concat
-    log
-    intc_0 // 1
-    return
-    retsub
-
-
-// __outlined12(__outlined12_param0: any) -> any:
-__outlined12:
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
     retsub

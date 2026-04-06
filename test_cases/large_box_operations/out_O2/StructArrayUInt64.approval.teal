@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 2 1 20
+    intcblock 8 2 1 20 4096
     bytecblock "box"
     txn NumAppArgs
     bz main___algopy_default_create@16
@@ -38,8 +38,12 @@ main_verify_route@12:
 main_set_route@11:
     callsub __outlined0
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     callsub __outlined4
-    callsub __outlined6
     dig 2
     >
     assert // index out of bounds
@@ -72,7 +76,7 @@ main_get_route@10:
     pushbytes 0x151f7c75
     swap
     concat
-    callsub __outlined6
+    callsub __outlined4
     log
     intc_2 // 1
     return
@@ -81,9 +85,13 @@ main_pop_route@9:
     bytec_0 // "box"
     intc_3 // 20
     intc_1 // 2
-    callsub __outlined6
-    box_extract // on error: index out of bounds
-    callsub __outlined5
+    box_extract
+    btoi
+    callsub __outlined1
+    intc_0 // 8
+    callsub __outlined4
+    box_extract
+    btoi
     intc_0 // 8
     -
     itob
@@ -108,7 +116,7 @@ main_pop_route@9:
     box_len
     pop
     intc_0 // 8
-    callsub __outlined6
+    callsub __outlined4
     swap
     concat
     log
@@ -157,7 +165,6 @@ main_append_route@7:
     callsub __outlined2
     uncover 2
     intc_2 // 1
-    callsub __outlined4
     intc_0 // 8
     callsub box_dynamic_array_concat_fixed
     intc_2 // 1
@@ -167,7 +174,11 @@ main_bootstrap_route@6:
     bytec_0 // "box"
     box_del
     pop
-    callsub __outlined5
+    bytec_0 // "box"
+    pushbytes 0x000000000000000100140000000000000002001600000000
+    box_put
+    intc 4 // 4096
+    bzero
     bytec_0 // "box"
     pushint 18
     intc_1 // 2
@@ -177,7 +188,7 @@ main_bootstrap_route@6:
     swap
     uncover 2
     intc_2 // 1
-    pushint 4096
+    intc 4 // 4096
     callsub box_dynamic_array_concat_fixed
     pushbytes 0x0000
     callsub verify
@@ -280,7 +291,11 @@ verify:
     box_extract // on error: index out of bounds
     btoi
     intc_2 // 1
-    callsub __outlined5
+    ==
+    assert
+    bytec_0 // "box"
+    pushint 10
+    intc_0 // 8
     box_extract // on error: index out of bounds
     btoi
     intc_1 // 2
@@ -288,7 +303,7 @@ verify:
     assert
     bytec_0 // "box"
     pushint 18
-    callsub __outlined6
+    callsub __outlined4
     intc_1 // 2
     box_extract
     btoi
@@ -298,7 +313,7 @@ verify:
     bytec_0 // "box"
     box_len
     pop
-    pushint 4096
+    intc 4 // 4096
     >
     assert // expected box length >4096
     frame_dig -1
@@ -328,7 +343,9 @@ __outlined1:
 
 // __outlined2() -> any:
 __outlined2:
-    callsub __outlined4
+    txna ApplicationArgs 1
+    dup
+    len
     intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
@@ -346,28 +363,8 @@ __outlined3:
     retsub
 
 
-// __outlined4(__outlined4_param0: any) -> any:
+// __outlined4() -> any:
 __outlined4:
-    dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined5() -> any:
-__outlined5:
-    bytec_0 // "box"
-    pushint 18
-    intc_1 // 2
-    box_extract
-    btoi
-    retsub
-
-
-// __outlined6() -> any:
-__outlined6:
     bytec_0 // "box"
     intc_3 // 20
     intc_1 // 2

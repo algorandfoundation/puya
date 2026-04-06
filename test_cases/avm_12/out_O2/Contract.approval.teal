@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1
+    intcblock 1 6 0
     bytecblock base64(DIEBQw==)
     txn NumAppArgs
     bz main___algopy_default_create@9
@@ -23,7 +23,11 @@ main_test_reject_version_route@5:
     itxn_field ClearStateProgramPages
     pushbytes base64(DDEbQQAggASg6BhyNhoAjgEAAQAxGYEEEjEYEEQxRIEBEkSBAUMxGRQxGBQQQw==)
     itxn_field ApprovalProgramPages
-    callsub __outlined0
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_2 // 0
+    itxn_field Fee
+    itxn_submit
     itxn CreatedApplicationID
     dup
     app_params_get AppVersion
@@ -42,7 +46,11 @@ main_test_reject_version_route@5:
     dup
     itxn_field ApplicationID
     pushbytes 0xa0e81872 // method "update()void"
-    callsub __outlined0
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_2 // 0
+    itxn_field Fee
     itxn_submit
     dup
     app_params_get AppVersion
@@ -56,7 +64,11 @@ main_test_reject_version_route@5:
     itxn_field ApplicationID
     pushint 5 // DeleteApplication
     itxn_field OnCompletion
-    callsub __outlined0
+    pushbytes 0x24378d3c // method "delete()void"
+    itxn_field ApplicationArgs
+    intc_1 // appl
+    itxn_field TypeEnum
+    intc_2 // 0
     itxn_field Fee
     itxn_submit
     intc_0 // 1
@@ -81,13 +93,3 @@ main___algopy_default_create@9:
     !
     &&
     return
-
-
-// __outlined0() -> void:
-__outlined0:
-    pushint 6 // appl
-    itxn_field TypeEnum
-    pushint 0
-    itxn_field Fee
-    itxn_submit
-    retsub

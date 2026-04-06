@@ -20,8 +20,12 @@ main:
 main_set_route@12:
     callsub __outlined0
     txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     callsub __outlined4
-    callsub __outlined5
     dig 2
     >
     assert // index out of bounds
@@ -54,7 +58,7 @@ main_get_route@11:
     pushbytes 0x151f7c75
     swap
     concat
-    callsub __outlined5
+    callsub __outlined4
     log
     intc_2 // 1
     return
@@ -80,7 +84,7 @@ main_verify_route@10:
 main_pop_route@9:
     bytec_0 // "box"
     intc_3 // 42
-    callsub __outlined5
+    callsub __outlined4
     callsub __outlined3
     box_extract // on error: index out of bounds
     bytec_0 // "box"
@@ -107,7 +111,7 @@ main_pop_route@9:
     box_len
     pop
     intc_0 // 8
-    callsub __outlined5
+    callsub __outlined4
     swap
     concat
     log
@@ -130,7 +134,6 @@ main_append_route@8:
     callsub __outlined2
     uncover 2
     intc_2 // 1
-    callsub __outlined4
     intc_0 // 8
     callsub box_dynamic_array_concat_fixed
     intc_2 // 1
@@ -304,7 +307,7 @@ verify:
     pushint 24
     intc_0 // 8
     box_extract // on error: index out of bounds
-    callsub __outlined5
+    callsub __outlined4
     pushint 34
     intc_0 // 8
     box_extract // on error: index out of bounds
@@ -394,7 +397,9 @@ __outlined1:
 
 // __outlined2() -> any:
 __outlined2:
-    callsub __outlined4
+    txna ApplicationArgs 1
+    dup
+    len
     intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
@@ -412,18 +417,8 @@ __outlined3:
     retsub
 
 
-// __outlined4(__outlined4_param0: any) -> any:
+// __outlined4() -> any:
 __outlined4:
-    dup
-    len
-    intc_0 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined5() -> any:
-__outlined5:
     bytec_0 // "box"
     intc_3 // 42
     intc_1 // 2

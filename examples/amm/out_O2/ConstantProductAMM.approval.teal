@@ -4,15 +4,15 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 1000 10000000000
-    bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
+    bytecblock "asset_b" "asset_a" "pool_token" "governor" "ratio"
     pushbytes ""
     dupn 9
     txn ApplicationID
     bnz main_after_if_else@2
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     intc_0 // 0
     app_global_put
-    bytec_1 // "asset_b"
+    bytec_0 // "asset_b"
     intc_0 // 0
     app_global_put
     bytec_3 // "governor"
@@ -46,7 +46,7 @@ main_swap_route@10:
     assert // check self.pool_token exists
     assert // bootstrap method needs to be called first
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     uncover 2
@@ -75,7 +75,7 @@ main_switch_case_1@19:
     bury 3
     callsub _current_b_balance
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_0 // "asset_b"
     app_global_get_ex
     swap
     bury 4
@@ -104,14 +104,18 @@ main_switch_case_next@21:
     assert // send amount too low
     txn Sender
     dig 3
-    callsub __outlined11
+    uncover 2
+    callsub do_asset_transfer
+    callsub _update_ratio
+    intc_1 // 1
+    return
 
 main_switch_case_0@18:
     callsub _current_b_balance
     bury 3
     callsub _current_a_balance
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     swap
     bury 4
@@ -176,12 +180,16 @@ main_burn_route@9:
     /
     txn Sender
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     uncover 3
     callsub do_asset_transfer
-    callsub __outlined11
+    txn Sender
+    intc_0 // 0
+    bytec_0 // "asset_b"
+    app_global_get_ex
+    assert // check self.asset_b exists
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
@@ -197,7 +205,11 @@ main_mint_route@8:
     pushint 4 // axfer
     ==
     callsub __outlined9
-    callsub __outlined13
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
     btoi
     txnas Assets
     intc_0 // 0
@@ -206,7 +218,11 @@ main_mint_route@8:
     callsub __outlined10
     ==
     assert // asset a incorrect
-    callsub __outlined12
+    intc_0 // 0
+    bytec_0 // "asset_b"
+    app_global_get_ex
+    assert // check self.asset_b exists
+    uncover 2
     dig 1
     ==
     assert // asset b incorrect
@@ -263,7 +279,6 @@ main_after_inlined_examples.amm.contract.tokens_to_mint@33:
     assert // check self.pool_token exists
     uncover 2
     callsub do_asset_transfer
-    callsub __outlined11
     callsub _update_ratio
     intc_1 // 1
     return
@@ -348,15 +363,15 @@ main_bootstrap_route@7:
     dup2
     <
     assert // asset a must be less than asset b
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     uncover 2
     app_global_put
-    bytec_1 // "asset_b"
+    bytec_0 // "asset_b"
     dig 1
     app_global_put
     itxn_begin
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_params_get AssetUnitName
@@ -390,7 +405,7 @@ main_bootstrap_route@7:
     itxn CreatedAssetID
     app_global_put
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     global CurrentApplicationAddress
@@ -398,7 +413,7 @@ main_bootstrap_route@7:
     intc_0 // 0
     callsub do_asset_transfer
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_0 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     global CurrentApplicationAddress
@@ -501,7 +516,7 @@ _current_pool_balance:
 _current_a_balance:
     global CurrentApplicationAddress
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_holding_get AssetBalance
@@ -513,7 +528,7 @@ _current_a_balance:
 _current_b_balance:
     global CurrentApplicationAddress
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_0 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     asset_holding_get AssetBalance
@@ -536,7 +551,11 @@ __outlined0:
 // __outlined1() -> any, any, any:
 __outlined1:
     callsub __outlined2
-    callsub __outlined13
+    pushint 4 // axfer
+    ==
+    callsub __outlined3
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
     dup
     len
     intc_1 // 1
@@ -569,7 +588,11 @@ __outlined3:
     dup
     len
     callsub __outlined6
-    callsub __outlined14
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    btoi
+    retsub
 
 
 // __outlined4() -> any, any:
@@ -588,7 +611,6 @@ __outlined5:
     ==
     assert // invalid number of bytes for arc4.uint8
     btoi
-    callsub __outlined14
     retsub
 
 
@@ -605,8 +627,7 @@ __outlined6:
 __outlined7:
     callsub __outlined10
     intc_0 // 0
-    bytec_1 // "asset_b"
-    callsub __outlined12
+    bytec_0 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     uncover 2
@@ -615,7 +636,9 @@ __outlined7:
 
 // __outlined8(__outlined8_param0: any, __outlined8_param1: any) -> void:
 __outlined8:
-    callsub __outlined14
+    callsub __outlined9
+    intc_1 // 1
+    ==
     assert // invalid number of bytes for arc4.uint8
     btoi
     retsub
@@ -624,7 +647,8 @@ __outlined8:
 
 // __outlined9(__outlined9_param0: any) -> any:
 __outlined9:
-    callsub __outlined13
+    dup
+    len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
@@ -637,47 +661,7 @@ __outlined10:
     ==
     assert // asset a incorrect
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_0 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
-    retsub
-
-
-// __outlined11(__outlined11_param0: any, __outlined11_param1: any, __outlined11_param2: any) -> void:
-__outlined11:
-    uncover 2
-    callsub do_asset_transfer
-    callsub _update_ratio
-    intc_1 // 1
-    return
-    retsub
-
-
-// __outlined12(__outlined12_param0: any, __outlined12_param1: any) -> any, any, any:
-__outlined12:
-    intc_0 // 0
-    bytec_1 // "asset_b"
-    app_global_get_ex
-    assert // check self.asset_b exists
-    uncover 2
-    retsub
-
-
-// __outlined13(__outlined13_param0: any) -> any:
-__outlined13:
-    dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
-    retsub
-
-
-// __outlined14(__outlined14_param0: any, __outlined14_param1: any, __outlined14_param2: any) -> void:
-__outlined14:
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
-    btoi
-    retsub
     retsub

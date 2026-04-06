@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64 8 16
+    intcblock 1 64 16 8
     bytecblock 0x151f7c75
     txn NumAppArgs
     bz main___algopy_default_create@19
@@ -20,10 +20,10 @@ main:
 main_biguint_via_arc4_uint128_route@15:
     callsub __outlined1
     assert // invalid number of bytes for arc4.uint512
-    intc_3 // 16
+    intc_2 // 16
     <=
     assert // overflow
-    intc_3 // 16
+    intc_2 // 16
     callsub __outlined0
 
 main_biguint_via_arc4_uint64_route@14:
@@ -34,10 +34,10 @@ main_biguint_via_arc4_uint64_route@14:
     intc_1 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
-    intc_2 // 8
+    intc_3 // 8
     <=
     assert // overflow
-    intc_2 // 8
+    intc_3 // 8
     bzero
     b|
     dup
@@ -51,14 +51,14 @@ main_biguint_via_arc4_uint64_route@14:
     bytec_0 // 0x151f7c75
     callsub __outlined1
     callsub __outlined0
-    callsub __outlined6
+    callsub __outlined5
 
 main_biguint_via_arc4_uint32_route@13:
     callsub __outlined1
     callsub __outlined0
     swap
     concat
-    callsub __outlined6
+    callsub __outlined5
     log
     intc_0 // 1
     return
@@ -67,15 +67,15 @@ main_arc4_uint128_via_biguint_route@12:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 16
+    intc_2 // 16
     ==
     assert // invalid number of bytes for arc4.uint128
     callsub __outlined3
 
 main_arc4_uint64_via_uint64_route@5:
     callsub __outlined2
-    bytec_0 // 0x151f7c75
-    callsub __outlined4
+    callsub __outlined5
+    intc_0 // 1
     return
 
 main_arc4_uint32_via_uint64_route@4:
@@ -86,23 +86,27 @@ main_arc4_uint32_via_uint64_route@4:
     ==
     assert // invalid number of bytes for arc4.uint32
     callsub __outlined3
-    callsub __outlined5
+    callsub __outlined4
     return
 
 main_uint64_via_arc4_uint64_route@8:
-    txna ApplicationArgs 1
+    callsub __outlined5
     dup
     callsub __outlined3
     swap
     concat
-    callsub __outlined4
     log
     intc_0 // 1
     return
 
 main_uint64_via_arc4_uint32_route@7:
+    callsub __outlined5
     txna ApplicationArgs 1
-    callsub __outlined6
+    callsub __outlined4
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
     intc_0 // 1
     return
 
@@ -111,15 +115,14 @@ main_arc4_uint128_via_uint64_route@6:
     dup
     len
     dup
-    callsub __outlined4
+    intc_2 // 16
+    ==
+    assert // invalid number of bytes for arc4.uint128
+    dig 1
+    bitlen
     intc_1 // 64
-    <=
-    assert // overflow
-    intc_2 // 8
-    -
-    callsub __outlined3
+    callsub __outlined5
     swap
-    callsub __outlined6
     concat
     log
     intc_0 // 1
@@ -136,9 +139,14 @@ main___algopy_default_create@19:
 
 // __outlined0(__outlined0_param0: any, __outlined0_param1: any) -> void:
 __outlined0:
-    callsub __outlined3
     callsub __outlined5
-    callsub __outlined6
+    callsub __outlined3
+    callsub __outlined4
+    <=
+    assert // overflow
+    intc_1 // 64
+    bzero
+    b|
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -164,7 +172,7 @@ __outlined2:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     retsub
@@ -172,8 +180,8 @@ __outlined2:
 
 // __outlined3(__outlined3_param0: any) -> void:
 __outlined3:
-    callsub __outlined6
     callsub __outlined5
+    callsub __outlined4
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -183,18 +191,8 @@ __outlined3:
     retsub
 
 
-// __outlined4(__outlined4_param0: any, __outlined4_param1: any, __outlined4_param2: any) -> any:
+// __outlined4(__outlined4_param0: any) -> any:
 __outlined4:
-    callsub __outlined3
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-
-// __outlined5(__outlined5_param0: any) -> any:
-__outlined5:
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -203,8 +201,8 @@ __outlined5:
     retsub
 
 
-// __outlined6(__outlined6_param0: any, __outlined6_param1: any) -> void:
-__outlined6:
+// __outlined5(__outlined5_param0: any, __outlined5_param1: any) -> void:
+__outlined5:
     swap
     concat
     log

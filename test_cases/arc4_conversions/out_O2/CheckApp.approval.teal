@@ -224,7 +224,11 @@ main_check_dyn_array_uin64_route@11:
     extract_uint16 // on error: invalid array length header
     pushint 8
     *
-    callsub __outlined13
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
     callsub __outlined4
     intc_1 // 1
@@ -263,7 +267,11 @@ main_check_dynamic_bytes_route@7:
     callsub __outlined1
     callsub __outlined0
     txna ApplicationArgs 1
-    callsub __outlined14
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
     callsub __outlined9
     dig 1
     len
@@ -364,7 +372,11 @@ __outlined4:
     dup
     intc_0 // 0
     callsub __outlined12
-    callsub __outlined15
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    ==
+    assert // expected to encode correctly
     retsub
 
 
@@ -400,7 +412,6 @@ __outlined7:
     dig 1
     len
     ==
-    callsub __outlined13
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     retsub
@@ -421,7 +432,11 @@ __outlined9:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    callsub __outlined13
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub
 
@@ -432,7 +447,6 @@ __outlined10:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    callsub __outlined15
     ==
     assert // expected to encode correctly
     intc_1 // 1
@@ -441,7 +455,9 @@ __outlined10:
 
 // __outlined11(__outlined11_param0: any, __outlined11_param1: any, __outlined11_param2: any, __outlined11_param3: any) -> void:
 __outlined11:
-    callsub __outlined15
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
     ==
     assert // expected to encode correctly
     intc_1 // 1
@@ -454,38 +470,7 @@ __outlined12:
     txna ApplicationArgs 2
     dup
     intc_0 // 0
-    callsub __outlined14
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
-    retsub
-
-
-// __outlined13(__outlined13_param0: any, __outlined13_param1: any) -> any, any:
-__outlined13:
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    retsub
-
-
-// __outlined14(__outlined14_param0: any) -> any, any:
-__outlined14:
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    retsub
-
-
-// __outlined15(__outlined15_param0: any, __outlined15_param1: any, __outlined15_param2: any, __outlined15_param3: any) -> void:
-__outlined15:
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    ==
-    assert // expected to encode correctly
     retsub

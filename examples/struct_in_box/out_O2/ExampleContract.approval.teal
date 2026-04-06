@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8 0
+    intcblock 8 1 0
     txn NumAppArgs
     bz main___algopy_default_create@10
     txn OnCompletion
@@ -18,27 +18,31 @@ main:
 
 main_get_user_route@6:
     txna ApplicationArgs 1
-    callsub __outlined0
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     box_get
     assert // User with that id does not exist
     pushbytes 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_attach_asset_to_user_route@5:
     txna ApplicationArgs 1
     dup
     len
-    intc_1 // 8
+    intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
     dup
     len
-    intc_1 // 8
+    intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     swap
@@ -51,11 +55,9 @@ main_attach_asset_to_user_route@5:
     dup
     box_del
     pop
-    callsub __outlined0
     swap
-    callsub __outlined0
     box_put
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_add_user_route@4:
@@ -91,7 +93,7 @@ main_add_user_route@4:
     pop
     swap
     box_put
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main___algopy_default_create@10:
@@ -101,13 +103,3 @@ main___algopy_default_create@10:
     !
     &&
     return
-
-
-// __outlined0(__outlined0_param0: any) -> any:
-__outlined0:
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
