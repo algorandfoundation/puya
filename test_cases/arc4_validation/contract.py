@@ -162,6 +162,14 @@ class ValidationContract(ARC4Contract, state_totals=StateTotals(global_bytes=1))
         n = GlobalState(ImmutableFixedArray[ARC4FrozenDynamicStruct, typing.Literal[3]], key="v")
         n.value.validate()
 
+    @arc4.abimethod()
+    def decode_uint64_with_validate(self, value: Bytes) -> None:
+        arc4.decode(UInt64, value)
+
+    @arc4.abimethod()
+    def decode_uint64_without_validate(self, value: Bytes) -> None:
+        arc4.decode(UInt64, value, validate=False)
+
     @arc4.abimethod(validate_encoding="unsafe_disabled")
     def validate_native_static_struct(self, value: Bytes) -> None:
         b = GlobalState(Bytes, key="v")

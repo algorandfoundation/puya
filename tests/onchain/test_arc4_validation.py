@@ -342,6 +342,25 @@ def test_native_validation_invalid(
         )
 
 
+def test_decode_uint64_with_validate_valid(arc4_validation_client: au.AppClient) -> None:
+    # 8 bytes is valid for UInt64
+    arc4_validation_client.send.call(_get_call_params("decode_uint64_with_validate", 8))
+
+
+def test_decode_uint64_with_validate_invalid(arc4_validation_client: au.AppClient) -> None:
+    # 7 bytes is invalid for UInt64, validation should reject
+    with pytest.raises(
+        au.LogicError,
+        match="invalid number of bytes for uint64",
+    ):
+        arc4_validation_client.send.call(_get_call_params("decode_uint64_with_validate", 7))
+
+
+def test_decode_uint64_without_validate_invalid(arc4_validation_client: au.AppClient) -> None:
+    # 7 bytes is invalid for UInt64, but validate=False skips the check
+    arc4_validation_client.send.call(_get_call_params("decode_uint64_without_validate", 7))
+
+
 def _get_call_params(
     method: str, size_or_bytes_value: bytes | int | tuple[int | bytes, ...]
 ) -> au.AppClientMethodCallParams:
