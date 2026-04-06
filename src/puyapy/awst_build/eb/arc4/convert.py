@@ -71,7 +71,7 @@ class DecodeBuilder(FunctionBuilder):
                 pass
             case _:
                 logger.error(
-                    "expected an ARC-4 encodable type and a Bytes argument",
+                    "expected a type argument, a Bytes argument, and an optional bool argument",
                     location=location,
                 )
                 return dummy_value(pytypes.BytesType, location)
