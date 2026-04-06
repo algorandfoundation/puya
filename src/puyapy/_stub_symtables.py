@@ -275,11 +275,8 @@ STUB_SYMTABLES: typing.Final[Mapping[str, Mapping[str, SymbolData]]] = {
         "arc4_create": SymbolData(fullname="algopy.arc4.arc4_create", module_public=True),
         "arc4_update": SymbolData(fullname="algopy.arc4.arc4_update", module_public=True),
         "emit": SymbolData(fullname="algopy.arc4.emit", module_public=True),
-        "_TNativeStruct": SymbolData(fullname="algopy.arc4._TNativeStruct", module_public=True),
-        "_TABIEncoded": SymbolData(fullname="algopy.arc4._TABIEncoded", module_public=True),
-        "_TNamedTuple": SymbolData(fullname="algopy.arc4._TNamedTuple", module_public=True),
-        "_ARC4Encodable": SymbolData(fullname="algopy.arc4._ARC4Encodable", module_public=True),
         "encode": SymbolData(fullname="algopy.arc4.encode", module_public=True),
+        "_TDecode": SymbolData(fullname="algopy.arc4._TDecode", module_public=True),
         "decode": SymbolData(fullname="algopy.arc4.decode", module_public=True),
     },
     "algopy.gtxn": {
