@@ -18,16 +18,18 @@ main:
 
 main_named_tuple_itxn3_route@6:
     callsub __outlined0
+    return
 
 main_named_tuple_itxn2_route@5:
+    txna ApplicationArgs 1
     callsub __outlined0
     callsub __outlined1
     return
 
 main_named_tuple_itxn_route@4:
     callsub __outlined0
-    txna ApplicationArgs 1
     dup
+    len
     callsub __outlined1
     callsub __outlined2
     return
@@ -41,66 +43,62 @@ main___algopy_default_create@10:
     return
 
 
-// __outlined0() -> void:
+// __outlined0() -> any:
 __outlined0:
     callsub __outlined1
-    len
     pushint 8
     ==
     callsub __outlined2
+    assert // invalid number of bytes for arc4.uint64
     callsub __outlined3
-    return
     retsub
 
 
-// __outlined1() -> any:
+// __outlined1(__outlined1_param0: any) -> any:
 __outlined1:
     callsub __outlined2
-    assert // invalid number of bytes for arc4.uint64
     btoi
-    callsub __outlined3
     itxn_begin
+    callsub __outlined3
     txn Sender
+    itxn_field Receiver
     callsub __outlined4
+    retsub
 
 
 // __outlined2(__outlined2_param0: any, __outlined2_param1: any) -> any:
 __outlined2:
     callsub __outlined3
-    itxn_field Receiver
+    itxn_field Amount
+    intc_0 // pay
     callsub __outlined4
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn Amount
+    !
+    assert
+    intc_0 // 1
+    retsub
+
+
+// __outlined3(__outlined3_param0: any) -> any:
+__outlined3:
+    callsub __outlined4
+    itxn_submit
+    itxn Amount
+    !
+    assert
+    intc_0 // 1
+    retsub
+
+
+// __outlined4(__outlined4_param0: any) -> any:
+__outlined4:
     itxn_field Amount
     intc_0 // pay
     itxn_field TypeEnum
-    callsub __outlined5
-
-
-// __outlined3(__outlined3_param0: any, __outlined3_param1: any) -> any:
-__outlined3:
-    callsub __outlined4
-    intc_1 // 0
-    callsub __outlined5
-    itxn_field Fee
-    itxn_submit
-    itxn Amount
-    !
-    assert
-    intc_0 // 1
-    retsub
-
-
-// __outlined4(__outlined4_param0: any, __outlined4_param1: any) -> void:
-__outlined4:
-    itxn_field Receiver
-    callsub __outlined5
-    assert
-    intc_0 // 1
-    retsub
-    retsub
-
-
-// __outlined5() -> void:
-__outlined5:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
@@ -108,5 +106,4 @@ __outlined5:
     !
     assert
     intc_0 // 1
-    retsub
     retsub

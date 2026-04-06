@@ -96,6 +96,7 @@ main_after_for@29:
     ==
     assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>
     callsub __outlined0
+    return
 
 main_check_dyn_array_dyn_struct_route@15:
     txna ApplicationArgs 1
@@ -171,6 +172,7 @@ main_after_for@34:
     txna ApplicationArgs 2
     dup
     callsub __outlined7
+    extract 2 0
     dig 5
     ==
     assert // expected to encode correctly
@@ -184,10 +186,11 @@ main_check_static_array_struct_route@14:
     pushint 120
     ==
     assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>
-    callsub __outlined12
-    callsub __outlined0
-    dig 1
+    txna ApplicationArgs 2
     callsub __outlined10
+    callsub __outlined0
+    callsub __outlined11
+    intc_1 // 1
     return
 
 main_check_dyn_array_struct_route@13:
@@ -200,8 +203,9 @@ main_check_dyn_array_struct_route@13:
     intc_2 // 2
     +
     dig 1
+    len
+    ==
     callsub __outlined0
-    assert // expected to encode correctly
     intc_1 // 1
     return
 
@@ -214,81 +218,76 @@ main_check_static_array_uin64_3_route@12:
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint64, 3>
     callsub __outlined1
+    intc_1 // 1
     return
 
 main_check_dyn_array_uin64_route@11:
-    callsub __outlined0
-    txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 8
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
-    callsub __outlined4
-    intc_1 // 1
     callsub __outlined1
+    txna ApplicationArgs 2
+    callsub __outlined2
     return
 
 main_check_bool_route@10:
     callsub __outlined0
-    callsub __outlined1
-    callsub __outlined11
-
-main_check_biguint_route@9:
-    callsub __outlined1
     txna ApplicationArgs 1
     dup
-    len
-    pushint 64
+    callsub __outlined1
+    callsub __outlined12
+    return
+
+main_check_biguint_route@9:
+    callsub __outlined10
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    callsub __outlined12
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
     ==
-    assert // invalid number of bytes for arc4.uint512
-    txna ApplicationArgs 2
-    callsub __outlined2
+    assert // expected to encode correctly
+    intc_1 // 1
+    return
 
 main_check_string_route@8:
     callsub __outlined1
     callsub __outlined0
     txna ApplicationArgs 1
-    callsub __outlined9
-    txna ApplicationArgs 2
     dup
-    callsub __outlined5
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    callsub __outlined10
     callsub __outlined2
     callsub __outlined4
     return
 
 main_check_dynamic_bytes_route@7:
     callsub __outlined1
-    callsub __outlined0
-    txna ApplicationArgs 1
-    dup
+    callsub __outlined2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
-    +
-    callsub __outlined9
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    callsub __outlined2
+    callsub __outlined4
+    callsub __outlined6
     return
 
 main_check_uint64_route@6:
     callsub __outlined2
+    callsub __outlined1
+    callsub __outlined0
+    txna ApplicationArgs 1
+    dup
     len
     pushint 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    txna ApplicationArgs 2
-    dup
     callsub __outlined3
+    assert // expected to encode correctly
+    intc_1 // 1
+    return
 
 main_delete_application_route@3:
     txn OnCompletion
@@ -307,7 +306,7 @@ main___algopy_default_create@21:
     return
 
 
-// __outlined0(__outlined0_param0: any) -> void:
+// __outlined0(__outlined0_param0: any) -> any:
 __outlined0:
     callsub __outlined2
     callsub __outlined1
@@ -316,87 +315,76 @@ __outlined0:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
-    callsub __outlined12
-    +
-    dig 1
     callsub __outlined3
     callsub __outlined8
+    intc_1 // 1
+    callsub __outlined6
+    retsub
 
 
-// __outlined1(__outlined1_param0: any) -> any:
+// __outlined1(__outlined1_param0: any) -> void:
 __outlined1:
-    callsub __outlined4
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    callsub __outlined5
-    callsub __outlined6
-    retsub
-
-
-// __outlined2(__outlined2_param0: any, __outlined2_param1: any) -> void:
-__outlined2:
     callsub __outlined3
-    intc_2 // 2
-    +
-    dig 1
-    callsub __outlined6
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    ==
-    callsub __outlined8
+    callsub __outlined5
     assert // expected to encode correctly
-    intc_1 // 1
-    return
     retsub
 
 
-// __outlined3(__outlined3_param0: any, __outlined3_param1: any, __outlined3_param2: any) -> void:
+// __outlined2(__outlined2_param0: any, __outlined2_param1: any) -> any:
+__outlined2:
+    callsub __outlined12
+    assert // expected to encode correctly
+    intc_1 // 1
+    retsub
+
+
+// __outlined3(__outlined3_param0: any) -> any:
 __outlined3:
-    callsub __outlined8
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    callsub __outlined11
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_1 // 1
-    return
-    retsub
-
-
-// __outlined4(__outlined4_param0: any) -> void:
-__outlined4:
     txna ApplicationArgs 2
     dup
     intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    callsub __outlined5
+    callsub __outlined9
+    retsub
+
+
+// __outlined4(__outlined4_param0: any, __outlined4_param1: any, __outlined4_param2: any) -> any:
+__outlined4:
+    callsub __outlined6
+    callsub __outlined5
+    +
+    dig 1
+    len
     callsub __outlined12
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    ==
     assert // expected to encode correctly
+    intc_1 // 1
     retsub
 
 
 // __outlined5(__outlined5_param0: any, __outlined5_param1: any, __outlined5_param2: any) -> any:
 __outlined5:
     callsub __outlined7
+    +
+    dig 1
+    callsub __outlined9
     len
     ==
-    callsub __outlined10
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
-    assert // expected to encode correctly
-    intc_1 // 1
     retsub
 
 
-// __outlined6(__outlined6_param0: any, __outlined6_param1: any, __outlined6_param2: any) -> any:
+// __outlined6(__outlined6_param0: any, __outlined6_param1: any, __outlined6_param2: any, __outlined6_param3: any) -> any:
 __outlined6:
-    callsub __outlined10
+    callsub __outlined8
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __outlined11
+    extract 2 0
     ==
     assert // expected to encode correctly
     intc_1 // 1
@@ -413,64 +401,58 @@ __outlined7:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
     retsub
 
 
 // __outlined8(__outlined8_param0: any, __outlined8_param1: any, __outlined8_param2: any, __outlined8_param3: any) -> void:
 __outlined8:
     callsub __outlined11
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    ==
     assert // expected to encode correctly
-    intc_1 // 1
-    return
-    retsub
     retsub
 
 
-// __outlined9(__outlined9_param0: any) -> any:
+// __outlined9(__outlined9_param0: any, __outlined9_param1: any, __outlined9_param2: any, __outlined9_param3: any) -> any:
 __outlined9:
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    ==
+    retsub
+
+
+// __outlined10(__outlined10_param0: any) -> any, any, any:
+__outlined10:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
     dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    retsub
-
-
-// __outlined10(__outlined10_param0: any, __outlined10_param1: any, __outlined10_param2: any, __outlined10_param3: any) -> any:
-__outlined10:
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    ==
-    assert // expected to encode correctly
-    intc_1 // 1
     retsub
 
 
 // __outlined11(__outlined11_param0: any, __outlined11_param1: any, __outlined11_param2: any, __outlined11_param3: any) -> void:
 __outlined11:
+    len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     ==
     assert // expected to encode correctly
-    intc_1 // 1
-    return
     retsub
 
 
-// __outlined12() -> any, any:
+// __outlined12(__outlined12_param0: any, __outlined12_param1: any, __outlined12_param2: any) -> any:
 __outlined12:
-    txna ApplicationArgs 2
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    ==
+    assert // expected to encode correctly
+    intc_1 // 1
     retsub

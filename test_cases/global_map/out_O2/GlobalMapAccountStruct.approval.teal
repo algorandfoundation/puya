@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 32 12
+    intcblock 1 0 32
     bytecblock "map" 0x151f7c75 0x00
     intc_1 // 0
     pushbytes ""
@@ -23,6 +23,7 @@ main_get_via_state_route@13:
     callsub __outlined0
     assert // check GlobalState exists
     callsub __outlined4
+    return
 
 main_maybe_route@12:
     callsub __outlined2
@@ -42,9 +43,14 @@ main_maybe_route@12:
 
 main_after_if_else@24:
     bytec_2 // 0x00
+    intc_1 // 0
     callsub __outlined4
     bytec_1 // 0x151f7c75
-    callsub __outlined5
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
 
 main_prefix_route@11:
     pushbytes 0x151f7c7500036d6170
@@ -57,9 +63,13 @@ main_in__route@10:
     app_global_get_ex
     bury 1
     bytec_2 // 0x00
-    callsub __outlined5
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
     swap
     concat
+    callsub __outlined4
     log
     intc_0 // 1
     return
@@ -75,7 +85,7 @@ main_set_route@8:
     txna ApplicationArgs 2
     dup
     len
-    intc_3 // 12
+    pushint 12
     ==
     assert // invalid number of bytes for test_cases.global_map.account_struct.Data
     bytec_0 // "map"
@@ -87,13 +97,14 @@ main_set_route@8:
     return
 
 main_get_with_default_route@7:
-    txna ApplicationArgs 1
-    dup
-    callsub __outlined4
-    len
-    intc_3 // 12
-    ==
     callsub __outlined5
+    callsub __outlined4
+    ==
+    assert // invalid number of bytes for test_cases.global_map.account_struct.Data
+    bytec_0 // "map"
+    uncover 2
+    concat
+    intc_1 // 0
     swap
     app_global_get_ex
     select
@@ -119,8 +130,8 @@ main_get_route@6:
     intc_1 // 0
     callsub __outlined3
     swap
-    concat
     callsub __outlined5
+    concat
     log
     intc_0 // 1
     return
@@ -162,11 +173,7 @@ __outlined1:
 
 // __outlined2() -> any, any:
 __outlined2:
-    callsub __outlined3
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 32
+    callsub __outlined5
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     bytec_0 // "map"
@@ -175,6 +182,7 @@ __outlined2:
 
 // __outlined3() -> any:
 __outlined3:
+    callsub __outlined5
     txna ApplicationArgs 1
     dup
     len
@@ -184,23 +192,21 @@ __outlined3:
     retsub
 
 
-// __outlined4(__outlined4_param0: any) -> void:
+// __outlined4(__outlined4_param0: any) -> any:
 __outlined4:
-    callsub __outlined5
     bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
-    return
     retsub
 
 
-// __outlined5(__outlined5_param0: any, __outlined5_param1: any) -> void:
+// __outlined5() -> any, any:
 __outlined5:
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
     retsub

@@ -95,7 +95,8 @@ main_after_inlined_test_cases.mutable_native_types.contract.Contract.test_match_
     intc_0 // 0
     uncover 2
     setbit
-    callsub __outlined3
+    callsub __outlined4
+    return
 
 main_switch_case_0@26:
     intc_1 // 1
@@ -284,8 +285,13 @@ main_after_for@35:
     assert // and the sum shall be 41
     pushbytes "arr"
     dig 1
-    callsub __outlined3
+    app_global_put
     callsub __outlined4
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
     return
 
 main_calculate_sum_route@16:
@@ -332,34 +338,29 @@ main_calculate_sum_route@16:
     +
 
 main_after_if_else@39:
-    callsub __outlined3
-    swap
+    callsub __outlined4
     concat
     log
     intc_1 // 1
     return
 
 main_tup_return_route@15:
-    callsub __outlined3
-    extract 32 16
-    bytec_3 // 0x151f7c75
+    intc_0 // 0
+    callsub __outlined4
     swap
     concat
-    callsub __outlined4
     log
     intc_1 // 1
     return
 
 main_struct_return_route@14:
-    callsub __outlined3
-    intc_0 // 0
+    callsub __outlined4
     bytec_0 // "nested"
     app_global_get_ex
     assert // check self.nested exists
     extract 0 16
     bytec_3 // 0x151f7c75
     swap
-    callsub __outlined4
     concat
     log
     intc_1 // 1
@@ -461,7 +462,13 @@ main_local_struct_route@11:
     swap
     assert // use bar
     assert // use baz
-    callsub __outlined3
+    callsub do_something
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    callsub __outlined4
+    intc_1 // 1
     return
 
 main_create_storage_route@10:
@@ -496,9 +503,9 @@ main_create_storage_route@10:
 main_increment_payment_route@9:
     txna ApplicationArgs 1
     dup
-    callsub __outlined5
+    callsub __outlined3
     txna ApplicationArgs 2
-    callsub __outlined5
+    callsub __outlined3
     btoi
     intc_0 // 0
     bytec_1 // "num_payments"
@@ -629,7 +636,7 @@ __outlined0:
     callsub __outlined1
     txna ApplicationArgs 1
     dup
-    callsub __outlined5
+    callsub __outlined3
     retsub
 
 
@@ -646,7 +653,7 @@ __outlined1:
 
 // __outlined2(__outlined2_param0: any) -> any:
 __outlined2:
-    callsub __outlined5
+    callsub __outlined3
     dup
     len
     intc_3 // 8
@@ -656,15 +663,13 @@ __outlined2:
     retsub
 
 
-// __outlined3(__outlined3_param0: any) -> void:
+// __outlined3(__outlined3_param0: any, __outlined3_param1: any) -> any:
 __outlined3:
-    callsub __outlined4
-    bytec_3 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_1 // 1
-    return
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
     retsub
 
 
@@ -675,14 +680,4 @@ __outlined4:
     concat
     log
     intc_1 // 1
-    retsub
-
-
-// __outlined5(__outlined5_param0: any, __outlined5_param1: any) -> any:
-__outlined5:
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
     retsub

@@ -64,7 +64,7 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
         tuple(block.ops[i:i + wsize])
         for teal_sub in teal_program.all_subroutines
         for block in teal_sub.blocks
-        for i in range(len(block.ops) - wsize + 1)
+        for i in range(len(block.ops) - wsize) # Skips the terminator at the end!
     )
     gadget_appearances = Counter(windows)
 
@@ -110,7 +110,7 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
             for sub in teal_program.all_subroutines:
                 for block in sub.blocks:
                     i = 0
-                    lasti = len(block.ops) - wsize + 1
+                    lasti = len(block.ops) - wsize
                     while i < lasti:
                         if tuple(block.ops[i:i + wsize]) == win:
                             matches.append((block, i - len(matches) * wsize))

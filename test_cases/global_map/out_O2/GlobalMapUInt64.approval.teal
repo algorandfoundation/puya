@@ -21,6 +21,7 @@ main_get_via_state_route@13:
     callsub __outlined0
     assert // check GlobalState exists
     callsub __outlined4
+    return
 
 main_maybe_route@12:
     callsub __outlined1
@@ -33,7 +34,8 @@ main_maybe_route@12:
     uncover 3
     setbit
     concat
-    callsub __outlined5
+    callsub __outlined6
+    return
 
 main_prefix_route@11:
     pushbytes 0x151f7c7500036d6170
@@ -45,8 +47,13 @@ main_in__route@10:
     callsub __outlined0
     intc_1 // 0
     swap
-    callsub __outlined5
+    app_global_get_ex
     callsub __outlined6
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
     return
 
 main_delete_route@9:
@@ -58,10 +65,8 @@ main_delete_route@9:
 
 main_set_route@8:
     txna ApplicationArgs 1
-    dup
-    callsub __outlined7
-    txna ApplicationArgs 2
-    callsub __outlined7
+    callsub __outlined5
+    callsub __outlined5
     btoi
     swap
     itob
@@ -76,15 +81,11 @@ main_set_route@8:
 main_get_with_default_route@7:
     txna ApplicationArgs 1
     dup
+    callsub __outlined7
+    txna ApplicationArgs 2
+    dup
     len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
     callsub __outlined5
-    assert // invalid number of bytes for arc4.uint64
-    callsub __outlined6
-    bytec_1 // 0x151f7c75
-    swap
     concat
     log
     intc_0 // 1
@@ -93,11 +94,7 @@ main_get_with_default_route@7:
 main_get_route@6:
     callsub __outlined0
     txna ApplicationArgs 1
-    dup
-    callsub __outlined3
-    callsub __outlined1
-    concat
-    intc_1 // 0
+    callsub __outlined6
     swap
     callsub __outlined2
     app_global_get_ex
@@ -106,9 +103,9 @@ main_get_route@6:
     bytec_1 // 0x151f7c75
     swap
     concat
-    callsub __outlined4
     log
     intc_0 // 1
+    callsub __outlined4
     return
 
 main___algopy_default_create@17:
@@ -128,6 +125,11 @@ __outlined0:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    itob
+    callsub __outlined3
+    bytec_0 // "map"
+    swap
+    concat
     callsub __outlined7
     intc_1 // 0
     swap
@@ -164,10 +166,6 @@ __outlined2:
 // __outlined3(__outlined3_param0: any, __outlined3_param1: any) -> any, any:
 __outlined3:
     callsub __outlined7
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
     btoi
     itob
     bytec_0 // "map"
@@ -175,24 +173,27 @@ __outlined3:
     retsub
 
 
-// __outlined4(__outlined4_param0: any) -> void:
+// __outlined4(__outlined4_param0: any) -> any:
 __outlined4:
-    callsub __outlined5
     callsub __outlined6
-    intc_0 // 1
-    return
-    retsub
-
-
-// __outlined5(__outlined5_param0: any) -> void:
-__outlined5:
-    callsub __outlined6
+    itob
     bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
-    return
+    retsub
+
+
+// __outlined5(__outlined5_param0: any) -> any:
+__outlined5:
+    callsub __outlined7
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
     retsub
 
 

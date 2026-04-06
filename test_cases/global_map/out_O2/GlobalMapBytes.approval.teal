@@ -23,6 +23,7 @@ main_get_via_state_route@13:
     callsub __outlined0
     assert // check GlobalState exists
     callsub __outlined2
+    return
 
 main_maybe_route@12:
     txna ApplicationArgs 1
@@ -33,7 +34,7 @@ main_maybe_route@12:
     +
     dig 1
     callsub __outlined0
-    callsub __outlined9
+    callsub __outlined8
     intc_0 // 0
     swap
     app_global_get_ex
@@ -60,7 +61,8 @@ main_after_if_else@24:
     pushbytes 0x0003
     swap
     concat
-    callsub __outlined7
+    callsub __outlined9
+    return
 
 main_prefix_route@11:
     pushbytes 0x151f7c7500036d6170
@@ -81,7 +83,12 @@ main_in__route@10:
     intc_0 // 0
     uncover 2
     setbit
-    callsub __outlined10
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
 
 main_delete_route@9:
     callsub __outlined1
@@ -90,9 +97,9 @@ main_delete_route@9:
     return
 
 main_set_route@8:
-    callsub __outlined4
-    txna ApplicationArgs 2
     callsub __outlined3
+    txna ApplicationArgs 2
+    callsub __outlined4
     uncover 2
     concat
     swap
@@ -104,29 +111,25 @@ main_get_with_default_route@7:
     callsub __outlined5
     extract 2 0
     txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    callsub __outlined9
     callsub __outlined10
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     return
 
 main_get_route@6:
-    callsub __outlined0
-    txna ApplicationArgs 1
-    callsub __outlined6
-    bytec_0 // "map"
-    callsub __outlined4
-    callsub __outlined3
-    callsub __outlined5
+    callsub __outlined10
     swap
     concat
     bytec_1 // 0x151f7c75
     swap
-    callsub __outlined2
     concat
     log
+    callsub __outlined2
     intc_1 // 1
     return
 
@@ -148,7 +151,7 @@ __outlined0:
     swap
     concat
     intc_0 // 0
-    callsub __outlined9
+    callsub __outlined8
     swap
     app_global_get_ex
     retsub
@@ -156,97 +159,90 @@ __outlined0:
 
 // __outlined1() -> any:
 __outlined1:
-    callsub __outlined9
-    bytec_0 // "map"
-    swap
-    concat
-    retsub
-
-
-// __outlined2(__outlined2_param0: any) -> void:
-__outlined2:
-    dup
-    callsub __outlined7
-    log
-    intc_1 // 1
-    return
-    retsub
-
-
-// __outlined3(__outlined3_param0: any) -> any, any:
-__outlined3:
-    dup
-    intc_0 // 0
-    callsub __outlined6
-    callsub __outlined8
-    bytec_0 // "map"
-    retsub
-
-
-// __outlined4() -> any:
-__outlined4:
-    callsub __outlined5
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    callsub __outlined8
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    retsub
-
-
-// __outlined5() -> any:
-__outlined5:
+    callsub __outlined3
     txna ApplicationArgs 1
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
     +
+    callsub __outlined4
     dig 1
     len
     ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __outlined8
+    extract 2 0
+    bytec_0 // "map"
+    swap
+    concat
+    retsub
+
+
+// __outlined2(__outlined2_param0: any) -> any:
+__outlined2:
+    dup
+    len
+    callsub __outlined9
+    log
+    intc_1 // 1
+    retsub
+
+
+// __outlined3() -> any:
+__outlined3:
+    callsub __outlined5
+    callsub __outlined7
+    extract 2 0
+    retsub
+
+
+// __outlined4(__outlined4_param0: any) -> any, any:
+__outlined4:
+    dup
+    intc_0 // 0
+    callsub __outlined6
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    callsub __outlined12
+    extract 2 0
     callsub __outlined11
+    bytec_0 // "map"
+    retsub
+
+
+// __outlined5() -> any:
+__outlined5:
+    txna ApplicationArgs 1
+    callsub __outlined12
+    +
+    dig 1
+    len
+    ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub
 
 
 // __outlined6(__outlined6_param0: any) -> any:
 __outlined6:
-    callsub __outlined8
-    dig 1
-    len
+    callsub __outlined12
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     retsub
 
 
-// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> void:
+// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> any:
 __outlined7:
-    callsub __outlined10
-    log
-    intc_1 // 1
-    return
+    callsub __outlined11
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub
 
 
 // __outlined8(__outlined8_param0: any, __outlined8_param1: any, __outlined8_param2: any) -> any:
 __outlined8:
-    callsub __outlined11
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    retsub
-
-
-// __outlined9(__outlined9_param0: any, __outlined9_param1: any, __outlined9_param2: any) -> any:
-__outlined9:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
@@ -257,20 +253,42 @@ __outlined9:
     retsub
 
 
-// __outlined10(__outlined10_param0: any) -> void:
-__outlined10:
+// __outlined9(__outlined9_param0: any, __outlined9_param1: any) -> any:
+__outlined9:
+    callsub __outlined10
     bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    return
+    retsub
+
+
+// __outlined10(__outlined10_param0: any, __outlined10_param1: any) -> void:
+__outlined10:
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
     retsub
 
 
 // __outlined11(__outlined11_param0: any, __outlined11_param1: any) -> any:
 __outlined11:
+    callsub __outlined12
     intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    retsub
+
+
+// __outlined12(__outlined12_param0: any, __outlined12_param1: any, __outlined12_param2: any) -> any:
+__outlined12:
     +
     dig 1
     len

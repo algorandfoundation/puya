@@ -3,10 +3,10 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 32 2
-    bytecblock "map" 0x 0x00 0x151f7c75
+    intcblock 0 1 2 32
+    bytecblock "map" 0x151f7c75 0x 0x00
     intc_0 // 0
-    bytec_1 // ""
+    bytec_2 // ""
     pushbytes 0x4c5c61ba // method "create()void"
     txna ApplicationArgs 0
     match main_create_route@4
@@ -24,12 +24,13 @@ main_get_via_state_route@14:
     callsub __outlined0
     assert // check LocalState exists for account
     callsub __outlined5
+    return
 
 main_maybe_route@13:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 32
+    intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
@@ -43,7 +44,7 @@ main_maybe_route@13:
     bury 3
     bury 3
     bnz main_after_if_else@22
-    bytec_1 // 0x
+    bytec_2 // 0x
     bury 2
 
 main_after_if_else@22:
@@ -54,14 +55,15 @@ main_after_if_else@22:
     extract 6 2
     swap
     concat
-    bytec_2 // 0x00
+    bytec_3 // 0x00
     intc_0 // 0
     dig 3
     setbit
     pushbytes 0x0003
     swap
     concat
-    callsub __outlined7
+    callsub __outlined9
+    return
 
 main_prefix_route@12:
     pushbytes 0x151f7c7500036d6170
@@ -71,24 +73,23 @@ main_prefix_route@12:
 
 main_in__route@11:
     callsub __outlined0
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    bytec_0 // "map"
+    callsub __outlined10
     swap
     concat
     intc_0 // 0
     swap
     app_local_get_ex
     bury 1
-    bytec_2 // 0x00
+    bytec_3 // 0x00
     intc_0 // 0
     uncover 2
     setbit
-    callsub __outlined9
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
 
 main_delete_route@10:
     callsub __outlined1
@@ -99,10 +100,7 @@ main_delete_route@10:
 main_set_route@9:
     callsub __outlined2
     txna ApplicationArgs 3
-    callsub __outlined8
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    bytec_0 // "map"
+    callsub __outlined6
     uncover 2
     concat
     swap
@@ -113,10 +111,10 @@ main_set_route@9:
 main_get_with_default_route@8:
     callsub __outlined3
     extract 2 0
-    txna ApplicationArgs 3
-    dup
     callsub __outlined9
-    bytec_3 // 0x151f7c75
+    swap
+    concat
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -128,12 +126,13 @@ main_get_route@7:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 32
+    intc_3 // 32
     callsub __outlined2
     intc_0 // 0
     swap
+    app_local_get_ex
+    assert // check self.map entry exists for account
     callsub __outlined5
-    intc_1 // 1
     return
 
 main_create_route@4:
@@ -149,7 +148,7 @@ main_create_route@4:
 // __outlined0() -> any, any:
 __outlined0:
     callsub __outlined1
-    callsub __outlined6
+    callsub __outlined7
     callsub __outlined4
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
@@ -168,7 +167,7 @@ __outlined1:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 32
+    intc_3 // 32
     ==
     callsub __outlined4
     bytec_0 // "map"
@@ -181,29 +180,25 @@ __outlined1:
 __outlined2:
     callsub __outlined3
     len
-    intc_2 // 32
+    intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    callsub __outlined6
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __outlined7
+    callsub __outlined11
     extract 2 0
     retsub
 
 
 // __outlined3() -> any, any:
 __outlined3:
-    callsub __outlined6
-    intc_3 // 2
+    callsub __outlined7
+    intc_2 // 2
     +
+    callsub __outlined11
     dig 1
     len
     ==
@@ -216,46 +211,44 @@ __outlined4:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    callsub __outlined6
+    intc_2 // 2
     +
     dig 1
-    callsub __outlined8
     len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    bytec_0 // "map"
-    swap
+    callsub __outlined11
     concat
     retsub
 
 
-// __outlined5(__outlined5_param0: any) -> void:
+// __outlined5(__outlined5_param0: any) -> any:
 __outlined5:
     dup
-    callsub __outlined7
+    len
+    callsub __outlined9
     log
     intc_1 // 1
-    return
     retsub
 
 
-// __outlined6(__outlined6_param0: any, __outlined6_param1: any) -> any, any:
+// __outlined6(__outlined6_param0: any) -> any, any:
 __outlined6:
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    callsub __outlined10
+    bytec_0 // "map"
+    retsub
+
+
+// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> any, any:
+__outlined7:
     callsub __outlined8
     +
     dig 1
     len
     ==
-    retsub
-
-
-// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> void:
-__outlined7:
-    callsub __outlined9
-    log
-    intc_1 // 1
-    return
     retsub
 
 
@@ -264,7 +257,7 @@ __outlined8:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    intc_2 // 2
     +
     dig 1
     len
@@ -272,12 +265,36 @@ __outlined8:
     retsub
 
 
-// __outlined9(__outlined9_param0: any) -> void:
+// __outlined9(__outlined9_param0: any, __outlined9_param1: any) -> any:
 __outlined9:
-    bytec_3 // 0x151f7c75
+    swap
+    concat
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    return
+    retsub
+
+
+// __outlined10(__outlined10_param0: any, __outlined10_param1: any, __outlined10_param2: any) -> any, any:
+__outlined10:
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    bytec_0 // "map"
+    retsub
+
+
+// __outlined11(__outlined11_param0: any, __outlined11_param1: any) -> any:
+__outlined11:
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub

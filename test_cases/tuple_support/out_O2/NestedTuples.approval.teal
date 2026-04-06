@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 2 8
-    bytecblock "twm" 0x151f7c75 "box" "" "build_nested_call_count" 0x0004
+    bytecblock 0x151f7c75 "twm" "box" "" "build_nested_call_count" 0x0004 "pwl"
     intc_1 // 0
     dupn 2
     bytec_3 // ""
@@ -14,7 +14,7 @@ main:
     bytec 4 // "build_nested_call_count"
     intc_1 // 0
     app_global_put
-    bytec_0 // "twm"
+    bytec_1 // "twm"
     pushbytes 0x0004000600000000000000000000000c000e00000000
     app_global_put
 
@@ -51,6 +51,7 @@ main_nested_named_tuple_params_route@19:
     ==
     assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
     callsub __outlined9
+    return
 
 main_named_tuple_route@18:
     txna ApplicationArgs 1
@@ -60,8 +61,13 @@ main_named_tuple_route@18:
     dig 3
     substring3
     intc_1 // 0
+    extract_uint16 // on error: invalid array length header
     callsub __outlined9
-    callsub __outlined10
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
     return
 
 main_nested_tuple_params_route@17:
@@ -142,21 +148,18 @@ main_nested_tuple_params_route@17:
     extract 6 2
     uncover 4
     concat
-    pushbytes 0x000a
-    uncover 4
-    concat
-    swap
-    concat
+    callsub __outlined9
     swap
     itob
     extract 6 2
     bytec 5 // 0x0004
+    callsub __outlined5
+    bytec_0 // 0x151f7c75
     swap
     concat
-    uncover 2
-    concat
-    swap
-    callsub __outlined6
+    log
+    intc_0 // 1
+    return
 
 main_run_tests_route@16:
     intc_0 // 1
@@ -267,7 +270,7 @@ main_for_header_1@88:
 
 main_mutate_tuple_in_storage_currently_supported_method_route@15:
     intc_1 // 0
-    bytec_0 // "twm"
+    bytec_1 // "twm"
     app_global_get_ex
     assert // check self.twm exists
     dup
@@ -336,21 +339,11 @@ main_mutate_tuple_in_storage_currently_supported_method_route@15:
     len
     itob
     extract 6 2
-    uncover 5
-    concat
-    swap
-    itob
-    extract 6 2
-    uncover 2
+    callsub __outlined5
     swap
     concat
     uncover 2
-    concat
-    swap
-    concat
-    swap
-    itob
-    extract 6 2
+    callsub __outlined5
     bytec 5 // 0x0004
     swap
     concat
@@ -358,7 +351,7 @@ main_mutate_tuple_in_storage_currently_supported_method_route@15:
     concat
     swap
     concat
-    bytec_0 // "twm"
+    bytec_1 // "twm"
     swap
     app_global_put
     intc_0 // 1
@@ -421,20 +414,15 @@ main_load_tuple_from_local_state_or_default_route@13:
     swap
     bury 17
     bz main_ternary_false@43
-    callsub __outlined4
+    callsub __outlined6
+    extract_uint64
 
 main_ternary_merge@44:
     swap
     itob
     swap
     itob
-    concat
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    callsub __outlined6
-    log
-    intc_0 // 1
+    callsub __outlined8
     return
 
 main_ternary_false@43:
@@ -446,14 +434,27 @@ main_load_tuple_from_box_or_default_route@12:
     callsub __outlined3
     pushint 4
     intc_2 // 2
-    callsub __outlined4
-    callsub __outlined7
+    callsub simple_tup
+    callsub __outlined6
+    dig 15
+    dup
+    intc_1 // 0
+    extract_uint64
+    swap
+    intc_3 // 8
     extract_uint64
 
 main_ternary_merge@49:
     swap
-    callsub __outlined6
+    itob
+    swap
+    itob
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
     log
+    callsub __outlined8
     intc_0 // 1
     return
 
@@ -465,9 +466,15 @@ main_ternary_false@48:
 main_maybe_load_tuple_from_box_route@11:
     txna ApplicationArgs 1
     dup
-    callsub __outlined4
-    box_get
-    callsub __outlined7
+    len
+    pushint 16
+    callsub __outlined6
+    dup
+    cover 2
+    bury 13
+    callsub __outlined3
+    bury 17
+    bz main_ternary_false@53
     dig 15
     dup
     intc_1 // 0
@@ -481,8 +488,19 @@ main_ternary_merge@54:
     itob
     swap
     itob
-    callsub __outlined6
-    callsub __outlined11
+    concat
+    pushbytes 0x00
+    intc_1 // 0
+    dig 13
+    setbit
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    callsub __outlined8
+    log
+    intc_0 // 1
+    return
 
 main_ternary_false@53:
     bytec_3 // ""
@@ -490,9 +508,11 @@ main_ternary_false@53:
     b main_ternary_merge@54
 
 main_load_tuple_from_box_route@10:
-    callsub __outlined3
-    concat
     callsub __outlined9
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
     intc_0 // 1
     return
 
@@ -507,10 +527,9 @@ main_is_tuple_in_box_route@9:
     box_len
     bury 1
     pushbytes 0x00
-    callsub __outlined11
-    swap
-    concat
-    log
+    intc_1 // 0
+    uncover 2
+    callsub __outlined9
     intc_0 // 1
     return
 
@@ -541,7 +560,14 @@ main_store_tuple_in_box_route@8:
     return
 
 main_load_tuple_route@7:
-    callsub __outlined11
+    callsub __outlined9
+    intc_1 // 0
+    bytec 6 // "pwl"
+    app_global_get_ex
+    assert // check self.pwl exists
+    bytec_0 // 0x151f7c75
+    swap
+    concat
     log
     intc_0 // 1
     return
@@ -566,7 +592,7 @@ main_store_tuple_route@6:
     dig 2
     callsub __outlined2
     cover 2
-    callsub __outlined5
+    callsub __outlined4
     pushint 22
     +
     dup
@@ -602,8 +628,8 @@ main_for_header@65:
     dig 8
     dup
     intc_2 // 2
-    callsub __outlined5
-    callsub __outlined8
+    callsub __outlined4
+    callsub __outlined7
     +
     +
     bury 9
@@ -621,7 +647,7 @@ main_after_for@67:
     dig 1
     ==
     assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
-    pushbytes "pwl"
+    bytec 6 // "pwl"
     dig 15
     app_global_put
     intc_0 // 1
@@ -668,9 +694,9 @@ __outlined0:
     callsub __outlined1
     swap
     dig 2
-    callsub __outlined5
+    callsub __outlined4
     extract_uint16 // on error: invalid tuple encoding
-    callsub __outlined8
+    callsub __outlined7
     cover 3
     substring3
     intc_1 // 0
@@ -730,20 +756,9 @@ __outlined3:
     retsub
 
 
-// __outlined4(__outlined4_param0: any, __outlined4_param1: any, __outlined4_param2: any, __outlined4_param3: any, __outlined4_param4: any, __outlined4_param5: any, __outlined4_param6: any, __outlined4_param7: any, __outlined4_param8: any, __outlined4_param9: any, __outlined4_param10: any, __outlined4_param11: any, __outlined4_param12: any, __outlined4_param13: any, __outlined4_param14: any, __outlined4_param15: any) -> any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any:
+// __outlined4(__outlined4_param0: any, __outlined4_param1: any, __outlined4_param2: any, __outlined4_param3: any) -> any:
 __outlined4:
     callsub __outlined7
-    intc_1 // 0
-    extract_uint64
-    swap
-    intc_3 // 8
-    extract_uint64
-    retsub
-
-
-// __outlined5(__outlined5_param0: any, __outlined5_param1: any, __outlined5_param2: any, __outlined5_param3: any) -> any:
-__outlined5:
-    callsub __outlined8
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
@@ -752,17 +767,19 @@ __outlined5:
     retsub
 
 
-// __outlined6(__outlined6_param0: any, __outlined6_param1: any) -> void:
-__outlined6:
-    callsub __outlined9
-    callsub __outlined10
-    intc_0 // 1
-    return
+// __outlined5(__outlined5_param0: any, __outlined5_param1: any, __outlined5_param2: any, __outlined5_param3: any) -> any:
+__outlined5:
+    swap
+    concat
+    uncover 2
+    concat
+    swap
+    concat
     retsub
 
 
-// __outlined7(__outlined7_param0: any, __outlined7_param1: any, __outlined7_param2: any, __outlined7_param3: any, __outlined7_param4: any, __outlined7_param5: any, __outlined7_param6: any, __outlined7_param7: any, __outlined7_param8: any, __outlined7_param9: any, __outlined7_param10: any, __outlined7_param11: any, __outlined7_param12: any, __outlined7_param13: any, __outlined7_param14: any, __outlined7_param15: any) -> any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any:
-__outlined7:
+// __outlined6(__outlined6_param0: any, __outlined6_param1: any, __outlined6_param2: any, __outlined6_param3: any, __outlined6_param4: any, __outlined6_param5: any, __outlined6_param6: any, __outlined6_param7: any, __outlined6_param8: any, __outlined6_param9: any, __outlined6_param10: any, __outlined6_param11: any, __outlined6_param12: any, __outlined6_param13: any, __outlined6_param14: any, __outlined6_param15: any) -> any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any:
+__outlined6:
     dig 15
     dup
     intc_1 // 0
@@ -772,8 +789,8 @@ __outlined7:
     retsub
 
 
-// __outlined8(__outlined8_param0: any, __outlined8_param1: any, __outlined8_param2: any, __outlined8_param3: any) -> any, any:
-__outlined8:
+// __outlined7(__outlined7_param0: any, __outlined7_param1: any, __outlined7_param2: any, __outlined7_param3: any) -> any, any:
+__outlined7:
     cover 3
     substring3
     intc_1 // 0
@@ -783,34 +800,23 @@ __outlined8:
     retsub
 
 
-// __outlined9(__outlined9_param0: any) -> void:
+// __outlined8(__outlined8_param0: any, __outlined8_param1: any) -> any:
+__outlined8:
+    callsub __outlined9
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    retsub
+
+
+// __outlined9(__outlined9_param0: any) -> any:
 __outlined9:
-    callsub __outlined11
-    callsub __outlined10
-    bytec_1 // 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
     intc_0 // 1
-    return
-    retsub
-
-
-// __outlined10(__outlined10_param0: any) -> any:
-__outlined10:
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-
-// __outlined11(__outlined11_param0: any, __outlined11_param1: any) -> void:
-__outlined11:
-    swap
-    concat
-    log
-    intc_0 // 1
-    return
     retsub

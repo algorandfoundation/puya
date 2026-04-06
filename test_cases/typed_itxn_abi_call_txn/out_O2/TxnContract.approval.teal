@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 1 0 2
     bytecblock 0x61 0x62
     txn NumAppArgs
     bz main___algopy_default_create@10
@@ -101,17 +101,21 @@ __outlined0:
 __outlined1:
     callsub __outlined2
     extract_uint16 // on error: invalid array length header
-    pushint 2
+    intc_2 // 2
     callsub __outlined3
     +
-    callsub __outlined4
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    retsub
 
 
 // __outlined2(__outlined2_param0: any) -> any:
 __outlined2:
     callsub __outlined3
     dig 1
-    callsub __outlined4
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
@@ -121,18 +125,12 @@ __outlined2:
 
 // __outlined3(__outlined3_param0: any, __outlined3_param1: any, __outlined3_param2: any) -> any:
 __outlined3:
-    callsub __outlined4
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    retsub
-
-
-// __outlined4(__outlined4_param0: any, __outlined4_param1: any) -> void:
-__outlined4:
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
     dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    retsub
     retsub
