@@ -800,7 +800,11 @@ def encode(value: object, /) -> algopy.Bytes:
 _TDecode = typing.TypeVar("_TDecode")
 
 def decode(
-    typ: type[_TDecode], value: algopy.Bytes | bytes, /, *, validate: bool = True
+    typ: type[_TDecode],
+    value: algopy.Bytes | bytes,
+    /,
+    *,
+    validate: typing.Literal[True, False] = True,
 ) -> _TDecode:
     """Decode ARC-4 encoded bytes to a value of the specified type.
 
