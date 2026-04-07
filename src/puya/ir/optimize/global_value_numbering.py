@@ -571,7 +571,6 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         Otherwise, assign a fresh VN.
         """
         source = ass.source
-
         # Copy assignment: propagate VN directly
         if isinstance(source, models.Value):
             (target,) = ass.targets
@@ -581,35 +580,33 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
             self.tables.set_register_vn(
                 target, vn, replaceable=isinstance(source, models.Register)
             )
-            return
-
-        targets = ass.targets
-        provider_key = source.accept(self.provider_key_builder)
-        if provider_key is None:
-            # Not a pure expression — fresh VN per target
-            for reg in targets:
-                self.tables.assign_register_fresh_vn(reg)
-            return
-
-        existing_vns = self.tables.provider_key_to_vns.get(provider_key)
-        if existing_vns is not None:
-            if len(existing_vns) != len(targets):
-                raise InternalError(
-                    f"GVN: expression arity mismatch: {len(existing_vns)} vs {len(targets)}"
-                )
-            for target, existing_vn in zip(targets, existing_vns, strict=True):
-                self.tables.set_register_vn(target, existing_vn)
-                logger.debug(f"GVN: redundant expr {target.local_id} (VN={existing_vn})")
         else:
-            target_vns = tuple(self.tables.assign_register_fresh_vn(r) for r in targets)
-            self.tables.provider_key_to_vns[provider_key] = target_vns
+            provider_key = source.accept(self.provider_key_builder)
+            if provider_key is None:
+                # Not a pure expression — fresh VN per target
+                for reg in ass.targets:
+                    self.tables.assign_register_fresh_vn(reg)
+            else:
+                existing_vns = self.tables.provider_key_to_vns.get(provider_key)
+                if existing_vns is None:
+                    target_vns = tuple(
+                        self.tables.assign_register_fresh_vn(r) for r in ass.targets
+                    )
+                    self.tables.provider_key_to_vns[provider_key] = target_vns
+                else:
+                    for target, existing_vn in zip(ass.targets, existing_vns, strict=True):
+                        logger.debug(f"GVN: redundant expr {target.local_id} (VN={existing_vn})")
+                        self.tables.set_register_vn(target, existing_vn)
 
-        # Track comparison expressions for negation-aware numbering.
-        # Single-target only — comparisons always produce one result.
-        if isinstance(provider_key, _IntrinsicKey) and provider_key.op in _INVERSE_COMPARISONS:
-            (target,) = targets
-            vn = self.tables.lookup_vn(target)
-            self.tables.comparison_exprs[vn] = provider_key
+                # Track comparison expressions for negation-aware numbering.
+                # Single-target only — comparisons always produce one result.
+                if (
+                    isinstance(provider_key, _IntrinsicKey)
+                    and provider_key.op in _INVERSE_COMPARISONS
+                ):
+                    (target,) = ass.targets
+                    vn = self.tables.lookup_vn(target)
+                    self.tables.comparison_exprs[vn] = provider_key
 
 
 def _process_blocks_pre_order(
