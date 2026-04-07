@@ -433,10 +433,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
         if op.code not in PURE_AVM_OPS:
             return self._fresh_vns(intrinsic)
         args = intrinsic.args
-        if not args:
-            # TODO: handle no-args by keeping the definition but assigning same VN,
-            #       and then using that VN in comparison / algebraic identities
-            return self._fresh_vns(intrinsic)
         arg_vns = tuple(self._visit_value(a) for a in args)
         # Negation-aware numbering: !(comparison) -> inverse comparison.
         # e.g. !(a < b) gets the same key as (a >= b).
@@ -569,7 +565,15 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         """
         source = ass.source
         vns = source.accept(self.provider_vn_builder)
-        replaceable = isinstance(source, models.Register) or not isinstance(source, models.Value)
+        match source:
+            case models.Register():
+                replaceable = True
+            case models.Value():
+                replaceable = False
+            case models.Intrinsic(args=[]):
+                replaceable = False
+            case _:
+                replaceable = True
         for target, vn in zip(ass.targets, vns, strict=True):
             self.tables.set_register_vn(target, vn, replaceable=replaceable)
 
