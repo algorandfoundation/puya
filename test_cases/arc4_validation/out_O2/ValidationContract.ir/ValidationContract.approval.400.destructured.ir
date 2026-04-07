@@ -1,7 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@38
+        goto tmp%0#1 ? block@2 : block@40
     block@2: // abi_routing_L58
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -9,7 +9,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: uint64 = (txn ApplicationID)
         (assert tmp%4#0)
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%6#0 {method "validate_uint64(byte[])void" => block@4, method "validate_uint8(byte[])void" => block@5, method "validate_uint512(byte[])void" => block@6, method "validate_ufixed64(byte[])void" => block@7, method "validate_uint8_arr(byte[])void" => block@8, method "validate_uint8_arr3(byte[])void" => block@9, method "validate_bool(byte[])void" => block@10, method "validate_byte(byte[])void" => block@5, method "validate_string(byte[])void" => block@12, method "validate_bytes(byte[])void" => block@13, method "validate_address(byte[])void" => block@14, method "validate_account(byte[])void" => block@15, method "validate_bool_arr(byte[])void" => block@16, method "validate_bool_arr3(byte[])void" => block@17, method "validate_static_tuple(byte[])void" => block@18, method "validate_dynamic_tuple(byte[])void" => block@19, method "validate_static_struct(byte[])void" => block@20, method "validate_dynamic_struct(byte[])void" => block@21, method "validate_static_struct_arr(byte[])void" => block@22, method "validate_static_struct_arr3(byte[])void" => block@23, method "validate_dynamic_struct_arr(byte[])void" => block@24, method "validate_dynamic_struct_arr3(byte[])void" => block@25, method "validate_dynamic_struct_with_a_bool(byte[])void" => block@26, method "validate_native_dynamic_struct_imm_arr(byte[])void" => block@27, method "validate_native_dynamic_struct_imm_arr3(byte[])void" => block@28, method "validate_native_static_struct(byte[])void" => block@29, method "validate_native_dynamic_struct(byte[])void" => block@30, method "validate_native_static_struct_arr(byte[])void" => block@31, method "validate_native_static_struct_arr3(byte[])void" => block@32, method "validate_native_dynamic_struct_arr(byte[])void" => block@33, method "validate_native_dynamic_struct_arr3(byte[])void" => block@34, * => block@37}
+        switch tmp%6#0 {method "validate_uint64(byte[])void" => block@4, method "validate_uint8(byte[])void" => block@5, method "validate_uint512(byte[])void" => block@6, method "validate_ufixed64(byte[])void" => block@7, method "validate_uint8_arr(byte[])void" => block@8, method "validate_uint8_arr3(byte[])void" => block@9, method "validate_bool(byte[])void" => block@10, method "validate_byte(byte[])void" => block@5, method "validate_string(byte[])void" => block@12, method "validate_bytes(byte[])void" => block@13, method "validate_address(byte[])void" => block@14, method "validate_account(byte[])void" => block@15, method "validate_bool_arr(byte[])void" => block@16, method "validate_bool_arr3(byte[])void" => block@17, method "validate_static_tuple(byte[])void" => block@18, method "validate_dynamic_tuple(byte[])void" => block@19, method "validate_static_struct(byte[])void" => block@20, method "validate_dynamic_struct(byte[])void" => block@21, method "validate_static_struct_arr(byte[])void" => block@22, method "validate_static_struct_arr3(byte[])void" => block@23, method "validate_dynamic_struct_arr(byte[])void" => block@24, method "validate_dynamic_struct_arr3(byte[])void" => block@25, method "validate_dynamic_struct_with_a_bool(byte[])void" => block@26, method "validate_native_dynamic_struct_imm_arr(byte[])void" => block@27, method "validate_native_dynamic_struct_imm_arr3(byte[])void" => block@28, method "decode_uint64_with_validate(byte[])void" => block@29, method "decode_uint64_without_validate(byte[])void" => block@30, method "validate_native_static_struct(byte[])void" => block@31, method "validate_native_dynamic_struct(byte[])void" => block@32, method "validate_native_static_struct_arr(byte[])void" => block@33, method "validate_native_static_struct_arr3(byte[])void" => block@34, method "validate_native_dynamic_struct_arr(byte[])void" => block@35, method "validate_native_dynamic_struct_arr3(byte[])void" => block@36, * => block@39}
     block@4: // validate_uint64_route_L59
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#2)
@@ -176,11 +176,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let total_length%0#0: uint64 = (len value#0)
         let array_data%0#0: bytes = ((extract 4 0) tmp%0#2)
         let index%0#0: uint64 = 0u
-        goto block@77
-    block@77: // for_header_L141
+        goto block@83
+    block@83: // for_header_L141
         let continue_looping%0#0: bool = (< index%0#0 aggregate%array_length%7#0)
-        goto continue_looping%0#0 ? block@78 : block@79
-    block@78: // for_body_L141
+        goto continue_looping%0#0 ? block@84 : block@85
+    block@84: // for_body_L141
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -196,8 +196,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let add%1#0: uint64 = (+ aggregate%array_length%8#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@77
-    block@79: // after_for_L141
+        goto block@83
+    block@85: // after_for_L141
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
         let eq%1#0: bool = (== total_length%0#0 num_bytes%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4DynamicStruct>
@@ -207,11 +207,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let value#0: bytes = ((extract 2 0) tmp%0#2)
         let num_bytes%0#0: uint64 = 6u
         let index%0#0: uint64 = 0u
-        goto block@72
-    block@72: // for_header_L145
+        goto block@78
+    block@78: // for_header_L145
         let continue_looping%0#0: bool = (< index%0#0 3u)
-        goto continue_looping%0#0 ? block@73 : block@74
-    block@73: // for_body_L145
+        goto continue_looping%0#0 ? block@79 : block@80
+    block@79: // for_body_L145
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -227,8 +227,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let add%1#0: uint64 = (+ aggregate%array_length%9#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@72
-    block@74: // after_for_L145
+        goto block@78
+    block@80: // after_for_L145
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.ARC4DynamicStruct, 3>
@@ -255,11 +255,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let total_length%0#0: uint64 = (len value#0)
         let array_data%0#0: bytes = ((extract 4 0) tmp%0#2)
         let index%0#0: uint64 = 0u
-        goto block@65
-    block@65: // for_header_L156
+        goto block@71
+    block@71: // for_header_L156
         let continue_looping%0#0: bool = (< index%0#0 aggregate%array_length%11#0)
-        goto continue_looping%0#0 ? block@66 : block@67
-    block@66: // for_body_L156
+        goto continue_looping%0#0 ? block@72 : block@73
+    block@72: // for_body_L156
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -275,8 +275,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let add%1#0: uint64 = (+ aggregate%array_length%12#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@65
-    block@67: // after_for_L156
+        goto block@71
+    block@73: // after_for_L156
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
         let eq%1#0: bool = (== total_length%0#0 num_bytes%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct>
@@ -287,11 +287,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "v" value#0)
         let num_bytes%0#0: uint64 = 6u
         let index%0#0: uint64 = 0u
-        goto block@60
-    block@60: // for_header_L163
+        goto block@66
+    block@66: // for_header_L163
         let continue_looping%0#0: bool = (< index%0#0 3u)
-        goto continue_looping%0#0 ? block@61 : block@62
-    block@61: // for_body_L163
+        goto continue_looping%0#0 ? block@67 : block@68
+    block@67: // for_body_L163
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -307,13 +307,33 @@ main algopy.arc4.ARC4Contract.approval_program:
         let add%1#0: uint64 = (+ aggregate%array_length%13#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@60
-    block@62: // after_for_L163
+        goto block@66
+    block@68: // after_for_L163
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct, 3>
         exit 1u
-    block@29: // validate_native_static_struct_route_L165
+    block@29: // decode_uint64_with_validate_route_L165
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%14#0: uint64 = (extract_uint16 tmp%0#2 0u) // on error: invalid array length header
+        let add%0#2: uint64 = (+ aggregate%array_length%14#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#2)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#0: bytes = ((extract 2 0) tmp%0#2)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
+        exit 1u
+    block@30: // decode_uint64_without_validate_route_L169
+        let tmp%0#2: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%15#0: uint64 = (extract_uint16 tmp%0#2 0u) // on error: invalid array length header
+        let add%0#2: uint64 = (+ aggregate%array_length%15#0 2u)
+        let len%0#0: uint64 = (len tmp%0#2)
+        let eq%0#0: bool = (== len%0#0 add%0#2)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        exit 1u
+    block@31: // validate_native_static_struct_route_L173
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#2)
         (app_global_put "v" value#0)
@@ -321,7 +341,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== len%0#0 9u)
         (assert eq%0#0) // invalid number of bytes for test_cases.arc4_validation.contract.NativeStaticStruct
         exit 1u
-    block@30: // validate_native_dynamic_struct_route_L172
+    block@32: // validate_native_dynamic_struct_route_L180
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#2)
         (app_global_put "v" value#0)
@@ -330,23 +350,23 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
         let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
-        let aggregate%array_length%14#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%14#0 13u)
+        let aggregate%array_length%16#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%16#0 13u)
         let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_validation.contract.NativeDynamicStruct
         exit 1u
-    block@31: // validate_native_static_struct_arr_route_L179
+    block@33: // validate_native_static_struct_arr_route_L187
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#2)
         (app_global_put "v" value#0)
-        let aggregate%array_length%15#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
-        let mul%0#1: uint64 = (* aggregate%array_length%15#0 9u)
+        let aggregate%array_length%17#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let mul%0#1: uint64 = (* aggregate%array_length%17#0 9u)
         let add%0#2: uint64 = (+ mul%0#1 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#2)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.NativeStaticStruct>
         exit 1u
-    block@32: // validate_native_static_struct_arr3_route_L186
+    block@34: // validate_native_static_struct_arr3_route_L194
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#2)
         (app_global_put "v" value#0)
@@ -354,20 +374,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== len%0#0 27u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.NativeStaticStruct, 3>
         exit 1u
-    block@33: // validate_native_dynamic_struct_arr_route_L193
+    block@35: // validate_native_dynamic_struct_arr_route_L201
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#2)
         (app_global_put "v" value#0)
-        let aggregate%array_length%16#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
-        let num_bytes%0#0: uint64 = (* aggregate%array_length%16#0 2u)
+        let aggregate%array_length%18#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let num_bytes%0#0: uint64 = (* aggregate%array_length%18#0 2u)
         let total_length%0#0: uint64 = (len value#0)
         let array_data%0#0: bytes = ((extract 4 0) tmp%0#2)
         let index%0#0: uint64 = 0u
-        goto block@47
-    block@47: // for_header_L198
-        let continue_looping%0#0: bool = (< index%0#0 aggregate%array_length%16#0)
-        goto continue_looping%0#0 ? block@48 : block@49
-    block@48: // for_body_L198
+        goto block@49
+    block@49: // for_header_L206
+        let continue_looping%0#0: bool = (< index%0#0 aggregate%array_length%18#0)
+        goto continue_looping%0#0 ? block@50 : block@51
+    block@50: // for_body_L206
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -379,27 +399,27 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
         let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
-        let aggregate%array_length%17#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%17#0 13u)
+        let aggregate%array_length%19#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%19#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@47
-    block@49: // after_for_L198
+        goto block@49
+    block@51: // after_for_L206
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
         let eq%1#0: bool = (== total_length%0#0 num_bytes%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.NativeDynamicStruct>
         exit 1u
-    block@34: // validate_native_dynamic_struct_arr3_route_L200
+    block@36: // validate_native_dynamic_struct_arr3_route_L208
         let tmp%0#2: bytes = (txna ApplicationArgs 1)
         let value#0: bytes = ((extract 2 0) tmp%0#2)
         (app_global_put "v" value#0)
         let num_bytes%0#0: uint64 = 6u
         let index%0#0: uint64 = 0u
-        goto block@42
-    block@42: // for_header_L205
+        goto block@44
+    block@44: // for_header_L213
         let continue_looping%0#0: bool = (< index%0#0 3u)
-        goto continue_looping%0#0 ? block@43 : block@44
-    block@43: // for_body_L205
+        goto continue_looping%0#0 ? block@45 : block@46
+    block@45: // for_body_L213
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -411,19 +431,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
         let substring3%0#0: bytes = (substring3 extract_to_end%0#0 extract_uint16%0#0 tuple_len%0#0)
-        let aggregate%array_length%18#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%18#0 13u)
+        let aggregate%array_length%20#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%20#0 13u)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@42
-    block@44: // after_for_L205
+        goto block@44
+    block@46: // after_for_L213
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.NativeDynamicStruct, 3>
         exit 1u
-    block@37: // after_if_else_L58
+    block@39: // after_if_else_L58
         fail
-    block@38: // __algopy_default_create_L1
+    block@40: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
         let tmp%9#0: uint64 = (txn ApplicationID)

@@ -158,6 +158,18 @@ class ValidationContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def decode_uint64_with_validate(
+        self,
+        value: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def decode_uint64_without_validate(
+        self,
+        value: algopy.arc4.DynamicBytes,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def validate_native_static_struct(
         self,
         value: algopy.arc4.DynamicBytes,
