@@ -38,7 +38,7 @@ contract Arc4EncodeDecodeContract
 subroutine test_native_struct(): void
 {
   original: test_cases.arc4_encode_decode.contract.NativeStruct = new test_cases.arc4_encode_decode.contract.NativeStruct(a=1u, b=true)
-  encoded: bytes = reinterpret_cast<bytes>(original)
+  encoded: bytes = arc4_encode(original, bytes)
   assert(encoded == hex<"000000000000000180">)
   decoded: test_cases.arc4_encode_decode.contract.NativeStruct = arc4_validate(encoded, test_cases.arc4_encode_decode.contract.NativeStruct)
   assert(decoded == original)
@@ -47,7 +47,7 @@ subroutine test_native_struct(): void
 subroutine test_arc4_struct(): void
 {
   original: test_cases.arc4_encode_decode.contract.Arc4Struct = new test_cases.arc4_encode_decode.contract.Arc4Struct(x=42_arc4u64, y='hello')
-  encoded: bytes = reinterpret_cast<bytes>(original)
+  encoded: bytes = arc4_encode(original, bytes)
   decoded: test_cases.arc4_encode_decode.contract.Arc4Struct = arc4_validate(encoded, test_cases.arc4_encode_decode.contract.Arc4Struct)
   assert(decoded == original)
 }
@@ -128,7 +128,7 @@ subroutine test_application(): void
 subroutine test_arc4_uint64(): void
 {
   value: arc4.uint64 = 42_arc4u64
-  encoded: bytes = reinterpret_cast<bytes>(value)
+  encoded: bytes = arc4_encode(value, bytes)
   assert(encoded == hex<"000000000000002A">)
   decoded: arc4.uint64 = arc4_validate(encoded, arc4.uint64)
   assert(reinterpret_cast<biguint>(decoded) == reinterpret_cast<biguint>(value))
@@ -137,7 +137,7 @@ subroutine test_arc4_uint64(): void
 subroutine test_arc4_string(): void
 {
   value: arc4.dynamic_array<arc4.uint8> = 'hello'
-  encoded: bytes = reinterpret_cast<bytes>(value)
+  encoded: bytes = arc4_encode(value, bytes)
   assert(encoded == hex<"000568656C6C6F">)
   decoded: arc4.dynamic_array<arc4.uint8> = arc4_validate(encoded, arc4.dynamic_array<arc4.uint8>)
   assert(decoded == value)
@@ -163,7 +163,7 @@ subroutine test_named_tuple(): void
 subroutine test_arc4_dynamic_array(): void
 {
   value: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>(1_arc4u64, 2_arc4u64, 3_arc4u64)
-  encoded: bytes = reinterpret_cast<bytes>(value)
+  encoded: bytes = arc4_encode(value, bytes)
   decoded: arc4.dynamic_array<arc4.uint64> = arc4_validate(encoded, arc4.dynamic_array<arc4.uint64>)
   assert(decoded == value)
 }
@@ -171,7 +171,7 @@ subroutine test_arc4_dynamic_array(): void
 subroutine test_arc4_static_array(): void
 {
   value: arc4.static_array<arc4.uint64, 2> = new arc4.static_array<arc4.uint64, 2>(10_arc4u64, 20_arc4u64)
-  encoded: bytes = reinterpret_cast<bytes>(value)
+  encoded: bytes = arc4_encode(value, bytes)
   decoded: arc4.static_array<arc4.uint64, 2> = arc4_validate(encoded, arc4.static_array<arc4.uint64, 2>)
   assert(decoded == value)
 }
