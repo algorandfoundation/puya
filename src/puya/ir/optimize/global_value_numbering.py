@@ -569,15 +569,9 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         """
         source = ass.source
         vns = source.accept(self.provider_vn_builder)
-        if vns is None:
-            for reg in ass.targets:
-                self.tables.assign_register_fresh_vn(reg)
-        else:
-            replaceable = isinstance(source, models.Register) or not isinstance(
-                source, models.Value
-            )
-            for target, vn in zip(ass.targets, vns, strict=True):
-                self.tables.set_register_vn(target, vn, replaceable=replaceable)
+        replaceable = isinstance(source, models.Register) or not isinstance(source, models.Value)
+        for target, vn in zip(ass.targets, vns, strict=True):
+            self.tables.set_register_vn(target, vn, replaceable=replaceable)
 
     @typing.override
     def visit_phi(self, phi: models.Phi) -> None:
