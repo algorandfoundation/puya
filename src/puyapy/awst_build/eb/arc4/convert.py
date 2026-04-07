@@ -2,8 +2,7 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.awst import wtypes
-from puya.awst.nodes import ARC4Encode, ARC4FromBytes, Expression, ReinterpretCast
+from puya.awst.nodes import ARC4Encode, ARC4FromBytes
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
@@ -32,19 +31,10 @@ class EncodeBuilder(FunctionBuilder):
         location: SourceLocation,
     ) -> InstanceBuilder:
         arg = expect.exactly_one_arg(args, location, default=expect.default_raise)
-        if isinstance(arg.pytype.wtype, wtypes.ARC4Type):
-            # use ReinterpretCast(.) instead of ARC4Encode(.) to avoid
-            # triggering the arc4 copy validator for already encoded values
-            result_expr: Expression = ReinterpretCast(
-                expr=arg.resolve(),
-                wtype=wtypes.bytes_wtype,
-                source_location=location,
-            )
-        else:
-            result_expr = ARC4Encode(
-                value=arg.resolve(),
-                source_location=location,
-            )
+        result_expr = ARC4Encode(
+            value=arg.resolve(),
+            source_location=location,
+        )
         return BytesExpressionBuilder(result_expr)
 
 
