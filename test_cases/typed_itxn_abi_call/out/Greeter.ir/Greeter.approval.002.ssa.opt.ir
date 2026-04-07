@@ -291,10 +291,6 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_overload
         let tmp%16#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("echo: tuple")
         let tmp%17#0: bool = (== tmp%15#0 tmp%16#0)
         (assert tmp%17#0)
-        let length%3#0: uint64 = array_len(tmp%15#0)
-        let add%3#0: uint64 = (+ length%3#0 2u)
-        let eq%3#0: bool = (== len%2#0 add%3#0)
-        (assert eq%3#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         itxn_begin
         let tmp%23#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("untyped")
         ((itxn_field ApplicationID) app#0)
@@ -1526,10 +1522,6 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arc4_struct[rou
         (assert eq%1#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
         let tmp%5#0: bool = (== tmp%4#0 log#0)
         (assert tmp%5#0) // expected output to match input
-        let length%1#0: uint64 = array_len(substring3%0#0)
-        let add%3#0: uint64 = (+ length%1#0 12u)
-        let eq%3#0: bool = (== tuple_len%0#0 add%3#0)
-        (assert eq%3#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
         exit 1u
 
 subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encoding[routing]() -> void:
