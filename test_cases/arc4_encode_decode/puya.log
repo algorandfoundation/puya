@@ -658,7 +658,7 @@ debug: Found equivalence set: encoded_array%0#0, value#9, encoded#13, as_Encoded
 debug: selected value#9 from equivalence set
 debug: Found equivalence set: encoded_array%0#1, value#10, encoded#14, as_Encoded(uint64[2])%0#0, decoded#12
 debug: selected value#10 from equivalence set
-debug: Copy propagation made 47 modifications
+debug: Copy propagation made 57 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable value#0
@@ -680,10 +680,19 @@ debug: Removing unused variable value.x#0
 debug: Removing unused variable value.y#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== original#0 original#0) to 1u
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (+ 10u add%0#0) to (+ length%0#0 12u)
 debug: Simplified (== original#1 original#1) to 1u
+debug: Simplified (* length%0#1 1u) to length%0#1
+debug: Simplified (* length%0#2 1u) to length%0#2
 debug: Simplified (== 0x000000000000002a 0x000000000000002a) to 1u
+debug: Simplified (len 0x000000000000002a) to 8u
+debug: Simplified (== 8u 8u) to 1u
 debug: Simplified (b== 0x000000000000002a 0x000000000000002a) to 1u
+debug: Simplified (* length%0#3 1u) to length%0#3
 debug: Simplified (== value#8 value#8) to 1u
+debug: Simplified (* length%0#4 1u) to length%0#4
+debug: Simplified (+ 10u add%0#4) to (+ length%0#4 12u)
 debug: Simplified (== value#9 value#9) to 1u
 debug: Simplified (== value#10 value#10) to 1u
 debug: Optimizer: Inner Txn Field Replacer
@@ -756,30 +765,56 @@ debug: Merged linear block@32 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let len%0#1: uint64 = (len original#1) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:70:14-46, ir_type=uint64, name='tuple_len%0', version=0)]
 debug: Replacing redundant declaration let encoded#4: bytes = bytes_encode<(len+utf8[])>("hello") with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:68:47-67, ir_type=Encoded(len+utf8[]), name='tmp%0', version=1)]
 debug: Replacing redundant declaration let encoded#7: bytes = bytes_encode<uint64>(42u) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:77:4-11, ir_type=bytes, name='encoded', version=2)]
 debug: Replacing redundant declaration let value#8: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("hello") with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:68:47-67, ir_type=Encoded(len+utf8[]), name='tmp%0', version=1)]
+debug: Replacing redundant declaration let len%0#13: uint64 = (len encoded#12) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:182:14-48, ir_type=uint64, name='tuple_len%0', version=1)]
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: tuple_len%0#0, len%0#1
+debug: selected tuple_len%0#0 from equivalence set
 debug: Found equivalence set: tmp%0#1, encoded#4, value#8
 debug: selected encoded#4 from equivalence set
+debug: Found equivalence set: length%0#1, mul%0#1
+debug: selected length%0#1 from equivalence set
+debug: Found equivalence set: length%0#2, mul%0#2
+debug: selected length%0#2 from equivalence set
 debug: Found equivalence set: encoded#2, encoded#7
 debug: selected encoded#2 from equivalence set
-debug: Copy propagation made 5 modifications
+debug: Found equivalence set: length%0#3, mul%0#3
+debug: selected length%0#3 from equivalence set
+debug: Found equivalence set: length%0#4, mul%0#4
+debug: selected length%0#4 from equivalence set
+debug: Found equivalence set: tuple_len%0#1, len%0#13
+debug: selected tuple_len%0#1 from equivalence set
+debug: Copy propagation made 10 modifications
 debug: Replacing redundant declaration let tmp%1#8: bool = (== encoded#2 0x000000000000002a) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:79:11-56, ir_type=bool, name='tmp%1', version=2)]
+debug: Replacing redundant declaration let len%0#8: uint64 = (len encoded#2) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:80:14-42, ir_type=uint64, name='len%0', version=2)]
 debug: Replacing redundant declaration let decoded#7: uint64 = decode_bytes<uint64>(encoded#2) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:80:4-11, ir_type=uint64, name='decoded', version=2)]
 debug: Replacing redundant declaration let tmp%1#11: bool = (== encoded#4 0x000568656c6c6f) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:97:11-54, ir_type=bool, name='tmp%1', version=4)]
+debug: Replacing redundant declaration let len%0#11: uint64 = (len encoded#4) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:98:14-42, ir_type=uint64, name='len%0', version=4)]
 debug: Found equivalence set: tmp%1#2, tmp%1#8
 debug: selected tmp%1#2 from equivalence set
+debug: Found equivalence set: len%0#2, len%0#8
+debug: selected len%0#2 from equivalence set
 debug: Found equivalence set: decoded#2, decoded#7
 debug: selected decoded#2 from equivalence set
 debug: Found equivalence set: tmp%1#4, tmp%1#11
 debug: selected tmp%1#4 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Found equivalence set: len%0#4, len%0#11
+debug: selected len%0#4 from equivalence set
+debug: Copy propagation made 5 modifications
 debug: Removing redundant assert of tmp%1#2
+debug: Replacing redundant declaration let eq%0#8: bool = (== len%0#2 8u) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:80:14-42, ir_type=bool, name='eq%0', version=2)]
 debug: Replacing redundant declaration let tmp%3#4: bool = (== decoded#2 42u) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:81:11-27, ir_type=bool, name='tmp%3', version=0)]
 debug: Removing redundant assert of tmp%1#4
+debug: Found equivalence set: eq%0#2, eq%0#8
+debug: selected eq%0#2 from equivalence set
 debug: Found equivalence set: tmp%3#0, tmp%3#4
 debug: selected tmp%3#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
+debug: Removing redundant assert of eq%0#2
 debug: Removing redundant assert of tmp%3#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: replacing redundant decode-of-encode with: "hello"
@@ -802,7 +837,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tmp%0#0, original#0, encoded#0, as_Encoded(uint64,bool1)%0#0, decoded#0
 debug: selected original#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -826,10 +861,12 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tmp%1#0, original#0, encoded#0, as_Encoded(uint64,(len+utf8[]))%0#0, decoded#0
 debug: selected original#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (+ 10u add%0#0) to (+ length%0#0 12u)
 debug: Simplified (== original#0 original#0) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -838,6 +875,12 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let len%0#0: uint64 = (len original#0) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:70:14-46, ir_type=uint64, name='tuple_len%0', version=0)]
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: tuple_len%0#0, len%0#0
+debug: selected tuple_len%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -910,6 +953,7 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable value#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -937,6 +981,7 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable value#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1077,6 +1122,8 @@ debug: Removing unused variable reinterpret_biguint%0#0
 debug: Removing unused variable reinterpret_biguint%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== 0x000000000000002a 0x000000000000002a) to 1u
+debug: Simplified (len 0x000000000000002a) to 8u
+debug: Simplified (== 8u 8u) to 1u
 debug: Simplified (b== 0x000000000000002a 0x000000000000002a) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -1097,10 +1144,11 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tmp%0#0, value#0, encoded#0, as_Encoded(len+utf8[])%0#0, decoded#0
 debug: selected value#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Simplified (== value#0 value#0) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -1161,6 +1209,8 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable value.x#0
 debug: Removing unused variable value.y#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (+ 10u add%0#0) to (+ length%0#0 12u)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1168,6 +1218,12 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let len%0#0: uint64 = (len encoded#0) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:182:14-48, ir_type=uint64, name='tuple_len%0', version=0)]
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: tuple_len%0#0, len%0#0
+debug: selected tuple_len%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: replacing redundant decode-of-encode with: 5u, "test"
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -1181,7 +1237,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_array%0#0, value#0, encoded#0, as_Encoded(len+uint64[])%0#0, decoded#0
 debug: selected value#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1205,7 +1261,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_array%0#0, value#0, encoded#0, as_Encoded(uint64[2])%0#0, decoded#0
 debug: selected value#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1249,27 +1305,26 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%2#0
-debug: Removing unused variable original#1
+debug: Removing unused variable add%0#0
 debug: Removing unused variable tmp%2#1
 debug: Removing unused variable decoded#2
 debug: Removing unused variable decoded#4
 debug: Removing unused variable decoded#5
 debug: Removing unused variable decoded_true#0
 debug: Removing unused variable decoded_false#0
-debug: Removing unused variable encoded#6
 debug: Removing unused variable decoded#6
 debug: Removing unused variable decoded#8
 debug: Removing unused variable tmp%0#10
+debug: Removing unused variable len%0#10
+debug: Removing unused variable eq%0#10
 debug: Removing unused variable tmp%1#10
 debug: Removing unused variable tmp%2#10
 debug: Removing unused variable decoded.0#0
 debug: Removing unused variable decoded.1#0
-debug: Removing unused variable encoded#12
+debug: Removing unused variable add%0#4
 debug: Removing unused variable decoded.x#0
 debug: Removing unused variable decoded.y#0
-debug: Removing unused variable value#9
 debug: Removing unused variable tmp%0#14
-debug: Removing unused variable value#10
 debug: Removing unused variable tmp%0#15
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== 42u 42u) to 1u
@@ -1393,53 +1448,148 @@ debug: Found equivalence set: aggregate%head%1#0, aggregate%as_Encoded(uint64,bo
 debug: selected original#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, encoded#4
 debug: selected encoded#4 from equivalence set
+debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded(uint64,(len+utf8[]))%0#0, original#1
+debug: selected original#1 from equivalence set
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
+debug: selected aggregate%array_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%1#0, aggregate%as_Encoded(uint64)%1#0, encoded#2
 debug: selected encoded#2 from equivalence set
 debug: Found equivalence set: aggregate%arc4_encoded%0#0, aggregate%as_Encoded(uint512)%0#0, encoded#3, decoded#3
 debug: selected encoded#3 from equivalence set
+debug: Found equivalence set: aggregate%array_length%1#0, length%0#1
+debug: selected aggregate%array_length%1#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%1#0, aggregate%as_Encoded(len+uint8[])%0#0, encoded#5
 debug: selected encoded#5 from equivalence set
+debug: Found equivalence set: aggregate%array_length%2#0, length%0#2
+debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_bool%1#0, aggregate%as_Encoded(bool8)%0#0, encoded_true#0
 debug: selected encoded_true#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_bool%2#0, aggregate%as_Encoded(bool8)%1#0, encoded_false#0
 debug: selected encoded_false#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%2#0, aggregate%as_Encoded(uint64)%2#0, encoded#8
 debug: selected encoded#8 from equivalence set
+debug: Found equivalence set: aggregate%array_length%3#0, length%0#3
+debug: selected aggregate%array_length%3#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%3#0, aggregate%as_Encoded(uint64)%3#0
 debug: selected aggregate%val_as_bytes%3#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%4#0, aggregate%as_Encoded(uint64)%4#0
 debug: selected aggregate%val_as_bytes%4#0 from equivalence set
-debug: Found equivalence set: aggregate%head%3#0, aggregate%as_Encoded(uint64,uint64)%0#0, encoded#11
+debug: Found equivalence set: aggregate%head%5#0, aggregate%as_Encoded(uint64,uint64)%0#0, encoded#11
 debug: selected encoded#11 from equivalence set
-debug: Copy propagation made 13 modifications
+debug: Found equivalence set: aggregate%val_as_bytes%5#0, aggregate%as_Encoded(uint64)%5#0
+debug: selected aggregate%val_as_bytes%5#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_value%2#0, aggregate%as_Encoded(len+utf8[])%1#0
+debug: selected aggregate%encoded_value%2#0 from equivalence set
+debug: Found equivalence set: aggregate%concat%1#0, aggregate%as_Encoded(uint64,(len+utf8[]))%1#0, encoded#12
+debug: selected encoded#12 from equivalence set
+debug: Found equivalence set: aggregate%array_length%4#0, length%0#4
+debug: selected aggregate%array_length%4#0 from equivalence set
+debug: Found equivalence set: aggregate%head%10#0, aggregate%as_Encoded(len+uint64[])%0#0, value#9
+debug: selected value#9 from equivalence set
+debug: Found equivalence set: aggregate%array_length%5#0, length%0#5
+debug: selected aggregate%array_length%5#0 from equivalence set
+debug: Found equivalence set: aggregate%head%12#0, aggregate%as_Encoded(uint64[2])%0#0, value#10
+debug: selected value#10 from equivalence set
+debug: Copy propagation made 26 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%current_tail_offset%0#0
+debug: Removing unused variable aggregate%as_Encoded(uint8[32])%0#0
+debug: Removing unused variable encoded#6
+debug: Removing unused variable aggregate%current_tail_offset%1#0
+debug: Removing unused variable aggregate%data_length%0#0
+debug: Removing unused variable aggregate%data_length%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x aggregate%val_as_bytes%0#0) to aggregate%val_as_bytes%0#0
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (concat aggregate%val_as_bytes%0#0 0x80) to 0x000000000000000180
 debug: Simplified (== 0x000000000000000180 0x000000000000000180) to 1u
+debug: Simplified (len 0x000000000000000180) to 9u
+debug: Simplified (== 9u 9u) to 1u
 debug: Simplified (len "hello") to 5u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0005
 debug: Simplified (concat 0x0005 "hello") to 0x000568656c6c6f
+debug: Simplified (concat 0x 0x000000000000002a) to 0x000000000000002a
+debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x000a
+debug: Simplified (concat 0x000000000000002a 0x000a) to 0x000000000000002a000a
+debug: Simplified (concat 0x000000000000002a000a 0x000568656c6c6f) to 0x000000000000002a000a000568656c6c6f
+debug: Simplified (len 0x000000000000002a000a000568656c6c6f) to 17u
+debug: Simplified (extract_uint16 0x000000000000002a000a000568656c6c6f 8u) // on error: invalid tuple encoding to 10u
+debug: Simplified (== 10u 10u) to 1u
+debug: Simplified (substring3 0x000000000000002a000a000568656c6c6f 10u 17u) to 0x000568656c6c6f
+debug: Simplified (extract_uint16 0x000568656c6c6f 0u) // on error: invalid array length header to 5u
+debug: Simplified (+ 5u 12u) to 17u
+debug: Simplified (== 17u 17u) to 1u
 debug: Simplified (== encoded#2 0x000000000000002a) to 1u
+debug: Simplified (len encoded#2) to 8u
+debug: Simplified (== 8u 8u) to 1u
 debug: Simplified (len 42b) to 1u
 debug: Simplified (<= 1u 64u) to 1u
 debug: Simplified (b| 42b aggregate%bzero%0#0) to 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a
+debug: Simplified (len 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a) to 64u
+debug: Simplified (== 64u 64u) to 1u
 debug: Simplified (b== 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a 42b) to 1u
 debug: Simplified (== 0x000568656c6c6f 0x000568656c6c6f) to 1u
+debug: Simplified (extract_uint16 0x000568656c6c6f 0u) // on error: invalid array length header to 5u
+debug: Simplified (+ 5u 2u) to 7u
+debug: Simplified (len 0x000568656c6c6f) to 7u
+debug: Simplified (== 7u 7u) to 1u
 debug: Simplified (len 0x010203) to 3u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0003
+debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0003
 debug: Simplified (concat 0x0003 0x010203) to 0x0003010203
 debug: Simplified (== 0x0003010203 0x0003010203) to 1u
+debug: Simplified (extract_uint16 0x0003010203 0u) // on error: invalid array length header to 3u
+debug: Simplified (+ 3u 2u) to 5u
+debug: Simplified (len 0x0003010203) to 5u
+debug: Simplified (== 5u 5u) to 1u
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Simplified (== 0x80 0x80) to 1u
+debug: Simplified (len 0x80) to 1u
+debug: Simplified (== 1u 1u) to 1u
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Simplified (== 0x00 0x00) to 1u
+debug: Simplified (len 0x00) to 1u
+debug: Simplified (== 1u 1u) to 1u
+debug: Simplified (len addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ) to 32u
+debug: Simplified (== 32u 32u) to 1u
 debug: Simplified (== encoded#8 0x000000000000007b) to 1u
+debug: Simplified (len encoded#8) to 8u
+debug: Simplified (== 8u 8u) to 1u
+debug: Simplified (extract_uint16 0x000568656c6c6f 0u) // on error: invalid array length header to 5u
+debug: Simplified (+ 5u 2u) to 7u
+debug: Simplified (== 7u 7u) to 1u
 debug: Simplified (concat 0x aggregate%val_as_bytes%3#0) to aggregate%val_as_bytes%3#0
 debug: Simplified (concat aggregate%val_as_bytes%3#0 aggregate%val_as_bytes%4#0) to 0x00000000000000010000000000000002
 debug: Simplified (== 0x00000000000000010000000000000002 0x00000000000000010000000000000002) to 1u
+debug: Simplified (len 0x00000000000000010000000000000002) to 16u
+debug: Simplified (== 16u 16u) to 1u
+debug: Simplified (concat 0x aggregate%val_as_bytes%5#0) to aggregate%val_as_bytes%5#0
+debug: Simplified (len "test") to 4u
+debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0004
+debug: Simplified (concat 0x0004 "test") to 0x000474657374
+debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x000a
+debug: Simplified (concat aggregate%val_as_bytes%5#0 0x000a) to 0x0000000000000005000a
+debug: Simplified (concat 0x0000000000000005000a 0x000474657374) to 0x0000000000000005000a000474657374
+debug: Simplified (len 0x0000000000000005000a000474657374) to 16u
+debug: Simplified (extract_uint16 0x0000000000000005000a000474657374 8u) // on error: invalid tuple encoding to 10u
+debug: Simplified (== 10u 10u) to 1u
+debug: Simplified (substring3 0x0000000000000005000a000474657374 10u 16u) to 0x000474657374
+debug: Simplified (extract_uint16 0x000474657374 0u) // on error: invalid array length header to 4u
+debug: Simplified (+ 4u 12u) to 16u
+debug: Simplified (== 16u 16u) to 1u
+debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0003
+debug: Simplified (concat 0x0003 0x0000000000000001) to 0x00030000000000000001
+debug: Simplified (concat 0x00030000000000000001 0x0000000000000002) to 0x000300000000000000010000000000000002
+debug: Simplified (concat 0x000300000000000000010000000000000002 0x0000000000000003) to 0x0003000000000000000100000000000000020000000000000003
+debug: Simplified (extract_uint16 0x0003000000000000000100000000000000020000000000000003 0u) // on error: invalid array length header to 3u
+debug: Simplified (* 3u 8u) to 24u
+debug: Simplified (+ 24u 2u) to 26u
+debug: Simplified (len 0x0003000000000000000100000000000000020000000000000003) to 26u
+debug: Simplified (== 26u 26u) to 1u
+debug: Simplified (concat 0x 0x000000000000000a) to 0x000000000000000a
+debug: Simplified (concat 0x000000000000000a 0x0000000000000014) to 0x000000000000000a0000000000000014
+debug: Simplified (len 0x000000000000000a0000000000000014) to 16u
+debug: Simplified (== 16u 16u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1448,8 +1598,17 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%val_as_bytes%3#0: bytes[8] = (itob 1u) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:59:15-48, ir_type=bytes[8], name='aggregate%val_as_bytes%0', version=0)]
-debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%head%0#0, aggregate%val_as_bytes%3#0, aggregate%head%2#0
+debug: Replacing redundant declaration let aggregate%val_as_bytes%5#0: bytes[8] = (itob 5u) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:68:47-67, ir_type=bytes[8], name='aggregate%as_bytes%0', version=0)]
+debug: Replacing redundant declaration let aggregate%as_bytes%4#0: bytes[8] = (itob 10u) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:68:15-68, ir_type=bytes[8], name='aggregate%as_bytes%1', version=0)]
+debug: Replacing redundant declaration let aggregate%as_bytes%5#0: bytes[8] = (itob 3u) with copy of existing registers [Register(source_location=arc4_encode_decode/contract.py:105:14-32, ir_type=bytes[8], name='aggregate%as_bytes%2', version=0)]
+debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%head%0#0, aggregate%val_as_bytes%3#0, aggregate%head%4#0
 debug: selected aggregate%val_as_bytes%0#0 from equivalence set
+debug: Found equivalence set: aggregate%as_bytes%0#0, aggregate%val_as_bytes%5#0, aggregate%head%6#0
+debug: selected aggregate%as_bytes%0#0 from equivalence set
+debug: Found equivalence set: aggregate%as_bytes%1#0, aggregate%as_bytes%4#0
+debug: selected aggregate%as_bytes%1#0 from equivalence set
+debug: Found equivalence set: aggregate%as_bytes%2#0, aggregate%as_bytes%5#0
+debug: selected aggregate%as_bytes%2#0 from equivalence set
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1468,32 +1627,98 @@ debug: Removing unused variable aggregate%val_as_bytes%0#0
 debug: Removing unused variable aggregate%encoded_bool%0#0
 debug: Removing unused variable original#0
 debug: Removing unused variable tmp%1#0
+debug: Removing unused variable len%0#0
+debug: Removing unused variable eq%0#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%length_uint16%0#0
 debug: Removing unused variable encoded#4
+debug: Removing unused variable aggregate%head%2#0
+debug: Removing unused variable aggregate%as_bytes%1#0
+debug: Removing unused variable aggregate%offset_as_uint16%0#0
+debug: Removing unused variable aggregate%head%3#0
+debug: Removing unused variable original#1
+debug: Removing unused variable tuple_len%0#0
+debug: Removing unused variable extract_uint16%0#0
+debug: Removing unused variable eq%0#1
+debug: Removing unused variable substring3%0#0
+debug: Removing unused variable aggregate%array_length%0#0
+debug: Removing unused variable add%1#0
+debug: Removing unused variable eq%1#0
 debug: Removing unused variable encoded#2
 debug: Removing unused variable tmp%1#2
+debug: Removing unused variable len%0#2
+debug: Removing unused variable eq%0#2
 debug: Removing unused variable aggregate%value_len%0#0
 debug: Removing unused variable aggregate%len_ok%0#0
 debug: Removing unused variable aggregate%bzero%0#0
 debug: Removing unused variable encoded#3
+debug: Removing unused variable len%0#3
+debug: Removing unused variable eq%0#3
 debug: Removing unused variable tmp%2#3
 debug: Removing unused variable tmp%1#4
+debug: Removing unused variable aggregate%array_length%1#0
+debug: Removing unused variable add%0#1
+debug: Removing unused variable len%0#4
+debug: Removing unused variable eq%0#4
 debug: Removing unused variable aggregate%length%1#0
-debug: Removing unused variable aggregate%as_bytes%1#0
+debug: Removing unused variable aggregate%as_bytes%2#0
 debug: Removing unused variable aggregate%length_uint16%1#0
 debug: Removing unused variable encoded#5
 debug: Removing unused variable tmp%1#5
+debug: Removing unused variable aggregate%array_length%2#0
+debug: Removing unused variable add%0#2
+debug: Removing unused variable len%0#5
+debug: Removing unused variable eq%0#5
 debug: Removing unused variable encoded_true#0
 debug: Removing unused variable tmp%1#6
+debug: Removing unused variable len%0#6
+debug: Removing unused variable eq%0#6
 debug: Removing unused variable encoded_false#0
 debug: Removing unused variable tmp%4#0
+debug: Removing unused variable len%1#0
+debug: Removing unused variable eq%1#1
+debug: Removing unused variable len%0#7
+debug: Removing unused variable eq%0#7
 debug: Removing unused variable encoded#8
 debug: Removing unused variable tmp%1#9
+debug: Removing unused variable len%0#9
+debug: Removing unused variable eq%0#9
+debug: Removing unused variable aggregate%array_length%3#0
+debug: Removing unused variable add%0#3
+debug: Removing unused variable eq%0#11
 debug: Removing unused variable aggregate%val_as_bytes%4#0
 debug: Removing unused variable encoded#11
 debug: Removing unused variable tmp%1#12
+debug: Removing unused variable len%0#12
+debug: Removing unused variable eq%0#12
+debug: Removing unused variable aggregate%length%2#0
+debug: Removing unused variable aggregate%as_bytes%3#0
+debug: Removing unused variable aggregate%length_uint16%2#0
+debug: Removing unused variable aggregate%encoded_value%2#0
+debug: Removing unused variable aggregate%offset_as_uint16%1#0
+debug: Removing unused variable aggregate%head%7#0
+debug: Removing unused variable encoded#12
+debug: Removing unused variable tuple_len%0#1
+debug: Removing unused variable extract_uint16%0#1
+debug: Removing unused variable eq%0#13
+debug: Removing unused variable substring3%0#1
+debug: Removing unused variable aggregate%array_length%4#0
+debug: Removing unused variable add%1#1
+debug: Removing unused variable eq%1#2
+debug: Removing unused variable aggregate%len_u16%0#0
+debug: Removing unused variable aggregate%head%8#0
+debug: Removing unused variable aggregate%head%9#0
+debug: Removing unused variable value#9
+debug: Removing unused variable aggregate%array_length%5#0
+debug: Removing unused variable mul%0#5
+debug: Removing unused variable add%0#5
+debug: Removing unused variable len%0#14
+debug: Removing unused variable eq%0#14
+debug: Removing unused variable aggregate%head%11#0
+debug: Removing unused variable value#10
+debug: Removing unused variable len%0#15
+debug: Removing unused variable eq%0#15
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
