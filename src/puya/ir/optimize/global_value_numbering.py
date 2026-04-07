@@ -238,11 +238,7 @@ class _GVNTables:
             if not isinstance(maybe_avm_type, str):
                 self._equivalences.setdefault((vn, maybe_avm_type), []).append(reg)
 
-    def maybe_assign_register_fresh_vn(self, reg: models.Register) -> VN:
-        try:
-            return self._register_vn[reg]
-        except KeyError:
-            pass
+    def assign_register_fresh_vn(self, reg: models.Register) -> VN:
         vn = self._next_vn()
         self.set_register_vn(reg, vn)
         return vn
@@ -251,14 +247,14 @@ class _GVNTables:
         """Get the VN for any Value (register or constant).
 
         If a register has not been numbered yet (e.g. a phi argument from a back edge),
-        it is conservatively assigned a fresh VN.
+        it is conservatively assigned a fresh VN - which is *not* stored.
         """
         if isinstance(value, models.Register):
             try:
                 return self._register_vn[value]
             except KeyError:
                 # Back-edge or otherwise not-yet-visited register: fresh VN
-                return self.maybe_assign_register_fresh_vn(value)
+                return self._next_vn()
         # Constants: intern by value so identical constants share a VN.
         if isinstance(value, _ConstType):
             return lazy_setdefault(self._const_vn, value, lambda _: self._next_vn())
@@ -543,7 +539,7 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         Non-redundant phis are hashed to detect congruent phis at the same block.
         """
         if not phi.args:
-            self.tables.maybe_assign_register_fresh_vn(phi.register)
+            self.tables.assign_register_fresh_vn(phi.register)
             return
 
         phi_arg_vns = _PhiArgVNs(
@@ -563,9 +559,7 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
                 self.tables.set_register_vn(phi.register, existing_vn)
                 logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
             else:
-                self.phi_table[phi_arg_vns] = self.tables.maybe_assign_register_fresh_vn(
-                    phi.register
-                )
+                self.phi_table[phi_arg_vns] = self.tables.assign_register_fresh_vn(phi.register)
 
     @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
@@ -594,7 +588,7 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         if provider_key is None:
             # Not a pure expression — fresh VN per target
             for reg in targets:
-                self.tables.maybe_assign_register_fresh_vn(reg)
+                self.tables.assign_register_fresh_vn(reg)
             return
 
         existing_vns = self.tables.provider_key_to_vns.get(provider_key)
@@ -607,7 +601,7 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
                 self.tables.set_register_vn(target, existing_vn)
                 logger.debug(f"GVN: redundant expr {target.local_id} (VN={existing_vn})")
         else:
-            target_vns = tuple(self.tables.maybe_assign_register_fresh_vn(r) for r in targets)
+            target_vns = tuple(self.tables.assign_register_fresh_vn(r) for r in targets)
             self.tables.provider_key_to_vns[provider_key] = target_vns
 
         # Track comparison expressions for negation-aware numbering.
@@ -705,7 +699,7 @@ def global_value_numbering(_context: CompileContext, subroutine: models.Subrouti
     """
     tables = _GVNTables()
     for param in subroutine.parameters:
-        tables.maybe_assign_register_fresh_vn(param)
+        tables.assign_register_fresh_vn(param)
 
     start, dom_tree = compute_dominator_tree(subroutine)
     _process_blocks_pre_order(tables, dom_tree, start)
