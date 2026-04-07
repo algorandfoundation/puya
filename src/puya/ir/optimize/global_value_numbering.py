@@ -44,7 +44,7 @@ from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
-from puya.utils import symmetric_mapping
+from puya.utils import lazy_setdefault, symmetric_mapping
 
 logger = log.get_logger(__name__)
 
@@ -253,15 +253,10 @@ class _GVNTables:
             except KeyError:
                 # Back-edge or otherwise not-yet-visited register: fresh VN
                 return self.assign_register_fresh_vn(value)
-        if not isinstance(value, _ConstType):
-            return self._next_vn()
         # Constants: intern by value so identical constants share a VN.
-        try:
-            return self._const_vn[value]
-        except KeyError:
-            vn = self._next_vn()
-            self._const_vn[value] = vn
-            return vn
+        if isinstance(value, _ConstType):
+            return lazy_setdefault(self._const_vn, value, lambda _: self._next_vn())
+        return self._next_vn()
 
     def build_expr(self, source: models.ValueProvider) -> _ValueKey | None:
         if self._expr_builder is None:
@@ -647,8 +642,8 @@ def _apply_replacements(
         (old representative -> preferred name).
     """
     for block in subroutine.body:
-        block.phis = [phi for phi in block.phis if phi.register not in eliminated]
-        block.ops = [
+        block.phis[:] = [phi for phi in block.phis if phi.register not in eliminated]
+        block.ops[:] = [
             op
             for op in block.ops
             if not (isinstance(op, models.Assignment) and all(t in eliminated for t in op.targets))
