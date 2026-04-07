@@ -222,6 +222,9 @@ class _GVNTables:
     def _next_vn(self) -> VN:
         return next(self._vn_counter)
 
+    def next_vn(self) -> VN:
+        return self._next_vn()
+
     def set_register_vn(self, reg: models.Register, vn: VN, *, replaceable: bool = True) -> None:
         """Assign a VN to a register.
 
@@ -326,43 +329,24 @@ def build_replacements(
 
 
 @attrs.frozen
-class _ProviderKeyBuilder(ValueProviderVisitor[_ProviderKey | None]):
-    """Build a canonical, hashable value expression for a ValueProvider.
+class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...] | None]):
+    """Number a ValueProvider: build a canonical key, look up or assign VNs.
 
-    Returns None for side-effecting or unrecognised operations (they get a fresh VN).
+    Returns the VN tuple for pure expressions (either existing or freshly assigned),
+    or None for side-effecting or unrecognised operations.
     """
 
     _tables: _GVNTables
 
-    @typing.override
-    def visit_extract_value(self, read: models.ExtractValue) -> _ProviderKey | None:
-        return _ExtractKey(
-            base_vn=self._tables.lookup_vn(read.base),
-            base_type=read.base_type,
-            index_vns=self._index_vns(read.indexes),
-            check_bounds=read.check_bounds,
-        )
-
-    @typing.override
-    def visit_replace_value(self, write: models.ReplaceValue) -> _ProviderKey | None:
-        return _ReplaceKey(
-            base_vn=self._tables.lookup_vn(write.base),
-            base_type=write.base_type,
-            index_vns=self._index_vns(write.indexes),
-            value_vn=self._tables.lookup_vn(write.value),
-        )
-
-    @typing.override
-    def visit_array_concat(self, concat: models.ArrayConcat) -> _ProviderKey:
-        return _ArrayConcatKey(
-            base_vn=self._tables.lookup_vn(concat.base),
-            base_type=concat.base_type,
-            items_vn=self._tables.lookup_vn(concat.items),
-            item_encoding=concat.item_encoding,
-        )
+    def _lookup_or_assign(self, key: _ProviderKey, source: models.ValueProvider) -> tuple[VN, ...]:
+        existing = self._tables.provider_key_to_vns.get(key)
+        if existing is not None:
+            return existing
+        vns = tuple(self._tables.next_vn() for _ in source.types)
+        self._tables.provider_key_to_vns[key] = vns
+        return vns
 
     def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
-        """Compute VNs for aggregate indexes, tagging static ints vs dynamic VNs."""
         return tuple(
             (
                 _IndexVN(kind="value", index=self._tables.lookup_vn(idx))
@@ -373,48 +357,90 @@ class _ProviderKeyBuilder(ValueProviderVisitor[_ProviderKey | None]):
         )
 
     @typing.override
-    def visit_array_length(self, length: models.ArrayLength) -> _ProviderKey | None:
-        # Only pure when the base is a stack value, not a slot reference.
-        if isinstance(length.base_type, types.SlotType):
-            return None
-        return _ArrayLengthKey(
-            base_vn=self._tables.lookup_vn(length.base),
-            base_type=length.base_type,
+    def visit_extract_value(self, read: models.ExtractValue) -> tuple[VN, ...]:
+        key = _ExtractKey(
+            base_vn=self._tables.lookup_vn(read.base),
+            base_type=read.base_type,
+            index_vns=self._index_vns(read.indexes),
+            check_bounds=read.check_bounds,
         )
+        return self._lookup_or_assign(key, read)
 
     @typing.override
-    def visit_array_pop(self, pop: models.ArrayPop) -> _ProviderKey:
-        return _ArrayPopKey(
-            base_vn=self._tables.lookup_vn(pop.base),
+    def visit_replace_value(self, write: models.ReplaceValue) -> tuple[VN, ...]:
+        base_vn = self._tables.lookup_vn(write.base)
+        index_vns = self._index_vns(write.indexes)
+        value_vn = self._tables.lookup_vn(write.value)
+        key = _ReplaceKey(
+            base_vn=base_vn,
+            base_type=write.base_type,
+            index_vns=index_vns,
+            value_vn=value_vn,
+        )
+        return self._lookup_or_assign(key, write)
+
+    @typing.override
+    def visit_array_concat(self, concat: models.ArrayConcat) -> tuple[VN, ...]:
+        base_vn = self._tables.lookup_vn(concat.base)
+        items_vn = self._tables.lookup_vn(concat.items)
+        key = _ArrayConcatKey(
+            base_vn=base_vn,
+            base_type=concat.base_type,
+            items_vn=items_vn,
+            item_encoding=concat.item_encoding,
+        )
+        return self._lookup_or_assign(key, concat)
+
+    @typing.override
+    def visit_array_length(self, length: models.ArrayLength) -> tuple[VN, ...] | None:
+        if isinstance(length.base_type, types.SlotType):
+            return None
+        base_vn = self._tables.lookup_vn(length.base)
+        key = _ArrayLengthKey(
+            base_vn=base_vn,
+            base_type=length.base_type,
+        )
+        return self._lookup_or_assign(key, length)
+
+    @typing.override
+    def visit_array_pop(self, pop: models.ArrayPop) -> tuple[VN, ...]:
+        base_vn = self._tables.lookup_vn(pop.base)
+        key = _ArrayPopKey(
+            base_vn=base_vn,
             base_type=pop.base_type,
         )
+        return self._lookup_or_assign(key, pop)
 
     @typing.override
     def visit_box_read(self, read: models.BoxRead) -> None:
         return None  # stateful, leave this up to repeated-reads
 
     @typing.override
-    def visit_bytes_encode(self, encode: models.BytesEncode) -> _ProviderKey | None:
-        return _EncodeKey(
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> tuple[VN, ...]:
+        value_vns = tuple(self._tables.lookup_vn(v) for v in encode.values)
+        key = _EncodeKey(
             encoding=encode.encoding,
-            value_vns=tuple(self._tables.lookup_vn(v) for v in encode.values),
+            value_vns=value_vns,
             values_type=encode.values_type,
         )
+        return self._lookup_or_assign(key, encode)
 
     @typing.override
-    def visit_decode_bytes(self, decode: models.DecodeBytes) -> _ProviderKey | None:
-        return _DecodeKey(
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> tuple[VN, ...]:
+        value_vn = self._tables.lookup_vn(decode.value)
+        key = _DecodeKey(
             encoding=decode.encoding,
-            value_vn=self._tables.lookup_vn(decode.value),
+            value_vn=value_vn,
             ir_type=decode.ir_type,
         )
+        return self._lookup_or_assign(key, decode)
 
     @typing.override
     def visit_inner_transaction_field(self, intrinsic: models.InnerTransactionField) -> None:
         return None  # stateful - implicitly depends on the most recent itxn_submit
 
     @typing.override
-    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> _ProviderKey | None:
+    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...] | None:
         op = intrinsic.op
         if op.code not in PURE_AVM_OPS:
             return None
@@ -432,28 +458,33 @@ class _ProviderKeyBuilder(ValueProviderVisitor[_ProviderKey | None]):
             if comp is not None:
                 inverse_op = _INVERSE_COMPARISONS.get(comp.op)
                 if inverse_op is not None:
-                    return _IntrinsicKey(
+                    inverse_key = _IntrinsicKey(
                         op=inverse_op,
                         immediates=comp.immediates,
                         arg_vns=comp.arg_vns,
                     )
+                    return self._lookup_or_assign(inverse_key, intrinsic)
         op_key = op
         if op in _COMMUTATIVE_OPS:
             arg_vns = tuple(sorted(arg_vns))
         elif op in _MIRROR_OPS and arg_vns[0] > arg_vns[1]:
-            # Canonicalize ordering ops by sorting operand VNs,
-            # mirroring the predicate to preserve semantics.
-            # e.g. a<b and b>a get the same canonical key.
             arg_vns = (arg_vns[1], arg_vns[0])
             op_key = _MIRROR_OPS[op]
-        return _IntrinsicKey(op=op_key, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
+        key = _IntrinsicKey(op=op_key, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
+        vns = self._lookup_or_assign(key, intrinsic)
+        # Track comparison expressions for negation-aware numbering
+        if op_key in _INVERSE_COMPARISONS:
+            (result_vn,) = vns
+            self._tables.comparison_exprs[result_vn] = key
+        return vns
 
     @typing.override
-    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> _ProviderKey | None:
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> tuple[VN, ...] | None:
         if not callsub.target.pure:
             return None
         arg_vns = tuple(self._tables.lookup_vn(a) for a in callsub.args)
-        return _CallSubKey(target_id=callsub.target.id, arg_vns=arg_vns)
+        key = _CallSubKey(target_id=callsub.target.id, arg_vns=arg_vns)
+        return self._lookup_or_assign(key, callsub)
 
     @typing.override
     def visit_new_slot(self, new_slot: models.NewSlot) -> None:
@@ -528,8 +559,8 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         self.phi_table = dict[_PhiArgVNs, VN]()
 
     @cached_property
-    def provider_key_builder(self) -> _ProviderKeyBuilder:
-        return _ProviderKeyBuilder(self.tables)
+    def provider_vn_builder(self) -> _ProviderVNBuilder:
+        return _ProviderVNBuilder(self.tables)
 
     @typing.override
     def visit_phi(self, phi: models.Phi) -> None:
@@ -566,8 +597,7 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         """Assign VNs to an assignment's target registers.
 
         If the source is a register (copy), propagate its VN.
-        If the source is a pure expression and a matching VN already exists,
-        the target joins the existing VN's equivalence set.
+        If the source is a pure expression, the builder looks up or assigns VNs.
         Otherwise, assign a fresh VN.
         """
         source = ass.source
@@ -581,32 +611,13 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
                 target, vn, replaceable=isinstance(source, models.Register)
             )
         else:
-            provider_key = source.accept(self.provider_key_builder)
-            if provider_key is None:
-                # Not a pure expression — fresh VN per target
+            vns = source.accept(self.provider_vn_builder)
+            if vns is None:
                 for reg in ass.targets:
                     self.tables.assign_register_fresh_vn(reg)
             else:
-                existing_vns = self.tables.provider_key_to_vns.get(provider_key)
-                if existing_vns is None:
-                    target_vns = tuple(
-                        self.tables.assign_register_fresh_vn(r) for r in ass.targets
-                    )
-                    self.tables.provider_key_to_vns[provider_key] = target_vns
-                else:
-                    for target, existing_vn in zip(ass.targets, existing_vns, strict=True):
-                        logger.debug(f"GVN: redundant expr {target.local_id} (VN={existing_vn})")
-                        self.tables.set_register_vn(target, existing_vn)
-
-                # Track comparison expressions for negation-aware numbering.
-                # Single-target only — comparisons always produce one result.
-                if (
-                    isinstance(provider_key, _IntrinsicKey)
-                    and provider_key.op in _INVERSE_COMPARISONS
-                ):
-                    (target,) = ass.targets
-                    vn = self.tables.lookup_vn(target)
-                    self.tables.comparison_exprs[vn] = provider_key
+                for target, vn in zip(ass.targets, vns, strict=True):
+                    self.tables.set_register_vn(target, vn)
 
 
 def _process_blocks_pre_order(
