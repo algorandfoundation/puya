@@ -125,8 +125,9 @@ class ARC4CopyValidator(AWSTTraverser):
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> None:
         super().visit_arc4_encode(expr)
 
-        for item in _expand_tuple_items(expr.value):
-            _check_for_arc4_copy(item, "being passed to a constructor")
+        if not expr.wtype.immutable:
+            for item in _expand_tuple_items(expr.value):
+                _check_for_arc4_copy(item, "being passed to a constructor")
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> None:
         expr.left.accept(self)
