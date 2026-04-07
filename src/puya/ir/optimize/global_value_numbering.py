@@ -201,9 +201,9 @@ class _GVNTables:
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     _equivalences: dict[tuple[VN, AVMType], list[models.Register]] = attrs.field(factory=dict)
     # --- Scoped: copied on child_scope() ---
-    _register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
+    register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
-    _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
+    const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
     comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
 
     def child_scope(self) -> typing.Self:
@@ -213,17 +213,14 @@ class _GVNTables:
         """
         return attrs.evolve(
             self,
-            register_vn=self._register_vn.copy(),
+            register_vn=self.register_vn.copy(),
             provider_key_to_vns=self.provider_key_to_vns.copy(),
-            const_vn=self._const_vn.copy(),
+            const_vn=self.const_vn.copy(),
             comparison_exprs=self.comparison_exprs.copy(),
         )
 
-    def _next_vn(self) -> VN:
-        return next(self._vn_counter)
-
     def next_vn(self) -> VN:
-        return self._next_vn()
+        return next(self._vn_counter)
 
     def set_register_vn(self, reg: models.Register, vn: VN, *, replaceable: bool = True) -> None:
         """Assign a VN to a register.
@@ -231,18 +228,18 @@ class _GVNTables:
         Use replaceable=False for constant copies where the register needs a VN
         for expression hashing but shouldn't participate in replacement.
         """
-        if reg in self._register_vn:
+        if reg in self.register_vn:
             raise InternalError(
-                f"register {reg} already has VN={self._register_vn[reg]}", reg.source_location
+                f"register {reg} already has VN={self.register_vn[reg]}", reg.source_location
             )
-        self._register_vn[reg] = vn
+        self.register_vn[reg] = vn
         if replaceable:
             maybe_avm_type = reg.ir_type.maybe_avm_type
             if not isinstance(maybe_avm_type, str):
                 self._equivalences.setdefault((vn, maybe_avm_type), []).append(reg)
 
     def assign_register_fresh_vn(self, reg: models.Register) -> VN:
-        vn = self._next_vn()
+        vn = self.next_vn()
         self.set_register_vn(reg, vn)
         return vn
 
@@ -254,14 +251,14 @@ class _GVNTables:
         """
         if isinstance(value, models.Register):
             try:
-                return self._register_vn[value]
+                return self.register_vn[value]
             except KeyError:
                 # Back-edge or otherwise not-yet-visited register: fresh VN
-                return self._next_vn()
+                return self.next_vn()
         # Constants: intern by value so identical constants share a VN.
         if isinstance(value, _ConstType):
-            return lazy_setdefault(self._const_vn, value, lambda _: self._next_vn())
-        return self._next_vn()
+            return lazy_setdefault(self.const_vn, value, lambda _: self.next_vn())
+        return self.next_vn()
 
     @property
     def equivalence_sets(self) -> Collection[Sequence[models.Register]]:
@@ -329,7 +326,7 @@ def build_replacements(
 
 
 @attrs.frozen
-class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...] | None]):
+class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     """Number a ValueProvider: build a canonical key, look up or assign VNs.
 
     Returns the VN tuple for pure expressions (either existing or freshly assigned),
@@ -339,11 +336,16 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...] | None]):
     _tables: _GVNTables
 
     def _lookup_or_assign(self, key: _ProviderKey, source: models.ValueProvider) -> tuple[VN, ...]:
-        existing = self._tables.provider_key_to_vns.get(key)
-        if existing is not None:
-            return existing
-        vns = tuple(self._tables.next_vn() for _ in source.types)
+        try:
+            return self._tables.provider_key_to_vns[key]
+        except KeyError:
+            pass
+        vns = self._fresh_vns(source)
         self._tables.provider_key_to_vns[key] = vns
+        return vns
+
+    def _fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
+        vns = tuple(self._tables.next_vn() for _ in vp.types)
         return vns
 
     def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
@@ -392,9 +394,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...] | None]):
         return self._lookup_or_assign(key, concat)
 
     @typing.override
-    def visit_array_length(self, length: models.ArrayLength) -> tuple[VN, ...] | None:
+    def visit_array_length(self, length: models.ArrayLength) -> tuple[VN, ...]:
         if isinstance(length.base_type, types.SlotType):
-            return None
+            return self._fresh_vns(length)
         base_vn = self._tables.lookup_vn(length.base)
         key = _ArrayLengthKey(
             base_vn=base_vn,
@@ -412,8 +414,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...] | None]):
         return self._lookup_or_assign(key, pop)
 
     @typing.override
-    def visit_box_read(self, read: models.BoxRead) -> None:
-        return None  # stateful, leave this up to repeated-reads
+    def visit_box_read(self, read: models.BoxRead) -> tuple[VN, ...]:
+        return self._fresh_vns(read)  # stateful, leave this up to repeated-reads
 
     @typing.override
     def visit_bytes_encode(self, encode: models.BytesEncode) -> tuple[VN, ...]:
@@ -436,19 +438,22 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...] | None]):
         return self._lookup_or_assign(key, decode)
 
     @typing.override
-    def visit_inner_transaction_field(self, intrinsic: models.InnerTransactionField) -> None:
-        return None  # stateful - implicitly depends on the most recent itxn_submit
+    def visit_inner_transaction_field(
+        self, intrinsic: models.InnerTransactionField
+    ) -> tuple[VN, ...]:
+        # stateful - implicitly depends on the most recent itxn_submit
+        return self._fresh_vns(intrinsic)
 
     @typing.override
-    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...] | None:
+    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...]:
         op = intrinsic.op
         if op.code not in PURE_AVM_OPS:
-            return None
+            return self._fresh_vns(intrinsic)
         args = intrinsic.args
         if not args:
             # TODO: handle no-args by keeping the definition but assigning same VN,
             #       and then using that VN in comparison / algebraic identities
-            return None
+            return self._fresh_vns(intrinsic)
         arg_vns = tuple(self._tables.lookup_vn(a) for a in args)
         # Negation-aware numbering: !(comparison) -> inverse comparison.
         # e.g. !(a < b) gets the same key as (a >= b).
@@ -479,78 +484,88 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...] | None]):
         return vns
 
     @typing.override
-    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> tuple[VN, ...] | None:
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> tuple[VN, ...]:
         if not callsub.target.pure:
-            return None
+            return self._fresh_vns(callsub)
         arg_vns = tuple(self._tables.lookup_vn(a) for a in callsub.args)
         key = _CallSubKey(target_id=callsub.target.id, arg_vns=arg_vns)
         return self._lookup_or_assign(key, callsub)
 
     @typing.override
-    def visit_new_slot(self, new_slot: models.NewSlot) -> None:
-        return None  # side-effecting
+    def visit_new_slot(self, new_slot: models.NewSlot) -> tuple[VN, ...]:
+        return self._fresh_vns(new_slot)  # side-effecting
 
     @typing.override
-    def visit_read_slot(self, read_slot: models.ReadSlot) -> None:
-        return None  # stateful, leave this up to repeated-reads
+    def visit_read_slot(self, read_slot: models.ReadSlot) -> tuple[VN, ...]:
+        return self._fresh_vns(read_slot)  # stateful, leave this up to repeated-reads
 
     @typing.override
-    def visit_value_tuple(self, tup: models.ValueTuple) -> None:
-        return None  # catch these on the next pass
+    def visit_value_tuple(self, tup: models.ValueTuple) -> tuple[VN, ...]:
+        return self._fresh_vns(tup)  # catch these on the next pass
 
-    # -- Value subtypes: should be handled specially before reaching the visitor --
-
-    @typing.override
-    def visit_register(self, reg: models.Register) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
+    # -- Value subtypes --
 
     @typing.override
-    def visit_undefined(self, val: models.Undefined) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_uint64_constant(self, const: models.UInt64Constant) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_biguint_constant(self, const: models.BigUIntConstant) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_bytes_constant(self, const: models.BytesConstant) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_address_constant(self, const: models.AddressConstant) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_method_constant(self, const: models.MethodConstant) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_itxn_constant(self, const: models.ITxnConstant) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_slot_constant(self, const: models.SlotConstant) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
-
-    @typing.override
-    def visit_template_var(self, deploy_var: models.TemplateVar) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
+    def visit_undefined(self, val: models.Undefined) -> tuple[VN, ...]:
+        return self._fresh_vns(val)
 
     @typing.override
     def visit_compiled_contract_reference(
         self, const: models.CompiledContractReference
-    ) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
+    ) -> tuple[VN, ...]:
+        return self._fresh_vns(const)
 
     @typing.override
     def visit_compiled_logicsig_reference(
         self, const: models.CompiledLogicSigReference
-    ) -> typing.Never:
-        raise InternalError("shouldn't get here, Value should be handled specially")
+    ) -> tuple[VN, ...]:
+        return self._fresh_vns(const)
+
+    @typing.override
+    def visit_register(self, reg: models.Register) -> tuple[VN, ...]:
+        # If a register has not been numbered yet (e.g. a phi argument from a back edge),
+        # it is conservatively assigned a fresh VN - which is *not* stored.
+        try:
+            return (self._tables.register_vn[reg],)
+        except KeyError:
+            # Back-edge or otherwise not-yet-visited register: fresh VN
+            return self._fresh_vns(reg)
+
+    def _const_vn(self, const: _ConstType) -> tuple[VN, ...]:
+        vn = lazy_setdefault(self._tables.const_vn, const, lambda _: self._tables.next_vn())
+        return (vn,)
+
+    @typing.override
+    def visit_uint64_constant(self, const: models.UInt64Constant) -> tuple[VN, ...]:
+        return self._const_vn(const)
+
+    @typing.override
+    def visit_biguint_constant(self, const: models.BigUIntConstant) -> tuple[VN, ...]:
+        return self._const_vn(const)
+
+    @typing.override
+    def visit_bytes_constant(self, const: models.BytesConstant) -> tuple[VN, ...]:
+        return self._const_vn(const)
+
+    @typing.override
+    def visit_address_constant(self, const: models.AddressConstant) -> tuple[VN, ...]:
+        return self._const_vn(const)
+
+    @typing.override
+    def visit_method_constant(self, const: models.MethodConstant) -> tuple[VN, ...]:
+        return self._const_vn(const)
+
+    @typing.override
+    def visit_itxn_constant(self, const: models.ITxnConstant) -> tuple[VN, ...]:
+        return self._const_vn(const)
+
+    @typing.override
+    def visit_slot_constant(self, const: models.SlotConstant) -> tuple[VN, ...]:
+        return self._const_vn(const)
+
+    @typing.override
+    def visit_template_var(self, deploy_var: models.TemplateVar) -> tuple[VN, ...]:
+        return self._const_vn(deploy_var)
 
 
 class GVNBlockVisitor(NoOpIRVisitor[None]):
@@ -601,23 +616,16 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         Otherwise, assign a fresh VN.
         """
         source = ass.source
-        # Copy assignment: propagate VN directly
-        if isinstance(source, models.Value):
-            (target,) = ass.targets
-            vn = self.tables.lookup_vn(source)
-            # Copies from constants don't participate in replacement —
-            # constant propagation handles those.
-            self.tables.set_register_vn(
-                target, vn, replaceable=isinstance(source, models.Register)
-            )
+        vns = source.accept(self.provider_vn_builder)
+        if vns is None:
+            for reg in ass.targets:
+                self.tables.assign_register_fresh_vn(reg)
         else:
-            vns = source.accept(self.provider_vn_builder)
-            if vns is None:
-                for reg in ass.targets:
-                    self.tables.assign_register_fresh_vn(reg)
-            else:
-                for target, vn in zip(ass.targets, vns, strict=True):
-                    self.tables.set_register_vn(target, vn)
+            replaceable = isinstance(source, models.Register) or not isinstance(
+                source, models.Value
+            )
+            for target, vn in zip(ass.targets, vns, strict=True):
+                self.tables.set_register_vn(target, vn, replaceable=replaceable)
 
 
 def _process_blocks_pre_order(
