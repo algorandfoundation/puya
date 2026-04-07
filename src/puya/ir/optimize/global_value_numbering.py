@@ -243,23 +243,6 @@ class _GVNTables:
         self.set_register_vn(reg, vn)
         return vn
 
-    def lookup_vn(self, value: models.Value) -> VN:
-        """Get the VN for any Value (register or constant).
-
-        If a register has not been numbered yet (e.g. a phi argument from a back edge),
-        it is conservatively assigned a fresh VN - which is *not* stored.
-        """
-        if isinstance(value, models.Register):
-            try:
-                return self.register_vn[value]
-            except KeyError:
-                # Back-edge or otherwise not-yet-visited register: fresh VN
-                return self.next_vn()
-        # Constants: intern by value so identical constants share a VN.
-        if isinstance(value, _ConstType):
-            return lazy_setdefault(self.const_vn, value, lambda _: self.next_vn())
-        return self.next_vn()
-
     @property
     def equivalence_sets(self) -> Collection[Sequence[models.Register]]:
         return self._equivalences.values()
@@ -351,7 +334,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
         return tuple(
             (
-                _IndexVN(kind="value", index=self._tables.lookup_vn(idx))
+                _IndexVN(kind="value", index=self._visit_value(idx))
                 if isinstance(idx, models.Value)
                 else _IndexVN(kind="static", index=idx)
             )
@@ -361,7 +344,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> tuple[VN, ...]:
         key = _ExtractKey(
-            base_vn=self._tables.lookup_vn(read.base),
+            base_vn=self._visit_value(read.base),
             base_type=read.base_type,
             index_vns=self._index_vns(read.indexes),
             check_bounds=read.check_bounds,
@@ -370,9 +353,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_replace_value(self, write: models.ReplaceValue) -> tuple[VN, ...]:
-        base_vn = self._tables.lookup_vn(write.base)
+        base_vn = self._visit_value(write.base)
         index_vns = self._index_vns(write.indexes)
-        value_vn = self._tables.lookup_vn(write.value)
+        value_vn = self._visit_value(write.value)
         key = _ReplaceKey(
             base_vn=base_vn,
             base_type=write.base_type,
@@ -383,8 +366,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_array_concat(self, concat: models.ArrayConcat) -> tuple[VN, ...]:
-        base_vn = self._tables.lookup_vn(concat.base)
-        items_vn = self._tables.lookup_vn(concat.items)
+        base_vn = self._visit_value(concat.base)
+        items_vn = self._visit_value(concat.items)
         key = _ArrayConcatKey(
             base_vn=base_vn,
             base_type=concat.base_type,
@@ -397,7 +380,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     def visit_array_length(self, length: models.ArrayLength) -> tuple[VN, ...]:
         if isinstance(length.base_type, types.SlotType):
             return self._fresh_vns(length)
-        base_vn = self._tables.lookup_vn(length.base)
+        base_vn = self._visit_value(length.base)
         key = _ArrayLengthKey(
             base_vn=base_vn,
             base_type=length.base_type,
@@ -406,7 +389,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_array_pop(self, pop: models.ArrayPop) -> tuple[VN, ...]:
-        base_vn = self._tables.lookup_vn(pop.base)
+        base_vn = self._visit_value(pop.base)
         key = _ArrayPopKey(
             base_vn=base_vn,
             base_type=pop.base_type,
@@ -419,7 +402,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_bytes_encode(self, encode: models.BytesEncode) -> tuple[VN, ...]:
-        value_vns = tuple(self._tables.lookup_vn(v) for v in encode.values)
+        value_vns = tuple(self._visit_value(v) for v in encode.values)
         key = _EncodeKey(
             encoding=encode.encoding,
             value_vns=value_vns,
@@ -429,7 +412,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_decode_bytes(self, decode: models.DecodeBytes) -> tuple[VN, ...]:
-        value_vn = self._tables.lookup_vn(decode.value)
+        value_vn = self._visit_value(decode.value)
         key = _DecodeKey(
             encoding=decode.encoding,
             value_vn=value_vn,
@@ -454,7 +437,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             # TODO: handle no-args by keeping the definition but assigning same VN,
             #       and then using that VN in comparison / algebraic identities
             return self._fresh_vns(intrinsic)
-        arg_vns = tuple(self._tables.lookup_vn(a) for a in args)
+        arg_vns = tuple(self._visit_value(a) for a in args)
         # Negation-aware numbering: !(comparison) -> inverse comparison.
         # e.g. !(a < b) gets the same key as (a >= b).
         if op == AVMOp.not_:
@@ -487,7 +470,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> tuple[VN, ...]:
         if not callsub.target.pure:
             return self._fresh_vns(callsub)
-        arg_vns = tuple(self._tables.lookup_vn(a) for a in callsub.args)
+        arg_vns = tuple(self._visit_value(a) for a in callsub.args)
         key = _CallSubKey(target_id=callsub.target.id, arg_vns=arg_vns)
         return self._lookup_or_assign(key, callsub)
 
@@ -504,6 +487,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
         return self._fresh_vns(tup)  # catch these on the next pass
 
     # -- Value subtypes --
+
+    def _visit_value(self, val: models.Value) -> VN:
+        # all Value sub-types have arity of 1
+        (vn,) = val.accept(self)
+        return vn
 
     @typing.override
     def visit_undefined(self, val: models.Undefined) -> tuple[VN, ...]:
@@ -523,13 +511,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_register(self, reg: models.Register) -> tuple[VN, ...]:
-        # If a register has not been numbered yet (e.g. a phi argument from a back edge),
-        # it is conservatively assigned a fresh VN - which is *not* stored.
-        try:
-            return (self._tables.register_vn[reg],)
-        except KeyError:
-            # Back-edge or otherwise not-yet-visited register: fresh VN
-            return self._fresh_vns(reg)
+        return (self._tables.register_vn[reg],)
 
     def _const_vn(self, const: _ConstType) -> tuple[VN, ...]:
         vn = lazy_setdefault(self._tables.const_vn, const, lambda _: self._tables.next_vn())
@@ -578,36 +560,6 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         return _ProviderVNBuilder(self.tables)
 
     @typing.override
-    def visit_phi(self, phi: models.Phi) -> None:
-        """Assign a VN to a phi node's register.
-
-        Redundant phis (all args same VN) get the common VN.
-        Non-redundant phis are hashed to detect congruent phis at the same block.
-        """
-        if not phi.args:
-            self.tables.assign_register_fresh_vn(phi.register)
-            return
-
-        phi_arg_vns = _PhiArgVNs(
-            (arg.through, self.tables.lookup_vn(arg.value)) for arg in phi.args
-        )
-
-        unique_vns = set(phi_arg_vns.values())
-        if len(unique_vns) == 1:
-            # Redundant phi: all arguments have the same VN
-            (the_vn,) = unique_vns
-            self.tables.set_register_vn(phi.register, the_vn)
-            logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={the_vn})")
-        else:
-            # Non-redundant phi: hash by arg VNs to detect congruent phis at the same block
-            existing_vn = self.phi_table.get(phi_arg_vns)
-            if existing_vn is not None:
-                self.tables.set_register_vn(phi.register, existing_vn)
-                logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
-            else:
-                self.phi_table[phi_arg_vns] = self.tables.assign_register_fresh_vn(phi.register)
-
-    @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
         """Assign VNs to an assignment's target registers.
 
@@ -626,6 +578,42 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
             )
             for target, vn in zip(ass.targets, vns, strict=True):
                 self.tables.set_register_vn(target, vn, replaceable=replaceable)
+
+    @typing.override
+    def visit_phi(self, phi: models.Phi) -> None:
+        """Assign a VN to a phi node's register.
+
+        Redundant phis (all args same VN) get the common VN.
+        Non-redundant phis are hashed to detect congruent phis at the same block.
+        """
+        if not phi.args:
+            self.tables.assign_register_fresh_vn(phi.register)
+            return
+
+        try:
+            pairs = [(arg.through, self.tables.register_vn[arg.value]) for arg in phi.args]
+        except KeyError:
+            # If a register has not been numbered yet (e.g. a phi argument from a back edge),
+            # it will not be in the map - in which case to avoid issues, we just give the
+            # phi a new VN, and if there's a redundancy let _refine_phi_congruence sort it out
+            self.tables.assign_register_fresh_vn(phi.register)
+            return
+
+        phi_arg_vns = _PhiArgVNs(pairs)
+        unique_vns = set(phi_arg_vns.values())
+        if len(unique_vns) == 1:
+            # Redundant phi: all arguments have the same VN
+            (the_vn,) = unique_vns
+            self.tables.set_register_vn(phi.register, the_vn)
+            logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={the_vn})")
+        else:
+            # Non-redundant phi: hash by arg VNs to detect congruent phis at the same block
+            existing_vn = self.phi_table.get(phi_arg_vns)
+            if existing_vn is not None:
+                self.tables.set_register_vn(phi.register, existing_vn)
+                logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
+            else:
+                self.phi_table[phi_arg_vns] = self.tables.assign_register_fresh_vn(phi.register)
 
 
 def _process_blocks_pre_order(
