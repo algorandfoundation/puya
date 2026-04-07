@@ -133,6 +133,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let aggregate%arc4_encoded%0#0: bytes[64] = (b| tmp%4#1 aggregate%bzero%0#0)
         let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%arc4_encoded%0#0)
         let aggregate%head%7#0: bytes = (concat 0x00000000000000000000000000000000 aggregate%head%6#0)
+        let aggregate%head%9#0: bytes = x1#0
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob y1#0)
         let aggregate%head%10#0: bytes = (concat x1#0 aggregate%val_as_bytes%3#0)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%5#1)
@@ -147,6 +148,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array[routing]()
         let aggregate%head%15#0: bytes = (concat aggregate%head%14#0 aggregate%arc4_encoded%1#0)
         let aggregate%head%16#0: bytes = (concat aggregate%head%10#0 aggregate%head%15#0)
         let aggregate%head%17#0: bytes = (concat aggregate%head%7#0 aggregate%head%16#0)
+        let aggregate%head%18#0: bytes = x2#0
         let aggregate%val_as_bytes%6#0: bytes[8] = (itob y2#0)
         let aggregate%head%19#0: bytes = (concat x2#0 aggregate%val_as_bytes%6#0)
         let aggregate%val_as_bytes%7#0: bytes[8] = (itob tmp%10#0)
@@ -546,20 +548,14 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routin
         let aggregate%get_bit%0#0: bool = (getbit dyn_arr#1 16u)
         let aggregate%encoded_bool%2#0: bytes[1] = (setbit 0x00 0u aggregate%get_bit%0#0)
         let aggregate%get_bit%1#0: bool = (getbit aggregate%encoded_bool%2#0 0u)
-        let tmp%20#0: account = (txn Sender)
-        let tmp%21#0: account = (txn Receiver)
-        let tmp%22#0: bool = (== tmp%20#0 tmp%21#0)
-        let tmp%23#0: bool = (== aggregate%get_bit%1#0 tmp%22#0)
+        let tmp%23#0: bool = (== aggregate%get_bit%1#0 tmp%2#0)
         (assert tmp%23#0) // expected correct value at 0
         _puya_lib.arc4.dynamic_assert_index(dyn_arr#1, 1u)
         let aggregate%add%1#0: uint64 = 17u
         let aggregate%get_bit%2#0: bool = (getbit dyn_arr#1 17u)
         let aggregate%encoded_bool%3#0: bytes[1] = (setbit 0x00 0u aggregate%get_bit%2#0)
         let aggregate%get_bit%3#0: bool = (getbit aggregate%encoded_bool%3#0 0u)
-        let tmp%26#0: account = (txn Sender)
-        let tmp%27#0: account = (txn Receiver)
-        let tmp%28#0: bool = (!= tmp%26#0 tmp%27#0)
-        let tmp%29#0: bool = (== aggregate%get_bit%3#0 tmp%28#0)
+        let tmp%29#0: bool = (== aggregate%get_bit%3#0 tmp%8#0)
         (assert tmp%29#0) // expected correct value at 1
         let arr2#0: Encoded(bool8[])* = new()
         let slot_contents%3#0: Encoded(bool8[]) = aggregate%concat%1#0
@@ -588,37 +584,25 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routin
         let aggregate%bytes_offset%0#0: uint64 = 0u
         let aggregate%encoded_element%0#0: bytes = ((extract 0 1) slot_contents%5#0) // on error: index access is out of bounds
         let aggregate%get_bit%5#0: bool = (getbit aggregate%encoded_element%0#0 0u)
-        let tmp%36#0: account = (txn Sender)
-        let tmp%37#0: account = (txn Receiver)
-        let tmp%38#0: bool = (== tmp%36#0 tmp%37#0)
-        let tmp%39#0: bool = (== aggregate%get_bit%5#0 tmp%38#0)
+        let tmp%39#0: bool = (== aggregate%get_bit%5#0 tmp%2#0)
         (assert tmp%39#0) // expected correct value at 0
         let slot_contents%6#0: Encoded(bool8[]) = aggregate%slot_contents%0#0
         let aggregate%bytes_offset%1#0: uint64 = 1u
         let aggregate%encoded_element%1#0: bytes = ((extract 1 1) slot_contents%6#0) // on error: index access is out of bounds
         let aggregate%get_bit%6#0: bool = (getbit aggregate%encoded_element%1#0 0u)
-        let tmp%41#0: account = (txn Sender)
-        let tmp%42#0: account = (txn Receiver)
-        let tmp%43#0: bool = (!= tmp%41#0 tmp%42#0)
-        let tmp%44#0: bool = (== aggregate%get_bit%6#0 tmp%43#0)
+        let tmp%44#0: bool = (== aggregate%get_bit%6#0 tmp%8#0)
         (assert tmp%44#0) // expected correct value at 1
         let slot_contents%7#0: Encoded(bool8[]) = aggregate%slot_contents%0#0
         let aggregate%bytes_offset%2#0: uint64 = 2u
         let aggregate%encoded_element%2#0: bytes = ((extract 2 1) slot_contents%7#0) // on error: index access is out of bounds
         let aggregate%get_bit%7#0: bool = (getbit aggregate%encoded_element%2#0 0u)
-        let tmp%46#0: account = (txn Sender)
-        let tmp%47#0: account = (txn Receiver)
-        let tmp%48#0: bool = (== tmp%46#0 tmp%47#0)
-        let tmp%49#0: bool = (== aggregate%get_bit%7#0 tmp%48#0)
+        let tmp%49#0: bool = (== aggregate%get_bit%7#0 tmp%2#0)
         (assert tmp%49#0) // expected correct value at 2
         let slot_contents%8#0: Encoded(bool8[]) = aggregate%slot_contents%0#0
         let aggregate%bytes_offset%3#0: uint64 = 3u
         let aggregate%encoded_element%3#0: bytes = ((extract 3 1) slot_contents%8#0) // on error: index access is out of bounds
         let aggregate%get_bit%8#0: bool = (getbit aggregate%encoded_element%3#0 0u)
-        let tmp%51#0: account = (txn Sender)
-        let tmp%52#0: account = (txn Receiver)
-        let tmp%53#0: bool = (!= tmp%51#0 tmp%52#0)
-        let tmp%54#0: bool = (== aggregate%get_bit%8#0 tmp%53#0)
+        let tmp%54#0: bool = (== aggregate%get_bit%8#0 tmp%8#0)
         (assert tmp%54#0) // expected correct value at 3
         let slot_contents%9#0: Encoded(bool8[]) = load(arr#0)
         let aggregate%bytes_len%2#0: uint64 = (len slot_contents%9#0)

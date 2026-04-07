@@ -8,7 +8,7 @@ main:
     intc_0 // 0
     dupn 8
     bytec_3 // ""
-    dupn 13
+    dupn 15
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_1 // "count"
@@ -32,20 +32,26 @@ main_test_arc4_bool_route@12:
     txn Sender
     txn Receiver
     ==
+    dup
+    bury 4
     bytec_2 // 0x00
     intc_0 // 0
-    uncover 2
+    dig 2
     setbit
     txn Sender
     txn Receiver
     !=
+    dup
+    bury 5
     bytec_2 // 0x00
     intc_0 // 0
-    uncover 2
+    dig 2
     setbit
+    uncover 2
+    swap
     concat // on error: max array length exceeded
     dup
-    bury 17
+    bury 21
     dup
     len
     bytec 4 // 0x0000
@@ -54,12 +60,12 @@ main_test_arc4_bool_route@12:
     intc_2 // 8
     callsub dynamic_array_concat_bits
     dup
-    bury 24
+    bury 28
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 8
+    bury 12
     dup
     pushint 2
     ==
@@ -80,9 +86,7 @@ main_test_arc4_bool_route@12:
     setbit
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    ==
+    uncover 5
     ==
     assert // expected correct value at 0
     intc_1 // 1
@@ -96,42 +100,40 @@ main_test_arc4_bool_route@12:
     setbit
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    !=
+    uncover 2
     ==
     assert // expected correct value at 1
-    bury 15
+    bury 17
     intc_0 // 0
-    bury 7
+    bury 9
 
 main_for_header@20:
-    dig 6
-    dig 5
+    dig 8
+    dig 7
     <
     bz main_after_for@22
-    dig 6
+    dig 8
     dup
     intc_3 // 16
     +
-    dig 23
+    dig 25
     swap
     getbit
     bytec_2 // 0x00
     intc_0 // 0
     uncover 2
     setbit
-    dig 16
+    dig 18
     swap
     concat // on error: max array length exceeded
-    bury 16
+    bury 18
     intc_1 // 1
     +
-    bury 7
+    bury 9
     b main_for_header@20
 
 main_after_for@22:
-    dig 14
+    dig 16
     dup
     len
     pushint 4
@@ -141,38 +143,33 @@ main_after_for@22:
     extract 0 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    ==
+    dig 4
+    dup
+    cover 3
     ==
     assert // expected correct value at 0
     dup
     extract 1 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    !=
+    dig 4
+    dup
+    cover 4
     ==
     assert // expected correct value at 1
     dup
     extract 2 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    ==
+    uncover 2
     ==
     assert // expected correct value at 2
     extract 3 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    !=
     ==
     assert // expected correct value at 3
-    dig 15
+    dig 17
     dup
     len
     bytec 4 // 0x0000
@@ -201,23 +198,23 @@ main_sum_array_route@11:
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
     extract 2 0
     dup
-    bury 18
+    bury 20
     intc_0 // 0
     bury 2
     len
     intc_2 // 8
     /
-    bury 12
+    bury 14
     intc_0 // 0
-    bury 7
+    bury 9
 
 main_for_header@25:
-    dig 6
-    dig 12
+    dig 8
+    dig 14
     <
     bz main_after_for@27
-    dig 16
-    dig 7
+    dig 18
+    dig 9
     dup
     cover 2
     intc_2 // 8
@@ -228,7 +225,7 @@ main_for_header@25:
     bury 2
     intc_1 // 1
     +
-    bury 7
+    bury 9
     b main_for_header@25
 
 main_after_for@27:
@@ -250,54 +247,54 @@ main_test_arc4_conversion_route@10:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 6
+    bury 8
     bytec_3 // 0x
-    bury 19
+    bury 21
     intc_1 // 1
     +
-    bury 2
+    bury 4
     intc_1 // 1
-    bury 8
+    bury 10
 
 main_for_header@30:
-    dig 7
-    dig 2
+    dig 9
+    dig 4
     <
     bz main_after_for@32
-    dig 7
+    dig 9
     dup
     itob
-    dig 19
+    dig 21
     swap
     concat // on error: max array length exceeded
-    bury 19
+    bury 21
     intc_1 // 1
     +
-    bury 8
+    bury 10
     b main_for_header@30
 
 main_after_for@32:
-    dig 17
+    dig 19
     len
     intc_2 // 8
     /
     dup
-    bury 14
-    dig 5
+    bury 16
+    dig 7
     ==
     assert // expected correct length
     intc_0 // 0
-    bury 10
+    bury 12
     intc_0 // 0
-    bury 7
+    bury 9
 
 main_for_header@33:
-    dig 6
-    dig 13
+    dig 8
+    dig 15
     <
     bz main_after_for@37
-    dig 17
-    dig 7
+    dig 19
+    dig 9
     intc_2 // 8
     *
     intc_2 // 8
@@ -305,20 +302,20 @@ main_for_header@33:
     bytec_3 // 0x
     b!=
     bz main_after_if_else@36
-    dig 9
+    dig 11
     intc_1 // 1
     +
-    bury 10
+    bury 12
 
 main_after_if_else@36:
-    dig 6
+    dig 8
     intc_1 // 1
     +
-    bury 7
+    bury 9
     b main_for_header@33
 
 main_after_for@37:
-    dig 17
+    dig 19
     dup
     len
     intc_2 // 8
@@ -346,43 +343,43 @@ main_test_bool_array_route@9:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    bury 6
+    bury 8
     bytec_3 // 0x
-    bury 20
+    bury 22
     intc_1 // 1
     +
-    bury 2
+    bury 4
     intc_1 // 1
-    bury 8
+    bury 10
 
 main_for_header@40:
-    dig 7
-    dig 2
+    dig 9
+    dig 4
     <
     bz main_after_for@42
-    dig 7
+    dig 9
     dup
     pushint 2
     %
     !
-    dig 20
+    dig 22
     swap
     bytec_2 // 0x00
     intc_0 // 0
     uncover 2
     setbit
     concat // on error: max array length exceeded
-    bury 20
+    bury 22
     intc_1 // 1
     +
-    bury 8
+    bury 10
     b main_for_header@40
 
 main_after_for@42:
-    dig 18
+    dig 20
     dupn 2
     len
-    dig 7
+    dig 9
     dup
     cover 4
     ==
@@ -396,38 +393,38 @@ main_after_for@42:
     ==
     assert // expected correct length
     intc_0 // 0
-    bury 11
+    bury 13
     len
-    bury 11
+    bury 13
     intc_0 // 0
-    bury 7
+    bury 9
 
 main_for_header@43:
-    dig 6
-    dig 11
+    dig 8
+    dig 13
     <
     bz main_after_for@47
-    dig 18
-    dig 7
+    dig 20
+    dig 9
     intc_1 // 1
     extract3 // on error: index access is out of bounds
     intc_0 // 0
     getbit
     bz main_after_if_else@46
-    dig 9
+    dig 11
     intc_1 // 1
     +
-    bury 10
+    bury 12
 
 main_after_if_else@46:
-    dig 6
+    dig 8
     intc_1 // 1
     +
-    bury 7
+    bury 9
     b main_for_header@43
 
 main_after_for@47:
-    dig 9
+    dig 11
     itob
     bytec_0 // 0x151f7c75
     swap
@@ -623,17 +620,17 @@ main_test_array_route@6:
     concat
     concat
     concat
-    bury 20
+    bury 22
     intc_0 // 0
-    bury 8
+    bury 10
 
 main_for_header@54:
-    dig 7
+    dig 9
     pushint 3
     <
     bz main_after_for@56
-    dig 19
-    dig 8
+    dig 21
+    dig 10
     dup
     cover 2
     intc 4 // 144
@@ -668,17 +665,17 @@ main_for_header@54:
     itob
     b==
     assert
-    bury 8
+    bury 10
     b main_for_header@54
 
 main_after_for@56:
-    dig 19
+    dig 21
     dup
     len
     intc 4 // 144
     /
     dup
-    bury 16
+    bury 18
     itob
     extract 6 2
     dig 1
@@ -691,25 +688,25 @@ main_after_for@56:
     box_put
     extract 0 144 // on error: index access is out of bounds
     dup
-    bury 24
+    bury 26
     dup
     extract 0 8
-    bury 22
+    bury 24
     intc_2 // 8
     extract_uint64
-    bury 6
+    bury 8
     intc_0 // 0
-    bury 5
+    bury 7
     intc_1 // 1
-    bury 3
+    bury 5
 
 main_for_header@58:
-    dig 2
-    dig 14
+    dig 4
+    dig 16
     <
     bz main_after_for@66
-    dig 19
-    dig 3
+    dig 21
+    dig 5
     intc 4 // 144
     *
     intc 4 // 144
@@ -719,30 +716,30 @@ main_for_header@58:
     swap
     intc_2 // 8
     extract_uint64
-    bury 6
-    dig 22
+    bury 8
+    dig 24
     b<
     bz main_else_body@61
-    dig 23
+    dig 25
     intc_0 // 0
     extract_uint64
     swap
     intc_0 // 0
     extract_uint64
     -
-    bury 9
+    bury 11
 
 main_after_if_else@62:
-    dig 3
-    dig 6
+    dig 5
+    dig 8
     <
     bz main_else_body@64
-    dig 5
-    dig 4
+    dig 7
+    dig 6
     -
 
 main_after_if_else@65:
-    dig 9
+    dig 11
     dup
     *
     swap
@@ -750,33 +747,33 @@ main_after_if_else@65:
     *
     +
     sqrt
-    dig 5
+    dig 7
     +
-    bury 5
-    dig 2
+    bury 7
+    dig 4
     intc_1 // 1
     +
-    bury 3
+    bury 5
     b main_for_header@58
 
 main_else_body@64:
-    dig 3
-    dig 6
+    dig 5
+    dig 8
     -
     b main_after_if_else@65
 
 main_else_body@61:
     intc_0 // 0
     extract_uint64
-    dig 23
+    dig 25
     intc_0 // 0
     extract_uint64
     -
-    bury 9
+    bury 11
     b main_after_if_else@62
 
 main_after_for@66:
-    dig 4
+    dig 6
     itob
     bytec_0 // 0x151f7c75
     swap
