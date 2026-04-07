@@ -106,8 +106,8 @@ _INVERSE_COMPARISONS: typing.Final = symmetric_mapping(
 
 
 @attrs.frozen(kw_only=True)
-class _ValueKey:
-    """Base class for canonical value expression keys used in the GVN expression table."""
+class _ProviderKey:
+    """Base class for canonical ValueProvider keys used in the GVN expression table."""
 
 
 @attrs.frozen(kw_only=True)
@@ -119,14 +119,14 @@ class _IndexVN:
 
 
 @attrs.frozen(kw_only=True)
-class _IntrinsicKey(_ValueKey):
+class _IntrinsicKey(_ProviderKey):
     op: AVMOp
     immediates: tuple[str | int, ...]
     arg_vns: tuple[VN, ...]
 
 
 @attrs.frozen(kw_only=True)
-class _ExtractKey(_ValueKey):
+class _ExtractKey(_ProviderKey):
     base_vn: VN
     base_type: types.EncodedType  # important if there's aliasing through storage
     index_vns: tuple[_IndexVN, ...]
@@ -134,7 +134,7 @@ class _ExtractKey(_ValueKey):
 
 
 @attrs.frozen(kw_only=True)
-class _ReplaceKey(_ValueKey):
+class _ReplaceKey(_ProviderKey):
     base_vn: VN
     base_type: types.EncodedType
     index_vns: tuple[_IndexVN, ...]
@@ -142,19 +142,19 @@ class _ReplaceKey(_ValueKey):
 
 
 @attrs.frozen(kw_only=True)
-class _ArrayLengthKey(_ValueKey):
+class _ArrayLengthKey(_ProviderKey):
     base_vn: VN
     base_type: types.IRType
 
 
 @attrs.frozen(kw_only=True)
-class _ArrayPopKey(_ValueKey):
+class _ArrayPopKey(_ProviderKey):
     base_vn: VN
     base_type: types.EncodedType
 
 
 @attrs.frozen(kw_only=True)
-class _ArrayConcatKey(_ValueKey):
+class _ArrayConcatKey(_ProviderKey):
     base_vn: VN
     base_type: types.EncodedType
     items_vn: VN
@@ -163,21 +163,21 @@ class _ArrayConcatKey(_ValueKey):
 
 
 @attrs.frozen(kw_only=True)
-class _EncodeKey(_ValueKey):
+class _EncodeKey(_ProviderKey):
     encoding: encodings.Encoding
     value_vns: tuple[VN, ...]
     values_type: types.IRType | types.TupleIRType
 
 
 @attrs.frozen(kw_only=True)
-class _DecodeKey(_ValueKey):
+class _DecodeKey(_ProviderKey):
     encoding: encodings.Encoding
     value_vn: VN
     ir_type: types.IRType | types.TupleIRType
 
 
 @attrs.frozen(kw_only=True)
-class _CallSubKey(_ValueKey):
+class _CallSubKey(_ProviderKey):
     target_id: str
     arg_vns: tuple[VN, ...]
 
@@ -202,11 +202,11 @@ class _GVNTables:
     _equivalences: dict[tuple[VN, AVMType], list[models.Register]] = attrs.field(factory=dict)
     # --- Scoped: copied on child_scope() ---
     _register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
-    expr_table: dict[_ValueKey, tuple[VN, ...]] = attrs.field(factory=dict)
+    provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
     _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
     comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
     # --- Per-scope, lazily created (reset to None by attrs.evolve on child_scope) ---
-    _expr_builder: "_ValueExprBuilder | None" = attrs.field(default=None, init=False, eq=False)
+    _expr_builder: "_ProviderKeyBuilder | None" = attrs.field(default=None, init=False, eq=False)
 
     def child_scope(self) -> typing.Self:
         """Create a child scope for dominator-tree descent.
@@ -216,7 +216,7 @@ class _GVNTables:
         return attrs.evolve(
             self,
             register_vn=dict(self._register_vn),
-            expr_table=dict(self.expr_table),
+            provider_key_to_vns=dict(self.provider_key_to_vns),
             const_vn=dict(self._const_vn),
             comparison_exprs=dict(self.comparison_exprs),
         )
@@ -258,9 +258,9 @@ class _GVNTables:
             return lazy_setdefault(self._const_vn, value, lambda _: self._next_vn())
         return self._next_vn()
 
-    def build_expr(self, source: models.ValueProvider) -> _ValueKey | None:
+    def build_provider_key(self, source: models.ValueProvider) -> _ProviderKey | None:
         if self._expr_builder is None:
-            self._expr_builder = _ValueExprBuilder(self)
+            self._expr_builder = _ProviderKeyBuilder(self)
         return source.accept(self._expr_builder)
 
     def build_replacements(
@@ -324,7 +324,7 @@ class _GVNTables:
 
 
 @attrs.frozen
-class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
+class _ProviderKeyBuilder(ValueProviderVisitor[_ProviderKey | None]):
     """Build a canonical, hashable value expression for a ValueProvider.
 
     Returns None for side-effecting or unrecognised operations (they get a fresh VN).
@@ -333,7 +333,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
     _tables: _GVNTables
 
     @typing.override
-    def visit_extract_value(self, read: models.ExtractValue) -> _ValueKey | None:
+    def visit_extract_value(self, read: models.ExtractValue) -> _ProviderKey | None:
         return _ExtractKey(
             base_vn=self._tables.lookup_vn(read.base),
             base_type=read.base_type,
@@ -342,7 +342,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         )
 
     @typing.override
-    def visit_replace_value(self, write: models.ReplaceValue) -> _ValueKey | None:
+    def visit_replace_value(self, write: models.ReplaceValue) -> _ProviderKey | None:
         return _ReplaceKey(
             base_vn=self._tables.lookup_vn(write.base),
             base_type=write.base_type,
@@ -351,7 +351,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         )
 
     @typing.override
-    def visit_array_concat(self, concat: models.ArrayConcat) -> _ValueKey:
+    def visit_array_concat(self, concat: models.ArrayConcat) -> _ProviderKey:
         return _ArrayConcatKey(
             base_vn=self._tables.lookup_vn(concat.base),
             base_type=concat.base_type,
@@ -371,7 +371,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         )
 
     @typing.override
-    def visit_array_length(self, length: models.ArrayLength) -> _ValueKey | None:
+    def visit_array_length(self, length: models.ArrayLength) -> _ProviderKey | None:
         # Only pure when the base is a stack value, not a slot reference.
         if isinstance(length.base_type, types.SlotType):
             return None
@@ -381,7 +381,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         )
 
     @typing.override
-    def visit_array_pop(self, pop: models.ArrayPop) -> _ValueKey:
+    def visit_array_pop(self, pop: models.ArrayPop) -> _ProviderKey:
         return _ArrayPopKey(
             base_vn=self._tables.lookup_vn(pop.base),
             base_type=pop.base_type,
@@ -392,7 +392,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         return None  # stateful, leave this up to repeated-reads
 
     @typing.override
-    def visit_bytes_encode(self, encode: models.BytesEncode) -> _ValueKey | None:
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> _ProviderKey | None:
         return _EncodeKey(
             encoding=encode.encoding,
             value_vns=tuple(self._tables.lookup_vn(v) for v in encode.values),
@@ -400,7 +400,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         )
 
     @typing.override
-    def visit_decode_bytes(self, decode: models.DecodeBytes) -> _ValueKey | None:
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> _ProviderKey | None:
         return _DecodeKey(
             encoding=decode.encoding,
             value_vn=self._tables.lookup_vn(decode.value),
@@ -412,7 +412,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         return None  # stateful - implicitly depends on the most recent itxn_submit
 
     @typing.override
-    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> _ValueKey | None:
+    def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> _ProviderKey | None:
         op = intrinsic.op
         if op.code not in PURE_AVM_OPS:
             return None
@@ -447,7 +447,7 @@ class _ValueExprBuilder(ValueProviderVisitor[_ValueKey | None]):
         return _IntrinsicKey(op=op_key, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
 
     @typing.override
-    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> _ValueKey | None:
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> _ProviderKey | None:
         if not callsub.target.pure:
             return None
         arg_vns = tuple(self._tables.lookup_vn(a) for a in callsub.args)
@@ -576,14 +576,14 @@ def _process_assignment(
         return
 
     targets = assignment.targets
-    expr = tables.build_expr(source)
-    if expr is None:
+    provider_key = tables.build_provider_key(source)
+    if provider_key is None:
         # Not a pure expression — fresh VN per target
         for reg in targets:
             tables.assign_register_fresh_vn(reg)
         return
 
-    existing_vns = tables.expr_table.get(expr)
+    existing_vns = tables.provider_key_to_vns.get(provider_key)
     if existing_vns is not None:
         if len(existing_vns) != len(targets):
             raise InternalError(
@@ -594,14 +594,14 @@ def _process_assignment(
             logger.debug(f"GVN: redundant expr {target.local_id} (VN={existing_vn})")
     else:
         target_vns = tuple(tables.assign_register_fresh_vn(r) for r in targets)
-        tables.expr_table[expr] = target_vns
+        tables.provider_key_to_vns[provider_key] = target_vns
 
     # Track comparison expressions for negation-aware numbering.
     # Single-target only — comparisons always produce one result.
-    if len(targets) == 1 and isinstance(expr, _IntrinsicKey) and expr.op in _INVERSE_COMPARISONS:
+    if isinstance(provider_key, _IntrinsicKey) and provider_key.op in _INVERSE_COMPARISONS:
         (target,) = targets
         vn = tables.lookup_vn(target)
-        tables.comparison_exprs[vn] = expr
+        tables.comparison_exprs[vn] = provider_key
 
 
 def _process_block(
