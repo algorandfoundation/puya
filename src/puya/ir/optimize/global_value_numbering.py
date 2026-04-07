@@ -24,7 +24,8 @@ Correctness:
 
 import itertools
 import typing
-from collections.abc import Mapping, Sequence, Set
+from collections.abc import Collection, Mapping, Sequence, Set
+from functools import cached_property
 
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
@@ -42,7 +43,7 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
-from puya.ir.visitor import ValueProviderVisitor
+from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.utils import lazy_setdefault, symmetric_mapping
 
@@ -183,8 +184,7 @@ class _CallSubKey(_ProviderKey):
 
 
 _PhiArgVNs: typing.TypeAlias = immutabledict[models.BasicBlock, VN]
-
-_ConstType = models.Constant | models.TemplateVar
+_ConstType: typing.TypeAlias = models.Constant | models.TemplateVar
 
 
 @attrs.define
@@ -205,8 +205,6 @@ class _GVNTables:
     provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
     _const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
     comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
-    # --- Per-scope, lazily created (reset to None by attrs.evolve on child_scope) ---
-    _expr_builder: "_ProviderKeyBuilder | None" = attrs.field(default=None, init=False, eq=False)
 
     def child_scope(self) -> typing.Self:
         """Create a child scope for dominator-tree descent.
@@ -215,10 +213,10 @@ class _GVNTables:
         """
         return attrs.evolve(
             self,
-            register_vn=dict(self._register_vn),
-            provider_key_to_vns=dict(self.provider_key_to_vns),
-            const_vn=dict(self._const_vn),
-            comparison_exprs=dict(self.comparison_exprs),
+            register_vn=self._register_vn.copy(),
+            provider_key_to_vns=self.provider_key_to_vns.copy(),
+            const_vn=self._const_vn.copy(),
+            comparison_exprs=self.comparison_exprs.copy(),
         )
 
     def _next_vn(self) -> VN:
@@ -230,13 +228,21 @@ class _GVNTables:
         Use replaceable=False for constant copies where the register needs a VN
         for expression hashing but shouldn't participate in replacement.
         """
+        if reg in self._register_vn:
+            raise InternalError(
+                f"register {reg} already has VN={self._register_vn[reg]}", reg.source_location
+            )
         self._register_vn[reg] = vn
         if replaceable:
             maybe_avm_type = reg.ir_type.maybe_avm_type
             if not isinstance(maybe_avm_type, str):
                 self._equivalences.setdefault((vn, maybe_avm_type), []).append(reg)
 
-    def assign_register_fresh_vn(self, reg: models.Register) -> VN:
+    def maybe_assign_register_fresh_vn(self, reg: models.Register) -> VN:
+        try:
+            return self._register_vn[reg]
+        except KeyError:
+            pass
         vn = self._next_vn()
         self.set_register_vn(reg, vn)
         return vn
@@ -252,75 +258,75 @@ class _GVNTables:
                 return self._register_vn[value]
             except KeyError:
                 # Back-edge or otherwise not-yet-visited register: fresh VN
-                return self.assign_register_fresh_vn(value)
+                return self.maybe_assign_register_fresh_vn(value)
         # Constants: intern by value so identical constants share a VN.
         if isinstance(value, _ConstType):
             return lazy_setdefault(self._const_vn, value, lambda _: self._next_vn())
         return self._next_vn()
 
-    def build_provider_key(self, source: models.ValueProvider) -> _ProviderKey | None:
-        if self._expr_builder is None:
-            self._expr_builder = _ProviderKeyBuilder(self)
-        return source.accept(self._expr_builder)
+    @property
+    def equivalence_sets(self) -> Collection[Sequence[models.Register]]:
+        return self._equivalences.values()
 
-    def build_replacements(
-        self, subroutine: models.Subroutine
-    ) -> tuple[set[models.Register], dict[models.Register, models.Register]]:
-        """Build the final replacement map with preferred register names.
 
-        Returns (eliminated, register_map) where:
-        - eliminated: registers whose definitions (phi or assignment) should be
-          removed from the IR.
-        - register_map: register replacement/renaming map for MemoryReplacer.
-          Includes both eliminations (redundant -> representative) and renames
-          (old representative -> preferred name).
-        """
-        eliminated = set[models.Register]()
-        register_map = dict[models.Register, models.Register]()
+def build_replacements(
+    subroutine: models.Subroutine, equivalence_sets: Collection[Sequence[models.Register]]
+) -> tuple[set[models.Register], dict[models.Register, models.Register]]:
+    """Build the final replacement map with preferred register names.
 
-        for equivalence_set in self._equivalences.values():
-            if len(equivalence_set) < 2:
-                continue
+    Returns (eliminated, register_map) where:
+    - eliminated: registers whose definitions (phi or assignment) should be
+      removed from the IR.
+    - register_map: register replacement/renaming map for MemoryReplacer.
+      Includes both eliminations (redundant -> representative) and renames
+      (old representative -> preferred name).
+    """
+    eliminated = set[models.Register]()
+    register_map = dict[models.Register, models.Register]()
 
-            parameters = [r for r in equivalence_set if r in subroutine.parameters]
-            match parameters:
-                case [param]:
-                    replacement = param
-                case []:
-                    for reg in equivalence_set:
-                        if models.TMP_VAR_INDICATOR not in reg.name:
-                            replacement = reg
-                            break
-                    else:  # fall back to first register if all are temp
-                        replacement = equivalence_set[0]
-                case _:
-                    raise InternalError("multiple parameters in the same equivalence set")
+    for equivalence_set in equivalence_sets:
+        if len(equivalence_set) < 2:
+            continue
 
-            equiv_set_ids = ", ".join(r.local_id for r in equivalence_set)
-            logger.debug(
-                f"GVN found equivalence set: ({equiv_set_ids}),"
-                f" selected replacement: {replacement.local_id}"
+        parameters = [r for r in equivalence_set if r in subroutine.parameters]
+        match parameters:
+            case [param]:
+                replacement = param
+            case []:
+                for reg in equivalence_set:
+                    if models.TMP_VAR_INDICATOR not in reg.name:
+                        replacement = reg
+                        break
+                else:  # fall back to first register if all are temp
+                    replacement = equivalence_set[0]
+            case _:
+                raise InternalError("multiple parameters in the same equivalence set")
+
+        equiv_set_ids = ", ".join(r.local_id for r in equivalence_set)
+        logger.debug(
+            f"GVN found equivalence set: ({equiv_set_ids}),"
+            f" selected replacement: {replacement.local_id}"
+        )
+
+        for idx, reg in enumerate(equivalence_set):
+            if reg is not replacement:
+                register_map[reg] = replacement
+                if idx == 0:
+                    # The first element is the dominating definition — its definition is
+                    # always kept (never eliminated). If it's not the preferred name, its
+                    # target gets renamed via register_map.
+                    eliminated.add(replacement)
+                else:
+                    eliminated.add(reg)
+
+    for target in register_map.values():
+        if target in register_map:
+            raise InternalError(
+                f"GVN: replacement chain detected:"
+                f" {target.local_id} -> {register_map[target].local_id}"
             )
 
-            for idx, reg in enumerate(equivalence_set):
-                if reg is not replacement:
-                    register_map[reg] = replacement
-                    if idx == 0:
-                        # The first element is the dominating definition — its definition is
-                        # always kept (never eliminated). If it's not the preferred name, its
-                        # target gets renamed via register_map.
-                        eliminated.add(replacement)
-                    else:
-                        eliminated.add(reg)
-
-        for target in register_map.values():
-            if target in register_map:
-                raise InternalError(
-                    f"GVN: replacement chain detected:"
-                    f" {target.local_id} -> {register_map[target].local_id}"
-                )
-
-        return eliminated, register_map
+    return eliminated, register_map
 
 
 @attrs.frozen
@@ -520,91 +526,99 @@ class _ProviderKeyBuilder(ValueProviderVisitor[_ProviderKey | None]):
         raise InternalError("shouldn't get here, Value should be handled specially")
 
 
-def _process_phi(
-    tables: _GVNTables,
-    phi: models.Phi,
-    phi_table: dict[_PhiArgVNs, VN],
-) -> None:
-    """Assign a VN to a phi node's register.
+class GVNBlockVisitor(NoOpIRVisitor[None]):
+    def __init__(self, tables: _GVNTables):
+        self.tables = tables
+        self.phi_table = dict[_PhiArgVNs, VN]()
 
-    Redundant phis (all args same VN) get the common VN.
-    Non-redundant phis are hashed to detect congruent phis at the same block.
-    """
-    if not phi.args:
-        tables.assign_register_fresh_vn(phi.register)
-        return
+    @cached_property
+    def provider_key_builder(self) -> _ProviderKeyBuilder:
+        return _ProviderKeyBuilder(self.tables)
 
-    phi_arg_vns = _PhiArgVNs((arg.through, tables.lookup_vn(arg.value)) for arg in phi.args)
+    @typing.override
+    def visit_phi(self, phi: models.Phi) -> None:
+        """Assign a VN to a phi node's register.
 
-    unique_vns = set(phi_arg_vns.values())
-    if len(unique_vns) == 1:
-        # Redundant phi: all arguments have the same VN
-        (the_vn,) = unique_vns
-        tables.set_register_vn(phi.register, the_vn)
-        logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={the_vn})")
-        return
+        Redundant phis (all args same VN) get the common VN.
+        Non-redundant phis are hashed to detect congruent phis at the same block.
+        """
+        if not phi.args:
+            self.tables.maybe_assign_register_fresh_vn(phi.register)
+            return
 
-    # Non-redundant phi: hash by arg VNs to detect congruent phis at the same block
-    existing_vn = phi_table.get(phi_arg_vns)
-    if existing_vn is not None:
-        tables.set_register_vn(phi.register, existing_vn)
-        logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
-    else:
-        phi_table[phi_arg_vns] = tables.assign_register_fresh_vn(phi.register)
+        phi_arg_vns = _PhiArgVNs(
+            (arg.through, self.tables.lookup_vn(arg.value)) for arg in phi.args
+        )
 
+        unique_vns = set(phi_arg_vns.values())
+        if len(unique_vns) == 1:
+            # Redundant phi: all arguments have the same VN
+            (the_vn,) = unique_vns
+            self.tables.set_register_vn(phi.register, the_vn)
+            logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={the_vn})")
+        else:
+            # Non-redundant phi: hash by arg VNs to detect congruent phis at the same block
+            existing_vn = self.phi_table.get(phi_arg_vns)
+            if existing_vn is not None:
+                self.tables.set_register_vn(phi.register, existing_vn)
+                logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
+            else:
+                self.phi_table[phi_arg_vns] = self.tables.maybe_assign_register_fresh_vn(
+                    phi.register
+                )
 
-def _process_assignment(
-    tables: _GVNTables,
-    assignment: models.Assignment,
-) -> None:
-    """Assign VNs to an assignment's target registers.
+    @typing.override
+    def visit_assignment(self, ass: models.Assignment) -> None:
+        """Assign VNs to an assignment's target registers.
 
-    If the source is a register (copy), propagate its VN.
-    If the source is a pure expression and a matching VN already exists,
-    the target joins the existing VN's equivalence set.
-    Otherwise, assign a fresh VN.
-    """
-    source = assignment.source
+        If the source is a register (copy), propagate its VN.
+        If the source is a pure expression and a matching VN already exists,
+        the target joins the existing VN's equivalence set.
+        Otherwise, assign a fresh VN.
+        """
+        source = ass.source
 
-    # Copy assignment: propagate VN directly
-    if isinstance(source, models.Value):
-        (target,) = assignment.targets
-        vn = tables.lookup_vn(source)
-        # Copies from constants don't participate in replacement —
-        # constant propagation handles those.
-        tables.set_register_vn(target, vn, replaceable=isinstance(source, models.Register))
-        return
-
-    targets = assignment.targets
-    provider_key = tables.build_provider_key(source)
-    if provider_key is None:
-        # Not a pure expression — fresh VN per target
-        for reg in targets:
-            tables.assign_register_fresh_vn(reg)
-        return
-
-    existing_vns = tables.provider_key_to_vns.get(provider_key)
-    if existing_vns is not None:
-        if len(existing_vns) != len(targets):
-            raise InternalError(
-                f"GVN: expression arity mismatch: {len(existing_vns)} vs {len(targets)}"
+        # Copy assignment: propagate VN directly
+        if isinstance(source, models.Value):
+            (target,) = ass.targets
+            vn = self.tables.lookup_vn(source)
+            # Copies from constants don't participate in replacement —
+            # constant propagation handles those.
+            self.tables.set_register_vn(
+                target, vn, replaceable=isinstance(source, models.Register)
             )
-        for target, existing_vn in zip(targets, existing_vns, strict=True):
-            tables.set_register_vn(target, existing_vn)
-            logger.debug(f"GVN: redundant expr {target.local_id} (VN={existing_vn})")
-    else:
-        target_vns = tuple(tables.assign_register_fresh_vn(r) for r in targets)
-        tables.provider_key_to_vns[provider_key] = target_vns
+            return
 
-    # Track comparison expressions for negation-aware numbering.
-    # Single-target only — comparisons always produce one result.
-    if isinstance(provider_key, _IntrinsicKey) and provider_key.op in _INVERSE_COMPARISONS:
-        (target,) = targets
-        vn = tables.lookup_vn(target)
-        tables.comparison_exprs[vn] = provider_key
+        targets = ass.targets
+        provider_key = source.accept(self.provider_key_builder)
+        if provider_key is None:
+            # Not a pure expression — fresh VN per target
+            for reg in targets:
+                self.tables.maybe_assign_register_fresh_vn(reg)
+            return
+
+        existing_vns = self.tables.provider_key_to_vns.get(provider_key)
+        if existing_vns is not None:
+            if len(existing_vns) != len(targets):
+                raise InternalError(
+                    f"GVN: expression arity mismatch: {len(existing_vns)} vs {len(targets)}"
+                )
+            for target, existing_vn in zip(targets, existing_vns, strict=True):
+                self.tables.set_register_vn(target, existing_vn)
+                logger.debug(f"GVN: redundant expr {target.local_id} (VN={existing_vn})")
+        else:
+            target_vns = tuple(self.tables.maybe_assign_register_fresh_vn(r) for r in targets)
+            self.tables.provider_key_to_vns[provider_key] = target_vns
+
+        # Track comparison expressions for negation-aware numbering.
+        # Single-target only — comparisons always produce one result.
+        if isinstance(provider_key, _IntrinsicKey) and provider_key.op in _INVERSE_COMPARISONS:
+            (target,) = targets
+            vn = self.tables.lookup_vn(target)
+            self.tables.comparison_exprs[vn] = provider_key
 
 
-def _process_block(
+def _process_blocks_pre_order(
     tables: _GVNTables,
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     block: models.BasicBlock,
@@ -614,42 +628,12 @@ def _process_block(
     Creates a child scope so entries added in this block are visible to
     dominated children but not to siblings.
     """
-    tables = tables.child_scope()
-
-    phi_table = dict[_PhiArgVNs, VN]()
-    for phi in block.phis:
-        _process_phi(tables, phi, phi_table)
-
-    for op in block.ops:
-        if isinstance(op, models.Assignment):
-            _process_assignment(tables, op)
+    visitor = GVNBlockVisitor(tables)
+    for op in block.all_ops:
+        op.accept(visitor)
 
     for child in dom_tree.get(block, []):
-        _process_block(tables, dom_tree, child)
-
-
-def _apply_replacements(
-    subroutine: models.Subroutine,
-    eliminated: set[models.Register],
-    register_map: dict[models.Register, models.Register],
-) -> None:
-    """Apply the computed replacements: remove dead definitions and substitute uses.
-
-    eliminated: registers whose definitions (phi or assignment) are redundant and
-        should be removed from the IR.
-    register_map: register replacement/renaming map for MemoryReplacer. May include
-        both eliminations (redundant register -> representative) and renames
-        (old representative -> preferred name).
-    """
-    for block in subroutine.body:
-        block.phis[:] = [phi for phi in block.phis if phi.register not in eliminated]
-        block.ops[:] = [
-            op
-            for op in block.ops
-            if not (isinstance(op, models.Assignment) and all(t in eliminated for t in op.targets))
-        ]
-
-    MemoryReplacer.apply(subroutine.body, replacements=register_map)
+        _process_blocks_pre_order(tables.child_scope(), dom_tree, child)
 
 
 def _refine_phi_congruence(
@@ -714,32 +698,39 @@ def _refine_phi_congruence(
             logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
 
 
-def _find_redundancies(
-    subroutine: models.Subroutine,
-) -> tuple[set[models.Register], dict[models.Register, models.Register]]:
-    """Assign value numbers to all definitions and build the replacement map."""
-    start, dom_tree = compute_dominator_tree(subroutine)
-
-    tables = _GVNTables()
-
-    for param in subroutine.parameters:
-        tables.assign_register_fresh_vn(param)
-
-    _process_block(tables, dom_tree, start)
-    return tables.build_replacements(subroutine)
-
-
 def global_value_numbering(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     """Run GVN on a subroutine.
 
     Flow: hash-based numbering -> SCC phi congruence -> eliminate.
     """
-    eliminated, register_map = _find_redundancies(subroutine)
+    tables = _GVNTables()
+    for param in subroutine.parameters:
+        tables.maybe_assign_register_fresh_vn(param)
+
+    start, dom_tree = compute_dominator_tree(subroutine)
+    _process_blocks_pre_order(tables, dom_tree, start)
+    eliminated, register_map = build_replacements(subroutine, tables.equivalence_sets)
+
     _refine_phi_congruence(subroutine, eliminated, register_map)
 
     if not register_map:
         return False
 
     logger.debug(f"GVN: {len(register_map)} replacement(s) in {subroutine.id}")
-    _apply_replacements(subroutine, eliminated, register_map)
+    replacer = MemoryReplacer(replacements=register_map)
+    for block in subroutine.body:
+        phis = []
+        for phi in block.phis:
+            if phi.register not in eliminated:
+                phi.accept(replacer)
+                phis.append(phi)
+        block.phis[:] = phis
+        ops = []
+        for op in block.ops:
+            if not (isinstance(op, models.Assignment) and eliminated.issuperset(op.targets)):
+                op.accept(replacer)
+                ops.append(op)
+        block.ops[:] = ops
+        if block.terminator is not None:
+            block.terminator.accept(replacer)
     return True
