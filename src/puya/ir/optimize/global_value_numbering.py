@@ -31,6 +31,7 @@ import networkx as nx  # type: ignore[import-untyped]
 from immutabledict import immutabledict
 
 from puya import log
+from puya.avm import AVMType
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import (
@@ -186,25 +187,6 @@ _PhiArgVNs: typing.TypeAlias = immutabledict[models.BasicBlock, VN]
 _ConstType = models.Constant | models.TemplateVar
 
 
-def _is_preferred_representative(candidate: models.Register, current: models.Register) -> bool:
-    """Check if candidate is a better representative than current.
-
-    Preference order (matching copy_propagation):
-    1. Parameters always preferred over non-parameters
-    2. Non-temp names preferred over temp names
-    3. Otherwise keep current (first encountered)
-    """
-    candidate_is_param = isinstance(candidate, models.Parameter)
-    current_is_param = isinstance(current, models.Parameter)
-    if candidate_is_param != current_is_param:
-        return candidate_is_param
-    candidate_is_tmp = models.TMP_VAR_INDICATOR in candidate.name
-    current_is_tmp = models.TMP_VAR_INDICATOR in current.name
-    if candidate_is_tmp != current_is_tmp:
-        return not candidate_is_tmp
-    return False
-
-
 @attrs.define
 class _GVNTables:
     """Value numbering state, supporting scoped save/restore for dominator-tree walk.
@@ -217,7 +199,7 @@ class _GVNTables:
 
     # --- Global: shared by reference across all scopes ---
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
-    _equivalences: dict[VN, list[models.Register]] = attrs.field(factory=dict)
+    _equivalences: dict[tuple[VN, AVMType], list[models.Register]] = attrs.field(factory=dict)
     # --- Scoped: copied on child_scope() ---
     _register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     expr_table: dict[_ValueKey, tuple[VN, ...]] = attrs.field(factory=dict)
@@ -250,7 +232,9 @@ class _GVNTables:
         """
         self._register_vn[reg] = vn
         if replaceable:
-            self._equivalences.setdefault(vn, []).append(reg)
+            maybe_avm_type = reg.ir_type.maybe_avm_type
+            if not isinstance(maybe_avm_type, str):
+                self._equivalences.setdefault((vn, maybe_avm_type), []).append(reg)
 
     def assign_register_fresh_vn(self, reg: models.Register) -> VN:
         vn = self._next_vn()
@@ -285,7 +269,7 @@ class _GVNTables:
         return source.accept(self._expr_builder)
 
     def build_replacements(
-        self,
+        self, subroutine: models.Subroutine
     ) -> tuple[set[models.Register], dict[models.Register, models.Register]]:
         """Build the final replacement map with preferred register names.
 
@@ -303,32 +287,36 @@ class _GVNTables:
             if len(equivalence_set) < 2:
                 continue
 
-            replacement = equivalence_set[0]
-            for reg in equivalence_set[1:]:
-                if _is_preferred_representative(reg, replacement):
-                    replacement = reg
+            parameters = [r for r in equivalence_set if r in subroutine.parameters]
+            match parameters:
+                case [param]:
+                    replacement = param
+                case []:
+                    for reg in equivalence_set:
+                        if models.TMP_VAR_INDICATOR not in reg.name:
+                            replacement = reg
+                            break
+                    else:  # fall back to first register if all are temp
+                        replacement = equivalence_set[0]
+                case _:
+                    raise InternalError("multiple parameters in the same equivalence set")
 
             equiv_set_ids = ", ".join(r.local_id for r in equivalence_set)
-            logger.debug(f"GVN: equivalence set: {equiv_set_ids}, selected {replacement.local_id}")
+            logger.debug(
+                f"GVN found equivalence set: ({equiv_set_ids}),"
+                f" selected replacement: {replacement.local_id}"
+            )
 
-            # The first element is the dominating definition — its definition is
-            # always kept (never eliminated). If it's not the preferred name, its
-            # target gets renamed via register_map.
-            first = equivalence_set[0]
-            for reg in equivalence_set:
-                if reg is replacement:
-                    continue
-                if reg.ir_type.maybe_avm_type != replacement.ir_type.maybe_avm_type:
-                    continue
-                register_map[reg] = replacement
-                if reg is not first:
-                    eliminated.add(reg)
-                logger.debug(f"GVN: {reg.local_id} -> {replacement.local_id}")
-
-            # If the preferred name is not the first element, its definition is
-            # redundant and should be eliminated.
-            if replacement is not first:
-                eliminated.add(replacement)
+            for idx, reg in enumerate(equivalence_set):
+                if reg is not replacement:
+                    register_map[reg] = replacement
+                    if idx == 0:
+                        # The first element is the dominating definition — its definition is
+                        # always kept (never eliminated). If it's not the preferred name, its
+                        # target gets renamed via register_map.
+                        eliminated.add(replacement)
+                    else:
+                        eliminated.add(reg)
 
         for target in register_map.values():
             if target in register_map:
@@ -743,7 +731,7 @@ def _find_redundancies(
         tables.assign_register_fresh_vn(param)
 
     _process_block(tables, dom_tree, start)
-    return tables.build_replacements()
+    return tables.build_replacements(subroutine)
 
 
 def global_value_numbering(_context: CompileContext, subroutine: models.Subroutine) -> bool:
