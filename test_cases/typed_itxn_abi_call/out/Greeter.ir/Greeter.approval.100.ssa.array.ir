@@ -381,11 +381,6 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_overload
         let tmp%16#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%5#0
         let tmp%17#0: bool = (== tmp%15#0 tmp%16#0)
         (assert tmp%17#0)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%15#0 0u) // on error: invalid array length header
-        let length%3#0: uint64 = aggregate%array_length%3#0
-        let add%3#0: uint64 = (+ length%3#0 2u)
-        let eq%3#0: bool = (== len%2#0 add%3#0)
-        (assert eq%3#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         itxn_begin
         let aggregate%length%6#0: uint64 = (len "untyped")
         let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%length%6#0)
@@ -404,8 +399,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_overload
         let tmp%25#0: bool = (== tmp%24#0 0x151f7c75)
         (assert tmp%25#0) // application log value is not the result of an ABI return
         let tmp%26#0: bytes = ((extract 4 0) txn_result.LastLog#0)
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 tmp%26#0 0u) // on error: invalid array length header
-        let length%4#0: uint64 = aggregate%array_length%4#0
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%26#0 0u) // on error: invalid array length header
+        let length%4#0: uint64 = aggregate%array_length%3#0
         let add%4#0: uint64 = (+ length%4#0 2u)
         let len%4#0: uint64 = (len tmp%26#0)
         let eq%4#0: bool = (== len%4#0 add%4#0)
@@ -2070,11 +2065,6 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arc4_struct[rou
         (assert eq%1#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
         let tmp%5#0: bool = (== tmp%4#0 log#0)
         (assert tmp%5#0) // expected output to match input
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let length%1#0: uint64 = aggregate%array_length%1#0
-        let add%3#0: uint64 = (+ length%1#0 12u)
-        let eq%3#0: bool = (== tuple_len%0#0 add%3#0)
-        (assert eq%3#0) // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
         exit 1u
 
 subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encoding[routing]() -> void:

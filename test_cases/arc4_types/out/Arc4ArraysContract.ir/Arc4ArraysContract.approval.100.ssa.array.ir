@@ -94,14 +94,12 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let tmp%11#0: bool = (== array_item%2#0 tmp%6#0)
         (assert tmp%11#0)
         let result#0: string = ""
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#0 0u) // on error: invalid array length header
-        let array_length%2#0: uint64 = aggregate%array_length%3#0
         let item_index_internal%2#0: uint64 = 0u
         goto block@9
     block@9: // for_header_L39
         let index#0: uint64 = φ(item_index_internal%2#0 <- block@8, item_index_internal%2#2 <- block@13)
         let result#2: string = φ(result#0 <- block@8, result#4 <- block@13)
-        let continue_looping%2#0: bool = (< index#0 array_length%2#0)
+        let continue_looping%2#0: bool = (< index#0 tmp%8#0)
         goto continue_looping%2#0 ? block@10 : block@15
     block@10: // for_body_L40
         let aggregate%item%1#0: bytes = _puya_lib.arc4.dynamic_array_read_byte_length_element(dynamic_string_array#0, index#0)
