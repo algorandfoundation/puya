@@ -3,8 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64 8 16
-    bytecblock 0x151f7c75
+    intcblock 16 8 4 64
     txn NumAppArgs
     bz main___algopy_default_create@19
     txn OnCompletion
@@ -19,59 +18,36 @@ main:
 
 main_biguint_via_arc4_uint128_route@15:
     callsub __outlined1
-    intc_3 // 16
+    intc_0 // 16
     <=
     assert // overflow
-    intc_3 // 16
+    intc_0 // 16
     callsub __outlined0
     return
 
 main_biguint_via_arc4_uint64_route@14:
-    txna ApplicationArgs 1
-    dup
-    len
-    dup
-    intc_1 // 64
-    ==
-    assert // invalid number of bytes for arc4.uint512
-    intc_2 // 8
-    <=
-    assert // overflow
-    intc_2 // 8
-    bzero
-    b|
-    dup
-    len
-    intc_1 // 64
-    <=
-    assert // overflow
-    intc_1 // 64
-    bzero
-    b|
     callsub __outlined1
-    bytec_0 // 0x151f7c75
-    swap
+    intc_1 // 8
+    <=
+    assert // overflow
+    intc_1 // 8
     callsub __outlined0
-    concat
-    log
-    intc_0 // 1
     return
 
 main_biguint_via_arc4_uint32_route@13:
     callsub __outlined1
-    assert // invalid number of bytes for arc4.uint512
-    pushint 4
+    intc_2 // 4
+    <=
+    assert // overflow
+    intc_2 // 4
     callsub __outlined0
-    concat
-    log
-    intc_0 // 1
     return
 
 main_arc4_uint128_via_biguint_route@12:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 16
+    intc_0 // 16
     ==
     assert // invalid number of bytes for arc4.uint128
     callsub __outlined3
@@ -79,53 +55,37 @@ main_arc4_uint128_via_biguint_route@12:
 
 main_arc4_uint64_via_uint64_route@5:
     callsub __outlined2
-    bytec_0 // 0x151f7c75
-    swap
     callsub __outlined3
-    concat
-    log
-    intc_0 // 1
     return
 
 main_arc4_uint32_via_uint64_route@4:
     txna ApplicationArgs 1
     dup
     len
-    pushint 4
+    intc_2 // 4
     ==
     assert // invalid number of bytes for arc4.uint32
-    bytec_0 // 0x151f7c75
-    swap
     callsub __outlined3
-    concat
-    log
-    intc_0 // 1
     return
 
 main_uint64_via_arc4_uint64_route@8:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
+    callsub __outlined2
     callsub __outlined3
-    log
-    intc_0 // 1
     return
 
 main_uint64_via_arc4_uint32_route@7:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined2
     btoi
     itob
+    dup
+    bitlen
+    pushint 32
+    <=
+    assert // overflow
+    intc_2 // 4
+    extract_uint32
+    itob
     callsub __outlined3
-    concat
-    log
-    intc_0 // 1
     return
 
 main_arc4_uint128_via_uint64_route@6:
@@ -133,19 +93,19 @@ main_arc4_uint128_via_uint64_route@6:
     dup
     len
     dup
-    intc_3 // 16
+    intc_0 // 16
     ==
     assert // invalid number of bytes for arc4.uint128
     dig 1
     bitlen
-    intc_1 // 64
+    intc_3 // 64
     <=
     assert // overflow
-    intc_2 // 8
+    intc_1 // 8
     -
-    intc_2 // 8
+    intc_1 // 8
     extract3
-    intc_3 // 16
+    intc_0 // 16
     bzero
     b|
     callsub __outlined3
@@ -162,21 +122,17 @@ main___algopy_default_create@19:
 
 // __outlined0(__outlined0_param0: any, __outlined0_param1: any) -> any:
 __outlined0:
-    callsub __outlined3
+    bzero
     b|
     dup
     len
-    intc_1 // 64
+    intc_3 // 64
     <=
     assert // overflow
-    intc_1 // 64
+    intc_3 // 64
     bzero
     b|
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
+    callsub __outlined3
     retsub
 
 
@@ -186,7 +142,7 @@ __outlined1:
     dup
     len
     dup
-    intc_1 // 64
+    intc_3 // 64
     ==
     assert // invalid number of bytes for arc4.uint512
     retsub
@@ -197,7 +153,7 @@ __outlined2:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     retsub
@@ -205,9 +161,9 @@ __outlined2:
 
 // __outlined3(__outlined3_param0: any) -> any:
 __outlined3:
-    bytec_0 // 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    intc_0 // 1
+    pushint 1
     retsub

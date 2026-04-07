@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 2 0 8 4096 4098 4138
-    bytecblock "box" "dynamic_arr_struct" 0x424f585f43 "blob" "dynamic_box" 0x151f7c75 "box_large" "box_a" "box_d" "b" "too_many_bools" "many_ints" "big_bytes" 0x68656c6c6f "0" 0x00023432 "big_fixed_bytes" "default" "box_ref" 0x0014 0x068101
+    intcblock 1 2 0 8 4098 4096 5000 4138
+    bytecblock "box" "dynamic_arr_struct" 0x424f585f43 "blob" "dynamic_box" "box_large" "box_a" "box_d" "b" "too_many_bools" "big_bytes" "many_ints" "big_fixed_bytes" 0x68656c6c6f "0" 0x00023432 "default" "box_ref" 0x0014 0x068101
     intc_2 // 0
     dupn 3
     pushbytes ""
@@ -22,40 +22,28 @@ main:
     err
 
 main_box_map_exists_route@48:
-    callsub __outlined20
+    callsub __outlined9
     box_len
     bury 1
     pushbytes 0x00
     intc_2 // 0
     uncover 2
     setbit
-    callsub __outlined46
+    callsub __outlined18
     return
 
 main_box_map_del_route@47:
-    txna ApplicationArgs 1
-    dup
-    len
-    intc_3 // 8
-    callsub __outlined20
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itob
+    callsub __outlined9
     box_del
     pop
     intc_0 // 1
     return
 
 main_box_map_get_route@46:
-    callsub __outlined20
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    itob
+    callsub __outlined9
     box_get
     assert // check self.box_map entry exists
-    callsub __outlined7
+    callsub __outlined3
     return
 
 main_box_map_set_route@45:
@@ -82,10 +70,10 @@ main_box_map_test_route@44:
     itob
     dup
     box_get
-    bytec 17 // "default"
+    bytec 16 // "default"
     cover 2
     select
-    bytec 17 // "default"
+    bytec 16 // "default"
     ==
     assert
     dup
@@ -174,11 +162,11 @@ main_test_box_ref_route@43:
     pushint 64
     ==
     assert
-    bytec 18 // "box_ref"
+    bytec 17 // "box_ref"
     pushint 32
     box_create
     pop
-    bytec 18 // "box_ref"
+    bytec 17 // "box_ref"
     box_del
     pop
     intc_0 // 1
@@ -221,8 +209,12 @@ main_slice_box_route@41:
     return
 
 main_write_dynamic_arr_struct_route@40:
-    callsub __outlined5
-    callsub __outlined39
+    callsub __outlined2
+    bytec_1 // "dynamic_arr_struct"
+    pushint 20
+    intc_1 // 2
+    box_extract
+    btoi
     dig 2
     >
     assert // index out of bounds
@@ -239,10 +231,7 @@ main_write_dynamic_arr_struct_route@40:
     return
 
 main_write_dynamic_box_route@39:
-    callsub __outlined8
-    callsub __outlined5
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined2
     swap
     intc_3 // 8
     *
@@ -279,15 +268,15 @@ main_for_header@76:
     intc_1 // 2
     +
     bytec 4 // "dynamic_box"
-    callsub __outlined10
+    callsub __outlined5
     b main_for_header@76
 
 main_after_for@78:
-    callsub __outlined29
+    callsub __outlined11
     return
 
 main_pop_dynamic_box_route@37:
-    callsub __outlined18
+    callsub __outlined6
     bury 21
 
 main_for_header@81:
@@ -308,13 +297,11 @@ main_for_header@81:
 main_after_for@83:
     bytec 4 // "dynamic_box"
     intc_2 // 0
-    callsub __outlined19
+    callsub __outlined7
     return
 
 main_append_dynamic_box_route@36:
-    txna ApplicationArgs 1
-    callsub __outlined18
-    callsub __outlined22
+    callsub __outlined6
     bury 13
 
 main_for_header@86:
@@ -339,11 +326,7 @@ main_for_header@86:
 main_after_for@88:
     bytec 4 // "dynamic_box"
     intc_2 // 0
-    intc_1 // 2
-    box_extract
-    btoi
-    callsub __outlined19
-    callsub __outlined38
+    callsub __outlined7
     return
 
 main_delete_dynamic_box_route@35:
@@ -364,11 +347,11 @@ main_create_dynamic_box_route@34:
     return
 
 main_sum_bools_route@33:
-    callsub __outlined30
+    callsub __outlined13
     bury 4
     intc_2 // 0
     bury 2
-    bytec 10 // "too_many_bools"
+    bytec 9 // "too_many_bools"
     box_len
     bury 1
     assert // check self.too_many_bools exists
@@ -387,7 +370,7 @@ main_for_header@95:
     swap
     intc_3 // 8
     %
-    bytec 10 // "too_many_bools"
+    bytec 9 // "too_many_bools"
     uncover 2
     intc_0 // 1
     box_extract // on error: index out of bounds
@@ -411,19 +394,12 @@ main_after_if_else@98:
     b main_for_header@95
 
 main_after_for@101:
-    dig 1
-    callsub __outlined29
-    itob
-    bytec 5 // 0x151f7c75
-    swap
-    callsub __outlined38
-    concat
-    log
-    intc_0 // 1
+    callsub __outlined11
     return
 
 main_set_bool_route@32:
-    callsub __outlined11
+    callsub __outlined8
+    len
     intc_0 // 1
     ==
     assert // invalid number of bytes for arc4.bool
@@ -435,7 +411,7 @@ main_set_bool_route@32:
     uncover 2
     intc_3 // 8
     %
-    bytec 10 // "too_many_bools"
+    bytec 9 // "too_many_bools"
     dig 2
     intc_0 // 1
     box_extract
@@ -446,14 +422,14 @@ main_set_bool_route@32:
     swap
     uncover 3
     setbit
-    bytec 10 // "too_many_bools"
+    bytec 9 // "too_many_bools"
     cover 2
     box_replace // on error: index out of bounds
     intc_0 // 1
     return
 
 main_create_bools_route@31:
-    bytec 10 // "too_many_bools"
+    bytec 9 // "too_many_bools"
     pushint 4125
     box_create
     pop
@@ -476,7 +452,11 @@ main_sum_dynamic_arr_struct_route@30:
     box_extract // on error: index out of bounds
     btoi
     dup
-    callsub __outlined39
+    intc_1 // 2
+    ==
+    assert // expected 2
+    +
+    bury 2
     bytec_1 // "dynamic_arr_struct"
     pushint 20
     intc_1 // 2
@@ -495,11 +475,23 @@ main_for_header@108:
     pushint 20
     intc_1 // 2
     box_extract
-    callsub __outlined39
+    btoi
+    dig 9
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
+    dup
+    intc_3 // 8
+    *
+    pushint 22
+    +
+    bytec_1 // "dynamic_arr_struct"
+    callsub __outlined5
     b main_for_header@108
 
 main_after_for@110:
-    callsub __outlined40
+    callsub __outlined17
     bytec_1 // "dynamic_arr_struct"
     swap
     intc_1 // 2
@@ -514,33 +506,43 @@ main_for_header@111:
     dig 14
     <
     bz main_after_for@113
-    bytec_1 // "dynamic_arr_struct"
-    pushint 18
+    callsub __outlined17
     intc_1 // 2
-    box_extract
-    btoi
-    callsub __outlined15
+    +
+    dig 8
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    +
+    bytec_1 // "dynamic_arr_struct"
     swap
     intc_3 // 8
-    callsub __outlined23
+    box_extract // on error: index out of bounds
+    btoi
+    dig 3
+    +
+    bury 3
+    intc_0 // 1
+    +
     bury 8
-    callsub __outlined40
     b main_for_header@111
 
 main_after_for@113:
-    callsub __outlined38
-    swap
-    concat
-    log
-    intc_0 // 1
+    callsub __outlined11
     return
 
 main_nested_read_route@29:
-    callsub __outlined2
+    callsub __outlined1
     txna ApplicationArgs 3
-    callsub __outlined36
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
     bytec_0 // "box"
-    intc 5 // 4098
+    intc 4 // 4098
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
@@ -560,10 +562,10 @@ main_nested_read_route@29:
     intc_1 // 2
     dig 5
     *
-    intc 6 // 4138
-    callsub __outlined24
-    intc 6 // 4138
-    callsub __outlined37
+    intc 7 // 4138
+    callsub __outlined10
+    intc 7 // 4138
+    callsub __outlined16
     dig 6
     >
     assert // index out of bounds
@@ -593,8 +595,8 @@ main_nested_read_route@29:
     intc_1 // 2
     box_extract
     btoi
-    callsub __outlined37
-    btoi
+    intc 4 // 4098
+    callsub __outlined16
     uncover 10
     >
     assert // index out of bounds
@@ -602,27 +604,31 @@ main_nested_read_route@29:
     +
     dup
     uncover 5
-    callsub __outlined34
-    callsub __outlined37
-    box_extract
-    btoi
+    callsub __outlined12
+    pushint 18
+    callsub __outlined16
     dig 8
     >
     assert // index out of bounds
     intc_1 // 2
     +
     intc_1 // 2
-    callsub __outlined37
-    intc_1 // 2
-    box_extract
-    btoi
+    uncover 8
+    *
+    callsub __outlined10
+    callsub __outlined16
     dig 7
     >
     assert // index out of bounds
     intc_1 // 2
     +
     uncover 6
-    callsub __outlined38
+    intc_3 // 8
+    *
+    +
+    bytec_0 // "box"
+    swap
+    intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
     uncover 5
@@ -635,17 +641,15 @@ main_nested_read_route@29:
     uncover 2
     +
     +
-    callsub __outlined45
-    intc_0 // 1
+    callsub __outlined14
     return
 
 main_nested_write_route@28:
-    callsub __outlined6
-    assert // invalid number of bytes for arc4.uint64
+    callsub __outlined2
     dup
     btoi
     bytec_0 // "box"
-    intc 5 // 4098
+    intc 4 // 4098
     uncover 3
     box_replace // on error: index out of bounds
     dup
@@ -658,14 +662,23 @@ main_nested_write_route@28:
     box_replace // on error: index out of bounds
     dup
     intc_1 // 2
-    callsub __outlined24
+    +
+    itob
+    bytec_0 // "box"
+    pushint 4136
+    intc_1 // 2
+    box_extract
+    btoi
     dig 3
     >
-    callsub __outlined34
-    callsub __outlined41
-    btoi
-    intc 6 // 4138
-    callsub __outlined9
+    assert // index out of bounds
+    intc_1 // 2
+    dig 3
+    *
+    intc 7 // 4138
+    callsub __outlined10
+    intc 7 // 4138
+    callsub __outlined4
     dig 4
     intc_3 // 8
     *
@@ -698,15 +711,24 @@ main_nested_write_route@28:
     itob
     bytec_0 // "box"
     pushint 4108
-    callsub __outlined34
-    callsub __outlined41
+    intc_1 // 2
     box_extract
     btoi
-    callsub __outlined9
-    intc_1 // 2
-    +
+    intc 4 // 4098
+    callsub __outlined4
     dup
-    callsub __outlined5
+    dig 4
+    callsub __outlined12
+    pushint 18
+    callsub __outlined4
+    dup
+    uncover 4
+    callsub __outlined12
+    bytec_0 // "box"
+    dig 1
+    intc_1 // 2
+    box_extract
+    btoi
     uncover 4
     >
     assert // index out of bounds
@@ -935,30 +957,25 @@ main_after_for@128:
     txna ApplicationArgs 1
     dup
     len
-    intc 5 // 4098
+    intc 4 // 4098
     +
     bytec_0 // "box"
     swap
     box_create
     pop
     bytec_0 // "box"
-    intc 4 // 4096
+    intc 5 // 4096
     pushbytes 0x1002
     box_replace
     bytec_0 // "box"
-    intc 5 // 4098
+    intc 4 // 4098
     uncover 2
     box_replace
     intc_0 // 1
     return
 
 main_pop_dynamic_arr_struct_route@26:
-    callsub __outlined18
-    dup
-    len
-    callsub __outlined22
-    intc_3 // 8
-    callsub __outlined42
+    callsub __outlined6
     bury 21
 
 main_for_header@131:
@@ -966,11 +983,7 @@ main_for_header@131:
     dig 3
     <
     bz main_after_for@133
-    bytec_1 // "dynamic_arr_struct"
-    pushint 18
-    intc_1 // 2
-    box_extract
-    btoi
+    callsub __outlined17
     intc_3 // 8
     -
     itob
@@ -982,29 +995,21 @@ main_for_header@131:
     bytec_1 // "dynamic_arr_struct"
     pushint 20
     intc_3 // 8
-    callsub __outlined40
+    callsub box_dynamic_array_pop_fixed_size
+    dig 20
+    intc_0 // 1
+    +
+    bury 21
     b main_for_header@131
 
 main_after_for@133:
-    callsub __outlined38
-    callsub __outlined19
-    itob
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    callsub __outlined45
-    log
-    intc_0 // 1
+    bytec_1 // "dynamic_arr_struct"
+    pushint 20
+    callsub __outlined7
     return
 
 main_append_dynamic_arr_struct_route@25:
-    callsub __outlined22
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    callsub __outlined42
-    btoi
-    bury 3
-    intc_2 // 0
+    callsub __outlined6
     bury 13
 
 main_for_header@136:
@@ -1015,11 +1020,7 @@ main_for_header@136:
     dig 12
     dup
     itob
-    bytec_1 // "dynamic_arr_struct"
-    pushint 18
-    intc_1 // 2
-    box_extract
-    btoi
+    callsub __outlined17
     intc_3 // 8
     +
     itob
@@ -1030,17 +1031,19 @@ main_for_header@136:
     box_replace
     bytec_1 // "dynamic_arr_struct"
     pushint 20
-    callsub __outlined40
+    uncover 2
+    intc_0 // 1
+    intc_3 // 8
+    callsub box_dynamic_array_concat_fixed
+    intc_0 // 1
     +
     bury 13
     b main_for_header@136
 
 main_after_for@138:
-    callsub __outlined38
-    callsub __outlined39
-    btoi
-    callsub __outlined45
-    intc_0 // 1
+    bytec_1 // "dynamic_arr_struct"
+    pushint 20
+    callsub __outlined7
     return
 
 main_delete_dynamic_arr_struct_route@24:
@@ -1057,7 +1060,7 @@ main_create_dynamic_arr_struct_route@23:
     *
     swap
     itob
-    bytec 19 // 0x0014
+    bytec 18 // 0x0014
     concat
     swap
     itob
@@ -1074,10 +1077,10 @@ main_create_dynamic_arr_struct_route@23:
     return
 
 main_boxes_exist_route@22:
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     box_len
     bury 1
-    bytec 9 // "b"
+    bytec 8 // "b"
     box_len
     cover 2
     pop
@@ -1085,7 +1088,7 @@ main_boxes_exist_route@22:
     box_len
     cover 3
     pop
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     box_len
     cover 4
     pop
@@ -1097,16 +1100,16 @@ main_boxes_exist_route@22:
     uncover 2
     setbit
     intc_1 // 2
-    callsub __outlined46
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
+    uncover 2
+    setbit
+    pushint 3
+    uncover 2
+    setbit
+    callsub __outlined18
     return
 
 main_read_boxes_route@21:
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     box_get
     assert // check Box exists
     btoi
@@ -1114,15 +1117,15 @@ main_read_boxes_route@21:
     +
     intc_0 // 1
     -
-    bytec 9 // "b"
+    bytec 8 // "b"
     box_get
     assert // check self.box_b exists
     extract 2 0
     bytec_2 // 0x424f585f43
     box_get
     assert // check self.box_c exists
-    bytec 6 // "box_large"
-    intc 4 // 4096
+    bytec 5 // "box_large"
+    intc 5 // 4096
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
@@ -1135,7 +1138,7 @@ main_read_boxes_route@21:
     uncover 4
     concat
     swap
-    bytec 19 // 0x0014
+    bytec 18 // 0x0014
     concat
     dig 1
     len
@@ -1149,36 +1152,38 @@ main_read_boxes_route@21:
     concat
     swap
     concat
-    callsub __outlined25
+    swap
+    concat
+    callsub __outlined18
     return
 
 main_indirect_extract_and_replace_route@20:
-    bytec 6 // "box_large"
-    intc 4 // 4096
+    bytec 5 // "box_large"
+    intc 5 // 4096
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
     intc_0 // 1
     +
     itob
-    bytec 6 // "box_large"
-    intc 4 // 4096
+    bytec 5 // "box_large"
+    intc 5 // 4096
     uncover 2
     box_replace // on error: index out of bounds
     intc_0 // 1
     return
 
 main_delete_boxes_route@19:
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     box_del
     pop
-    bytec 9 // "b"
+    bytec 8 // "b"
     box_del
     pop
     bytec_2 // 0x424f585f43
     box_del
     pop
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     box_get
     swap
     btoi
@@ -1189,7 +1194,7 @@ main_delete_boxes_route@19:
     pushint 42
     ==
     assert
-    bytec 9 // "b"
+    bytec 8 // "b"
     box_get
     bytec 15 // 0x00023432
     cover 2
@@ -1211,7 +1216,7 @@ main_delete_boxes_route@19:
     assert
     !
     assert
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     box_del
     pop
     intc_0 // 1
@@ -1227,9 +1232,9 @@ main_while_top@167:
     itxn_field TypeEnum
     pushint 5 // DeleteApplication
     itxn_field OnCompletion
-    bytec 20 // 0x068101
+    bytec 19 // 0x068101
     itxn_field ApprovalProgram
-    bytec 20 // 0x068101
+    bytec 19 // 0x068101
     itxn_field ClearStateProgram
     intc_2 // 0
     itxn_field Fee
@@ -1256,19 +1261,16 @@ main_for_header@153:
     intc_3 // 8
     *
     bytec 11 // "many_ints"
-    callsub __outlined10
+    callsub __outlined5
     b main_for_header@153
 
 main_after_for@155:
-    callsub __outlined46
-    log
-    intc_0 // 1
+    callsub __outlined11
     return
 
 main_slice_big_bytes_route@17:
-    txna ApplicationArgs 1
-    callsub __outlined3
-    bytec 12 // "big_bytes"
+    callsub __outlined1
+    bytec 10 // "big_bytes"
     box_len
     pop
     dig 2
@@ -1283,16 +1285,24 @@ main_slice_big_bytes_route@17:
     >=
     swap
     cover 3
-    callsub __outlined25
+    select
+    dup
+    dig 2
+    <
+    dig 2
     swap
-    callsub __outlined31
+    select
+    dig 1
+    -
+    bytec 10 // "big_bytes"
+    cover 2
+    box_extract
+    callsub __outlined3
     return
 
 main_assert_big_bytes_route@16:
-    callsub __outlined21
     callsub __outlined0
-    callsub __outlined12
-    bytec 12 // "big_bytes"
+    bytec 10 // "big_bytes"
     uncover 2
     intc_0 // 1
     box_extract
@@ -1303,12 +1313,9 @@ main_assert_big_bytes_route@16:
 
 main_update_big_bytes_route@15:
     callsub __outlined0
-    callsub __outlined16
-    callsub __outlined12
-    extract 2 0
     dup
     len
-    bytec 12 // "big_bytes"
+    bytec 10 // "big_bytes"
     cover 3
     swap
     box_splice
@@ -1316,10 +1323,8 @@ main_update_big_bytes_route@15:
     return
 
 main_create_big_bytes_route@14:
-    callsub __outlined35
-    callsub __outlined30
-    btoi
-    bytec 12 // "big_bytes"
+    callsub __outlined13
+    bytec 10 // "big_bytes"
     swap
     box_create
     pop
@@ -1327,31 +1332,38 @@ main_create_big_bytes_route@14:
     return
 
 main_slice_big_fixed_bytes_route@13:
-    callsub __outlined5
-    btoi
-    callsub __outlined46
+    callsub __outlined1
+    dig 1
+    intc 6 // 5000
+    >=
+    uncover 2
+    intc 6 // 5000
     uncover 2
     select
     dig 1
-    pushint 5000
-    callsub __outlined2
+    intc 6 // 5000
+    >=
+    uncover 2
+    intc 6 // 5000
+    uncover 2
+    select
+    dup
+    dig 2
+    <
+    dig 2
+    swap
+    select
+    dig 1
+    -
+    bytec 12 // "big_fixed_bytes"
     cover 2
     box_extract
     callsub __outlined3
-    callsub __outlined31
-    concat
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
     return
 
 main_assert_big_fixed_bytes_route@12:
     callsub __outlined0
-    callsub __outlined1
-    extract 2 0
-    bytec 16 // "big_fixed_bytes"
+    bytec 12 // "big_fixed_bytes"
     uncover 2
     intc_0 // 1
     box_extract
@@ -1362,17 +1374,9 @@ main_assert_big_fixed_bytes_route@12:
 
 main_update_big_fixed_bytes_route@11:
     callsub __outlined0
-    txna ApplicationArgs 1
     dup
-    callsub __outlined26
-    intc_2 // 0
-    callsub __outlined1
-    callsub __outlined27
-    extract 2 0
-    dup
-    callsub __outlined21
     len
-    bytec 16 // "big_fixed_bytes"
+    bytec 12 // "big_fixed_bytes"
     cover 3
     swap
     box_splice
@@ -1380,22 +1384,15 @@ main_update_big_fixed_bytes_route@11:
     return
 
 main_create_big_fixed_bytes_route@10:
-    bytec 16 // "big_fixed_bytes"
-    pushint 5000
+    bytec 12 // "big_fixed_bytes"
+    intc 6 // 5000
     box_create
     pop
     intc_0 // 1
     return
 
 main_set_many_ints_route@9:
-    callsub __outlined5
-    txna ApplicationArgs 1
-    callsub __outlined13
-    callsub __outlined6
-    ==
-    callsub __outlined8
-    assert // invalid number of bytes for arc4.uint64
-    callsub __outlined11
+    callsub __outlined2
     swap
     intc_3 // 8
     *
@@ -1419,34 +1416,28 @@ main_check_keys_route@7:
     return
 
 main_set_boxes_route@6:
-    txna ApplicationArgs 1
-    dup
-    callsub __outlined4
+    callsub __outlined8
+    callsub __outlined15
     dup
     uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 3
     dup
-    intc_2 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
+    callsub __outlined15
     dup
     uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     uncover 4
     itob
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     swap
     box_put
-    bytec 9 // "b"
+    bytec 8 // "b"
     box_del
     pop
-    bytec 9 // "b"
+    bytec 8 // "b"
     dig 4
     box_put
     bytec_2 // 0x424f585f43
@@ -1457,43 +1448,43 @@ main_set_boxes_route@6:
     box_put
     dig 3
     extract 2 0
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     box_del
     pop
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     dig 1
     box_put
-    bytec 6 // "box_large"
+    bytec 5 // "box_large"
     pushint 6160
     box_create
     pop
     pushint 42
     itob
-    bytec 6 // "box_large"
-    intc 4 // 4096
+    bytec 5 // "box_large"
+    intc 5 // 4096
     uncover 2
     box_replace // on error: index out of bounds
-    bytec 6 // "box_large"
-    intc 4 // 4096
+    bytec 5 // "box_large"
+    intc 5 // 4096
     pushbytes 0x000000000000002a
     box_replace
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     box_get
     assert // check self.box_a exists
     btoi
     pushint 3
     +
     itob
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     swap
     box_put
-    bytec 7 // "box_a"
+    bytec 6 // "box_a"
     box_len
     pop
     intc_3 // 8
     ==
     assert
-    bytec 9 // "b"
+    bytec 8 // "b"
     box_len
     pop
     uncover 4
@@ -1506,7 +1497,7 @@ main_set_boxes_route@6:
     dig 3
     ==
     assert
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     box_len
     pop
     dig 2
@@ -1563,7 +1554,7 @@ main_set_boxes_route@6:
     swap
     -
     dig 7
-    callsub __outlined44
+    callsub __outlined19
     intc_1 // 2
     dig 3
     >=
@@ -1582,9 +1573,9 @@ main_set_boxes_route@6:
     uncover 6
     uncover 2
     select
-    callsub __outlined44
-    assert
-    bytec 8 // "box_d"
+    uncover 5
+    callsub __outlined19
+    bytec 7 // "box_d"
     intc_2 // 0
     intc_0 // 1
     box_extract
@@ -1595,7 +1586,7 @@ main_set_boxes_route@6:
     dig 1
     intc_0 // 1
     -
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     swap
     intc_0 // 1
     box_extract
@@ -1618,7 +1609,7 @@ main_set_boxes_route@6:
     dig 2
     swap
     -
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     intc_2 // 0
     uncover 2
     box_extract
@@ -1631,9 +1622,9 @@ main_set_boxes_route@6:
     select
     dig 2
     swap
-    callsub __outlined44
-    ==
-    assert
+    -
+    dig 4
+    callsub __outlined19
     pushint 5
     dig 2
     >=
@@ -1641,7 +1632,7 @@ main_set_boxes_route@6:
     dig 3
     uncover 2
     select
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     intc_2 // 0
     uncover 2
     box_extract
@@ -1650,10 +1641,10 @@ main_set_boxes_route@6:
     >=
     pushint 5
     dig 3
-    callsub __outlined44
-    substring3
-    ==
-    assert
+    uncover 2
+    select
+    dig 4
+    callsub __outlined19
     intc_1 // 2
     dig 2
     >=
@@ -1661,7 +1652,7 @@ main_set_boxes_route@6:
     uncover 3
     uncover 2
     select
-    bytec 8 // "box_d"
+    bytec 7 // "box_d"
     intc_2 // 0
     uncover 2
     box_extract
@@ -1669,12 +1660,12 @@ main_set_boxes_route@6:
     dig 2
     >=
     intc_1 // 2
-    callsub __outlined44
+    uncover 3
     uncover 2
-    substring3
-    ==
-    assert
-    bytec 6 // "box_large"
+    select
+    uncover 2
+    callsub __outlined19
+    bytec 5 // "box_large"
     box_len
     pop
     pushint 6160
@@ -1776,123 +1767,46 @@ box_dynamic_array_concat_fixed:
 
 // __outlined0() -> any, any:
 __outlined0:
-    callsub __outlined1
-    len
-    intc_3 // 8
+    callsub __outlined8
+    callsub __outlined15
     ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    callsub __outlined4
-    callsub __outlined12
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     retsub
 
 
 // __outlined1() -> any, any:
 __outlined1:
-    callsub __outlined4
-    txna ApplicationArgs 2
-    dup
-    intc_2 // 0
-    extract_uint16 // on error: invalid array length header
-    callsub __outlined16
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __outlined2
+    btoi
     retsub
 
 
 // __outlined2() -> any, any:
 __outlined2:
-    callsub __outlined3
-    callsub __outlined14
-    btoi
+    callsub __outlined8
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     retsub
 
 
-// __outlined3(__outlined3_param0: any) -> any, any:
+// __outlined3(__outlined3_param0: any) -> any:
 __outlined3:
     dup
     len
-    intc_3 // 8
-    ==
-    callsub __outlined13
-    assert // invalid number of bytes for arc4.uint64
-    callsub __outlined28
-    btoi
+    itob
+    extract 6 2
+    swap
+    concat
+    callsub __outlined18
     retsub
 
 
-// __outlined4(__outlined4_param0: any, __outlined4_param1: any) -> any, any, any, any:
+// __outlined4(__outlined4_param0: any, __outlined4_param1: any, __outlined4_param2: any, __outlined4_param3: any, __outlined4_param4: any, __outlined4_param5: any) -> any, any, any, any, any:
 __outlined4:
-    callsub __outlined32
-    dup
-    callsub __outlined26
-    intc_2 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    retsub
-
-
-// __outlined5() -> any, any:
-__outlined5:
-    callsub __outlined6
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    callsub __outlined14
-    btoi
-    txna ApplicationArgs 2
-    callsub __outlined43
-    callsub __outlined28
-    retsub
-
-
-// __outlined6() -> any, any, any:
-__outlined6:
-    callsub __outlined8
-    callsub __outlined17
-    ==
-    retsub
-
-
-// __outlined7(__outlined7_param0: any) -> any:
-__outlined7:
-    dup
-    len
-    callsub __outlined25
-    log
-    intc_0 // 1
-    retsub
-
-
-// __outlined8() -> any, any, any, any:
-__outlined8:
-    callsub __outlined11
-    len
-    intc_3 // 8
-    callsub __outlined17
-    callsub __outlined33
-    intc_3 // 8
-    retsub
-
-
-// __outlined9(__outlined9_param0: any, __outlined9_param1: any, __outlined9_param2: any, __outlined9_param3: any, __outlined9_param4: any, __outlined9_param5: any) -> any, any, any, any, any:
-__outlined9:
-    callsub __outlined37
-    +
-    bytec_0 // "box"
-    dig 1
-    intc_1 // 2
-    box_extract
-    btoi
+    callsub __outlined16
     dig 5
     >
     assert // index out of bounds
@@ -1901,13 +1815,13 @@ __outlined9:
     retsub
 
 
-// __outlined10(__outlined10_param0: any, __outlined10_param1: any, __outlined10_param2: any, __outlined10_param3: any, __outlined10_param4: any, __outlined10_param5: any, __outlined10_param6: any, __outlined10_param7: any, __outlined10_param8: any, __outlined10_param9: any, __outlined10_param10: any, __outlined10_param11: any) -> any, any, any, any, any, any, any, any, any:
-__outlined10:
-    callsub __outlined15
+// __outlined5(__outlined5_param0: any, __outlined5_param1: any, __outlined5_param2: any, __outlined5_param3: any, __outlined5_param4: any, __outlined5_param5: any, __outlined5_param6: any, __outlined5_param7: any, __outlined5_param8: any, __outlined5_param9: any, __outlined5_param10: any, __outlined5_param11: any) -> any, any, any, any, any, any, any, any, any:
+__outlined5:
+    swap
+    intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
     dig 3
-    callsub __outlined23
     +
     bury 3
     intc_0 // 1
@@ -1916,305 +1830,101 @@ __outlined10:
     retsub
 
 
-// __outlined11() -> any, any, any:
-__outlined11:
-    callsub __outlined21
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    callsub __outlined33
-    txna ApplicationArgs 2
-    dup
-    len
-    retsub
-
-
-// __outlined12(__outlined12_param0: any) -> any:
-__outlined12:
-    callsub __outlined16
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    callsub __outlined27
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    retsub
-
-
-// __outlined13(__outlined13_param0: any) -> any, any, any, any:
-__outlined13:
-    callsub __outlined33
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_3 // 8
-    retsub
-
-
-// __outlined14(__outlined14_param0: any, __outlined14_param1: any) -> any, any:
-__outlined14:
-    callsub __outlined28
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined15(__outlined15_param0: any, __outlined15_param1: any, __outlined15_param2: any, __outlined15_param3: any, __outlined15_param4: any) -> any, any, any:
-__outlined15:
-    callsub __outlined23
-    +
-    bury 3
-    intc_0 // 1
-    +
-    retsub
-
-
-// __outlined16(__outlined16_param0: any) -> any:
-__outlined16:
-    callsub __outlined27
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    retsub
-
-
-// __outlined17(__outlined17_param0: any, __outlined17_param1: any) -> any, any, any, any:
-__outlined17:
-    callsub __outlined26
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_3 // 8
-    retsub
-
-
-// __outlined18(__outlined18_param0: any, __outlined18_param1: any, __outlined18_param2: any) -> any, any, any, any:
-__outlined18:
-    callsub __outlined42
-    btoi
+// __outlined6(__outlined6_param0: any, __outlined6_param1: any, __outlined6_param2: any) -> any, any, any, any:
+__outlined6:
+    callsub __outlined13
     bury 3
     intc_2 // 0
     retsub
 
 
-// __outlined19(__outlined19_param0: any, __outlined19_param1: any) -> any:
-__outlined19:
-    callsub __outlined46
+// __outlined7(__outlined7_param0: any, __outlined7_param1: any) -> any:
+__outlined7:
+    intc_1 // 2
     box_extract
     btoi
-    itob
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
+    callsub __outlined14
     retsub
 
 
-// __outlined20() -> any:
-__outlined20:
-    callsub __outlined30
+// __outlined8() -> any, any, any:
+__outlined8:
+    callsub __outlined13
+    txna ApplicationArgs 2
+    dup
+    retsub
+
+
+// __outlined9() -> any:
+__outlined9:
+    callsub __outlined13
+    itob
+    retsub
+
+
+// __outlined10(__outlined10_param0: any, __outlined10_param1: any) -> any, any:
+__outlined10:
+    dig 1
+    +
+    bytec_0 // "box"
+    swap
+    intc_1 // 2
+    box_extract
+    btoi
+    retsub
+
+
+// __outlined11(__outlined11_param0: any, __outlined11_param1: any) -> any, any, any:
+__outlined11:
+    dig 1
+    callsub __outlined14
+    retsub
+
+
+// __outlined12(__outlined12_param0: any, __outlined12_param1: any, __outlined12_param2: any) -> any:
+__outlined12:
+    +
+    bytec_0 // "box"
+    swap
+    intc_1 // 2
+    box_extract
+    btoi
+    +
+    retsub
+
+
+// __outlined13() -> any:
+__outlined13:
     txna ApplicationArgs 1
     dup
     len
     intc_3 // 8
-    callsub __outlined35
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    retsub
+
+
+// __outlined14(__outlined14_param0: any) -> any:
+__outlined14:
     itob
+    callsub __outlined18
     retsub
 
 
-// __outlined21() -> any, any:
-__outlined21:
-    callsub __outlined35
-    assert // invalid number of bytes for arc4.uint64
-    callsub __outlined32
-    btoi
-    txna ApplicationArgs 2
-    retsub
-
-
-// __outlined22(__outlined22_param0: any, __outlined22_param1: any, __outlined22_param2: any, __outlined22_param3: any) -> any, any, any, any:
-__outlined22:
-    callsub __outlined42
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    bury 3
+// __outlined15(__outlined15_param0: any, __outlined15_param1: any) -> any, any, any:
+__outlined15:
     intc_2 // 0
-    retsub
-
-
-// __outlined23(__outlined23_param0: any, __outlined23_param1: any, __outlined23_param2: any, __outlined23_param3: any, __outlined23_param4: any, __outlined23_param5: any) -> any, any, any:
-__outlined23:
-    box_extract // on error: index out of bounds
-    btoi
-    dig 3
-    +
-    bury 3
-    intc_0 // 1
-    +
-    retsub
-
-
-// __outlined24(__outlined24_param0: any, __outlined24_param1: any) -> any, any:
-__outlined24:
-    callsub __outlined34
-    callsub __outlined41
-    box_extract
-    btoi
-    retsub
-
-
-// __outlined25(__outlined25_param0: any, __outlined25_param1: any) -> any:
-__outlined25:
-    callsub __outlined31
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-
-// __outlined26(__outlined26_param0: any, __outlined26_param1: any) -> any, any, any:
-__outlined26:
-    callsub __outlined32
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 2
-    dup
-    retsub
-
-
-// __outlined27(__outlined27_param0: any, __outlined27_param1: any, __outlined27_param2: any) -> any:
-__outlined27:
     extract_uint16 // on error: invalid array length header
     intc_1 // 2
     +
     dig 1
     len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     retsub
 
 
-// __outlined28(__outlined28_param0: any) -> any, any:
-__outlined28:
-    btoi
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_3 // 8
-    callsub __outlined43
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined29(__outlined29_param0: any, __outlined29_param1: any) -> any, any, any:
-__outlined29:
-    callsub __outlined46
-    callsub __outlined45
-    callsub __outlined38
-    dig 1
-    itob
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-
-// __outlined30() -> any:
-__outlined30:
-    callsub __outlined36
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    retsub
-
-
-// __outlined31(__outlined31_param0: any, __outlined31_param1: any) -> any:
-__outlined31:
-    callsub __outlined46
-    concat
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-
-// __outlined32(__outlined32_param0: any, __outlined32_param1: any) -> any, any:
-__outlined32:
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 2
-    retsub
-
-
-// __outlined33(__outlined33_param0: any, __outlined33_param1: any, __outlined33_param2: any) -> any, any, any:
-__outlined33:
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 2
-    dup
-    len
-    retsub
-
-
-// __outlined34(__outlined34_param0: any, __outlined34_param1: any) -> any:
-__outlined34:
-    callsub __outlined41
-    +
-    bytec_0 // "box"
-    swap
-    intc_1 // 2
-    box_extract
-    btoi
-    retsub
-
-
-// __outlined35() -> any:
-__outlined35:
-    callsub __outlined43
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined36(__outlined36_param0: any) -> any:
-__outlined36:
-    callsub __outlined43
-    dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    retsub
-
-
-// __outlined37(__outlined37_param0: any, __outlined37_param1: any) -> any, any:
-__outlined37:
+// __outlined16(__outlined16_param0: any, __outlined16_param1: any) -> any, any:
+__outlined16:
     +
     bytec_0 // "box"
     dig 1
@@ -2224,31 +1934,8 @@ __outlined37:
     retsub
 
 
-// __outlined38(__outlined38_param0: any) -> any:
-__outlined38:
-    callsub __outlined46
-    callsub __outlined45
-    itob
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
-    retsub
-
-
-// __outlined39() -> any:
-__outlined39:
-    bytec_1 // "dynamic_arr_struct"
-    pushint 20
-    intc_1 // 2
-    box_extract
-    btoi
-    retsub
-
-
-// __outlined40() -> any:
-__outlined40:
+// __outlined17() -> any:
+__outlined17:
     bytec_1 // "dynamic_arr_struct"
     pushint 18
     intc_1 // 2
@@ -2257,61 +1944,21 @@ __outlined40:
     retsub
 
 
-// __outlined41(__outlined41_param0: any, __outlined41_param1: any) -> any:
-__outlined41:
-    +
-    bytec_0 // "box"
+// __outlined18(__outlined18_param0: any) -> any:
+__outlined18:
+    pushbytes 0x151f7c75
     swap
-    intc_1 // 2
-    box_extract
+    concat
+    log
+    intc_0 // 1
     retsub
 
 
-// __outlined42(__outlined42_param0: any, __outlined42_param1: any, __outlined42_param2: any, __outlined42_param3: any, __outlined42_param4: any, __outlined42_param5: any) -> any, any, any, any:
-__outlined42:
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    bury 3
-    intc_2 // 0
-    retsub
-
-
-// __outlined43(__outlined43_param0: any) -> any:
-__outlined43:
-    dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    retsub
-
-
-// __outlined44(__outlined44_param0: any, __outlined44_param1: any, __outlined44_param2: any) -> void:
-__outlined44:
+// __outlined19(__outlined19_param0: any, __outlined19_param1: any, __outlined19_param2: any) -> void:
+__outlined19:
     intc_2 // 0
     uncover 2
     substring3
     ==
     assert
-    retsub
-
-
-// __outlined45(__outlined45_param0: any) -> void:
-__outlined45:
-    itob
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    retsub
-
-
-// __outlined46(__outlined46_param0: any) -> any:
-__outlined46:
-    bytec 5 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_0 // 1
     retsub

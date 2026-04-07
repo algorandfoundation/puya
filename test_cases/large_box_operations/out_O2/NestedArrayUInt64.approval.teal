@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 2 32 1 22 4096
-    bytecblock "box"
+    bytecblock "box" 0x151f7c75
     txn NumAppArgs
     bz main___algopy_default_create@16
     txn OnCompletion
@@ -49,7 +49,7 @@ main_set_route@11:
     intc_1 // 32
     ==
     assert // invalid number of bytes for test_cases.large_box_operations.nested.Parent
-    callsub __outlined2
+    callsub __outlined1
     dig 2
     >
     assert // index out of bounds
@@ -68,18 +68,18 @@ main_set_route@11:
 main_get_route@10:
     txna ApplicationArgs 1
     dup
-    callsub __outlined2
-    bytec_0 // "box"
-    intc_3 // 22
-    intc_0 // 2
-    box_extract
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
     btoi
+    callsub __outlined1
     dig 1
     >
     assert // index out of bounds
     callsub __outlined0
     box_extract // on error: index out of bounds
-    pushbytes 0x151f7c75
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -87,14 +87,19 @@ main_get_route@10:
     return
 
 main_pop_route@9:
-    bytec_0 // "box"
-    intc_3 // 22
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined1
+    dup
+    intc_2 // 1
+    - // on error: cannot pop from empty array
+    dup
+    uncover 2
+    <
+    assert // index out of bounds
     callsub __outlined0
-    intc_1 // 32
-    callsub __outlined2
+    box_extract // on error: index out of bounds
+    bytec_0 // "box"
+    intc_0 // 2
+    dup
     box_extract
     btoi
     intc_1 // 32
@@ -105,23 +110,28 @@ main_pop_route@9:
     intc_0 // 2
     uncover 2
     box_replace
+    callsub __outlined1
+    intc_2 // 1
+    -
+    dup
+    itob
+    extract 6 2
     bytec_0 // "box"
     intc_3 // 22
-    intc_0 // 2
-    box_extract
-    btoi
-    intc_2 // 1
-    callsub __outlined0
+    uncover 2
     box_replace
-    callsub __outlined1
-    intc_1 // 32
+    callsub __outlined0
     pushbytes 0x
     box_splice
     bytec_0 // "box"
     box_len
     pop
     intc_1 // 32
-    callsub __outlined2
+    -
+    bytec_0 // "box"
+    swap
+    box_resize
+    bytec_1 // 0x151f7c75
     swap
     concat
     log
@@ -277,11 +287,7 @@ box_update_offset_inc:
 // test_cases.large_box_operations.nested.NestedArrayUInt64.verify(expected: bytes) -> bytes:
 verify:
     proto 1 1
-    bytec_0 // "box"
-    intc_3 // 22
-    intc_0 // 2
-    box_extract
-    btoi
+    callsub __outlined1
     intc_1 // 32
     *
     intc_0 // 2
@@ -309,7 +315,11 @@ verify:
     assert
     bytec_0 // "box"
     intc_0 // 2
-    callsub __outlined2
+    dup
+    box_extract
+    btoi
+    bytec_0 // "box"
+    swap
     intc_0 // 2
     box_extract
     btoi
@@ -328,16 +338,7 @@ verify:
 
 // __outlined0(__outlined0_param0: any) -> any, any, any:
 __outlined0:
-    callsub __outlined1
-    +
-    bytec_0 // "box"
-    swap
     intc_1 // 32
-    retsub
-
-
-// __outlined1(__outlined1_param0: any, __outlined1_param1: any) -> any, any, any:
-__outlined1:
     *
     pushint 24
     +
@@ -347,8 +348,8 @@ __outlined1:
     retsub
 
 
-// __outlined2() -> any:
-__outlined2:
+// __outlined1() -> any:
+__outlined1:
     bytec_0 // "box"
     intc_3 // 22
     intc_0 // 2

@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 8 2
-    bytecblock 0x151f7c75 "accounts" "assets"
+    intcblock 1 0 8 32
+    bytecblock 0x151f7c75 "accounts" "assets" "apps"
     txn NumAppArgs
     bz main___algopy_default_create@17
     txn OnCompletion
@@ -43,7 +43,7 @@ main_return_assets_route@12:
 
 main_return_apps_route@11:
     intc_1 // 0
-    pushbytes "apps"
+    bytec_3 // "apps"
     app_global_get_ex
     assert // check self.apps exists
     bytec_0 // 0x151f7c75
@@ -58,7 +58,7 @@ main_store_accounts_route@10:
     dup
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 32
+    intc_3 // 32
     callsub __outlined0
     assert // invalid number of bytes for arc4.dynamic_array<account>
     bytec_1 // "accounts"
@@ -73,18 +73,12 @@ main_store_assets_route@9:
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 8
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
+    callsub __outlined0
     assert // invalid number of bytes for arc4.dynamic_array<asset>
     bytec_2 // "assets"
     swap
     app_global_put
     intc_0 // 1
-    callsub __outlined0
     return
 
 main_store_apps_route@8:
@@ -93,19 +87,19 @@ main_store_apps_route@8:
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 8
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
     callsub __outlined0
+    assert // invalid number of bytes for arc4.dynamic_array<application>
+    bytec_3 // "apps"
+    swap
+    app_global_put
+    intc_0 // 1
     return
 
 main_store_route@7:
     txna ApplicationArgs 1
     dup
     len
-    pushint 32
+    intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
@@ -160,7 +154,7 @@ main___algopy_default_create@17:
 // __outlined0(__outlined0_param0: any, __outlined0_param1: any, __outlined0_param2: any) -> any, any:
 __outlined0:
     *
-    intc_3 // 2
+    pushint 2
     +
     dig 1
     len

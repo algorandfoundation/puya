@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1
-    bytecblock 0x61636667 0x70617932 0x70617935 "pay1"
+    bytecblock 0x61636667 0x70617932 "pay3" 0x6163666732 0x70617935
     txn NumAppArgs
     bz main___algopy_default_create@9
     txn OnCompletion
@@ -29,7 +29,7 @@ main_test_itxn_nested_route@5:
     callsub __outlined2
     dup
     itxn_field Receiver
-    pushbytes "pay3"
+    bytec_2 // "pay3"
     itxn_field Note
     intc_0 // 0
     itxn_field Fee
@@ -41,22 +41,22 @@ main_test_itxn_nested_route@5:
     assert
     bytec_1 // 0x70617932
     ==
+    assert
     callsub __outlined0
-    itxn_field ConfigAssetTotal
+    bytec_3 // "acfg2"
     callsub __outlined1
-    itxn_field Amount
     itxn_field Receiver
-    bytec_2 // "pay5"
+    bytec 4 // "pay5"
     itxn_field Note
     intc_0 // 0
     itxn_field Fee
     itxn_submit
     itxn Note
     gitxn 1 Note
-    pushbytes 0x6163666732
+    bytec_3 // 0x6163666732
     ==
     assert
-    bytec_2 // 0x70617935
+    bytec 4 // 0x70617935
     ==
     assert
     intc_1 // 1
@@ -64,27 +64,18 @@ main_test_itxn_nested_route@5:
 
 main_test_itxn_slice_route@4:
     txn Sender
-    itxn_begin
-    bytec_3 // "pay1"
-    itxn_field Note
-    intc_0 // 0
-    itxn_field Amount
+    callsub __outlined0
+    bytec_0 // "acfg"
+    callsub __outlined1
     dup
     itxn_field Receiver
-    intc_1 // pay
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_next
-    intc_1 // 1
-    itxn_field ConfigAssetTotal
-    bytec_0 // "acfg"
+    bytec_1 // "pay2"
+    itxn_field Note
     callsub __outlined2
+    itxn_field Receiver
+    bytec_2 // "pay3"
+    itxn_field Note
     intc_0 // 0
-    callsub __outlined3
-    callsub __outlined0
-    intc_0 // 0
-    callsub __outlined1
     itxn_field Fee
     itxn_submit
     gitxn 2 Note
@@ -110,7 +101,7 @@ main___algopy_default_create@9:
 // __outlined0(__outlined0_param0: any) -> any:
 __outlined0:
     itxn_begin
-    bytec_3 // "pay1"
+    pushbytes "pay1"
     itxn_field Note
     intc_0 // 0
     itxn_field Amount
@@ -131,28 +122,17 @@ __outlined1:
     itxn_field Note
     pushbytes "TEST"
     itxn_field ConfigAssetName
-    callsub __outlined3
-    itxn_field Fee
-    itxn_next
-    intc_1 // pay
+    pushbytes "TST"
+    itxn_field ConfigAssetUnitName
+    pushint 3 // acfg
     itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Amount
+    callsub __outlined2
     retsub
 
 
 // __outlined2() -> void:
 __outlined2:
-    callsub __outlined3
-    intc_1 // pay
-    itxn_field TypeEnum
     intc_0 // 0
-    itxn_field Amount
-    retsub
-
-
-// __outlined3(__outlined3_param0: any) -> void:
-__outlined3:
     itxn_field Fee
     itxn_next
     intc_1 // pay

@@ -3,7 +3,6 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
     txn NumAppArgs
     bz main___algopy_default_create@10
     txn OnCompletion
@@ -21,17 +20,11 @@ main_named_tuple_itxn3_route@6:
     return
 
 main_named_tuple_itxn2_route@5:
-    txna ApplicationArgs 1
     callsub __outlined0
-    callsub __outlined1
     return
 
 main_named_tuple_itxn_route@4:
     callsub __outlined0
-    dup
-    len
-    callsub __outlined1
-    callsub __outlined2
     return
 
 main___algopy_default_create@10:
@@ -45,65 +38,24 @@ main___algopy_default_create@10:
 
 // __outlined0() -> any:
 __outlined0:
-    callsub __outlined1
+    txna ApplicationArgs 1
+    dup
+    len
     pushint 8
     ==
-    callsub __outlined2
     assert // invalid number of bytes for arc4.uint64
-    callsub __outlined3
-    retsub
-
-
-// __outlined1(__outlined1_param0: any) -> any:
-__outlined1:
-    callsub __outlined2
     btoi
     itxn_begin
-    callsub __outlined3
     txn Sender
     itxn_field Receiver
-    callsub __outlined4
-    retsub
-
-
-// __outlined2(__outlined2_param0: any, __outlined2_param1: any) -> any:
-__outlined2:
-    callsub __outlined3
     itxn_field Amount
-    intc_0 // pay
-    callsub __outlined4
+    pushint 1 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    pushint 0
     itxn_field Fee
     itxn_submit
     itxn Amount
     !
     assert
-    intc_0 // 1
-    retsub
-
-
-// __outlined3(__outlined3_param0: any) -> any:
-__outlined3:
-    callsub __outlined4
-    itxn_submit
-    itxn Amount
-    !
-    assert
-    intc_0 // 1
-    retsub
-
-
-// __outlined4(__outlined4_param0: any) -> any:
-__outlined4:
-    itxn_field Amount
-    intc_0 // pay
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn Amount
-    !
-    assert
-    intc_0 // 1
+    pushint 1
     retsub

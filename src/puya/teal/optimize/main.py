@@ -8,7 +8,9 @@ from puya.avm import AVMType
 from puya.context import ArtifactCompileContext, CompileContext
 from puya.mir.models import Signature, Parameter
 from puya.teal import models
-from puya.teal.models import TealSubroutine, TealBlock, CallSub, RetSub, TealProgram
+from puya.teal._util import preserve_stack_manipulations
+from puya.teal.models import TealSubroutine, TealBlock, CallSub, RetSub, TealProgram, StackManipulation, StackConsume, \
+    StackExtend, StackDefine
 from puya.teal.optimize.combine_pushes import combine_pushes
 from puya.teal.optimize.constant_block import gather_program_constants
 from puya.teal.optimize.constant_stack_shuffling import (
@@ -78,15 +80,16 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
             entry_height = min(entry_height, stack_height)
             stack_height += op.produces
         entry_height = -entry_height
-        exit_height = entry_height + stack_height
+        exit_height = stack_height + entry_height
 
         sub_name = f"__outlined{outline_idx}"
+        param_names = [f"{sub_name}_param{i}" for i in range(entry_height)]
         block = TealBlock(
             label=sub_name,
             ops=list(win) + [RetSub(consumes=exit_height, source_location=None)],
             x_stack_in=(),
             entry_stack_height=entry_height,
-            exit_stack_height=exit_height,
+            exit_stack_height=0,
         )
         sub = TealSubroutine(
             is_main=False,
@@ -94,8 +97,8 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
                 name=sub_name,
                 parameters=[
                     Parameter(
-                        name=f"{sub_name}_param{i}",
-                        local_id=f"_param{i}",
+                        name=param_names[i],
+                        local_id=param_names[i],
                         atype=AVMType.any
                     ) for i in range(entry_height)
                 ],
@@ -104,18 +107,24 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
             blocks=[block],
             source_location=None,
         )
+        # FIXME: Hack! Add a dummy annotation to the first instruction defining all our parameters
+        block.ops[0] = attrs.evolve(block.ops[0], stack_manipulations=[StackExtend(param_names), StackDefine(param_names), *block.ops[0].stack_manipulations])
 
         def get_matches() -> list[tuple[TealBlock, int]]:
             matches = list[tuple[TealBlock, int]]()
             for sub in teal_program.all_subroutines:
                 for block in sub.blocks:
                     i = 0
+                    block_matches = 0
                     lasti = len(block.ops) - wsize
                     while i < lasti:
                         if tuple(block.ops[i:i + wsize]) == win:
-                            matches.append((block, i - len(matches) * wsize))
+                            # index is adjusted: each match moves everything `wsize` instructions to the left and one
+                            # `callsub` to the right
+                            matches.append((block, i - (wsize - 1) * block_matches))
                             # Guard against overlapping matches!
                             i += wsize
+                            block_matches += 1
                         else:
                             i += 1
             return matches
@@ -127,9 +136,9 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
                     target=sub_name,
                     consumes=entry_height,
                     produces=exit_height,
-                    source_location=None
+                    source_location=None,
                 )
-                block.ops[i:i + wsize] = (callsub,)
+                preserve_stack_manipulations(block.ops, slice(i, i + wsize), [callsub])
             teal_program.subroutines.append(sub)
             outline_idx += 1
 

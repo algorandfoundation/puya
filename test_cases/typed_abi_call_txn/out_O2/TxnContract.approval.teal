@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 2
-    bytecblock 0x61 0x62
+    intcblock 1 3 0 2
+    bytecblock 0x151f7c75
     txn NumAppArgs
     bz main___algopy_default_create@10
     txn OnCompletion
@@ -18,14 +18,10 @@ main:
     err
 
 main_call_with_acfg_no_return_route@6:
-    txna ApplicationArgs 1
-    callsub __outlined2
-    txn GroupIndex
-    intc_0 // 1
-    -
+    callsub __outlined1
     dup
     gtxns TypeEnum
-    pushint 3 // acfg
+    intc_1 // acfg
     ==
     assert // transaction type is acfg
     callsub __outlined0
@@ -35,21 +31,18 @@ main_call_with_acfg_no_return_route@6:
     return
 
 main_call_with_acfg_route@5:
-    txna ApplicationArgs 1
-    callsub __outlined0
     callsub __outlined1
-    uncover 2
-    bytec_0 // 0x61
+    dup
+    gtxns TypeEnum
+    intc_1 // acfg
     ==
-    assert // a is not a
-    bytec_1 // 0x62
-    ==
-    assert // b is not b
+    assert // transaction type is acfg
+    callsub __outlined0
     gtxns CreatedAssetID
     dup
     assert // expected asset id
     itob
-    pushbytes 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
@@ -57,16 +50,19 @@ main_call_with_acfg_route@5:
     return
 
 main_call_with_txn_route@4:
-    txna ApplicationArgs 1
-    dup
-    intc_1 // 0
     callsub __outlined1
-    txna ApplicationArgs 2
-    dup
-    intc_1 // 0
-    callsub __outlined3
-    callsub __outlined2
     callsub __outlined0
+    dup
+    gtxns TypeEnum
+    intc_1 // acfg
+    ==
+    assert // expected asset config
+    gtxns CreatedAssetID
+    dup
+    assert // expected asset id
+    itob
+    bytec_0 // 0x151f7c75
+    swap
     concat
     log
     intc_0 // 1
@@ -83,54 +79,41 @@ main___algopy_default_create@10:
 
 // __outlined0(__outlined0_param0: any, __outlined0_param1: any) -> any:
 __outlined0:
-    callsub __outlined1
+    txna ApplicationArgs 2
+    dup
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     uncover 2
-    bytec_0 // 0x61
+    pushbytes 0x61
     ==
     assert // a is not a
-    bytec_1 // 0x62
+    pushbytes 0x62
     ==
     assert // b is not b
     retsub
 
 
-// __outlined1() -> any:
+// __outlined1() -> any, any:
 __outlined1:
-    callsub __outlined2
+    txna ApplicationArgs 1
+    dup
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    callsub __outlined3
+    intc_3 // 2
     +
     dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    retsub
-
-
-// __outlined2(__outlined2_param0: any) -> any:
-__outlined2:
-    callsub __outlined3
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    retsub
-
-
-// __outlined3(__outlined3_param0: any, __outlined3_param1: any, __outlined3_param2: any) -> any:
-__outlined3:
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
+    txn GroupIndex
+    intc_0 // 1
+    -
     retsub

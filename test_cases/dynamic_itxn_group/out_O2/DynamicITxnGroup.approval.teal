@@ -3,9 +3,9 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 32 2
+    intcblock 0 1 32 6
     bytecblock 0x65a9aecc "abc"
-    intc_1 // 0
+    intc_0 // 0
     dupn 3
     pushbytes ""
     dupn 8
@@ -26,25 +26,19 @@ main_test_looply_abi_call_route@7:
     dup
     bury 13
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
     bury 10
-    dup
-    intc_2 // 32
-    *
-    intc_3 // 2
-    +
+    callsub __outlined3
     uncover 2
     callsub __outlined0
     bury 3
-    dup
-    gtxns Receiver
-    callsub __outlined2
+    callsub __outlined1
     bury 2
-    intc_0 // 1
+    intc_1 // 1
     bury 4
-    intc_1 // 0
+    intc_0 // 0
     bury 3
 
 main_for_header@15:
@@ -68,11 +62,15 @@ main_after_itxn_begin_next@19:
     dig 12
     itxn_field Receiver
     dig 1
-    callsub __outlined6
-    intc_1 // 0
+    itxn_field Amount
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    intc_0 // 0
     bury 4
     dig 2
-    intc_0 // 1
+    intc_1 // 1
     +
     bury 3
     b main_for_header@15
@@ -87,39 +85,33 @@ main_after_for@25:
     itxn_field ApplicationID
     bytec_0 // method "verify()void"
     itxn_field ApplicationArgs
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     bytec_1 // "abc"
     itxn_field ConfigAssetName
     pushint 3 // acfg
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_test_firstly_abi_call_route@6:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
     bury 8
-    dup
-    intc_2 // 32
-    *
-    intc_3 // 2
-    +
-    dig 2
-    callsub __outlined1
-    dup
-    callsub __outlined2
     callsub __outlined3
-    /
+    dig 2
+    callsub __outlined0
+    bury 4
+    callsub __outlined1
     dup
     bury 4
     itxn_begin
@@ -129,9 +121,7 @@ main_test_firstly_abi_call_route@6:
     swap
     extract 2 32
     itxn_field Receiver
-    itxn_field Amount
-    callsub __outlined0
-    callsub __outlined5
+    callsub __outlined2
     bury 5
 
 main_for_header@23:
@@ -150,7 +140,7 @@ main_for_header@23:
     itxn_next
     itxn_field Receiver
     dig 2
-    callsub __outlined4
+    callsub __outlined2
     +
     bury 5
     b main_for_header@23
@@ -158,23 +148,21 @@ main_for_header@23:
 main_test_looply_route@5:
     txna ApplicationArgs 1
     dup
-    callsub __outlined1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
-    txn GroupIndex
-    intc_0 // 1
-    -
+    bury 13
     dup
-    gtxns TypeEnum
-    intc_0 // pay
-    ==
-    assert // transaction type is pay
-    txna ApplicationArgs 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 9
+    callsub __outlined3
+    uncover 2
     callsub __outlined0
-    intc_0 // 1
+    bury 3
+    callsub __outlined1
+    bury 2
+    intc_1 // 1
     bury 4
-    intc_1 // 0
+    intc_0 // 0
     bury 3
 
 main_for_header@28:
@@ -199,16 +187,15 @@ main_after_itxn_begin_next@32:
     itxn_field Receiver
     dig 1
     itxn_field Amount
-    intc_0 // pay
+    intc_1 // pay
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
-    intc_1 // 0
+    intc_0 // 0
     bury 4
     dig 2
-    intc_0 // 1
+    intc_1 // 1
     +
-    callsub __outlined6
     bury 3
     b main_for_header@28
 
@@ -222,55 +209,62 @@ main_after_for@38:
     itxn_field ApplicationArgs
     dup
     itxn_field ApplicationID
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_next
     bytec_1 // "abc"
     itxn_field ConfigAssetName
     pushint 3 // acfg
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_test_firstly_route@4:
-    callsub __outlined2
-    *
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 11
     callsub __outlined3
-    global CurrentApplicationAddress
-    ==
-    assert // Funds must be sent to app
+    dig 2
+    callsub __outlined0
+    bury 4
+    callsub __outlined1
+    dup
+    bury 4
+    itxn_begin
     dig 1
-    assert // must provide some accounts
-    gtxns Amount
+    extract 2 0
+    bury 13
     swap
-    /
-    callsub __outlined5
-    intc_0 // pay
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    intc_0 // 1
+    extract 2 32
+    itxn_field Receiver
+    callsub __outlined2
     bury 5
 
 main_for_header@36:
     dig 4
-    callsub __outlined5
+    dig 9
+    <
+    bz main_after_for@38
+    dig 4
+    dup
+    intc_2 // 32
+    *
+    dig 12
+    swap
+    intc_2 // 32
     extract3 // on error: index access is out of bounds
     itxn_next
     itxn_field Receiver
     dig 2
-    itxn_field Amount
-    intc_0 // pay
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    callsub __outlined6
-    intc_0 // 1
+    callsub __outlined2
     +
     bury 5
     b main_for_header@36
@@ -286,9 +280,15 @@ main___algopy_default_create@11:
 
 // __outlined0(__outlined0_param0: any, __outlined0_param1: any) -> any, any:
 __outlined0:
-    callsub __outlined1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 2
@@ -301,26 +301,12 @@ __outlined0:
     retsub
 
 
-// __outlined1(__outlined1_param0: any, __outlined1_param1: any) -> any, any:
+// __outlined1(__outlined1_param0: any, __outlined1_param1: any) -> any:
 __outlined1:
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
-    txn GroupIndex
-    intc_0 // 1
-    -
     dup
-    gtxns TypeEnum
-    intc_0 // pay
+    gtxns Receiver
+    global CurrentApplicationAddress
     ==
-    assert // transaction type is pay
-    txna ApplicationArgs 2
-    retsub
-
-
-// __outlined2(__outlined2_param0: any, __outlined2_param1: any, __outlined2_param2: any) -> any:
-__outlined2:
-    callsub __outlined3
     assert // Funds must be sent to app
     dig 1
     assert // must provide some accounts
@@ -330,46 +316,22 @@ __outlined2:
     retsub
 
 
-// __outlined3(__outlined3_param0: any, __outlined3_param1: any, __outlined3_param2: any) -> any, any:
+// __outlined2(__outlined2_param0: any) -> any:
+__outlined2:
+    itxn_field Amount
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    intc_1 // 1
+    retsub
+
+
+// __outlined3(__outlined3_param0: any) -> any, any:
 __outlined3:
-    global CurrentApplicationAddress
-    ==
-    assert // Funds must be sent to app
-    dig 1
-    assert // must provide some accounts
-    gtxns Amount
-    swap
-    retsub
-
-
-// __outlined4(__outlined4_param0: any) -> any:
-__outlined4:
-    callsub __outlined6
-    callsub __outlined5
-    itxn_field Amount
-    intc_0 // pay
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    intc_0 // 1
-    retsub
-
-
-// __outlined5() -> any:
-__outlined5:
-    intc_0 // pay
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
-    intc_0 // 1
-    retsub
-
-
-// __outlined6(__outlined6_param0: any) -> void:
-__outlined6:
-    itxn_field Amount
-    intc_0 // pay
-    itxn_field TypeEnum
-    intc_1 // 0
-    itxn_field Fee
+    dup
+    intc_2 // 32
+    *
+    pushint 2
+    +
     retsub

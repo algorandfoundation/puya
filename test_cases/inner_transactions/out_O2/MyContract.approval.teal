@@ -4,15 +4,15 @@
 // test_cases.inner_transactions.contract.MyContract.approval_program() -> uint64:
 main:
     intcblock 0 3 5 6
-    bytecblock 0x098101 0x31 0x32 0x 0x09361a00b08101 0x756e6974 "name" 0x3135 0x3136 0x77697468206172677320706172616d20736574 0x3432 0x41535432 0x41535431 0x41535433 0x337264
+    bytecblock 0x098101 0x31 0x32 0x41535432 0x09361a00b08101 0x33 0x34 0x35 0x41535431 0x41535433 "name" 0x3130 0x3131 0x3132 0x3133 0x3134 0x3135 0x3136 0x77697468206172677320706172616d20736574 0x3432 0x337264
     intc_0 // 0
     dupn 3
-    bytec_3 // ""
+    pushbytes ""
     dupn 2
     txn ApplicationID
     bnz main_after_if_else@2
-    bytec 6 // "name"
-    bytec_3 // 0x
+    bytec 10 // "name"
+    pushbytes 0x
     app_global_put
 
 main_after_if_else@2:
@@ -120,28 +120,44 @@ main_switch_case_2@6:
     itxn_field ClearStateProgramPages
     bytec 4 // 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    callsub __outlined1
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_next
+    bytec_0 // 0x098101
+    itxn_field ClearStateProgramPages
+    bytec 4 // 0x09361a00b08101
+    itxn_field ApprovalProgramPages
     bytec_2 // 0x32
     callsub __outlined0
+    bytec 5 // 0x33
     callsub __outlined0
+    bytec 6 // 0x34
     callsub __outlined0
+    bytec 7 // 0x35
     callsub __outlined0
+    pushbytes 0x36
     callsub __outlined0
+    pushbytes 0x37
     callsub __outlined0
+    pushbytes 0x38
     callsub __outlined0
+    pushbytes 0x39
     callsub __outlined0
+    bytec 11 // 0x3130
     callsub __outlined0
+    bytec 12 // 0x3131
     callsub __outlined0
+    bytec 13 // 0x3132
     callsub __outlined0
+    bytec 14 // 0x3133
     callsub __outlined0
+    bytec 15 // 0x3134
     callsub __outlined0
+    bytec 16 // 0x3135
     callsub __outlined0
-    bytec 7 // 0x3135
-    itxn_field ApplicationArgs
-    intc_2 // DeleteApplication
-    callsub __outlined1
-    itxn_field ApprovalProgramPages
-    bytec 8 // 0x3136
+    bytec 17 // 0x3136
     itxn_field ApplicationArgs
     intc_2 // DeleteApplication
     itxn_field OnCompletion
@@ -161,15 +177,15 @@ main_switch_case_2@6:
     ==
     assert
     gitxna 2 Logs 0
-    pushbytes 0x33
+    bytec 5 // 0x33
     ==
     assert
     gitxna 3 Logs 0
-    pushbytes 0x34
+    bytec 6 // 0x34
     ==
     assert
     gitxna 4 Logs 0
-    pushbytes 0x35
+    bytec 7 // 0x35
     ==
     assert
     gitxna 5 Logs 0
@@ -189,31 +205,31 @@ main_switch_case_2@6:
     ==
     assert
     gitxna 9 Logs 0
-    pushbytes 0x3130
+    bytec 11 // 0x3130
     ==
     assert
     gitxna 10 Logs 0
-    pushbytes 0x3131
+    bytec 12 // 0x3131
     ==
     assert
     gitxna 11 Logs 0
-    pushbytes 0x3132
+    bytec 13 // 0x3132
     ==
     assert
     gitxna 12 Logs 0
-    pushbytes 0x3133
+    bytec 14 // 0x3133
     ==
     assert
     gitxna 13 Logs 0
-    pushbytes 0x3134
+    bytec 15 // 0x3134
     ==
     assert
     gitxna 14 Logs 0
-    bytec 7 // 0x3135
+    bytec 16 // 0x3135
     ==
     assert
     itxna Logs 0
-    bytec 8 // 0x3136
+    bytec 17 // 0x3136
     ==
     assert
     !=
@@ -223,7 +239,7 @@ main_switch_case_2@6:
 main_switch_case_1@5:
     intc_0 // 0
     bury 5
-    bytec_3 // ""
+    pushbytes ""
     bury 1
     txn NumAppArgs
     bz main_else_body@33
@@ -237,7 +253,7 @@ main_switch_case_1@5:
     bury 1
     pushint 1
     bury 2
-    bytec 9 // 0x77697468206172677320706172616d20736574
+    bytec 18 // 0x77697468206172677320706172616d20736574
 
 main_after_if_else@34:
     itxn_begin
@@ -260,7 +276,7 @@ main_next_field@36:
     itxn_field ApplicationArgs
 
 main_next_field@38:
-    callsub __outlined3
+    callsub __outlined2
     itxn_submit
     itxn Note
     bury 4
@@ -277,28 +293,28 @@ main_next_field@38:
     >
     bz main_after_if_else@9
     itxn_begin
-    bytec 10 // 0x3432
+    bytec 19 // 0x3432
     itxn_field ApplicationArgs
     intc_2 // DeleteApplication
-    callsub __outlined3
-    itxn_field Fee
+    itxn_field OnCompletion
+    callsub __outlined2
     itxn_submit
     itxna ApplicationArgs 0
-    bytec 10 // 0x3432
+    bytec 19 // 0x3432
     ==
     assert // correct args used 2
     dig 3
-    bytec 9 // 0x77697468206172677320706172616d20736574
+    bytec 18 // 0x77697468206172677320706172616d20736574
     ==
     assert
     b main_after_if_else@9
 
 main_else_body@33:
-    pushbytes 0x33
+    bytec 5 // 0x33
     bury 7
-    pushbytes 0x34
+    bytec 6 // 0x34
     bury 6
-    pushbytes 0x35
+    bytec 7 // 0x35
     bury 5
     intc_1 // 3
     bury 3
@@ -310,72 +326,68 @@ main_else_body@33:
 main_switch_case_0@4:
     global CurrentApplicationAddress
     dup
-    bytec 6 // "name"
-    bytec 11 // 0x41535432
+    bytec 10 // "name"
+    bytec_3 // 0x41535432
     app_global_put
     itxn_begin
     dup
     itxn_field ConfigAssetReserve
     dig 1
-    itxn_field ConfigAssetManager
-    intc_1 // 3
-    itxn_field ConfigAssetDecimals
-    bytec 5 // 0x756e6974
-    itxn_field ConfigAssetUnitName
-    bytec 12 // 0x41535431
-    callsub __outlined2
+    callsub __outlined3
+    bytec 8 // 0x41535431
+    callsub __outlined1
     itxn CreatedAssetID
     itxn_begin
     dig 2
     itxn_field ConfigAssetReserve
     dig 3
-    itxn_field ConfigAssetManager
-    intc_1 // 3
-    itxn_field ConfigAssetDecimals
-    bytec 5 // 0x756e6974
-    itxn_field ConfigAssetUnitName
-    callsub __outlined2
-    itxn ConfigAssetName
+    callsub __outlined3
+    bytec_3 // 0x41535432
+    callsub __outlined1
     itxn CreatedAssetID
     uncover 3
-    bytec 12 // 0x41535431
+    bytec 8 // 0x41535431
     ==
     assert // asset1_txn is correct
-    callsub __outlined3
+    swap
+    bytec_3 // 0x41535432
+    ==
+    assert // asset2_txn is correct
+    swap
+    asset_params_get AssetName
+    assert // asset exists
+    bytec 8 // 0x41535431
     ==
     assert // created asset 1 is correct
     asset_params_get AssetName
     assert // asset exists
-    bytec 11 // 0x41535432
+    bytec_3 // 0x41535432
     ==
     assert // created asset 2 is correct
     itxn_begin
-    callsub __outlined4
-    itxn_field Fee
+    callsub __outlined2
     itxn_next
     dup
+    itxn_field ConfigAssetReserve
+    dig 1
     callsub __outlined3
-    itxn ConfigAssetName
+    bytec 9 // 0x41535433
+    callsub __outlined1
     gitxn 0 CreatedApplicationID
     assert // created app
-    bytec 13 // 0x41535433
+    bytec 9 // 0x41535433
     ==
     assert // asset3_txn is correct
     itxn_begin
-    bytec 14 // 0x337264
-    callsub __outlined4
-    intc_0 // 0
-    itxn_field Fee
+    bytec 20 // 0x337264
+    itxn_field Note
+    callsub __outlined2
     itxn_next
-    bytec 14 // 0x337264
+    bytec 20 // 0x337264
     itxn_field Note
     itxn_field ConfigAssetReserve
-    itxn_field ConfigAssetManager
-    intc_1 // 3
-    itxn_field ConfigAssetDecimals
-    bytec 5 // 0x756e6974
-    itxn_field ConfigAssetUnitName
-    bytec 13 // 0x41535433
+    callsub __outlined3
+    bytec 9 // 0x41535433
     itxn_field ConfigAssetName
     pushint 1000
     itxn_field ConfigAssetTotal
@@ -389,17 +401,9 @@ main_switch_case_0@4:
 
 // __outlined0(__outlined0_param0: any) -> void:
 __outlined0:
-    callsub __outlined1
-    itxn_next
-    bytec_0 // 0x098101
-    itxn_field ClearStateProgramPages
-    bytec 4 // 0x09361a00b08101
-    itxn_field ApprovalProgramPages
-    retsub
-
-
-// __outlined1() -> void:
-__outlined1:
+    itxn_field ApplicationArgs
+    intc_2 // DeleteApplication
+    itxn_field OnCompletion
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -412,8 +416,8 @@ __outlined1:
     retsub
 
 
-// __outlined2(__outlined2_param0: any) -> any:
-__outlined2:
+// __outlined1(__outlined1_param0: any) -> any:
+__outlined1:
     itxn_field ConfigAssetName
     pushint 1000
     itxn_field ConfigAssetTotal
@@ -426,9 +430,10 @@ __outlined2:
     retsub
 
 
-// __outlined3() -> void:
-__outlined3:
-    callsub __outlined4
+// __outlined2() -> void:
+__outlined2:
+    bytec_0 // 0x098101
+    itxn_field ClearStateProgramPages
     bytec_0 // 0x098101
     itxn_field ApprovalProgramPages
     intc_3 // appl
@@ -438,13 +443,11 @@ __outlined3:
     retsub
 
 
-// __outlined4() -> any:
-__outlined4:
-    bytec_0 // 0x098101
-    itxn_field ClearStateProgramPages
-    bytec_0 // 0x098101
-    itxn_field ApprovalProgramPages
-    intc_3 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
+// __outlined3(__outlined3_param0: any) -> void:
+__outlined3:
+    itxn_field ConfigAssetManager
+    intc_1 // 3
+    itxn_field ConfigAssetDecimals
+    pushbytes 0x756e6974
+    itxn_field ConfigAssetUnitName
     retsub

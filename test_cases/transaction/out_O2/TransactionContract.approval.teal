@@ -236,11 +236,7 @@ main_application_call_route@8:
     return
 
 main_asset_freeze_route@7:
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
+    callsub __outlined0
     pushint 5 // afrz
     ==
     assert // transaction type is afrz
@@ -253,7 +249,6 @@ main_asset_freeze_route@7:
     gtxns FreezeAssetAccount
     global ZeroAddress
     !=
-    callsub __outlined0
     assert // freeze_account
     gtxns FreezeAssetFrozen
     assert // frozen
@@ -261,11 +256,7 @@ main_asset_freeze_route@7:
     return
 
 main_asset_transfer_route@6:
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
+    callsub __outlined0
     pushint 4 // axfer
     ==
     assert // transaction type is axfer
@@ -283,7 +274,11 @@ main_asset_transfer_route@6:
     !=
     assert // asset_sender
     dup
-    callsub __outlined0
+    gtxns AssetReceiver
+    global ZeroAddress
+    !=
+    assert // asset_receiver
+    gtxns AssetCloseTo
     global ZeroAddress
     !=
     assert // asset_close_to
@@ -291,11 +286,7 @@ main_asset_transfer_route@6:
     return
 
 main_asset_config_route@5:
-    txn GroupIndex
-    intc_0 // 1
-    -
-    dup
-    gtxns TypeEnum
+    callsub __outlined0
     intc_3 // acfg
     ==
     assert // transaction type is acfg
@@ -331,7 +322,11 @@ main_asset_config_route@5:
     !=
     assert // manager
     dup
-    callsub __outlined0
+    gtxns ConfigAssetReserve
+    global ZeroAddress
+    !=
+    assert // reserve
+    dup
     gtxns ConfigAssetFreeze
     global ZeroAddress
     !=
@@ -344,10 +339,10 @@ main_asset_config_route@5:
     return
 
 main_key_route@4:
-    txn GroupIndex
-    intc_0 // 1
-    -
     callsub __outlined0
+    intc_2 // keyreg
+    ==
+    assert // transaction type is keyreg
     dup
     callsub _common_checks
     dup
@@ -365,8 +360,8 @@ main_key_route@4:
     return
 
 main_pay_route@3:
-    txn GroupIndex
     callsub __outlined0
+    intc_0 // pay
     ==
     assert // transaction type is pay
     dup
