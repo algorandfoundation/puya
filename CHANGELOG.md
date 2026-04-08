@@ -6,6 +6,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.8.0'></a>
+## v5.8.0 (2026-04-08)
+
+### Added
+
+- Added support for boxes >4k containing dynamic arrays of fixed size elements.
+
+- Allow native `algopy.Struct` instances to be emitted by `arc4.emit()`. Fields are automatically converted to their ARC-4 equivalents.
+
+- Support for arguments in logic signatures, including a field in the `@logicsig` decorator, `@logicsig(validate_encoding="args" | "unsafe_disabled")`, which defaults to `"args"` according to the `--validate_abi_args` compiler flag.
+
+- Round-trip encoding of ARC-4 integers via `BigUInt` is now optimized away.
+- Round-trip encoding of ARC-4 integers smaller than 64-bits via native `UInt64` is now
+  optimized away.
+
+- Support for using op. intrinsics that take bytes as arguments with any `BytesBacked` value directly (i.e. anything that is represented as a byteslice at the TEAL level; arc4 types, structs, arrays, strings, etc.).
+
+- Added support for global storage maps with new type `algopy.GlobalMap`
+- Added support for local storage maps with new type `algopy.LocalMap`
+
+- Added assembly reports (`.assembly-report` files) that allow mapping a
+  program counter to the corresponding contract bytes, teal instructions and
+  source code. This option can be enabled via `--output-assembly-report`, and
+  can be explicitly disabled via `--no-output-assembly-report`. It is disabled by default.
+
+- `arc4.encode(.)` and `arc4.decode(.)` helper functions, useful for encoding/decoding **any** arc4-encodable typed values; whether they are native or (trivially) already an arc4 type.
+
+### Changed
+
+- `arc4.abi_call` and `itxn.abi_call` now warn when passing literal values without type information in the method signature, as implicit type conversion may not match the intended ABI type.
+    ```python
+    arc4.abi_call("foo", 256, app_id=app)  # warns: implicit conversion
+    arc4.abi_call("foo(uint64)void", 256, app_id=app)  # ok
+    arc4.abi_call("foo", UInt64(256), app_id=app)  # ok
+    ```
+
+- Improved error message for unsupported ARC-4 method types to provide more accurate source locations.
+
+- Encoding validation error messages for non-ARC4 types (e.g. `Account`, `FixedBytes[N]`) now reference the original type name instead of the mapped ARC4 type.
+
+- Support for logged errors and assertions on chain (see ARC65 for more details).
+  Two functions added to handle this: `algopy._util.logged_assert()` and `algopy._util.logged_err()`
+
+### Fixed
+
+- Improved handling of circular dependencies in Python imports.
+- Fixed an internal error when source locations for an if block body are missing after analysis.
+
+- Fixed optimizer incorrectly eliminating round-trip encoding of large ARC-4 integers (N>64) via `UInt64`.
+
 <a id='changelog-v5.7.1'></a>
 ## v5.7.1 (2026-01-23)
 
