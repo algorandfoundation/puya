@@ -86,7 +86,7 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
         param_names = [f"{sub_name}_param{i}" for i in range(entry_height)]
         block = TealBlock(
             label=sub_name,
-            ops=list(win) + [RetSub(consumes=exit_height, source_location=None)],
+            ops=[attrs.evolve(op, stack_manipulations=()) for op in win] + [RetSub(consumes=exit_height, source_location=None)],
             x_stack_in=(),
             entry_stack_height=entry_height,
             exit_stack_height=0,
@@ -107,8 +107,6 @@ def do_outlining_for(teal_program: TealProgram, wsize: int, outline_idx: int) ->
             blocks=[block],
             source_location=None,
         )
-        # FIXME: Hack! Add a dummy annotation to the first instruction defining all our parameters
-        block.ops[0] = attrs.evolve(block.ops[0], stack_manipulations=[StackExtend(param_names), StackDefine(param_names), *block.ops[0].stack_manipulations])
 
         def get_matches() -> list[tuple[TealBlock, int]]:
             matches = list[tuple[TealBlock, int]]()
