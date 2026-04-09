@@ -1,0 +1,46 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.undefined_phi_args.runtime_dominance.RuntimeDominance.approval_program() -> uint64:
+main:
+    intcblock 1 42
+    intc_0 // 1
+    callsub runtime_dominance
+    pushint 2
+    ==
+    assert
+    pushint 0
+    callsub runtime_dominance
+    intc_1 // 42
+    ==
+    assert
+    intc_0 // 1
+    return
+
+
+// test_cases.undefined_phi_args.runtime_dominance.runtime_dominance(cond: uint64) -> uint64:
+runtime_dominance:
+    proto 1 1
+    pushbytes ""
+    frame_dig -1
+    bz runtime_dominance_after_if_else@2
+    intc_0 // 1
+    frame_bury 0
+
+runtime_dominance_after_if_else@2:
+    txn NumAppArgs
+    !
+    assert
+    frame_dig -1
+    bz runtime_dominance_else_body@4
+    frame_dig 0
+    intc_0 // 1
+    +
+
+runtime_dominance_after_if_else@5:
+    swap
+    retsub
+
+runtime_dominance_else_body@4:
+    intc_1 // 42
+    b runtime_dominance_after_if_else@5
