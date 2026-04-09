@@ -50,7 +50,14 @@ from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
-from puya.utils import lazy_setdefault, symmetric_mapping, unique
+from puya.utils import (
+    Address,
+    biguint_bytes_eval,
+    lazy_setdefault,
+    method_selector_hash,
+    symmetric_mapping,
+    unique,
+)
 
 logger = log.get_logger(__name__)
 
@@ -188,7 +195,24 @@ class _CallSubKey(_ProviderKey):
     arg_vns: tuple[VN, ...]
 
 
-_ConstType: typing.TypeAlias = models.Constant | models.TemplateVar
+@attrs.frozen(kw_only=True)
+class _ConstKey:
+    """Base class for canonical "constant" keys used in the GVN expression table."""
+
+
+@attrs.frozen(kw_only=True)
+class _UInt64ConstKey(_ConstKey):
+    value: int
+
+
+@attrs.frozen(kw_only=True)
+class _BytesConstKey(_ConstKey):
+    value: bytes
+
+
+@attrs.frozen(kw_only=True)
+class _TemplateVarKey(_ConstKey):
+    name: str
 
 
 @attrs.define
@@ -205,7 +229,7 @@ class _GVNTables:
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
-    const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
+    const_vn: dict[_ConstKey, VN] = attrs.field(factory=dict)
     comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
 
     def next_vn(self) -> VN:
@@ -555,41 +579,52 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 f"SSA invariant violated: no dominating definition for {reg}"
             ) from None
 
-    def _const_vn(self, const: _ConstType) -> tuple[VN, ...]:
+    def _const_vn(self, const: _ConstKey) -> tuple[VN, ...]:
         vn = lazy_setdefault(self._tables.const_vn, const, lambda _: self._tables.next_vn())
         return (vn,)
 
     @typing.override
     def visit_uint64_constant(self, const: models.UInt64Constant) -> tuple[VN, ...]:
-        return self._const_vn(const)
+        key = _UInt64ConstKey(value=const.value)
+        return self._const_vn(key)
 
     @typing.override
     def visit_biguint_constant(self, const: models.BigUIntConstant) -> tuple[VN, ...]:
-        return self._const_vn(const)
+        evald = biguint_bytes_eval(const.value)
+        key = _BytesConstKey(value=evald)
+        return self._const_vn(key)
 
     @typing.override
     def visit_bytes_constant(self, const: models.BytesConstant) -> tuple[VN, ...]:
-        return self._const_vn(const)
+        key = _BytesConstKey(value=const.value)
+        return self._const_vn(key)
 
     @typing.override
     def visit_address_constant(self, const: models.AddressConstant) -> tuple[VN, ...]:
-        return self._const_vn(const)
+        evald = Address.parse(const.value).public_key
+        key = _BytesConstKey(value=evald)
+        return self._const_vn(key)
 
     @typing.override
     def visit_method_constant(self, const: models.MethodConstant) -> tuple[VN, ...]:
-        return self._const_vn(const)
+        evald = method_selector_hash(const.value)
+        key = _BytesConstKey(value=evald)
+        return self._const_vn(key)
 
     @typing.override
     def visit_itxn_constant(self, const: models.ITxnConstant) -> tuple[VN, ...]:
-        return self._const_vn(const)
+        # not sure we should be messing with these, give it a fresh VN
+        return self._fresh_vns(const)
 
     @typing.override
     def visit_slot_constant(self, const: models.SlotConstant) -> tuple[VN, ...]:
-        return self._const_vn(const)
+        key = _UInt64ConstKey(value=const.value)
+        return self._const_vn(key)
 
     @typing.override
     def visit_template_var(self, deploy_var: models.TemplateVar) -> tuple[VN, ...]:
-        return self._const_vn(deploy_var)
+        key = _TemplateVarKey(name=deploy_var.name)
+        return self._const_vn(key)
 
 
 class GVNBlockVisitor(NoOpIRVisitor[None]):
