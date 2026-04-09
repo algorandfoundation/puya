@@ -513,6 +513,44 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         arg_vns=comp.arg_vns,
                     )
                     return self._lookup_or_assign(inverse_key, intrinsic)
+
+        match arg_vns:
+            case [vn1, vn2] if vn1 == vn2:
+                match op:
+                    case (
+                        AVMOp.neq
+                        | AVMOp.neq_bytes
+                        | AVMOp.lt
+                        | AVMOp.lt_bytes
+                        | AVMOp.gt
+                        | AVMOp.gt_bytes
+                        | AVMOp.bitwise_xor
+                        | AVMOp.bitwise_xor_bytes
+                        | AVMOp.sub
+                        | AVMOp.sub_bytes
+                    ):
+                        const_key = _UInt64ConstKey(value=0)
+                        return self._const_vn(const_key)
+                    case (
+                        AVMOp.eq
+                        | AVMOp.eq_bytes
+                        | AVMOp.lte
+                        | AVMOp.lte_bytes
+                        | AVMOp.gte
+                        | AVMOp.gte_bytes
+                        | AVMOp.div_floor
+                        | AVMOp.div_floor_bytes
+                    ):
+                        const_key = _UInt64ConstKey(value=1)
+                        return self._const_vn(const_key)
+                    case (
+                        AVMOp.bitwise_and
+                        | AVMOp.bitwise_and_bytes
+                        | AVMOp.bitwise_or
+                        | AVMOp.bitwise_or_bytes
+                    ):
+                        return (vn1,)
+
         op_key = op
         if op in _COMMUTATIVE_OPS:
             arg_vns = tuple(sorted(arg_vns))
