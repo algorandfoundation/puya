@@ -26,7 +26,6 @@ from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.itxn_field_elision import elide_itxn_field_calls
 from puya.ir.optimize.repeated_aggregate_reads_merge import merge_chained_aggregate_reads
-from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
 from puya.ir.optimize.repeated_loads_elimination import (
     constant_reads_and_unobserved_writes_elimination,
 )
@@ -92,7 +91,6 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(remove_linear_jumps),
         SubroutineOptimization.from_function(remove_unreachable_blocks),
         SubroutineOptimization.from_function(global_value_numbering),
-        SubroutineOptimization.from_function(repeated_expression_elimination),
         SubroutineOptimization.from_function(encode_decode_pair_elimination),
         SubroutineOptimization.from_function(merge_chained_aggregate_reads, min_level=0),
         SubroutineOptimization.from_function(replace_aggregate_box_ops, min_level=0),

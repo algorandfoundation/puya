@@ -55,6 +55,7 @@ from puya.utils import (
     biguint_bytes_eval,
     lazy_setdefault,
     method_selector_hash,
+    set_add,
     symmetric_mapping,
     unique,
 )
@@ -293,16 +294,25 @@ def _build_equivalence_sets(
 
     def _walk(
         block: models.BasicBlock,
-        vn_to_rep: dict[tuple[VN, _MaybeAVMType], models.Register],
+        vn_to_rep: Mapping[tuple[VN, _MaybeAVMType], models.Register],
+        asserted_: Set[VN | models.Value],
     ) -> None:
         nonlocal modified
 
-        scope = vn_to_rep.copy()
+        scope = dict(vn_to_rep)
+        asserted = set(asserted_)
         # TODO: maybe remove redundant definitions as we go?
         for phi in block.phis:
             _process(phi.register, scope)
-        for op in block.ops:
-            if isinstance(op, models.Assignment):
+        for op in block.ops.copy():
+            if isinstance(op, models.Assert):
+                if isinstance(op.condition, models.Register):
+                    condition_vn = tables.register_vn[op.condition]
+                    if not set_add(asserted, condition_vn):
+                        modified = True
+                        block.ops.remove(op)
+                        logger.debug(f"removing redundant assert of {op.condition}")
+            elif isinstance(op, models.Assignment):
                 if len(op.targets) == 1 and not isinstance(op.source, models.Constant):
                     (target,) = op.targets
                     target_vn = tables.register_vn[target]
@@ -327,9 +337,9 @@ def _build_equivalence_sets(
                     for target in op.targets:
                         _process(target, scope)
         for child in dom_tree.get(block, []):
-            _walk(child, scope)
+            _walk(child, scope, asserted)
 
-    _walk(start, initial_scope)
+    _walk(start, initial_scope, set())
     return modified, [s for s in all_sets.values() if len(s) > 1]
 
 
@@ -870,30 +880,29 @@ def global_value_numbering(_context: CompileContext, subroutine: models.Subrouti
 
     _refine_phi_congruence(subroutine, eliminated, register_map)
 
-    if not register_map:
-        return modified
+    if register_map:
+        logger.debug(f"GVN: {len(register_map)} replacement(s) in {subroutine.id}")
+        replacer = MemoryReplacer(replacements=register_map)
+        for block in subroutine.body:
+            phis = []
+            for phi in block.phis:
+                if phi.register in eliminated:
+                    modified = True
+                else:
+                    phi.accept(replacer)
+                    phis.append(phi)
+            block.phis[:] = phis
+            ops = []
+            for op in block.ops:
+                if isinstance(op, models.Assignment) and eliminated.issuperset(op.targets):
+                    modified = True
+                else:
+                    op.accept(replacer)
+                    ops.append(op)
+            block.ops[:] = ops
+            if block.terminator is not None:
+                block.terminator.accept(replacer)
+        if replacer.replaced:
+            modified = True
 
-    logger.debug(f"GVN: {len(register_map)} replacement(s) in {subroutine.id}")
-    replacer = MemoryReplacer(replacements=register_map)
-    for block in subroutine.body:
-        phis = []
-        for phi in block.phis:
-            if phi.register in eliminated:
-                modified = True
-            else:
-                phi.accept(replacer)
-                phis.append(phi)
-        block.phis[:] = phis
-        ops = []
-        for op in block.ops:
-            if isinstance(op, models.Assignment) and eliminated.issuperset(op.targets):
-                modified = True
-            else:
-                op.accept(replacer)
-                ops.append(op)
-        block.ops[:] = ops
-        if block.terminator is not None:
-            block.terminator.accept(replacer)
-    if replacer.replaced:
-        modified = True
     return modified
