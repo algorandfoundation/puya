@@ -36,7 +36,6 @@ import attrs
 import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
-from puya.avm import AVMType
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import (
@@ -202,30 +201,15 @@ class _GVNTables:
 
     # --- Global: shared by reference across all scopes ---
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
-    _equivalences: dict[tuple[VN, AVMType], list[models.Register]] = attrs.field(factory=dict)
-    # --- Scoped: copied on child_scope() ---
     register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
     const_vn: dict[_ConstType, VN] = attrs.field(factory=dict)
     comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
 
-    def child_scope(self) -> typing.Self:
-        """Create a child scope for dominator-tree descent.
-
-        Scoped dicts are shallow-copied; global state is shared by reference.
-        """
-        return attrs.evolve(
-            self,
-            register_vn=self.register_vn.copy(),
-            provider_key_to_vns=self.provider_key_to_vns.copy(),
-            const_vn=self.const_vn.copy(),
-            comparison_exprs=self.comparison_exprs.copy(),
-        )
-
     def next_vn(self) -> VN:
         return next(self._vn_counter)
 
-    def set_register_vn(self, reg: models.Register, vn: VN, *, replaceable: bool = True) -> None:
+    def set_register_vn(self, reg: models.Register, vn: VN) -> None:
         """Assign a VN to a register.
 
         Use replaceable=False for constant copies where the register needs a VN
@@ -236,19 +220,19 @@ class _GVNTables:
                 f"register {reg} already has VN={self.register_vn[reg]}", reg.source_location
             )
         self.register_vn[reg] = vn
-        if replaceable:
-            maybe_avm_type = reg.ir_type.maybe_avm_type
-            if not isinstance(maybe_avm_type, str):
-                self._equivalences.setdefault((vn, maybe_avm_type), []).append(reg)
 
     def assign_register_fresh_vn(self, reg: models.Register) -> VN:
         vn = self.next_vn()
         self.set_register_vn(reg, vn)
         return vn
 
-    @property
-    def equivalence_sets(self) -> Collection[Sequence[models.Register]]:
-        return self._equivalences.values()
+
+def _build_equivalence_sets(
+    tables: _GVNTables,
+    dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
+    block: models.BasicBlock,
+) -> Collection[Sequence[models.Register]]:
+    raise NotImplementedError
 
 
 def build_replacements(
@@ -573,17 +557,17 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         """
         source = ass.source
         vns = source.accept(self.provider_vn_builder)
-        match source:
-            case models.Register():
-                replaceable = True
-            case models.Value():
-                replaceable = False
-            case models.Intrinsic(args=[]):
-                replaceable = False
-            case _:
-                replaceable = True
+        # match source:
+        #     case models.Register():
+        #         replaceable = True
+        #     case models.Value():
+        #         replaceable = False
+        #     case models.Intrinsic(args=[]):
+        #         replaceable = False
+        #     case _:
+        #         replaceable = True
         for target, vn in zip(ass.targets, vns, strict=True):
-            self.tables.set_register_vn(target, vn, replaceable=replaceable)
+            self.tables.set_register_vn(target, vn)
 
     @typing.override
     def visit_phi(self, phi: models.Phi) -> None:
@@ -644,7 +628,7 @@ def _process_blocks_pre_order(
         op.accept(visitor)
 
     for child in dom_tree.get(block, []):
-        _process_blocks_pre_order(tables.child_scope(), dom_tree, child)
+        _process_blocks_pre_order(tables, dom_tree, child)
 
 
 def _refine_phi_congruence(
@@ -709,18 +693,27 @@ def _refine_phi_congruence(
             logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
 
 
+def _number_values(
+    subroutine: models.Subroutine,
+    dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
+    start: models.BasicBlock,
+) -> _GVNTables:
+    tables = _GVNTables()
+    for param in subroutine.parameters:
+        tables.assign_register_fresh_vn(param)
+    _process_blocks_pre_order(tables, dom_tree, start)
+    return tables
+
+
 def global_value_numbering(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     """Run GVN on a subroutine.
 
     Flow: hash-based numbering -> SCC phi congruence -> eliminate.
     """
-    tables = _GVNTables()
-    for param in subroutine.parameters:
-        tables.assign_register_fresh_vn(param)
-
     start, dom_tree = compute_dominator_tree(subroutine)
-    _process_blocks_pre_order(tables, dom_tree, start)
-    eliminated, register_map = build_replacements(subroutine, tables.equivalence_sets)
+    tables = _number_values(subroutine, dom_tree, start)
+    equivalence_sets = _build_equivalence_sets(tables, dom_tree, start)
+    eliminated, register_map = build_replacements(subroutine, equivalence_sets)
 
     _refine_phi_congruence(subroutine, eliminated, register_map)
 
