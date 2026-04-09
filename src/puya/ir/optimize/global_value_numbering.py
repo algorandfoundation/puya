@@ -20,6 +20,11 @@ Correctness:
     2. Dominance: preorder dominator-tree walk ensures replacements only reference
        registers from dominating blocks.
     3. Conservative default: anything not explicitly handled gets a fresh VN.
+
+TODO:
+    - algebraic identities
+    - const intrinsic results
+    - byte constant equivalences
 """
 
 import itertools
@@ -29,7 +34,6 @@ from functools import cached_property
 
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
-from immutabledict import immutabledict
 
 from puya import log
 from puya.avm import AVMType
@@ -45,7 +49,7 @@ from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
-from puya.utils import lazy_setdefault, symmetric_mapping
+from puya.utils import lazy_setdefault, symmetric_mapping, unique
 
 logger = log.get_logger(__name__)
 
@@ -183,7 +187,6 @@ class _CallSubKey(_ProviderKey):
     arg_vns: tuple[VN, ...]
 
 
-_PhiArgVNs: typing.TypeAlias = immutabledict[models.BasicBlock, VN]
 _ConstType: typing.TypeAlias = models.Constant | models.TemplateVar
 
 
@@ -549,7 +552,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 class GVNBlockVisitor(NoOpIRVisitor[None]):
     def __init__(self, tables: _GVNTables):
         self.tables = tables
-        self.phi_table = dict[_PhiArgVNs, VN]()
+        self.phi_table = dict[frozenset[tuple[models.BasicBlock, VN | models.Register]], VN]()
 
     @cached_property
     def provider_vn_builder(self) -> _ProviderVNBuilder:
@@ -584,34 +587,41 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         Redundant phis (all args same VN) get the common VN.
         Non-redundant phis are hashed to detect congruent phis at the same block.
         """
+        # A phi with no args is essentially undefined, and this can only occur in the entry block.
+        # We don't treat Undefined as being a singleton, each instance is considered unique for our
+        # purposes here - so treat no-arg phis the same.
         if not phi.args:
             self.tables.assign_register_fresh_vn(phi.register)
             return
 
-        try:
-            pairs = [(arg.through, self.tables.register_vn[arg.value]) for arg in phi.args]
-        except KeyError:
-            # If a register has not been numbered yet (e.g. a phi argument from a back edge),
-            # it will not be in the map - in which case to avoid issues, we just give the
-            # phi a new VN, and if there's a redundancy let _refine_phi_congruence sort it out
-            self.tables.assign_register_fresh_vn(phi.register)
-            return
-
-        phi_arg_vns = _PhiArgVNs(pairs)
-        unique_vns = set(phi_arg_vns.values())
-        if len(unique_vns) == 1:
-            # Redundant phi: all arguments have the same VN
-            (the_vn,) = unique_vns
-            self.tables.set_register_vn(phi.register, the_vn)
-            logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={the_vn})")
-        else:
-            # Non-redundant phi: hash by arg VNs to detect congruent phis at the same block
-            existing_vn = self.phi_table.get(phi_arg_vns)
-            if existing_vn is not None:
-                self.tables.set_register_vn(phi.register, existing_vn)
-                logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
-            else:
-                self.phi_table[phi_arg_vns] = self.tables.assign_register_fresh_vn(phi.register)
+        # If a register has not been numbered yet (e.g. a phi argument from a back edge),
+        # it will not be in the map - in which case to avoid issues, we just use the register
+        # itself as the "VN" here in the phis of this block only.
+        # This approach is less powerful than if we could somehow assign the "true VN" for
+        # each register now without issue, but it is more powerful than the following alternatives:
+        # - Ignoring phis with args without a VN yet.
+        # - Assigning a register a new VN each time it's seen in a phi arg without caching.
+        # Due to the definition of Register equality, it's equivalent to assigning each un-numbered
+        # phi-arg register a unique VN within the phis of that block, but without the additional
+        # bookkeeping required to do so.
+        vns_dict = {
+            arg.through: self.tables.register_vn.get(arg.value, arg.value) for arg in phi.args
+        }
+        match unique(vns_dict.values()):
+            case [VN() as unique_vn]:
+                self.tables.set_register_vn(phi.register, unique_vn)
+                logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={unique_vn})")
+            case _:
+                # TODO: handle single Register? for now just give it a VN and move on
+                phi_arg_vns = frozenset(vns_dict.items())
+                existing_vn = self.phi_table.get(phi_arg_vns)
+                if existing_vn is not None:
+                    self.tables.set_register_vn(phi.register, existing_vn)
+                    logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
+                else:
+                    self.phi_table[phi_arg_vns] = self.tables.assign_register_fresh_vn(
+                        phi.register
+                    )
 
 
 def _process_blocks_pre_order(
