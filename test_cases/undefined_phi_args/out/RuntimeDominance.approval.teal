@@ -1,0 +1,69 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.undefined_phi_args.runtime_dominance.RuntimeDominance.approval_program() -> uint64:
+main:
+    intcblock 1 42
+    // undefined_phi_args/runtime_dominance.py:6
+    // assert runtime_dominance(True) == 2
+    intc_0 // 1
+    callsub runtime_dominance
+    pushint 2
+    ==
+    assert
+    // undefined_phi_args/runtime_dominance.py:7
+    // assert runtime_dominance(False) == 42
+    pushint 0
+    callsub runtime_dominance
+    intc_1 // 42
+    ==
+    assert
+    // undefined_phi_args/runtime_dominance.py:8
+    // return True
+    intc_0 // 1
+    return
+
+
+// test_cases.undefined_phi_args.runtime_dominance.runtime_dominance(cond: uint64) -> uint64:
+runtime_dominance:
+    // undefined_phi_args/runtime_dominance.py:14-15
+    // @subroutine(inline=False)
+    // def runtime_dominance(cond: bool) -> UInt64:
+    proto 1 1
+    pushbytes ""
+    // undefined_phi_args/runtime_dominance.py:16
+    // if cond:
+    frame_dig -1
+    bz runtime_dominance_after_if_else@2
+    // undefined_phi_args/runtime_dominance.py:17
+    // x = UInt64(1)
+    intc_0 // 1
+    frame_bury 0
+
+runtime_dominance_after_if_else@2:
+    // undefined_phi_args/runtime_dominance.py:18
+    // assert Txn.num_app_args == 0
+    txn NumAppArgs
+    !
+    assert
+    // undefined_phi_args/runtime_dominance.py:19
+    // if cond:
+    frame_dig -1
+    bz runtime_dominance_else_body@4
+    // undefined_phi_args/runtime_dominance.py:20
+    // y = x + 1
+    frame_dig 0
+    intc_0 // 1
+    +
+
+runtime_dominance_after_if_else@5:
+    // undefined_phi_args/runtime_dominance.py:23
+    // return y
+    swap
+    retsub
+
+runtime_dominance_else_body@4:
+    // undefined_phi_args/runtime_dominance.py:22
+    // y = UInt64(42)
+    intc_1 // 42
+    b runtime_dominance_after_if_else@5
