@@ -36,7 +36,7 @@ from functools import cached_property
 import attrs
 import networkx as nx  # type: ignore[import-untyped]
 
-from puya import log
+from puya import algo_constants, log
 from puya.avm import AVMType
 from puya.context import CompileContext
 from puya.errors import InternalError
@@ -261,14 +261,21 @@ def _build_equivalence_sets(
     tables: _GVNTables,
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     start: models.BasicBlock,
-) -> Collection[Sequence[models.Register]]:
+) -> tuple[bool, Collection[Sequence[models.Register]]]:
     """Walk the dominator tree to build equivalence sets respecting dominance.
 
     Each (VN, AVMType) pair tracks the first register on each dominator path.
     Later registers with the same key are appended — they can safely be replaced
     by the dominating first register.
     """
+    modified = False
+
     all_sets = defaultdict[models.Register, list[models.Register]](list)
+    vn_to_uint64_const = {
+        vn: const.value
+        for const, vn in tables.const_vn.items()
+        if isinstance(const, _UInt64ConstKey)
+    }
 
     def _process(
         reg: models.Register,
@@ -288,12 +295,25 @@ def _build_equivalence_sets(
         block: models.BasicBlock,
         vn_to_rep: dict[tuple[VN, _MaybeAVMType], models.Register],
     ) -> None:
+        nonlocal modified
+
         scope = vn_to_rep.copy()
         # TODO: maybe remove redundant definitions as we go?
         for phi in block.phis:
             _process(phi.register, scope)
         for op in block.ops:
             if isinstance(op, models.Assignment):
+                if len(op.targets) == 1 and not isinstance(op.source, models.Constant):
+                    (target,) = op.targets
+                    target_vn = tables.register_vn[target]
+                    maybe_uint64_const = vn_to_uint64_const.get(target_vn)
+                    if maybe_uint64_const is not None:
+                        modified = True
+                        op.source = models.UInt64Constant(
+                            value=maybe_uint64_const, source_location=op.source.source_location
+                        )
+                        continue
+
                 match op.source:
                     case models.Register():
                         replaceable = True
@@ -310,7 +330,7 @@ def _build_equivalence_sets(
             _walk(child, scope)
 
     _walk(start, initial_scope)
-    return [s for s in all_sets.values() if len(s) > 1]
+    return modified, [s for s in all_sets.values() if len(s) > 1]
 
 
 def build_replacements(
@@ -494,6 +514,21 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...]:
+        match intrinsic:
+            case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
+                bytes_const_evald = itob_arg.to_bytes(8, byteorder="big", signed=False)
+                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                return self._const_vn(bytes_const_key)
+            case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
+                if bzero_arg <= 64:
+                    bytes_const_evald = b"\x00" * bzero_arg
+                    bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                    return self._const_vn(bytes_const_key)
+            case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
+                bytes_const_evald = Address.parse(algo_constants.ZERO_ADDRESS).public_key
+                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                return self._const_vn(bytes_const_key)
+
         op = intrinsic.op
         if op.code not in PURE_AVM_OPS:
             return self._fresh_vns(intrinsic)
@@ -830,29 +865,35 @@ def global_value_numbering(_context: CompileContext, subroutine: models.Subrouti
     """
     start, dom_tree = compute_dominator_tree(subroutine)
     tables = _number_values(subroutine, dom_tree, start)
-    equivalence_sets = _build_equivalence_sets(subroutine, tables, dom_tree, start)
+    modified, equivalence_sets = _build_equivalence_sets(subroutine, tables, dom_tree, start)
     eliminated, register_map = build_replacements(subroutine, equivalence_sets)
 
     _refine_phi_congruence(subroutine, eliminated, register_map)
 
     if not register_map:
-        return False
+        return modified
 
     logger.debug(f"GVN: {len(register_map)} replacement(s) in {subroutine.id}")
     replacer = MemoryReplacer(replacements=register_map)
     for block in subroutine.body:
         phis = []
         for phi in block.phis:
-            if phi.register not in eliminated:
+            if phi.register in eliminated:
+                modified = True
+            else:
                 phi.accept(replacer)
                 phis.append(phi)
         block.phis[:] = phis
         ops = []
         for op in block.ops:
-            if not (isinstance(op, models.Assignment) and eliminated.issuperset(op.targets)):
+            if isinstance(op, models.Assignment) and eliminated.issuperset(op.targets):
+                modified = True
+            else:
                 op.accept(replacer)
                 ops.append(op)
         block.ops[:] = ops
         if block.terminator is not None:
             block.terminator.accept(replacer)
-    return True
+    if replacer.replaced:
+        modified = True
+    return modified
