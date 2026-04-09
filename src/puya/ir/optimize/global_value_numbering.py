@@ -510,7 +510,12 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_register(self, reg: models.Register) -> tuple[VN, ...]:
-        return (self._tables.register_vn[reg],)
+        try:
+            return (self._tables.register_vn[reg],)
+        except KeyError:
+            raise InternalError(
+                f"SSA invariant violated: no dominating definition for {reg}"
+            ) from None
 
     def _const_vn(self, const: _ConstType) -> tuple[VN, ...]:
         vn = lazy_setdefault(self._tables.const_vn, const, lambda _: self._tables.next_vn())
