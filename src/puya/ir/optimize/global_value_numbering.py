@@ -29,6 +29,7 @@ TODO:
 
 import itertools
 import typing
+from collections import defaultdict
 from collections.abc import Collection, Mapping, Sequence, Set
 from functools import cached_property
 
@@ -36,6 +37,7 @@ import attrs
 import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
+from puya.avm import AVMType
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import (
@@ -227,12 +229,64 @@ class _GVNTables:
         return vn
 
 
+_MaybeAVMType: typing.TypeAlias = AVMType | str
+
+
 def _build_equivalence_sets(
+    subroutine: models.Subroutine,
     tables: _GVNTables,
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
-    block: models.BasicBlock,
+    start: models.BasicBlock,
 ) -> Collection[Sequence[models.Register]]:
-    raise NotImplementedError
+    """Walk the dominator tree to build equivalence sets respecting dominance.
+
+    Each (VN, AVMType) pair tracks the first register on each dominator path.
+    Later registers with the same key are appended — they can safely be replaced
+    by the dominating first register.
+    """
+    all_sets = defaultdict[models.Register, list[models.Register]](list)
+
+    def _process(
+        reg: models.Register,
+        vn_to_rep: dict[tuple[VN, _MaybeAVMType], models.Register],
+    ) -> None:
+        vn = tables.register_vn[reg]
+        key = (vn, reg.ir_type.maybe_avm_type)
+        rep = vn_to_rep.setdefault(key, reg)
+        all_sets[rep].append(reg)
+
+    # Seed with parameters — they dominate all blocks
+    initial_scope = dict[tuple[VN, _MaybeAVMType], models.Register]()
+    for param in subroutine.parameters:
+        _process(param, initial_scope)
+
+    def _walk(
+        block: models.BasicBlock,
+        vn_to_rep: dict[tuple[VN, _MaybeAVMType], models.Register],
+    ) -> None:
+        scope = vn_to_rep.copy()
+        # TODO: maybe remove redundant definitions as we go?
+        for phi in block.phis:
+            _process(phi.register, scope)
+        for op in block.ops:
+            if isinstance(op, models.Assignment):
+                match op.source:
+                    case models.Register():
+                        replaceable = True
+                    case models.Value():
+                        replaceable = False
+                    case models.Intrinsic(args=[]):
+                        replaceable = False
+                    case _:
+                        replaceable = True
+                if replaceable:
+                    for target in op.targets:
+                        _process(target, scope)
+        for child in dom_tree.get(block, []):
+            _walk(child, scope)
+
+    _walk(start, initial_scope)
+    return [s for s in all_sets.values() if len(s) > 1]
 
 
 def build_replacements(
@@ -557,15 +611,6 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         """
         source = ass.source
         vns = source.accept(self.provider_vn_builder)
-        # match source:
-        #     case models.Register():
-        #         replaceable = True
-        #     case models.Value():
-        #         replaceable = False
-        #     case models.Intrinsic(args=[]):
-        #         replaceable = False
-        #     case _:
-        #         replaceable = True
         for target, vn in zip(ass.targets, vns, strict=True):
             self.tables.set_register_vn(target, vn)
 
@@ -712,7 +757,7 @@ def global_value_numbering(_context: CompileContext, subroutine: models.Subrouti
     """
     start, dom_tree = compute_dominator_tree(subroutine)
     tables = _number_values(subroutine, dom_tree, start)
-    equivalence_sets = _build_equivalence_sets(tables, dom_tree, start)
+    equivalence_sets = _build_equivalence_sets(subroutine, tables, dom_tree, start)
     eliminated, register_map = build_replacements(subroutine, equivalence_sets)
 
     _refine_phi_congruence(subroutine, eliminated, register_map)
