@@ -1,0 +1,64 @@
+| PC | TEAL Bytes                 | TEAL                       | Source                           | Location                                                                                          |
+|--: | :--------------------------| :--------------------------| :--------------------------------| :-------------------------------------------------------------------------------------------------|
+|  0 | 0b                         | #pragma version 11         |                                  |                                                                                                   |
+|    | # main                     | main:                      |                                  | test_cases.gvn.partial_redundancy_elimination.PRE.approval_program() -> uint64:                   |
+|  1 | 20 02 01 00                |     intcblock 1 0          |                                  |                                                                                                   |
+|    |                            |                            | for cond in (True, False):       | gvn/partial_redundancy_elimination.py:8                                                           |
+|  5 | 22                         |     intc_0 // 1            |              ----                | gvn/partial_redundancy_elimination.py:8:21-25                                                     |
+|  6 | 23                         |     intc_1 // 0            |                                  |                                                                                                   |
+|    | # main_for_body@1          | main_for_body@1:           |                                  |                                                                                                   |
+|  7 | 83 02 03 05                |     pushints 3 5           |                                  | gvn/partial_redundancy_elimination.py:6-7:12-21                                                   |
+|    |                            |                            | assert test(a, b, cond) == a + b | gvn/partial_redundancy_elimination.py:9                                                           |
+| 11 | 4f 03                      |     uncover 3              |        ----------------          | gvn/partial_redundancy_elimination.py:9:19-35                                                     |
+| 13 | 88 00 0e                   |     callsub test           |        ----------------          | gvn/partial_redundancy_elimination.py:9:19-35                                                     |
+| 16 | 81 08                      |     pushint 8              |                            ----- | gvn/partial_redundancy_elimination.py:9:39-44                                                     |
+| 18 | 12                         |     ==                     |        ------------------------- | gvn/partial_redundancy_elimination.py:9:19-44                                                     |
+| 19 | 44                         |     assert                 | -------------------------------- | gvn/partial_redundancy_elimination.py:9:12-44                                                     |
+|    |                            |                            | for cond in (True, False):       | gvn/partial_redundancy_elimination.py:8                                                           |
+| 20 | 40 00 05                   |     bnz main_after_for@4   |                                  | gvn/partial_redundancy_elimination.py:8                                                           |
+| 23 | 23                         |     intc_1 // 0            |                    -----         | gvn/partial_redundancy_elimination.py:8:27-32                                                     |
+| 24 | 22                         |     intc_0 // 1            |                                  |                                                                                                   |
+| 25 | 42 ff eb                   |     b main_for_body@1      |                                  |                                                                                                   |
+|    | # main_after_for@4         | main_after_for@4:          |                                  |                                                                                                   |
+|    |                            |                            | return True                      | gvn/partial_redundancy_elimination.py:10                                                          |
+| 28 | 22                         |     intc_0 // 1            |        ----                      | gvn/partial_redundancy_elimination.py:10:15-19                                                    |
+| 29 | 43                         |     return                 | -----------                      | gvn/partial_redundancy_elimination.py:10:8-19                                                     |
+|    | # test                     | test:                      |                                  | test_cases.gvn.partial_redundancy_elimination.test(a: uint64, b: uint64, cond: uint64) -> uint64: |
+| 30 | 8a 03 01                   |     proto 3 1              |                                  | gvn/partial_redundancy_elimination.py:16-17:1-17                                                  |
+|    |                            |                            | if cond:                         | gvn/partial_redundancy_elimination.py:18                                                          |
+| 33 | 8b ff                      |     frame_dig -1           |                                  | gvn/partial_redundancy_elimination.py:18                                                          |
+| 35 | 41 00 1c                   |     bz test_else_body@2    |                                  | gvn/partial_redundancy_elimination.py:18                                                          |
+|    |                            |                            | result = a + b                   | gvn/partial_redundancy_elimination.py:19                                                          |
+| 38 | 8b fd                      |     frame_dig -3           |          -----                   | gvn/partial_redundancy_elimination.py:19:17-22                                                    |
+| 40 | 8b fe                      |     frame_dig -2           |          -----                   | gvn/partial_redundancy_elimination.py:19:17-22                                                    |
+| 42 | 08                         |     +                      |          -----                   | gvn/partial_redundancy_elimination.py:19:17-22                                                    |
+| 43 | 49                         |     dup                    |          -----                   | gvn/partial_redundancy_elimination.py:19:17-22                                                    |
+|    |                            |                            | log("cond: ", result)            | gvn/partial_redundancy_elimination.py:20                                                          |
+| 44 | 16                         |     itob                   |               ------             | gvn/partial_redundancy_elimination.py:20:22-28                                                    |
+| 45 | 80 06 63 6f 6e 64 3a 20    |     pushbytes "cond: "     |               ------             | gvn/partial_redundancy_elimination.py:20:22-28                                                    |
+| 53 | 4c                         |     swap                   |               ------             | gvn/partial_redundancy_elimination.py:20:22-28                                                    |
+| 54 | 50                         |     concat                 |               ------             | gvn/partial_redundancy_elimination.py:20:22-28                                                    |
+| 55 | b0                         |     log                    | ---------------------            | gvn/partial_redundancy_elimination.py:20:8-29                                                     |
+|    | # test_after_if_else@3     | test_after_if_else@3:      |                                  |                                                                                                   |
+|    |                            |                            | assert result == (b + a)         | gvn/partial_redundancy_elimination.py:24                                                          |
+| 56 | 8b fe                      |     frame_dig -2           |                   -----          | gvn/partial_redundancy_elimination.py:24:22-27                                                    |
+| 58 | 8b fd                      |     frame_dig -3           |                   -----          | gvn/partial_redundancy_elimination.py:24:22-27                                                    |
+| 60 | 08                         |     +                      |                   -----          | gvn/partial_redundancy_elimination.py:24:22-27                                                    |
+| 61 | 4b 01                      |     dig 1                  |        ----------------          | gvn/partial_redundancy_elimination.py:24:11-27                                                    |
+| 63 | 12                         |     ==                     |        ----------------          | gvn/partial_redundancy_elimination.py:24:11-27                                                    |
+| 64 | 44                         |     assert                 | ------------------------         | gvn/partial_redundancy_elimination.py:24:4-28                                                     |
+|    |                            |                            | return result                    | gvn/partial_redundancy_elimination.py:25                                                          |
+| 65 | 89                         |     retsub                 | -------------                    | gvn/partial_redundancy_elimination.py:25:4-17                                                     |
+|    | # test_else_body@2         | test_else_body@2:          |                                  |                                                                                                   |
+|    |                            |                            | result = a + b                   | gvn/partial_redundancy_elimination.py:22                                                          |
+| 66 | 8b fd                      |     frame_dig -3           |          -----                   | gvn/partial_redundancy_elimination.py:22:17-22                                                    |
+| 68 | 8b fe                      |     frame_dig -2           |          -----                   | gvn/partial_redundancy_elimination.py:22:17-22                                                    |
+| 70 | 08                         |     +                      |          -----                   | gvn/partial_redundancy_elimination.py:22:17-22                                                    |
+| 71 | 49                         |     dup                    |          -----                   | gvn/partial_redundancy_elimination.py:22:17-22                                                    |
+|    |                            |                            | log("!cond: ", result)           | gvn/partial_redundancy_elimination.py:23                                                          |
+| 72 | 16                         |     itob                   |                ------            | gvn/partial_redundancy_elimination.py:23:23-29                                                    |
+| 73 | 80 07 21 63 6f 6e 64 3a 20 |     pushbytes "!cond: "    |                ------            | gvn/partial_redundancy_elimination.py:23:23-29                                                    |
+| 82 | 4c                         |     swap                   |                ------            | gvn/partial_redundancy_elimination.py:23:23-29                                                    |
+| 83 | 50                         |     concat                 |                ------            | gvn/partial_redundancy_elimination.py:23:23-29                                                    |
+| 84 | b0                         |     log                    | ----------------------           | gvn/partial_redundancy_elimination.py:23:8-30                                                     |
+| 85 | 42 ff e0                   |     b test_after_if_else@3 |                                  |                                                                                                   |

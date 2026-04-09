@@ -1,0 +1,131 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.partial_redundancy_elimination.PRE.approval_program() -> uint64:
+main:
+    intcblock 1 0 3 5
+    b main_block@0
+
+main_block@0:
+    intc_1 // 0
+    // gvn/partial_redundancy_elimination.py:8
+    // for cond in (True, False):
+    intc_0 // 1
+    b main_for_body@1
+
+main_for_body@1:
+    // gvn/partial_redundancy_elimination.py:6
+    // a = UInt64(3)
+    intc_2 // 3
+    // gvn/partial_redundancy_elimination.py:7
+    // b = UInt64(5)
+    intc_3 // 5
+    // gvn/partial_redundancy_elimination.py:9
+    // assert test(a, b, cond) == a + b
+    dig 2
+    callsub test
+    // gvn/partial_redundancy_elimination.py:6
+    // a = UInt64(3)
+    intc_2 // 3
+    // gvn/partial_redundancy_elimination.py:7
+    // b = UInt64(5)
+    intc_3 // 5
+    // gvn/partial_redundancy_elimination.py:9
+    // assert test(a, b, cond) == a + b
+    +
+    ==
+    assert
+    b main_for_footer@2
+
+main_for_footer@2:
+    // gvn/partial_redundancy_elimination.py:8
+    // for cond in (True, False):
+    dig 1
+    switch main_for_header_1@3
+    b main_after_for@4
+
+main_after_for@4:
+    // gvn/partial_redundancy_elimination.py:10
+    // return True
+    intc_0 // 1
+    return
+
+main_for_header_1@3:
+    intc_0 // 1
+    bury 2
+    // gvn/partial_redundancy_elimination.py:8
+    // for cond in (True, False):
+    intc_1 // 0
+    bury 1
+    b main_for_body@1
+
+
+// test_cases.gvn.partial_redundancy_elimination.test(a: uint64, b: uint64, cond: uint64) -> uint64:
+test:
+    // gvn/partial_redundancy_elimination.py:16-17
+    // @subroutine(inline=False)
+    // def test(a: UInt64, b: UInt64, cond: bool) -> UInt64:
+    proto 3 1
+    pushbytes ""
+    b test_block@0
+
+test_block@0:
+    // gvn/partial_redundancy_elimination.py:18
+    // if cond:
+    frame_dig -1
+    bz test_else_body@2
+    b test_if_body@1
+
+test_if_body@1:
+    // gvn/partial_redundancy_elimination.py:19
+    // result = a + b
+    frame_dig -3
+    frame_dig -2
+    +
+    dup
+    frame_bury 0
+    // gvn/partial_redundancy_elimination.py:20
+    // log("cond: ", result)
+    pushbytes "cond: "
+    pushbytes ""
+    concat
+    uncover 1
+    itob
+    concat
+    log
+    b test_after_if_else@3
+
+test_after_if_else@3:
+    // gvn/partial_redundancy_elimination.py:24
+    // assert result == (b + a)
+    frame_dig -2
+    frame_dig -3
+    +
+    frame_dig 0
+    dup
+    cover 2
+    ==
+    assert
+    // gvn/partial_redundancy_elimination.py:25
+    // return result
+    uncover 1
+    retsub
+
+test_else_body@2:
+    // gvn/partial_redundancy_elimination.py:22
+    // result = a + b
+    frame_dig -3
+    frame_dig -2
+    +
+    dup
+    frame_bury 0
+    // gvn/partial_redundancy_elimination.py:23
+    // log("!cond: ", result)
+    pushbytes "!cond: "
+    pushbytes ""
+    concat
+    uncover 1
+    itob
+    concat
+    log
+    b test_after_if_else@3

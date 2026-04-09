@@ -64,6 +64,45 @@ subroutine test_triple_cycle(n: uint64): uint64
   return a + b + c
 }
 
+contract PRE
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.partial_redundancy_elimination.PRE.approval_program(): bool
+  {
+    a: uint64 = 3u
+    b: uint64 = 5u
+    for cond in (true, false) {
+      assert(test_cases.gvn.partial_redundancy_elimination.test(a, b, cond) == a + b)
+    }
+    return true
+  }
+  
+  subroutine test_cases.gvn.partial_redundancy_elimination.PRE.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test(a: uint64, b: uint64, cond: bool): uint64
+{
+  if (cond) {
+    result: uint64 = a + b
+    log(concat(concat('cond: ', ''), itob(result)))
+  } else {
+    result: uint64 = a + b
+    log(concat(concat('!cond: ', ''), itob(result)))
+  }
+  assert(result == b + a)
+  return result
+}
+
 contract NegatedComparisonContract
 {
   method_resolution_order: (
