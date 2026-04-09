@@ -1,0 +1,113 @@
+// Op                                               Stack (out)
+// test_cases.gvn.partial_redundancy_elimination.PRE.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        int 0                                       0
+        v-store loop_counter%0#0
+        // gvn/partial_redundancy_elimination.py:8
+        // for cond in (True, False):
+        int 1                                       1
+        v-store cond#0
+        b main_for_body@1
+
+    main_for_body@1:
+        // gvn/partial_redundancy_elimination.py:6
+        // a = UInt64(3)
+        int 3                                       3
+        // gvn/partial_redundancy_elimination.py:7
+        // b = UInt64(5)
+        int 5                                       3,5
+        // gvn/partial_redundancy_elimination.py:9
+        // assert test(a, b, cond) == a + b
+        v-load cond#0                               3,5,cond#0
+        callsub test                                tmp%0#0
+        l-load tmp%0#0 0                            tmp%0#0
+        int 8                                       tmp%0#0,8
+        ==                                          tmp%2#0
+        l-load tmp%2#0 0                            tmp%2#0
+        assert
+        // gvn/partial_redundancy_elimination.py:8
+        // for cond in (True, False):
+        v-load loop_counter%0#0                     loop_counter%0#0
+        bz main_for_header_1@3 ; b main_after_for@4
+
+    main_for_header_1@3:
+        int 1                                       1
+        v-store loop_counter%0#0
+        // gvn/partial_redundancy_elimination.py:8
+        // for cond in (True, False):
+        int 0                                       0
+        v-store cond#0
+        b main_for_body@1
+
+    main_after_for@4:
+        // gvn/partial_redundancy_elimination.py:10
+        // return True
+        int 1                                       1
+        return
+
+
+// test_cases.gvn.partial_redundancy_elimination.test(a: uint64, b: uint64, cond: uint64) -> uint64:
+subroutine test:
+    test_block@0:                                   (𝕡) a#0,b#0,cond#0 |
+        // gvn/partial_redundancy_elimination.py:18
+        // if cond:
+        p-load cond#0                               (𝕡) a#0,b#0,cond#0 | cond#0 (copy)
+        bz test_else_body@2 ; b test_if_body@1      (𝕡) a#0,b#0,cond#0 |
+
+    test_if_body@1:                                 (𝕡) a#0,b#0,cond#0 |
+        // gvn/partial_redundancy_elimination.py:19
+        // result = a + b
+        p-load a#0                                  (𝕡) a#0,b#0,cond#0 | a#0 (copy)
+        p-load b#0                                  (𝕡) a#0,b#0,cond#0 | a#0 (copy),b#0 (copy)
+        +                                           (𝕡) a#0,b#0,cond#0 | result#0
+        l-store-copy result#0 0                     (𝕡) a#0,b#0,cond#0 | result#0,result#0 (copy)
+        v-store result#0                            (𝕡) a#0,b#0,cond#0 | result#0
+        // gvn/partial_redundancy_elimination.py:20
+        // log("cond: ", result)
+        l-load result#0 0                           (𝕡) a#0,b#0,cond#0 | result#0
+        itob                                        (𝕡) a#0,b#0,cond#0 | tmp%2#0
+        byte "cond: "                               (𝕡) a#0,b#0,cond#0 | tmp%2#0,"cond: "
+        l-load tmp%2#0 1                            (𝕡) a#0,b#0,cond#0 | "cond: ",tmp%2#0
+        concat                                      (𝕡) a#0,b#0,cond#0 | tmp%3#0
+        l-load tmp%3#0 0                            (𝕡) a#0,b#0,cond#0 | tmp%3#0
+        log                                         (𝕡) a#0,b#0,cond#0 |
+        b test_after_if_else@3                      (𝕡) a#0,b#0,cond#0 |
+
+    test_else_body@2:                               (𝕡) a#0,b#0,cond#0 |
+        // gvn/partial_redundancy_elimination.py:22
+        // result = a + b
+        p-load a#0                                  (𝕡) a#0,b#0,cond#0 | a#0 (copy)
+        p-load b#0                                  (𝕡) a#0,b#0,cond#0 | a#0 (copy),b#0 (copy)
+        +                                           (𝕡) a#0,b#0,cond#0 | result#0
+        l-store-copy result#0 0                     (𝕡) a#0,b#0,cond#0 | result#0,result#0 (copy)
+        v-store result#0                            (𝕡) a#0,b#0,cond#0 | result#0
+        // gvn/partial_redundancy_elimination.py:23
+        // log("!cond: ", result)
+        l-load result#0 0                           (𝕡) a#0,b#0,cond#0 | result#0
+        itob                                        (𝕡) a#0,b#0,cond#0 | tmp%6#0
+        byte "!cond: "                              (𝕡) a#0,b#0,cond#0 | tmp%6#0,"!cond: "
+        l-load tmp%6#0 1                            (𝕡) a#0,b#0,cond#0 | "!cond: ",tmp%6#0
+        concat                                      (𝕡) a#0,b#0,cond#0 | tmp%7#0
+        l-load tmp%7#0 0                            (𝕡) a#0,b#0,cond#0 | tmp%7#0
+        log                                         (𝕡) a#0,b#0,cond#0 |
+        b test_after_if_else@3                      (𝕡) a#0,b#0,cond#0 |
+
+    test_after_if_else@3:                           (𝕡) a#0,b#0,cond#0 |
+        // gvn/partial_redundancy_elimination.py:24
+        // assert result == (b + a)
+        p-load b#0                                  (𝕡) a#0,b#0,cond#0 | b#0 (copy)
+        p-load a#0                                  (𝕡) a#0,b#0,cond#0 | b#0 (copy),a#0 (copy)
+        +                                           (𝕡) a#0,b#0,cond#0 | tmp%8#0
+        v-load result#0                             (𝕡) a#0,b#0,cond#0 | tmp%8#0,result#0
+        l-store-copy result#0 1                     (𝕡) a#0,b#0,cond#0 | result#0,tmp%8#0,result#0 (copy)
+        l-load tmp%8#0 1                            (𝕡) a#0,b#0,cond#0 | result#0,result#0 (copy),tmp%8#0
+        ==                                          (𝕡) a#0,b#0,cond#0 | result#0,tmp%9#0
+        l-load tmp%9#0 0                            (𝕡) a#0,b#0,cond#0 | result#0,tmp%9#0
+        assert                                      (𝕡) a#0,b#0,cond#0 | result#0
+        // gvn/partial_redundancy_elimination.py:25
+        // return result
+        l-load result#0 0                           (𝕡) a#0,b#0,cond#0 | result#0
+        retsub                                      result#0
+
+
