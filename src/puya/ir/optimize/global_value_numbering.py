@@ -530,10 +530,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
                 return self._const_vn(bytes_const_key)
             case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
-                if bzero_arg <= 64:
-                    bytes_const_evald = b"\x00" * bzero_arg
-                    bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                    return self._const_vn(bytes_const_key)
+                bytes_const_evald = b"\x00" * bzero_arg
+                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                return self._const_vn(bytes_const_key)
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 bytes_const_evald = Address.parse(algo_constants.ZERO_ADDRESS).public_key
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
