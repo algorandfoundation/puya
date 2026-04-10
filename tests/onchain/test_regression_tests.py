@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import algokit_utils as au
 import pytest
 
@@ -214,3 +216,27 @@ def test_gtxn_array_index_op_selection(deployer_o: Deployer) -> None:
     # gtxnsas at O0. Either way ApplicationArgs[256] is beyond the array at runtime.
     with pytest.raises(au.LogicError, match=r"invalid ApplicationArgs index 256"):
         deployer_o.create_bare((_OP_SELECTION_PATH, "GTxnArrayIndexOpSelection"))
+
+
+def test_branch_to_proto(deployer_o: Deployer) -> None:
+    client = deployer_o.create(TEST_CASES_DIR / "regression_tests" / "branch_to_proto.py").client
+
+    deployer_o.localnet.account.ensure_funded(
+        account_to_fund=client.app_address,
+        dispenser_account=deployer_o.account,
+        min_spending_balance=au.AlgoAmount.from_micro_algo(100_000),
+    )
+    # message can be any size, however for coverage using a size distinct from the other params
+    message = b"M" * 64
+    proof = b"P" * 80  # vrf_verify proof must be 80 bytes
+    pubkey = b"K" * 32  # vrf_verify pubkey must be 32 bytes
+
+    result = client.send.call(
+        au.AppClientMethodCallParams(method="verify", args=[message, proof, pubkey])
+    )
+    abi_return = result.abi_return
+    assert isinstance(abi_return, Sequence)
+    output, verified = abi_return
+    assert verified is False  # inputs are not valid, so verification failure is expected
+    assert isinstance(output, bytes)
+    assert len(output) == 64  # vrf_verify output is 64 bytes
