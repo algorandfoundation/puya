@@ -524,10 +524,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...]:
-        op = intrinsic.op
-        if op.code not in PURE_AVM_OPS:
-            return self._fresh_vns(intrinsic)
-
         match intrinsic:
             case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
                 bytes_const_evald = itob_arg.to_bytes(8, byteorder="big", signed=False)
@@ -543,6 +539,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
                 return self._const_vn(bytes_const_key)
 
+        op = intrinsic.op
+        if op.code not in PURE_AVM_OPS:
+            return self._fresh_vns(intrinsic)
         args = intrinsic.args
         arg_vns = tuple(self._visit_value(a) for a in args)
         # Negation-aware numbering: !(comparison) -> inverse comparison.
