@@ -278,19 +278,22 @@ def _build_equivalence_sets(
         if isinstance(const, _UInt64ConstKey)
     }
 
-    def _process(
+    def _keep_defn(
         reg: models.Register,
         vn_to_rep: dict[tuple[VN, _MaybeAVMType], models.Register],
-    ) -> None:
+    ) -> bool:
+        """Process a register definition, returning if it's the dominant (and should be kept)"""
         vn = tables.register_vn[reg]
         key = (vn, reg.ir_type.maybe_avm_type)
         rep = vn_to_rep.setdefault(key, reg)
         all_sets[rep].append(reg)
+        return rep == reg
 
     # Seed with parameters — they dominate all blocks
     initial_scope = dict[tuple[VN, _MaybeAVMType], models.Register]()
     for param in subroutine.parameters:
-        _process(param, initial_scope)
+        keep_param = _keep_defn(param, initial_scope)
+        assert keep_param
 
     def _walk(
         block: models.BasicBlock,
@@ -302,16 +305,24 @@ def _build_equivalence_sets(
         scope = dict(vn_to_rep)
         asserted = set(asserted_)
         # TODO: maybe remove redundant definitions as we go?
+        phis = []
         for phi in block.phis:
-            _process(phi.register, scope)
-        for op in block.ops.copy():
+            if _keep_defn(phi.register, scope):
+                phis.append(phi)
+            else:
+                modified = True
+        block.phis[:] = phis
+
+        ops = []
+        for op in block.ops:
+            ops.append(op)
             if isinstance(op, models.Assert):
                 if isinstance(op.condition, models.Register):
                     condition_vn = tables.register_vn[op.condition]
                     if not set_add(asserted, condition_vn):
                         modified = True
-                        block.ops.remove(op)
                         logger.debug(f"removing redundant assert of {op.condition}")
+                        ops.pop()
             elif isinstance(op, models.Assignment):
                 if len(op.targets) == 1 and not isinstance(op.source, models.Constant):
                     (target,) = op.targets
@@ -334,8 +345,13 @@ def _build_equivalence_sets(
                     case _:
                         replaceable = True
                 if replaceable:
+                    keep = False
                     for target in op.targets:
-                        _process(target, scope)
+                        keep |= _keep_defn(target, scope)
+                    if not keep:
+                        ops.pop()
+                        modified = True
+        block.ops[:] = ops
         for child in dom_tree.get(block, []):
             _walk(child, scope, asserted)
 
@@ -345,17 +361,8 @@ def _build_equivalence_sets(
 
 def build_replacements(
     subroutine: models.Subroutine, equivalence_sets: Collection[Sequence[models.Register]]
-) -> tuple[set[models.Register], dict[models.Register, models.Register]]:
-    """Build the final replacement map with preferred register names.
-
-    Returns (eliminated, register_map) where:
-    - eliminated: registers whose definitions (phi or assignment) should be
-      removed from the IR.
-    - register_map: register replacement/renaming map for MemoryReplacer.
-      Includes both eliminations (redundant -> representative) and renames
-      (old representative -> preferred name).
-    """
-    eliminated = set[models.Register]()
+) -> dict[models.Register, models.Register]:
+    """Build the final replacement map with preferred register names."""
     register_map = dict[models.Register, models.Register]()
 
     for equivalence_set in equivalence_sets:
@@ -382,16 +389,9 @@ def build_replacements(
             f" selected replacement: {replacement.local_id}"
         )
 
-        for idx, reg in enumerate(equivalence_set):
+        for reg in equivalence_set:
             if reg is not replacement:
                 register_map[reg] = replacement
-                if idx == 0:
-                    # The first element is the dominating definition — its definition is
-                    # always kept (never eliminated). If it's not the preferred name, its
-                    # target gets renamed via register_map.
-                    eliminated.add(replacement)
-                else:
-                    eliminated.add(reg)
 
     for target in register_map.values():
         if target in register_map:
@@ -400,7 +400,7 @@ def build_replacements(
                 f" {target.local_id} -> {register_map[target].local_id}"
             )
 
-    return eliminated, register_map
+    return register_map
 
 
 @attrs.frozen
@@ -796,9 +796,8 @@ def _process_blocks_pre_order(
 
 def _refine_phi_congruence(
     subroutine: models.Subroutine,
-    eliminated: set[models.Register],
     register_map: dict[models.Register, models.Register],
-) -> None:
+) -> bool:
     """Find phi-cycle equivalences that hash-based numbering missed.
 
     Resolves phi args through the replacement map (from build_replacements),
@@ -816,14 +815,18 @@ def _refine_phi_congruence(
     map to find trivially redundant phis.
     """
     # Collect phis not already handled by build_replacements
+    modified = False
+
     phi_by_register = dict[models.Register, models.Phi]()
+    phi_blocks = dict[models.Register, models.BasicBlock]()
     for block in subroutine.body:
         for phi in block.phis:
+            phi_blocks[phi.register] = block
             if phi.register not in register_map:
                 phi_by_register[phi.register] = phi
 
     if not phi_by_register:
-        return
+        return modified
 
     graph = nx.DiGraph()
     for phi in phi_by_register.values():
@@ -849,11 +852,15 @@ def _refine_phi_congruence(
 
         (target,) = external_regs
         for reg in sorted(scc_set, key=lambda r: r.local_id):
+            block = phi_blocks[reg]
+            phi = phi_by_register[reg]
             if reg.ir_type.maybe_avm_type != target.ir_type.maybe_avm_type:
                 continue
-            eliminated.add(reg)
+            block.phis.remove(phi)
+            modified = True
             register_map[reg] = target
             logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
+    return modified
 
 
 def _number_values(
@@ -876,33 +883,15 @@ def global_value_numbering(_context: CompileContext, subroutine: models.Subrouti
     start, dom_tree = compute_dominator_tree(subroutine)
     tables = _number_values(subroutine, dom_tree, start)
     modified, equivalence_sets = _build_equivalence_sets(subroutine, tables, dom_tree, start)
-    eliminated, register_map = build_replacements(subroutine, equivalence_sets)
+    register_map = build_replacements(subroutine, equivalence_sets)
 
-    _refine_phi_congruence(subroutine, eliminated, register_map)
+    if _refine_phi_congruence(subroutine, register_map):
+        modified = True
 
     if register_map:
         logger.debug(f"GVN: {len(register_map)} replacement(s) in {subroutine.id}")
-        replacer = MemoryReplacer(replacements=register_map)
-        for block in subroutine.body:
-            phis = []
-            for phi in block.phis:
-                if phi.register in eliminated:
-                    modified = True
-                else:
-                    phi.accept(replacer)
-                    phis.append(phi)
-            block.phis[:] = phis
-            ops = []
-            for op in block.ops:
-                if isinstance(op, models.Assignment) and eliminated.issuperset(op.targets):
-                    modified = True
-                else:
-                    op.accept(replacer)
-                    ops.append(op)
-            block.ops[:] = ops
-            if block.terminator is not None:
-                block.terminator.accept(replacer)
-        if replacer.replaced:
+        replaced = MemoryReplacer.apply(subroutine.body, replacements=register_map)
+        if replaced > 0:
             modified = True
 
     return modified
