@@ -524,6 +524,10 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...]:
+        op = intrinsic.op
+        if op.code not in PURE_AVM_OPS:
+            return self._fresh_vns(intrinsic)
+
         match intrinsic:
             case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
                 bytes_const_evald = itob_arg.to_bytes(8, byteorder="big", signed=False)
@@ -539,25 +543,24 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
                 return self._const_vn(bytes_const_key)
 
-        op = intrinsic.op
-        if op.code not in PURE_AVM_OPS:
-            return self._fresh_vns(intrinsic)
         args = intrinsic.args
         arg_vns = tuple(self._visit_value(a) for a in args)
         # Negation-aware numbering: !(comparison) -> inverse comparison.
         # e.g. !(a < b) gets the same key as (a >= b).
         if op == AVMOp.not_:
             (vn,) = arg_vns
-            comp = self._tables.comparison_exprs.get(vn)
-            if comp is not None:
-                inverse_op = _INVERSE_COMPARISONS.get(comp.op)
-                if inverse_op is not None:
-                    inverse_key = _IntrinsicKey(
-                        op=inverse_op,
-                        immediates=comp.immediates,
-                        arg_vns=comp.arg_vns,
-                    )
-                    return self._lookup_or_assign(inverse_key, intrinsic)
+            try:
+                comp = self._tables.comparison_exprs[vn]
+            except KeyError:
+                pass
+            else:
+                inverse_op = _INVERSE_COMPARISONS[comp.op]
+                inverse_key = _IntrinsicKey(
+                    op=inverse_op,
+                    immediates=comp.immediates,
+                    arg_vns=comp.arg_vns,
+                )
+                return self._lookup_or_assign(inverse_key, intrinsic)
 
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
@@ -596,16 +599,15 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     ):
                         return (vn1,)
 
-        op_key = op
         if op in _COMMUTATIVE_OPS:
             arg_vns = tuple(sorted(arg_vns))
         elif op in _MIRROR_OPS and arg_vns[0] > arg_vns[1]:
             arg_vns = (arg_vns[1], arg_vns[0])
-            op_key = _MIRROR_OPS[op]
-        key = _IntrinsicKey(op=op_key, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
+            op = _MIRROR_OPS[op]
+        key = _IntrinsicKey(op=op, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
         vns = self._lookup_or_assign(key, intrinsic)
         # Track comparison expressions for negation-aware numbering
-        if op_key in _INVERSE_COMPARISONS:
+        if key.op in _INVERSE_COMPARISONS:
             (result_vn,) = vns
             self._tables.comparison_exprs[result_vn] = key
         return vns
