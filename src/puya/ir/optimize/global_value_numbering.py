@@ -571,12 +571,12 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         | AVMOp.gt
                         | AVMOp.gt_bytes
                         | AVMOp.bitwise_xor
-                        | AVMOp.bitwise_xor_bytes
+                        # | AVMOp.bitwise_xor_bytes - need length
                         | AVMOp.sub
-                        | AVMOp.sub_bytes
                     ):
-                        const_key = _UInt64ConstKey(value=0)
-                        return self._const_vn(const_key)
+                        return self._const_vn(_UInt64ConstKey(value=0))
+                    case AVMOp.sub_bytes:
+                        return self._const_vn(_BytesConstKey(value=b""))
                     case (
                         AVMOp.eq
                         | AVMOp.eq_bytes
@@ -584,11 +584,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         | AVMOp.lte_bytes
                         | AVMOp.gte
                         | AVMOp.gte_bytes
-                        | AVMOp.div_floor
-                        | AVMOp.div_floor_bytes
+                        # TODO: intrinsic_simplification currently assumes not 0/0
+                        # | AVMOp.div_floor - div by zero
+                        # | AVMOp.div_floor_bytes - div by zero
                     ):
-                        const_key = _UInt64ConstKey(value=1)
-                        return self._const_vn(const_key)
+                        return self._const_vn(_UInt64ConstKey(value=1))
                     case (
                         AVMOp.bitwise_and
                         | AVMOp.bitwise_and_bytes
