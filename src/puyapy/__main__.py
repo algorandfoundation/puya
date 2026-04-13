@@ -45,9 +45,7 @@ _InternalOutputToggle = Annotated[
 
 @_app.default
 def puyapy(
-    paths: Annotated[
-        Sequence[cyclopts.types.ExistingPath], cyclopts.Parameter(name="PATH", negative=())
-    ],
+    paths: Annotated[Sequence[cyclopts.types.ExistingPath], cyclopts.Parameter(name="PATH")],
     /,
     *,
     # outputs

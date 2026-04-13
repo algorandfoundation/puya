@@ -26,7 +26,7 @@ app = cyclopts.App(name="puyapy-clientgen", help_on_error=True)
 
 @app.default
 def main(
-    paths: typing.Annotated[list[cyclopts.types.ExistingPath], cyclopts.Parameter(negative=())],
+    paths: list[cyclopts.types.ExistingPath],
     /,
     *,
     log_level: log.LogLevel = log.LogLevel.info,

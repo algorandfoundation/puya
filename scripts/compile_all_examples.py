@@ -42,8 +42,7 @@ app = cyclopts.App(help_on_error=True)
 @app.default
 def main(
     limit_to: typing.Annotated[
-        Sequence[cyclopts.types.ExistingPath],
-        cyclopts.Parameter(name="LIMIT_TO", negative=()),
+        Sequence[cyclopts.types.ExistingPath], cyclopts.Parameter(name="LIMIT_TO")
     ] = (),
     /,
     *,
