@@ -140,7 +140,7 @@ def _compile_for_level_python(
         for option, value in get_puya_options_for_optimization(optimization_level).items()
     ]
     out_suffix = OPT_SUFFIXES[optimization_level]
-    out_dir = (test_case.path / f"out{out_suffix}").resolve()
+    out_dir = (test_case.test_case / f"out{out_suffix}").resolve()
     cmd = [
         "uv",
         "run",
@@ -148,7 +148,7 @@ def _compile_for_level_python(
         *flags,
         f"--out-dir={out_dir}",
         "--log-level=debug",
-        *_load_template_vars(test_case.path / "template.vars"),
+        *_load_template_vars(test_case.test_case / "template.vars"),
         test_case.name,
     ]
     return _run_compile(test_case, cmd, out_dir=out_dir, out_suffix=out_suffix)

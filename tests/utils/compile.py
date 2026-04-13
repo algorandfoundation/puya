@@ -153,7 +153,7 @@ def compile_from_test_case(
     if test_case.is_awst:
         # suppress front end only outputs
         options = attrs.evolve(options, output_awst=False, output_client=False)
-        awst = load_test_case_awst(test_case.path)
+        awst = load_test_case_awst(test_case.test_case)
         compilation_out_dir = determine_out_dir(test_case.test_case, options)
         compilation_set = get_compilation_set(awst, compilation_out_dir)
 
