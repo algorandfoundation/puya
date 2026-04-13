@@ -1,0 +1,48 @@
+// Op                                                       Stack (out)
+// test_cases.regression_tests.xor_identity_fold_biguint.XorIdentityFoldBigUInt.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // regression_tests/xor_identity_fold_biguint.py:6
+        // x = BigUInt(2**32 - 1)  # 4 bytes: 0xffffffff
+        byte 0xffffffff                                     0xffffffff
+        // regression_tests/xor_identity_fold_biguint.py:7
+        // result = self_xor(x)
+        callsub self_xor                                    result#0
+        v-store result#0
+        // regression_tests/xor_identity_fold_biguint.py:10
+        // assert result.bytes == op.bzero(x.bytes.length)
+        int 4                                               4
+        bzero                                               tmp%2#0
+        v-store tmp%2#0
+        v-load result#0                                     result#0
+        v-load tmp%2#0                                      result#0,tmp%2#0
+        ==                                                  tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                      tmp%3#0
+        assert
+        // regression_tests/xor_identity_fold_biguint.py:11
+        // assert result.bytes.length == x.bytes.length
+        v-load result#0                                     result#0
+        len                                                 tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                      tmp%4#0
+        int 4                                               tmp%4#0,4
+        ==                                                  tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                      tmp%6#0
+        assert
+        // regression_tests/xor_identity_fold_biguint.py:12
+        // return True
+        int 1                                               1
+        return
+
+
+// test_cases.regression_tests.xor_identity_fold_biguint.self_xor(x: bytes) -> bytes:
+subroutine self_xor:
+    self_xor_block@0:                                       (𝕡) x#0 |
+        // regression_tests/xor_identity_fold_biguint.py:21
+        // return x ^ x
+        byte 0x                                             (𝕡) x#0 | 0x
+        retsub                                              0x
+
+

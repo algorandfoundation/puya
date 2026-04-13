@@ -1,0 +1,43 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.xor_identity_fold_biguint.XorIdentityFoldBigUInt.approval_program() -> uint64:
+main:
+    // regression_tests/xor_identity_fold_biguint.py:6
+    // x = BigUInt(2**32 - 1)  # 4 bytes: 0xffffffff
+    pushbytes 0xffffffff
+    // regression_tests/xor_identity_fold_biguint.py:7
+    // result = self_xor(x)
+    callsub self_xor
+    // regression_tests/xor_identity_fold_biguint.py:8-10
+    // # `x ^ x` on the AVM produces a zero-filled byte array the same
+    // # length as the inputs — NOT a BigUInt(0) (which has zero length).
+    // assert result.bytes == op.bzero(x.bytes.length)
+    pushint 4
+    bzero
+    dig 1
+    ==
+    assert
+    // regression_tests/xor_identity_fold_biguint.py:11
+    // assert result.bytes.length == x.bytes.length
+    len
+    pushint 4
+    ==
+    assert
+    // regression_tests/xor_identity_fold_biguint.py:12
+    // return True
+    pushint 1
+    return
+
+
+// test_cases.regression_tests.xor_identity_fold_biguint.self_xor(x: bytes) -> bytes:
+self_xor:
+    // regression_tests/xor_identity_fold_biguint.py:18-19
+    // @subroutine(inline=False)
+    // def self_xor(x: BigUInt) -> BigUInt:
+    proto 1 1
+    // regression_tests/xor_identity_fold_biguint.py:20-21
+    // # must not be folded to BigUInt(0) — the AVM b^ op preserves input length
+    // return x ^ x
+    pushbytes 0x
+    retsub
