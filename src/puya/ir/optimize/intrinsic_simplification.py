@@ -1542,7 +1542,7 @@ def _try_simplify_bytes_binary_op(
                         c = a_const - b_const
                     case AVMOp.mul_bytes:
                         c = a_const * b_const
-                    case AVMOp.div_floor_bytes:
+                    case AVMOp.div_floor_bytes if b_const != 0:
                         c = a_const // b_const
                     case AVMOp.mod_bytes if b_const != 0:
                         c = a_const % b_const
