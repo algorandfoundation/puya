@@ -23,3 +23,7 @@ def test_div_identity_fold_biguint(deployer_o: Deployer) -> None:
         deployer_o.create_bare(
             TEST_CASES_DIR / "regression_tests" / "div_identity_fold_biguint.py"
         )
+
+
+def test_xor_identity_fold_biguint(deployer_o: Deployer) -> None:
+    deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "xor_identity_fold_biguint.py")

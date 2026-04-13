@@ -1,3 +1,33 @@
+contract XorIdentityFoldBigUInt
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.regression_tests.xor_identity_fold_biguint.XorIdentityFoldBigUInt.approval_program(): bool
+  {
+    x: biguint = 4294967295n
+    result: biguint = test_cases.regression_tests.xor_identity_fold_biguint.self_xor(x)
+    assert(reinterpret_cast<bytes>(result) == bzero(len(reinterpret_cast<bytes>(x))))
+    assert(len(reinterpret_cast<bytes>(result)) == len(reinterpret_cast<bytes>(x)))
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.xor_identity_fold_biguint.XorIdentityFoldBigUInt.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine self_xor(x: biguint): biguint
+{
+  return x b^ x
+}
+
 subroutine get_return_value(): uint64
 {
   return 0u
