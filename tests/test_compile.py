@@ -26,7 +26,7 @@ def compile_test_case(test_case: PuyaTestCase) -> str | None:
     _remove_output(test_case)
     for opt_level in (0, 1, 2):
         suffix = OPT_SUFFIXES[opt_level]
-        log_path = test_case.path / f"puya{suffix}.log"
+        log_path = test_case.test_case / f"puya{suffix}.log"
         out_dir = test_case.test_case / f"out{suffix}"
         options = get_puya_options_for_optimization(opt_level)
         compile_result = compile_from_test_case(
@@ -37,7 +37,7 @@ def compile_test_case(test_case: PuyaTestCase) -> str | None:
         logs = "\n".join(log_to_str(log_, test_case.root) for log_ in compile_result.logs)
         log_path.write_text(logs, encoding="utf8")
         normalize_arc56(out_dir)
-    return check_for_diff(test_case.path, VCS_ROOT)
+    return check_for_diff(test_case.test_case, VCS_ROOT)
 
 
 def _remove_output(test_case: PuyaTestCase) -> None:

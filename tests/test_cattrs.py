@@ -11,7 +11,7 @@ from tests.utils.compile import get_awst_cache, load_test_case_awst
 
 def test_cattrs(test_case: PuyaTestCase) -> None:
     if test_case.is_awst:
-        awst = load_test_case_awst(test_case.path)
+        awst = load_test_case_awst(test_case.test_case)
     else:
         cache = get_awst_cache(test_case.root)
         awst = [a for a in cache.module_awst if _is_case_awst(test_case, a)]
