@@ -1,0 +1,23 @@
+// Op                                           Stack (out)
+// test_cases.regression_tests.large_biguint.LargeBigUInt.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // regression_tests/large_biguint.py:9
+        // big = BigUInt(2**512 - 1) + 1
+        byte 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        // regression_tests/large_biguint.py:10
+        // bigger = big + 1
+        byte 0x01                               0x0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,0x01
+        b+                                      bigger#0
+        // regression_tests/large_biguint.py:11
+        // assert bigger.bytes.length
+        l-load bigger#0 0                       bigger#0
+        len                                     tmp%2#0
+        l-load tmp%2#0 0                        tmp%2#0
+        assert
+        // regression_tests/large_biguint.py:12
+        // return True
+        int 1                                   1
+        return
+
+
