@@ -1,0 +1,25 @@
+| PC | TEAL Bytes | TEAL                 | Source                          | Location                                                                                                 |
+|--: | :----------| :--------------------| :-------------------------------| :--------------------------------------------------------------------------------------------------------|
+|  0 | 0b         | #pragma version 11   |                                 |                                                                                                          |
+|    | # main     | main:                |                                 | test_cases.regression_tests.div_identity_fold_uint64.DivIdentityFoldUInt64.approval_program() -> uint64: |
+|  1 | 20 01 01   |     intcblock 1      |                                 |                                                                                                          |
+|    |            |                      | assert self_div(UInt64(5)) == 1 | regression_tests/div_identity_fold_uint64.py:6                                                           |
+|  4 | 81 05      |     pushint 5        |                 ---------       | regression_tests/div_identity_fold_uint64.py:6:24-33                                                     |
+|  6 | 88 00 0d   |     callsub self_div |        -------------------      | regression_tests/div_identity_fold_uint64.py:6:15-34                                                     |
+|  9 | 22         |     intc_0 // 1      |                               - | regression_tests/div_identity_fold_uint64.py:6:38-39                                                     |
+| 10 | 12         |     ==               |        ------------------------ | regression_tests/div_identity_fold_uint64.py:6:15-39                                                     |
+| 11 | 44         |     assert           | ------------------------------- | regression_tests/div_identity_fold_uint64.py:6:8-39                                                      |
+|    |            |                      | assert self_div(UInt64(0)) == 1 | regression_tests/div_identity_fold_uint64.py:7                                                           |
+| 12 | 81 00      |     pushint 0        |                 ---------       | regression_tests/div_identity_fold_uint64.py:7:24-33                                                     |
+| 14 | 88 00 05   |     callsub self_div |        -------------------      | regression_tests/div_identity_fold_uint64.py:7:15-34                                                     |
+| 17 | 22         |     intc_0 // 1      |                               - | regression_tests/div_identity_fold_uint64.py:7:38-39                                                     |
+| 18 | 12         |     ==               |        ------------------------ | regression_tests/div_identity_fold_uint64.py:7:15-39                                                     |
+| 19 | 44         |     assert           | ------------------------------- | regression_tests/div_identity_fold_uint64.py:7:8-39                                                      |
+|    |            |                      | return True                     | regression_tests/div_identity_fold_uint64.py:8                                                           |
+| 20 | 22         |     intc_0 // 1      |        ----                     | regression_tests/div_identity_fold_uint64.py:8:15-19                                                     |
+| 21 | 43         |     return           | -----------                     | regression_tests/div_identity_fold_uint64.py:8:8-19                                                      |
+|    | # self_div | self_div:            |                                 | test_cases.regression_tests.div_identity_fold_uint64.self_div(x: uint64) -> uint64:                      |
+| 22 | 8a 01 01   |     proto 1 1        |                                 | regression_tests/div_identity_fold_uint64.py:14-15:1                                                     |
+|    |            |                      | return x // x                   | regression_tests/div_identity_fold_uint64.py:17                                                          |
+| 25 | 22         |     intc_0 // 1      |        ------                   | regression_tests/div_identity_fold_uint64.py:17:11-17                                                    |
+| 26 | 89         |     retsub           | -------------                   | regression_tests/div_identity_fold_uint64.py:17:4-17                                                     |

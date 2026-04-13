@@ -1,0 +1,37 @@
+// Op                                                       Stack (out)
+// test_cases.regression_tests.div_identity_fold_biguint.DivIdentityFoldBigUInt.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // regression_tests/div_identity_fold_biguint.py:6
+        // assert self_div(BigUInt(5)) == 1
+        byte 0x05                                           0x05
+        callsub self_div                                    tmp%0#0
+        l-load tmp%0#0 0                                    tmp%0#0
+        byte 0x01                                           tmp%0#0,0x01
+        b==                                                 tmp%1#0
+        l-load tmp%1#0 0                                    tmp%1#0
+        assert
+        // regression_tests/div_identity_fold_biguint.py:7
+        // assert self_div(BigUInt(0)) == 1
+        byte 0x                                             0x
+        callsub self_div                                    tmp%2#0
+        l-load tmp%2#0 0                                    tmp%2#0
+        byte 0x01                                           tmp%2#0,0x01
+        b==                                                 tmp%3#0
+        l-load tmp%3#0 0                                    tmp%3#0
+        assert
+        // regression_tests/div_identity_fold_biguint.py:8
+        // return True
+        int 1                                               1
+        return
+
+
+// test_cases.regression_tests.div_identity_fold_biguint.self_div(x: bytes) -> bytes:
+subroutine self_div:
+    self_div_block@0:                                       (𝕡) x#0 |
+        // regression_tests/div_identity_fold_biguint.py:17
+        // return x // x
+        byte 0x01                                           (𝕡) x#0 | 0x01
+        retsub                                              0x01
+
+
