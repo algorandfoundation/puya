@@ -1,0 +1,37 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.div_identity_fold_uint64.DivIdentityFoldUInt64.approval_program() -> uint64:
+main:
+    intcblock 1
+    // regression_tests/div_identity_fold_uint64.py:6
+    // assert self_div(UInt64(5)) == 1
+    pushint 5
+    callsub self_div
+    intc_0 // 1
+    ==
+    assert
+    // regression_tests/div_identity_fold_uint64.py:7
+    // assert self_div(UInt64(0)) == 1
+    pushint 0
+    callsub self_div
+    intc_0 // 1
+    ==
+    assert
+    // regression_tests/div_identity_fold_uint64.py:8
+    // return True
+    intc_0 // 1
+    return
+
+
+// test_cases.regression_tests.div_identity_fold_uint64.self_div(x: uint64) -> uint64:
+self_div:
+    // regression_tests/div_identity_fold_uint64.py:14-15
+    // @subroutine(inline=False)
+    // def self_div(x: UInt64) -> UInt64:
+    proto 1 1
+    // regression_tests/div_identity_fold_uint64.py:16-17
+    // # `x // x` must not be folded to 1 — if x is 0, the AVM panics
+    // return x // x
+    intc_0 // 1
+    retsub

@@ -1,0 +1,37 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.div_identity_fold_biguint.DivIdentityFoldBigUInt.approval_program() -> uint64:
+main:
+    bytecblock 0x01
+    // regression_tests/div_identity_fold_biguint.py:6
+    // assert self_div(BigUInt(5)) == 1
+    pushbytes 0x05
+    callsub self_div
+    bytec_0 // 0x01
+    b==
+    assert
+    // regression_tests/div_identity_fold_biguint.py:7
+    // assert self_div(BigUInt(0)) == 1
+    pushbytes 0x
+    callsub self_div
+    bytec_0 // 0x01
+    b==
+    assert
+    // regression_tests/div_identity_fold_biguint.py:8
+    // return True
+    pushint 1
+    return
+
+
+// test_cases.regression_tests.div_identity_fold_biguint.self_div(x: bytes) -> bytes:
+self_div:
+    // regression_tests/div_identity_fold_biguint.py:14-15
+    // @subroutine(inline=False)
+    // def self_div(x: BigUInt) -> BigUInt:
+    proto 1 1
+    // regression_tests/div_identity_fold_biguint.py:16-17
+    // # `x // x` must not be folded to 1 — if x is 0, the AVM panics
+    // return x // x
+    bytec_0 // 0x01
+    retsub

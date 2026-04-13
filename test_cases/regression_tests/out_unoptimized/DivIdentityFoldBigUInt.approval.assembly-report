@@ -1,0 +1,30 @@
+| PC | TEAL Bytes         | TEAL                   | Source                           | Location                                                                                                   |
+|--: | :------------------| :----------------------| :--------------------------------| :----------------------------------------------------------------------------------------------------------|
+|  0 | 0b                 | #pragma version 11     |                                  |                                                                                                            |
+|    | # main             | main:                  |                                  | test_cases.regression_tests.div_identity_fold_biguint.DivIdentityFoldBigUInt.approval_program() -> uint64: |
+|  1 | 42 00 00           |     b main_block@0     |                                  |                                                                                                            |
+|    | # main_block@0     | main_block@0:          |                                  |                                                                                                            |
+|    |                    |                        | assert self_div(BigUInt(5)) == 1 | regression_tests/div_identity_fold_biguint.py:6                                                            |
+|  4 | 80 01 05           |     pushbytes 0x05     |                 ----------       | regression_tests/div_identity_fold_biguint.py:6:24-34                                                      |
+|  7 | 88 00 12           |     callsub self_div   |        --------------------      | regression_tests/div_identity_fold_biguint.py:6:15-35                                                      |
+| 10 | 80 01 01           |     pushbytes 0x01     |                                - | regression_tests/div_identity_fold_biguint.py:6:39-40                                                      |
+| 13 | a8                 |     b==                |        ------------------------- | regression_tests/div_identity_fold_biguint.py:6:15-40                                                      |
+| 14 | 44                 |     assert             | -------------------------------- | regression_tests/div_identity_fold_biguint.py:6:8-40                                                       |
+|    |                    |                        | assert self_div(BigUInt(0)) == 1 | regression_tests/div_identity_fold_biguint.py:7                                                            |
+| 15 | 80 00              |     pushbytes 0x       |                 ----------       | regression_tests/div_identity_fold_biguint.py:7:24-34                                                      |
+| 17 | 88 00 08           |     callsub self_div   |        --------------------      | regression_tests/div_identity_fold_biguint.py:7:15-35                                                      |
+| 20 | 80 01 01           |     pushbytes 0x01     |                                - | regression_tests/div_identity_fold_biguint.py:7:39-40                                                      |
+| 23 | a8                 |     b==                |        ------------------------- | regression_tests/div_identity_fold_biguint.py:7:15-40                                                      |
+| 24 | 44                 |     assert             | -------------------------------- | regression_tests/div_identity_fold_biguint.py:7:8-40                                                       |
+|    |                    |                        | return True                      | regression_tests/div_identity_fold_biguint.py:8                                                            |
+| 25 | 81 01              |     pushint 1          |        ----                      | regression_tests/div_identity_fold_biguint.py:8:15-19                                                      |
+| 27 | 43                 |     return             | -----------                      | regression_tests/div_identity_fold_biguint.py:8:8-19                                                       |
+|    | # self_div         | self_div:              |                                  | test_cases.regression_tests.div_identity_fold_biguint.self_div(x: bytes) -> bytes:                         |
+| 28 | 8a 01 01           |     proto 1 1          |                                  | regression_tests/div_identity_fold_biguint.py:14-15:1                                                      |
+| 31 | 42 00 00           |     b self_div_block@0 |                                  |                                                                                                            |
+|    | # self_div_block@0 | self_div_block@0:      |                                  |                                                                                                            |
+|    |                    |                        | return x // x                    | regression_tests/div_identity_fold_biguint.py:17                                                           |
+| 34 | 8b ff              |     frame_dig -1       |        ------                    | regression_tests/div_identity_fold_biguint.py:17:11-17                                                     |
+| 36 | 8b ff              |     frame_dig -1       |        ------                    | regression_tests/div_identity_fold_biguint.py:17:11-17                                                     |
+| 38 | a2                 |     b/                 |        ------                    | regression_tests/div_identity_fold_biguint.py:17:11-17                                                     |
+| 39 | 89                 |     retsub             | -------------                    | regression_tests/div_identity_fold_biguint.py:17:4-17                                                      |
