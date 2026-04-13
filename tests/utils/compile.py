@@ -252,7 +252,7 @@ def _compile_from_awst(
 
 
 def compile_arc56(
-    src_path: Path | PuyaTestCase,
+    test_case_or_path: Path | PuyaTestCase,
     *,
     optimization_level: int = 1,
     debug_level: int = 2,
@@ -260,10 +260,10 @@ def compile_arc56(
     disabled_optimizations: Sequence[str] = (),
     validate_abi_args: bool = True,
 ) -> au.Arc56Contract:
-    if isinstance(src_path, Path):
-        test_case = PuyaTestCase(src_path)
+    if isinstance(test_case_or_path, Path):
+        test_case = PuyaTestCase(test_case_or_path)
     else:
-        test_case = src_path
+        test_case = test_case_or_path
 
     result = compile_from_test_case(
         test_case,
