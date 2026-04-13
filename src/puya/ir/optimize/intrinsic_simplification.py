@@ -1386,12 +1386,11 @@ def _try_simplify_uint64_binary_op(
                 c = 1
             case AVMOp.neq | AVMOp.lt | AVMOp.gt:
                 c = 0
-            case AVMOp.div_floor:
-                c = 1
             case AVMOp.bitwise_xor:
                 c = 0
             case AVMOp.bitwise_and | AVMOp.bitwise_or:
                 c = a
+            # AVMOp.div_floor: 1, but need to guard against division by zero
     if c is None:
         a_const = _get_int_constant(a)
         b_const = _get_int_constant(b)
@@ -1514,12 +1513,11 @@ def _try_simplify_bytes_binary_op(
                 c = 1
             case AVMOp.neq_bytes | AVMOp.neq | AVMOp.lt_bytes | AVMOp.gt_bytes:
                 c = 0
-            case AVMOp.div_floor_bytes:
-                c = 1
             case AVMOp.bitwise_xor_bytes:
                 c = 0
             case AVMOp.bitwise_and_bytes | AVMOp.bitwise_or_bytes:
                 c = a
+            # AVMOp.div_floor_bytes: "\x01", but need to guard against division by zero
     if c is None:
         a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
         b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
