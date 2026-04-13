@@ -1061,7 +1061,11 @@ def _get_biguint_constant(
     register_assignments: _RegisterAssignments, value: models.Value
 ) -> tuple[int | None, models.BytesConstant] | tuple[None, None]:
     if isinstance(value, models.BigUIntConstant):
-        return value.value, _biguint_constant_to_bytes_constant(value)
+        biguint_byte_const = _biguint_constant_to_bytes_constant(value)
+        if len(biguint_byte_const.value) <= 64:
+            return value.value, biguint_byte_const
+        else:
+            return None, biguint_byte_const
     byte_const = _get_byte_constant(register_assignments, value)
     if byte_const is None:
         return None, byte_const
