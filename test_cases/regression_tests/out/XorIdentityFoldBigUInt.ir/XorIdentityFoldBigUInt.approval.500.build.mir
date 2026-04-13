@@ -42,7 +42,11 @@ subroutine self_xor:
     self_xor_block@0:                                       (𝕡) x#0 |
         // regression_tests/xor_identity_fold_biguint.py:21
         // return x ^ x
-        byte 0x                                             (𝕡) x#0 | 0x
-        retsub                                              0x
+        p-load x#0                                          (𝕡) x#0 | x#0 (copy)
+        p-load x#0                                          (𝕡) x#0 | x#0 (copy),x#0 (copy)
+        b^                                                  (𝕡) x#0 | tmp%0#0
+        v-store tmp%0#0                                     (𝕡) x#0 |
+        v-load tmp%0#0                                      (𝕡) x#0 | tmp%0#0
+        retsub                                              tmp%0#0
 
 
