@@ -1,5 +1,6 @@
 import typing
 from collections.abc import Mapping
+from functools import cached_property
 from pathlib import Path
 
 import attrs
@@ -91,7 +92,7 @@ class PuyaTestCase:
     def root(self) -> Path:
         return self.test_case.parent
 
-    @property
+    @cached_property
     def test_case(self) -> Path:
         if self.path.is_dir():
             return self.path
