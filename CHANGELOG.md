@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v5.8.1'></a>
+## v5.8.1 (2026-04-14)
+
+### Fixed
+
+- Fixed a compiler crash when a biguint constant larger than 64 bytes was encountered during
+  intrinsic simplification.
+
+- Fixed a compiler crash when attempting to constant-fold a biguint floor division by a zero divisor.
+
+- Fixed a miscompilation where `x // x` was unconditionally folded to `1` for both uint64 and biguint, silently eliminating the division-by-zero panic when `x` is zero at runtime.
+
+- Fixed a miscompilation where biguint `x ^ x` was folded to an empty-bytes constant, losing the input byte-width. The AVM `b^` op produces a zero-filled array of the same length as its inputs.
+
 <a id='changelog-v5.8.0'></a>
 ## v5.8.0 (2026-04-08)
 
