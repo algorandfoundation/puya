@@ -47,7 +47,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.buildArray[ro
 
 subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[routing]() -> void:
     block@0: // L41
-        let new_items_bytes#11: bytes = (itob 5u)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 5u)
         let array_length#11: uint64 = 4u
         let new_array_length#11: uint64 = 5u
         let new_len_u16#11: bytes = 0x0005
@@ -60,8 +60,8 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let tmp%6#0: uint64 = 5u
         let arr#2: Encoded(len+uint64[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005, 8u)
         let tmp%8#0: bool = 1u
-        let array_length#10: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
-        let tmp%10#0: bool = (== array_length#10 4u)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 arr#2 0u) // on error: invalid array length header
+        let tmp%10#0: bool = (== aggregate%array_length%1#0 4u)
         goto tmp%10#0 ? block@2 : block@7
     block@2: // and_contd_L46
         let tmp%11#0: uint64 = (extract_uint64 arr#2 2u)
@@ -92,18 +92,18 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let tmp%19#0: uint64 = (extract_uint64 arr#2 2u)
         let tmp%20#0: bool = (== tmp%19#0 1u)
         (assert tmp%20#0)
-        let tmp%22#0: uint64 = (- array_length#10 1u)
+        let tmp%22#0: uint64 = (- aggregate%array_length%1#0 1u)
         let aggregate%bytes_offset%6#0: uint64 = (* tmp%22#0 8u)
         let tmp%23#0: uint64 = (extract_uint64 aggregate%array_trimmed%5#0 aggregate%bytes_offset%6#0)
         let tmp%24#0: bool = (== tmp%23#0 4u)
         (assert tmp%24#0)
-        let new_array_length#10: uint64 = (+ array_length#10 1u)
+        let new_array_length#10: uint64 = (+ aggregate%array_length%1#0 1u)
         let tmp%0#21: bytes = (itob new_array_length#10)
         let new_len_u16#10: bytes = ((extract 6 0) tmp%0#21)
         let result#10: bytes = ((replace2 0) arr#2 new_len_u16#10)
-        let arr#5: Encoded(len+uint64[]) = (concat result#10 new_items_bytes#11)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 arr#5 0u) // on error: invalid array length header
-        let tmp%29#0: bool = (== aggregate%array_length%3#0 5u)
+        let arr#5: Encoded(len+uint64[]) = (concat result#10 aggregate%val_as_bytes%0#0)
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 arr#5 0u) // on error: invalid array length header
+        let tmp%29#0: bool = (== aggregate%array_length%2#0 5u)
         goto tmp%29#0 ? block@9 : block@15
     block@9: // and_contd_L55
         let tmp%30#0: uint64 = (extract_uint64 arr#5 2u)
@@ -134,15 +134,15 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
     block@16: // bool_merge_L55
         let and_result%1#2: bool = φ(and_result%1#0 <- block@14, and_result%1#1 <- block@15)
         (assert and_result%1#2) // assert target is match for conditions
-        let sub%1#0: uint64 = (- aggregate%array_length%3#0 1u) // on error: cannot pop from empty array
+        let sub%1#0: uint64 = (- aggregate%array_length%2#0 1u) // on error: cannot pop from empty array
         let aggregate%array_trimmed%12#0: bytes = ((extract 2 0) arr#5)
         let aggregate%bytes_offset%12#0: uint64 = (* sub%1#0 8u)
         let top#0: uint64 = (extract_uint64 aggregate%array_trimmed%12#0 aggregate%bytes_offset%12#0)
         let arr#8: Encoded(len+uint64[]) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#5, 8u)
         let tmp%44#0: bool = (== top#0 5u)
         (assert tmp%44#0)
-        let aggregate%array_length%5#0: uint64 = (extract_uint16 arr#8 0u) // on error: invalid array length header
-        let tmp%46#0: bool = (== aggregate%array_length%5#0 1u)
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 arr#8 0u) // on error: invalid array length header
+        let tmp%46#0: bool = (== aggregate%array_length%3#0 1u)
         goto tmp%46#0 ? block@17 : block@19
     block@17: // and_contd_L61
         let tmp%47#0: uint64 = (extract_uint64 arr#8 2u)
@@ -166,13 +166,13 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let new_len_u16#7: bytes = ((extract 6 0) tmp%0#15)
         let result#7: bytes = ((replace2 0) arr#11 new_len_u16#7)
         let array#8: bytes = (concat result#7 new_items_bytes#7)
-        let new_items_bytes#8: bytes = (itob 11u)
+        let aggregate%val_as_bytes%4#0: bytes[8] = (itob 11u)
         let array_length#8: uint64 = (extract_uint16 array#8 0u)
         let new_array_length#8: uint64 = (+ array_length#8 1u)
         let tmp%0#17: bytes = (itob new_array_length#8)
         let new_len_u16#8: bytes = ((extract 6 0) tmp%0#17)
         let result#8: bytes = ((replace2 0) array#8 new_len_u16#8)
-        let array#9: bytes = (concat result#8 new_items_bytes#8)
+        let array#9: bytes = (concat result#8 aggregate%val_as_bytes%4#0)
         let array_length#9: uint64 = (extract_uint16 array#9 0u)
         let new_array_length#9: uint64 = (+ array_length#9 2u)
         let tmp%0#19: bytes = (itob new_array_length#9)
@@ -241,8 +241,8 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let new_len_u16#1: bytes = ((extract 6 0) tmp%0#3)
         let result#1: bytes = ((replace2 0) 0x00040000000000000000000000000000000000000000000000000000000000000000 new_len_u16#1)
         let arr8#0: Encoded(len+uint64[]) = (concat result#1 new_items_bytes#1)
-        let aggregate%array_length%17#0: uint64 = (extract_uint16 arr8#0 0u) // on error: invalid array length header
-        let tmp%194#0: bool = (== aggregate%array_length%17#0 15u)
+        let aggregate%array_length%12#0: uint64 = (extract_uint16 arr8#0 0u) // on error: invalid array length header
+        let tmp%194#0: bool = (== aggregate%array_length%12#0 15u)
         goto tmp%194#0 ? block@89 : block@105
     block@89: // and_contd_L93
         let tmp%195#0: uint64 = (extract_uint64 arr8#0 2u)
@@ -314,8 +314,8 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let new_len_u16#0: bytes = ((extract 6 0) tmp%0#1)
         let result#0: bytes = ((replace2 0) 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005 new_len_u16#0)
         let arr5#0: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#1)
-        let aggregate%array_length%19#0: uint64 = (extract_uint16 arr5#0 0u) // on error: invalid array length header
-        let tmp%230#0: bool = (== aggregate%array_length%19#0 16u)
+        let aggregate%array_length%13#0: uint64 = (extract_uint16 arr5#0 0u) // on error: invalid array length header
+        let tmp%230#0: bool = (== aggregate%array_length%13#0 16u)
         goto tmp%230#0 ? block@107 : block@124
     block@107: // and_contd_L96
         let tmp%231#0: uint64 = (extract_uint64 arr5#0 2u)

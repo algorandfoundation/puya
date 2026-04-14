@@ -51,11 +51,6 @@ test_redundant_phi:
     frame_dig -2
     frame_dig -1
     |
-    // gvn/phi_congruence.py:41
-    // val2 = b | a
-    frame_dig -1
-    frame_dig -2
-    |
     // gvn/phi_congruence.py:42
     // if a > b:
     frame_dig -2
@@ -67,12 +62,12 @@ test_redundant_phi:
     frame_dig -2
     itob
     log
-    frame_dig 0
 
 test_redundant_phi_after_if_else@3:
     // gvn/phi_congruence.py:48
     // return result
-    frame_bury 0
+    frame_dig 0
+    swap
     retsub
 
 test_redundant_phi_else_body@2:
@@ -81,7 +76,6 @@ test_redundant_phi_else_body@2:
     frame_dig -1
     itob
     log
-    frame_dig 1
     b test_redundant_phi_after_if_else@3
 
 
@@ -91,8 +85,6 @@ test_cross_assignment:
     // @subroutine(inline=False)
     // def test_cross_assignment(n: UInt64) -> UInt64:
     proto 1 1
-    frame_dig -1
-    dup
     // gvn/phi_congruence.py:63
     // for _i in urange(10):
     intc_0 // 0
@@ -100,28 +92,24 @@ test_cross_assignment:
 test_cross_assignment_for_header@1:
     // gvn/phi_congruence.py:63
     // for _i in urange(10):
-    frame_dig 2
+    frame_dig 0
     intc_3 // 10
     <
     bz test_cross_assignment_after_for@4
-    frame_dig 2
+    frame_dig 0
     intc_2 // 1
     +
-    frame_bury 2
-    frame_dig 0
-    frame_dig 1
     frame_bury 0
-    frame_bury 1
     b test_cross_assignment_for_header@1
 
 test_cross_assignment_after_for@4:
     // gvn/phi_congruence.py:67-68
     // # x == y == n, so x + y == 2*n
     // return x + y
-    frame_dig 1
-    frame_dig 0
+    frame_dig -1
+    dup
     +
-    frame_bury 0
+    swap
     retsub
 
 
@@ -131,8 +119,6 @@ test_triple_cycle:
     // @subroutine(inline=False)
     // def test_triple_cycle(n: UInt64) -> UInt64:
     proto 1 1
-    frame_dig -1
-    dupn 2
     // gvn/phi_congruence.py:84
     // for _i in urange(5):
     intc_0 // 0
@@ -140,30 +126,24 @@ test_triple_cycle:
 test_triple_cycle_for_header@1:
     // gvn/phi_congruence.py:84
     // for _i in urange(5):
-    frame_dig 3
+    frame_dig 0
     intc_1 // 5
     <
     bz test_triple_cycle_after_for@4
-    frame_dig 3
+    frame_dig 0
     intc_2 // 1
     +
-    frame_bury 3
-    frame_dig 0
-    frame_dig 1
     frame_bury 0
-    frame_dig 2
-    frame_bury 1
-    frame_bury 2
     b test_triple_cycle_for_header@1
 
 test_triple_cycle_after_for@4:
     // gvn/phi_congruence.py:90-91
     // # a == b == c == n, so a + b + c == 3*n
     // return a + b + c
-    frame_dig 2
-    frame_dig 1
+    frame_dig -1
+    dup
     +
-    frame_dig 0
+    frame_dig -1
     +
-    frame_bury 0
+    swap
     retsub

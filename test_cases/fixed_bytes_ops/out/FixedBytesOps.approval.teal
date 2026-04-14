@@ -4,10 +4,10 @@
 // test_cases.fixed_bytes_ops.contract.FixedBytesOps.approval_program() -> uint64:
 main:
     intcblock 1 0 4 3
-    bytecblock 0xabcd1234 0xcd12 0xabcdef 0x "local" "box"
+    bytecblock 0xabcd1234 0x 0xabcdef 0xcd12 "local" "box"
     intc_1 // 0
     dupn 3
-    bytec_3 // ""
+    bytec_1 // ""
     dup
     // fixed_bytes_ops/contract.py:27
     // if Txn.num_app_args > 0:
@@ -248,7 +248,7 @@ main_else_body@33:
     assert
     // fixed_bytes_ops/contract.py:535
     // result = Bytes()
-    bytec_3 // 0x
+    bytec_1 // 0x
     bury 3
     intc_1 // 0
     bury 1
@@ -320,23 +320,12 @@ main_for_header@62:
     intc_0 // 1
     ==
     assert // expected bytes to be length 1
-    // fixed_bytes_ops/contract.py:545
-    // assert byte in val
-    dup
     // fixed_bytes_ops/contract.py:533-534
     // # from_hex
     // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
     bytec_2 // 0xabcdef
     // fixed_bytes_ops/contract.py:545
     // assert byte in val
-    callsub is_substring
-    assert
-    // fixed_bytes_ops/contract.py:533-534
-    // # from_hex
-    // val: FixedBytes[typing.Literal[3]] = FixedBytes.from_hex("ABCDEF")
-    bytec_2 // 0xabcdef
-    // fixed_bytes_ops/contract.py:546
-    // assert FB1(byte) in val
     callsub is_substring
     assert
     intc_0 // 1
@@ -385,108 +374,50 @@ main_after_for@71:
     // fixed_bytes_ops/contract.py:608
     // assert x in x  # noqa: PLR0124
     callsub is_substring
+    dup
     assert
     // fixed_bytes_ops/contract.py:105
     // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     bytec_0 // 0xabcd1234
     // fixed_bytes_ops/contract.py:609
     // assert y in x
     callsub is_substring
+    dup
     assert
     // fixed_bytes_ops/contract.py:105
     // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
     bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     // fixed_bytes_ops/contract.py:610
     // assert x not in y
     callsub is_substring
     !
     assert
-    // fixed_bytes_ops/contract.py:105
-    // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    dup
     // fixed_bytes_ops/contract.py:612
     // assert (x not in x) == False  # noqa: E712, PLR0124
-    callsub is_substring
+    swap
     !
     !
     assert
-    // fixed_bytes_ops/contract.py:105
-    // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
     // fixed_bytes_ops/contract.py:613
     // assert (y not in x) == False  # noqa: E712
-    callsub is_substring
     !
-    !
-    assert
-    // fixed_bytes_ops/contract.py:105
-    // FixedBytes.from_hex("ABCD1234"), FixedBytes.from_bytes(Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:614
-    // assert (x in y) == False  # noqa: E712
-    callsub is_substring
-    !
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    // fixed_bytes_ops/contract.py:619
-    // assert y in x
-    callsub is_substring
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:620
-    // assert x not in y
-    callsub is_substring
-    !
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    // fixed_bytes_ops/contract.py:622
-    // assert (y not in x) == False  # noqa: E712
-    callsub is_substring
-    !
-    !
-    assert
-    // fixed_bytes_ops/contract.py:108
-    // test_contains_bytes(FixedBytes.from_hex("ABCD1234"), Bytes.from_hex("CD12"))
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:623
-    // assert (x in y) == False  # noqa: E712
-    callsub is_substring
     !
     assert
     // fixed_bytes_ops/contract.py:628
     // assert b"\xcd\x12" in x
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     // fixed_bytes_ops/contract.py:110
     // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
     bytec_0 // 0xabcd1234
     // fixed_bytes_ops/contract.py:628
     // assert b"\xcd\x12" in x
     callsub is_substring
+    dup
     assert
     // fixed_bytes_ops/contract.py:630
     // assert (b"\xcd\x12" not in x) == False  # noqa: E712
-    bytec_1 // 0xcd12
-    // fixed_bytes_ops/contract.py:110
-    // test_contains_literal_bytes(FixedBytes.from_hex("ABCD1234"))
-    bytec_0 // 0xabcd1234
-    // fixed_bytes_ops/contract.py:630
-    // assert (b"\xcd\x12" not in x) == False  # noqa: E712
-    callsub is_substring
     !
     !
     assert
@@ -502,7 +433,7 @@ main_after_for@71:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    bytec_3 // ""
+    bytec_1 // ""
     intc_1 // 0
 
 is_substring_while_top@1:
@@ -546,7 +477,7 @@ test_sequence_ops:
     // @subroutine(inline=False)
     // def test_sequence_ops(val: FixedBytes[typing.Literal[4]]) -> None:
     proto 1 0
-    bytec_3 // ""
+    bytec_1 // ""
     // fixed_bytes_ops/contract.py:448-449
     // # Indexing (returns Bytes)
     // first_byte = val[0]
@@ -573,7 +504,7 @@ test_sequence_ops:
     substring 1 3
     // fixed_bytes_ops/contract.py:458
     // assert slice_result == Bytes.from_hex("CD12")
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     ==
     assert
     // fixed_bytes_ops/contract.py:460

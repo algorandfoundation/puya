@@ -643,15 +643,15 @@ subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:
         let continue_looping%4#0: bool = (< i#0 5u)
         goto continue_looping%4#0 ? block@19 : block@21
     block@19: // for_body_L165
-        let new_items_bytes#1: bytes = (itob i#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob i#0)
         let array_length#1: uint64 = (extract_uint16 arc4_arr#1 0u)
         let new_array_length#1: uint64 = (+ array_length#1 1u)
         let tmp%0#4: bytes = (itob new_array_length#1)
         let new_len_u16#1: bytes = ((extract 6 0) tmp%0#4)
         let result#1: bytes = ((replace2 0) arc4_arr#1 new_len_u16#1)
-        let arc4_arr#2: Encoded(len+uint64[]) = (concat result#1 new_items_bytes#1)
+        let arc4_arr#2: Encoded(len+uint64[]) = (concat result#1 aggregate%val_as_bytes%1#0)
         let slot_contents%4#0: Encoded(uint64[]) = load(local.1)
-        let aggregate%concat%1#0: Encoded(uint64[]) = (concat slot_contents%4#0 new_items_bytes#1) // on error: max array length exceeded
+        let aggregate%concat%1#0: Encoded(uint64[]) = (concat slot_contents%4#0 aggregate%val_as_bytes%1#0) // on error: max array length exceeded
         store(local.1, aggregate%concat%1#0)
         let value_internal%1#2: uint64 = (+ i#0 1u)
         goto block@18

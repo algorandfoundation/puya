@@ -487,12 +487,11 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let len%0#0: uint64 = (len tups#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>
-        let tmp%0#1: uint64 = array_len(tups#0)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L72
         let i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< i#0 tmp%0#1)
+        let continue_looping%0#0: bool = (< i#0 length%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L73
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(tups#0, i#0)
@@ -544,7 +543,6 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         (assert box%index_ok%0#0) // index out of bounds
         let box%element_offset%0#0: uint64 = (* i#0 16u)
         let box%offset%2#0: uint64 = (+ 8u box%element_offset%0#0)
-        let box%offset%3#0: uint64 = box%offset%2#0
         (box_replace "tup_bag" box%offset%2#0 tmp%0#0) // on error: index out of bounds
         let value_internal%0#2: uint64 = (+ i#0 1u)
         goto block@2

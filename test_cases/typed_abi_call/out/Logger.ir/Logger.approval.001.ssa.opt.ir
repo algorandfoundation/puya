@@ -234,16 +234,16 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
         let tmp%0#1: bytes = (itob new_length#0)
         let tmp%1#1: bytes = ((extract 6 0) tmp%0#1)
-        let tail_offset#0: uint64 = (* new_length#0 2u)
+        let tmp%0#2: uint64 = (* new_length#0 2u)
         let tmp%1#2: uint64 = 0u
         let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 0u)
         let tmp%5#1: uint64 = 0u
         goto block@4
     block@4: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
-        let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
+        let tail_offset#1: uint64 = φ(tmp%0#2 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
-        let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#2)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L413
         let tail_offset_bytes#0: bytes = _puya_lib.arc4._itob16(tail_offset#1)
@@ -317,7 +317,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.is_a_b[routing]() -> void:
     block@0: // L32
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -325,7 +324,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.is_a_b[routing]() -> void:
         let a#0: bytes = decode_bytes<bytes>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
@@ -347,8 +345,7 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo[routing]() -> void:
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let tmp%0#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("echo: ")
         let extract_to_end%0#0: bytes = ((extract 2 0) value#0)
-        let tmp%1#1: uint64 = array_len(value#0)
-        let tmp%2#1: Encoded(len+utf8[]) = array_concat(tmp%0#1, extract_to_end%0#0, tmp%1#1)
+        let tmp%2#1: Encoded(len+utf8[]) = array_concat(tmp%0#1, extract_to_end%0#0, length%0#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%2#1)
         (log tmp%2#0)
         exit 1u
@@ -382,7 +379,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_string[routing]() -> void
     block@0: // L53
         let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(value#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -406,7 +402,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_bytes[routing]() -> void:
     block@0: // L61
         let value#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(value#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -434,9 +429,7 @@ subroutine test_cases.typed_abi_call.logger.Logger.log_asset_account_app[routing
         let app#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetName) asset#0)
         (assert check%0#0) // asset exists
-        let tmp%0#1: bytes = value%0#0
         let tmp%1#1: bytes = (concat value%0#0 account#0)
-        let tmp%2#1: bytes = tmp%1#1
         let (value%1#0: account, check%1#0: bool) = ((app_params_get AppAddress) app#0)
         (assert check%1#0) // application exists
         let tmp%3#1: bytes = (concat tmp%1#1 value%1#0)
@@ -456,7 +449,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_string[routing]()
     block@0: // L73
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -472,7 +464,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_bytes[routing]() 
     block@0: // L77
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -587,7 +578,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_tuple[routing]() 
     block@0: // L117
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -595,7 +585,6 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_tuple[routing]() 
         let s#0: string = decode_bytes<string>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)

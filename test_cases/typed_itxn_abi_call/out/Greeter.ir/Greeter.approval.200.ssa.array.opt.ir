@@ -972,8 +972,8 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let extract_uint16%1#0: uint64 = (extract_uint16 result1#0 2u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-        let b#0: Encoded(len+uint8[]) = (substring3 result1#0 extract_uint16%1#0 tuple_len%0#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 b#0 0u) // on error: invalid array length header
+        let substring3%1#0: bytes = (substring3 result1#0 extract_uint16%1#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
         let add%2#0: uint64 = (+ aggregate%array_length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
@@ -984,7 +984,7 @@ subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[ro
         let tmp%11#0: string = ((extract 2 0) s#0)
         let tmp%12#0: bool = (== tmp%11#0 "echo: s1")
         (assert tmp%12#0)
-        let tmp%13#0: bytes = ((extract 2 0) b#0)
+        let tmp%13#0: bytes = ((extract 2 0) substring3%1#0)
         let tmp%14#0: bool = (== tmp%13#0 0x6563686f3a206231)
         (assert tmp%14#0)
         let tmp%15#0: uint64 = (extract_uint64 awst_tmp%0#0 8u)

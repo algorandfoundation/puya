@@ -71,8 +71,8 @@ subroutine dynamic_array_pop_fixed_size:
 subroutine doThings:
     doThings_block@0:
         int 5                                                                        5
-        itob                                                                         new_items_bytes#1
-        v-store new_items_bytes#1
+        itob                                                                         aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         byte 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005
         int 8                                                                        0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005,8
         callsub dynamic_array_pop_fixed_size                                         arr#2
@@ -80,11 +80,11 @@ subroutine doThings:
         v-store arr#2                                                                arr#2
         l-load arr#2 0                                                               arr#2
         int 0                                                                        arr#2,0
-        extract_uint16 // on error: invalid array length header                      array_length#8
-        l-store-copy array_length#8 0                                                array_length#8,array_length#8 (copy)
-        v-store array_length#8                                                       array_length#8
-        l-load array_length#8 0                                                      array_length#8
-        int 4                                                                        array_length#8,4
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%1#0
+        l-store-copy aggregate%array_length%1#0 0                                    aggregate%array_length%1#0,aggregate%array_length%1#0 (copy)
+        v-store aggregate%array_length%1#0                                           aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                          aggregate%array_length%1#0
+        int 4                                                                        aggregate%array_length%1#0,4
         ==                                                                           tmp%10#0
         bz doThings_bool_false@7 ; b doThings_and_contd@2
 
@@ -142,37 +142,37 @@ subroutine doThings:
         int 1                                                                        arr#2,aggregate%array_trimmed%5#0,tmp%19#0,1
         ==                                                                           arr#2,aggregate%array_trimmed%5#0,tmp%20#0
         assert                                                                       arr#2,aggregate%array_trimmed%5#0
-        v-load array_length#8                                                        arr#2,aggregate%array_trimmed%5#0,array_length#8
-        l-store-copy array_length#8 0                                                arr#2,aggregate%array_trimmed%5#0,array_length#8,array_length#8 (copy)
-        int 1                                                                        arr#2,aggregate%array_trimmed%5#0,array_length#8,array_length#8 (copy),1
-        -                                                                            arr#2,aggregate%array_trimmed%5#0,array_length#8,tmp%22#0
-        int 8                                                                        arr#2,aggregate%array_trimmed%5#0,array_length#8,tmp%22#0,8
-        *                                                                            arr#2,aggregate%array_trimmed%5#0,array_length#8,aggregate%bytes_offset%6#0
-        l-load aggregate%array_trimmed%5#0 2                                         arr#2,array_length#8,aggregate%bytes_offset%6#0,aggregate%array_trimmed%5#0
-        l-load aggregate%bytes_offset%6#0 1                                          arr#2,array_length#8,aggregate%array_trimmed%5#0,aggregate%bytes_offset%6#0
-        extract_uint64                                                               arr#2,array_length#8,tmp%23#0
-        int 4                                                                        arr#2,array_length#8,tmp%23#0,4
-        ==                                                                           arr#2,array_length#8,tmp%24#0
-        assert                                                                       arr#2,array_length#8
-        l-load array_length#8 0                                                      arr#2,array_length#8
-        int 1                                                                        arr#2,array_length#8,1
+        v-load aggregate%array_length%1#0                                            arr#2,aggregate%array_trimmed%5#0,aggregate%array_length%1#0
+        l-store-copy aggregate%array_length%1#0 0                                    arr#2,aggregate%array_trimmed%5#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy)
+        int 1                                                                        arr#2,aggregate%array_trimmed%5#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy),1
+        -                                                                            arr#2,aggregate%array_trimmed%5#0,aggregate%array_length%1#0,tmp%22#0
+        int 8                                                                        arr#2,aggregate%array_trimmed%5#0,aggregate%array_length%1#0,tmp%22#0,8
+        *                                                                            arr#2,aggregate%array_trimmed%5#0,aggregate%array_length%1#0,aggregate%bytes_offset%6#0
+        l-load aggregate%array_trimmed%5#0 2                                         arr#2,aggregate%array_length%1#0,aggregate%bytes_offset%6#0,aggregate%array_trimmed%5#0
+        l-load aggregate%bytes_offset%6#0 1                                          arr#2,aggregate%array_length%1#0,aggregate%array_trimmed%5#0,aggregate%bytes_offset%6#0
+        extract_uint64                                                               arr#2,aggregate%array_length%1#0,tmp%23#0
+        int 4                                                                        arr#2,aggregate%array_length%1#0,tmp%23#0,4
+        ==                                                                           arr#2,aggregate%array_length%1#0,tmp%24#0
+        assert                                                                       arr#2,aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                          arr#2,aggregate%array_length%1#0
+        int 1                                                                        arr#2,aggregate%array_length%1#0,1
         +                                                                            arr#2,new_array_length#0
         itob                                                                         arr#2,tmp%0#1
         extract 6 0                                                                  arr#2,new_len_u16#0
         l-load arr#2 1                                                               new_len_u16#0,arr#2
         l-load new_len_u16#0 1                                                       arr#2,new_len_u16#0
         replace2 0                                                                   result#0
-        v-load new_items_bytes#1                                                     result#0,new_items_bytes#1
+        v-load aggregate%val_as_bytes%0#0                                            result#0,aggregate%val_as_bytes%0#0
         concat                                                                       arr#2
         l-store-copy arr#2 0                                                         arr#2,arr#2 (copy)
         v-store arr#2                                                                arr#2
         l-load arr#2 0                                                               arr#2
         int 0                                                                        arr#2,0
-        extract_uint16 // on error: invalid array length header                      aggregate%array_length%3#0
-        l-store-copy aggregate%array_length%3#0 0                                    aggregate%array_length%3#0,aggregate%array_length%3#0 (copy)
-        v-store aggregate%array_length%3#0                                           aggregate%array_length%3#0
-        l-load aggregate%array_length%3#0 0                                          aggregate%array_length%3#0
-        int 5                                                                        aggregate%array_length%3#0,5
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%2#0
+        l-store-copy aggregate%array_length%2#0 0                                    aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
+        v-store aggregate%array_length%2#0                                           aggregate%array_length%2#0
+        l-load aggregate%array_length%2#0 0                                          aggregate%array_length%2#0
+        int 5                                                                        aggregate%array_length%2#0,5
         ==                                                                           tmp%29#0
         bz doThings_bool_false@15 ; b doThings_and_contd@9
 
@@ -229,8 +229,8 @@ subroutine doThings:
     doThings_bool_merge@16:
         v-load and_result%1#0                                                        and_result%1#0
         assert // assert target is match for conditions
-        v-load aggregate%array_length%3#0                                            aggregate%array_length%3#0
-        int 1                                                                        aggregate%array_length%3#0,1
+        v-load aggregate%array_length%2#0                                            aggregate%array_length%2#0
+        int 1                                                                        aggregate%array_length%2#0,1
         - // on error: cannot pop from empty array                                   sub%1#0
         v-load arr#2                                                                 sub%1#0,arr#2
         l-store-copy arr#2 1                                                         arr#2,sub%1#0,arr#2 (copy)
@@ -252,8 +252,8 @@ subroutine doThings:
         assert                                                                       arr#2
         l-load arr#2 0                                                               arr#2
         int 0                                                                        arr#2,0
-        extract_uint16 // on error: invalid array length header                      aggregate%array_length%5#0
-        int 1                                                                        aggregate%array_length%5#0,1
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%3#0
+        int 1                                                                        aggregate%array_length%3#0,1
         ==                                                                           tmp%46#0
         bz doThings_bool_false@19 ; b doThings_and_contd@17
 
@@ -299,18 +299,18 @@ subroutine doThings:
         l-load new_items_bytes#1 1                                                   result#0,new_items_bytes#1
         concat                                                                       array#8
         int 11                                                                       array#8,11
-        itob                                                                         array#8,new_items_bytes#1
-        l-load-copy array#8 1                                                        array#8,new_items_bytes#1,array#8 (copy)
-        int 0                                                                        array#8,new_items_bytes#1,array#8 (copy),0
-        extract_uint16                                                               array#8,new_items_bytes#1,array_length#8
-        int 1                                                                        array#8,new_items_bytes#1,array_length#8,1
-        +                                                                            array#8,new_items_bytes#1,new_array_length#0
-        itob                                                                         array#8,new_items_bytes#1,tmp%0#1
-        extract 6 0                                                                  array#8,new_items_bytes#1,new_len_u16#0
-        l-load array#8 2                                                             new_items_bytes#1,new_len_u16#0,array#8
-        l-load new_len_u16#0 1                                                       new_items_bytes#1,array#8,new_len_u16#0
-        replace2 0                                                                   new_items_bytes#1,result#0
-        l-load new_items_bytes#1 1                                                   result#0,new_items_bytes#1
+        itob                                                                         array#8,aggregate%val_as_bytes%4#0
+        l-load-copy array#8 1                                                        array#8,aggregate%val_as_bytes%4#0,array#8 (copy)
+        int 0                                                                        array#8,aggregate%val_as_bytes%4#0,array#8 (copy),0
+        extract_uint16                                                               array#8,aggregate%val_as_bytes%4#0,array_length#8
+        int 1                                                                        array#8,aggregate%val_as_bytes%4#0,array_length#8,1
+        +                                                                            array#8,aggregate%val_as_bytes%4#0,new_array_length#0
+        itob                                                                         array#8,aggregate%val_as_bytes%4#0,tmp%0#1
+        extract 6 0                                                                  array#8,aggregate%val_as_bytes%4#0,new_len_u16#0
+        l-load array#8 2                                                             aggregate%val_as_bytes%4#0,new_len_u16#0,array#8
+        l-load new_len_u16#0 1                                                       aggregate%val_as_bytes%4#0,array#8,new_len_u16#0
+        replace2 0                                                                   aggregate%val_as_bytes%4#0,result#0
+        l-load aggregate%val_as_bytes%4#0 1                                          result#0,aggregate%val_as_bytes%4#0
         concat                                                                       array#8
         l-load-copy array#8 0                                                        array#8,array#8 (copy)
         int 0                                                                        array#8,array#8 (copy),0
@@ -455,8 +455,8 @@ subroutine doThings:
         v-store arr8#0                                                               arr8#0
         l-load arr8#0 0                                                              arr8#0
         int 0                                                                        arr8#0,0
-        extract_uint16 // on error: invalid array length header                      aggregate%array_length%17#0
-        int 15                                                                       aggregate%array_length%17#0,15
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%12#0
+        int 15                                                                       aggregate%array_length%12#0,15
         ==                                                                           tmp%194#0
         bz doThings_bool_false@105 ; b doThings_and_contd@89
 
@@ -599,8 +599,8 @@ subroutine doThings:
         v-store arr5#0                                                               arr5#0
         l-load arr5#0 0                                                              arr5#0
         int 0                                                                        arr5#0,0
-        extract_uint16 // on error: invalid array length header                      aggregate%array_length%19#0
-        int 16                                                                       aggregate%array_length%19#0,16
+        extract_uint16 // on error: invalid array length header                      aggregate%array_length%13#0
+        int 16                                                                       aggregate%array_length%13#0,16
         ==                                                                           tmp%230#0
         bz doThings_bool_false@124 ; b doThings_and_contd@107
 

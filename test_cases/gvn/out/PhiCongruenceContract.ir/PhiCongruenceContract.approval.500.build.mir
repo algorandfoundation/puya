@@ -69,12 +69,6 @@ subroutine test_redundant_phi:
         p-load b#0                                                                        (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
         |                                                                                 (𝕡) a#0,b#0 | val1#0
         v-store val1#0                                                                    (𝕡) a#0,b#0 |
-        // gvn/phi_congruence.py:41
-        // val2 = b | a
-        p-load b#0                                                                        (𝕡) a#0,b#0 | b#0 (copy)
-        p-load a#0                                                                        (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        |                                                                                 (𝕡) a#0,b#0 | val2#0
-        v-store val2#0                                                                    (𝕡) a#0,b#0 |
         // gvn/phi_congruence.py:42
         // if a > b:
         p-load a#0                                                                        (𝕡) a#0,b#0 | a#0 (copy)
@@ -92,8 +86,6 @@ subroutine test_redundant_phi:
         v-store tmp%3#0                                                                   (𝕡) a#0,b#0 |
         v-load tmp%3#0                                                                    (𝕡) a#0,b#0 | tmp%3#0
         log                                                                               (𝕡) a#0,b#0 |
-        v-load val1#0                                                                     (𝕡) a#0,b#0 | val1#0
-        v-store result#2                                                                  (𝕡) a#0,b#0 |
         b test_redundant_phi_after_if_else@3                                              (𝕡) a#0,b#0 |
 
     test_redundant_phi_else_body@2:                                                       (𝕡) a#0,b#0 |
@@ -104,15 +96,13 @@ subroutine test_redundant_phi:
         v-store tmp%4#0                                                                   (𝕡) a#0,b#0 |
         v-load tmp%4#0                                                                    (𝕡) a#0,b#0 | tmp%4#0
         log                                                                               (𝕡) a#0,b#0 |
-        v-load val2#0                                                                     (𝕡) a#0,b#0 | val2#0
-        v-store result#2                                                                  (𝕡) a#0,b#0 |
         b test_redundant_phi_after_if_else@3                                              (𝕡) a#0,b#0 |
 
     test_redundant_phi_after_if_else@3:                                                   (𝕡) a#0,b#0 |
         // gvn/phi_congruence.py:48
         // return result
-        v-load result#2                                                                   (𝕡) a#0,b#0 | result#2
-        retsub                                                                            result#2
+        v-load val1#0                                                                     (𝕡) a#0,b#0 | val1#0
+        retsub                                                                            val1#0
 
 
 // test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
@@ -122,10 +112,6 @@ subroutine test_cross_assignment:
         // for _i in urange(10):
         int 0                                                                             (𝕡) n#0 | 0
         v-store value_internal%0#0                                                        (𝕡) n#0 |
-        p-load n#0                                                                        (𝕡) n#0 | n#0 (copy)
-        v-store y#1                                                                       (𝕡) n#0 |
-        v-load y#1                                                                        (𝕡) n#0 | y#1
-        v-store x#1                                                                       (𝕡) n#0 |
         v-load value_internal%0#0                                                         (𝕡) n#0 | value_internal%0#0
         v-store _i#0                                                                      (𝕡) n#0 |
         b test_cross_assignment_for_header@1                                              (𝕡) n#0 |
@@ -149,19 +135,13 @@ subroutine test_cross_assignment:
         v-store value_internal%0#0                                                        (𝕡) n#0 |
         v-load value_internal%0#0                                                         (𝕡) n#0 | value_internal%0#0
         v-store _i#0                                                                      (𝕡) n#0 |
-        v-load y#1                                                                        (𝕡) n#0 | y#1
-        v-store parcopy%0#0                                                               (𝕡) n#0 |
-        v-load x#1                                                                        (𝕡) n#0 | x#1
-        v-store y#1                                                                       (𝕡) n#0 |
-        v-load parcopy%0#0                                                                (𝕡) n#0 | parcopy%0#0
-        v-store x#1                                                                       (𝕡) n#0 |
         b test_cross_assignment_for_header@1                                              (𝕡) n#0 |
 
     test_cross_assignment_after_for@4:                                                    (𝕡) n#0 |
         // gvn/phi_congruence.py:68
         // return x + y
-        v-load x#1                                                                        (𝕡) n#0 | x#1
-        v-load y#1                                                                        (𝕡) n#0 | x#1,y#1
+        p-load n#0                                                                        (𝕡) n#0 | n#0 (copy)
+        p-load n#0                                                                        (𝕡) n#0 | n#0 (copy),n#0 (copy)
         +                                                                                 (𝕡) n#0 | tmp%0#0
         v-store tmp%0#0                                                                   (𝕡) n#0 |
         v-load tmp%0#0                                                                    (𝕡) n#0 | tmp%0#0
@@ -175,12 +155,6 @@ subroutine test_triple_cycle:
         // for _i in urange(5):
         int 0                                                                             (𝕡) n#0 | 0
         v-store value_internal%0#0                                                        (𝕡) n#0 |
-        p-load n#0                                                                        (𝕡) n#0 | n#0 (copy)
-        v-store c#1                                                                       (𝕡) n#0 |
-        v-load c#1                                                                        (𝕡) n#0 | c#1
-        v-store b#1                                                                       (𝕡) n#0 |
-        v-load b#1                                                                        (𝕡) n#0 | b#1
-        v-store a#1                                                                       (𝕡) n#0 |
         v-load value_internal%0#0                                                         (𝕡) n#0 | value_internal%0#0
         v-store _i#0                                                                      (𝕡) n#0 |
         b test_triple_cycle_for_header@1                                                  (𝕡) n#0 |
@@ -204,25 +178,17 @@ subroutine test_triple_cycle:
         v-store value_internal%0#0                                                        (𝕡) n#0 |
         v-load value_internal%0#0                                                         (𝕡) n#0 | value_internal%0#0
         v-store _i#0                                                                      (𝕡) n#0 |
-        v-load c#1                                                                        (𝕡) n#0 | c#1
-        v-store parcopy%0#0                                                               (𝕡) n#0 |
-        v-load b#1                                                                        (𝕡) n#0 | b#1
-        v-store c#1                                                                       (𝕡) n#0 |
-        v-load a#1                                                                        (𝕡) n#0 | a#1
-        v-store b#1                                                                       (𝕡) n#0 |
-        v-load parcopy%0#0                                                                (𝕡) n#0 | parcopy%0#0
-        v-store a#1                                                                       (𝕡) n#0 |
         b test_triple_cycle_for_header@1                                                  (𝕡) n#0 |
 
     test_triple_cycle_after_for@4:                                                        (𝕡) n#0 |
         // gvn/phi_congruence.py:91
         // return a + b + c
-        v-load a#1                                                                        (𝕡) n#0 | a#1
-        v-load b#1                                                                        (𝕡) n#0 | a#1,b#1
+        p-load n#0                                                                        (𝕡) n#0 | n#0 (copy)
+        p-load n#0                                                                        (𝕡) n#0 | n#0 (copy),n#0 (copy)
         +                                                                                 (𝕡) n#0 | tmp%0#0
         v-store tmp%0#0                                                                   (𝕡) n#0 |
         v-load tmp%0#0                                                                    (𝕡) n#0 | tmp%0#0
-        v-load c#1                                                                        (𝕡) n#0 | tmp%0#0,c#1
+        p-load n#0                                                                        (𝕡) n#0 | tmp%0#0,n#0 (copy)
         +                                                                                 (𝕡) n#0 | tmp%1#0
         v-store tmp%1#0                                                                   (𝕡) n#0 |
         v-load tmp%1#0                                                                    (𝕡) n#0 | tmp%1#0

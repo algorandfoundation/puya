@@ -4,10 +4,10 @@
 // test_cases.fixed_bytes_ops.contract.FixedBytesOps.approval_program() -> uint64:
 main:
     intcblock 1 0 4 3
-    bytecblock 0xabcd1234 0xcd12 0xabcdef 0x "local" "box"
+    bytecblock 0xabcd1234 0x 0xabcdef 0xcd12 "local" "box"
     intc_1 // 0
     dupn 3
-    bytec_3 // ""
+    bytec_1 // ""
     dup
     txn NumAppArgs
     bz main_else_body@33
@@ -156,7 +156,7 @@ main_else_body@33:
     intc_3 // 3
     ==
     assert
-    bytec_3 // 0x
+    bytec_1 // 0x
     bury 3
     intc_1 // 0
     bury 1
@@ -205,10 +205,6 @@ main_for_header@62:
     intc_0 // 1
     ==
     assert // expected bytes to be length 1
-    dup
-    bytec_2 // 0xabcdef
-    callsub is_substring
-    assert
     bytec_2 // 0xabcdef
     callsub is_substring
     assert
@@ -248,60 +244,30 @@ main_after_for@71:
     bytec_0 // 0xabcd1234
     dup
     callsub is_substring
-    assert
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    callsub is_substring
-    assert
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    callsub is_substring
-    !
-    assert
-    bytec_0 // 0xabcd1234
     dup
-    callsub is_substring
-    !
-    !
     assert
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     bytec_0 // 0xabcd1234
     callsub is_substring
-    !
-    !
+    dup
     assert
     bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     callsub is_substring
     !
     assert
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    callsub is_substring
-    assert
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    callsub is_substring
-    !
-    assert
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    callsub is_substring
+    swap
     !
     !
     assert
-    bytec_0 // 0xabcd1234
-    bytec_1 // 0xcd12
-    callsub is_substring
+    !
     !
     assert
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     bytec_0 // 0xabcd1234
     callsub is_substring
+    dup
     assert
-    bytec_1 // 0xcd12
-    bytec_0 // 0xabcd1234
-    callsub is_substring
     !
     !
     assert
@@ -313,7 +279,7 @@ main_after_for@71:
 // _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> uint64:
 is_substring:
     proto 2 1
-    bytec_3 // ""
+    bytec_1 // ""
     intc_1 // 0
 
 is_substring_while_top@1:
@@ -354,7 +320,7 @@ is_substring_after_while@5:
 // test_cases.fixed_bytes_ops.contract.test_sequence_ops(val: bytes) -> void:
 test_sequence_ops:
     proto 1 0
-    bytec_3 // ""
+    bytec_1 // ""
     frame_dig -1
     extract 0 1
     pushbytes 0xab
@@ -367,7 +333,7 @@ test_sequence_ops:
     assert
     frame_dig -1
     substring 1 3
-    bytec_1 // 0xcd12
+    bytec_3 // 0xcd12
     ==
     assert
     frame_dig -1

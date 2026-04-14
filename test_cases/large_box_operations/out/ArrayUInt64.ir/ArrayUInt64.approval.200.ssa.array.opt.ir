@@ -76,7 +76,6 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.append[routi
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
         let value#0: uint64 = (btoi tmp%0#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob value#0)
-        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", 0u, aggregate%val_as_bytes%0#0, 1u, 8u)
         exit 1u
 
@@ -96,15 +95,15 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.concat[routi
 subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.pop[routing]() -> void:
     block@0: // L26
         let arr_len_bytes#0: bytes = (box_extract "box" 0u 2u)
-        let arr_len#0: uint64 = (btoi arr_len_bytes#0)
-        let new_arr_len#0: uint64 = (- arr_len#0 1u) // on error: cannot pop from empty array
-        let box%element_offset%0#0: uint64 = (* new_arr_len#0 8u)
-        let popped_item_offset#0: uint64 = (+ 2u box%element_offset%0#0)
-        let box%box_extract%1#0: Encoded(uint64) = (box_extract "box" popped_item_offset#0 8u) // on error: index out of bounds
-        let value_bytes#0: bytes = (itob new_arr_len#0)
+        let box%btoi%0#0: uint64 = (btoi arr_len_bytes#0)
+        let sub%0#0: uint64 = (- box%btoi%0#0 1u) // on error: cannot pop from empty array
+        let box%element_offset%0#0: uint64 = (* sub%0#0 8u)
+        let box%offset%0#0: uint64 = (+ 2u box%element_offset%0#0)
+        let box%box_extract%1#0: Encoded(uint64) = (box_extract "box" box%offset%0#0 8u) // on error: index out of bounds
+        let value_bytes#0: bytes = (itob sub%0#0)
         let new_arr_len_u16#0: bytes = ((extract 6 2) value_bytes#0)
         (box_replace "box" 0u new_arr_len_u16#0)
-        (box_splice "box" popped_item_offset#0 8u 0x)
+        (box_splice "box" box%offset%0#0 8u 0x)
         let (box_size#0: uint64, _exists#0: bool) = (box_len "box")
         let new_size#0: uint64 = (- box_size#0 8u)
         (box_resize "box" new_size#0)

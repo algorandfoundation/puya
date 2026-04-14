@@ -449,7 +449,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let is_out_of_bounds%0#0: bool = (>= 1u box%box_len%1#0)
         let bounded_offset%0#0: uint64 = (select 1u box%box_len%1#0 is_out_of_bounds%0#0)
         let bounded_index%0#0: uint64 = (- box%box_len%1#0 bounded_offset%0#0)
-        let box%substring3_length%0#0: uint64 = bounded_index%0#0
         let box%box_extract%4#0: bytes = (box_extract 0x424f585f43 0u bounded_index%0#0)
         let is_out_of_bounds%1#0: bool = (>= 1u len%2#0)
         let bounded_offset%1#0: uint64 = (select 1u len%2#0 is_out_of_bounds%1#0)
@@ -460,7 +459,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let (box%box_len%2#0: uint64, box%_%2#0: bool) = (box_len 0x424f585f43)
         let is_out_of_bounds%2#0: bool = (>= 2u box%box_len%2#0)
         let bounded_index%2#0: uint64 = (select 2u box%box_len%2#0 is_out_of_bounds%2#0)
-        let box%substring3_length%1#0: uint64 = bounded_index%2#0
         let box%box_extract%5#0: bytes = (box_extract 0x424f585f43 0u bounded_index%2#0)
         let is_out_of_bounds%3#0: bool = (>= 2u len%2#0)
         let bounded_index%3#0: uint64 = (select 2u len%2#0 is_out_of_bounds%3#0)
@@ -482,7 +480,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let is_out_of_bounds%4#0: bool = (>= 1u box%box_len%4#0)
         let bounded_offset%2#0: uint64 = (select 1u box%box_len%4#0 is_out_of_bounds%4#0)
         let bounded_index%4#0: uint64 = (- box%box_len%4#0 bounded_offset%2#0)
-        let box%substring3_length%2#0: uint64 = bounded_index%4#0
         let box%box_extract%8#0: bytes = (box_extract "box_d" 0u bounded_index%4#0)
         let is_out_of_bounds%5#0: bool = (>= 1u tmp%12#0)
         let bounded_offset%3#0: uint64 = (select 1u tmp%12#0 is_out_of_bounds%5#0)
@@ -493,7 +490,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let (box%box_len%5#0: uint64, box%_%5#0: bool) = (box_len "box_d")
         let is_out_of_bounds%6#0: bool = (>= 5u box%box_len%5#0)
         let bounded_index%6#0: uint64 = (select 5u box%box_len%5#0 is_out_of_bounds%6#0)
-        let box%substring3_length%3#0: uint64 = bounded_index%6#0
         let box%box_extract%9#0: bytes = (box_extract "box_d" 0u bounded_index%6#0)
         let is_out_of_bounds%7#0: bool = (>= 5u tmp%12#0)
         let bounded_index%7#0: uint64 = (select 5u tmp%12#0 is_out_of_bounds%7#0)
@@ -503,7 +499,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         let (box%box_len%6#0: uint64, box%_%6#0: bool) = (box_len "box_d")
         let is_out_of_bounds%8#0: bool = (>= 2u box%box_len%6#0)
         let bounded_index%8#0: uint64 = (select 2u box%box_len%6#0 is_out_of_bounds%8#0)
-        let box%substring3_length%4#0: uint64 = bounded_index%8#0
         let box%box_extract%10#0: bytes = (box_extract "box_d" 0u bounded_index%8#0)
         let is_out_of_bounds%9#0: bool = (>= 2u tmp%12#0)
         let bounded_index%9#0: uint64 = (select 2u tmp%12#0 is_out_of_bounds%9#0)
@@ -531,7 +526,6 @@ subroutine examples.box_storage.contract.BoxContract.set_many_ints[routing]() ->
         let eq%1#0: bool = (== len%1#0 8u)
         (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let box%element_offset%0#0: uint64 = (* index#0 8u)
-        let box%offset%0#0: uint64 = box%element_offset%0#0
         (box_replace "many_ints" box%element_offset%0#0 tmp%2#0) // on error: index out of bounds
         exit 1u
 
@@ -702,7 +696,6 @@ subroutine examples.box_storage.contract.BoxContract.sum_many_ints[routing]() ->
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L169
         let box%element_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
-        let box%offset%0#0: uint64 = box%element_offset%0#0
         let box%box_extract%0#0: Encoded(uint64) = (box_extract "many_ints" box%element_offset%0#0 8u) // on error: index out of bounds
         let val#0: uint64 = decode_bytes<uint64>(box%box_extract%0#0)
         let total#2: uint64 = (+ total#1 val#0)
@@ -1236,7 +1229,6 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct[rout
         let box%add%2#0: uint64 = 18u
         let box%box_extract%12#0: bytes = (box_extract "dynamic_arr_struct" 18u 2u)
         let box%btoi%5#0: uint64 = (btoi box%box_extract%12#0)
-        let box%offset%9#0: uint64 = box%btoi%5#0
         let box%box_extract%13#0: bytes = (box_extract "dynamic_arr_struct" box%btoi%5#0 2u)
         let box%btoi%6#0: uint64 = (btoi box%box_extract%13#0)
         let item_index_internal%1#0: uint64 = 0u
@@ -1250,7 +1242,6 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct[rout
         let box%add%3#0: uint64 = 18u
         let box%box_extract%14#0: bytes = (box_extract "dynamic_arr_struct" 18u 2u)
         let box%btoi%7#0: uint64 = (btoi box%box_extract%14#0)
-        let box%offset%10#0: uint64 = box%btoi%7#0
         let box%add%4#0: uint64 = (+ box%btoi%7#0 2u)
         let box%element_offset%1#0: uint64 = (* item_index_internal%1#1 8u)
         let box%offset%11#0: uint64 = (+ box%add%4#0 box%element_offset%1#0)
@@ -1279,7 +1270,6 @@ subroutine examples.box_storage.contract.BoxContract.set_bool[routing]() -> void
         let value#0: bool = decode_bytes<bool>(tmp%2#0)
         let encoded_value%0#0: Encoded(bool1) = bytes_encode<bool1>(value#0)
         let box%element_byte_offset%0#0: uint64 = (/ index#0 8u)
-        let box%byte_containing_bit_offset%0#0: uint64 = box%element_byte_offset%0#0
         let box%element_bit_offset%0#0: uint64 = (% index#0 8u)
         let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "too_many_bools" box%element_byte_offset%0#0 1u)
         let box%tmp%0#0: Encoded(bool1[8]) = replace_value(box%box_extract%0#0, box%element_bit_offset%0#0, encoded_value%0#0)
@@ -1305,7 +1295,6 @@ subroutine examples.box_storage.contract.BoxContract.sum_bools[routing]() -> voi
         goto continue_looping%0#0 ? block@3 : block@9
     block@3: // for_body_L289
         let box%element_byte_offset%0#0: uint64 = (/ item_index_internal%0#1 8u)
-        let box%byte_containing_bit_offset%0#0: uint64 = box%element_byte_offset%0#0
         let box%element_bit_offset%0#0: uint64 = (% item_index_internal%0#1 8u)
         let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "too_many_bools" box%element_byte_offset%0#0 1u) // on error: index out of bounds
         let array_item%0#0: bool = extract_value(box%box_extract%0#0, box%element_bit_offset%0#0)
@@ -1553,17 +1542,17 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref[routing]() -> 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_test[routing]() -> void:
     block@0: // L398
-        let box_0#0: bytes = (itob 0u)
-        box_write(box_0#0, "Hmmmmm")
-        let (box%box_len%0#0: uint64, box%_%0#0: bool) = (box_len box_0#0)
+        let encoded_value%0#0: bytes[8] = (itob 0u)
+        box_write(encoded_value%0#0, "Hmmmmm")
+        let (box%box_len%0#0: uint64, box%_%0#0: bool) = (box_len encoded_value%0#0)
         let tmp%2#0: bool = (== box%box_len%0#0 6u)
         (assert tmp%2#0)
-        let (box%box_len%1#0: uint64, box%_%1#0: bool) = (box_len box_0#0)
-        let (value%0#0: uint64, check%0#0: bool) = (box_len box_0#0)
+        let (box%box_len%1#0: uint64, box%_%1#0: bool) = (box_len encoded_value%0#0)
+        let (value%0#0: uint64, check%0#0: bool) = (box_len encoded_value%0#0)
         (assert check%0#0) // check Box exists
         let tmp%4#0: bool = (== box%box_len%1#0 value%0#0)
         (assert tmp%4#0)
-        let (value%1#0: uint64, check%1#0: bool) = (box_len box_0#0)
+        let (value%1#0: uint64, check%1#0: bool) = (box_len encoded_value%0#0)
         let tmp%6#0: bool = (== value%1#0 6u)
         (assert tmp%6#0)
         let encoded_value%5#0: bytes[8] = (itob 1u)

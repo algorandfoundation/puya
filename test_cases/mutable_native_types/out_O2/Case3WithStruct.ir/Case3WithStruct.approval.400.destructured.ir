@@ -11,8 +11,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "create_box()void" => block@6, method "num_tups()uint64" => block@7, method "add_tup((uint64,uint64))void" => block@8, method "get_tup(uint64)(uint64,uint64)" => block@9, method "sum()uint64" => block@10, method "add_many_tups((uint64,uint64)[])void" => block@11, method "add_fixed_tups((uint64,uint64)[3])void" => block@12, method "set_a(uint64)void" => block@13, method "set_b(uint64)void" => block@14, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@15, method "get_all_tups()(uint64,uint64)[]" => block@16, * => block@19}
     block@6: // create_box_route_L38
-        let tmp%0#19: bool = (box_create "tup_bag" 4273u)
-        (assert tmp%0#19) // box already exists
+        let tmp%0#17: bool = (box_create "tup_bag" 4273u)
+        (assert tmp%0#17) // box already exists
         let tmp%1#11: account = (txn Sender)
         (box_replace "tup_bag" 136u tmp%1#11) // on error: index out of bounds
         let tmp%2#0: uint64 = (global CurrentApplicationID)
@@ -202,13 +202,13 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@25: // for_body_L111
         let box%box_extract%2#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u) // on error: index out of bounds
         let aggregate%bytes_offset%8#0: uint64 = (* i#0 16u)
-        let new_items_bytes#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%8#0 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%8#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%8#0 16u) // on error: index access is out of bounds
         let array_length#0: uint64 = (extract_uint16 result#0 0u)
         let new_array_length#0: uint64 = (+ array_length#0 1u)
         let tmp%0#4: bytes = (itob new_array_length#0)
         let new_len_u16#0: bytes = ((extract 6 0) tmp%0#4)
         let result#0: bytes = ((replace2 0) result#0 new_len_u16#0)
-        let result#0: bytes = (concat result#0 new_items_bytes#0)
+        let result#0: bytes = (concat result#0 aggregate%encoded_element%8#0)
         let value_internal%0#0: uint64 = (+ i#0 1u)
         let i#0: uint64 = value_internal%0#0
         goto block@24

@@ -212,18 +212,18 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
         let tmp%0#1: bytes = (itob new_length#0)
         let tmp%1#1: bytes = ((extract 6 0) tmp%0#1)
-        let tail_offset#0: uint64 = (* new_length#0 2u)
+        let tmp%0#2: uint64 = (* new_length#0 2u)
         let tmp%5#1: uint64 = 0u
         goto block@4
     block@4: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
-        let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
+        let tail_offset#1: uint64 = φ(tmp%0#2 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
-        let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#2)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L413
-        let tmp%0#2: bytes = (itob tail_offset#1)
-        let tail_offset_bytes#0: bytes = ((extract 6 0) tmp%0#2)
+        let tmp%0#3: bytes = (itob tail_offset#1)
+        let tail_offset_bytes#0: bytes = ((extract 6 0) tmp%0#3)
         let array_head_and_tail#3: bytes = (replace3 array_head_and_tail#2 head_offset#0 tail_offset_bytes#0)
         let tmp%8#1: uint64 = (extract_uint16 array_head_and_tail#3 tail_offset#1)
         let tmp%9#1: uint64 = (+ tmp%8#1 2u)
@@ -659,8 +659,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing
         let tmp%5#1: bool = (== tmp%4#1 3u)
         (assert tmp%5#1)
         (app_global_put "build_nested_call_count" 0u)
-        let (result.0.0#0: string, awst_tmp%1#1: uint64, awst_tmp%2#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.build_nested()
-        let tmp%5#2: bool = (== result.0.0#0 "hi")
+        let (awst_tmp%0#1: string, awst_tmp%1#1: uint64, awst_tmp%2#0: bytes) = test_cases.tuple_support.nested_tuples.NestedTuples.build_nested()
+        let tmp%5#2: bool = (== awst_tmp%0#1 "hi")
         (assert tmp%5#2)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "build_nested_call_count")
         (assert maybe_exists%0#0) // check self.build_nested_call_count exists
