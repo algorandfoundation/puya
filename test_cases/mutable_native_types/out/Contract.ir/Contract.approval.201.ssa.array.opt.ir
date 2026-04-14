@@ -320,20 +320,20 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum[routi
 subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]() -> void:
     block@0: // L197
         let arr#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 arr#0 0u) // on error: invalid array length header
-        let mul%0#0: uint64 = (* aggregate%array_length%0#0 16u)
+        let array_length#3: uint64 = (extract_uint16 arr#0 0u) // on error: invalid array length header
+        let mul%0#0: uint64 = (* array_length#3 16u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let len%0#0: uint64 = (len arr#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
-        let tmp%1#1: bool = (! aggregate%array_length%0#0)
+        let tmp%1#1: bool = (! array_length#3)
         (assert tmp%1#1) // expected empty array
         let arr4#0: Encoded((uint64,uint64)[])* = new()
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
         store(arr4#0, extract_to_end%0#0)
         let aggregate%bytes_len%0#0: uint64 = (len extract_to_end%0#0)
         let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 16u)
-        let tmp%8#0: bool = (== aggregate%array_length%0#0 aggregate%array_len%0#0)
+        let tmp%8#0: bool = (== array_length#3 aggregate%array_len%0#0)
         (assert tmp%8#0) // expected arrays to be the same length
         let as_bytes%0#0: bytes[8] = (itob aggregate%array_len%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
@@ -347,7 +347,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%15#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%17#0)
         let fixed_struct#0: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
-        let new_array_length#2: uint64 = (+ aggregate%array_length%0#0 1u)
+        let new_array_length#2: uint64 = (+ array_length#3 1u)
         let tmp%0#8: bytes = (itob new_array_length#2)
         let new_len_u16#2: bytes = ((extract 6 0) tmp%0#8)
         let result#3: bytes = ((replace2 0) arr#0 new_len_u16#2)
@@ -360,7 +360,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         (assert tmp%25#0) // expected sum to be 7
         let tmp%26#0: bool = (!= arr#0 arr2#1)
         (assert tmp%26#0) // expected arrays to be different
-        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) arr2#1)
+        let new_items_bytes#3: bytes = ((extract 2 0) arr2#1)
         let aggregate%encoded_element%0#0: bytes = ((extract 2 16) arr2#1)
         let arr7#0: Encoded(len+(uint64,uint64)[]) = (concat 0x0001 aggregate%encoded_element%0#0)
         let tmp%27#0: bool = (== arr2#1 arr7#0)
@@ -369,7 +369,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let tmp%0#10: bytes = (itob new_items_count#3)
         let new_len_u16#3: bytes = ((extract 6 0) tmp%0#10)
         let result#4: bytes = ((replace2 0) 0x0000 new_len_u16#3)
-        let arr8#1: Encoded(len+(uint64,uint64)[]) = (concat result#4 aggregate%array_trimmed%0#0)
+        let arr8#1: Encoded(len+(uint64,uint64)[]) = (concat result#4 new_items_bytes#3)
         let tmp%30#0: bool = (== arr2#1 arr8#1)
         (assert tmp%30#0) // expected arrays to be the same
         let value_internal%0#0: uint64 = 0u

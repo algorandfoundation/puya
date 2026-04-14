@@ -272,26 +272,26 @@ subroutine pop:
         box_extract                                                      arr_len_bytes#0
         v-store arr_len_bytes#0
         v-load arr_len_bytes#0                                           arr_len_bytes#0
-        btoi                                                             box%btoi%0#0
-        v-store box%btoi%0#0
-        v-load box%btoi%0#0                                              box%btoi%0#0
-        int 1                                                            box%btoi%0#0,1
-        - // on error: cannot pop from empty array                       sub%0#0
-        v-store sub%0#0
-        v-load sub%0#0                                                   sub%0#0
-        int 8                                                            sub%0#0,8
+        btoi                                                             arr_len#0
+        v-store arr_len#0
+        v-load arr_len#0                                                 arr_len#0
+        int 1                                                            arr_len#0,1
+        - // on error: cannot pop from empty array                       new_arr_len#0
+        v-store new_arr_len#0
+        v-load new_arr_len#0                                             new_arr_len#0
+        int 8                                                            new_arr_len#0,8
         *                                                                box%element_offset%0#0
         v-store box%element_offset%0#0
         int 2                                                            2
         v-load box%element_offset%0#0                                    2,box%element_offset%0#0
-        +                                                                box%offset%0#0
-        v-store box%offset%0#0
+        +                                                                popped_item_offset#0
+        v-store popped_item_offset#0
         byte "box"                                                       "box"
-        v-load box%offset%0#0                                            "box",box%offset%0#0
-        int 8                                                            "box",box%offset%0#0,8
+        v-load popped_item_offset#0                                      "box",popped_item_offset#0
+        int 8                                                            "box",popped_item_offset#0,8
         box_extract // on error: index out of bounds                     box%box_extract%1#0
         v-store box%box_extract%1#0
-        v-load sub%0#0                                                   sub%0#0
+        v-load new_arr_len#0                                             new_arr_len#0
         itob                                                             value_bytes#0
         v-store value_bytes#0
         v-load value_bytes#0                                             value_bytes#0
@@ -306,11 +306,11 @@ subroutine pop:
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()
         byte "box"                                                       "box"
-        v-load box%offset%0#0                                            "box",box%offset%0#0
+        v-load popped_item_offset#0                                      "box",popped_item_offset#0
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()
-        int 8                                                            "box",box%offset%0#0,8
-        byte 0x                                                          "box",box%offset%0#0,8,0x
+        int 8                                                            "box",popped_item_offset#0,8
+        byte 0x                                                          "box",popped_item_offset#0,8,0x
         box_splice
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()

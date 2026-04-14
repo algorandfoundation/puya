@@ -503,8 +503,8 @@ subroutine examples.box_storage.contract.BoxContract.delete_boxes[routing]() -> 
         (box_del "b")
         (box_del 0x424f585f43)
         let (maybe_value%0#0: bytes, a_exists#0: bool) = (box_get "box_a")
-        let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
-        let state_get%0#0: uint64 = (select 42u maybe_value_converted%0#0 a_exists#0)
+        let a#0: uint64 = (btoi maybe_value%0#0)
+        let state_get%0#0: uint64 = (select 42u a#0 a_exists#0)
         let tmp%0#0: bool = (== state_get%0#0 42u)
         (assert tmp%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "b")
@@ -518,7 +518,7 @@ subroutine examples.box_storage.contract.BoxContract.delete_boxes[routing]() -> 
         (assert tmp%6#0)
         let tmp%7#0: bool = (! a_exists#0)
         (assert tmp%7#0)
-        let tmp%8#0: bool = (! maybe_value_converted%0#0)
+        let tmp%8#0: bool = (! a#0)
         (assert tmp%8#0)
         (box_del "box_large")
         exit 1u
@@ -1204,9 +1204,9 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref[routing]() -> 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_test[routing]() -> void:
     block@0: // L398
-        let encoded_value%0#0: bytes[8] = (itob 0u)
-        (box_del encoded_value%0#0)
-        (box_put encoded_value%0#0 "Hmmmmm")
+        let box_0#0: bytes = (itob 0u)
+        (box_del box_0#0)
+        (box_put box_0#0 "Hmmmmm")
         let encoded_value%5#0: bytes[8] = (itob 1u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%5#0)
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)

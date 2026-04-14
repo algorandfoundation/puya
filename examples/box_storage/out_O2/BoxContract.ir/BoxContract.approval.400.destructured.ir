@@ -43,8 +43,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_replace "box_large" 4096u 0x000000000000002a)
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box_a")
         (assert aggregate%box_get%1#0) // check self.box_a exists
-        let maybe_value_converted%0#0: uint64 = (btoi aggregate%box_get%0#0)
-        let tmp%5#8: uint64 = (+ maybe_value_converted%0#0 3u)
+        let maybe_value_converted%0#1: uint64 = (btoi aggregate%box_get%0#0)
+        let tmp%5#8: uint64 = (+ maybe_value_converted%0#1 3u)
         let encoded_value%2#1: bytes[8] = (itob tmp%5#8)
         (box_put "box_a" encoded_value%2#1)
         let (value%0#2: uint64, check%0#2: bool) = (box_len "box_a")
@@ -316,8 +316,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_del "b")
         (box_del 0x424f585f43)
         let (maybe_value%0#0: bytes, a_exists#0: bool) = (box_get "box_a")
-        let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
-        let state_get%0#2: uint64 = (select 42u maybe_value_converted%0#0 a_exists#0)
+        let a#0: uint64 = (btoi maybe_value%0#0)
+        let state_get%0#2: uint64 = (select 42u a#0 a_exists#0)
         let tmp%0#8: bool = (== state_get%0#2 42u)
         (assert tmp%0#8)
         let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (box_get "b")
@@ -331,7 +331,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%6#5)
         let tmp%7#1: bool = (! a_exists#0)
         (assert tmp%7#1)
-        let tmp%8#0: bool = (! maybe_value_converted%0#0)
+        let tmp%8#0: bool = (! a#0)
         (assert tmp%8#0)
         (box_del "box_large")
         exit 1u
@@ -345,8 +345,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@21: // read_boxes_route_L191
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (box_get "box_a")
         (assert aggregate%box_get%5#0) // check Box exists
-        let maybe_value_converted%0#0: uint64 = (btoi aggregate%box_get%4#0)
-        let tmp%0#1: uint64 = (+ maybe_value_converted%0#0 1u)
+        let maybe_value_converted%0#1: uint64 = (btoi aggregate%box_get%4#0)
+        let tmp%0#1: uint64 = (+ maybe_value_converted%0#1 1u)
         let tmp%1#12: uint64 = (- tmp%0#1 1u)
         let (aggregate%box_get%6#0: bytes, aggregate%box_get%7#0: bool) = (box_get "b")
         (assert aggregate%box_get%7#0) // check self.box_b exists
@@ -987,9 +987,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_del "box_ref")
         exit 1u
     block@44: // box_map_test_route_L398
-        let encoded_value%0#0: bytes[8] = (itob 0u)
-        (box_del encoded_value%0#0)
-        (box_put encoded_value%0#0 "Hmmmmm")
+        let box_0#0: bytes = (itob 0u)
+        (box_del box_0#0)
+        (box_put box_0#0 "Hmmmmm")
         let encoded_value%5#0: bytes[8] = (itob 1u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get encoded_value%5#0)
         let state_get%0#0: bytes = (select "default" maybe_value%0#0 maybe_exists%0#0)
