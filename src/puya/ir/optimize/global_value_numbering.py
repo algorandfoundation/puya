@@ -1,30 +1,12 @@
-"""Global Value Numbering (GVN) for Puya IR.
-
+"""
 Hash-based GVN that assigns a canonical value number (VN) to every SSA definition,
 then eliminates redundant computations where a dominated definition has the same VN
 as an earlier dominating one.
 
-Complementary to the existing CSE pass (repeated_code_elimination.py): CSE catches
-syntactically identical expressions cheaply; GVN reasons about value identity through
-operand VNs and catches deeper equivalences (e.g. expressions with different operand
-registers that hold the same value, commutative reorderings, redundant phis).
-
 References:
     - Briggs, Cooper, Simpson. "Value Numbering." Software -- Practice and Experience, 1997.
+     (https://www.cs.tufts.edu/~nr/cs257/archive/keith-cooper/value-numbering.pdf)
     - Cooper & Torczon, Engineering a Compiler, 2nd ed., S8.4-8.5.
-
-Correctness:
-    1. Soundness: only pure, deterministic ops are numbered; VN equality requires
-       structural match on (operator, VN(operands)); phi redundancy requires all args
-       to have the same VN.
-    2. Dominance: preorder dominator-tree walk ensures replacements only reference
-       registers from dominating blocks.
-    3. Conservative default: anything not explicitly handled gets a fresh VN.
-
-TODO:
-    - algebraic identities
-    - const intrinsic results
-    - byte constant equivalences
 """
 
 import itertools
@@ -98,7 +80,7 @@ _COMMUTATIVE_OPS: typing.Final[Set[AVMOp]] = frozenset(
 
 # Ordering ops: swapping operands requires mirroring the predicate.
 # Sorting operand VNs (as with commutative ops) and adjusting the op code
-# lets us recognise a<b == b>a, a<=b == b>=a, etc.
+# lets us recognise a<b as equivalent to b>a, a<=b as equivalent to b>=a, etc.
 _MIRROR_OPS: typing.Final = symmetric_mapping(
     (AVMOp.lt, AVMOp.gt),
     (AVMOp.lte, AVMOp.gte),
@@ -106,7 +88,7 @@ _MIRROR_OPS: typing.Final = symmetric_mapping(
     (AVMOp.lte_bytes, AVMOp.gte_bytes),
 )
 
-# Inverse comparisons: !(a < b) == (a >= b), etc.
+# Inverse comparisons: !(a < b) is equivalent to (a >= b), etc.
 # Used for negation-aware numbering: when GVN sees !(comparison),
 # it returns the inverse comparison's expression key.
 _INVERSE_COMPARISONS: typing.Final = symmetric_mapping(
@@ -218,15 +200,11 @@ class _TemplateVarKey(_ConstKey):
 
 @attrs.define
 class _GVNTables:
-    """Value numbering state, supporting scoped save/restore for dominator-tree walk.
-
-    Scoped state (_register_vn, expr_table, _const_vn, comparison_exprs) is copied
-    on child_scope() so that siblings in the dominator tree don't see each other's
-    definitions.
-    Global state (_vn_counter, _equivalences) is shared by reference across all scopes.
+    """
+    Value numbering state accumulated during pre-order dominator walk,
+    makes use of the "Unified has table" approach from Briggs et al.
     """
 
-    # --- Global: shared by reference across all scopes ---
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
@@ -237,7 +215,7 @@ class _GVNTables:
         return next(self._vn_counter)
 
     def set_register_vn(self, reg: models.Register, vn: VN) -> None:
-        """Assign a VN to a register.
+        """Record an assignment of a VN to a register.
 
         Use replaceable=False for constant copies where the register needs a VN
         for expression hashing but shouldn't participate in replacement.
@@ -249,6 +227,7 @@ class _GVNTables:
         self.register_vn[reg] = vn
 
     def assign_register_fresh_vn(self, reg: models.Register) -> VN:
+        """Generate and assign a new VN to the register, returning it."""
         vn = self.next_vn()
         self.set_register_vn(reg, vn)
         return vn
@@ -272,11 +251,6 @@ def _build_equivalence_sets(
     modified = False
 
     all_sets = defaultdict[models.Register, list[models.Register]](list)
-    vn_to_uint64_const = {
-        vn: const.value
-        for const, vn in tables.const_vn.items()
-        if isinstance(const, _UInt64ConstKey)
-    }
 
     def _keep_defn(
         reg: models.Register,
@@ -295,6 +269,12 @@ def _build_equivalence_sets(
         keep_param = _keep_defn(param, initial_scope)
         assert keep_param
 
+    vn_to_uint64_const = {
+        vn: const.value
+        for const, vn in tables.const_vn.items()
+        if isinstance(const, _UInt64ConstKey)
+    }
+
     def _walk(
         block: models.BasicBlock,
         vn_to_rep: Mapping[tuple[VN, _MaybeAVMType], models.Register],
@@ -304,7 +284,6 @@ def _build_equivalence_sets(
 
         scope = dict(vn_to_rep)
         asserted = set(asserted_)
-        # TODO: maybe remove redundant definitions as we go?
         phis = []
         for phi in block.phis:
             if _keep_defn(phi.register, scope):
@@ -366,8 +345,7 @@ def build_replacements(
     register_map = dict[models.Register, models.Register]()
 
     for equivalence_set in equivalence_sets:
-        if len(equivalence_set) < 2:
-            continue
+        assert len(equivalence_set) > 1
 
         parameters = [r for r in equivalence_set if r in subroutine.parameters]
         match parameters:
