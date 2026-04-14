@@ -584,7 +584,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         | AVMOp.lte_bytes
                         | AVMOp.gte
                         | AVMOp.gte_bytes
-                        # TODO: intrinsic_simplification currently assumes not 0/0
                         # | AVMOp.div_floor - div by zero
                         # | AVMOp.div_floor_bytes - div by zero
                     ):
@@ -713,6 +712,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 class GVNBlockVisitor(NoOpIRVisitor[None]):
     def __init__(self, tables: _GVNTables):
         self.tables = tables
+        # phi table is per block because the through->block relationship is
+        # effectively part of the identity
         self.phi_table = dict[frozenset[tuple[models.BasicBlock, VN | models.Register]], VN]()
 
     @cached_property
@@ -721,28 +722,20 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
-        """Assign VNs to an assignment's target registers.
-
-        If the source is a register (copy), propagate its VN.
-        If the source is a pure expression, the builder looks up or assigns VNs.
-        Otherwise, assign a fresh VN.
-        """
-        source = ass.source
-        vns = source.accept(self.provider_vn_builder)
+        vns = ass.source.accept(self.provider_vn_builder)
         for target, vn in zip(ass.targets, vns, strict=True):
             self.tables.set_register_vn(target, vn)
 
     @typing.override
     def visit_phi(self, phi: models.Phi) -> None:
-        """Assign a VN to a phi node's register.
+        # Assign a VN to a phi node's register.
+        # Redundant phis (all args same VN) get the common VN.
+        # Non-redundant phis are hashed to detect congruent phis at the same block.
 
-        Redundant phis (all args same VN) get the common VN.
-        Non-redundant phis are hashed to detect congruent phis at the same block.
-        """
-        # A phi with no args is essentially undefined, and this can only occur in the entry block.
-        # We don't treat Undefined as being a singleton, each instance is considered unique for our
-        # purposes here - so treat no-arg phis the same.
         if not phi.args:
+            # A phi with no args is essentially undefined, and this can only occur in the entry
+            # block. We don't treat Undefined as being a singleton, each instance is considered
+            # unique for our purposes here - so treat no-arg phis the same.
             self.tables.assign_register_fresh_vn(phi.register)
             return
 
@@ -764,7 +757,8 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
                 self.tables.set_register_vn(phi.register, unique_vn)
                 logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={unique_vn})")
             case _:
-                # TODO: handle single Register? for now just give it a VN and move on
+                # note: technically it could be possible to have a single unique Register,
+                # but that would possibly indicate a use-before-def situation
                 phi_arg_vns = frozenset(vns_dict.items())
                 existing_vn = self.phi_table.get(phi_arg_vns)
                 if existing_vn is not None:
@@ -781,11 +775,6 @@ def _process_blocks_pre_order(
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     block: models.BasicBlock,
 ) -> None:
-    """Process a single block in the dominator-tree preorder walk.
-
-    Creates a child scope so entries added in this block are visible to
-    dominated children but not to siblings.
-    """
     visitor = GVNBlockVisitor(tables)
     for op in block.all_ops:
         op.accept(visitor)
