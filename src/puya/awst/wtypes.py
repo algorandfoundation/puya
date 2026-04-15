@@ -1,6 +1,7 @@
 import abc
 import enum
 import typing
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from functools import cached_property
 
@@ -594,17 +595,12 @@ class ARC4Struct(_ARC4WTypeInstance):
                 location=self.source_location,
             )
 
-        field_names = set()
-        repeated_field_names = set()
-        for field in value:
-            if field.name in field_names:
-                repeated_field_names.add(field.name)
-            else:
-                field_names.add(field.name)
+        field_counts = Counter(field.name for field in value)
+        repeated_field_names = [name for name, count in field_counts.items() if count > 1]
         if repeated_field_names:
             raise CodeError(
                 "invalid ARC-4 Struct declaration,"
-                f"the following fields are not unique: {', '.join(repeated_field_names)}"
+                f" the following fields are not unique: {', '.join(repeated_field_names)}"
             )
 
     @immutable.default
