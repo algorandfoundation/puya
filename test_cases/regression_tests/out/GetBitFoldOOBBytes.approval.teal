@@ -1,0 +1,17 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.getbit_fold_oob_bytes.GetBitFoldOOBBytes.approval_program() -> uint64:
+main:
+    // regression_tests/getbit_fold_oob_bytes.py:6-7
+    // # out of bounds bit index access (8 bits, indices 0...7)
+    // assert op.getbit(Bytes(b"\xff"), 8) == UInt64(0)
+    pushbytes 0xff
+    pushint 8
+    getbit
+    !
+    assert
+    // regression_tests/getbit_fold_oob_bytes.py:8
+    // return True
+    pushint 1
+    return
