@@ -589,6 +589,8 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=source, ir_type=PrimitiveIRType.uint64),
                 models.UInt64Constant(value=index),
             ]:
+                if index >= 64:
+                    return None
                 getbit_result = 1 if (source & (1 << index)) else 0
                 return models.UInt64Constant(value=getbit_result, source_location=op_loc)
             case [
@@ -598,7 +600,10 @@ def _try_fold_intrinsic(
                 binary_array = [
                     x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
                 ]
-                the_bit = binary_array[index]
+                try:
+                    the_bit = binary_array[index]
+                except IndexError:
+                    return None
                 return models.UInt64Constant(source_location=op_loc, value=int(the_bit))
     elif intrinsic.op is AVMOp.setbit:
         match intrinsic.args:
