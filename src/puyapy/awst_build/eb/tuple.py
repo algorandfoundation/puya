@@ -16,6 +16,7 @@ from puya.awst.nodes import (
     NamedTupleExpression,
     SliceExpression,
     Statement,
+    SubroutineID,
     TupleExpression,
     TupleItemExpression,
     UInt64Constant,
@@ -44,6 +45,10 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
     StaticSizedCollectionBuilder,
     TypeBuilder,
+)
+from puyapy.awst_build.eb.subroutine import (
+    BoundSubroutineInvokerExpressionBuilder,
+    SubroutineInvokerExpressionBuilder,
 )
 from puyapy.awst_build.utils import get_arg_mapping, tuple_iterable_item_type
 
@@ -149,6 +154,15 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         return TupleExpressionBuilder(expr, pytype)
 
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        pytype = self.produces()
+        method = pytype.static_methods.get(name) or pytype.methods.get(name)
+        if method:
+            return SubroutineInvokerExpressionBuilder(
+                target=SubroutineID(method.name),
+                func_type=method,
+                location=location,
+            )
+
         if name in _NAMED_TUPLE_CLASS_MEMBERS:
             raise CodeError("unsupported member access", location)
         return super().member_access(name, location)
@@ -323,6 +337,21 @@ class TupleExpressionBuilder(
             elif name in _NAMED_TUPLE_CLASS_MEMBERS:
                 type_builder = NamedTupleTypeBuilder(self.pytype, self.source_location)
                 return type_builder.member_access(name, location)
+            elif method := self.pytype.methods.get(name):
+                return BoundSubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(method.name),
+                    func_type=method,
+                    location=location,
+                    args=[self],
+                    arg_names=[None],
+                    arg_kinds=[models.ArgKind.ARG_POS],
+                )
+            elif static_method := self.pytype.static_methods.get(name):
+                return SubroutineInvokerExpressionBuilder(
+                    target=SubroutineID(static_method.name),
+                    func_type=static_method,
+                    location=location,
+                )
         if name in _TUPLE_MEMBERS:
             raise CodeError("unsupported member access", location)
         raise CodeError("unrecognised member access", location)
