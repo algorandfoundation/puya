@@ -650,13 +650,6 @@ class FunctionIRBuilder(
             node.itxns, node.start_new_group, node.source_location
         )
 
-    def visit_set_inner_transaction_fields(
-        self, node: awst_nodes.SetInnerTransactionFields
-    ) -> None:
-        self._itxn.handle_stage_inner_transactions(
-            node.itxns, node.start_with_begin, node.source_location
-        )
-
     def visit_submit_inner_transaction(
         self, submit: awst_nodes.SubmitInnerTransaction
     ) -> TExpression:
