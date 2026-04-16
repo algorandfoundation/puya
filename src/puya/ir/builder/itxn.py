@@ -338,14 +338,14 @@ class InnerTransactionBuilder:
     def handle_stage_inner_transactions(
         self,
         itxns: Sequence[awst_nodes.Expression],
-        start_new_group: awst_nodes.Expression | bool,
+        start_new_group: awst_nodes.Expression,
         source_location: SourceLocation,
     ) -> None:
         group = self._expand_abi_calls(itxns)
         for idx, itxn in enumerate(group):
             if idx == 0:
                 match start_new_group:
-                    case bool(val) | awst_nodes.BoolConstant(value=val):
+                    case awst_nodes.BoolConstant(value=val):
                         if val:
                             op = AVMOp.itxn_begin
                         else:
@@ -1120,12 +1120,6 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
         if PrimitiveIRType.itxn_group_idx in ir_types:
             logger.error("unsupported inner transaction expression", location=expr.source_location)
         return [None] * len(ir_types)
-
-    @typing.override
-    def visit_set_inner_transaction_fields(
-        self, expr: awst_nodes.SetInnerTransactionFields
-    ) -> list[_SourceAction]:
-        return self._empty_actions_from_wtype(expr)
 
     @typing.override
     def visit_state_delete(self, expr: awst_nodes.StateDelete) -> list[_SourceAction]:
