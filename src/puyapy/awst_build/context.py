@@ -206,6 +206,7 @@ def type_to_pytype(
     source_location: SourceLocation,
     in_type_args: bool = False,
     in_func_sig: bool = False,
+    _resolving_aliases: frozenset[str] = frozenset(),
 ) -> pytypes.PyType:
     loc = source_location
     proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
@@ -219,6 +220,7 @@ def type_to_pytype(
         source_location=loc,
         in_type_args=in_type_args,
         in_func_sig=in_func_sig,
+        _resolving_aliases=_resolving_aliases,
     )
     match proper_type_or_alias:
         case mypy.types.TypeAliasType(alias=alias, args=args):
@@ -226,8 +228,15 @@ def type_to_pytype(
                 raise InternalError("mypy type alias type missing alias reference", loc)
             result = registry.get(alias.fullname)
             if result is None:
-                return recurse(mypy.types.get_proper_type(proper_type_or_alias))
-            return _maybe_parameterise_pytype(registry, result, args, loc)
+                if alias.fullname in _resolving_aliases:
+                    raise CodeError("recursive type aliases are not supported", loc)
+                return recurse(
+                    mypy.types.get_proper_type(proper_type_or_alias),
+                    _resolving_aliases=_resolving_aliases | {alias.fullname},
+                )
+            return _maybe_parameterise_pytype(
+                registry, result, args, loc, _resolving_aliases=_resolving_aliases
+            )
         # this is how variadic tuples are represented in mypy types...
         case mypy.types.Instance(type=mypy.nodes.TypeInfo(fullname="builtins.tuple"), args=args):
             try:
@@ -248,14 +257,18 @@ def type_to_pytype(
                 else:
                     msg = f"Unknown type: {fullname}"
                 raise CodeError(msg, loc)
-            return _maybe_parameterise_pytype(registry, result, args, loc)
+            return _maybe_parameterise_pytype(
+                registry, result, args, loc, _resolving_aliases=_resolving_aliases
+            )
         case mypy.types.TupleType(items=items, partial_fallback=fallback):
             if not fallback.args:
                 return recurse(fallback)
             generic = registry.get(fallback.type.fullname)
             if generic is None:
                 raise CodeError(f"unknown tuple base type: {fallback.type.fullname}", loc)
-            return _maybe_parameterise_pytype(registry, generic, items, loc)
+            return _maybe_parameterise_pytype(
+                registry, generic, items, loc, _resolving_aliases=_resolving_aliases
+            )
         case mypy.types.LiteralType(fallback=fallback, value=literal_value) as mypy_literal_type:
             if not in_type_args:
                 # this is a bit clumsy, but exists because for some reason, bool types
@@ -312,13 +325,21 @@ def _maybe_parameterise_pytype(
     maybe_generic: pytypes.PyType,
     mypy_type_args: Sequence[mypy.types.Type],
     loc: SourceLocation,
+    *,
+    _resolving_aliases: frozenset[str] = frozenset(),
 ) -> pytypes.PyType:
     if not mypy_type_args:
         return maybe_generic
     if all(isinstance(t, mypy.types.TypeVarType | mypy.types.UnpackType) for t in mypy_type_args):
         return maybe_generic
     type_args_resolved = [
-        type_to_pytype(registry, mta, source_location=loc, in_type_args=True)
+        type_to_pytype(
+            registry,
+            mta,
+            source_location=loc,
+            in_type_args=True,
+            _resolving_aliases=_resolving_aliases,
+        )
         for mta in mypy_type_args
     ]
     result = maybe_generic.parameterise(type_args_resolved, loc)
