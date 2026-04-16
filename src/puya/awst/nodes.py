@@ -8,7 +8,6 @@ from functools import cached_property
 
 import attrs
 from immutabledict import immutabledict
-from typing_extensions import deprecated
 
 from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
@@ -1337,12 +1336,6 @@ class MapPrefixedKeyExpression(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_map_prefixed_key_expression(self)
-
-
-@deprecated("replaced by MapPrefixedKeyExpression")
-@attrs.frozen
-class BoxPrefixedKeyExpression(MapPrefixedKeyExpression):
-    wtype: WType = attrs.field(default=wtypes.box_key, init=False)
 
 
 @attrs.frozen
