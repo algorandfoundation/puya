@@ -2,7 +2,7 @@ import abc
 import enum
 import typing
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from functools import cached_property
 
 import attrs
@@ -397,7 +397,7 @@ class WTuple(_WTypeInstance):
 
     @cached_property
     def fields(self) -> Sequence[WTypeField]:
-        """Mapping of item names to types if `names` is defined, otherwise empty."""
+        """The sequence of fields when `names` is defined, otherwise empty."""
         if self.names is None:
             return []
         return [
@@ -600,7 +600,8 @@ class ARC4Struct(_ARC4WTypeInstance):
         if repeated_field_names:
             raise CodeError(
                 "invalid ARC-4 Struct declaration,"
-                f" the following fields are not unique: {', '.join(repeated_field_names)}"
+                f" the following fields are not unique: {', '.join(repeated_field_names)}",
+                location=self.source_location,
             )
 
     @immutable.default
@@ -614,10 +615,6 @@ class ARC4Struct(_ARC4WTypeInstance):
     @cached_property
     def types(self) -> tuple[WType, ...]:
         return tuple(field.wtype for field in self.fields)
-
-    @cached_property
-    def _fields_map(self) -> Mapping[str, WTypeField]:
-        return {field.name: field for field in self.fields}
 
     @typing.override
     def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:

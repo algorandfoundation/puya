@@ -487,7 +487,7 @@ ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.o
 @typing.final
 @attrs.frozen(init=False, order=False)
 class StructType(RuntimeType):
-    _fields: tuple[PyTypeField] = attrs.field(converter=tuple[PyTypeField, ...])
+    _fields: tuple[PyTypeField, ...] = attrs.field(converter=tuple[PyTypeField, ...])
     frozen: bool
     wtype: wtypes.ARC4Struct
     source_location: SourceLocation | None = attrs.field(eq=False)
