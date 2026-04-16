@@ -328,9 +328,9 @@ def _extract_structs(
         if struct.name in struct_results:
             continue
         struct_wtypes.extend(
-            wtype
-            for wtype in struct.fields.values()
-            if _is_arc4_struct(wtype) and wtype.name not in struct_results
+            field.wtype
+            for field in struct.fields
+            if _is_arc4_struct(field.wtype) and field.wtype.name not in struct_results
         )
         struct_results[struct.name] = _wtype_to_struct(struct)
     return dict(sorted(struct_results.items(), key=itemgetter(0)))
@@ -392,14 +392,16 @@ def _get_arc4_struct_name(wtype: wtypes.WType) -> str | None:
 def _wtype_to_struct(s: wtypes.ARC4Struct | wtypes.WTuple) -> models.ARC4Struct:
     fields = []
     assert s.fields
-    for field_name, field_wtype in s.fields.items():
+    for field in s.fields:
+        field_wtype = field.wtype
         if not isinstance(field_wtype, wtypes.ARC4Type):
             field_wtype = wtype_to_arc4_wtype(field_wtype, None)
         fields.append(
             models.ARC4StructField(
-                name=field_name,
+                name=field.name,
                 type=get_arc4_name(field_wtype, use_alias=True),
                 struct=_get_arc4_struct_name(field_wtype),
+                desc=field.description,
             )
         )
     return models.ARC4Struct(fullname=s.name, desc=s.desc, fields=fields)
@@ -446,7 +448,10 @@ class _EventCollector(FunctionTraverser):
                 wtype_to_arc4_wtype(arg.wtype, arg.source_location) for arg in emit.values
             ]
 
-        fields = {f"field{idx}": field_type for idx, field_type in enumerate(field_types, start=1)}
+        fields = [
+            wtypes.WTypeField(name=f"field{idx}", wtype=field_type)
+            for idx, field_type in enumerate(field_types, start=1)
+        ]
 
         struct_wtype = wtypes.ARC4Struct(
             name=name,

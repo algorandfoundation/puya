@@ -728,7 +728,7 @@ class FunctionIRBuilder(
         }
         # ensure elements end up in the correct order
         elements = [
-            element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
+            element for field in expr.wtype.fields for element in elements_by_name[field.name]
         ]
 
         return ir.ValueTuple(
@@ -1287,7 +1287,7 @@ class FunctionIRBuilder(
         }
         # ensure elements are in correct order
         elements = [
-            element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
+            element for field in expr.wtype.fields for element in elements_by_name[field.name]
         ]
 
         return ir.BytesEncode.maybe(

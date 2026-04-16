@@ -230,6 +230,7 @@ def _struct_to_event(structs: _StructAliases, struct: ARC4Struct) -> models.Even
                 name=f.name,
                 type=f.type,
                 struct=structs.resolve(f.struct),
+                desc=f.desc,
             )
             for f in struct.fields
         ],

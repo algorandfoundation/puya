@@ -3,26 +3,26 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%0#1 ? block@2 : block@10
-    block@2: // abi_routing_L16
+    block@2: // abi_routing_L22
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0)
         let tmp%4#0: uint64 = (txn ApplicationID)
         let tmp%5#0: bool = (!= tmp%4#0 0u)
         goto tmp%4#0 ? block@3 : block@9
-    block@3: // call_NoOp_L16
+    block@3: // call_NoOp_L22
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "emit_swapped(uint64,uint64)void" => block@4, method "emit_native_swapped(uint64,uint64)void" => block@5, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@6, * => block@9}
-    block@4: // emit_swapped_route_L17
+    block@4: // emit_swapped_route_L23
         examples.arc_28.contract.EventEmitter.emit_swapped[routing]()
         goto block@9
-    block@5: // emit_native_swapped_route_L23
+    block@5: // emit_native_swapped_route_L29
         examples.arc_28.contract.EventEmitter.emit_native_swapped[routing]()
         goto block@9
-    block@6: // emit_ufixed_route_L27
+    block@6: // emit_ufixed_route_L33
         examples.arc_28.contract.EventEmitter.emit_ufixed[routing]()
         goto block@9
-    block@9: // after_if_else_L16
+    block@9: // after_if_else_L22
         fail
     block@10: // __algopy_default_create_L1
         let tmp%7#0: uint64 = (txn OnCompletion)
@@ -35,7 +35,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
 
 subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:
-    block@0: // L17
+    block@0: // L23
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -52,7 +52,7 @@ subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void
         exit 1u
 
 subroutine examples.arc_28.contract.EventEmitter.emit_native_swapped[routing]() -> void:
-    block@0: // L23
+    block@0: // L29
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 8u)
@@ -69,7 +69,7 @@ subroutine examples.arc_28.contract.EventEmitter.emit_native_swapped[routing]() 
         exit 1u
 
 subroutine examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
-    block@0: // L27
+    block@0: // L33
         let a#0: Encoded(uint256) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
         let eq%0#0: bool = (== len%0#0 32u)

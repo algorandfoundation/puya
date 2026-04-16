@@ -4,12 +4,18 @@ from algopy import ARC4Contract, Struct, UInt64, arc4
 
 
 class Swapped(arc4.Struct):
+    """This is a docstring for Swapped"""
+
     a: arc4.UInt64
     b: arc4.UInt64
+    """These are field docs for Swapped.b"""
 
 
 class NativeSwapped(Struct):
+    """This is a docstring for NativeSwapped"""
+
     a: UInt64
+    "These are field docs for NativeSwapped.a"
     b: UInt64
 
 

@@ -1043,11 +1043,10 @@ class NamedTupleExpression(Expression):
     def _validate_values(self, _instance: object, values: Mapping[str, Expression]) -> None:
         if self.wtype.names is None:
             raise InternalError("underlying tuple wtype has no field names")
-        if values.keys() != self.wtype.fields.keys():
+        if values.keys() != {field.name for field in self.wtype.fields}:
             raise CodeError("invalid argument(s)", self.source_location)
-        for field_name, field_value in self.values.items():
-            expected_wtype = self.wtype.fields[field_name]
-            if field_value.wtype != expected_wtype:
+        for field in self.wtype.fields:
+            if self.values[field.name].wtype != field.wtype:
                 raise CodeError("invalid argument type(s)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1167,10 +1166,10 @@ class FieldExpression(Expression):
     def _wtype_factory(self) -> WType:
         dataclass_type = self.base.wtype
         assert isinstance(dataclass_type, wtypes.ARC4Struct | wtypes.WTuple)
-        try:
-            return dataclass_type.fields[self.name]
-        except KeyError:
+        field = next((field for field in dataclass_type.fields if field.name == self.name), None)
+        if field is None:
             raise CodeError(f"invalid field for {dataclass_type}", self.source_location) from None
+        return field.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_field_expression(self)
@@ -2393,11 +2392,10 @@ class NewStruct(Expression):
 
     @values.validator
     def _validate_values(self, _instance: object, values: Mapping[str, Expression]) -> None:
-        if values.keys() != self.wtype.fields.keys():
+        if values.keys() != {field.name for field in self.wtype.fields}:
             raise CodeError("Invalid argument(s)", self.source_location)
-        for field_name, field_value in self.values.items():
-            expected_wtype = self.wtype.fields[field_name]
-            if field_value.wtype != expected_wtype:
+        for field in self.wtype.fields:
+            if self.values[field.name].wtype != field.wtype:
                 raise CodeError("Invalid argument type(s)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
