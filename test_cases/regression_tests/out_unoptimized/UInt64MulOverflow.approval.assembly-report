@@ -1,0 +1,16 @@
+| PC | TEAL Bytes        | TEAL                   | Source                                     | Location                                                                                         |
+|--: | :-----------------| :----------------------| :------------------------------------------| :------------------------------------------------------------------------------------------------|
+|  0 | 0b                | #pragma version 11     |                                            |                                                                                                  |
+|    | # main            | main:                  |                                            | test_cases.regression_tests.uint64_overflow_fold.UInt64MulOverflow.approval_program() -> uint64: |
+|  1 | 42 00 00          |     b main_block@0     |                                            |                                                                                                  |
+|    | # main_block@0    | main_block@0:          |                                            |                                                                                                  |
+|    |                   |                        | assert UInt64(4294967296) * 8589934592 > 0 | regression_tests/uint64_overflow_fold.py:15                                                      |
+|  4 | 81 80 80 80 80 10 |     pushint 4294967296 |        ------------------                  | regression_tests/uint64_overflow_fold.py:15:15-33                                                |
+| 10 | 81 80 80 80 80 20 |     pushint 8589934592 |                             ----------     | regression_tests/uint64_overflow_fold.py:15:36-46                                                |
+| 16 | 0b                |     *                  |        -------------------------------     | regression_tests/uint64_overflow_fold.py:15:15-46                                                |
+| 17 | 81 00             |     pushint 0          |                                          - | regression_tests/uint64_overflow_fold.py:15:49-50                                                |
+| 19 | 0d                |     >                  |        ----------------------------------- | regression_tests/uint64_overflow_fold.py:15:15-50                                                |
+| 20 | 44                |     assert             | ------------------------------------------ | regression_tests/uint64_overflow_fold.py:15:8-50                                                 |
+|    |                   |                        | return True                                | regression_tests/uint64_overflow_fold.py:16                                                      |
+| 21 | 81 01             |     pushint 1          |        ----                                | regression_tests/uint64_overflow_fold.py:16:15-19                                                |
+| 23 | 43                |     return             | -----------                                | regression_tests/uint64_overflow_fold.py:16:8-19                                                 |
