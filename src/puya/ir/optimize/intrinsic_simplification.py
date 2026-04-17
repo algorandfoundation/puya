@@ -562,6 +562,8 @@ def _try_fold_intrinsic(
         if (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None and (
             byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)
         ) is not None:
+            if start + len(byte_const_b.value) > len(byte_const_a.value):
+                return None  # would fail at runtime
             replaced = bytearray(byte_const_a.value)
             replaced[start : start + len(byte_const_b.value)] = byte_const_b.value
             return models.BytesConstant(
@@ -569,20 +571,8 @@ def _try_fold_intrinsic(
                 encoding=_choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
                 source_location=op_loc,
             )
-    elif intrinsic.op is AVMOp.replace3:
-        byte_arg_a, start_s, byte_arg_b = intrinsic.args
-        if (
-            (start2 := _get_int_constant(start_s)) is not None
-            and (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None
-            and (byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)) is not None
-        ):
-            replaced = bytearray(byte_const_a.value)
-            replaced[start2 : start2 + len(byte_const_b.value)] = byte_const_b.value
-            return models.BytesConstant(
-                value=bytes(replaced),
-                encoding=_choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
-                source_location=op_loc,
-            )
+    # replace3 with a constant start arg will be converted to replace2 by
+    # stack-to-immediate conversion, so replace2 folding above handles it on the next pass
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
