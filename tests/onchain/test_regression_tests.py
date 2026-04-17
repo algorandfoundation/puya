@@ -59,3 +59,8 @@ def test_shr_fold_oob(deployer_o: Deployer) -> None:
         deployer_o.create_bare(
             (TEST_CASES_DIR / "regression_tests" / "shift_fold_oob.py", "ShrFoldOOB")
         )
+
+
+def test_replace_fold_oob(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match="replacement end 3 beyond original length: 0"):
+        deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "replace_fold_oob.py")
