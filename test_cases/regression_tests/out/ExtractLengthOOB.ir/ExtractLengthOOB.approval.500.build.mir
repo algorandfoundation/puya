@@ -1,10 +1,21 @@
-// Op                                             Stack (out)
+// Op                                                  Stack (out)
 // test_cases.regression_tests.extract_fold_oob.ExtractLengthOOB.approval_program() -> uint64:
 subroutine main:
     main_block@0:
+        // regression_tests/extract_fold_oob.py:7
+        // assert op.extract(b"\xab", 0, 5) == b"\xab"
+        byte 0xab                                      0xab
+        extract 0 5                                    tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                 tmp%0#0
+        byte 0xab                                      tmp%0#0,0xab
+        ==                                             tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                 tmp%1#0
+        assert
         // regression_tests/extract_fold_oob.py:8
         // return True
-        int 1                                     1
+        int 1                                          1
         return
 
 
