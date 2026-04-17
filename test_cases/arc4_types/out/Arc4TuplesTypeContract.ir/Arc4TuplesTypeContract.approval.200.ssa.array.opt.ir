@@ -152,12 +152,13 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let aggregate%substring3%3#0: bytes = 0x000100
         let aggregate%write_offset%0#0: uint64 = 0u
         let aggregate%write_offset_with_length_header%0#0: uint64 = 2u
-        let aggregate%updated_array%0#0: bytes = 0x000101
+        let aggregate%updated_array%0#0: bytes = ((replace2 2) 0x000100 0x01) // on error: index access is out of bounds
         let aggregate%item_offset%1#0: uint64 = 3u
         let aggregate%data_up_to_item%1#0: bytes = 0x000003
-        let tup#2: Encoded(uint8,(len+uint8[])) = 0x000003000101
-        let aggregate%extract_uint16%4#0: uint64 = 3u
-        let aggregate%len%4#0: uint64 = 6u
-        let aggregate%substring3%4#0: bytes = 0x000101
-        let tmp%5#2: bool = 1u
+        let tup#2: Encoded(uint8,(len+uint8[])) = (concat 0x000003 aggregate%updated_array%0#0)
+        let aggregate%extract_uint16%4#0: uint64 = (extract_uint16 tup#2 1u)
+        let aggregate%len%4#0: uint64 = (len tup#2)
+        let aggregate%substring3%4#0: bytes = (substring3 tup#2 aggregate%extract_uint16%4#0 aggregate%len%4#0)
+        let tmp%5#2: bool = (!= aggregate%substring3%4#0 0x000100)
+        (assert tmp%5#2)
         return 1u

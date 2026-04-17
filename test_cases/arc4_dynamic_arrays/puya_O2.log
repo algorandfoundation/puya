@@ -6243,22 +6243,13 @@ debug: Simplified (concat 0x0002 0x00000000000000030405) to 0x000200000000000000
 debug: Simplified (concat 0x000200000000000000030405 0x00000000000000030405) to 0x00020000000000000003040500000000000000030405
 debug: Simplified (* 1u 10u) to 10u
 debug: Simplified (+ 10u 2u) to 12u
-debug: Simplified (replace3 0x00020000000000000003040500000000000000030405 12u 0x00000400000000002aff) // on error: index access is out of bounds to 0x00020000000000000003040500000400000000002aff
-debug: Simplified (len 0x00020000000000000003040500000400000000002aff) to 22u
-debug: Simplified (substring3 0x00020000000000000003040500000400000000002aff 2u 22u) to 0x0000000000000003040500000400000000002aff
+debug: Simplified (substring3 array#15 2u aggregate%total_length%0#0) to ((extract 2 0) array#15)
 debug: Simplified (* 0u 10u) to 0u
-debug: Simplified (extract3 0x0000000000000003040500000400000000002aff 0u 10u) // on error: index access is out of bounds to 0x00000000000000030405
-debug: Simplified (len 0x00020000000000000003040500000400000000002aff) to 22u
-debug: Simplified (substring3 0x00020000000000000003040500000400000000002aff 2u 22u) to 0x0000000000000003040500000400000000002aff
+debug: Simplified (extract3 aggregate%array_trimmed%0#0 0u 10u) // on error: index access is out of bounds to ((extract 2 10) array#15)
+debug: Simplified (substring3 array#15 2u aggregate%total_length%1#0) to ((extract 2 0) array#15)
 debug: Simplified (* 1u 10u) to 10u
-debug: Simplified (extract3 0x0000000000000003040500000400000000002aff 10u 10u) // on error: index access is out of bounds to 0x00000400000000002aff
-debug: Simplified (extract_uint16 0x00020000000000000003040500000400000000002aff 0u) // on error: invalid array length header to 2u
-debug: Simplified (- 2u 1u) // on error: cannot pop from empty array to 1u
-debug: Simplified (len 0x00020000000000000003040500000400000000002aff) to 22u
-debug: Simplified (substring3 0x00020000000000000003040500000400000000002aff 2u 22u) to 0x0000000000000003040500000400000000002aff
-debug: Simplified (* 1u 10u) to 10u
-debug: Simplified (extract3 0x0000000000000003040500000400000000002aff 10u 10u) // on error: index access is out of bounds to 0x00000400000000002aff
-debug: Simplified (== 0x00000400000000002aff 0x00000400000000002aff) to 1u
+debug: Simplified (extract3 aggregate%array_trimmed%1#0 10u 10u) // on error: index access is out of bounds to ((extract 12 10) array#15)
+debug: Simplified (substring3 array#15 2u aggregate%total_length%2#0) to ((extract 2 0) array#15)
 debug: Simplified (substring3 array#16 2u aggregate%total_length%3#0) to ((extract 2 0) array#16)
 debug: Simplified (len "a") to 1u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0001
@@ -6451,13 +6442,10 @@ debug: Simplified (extract_uint16 0x00000000000000030405001a00000400000000000504
 debug: Simplified (+ 38u 12u) to 50u
 debug: Simplified (- 50u 12u) to 38u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%44#0) to 0x0026
-debug: Simplified (replace3 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 22u 0x0026) to 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
 debug: Simplified (extract_uint16 0x00000000000000030405001a000004000000000005040026004d0004000900036265650001610000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 24u) to 77u
 debug: Simplified (+ 77u 12u) to 89u
 debug: Simplified (- 89u 12u) to 77u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%45#0) to 0x004d
-debug: Simplified (replace3 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 24u 0x004d) to 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
-debug: Simplified (== 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565) to 1u
 debug: Simplified (concat 0x 0x04) to 0x04
 debug: Simplified (concat 0x04 0x05) to 0x0405
 debug: Simplified (concat 0x 0x0000000000000003) to 0x0000000000000003
@@ -6560,6 +6548,9 @@ debug: Simplified (len 0x00000000000000030405001a000004000000000005040026004f000
 debug: Simplified (substring3 0x00000000000000030405001a000004000000000005040026004f0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610004ffff0000002a007b000400070001610003626565 79u 91u) to 0x000400070001610003626565
 debug: Simplified (- 79u 38u) to 41u
 debug: Simplified (extract_uint16 0x00000000000000030405001a000004000000000005040026004f0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610004ffff0000002a007b000400070001610003626565 24u) to 79u
+debug: Simplified (replace3 0x00020000000000000003040500000000000000030405 12u 0x00000400000000002aff) // on error: index access is out of bounds to ((replace2 12) 0x00020000000000000003040500000000000000030405 0x00000400000000002aff) // on error: index access is out of bounds
+debug: Simplified (replace3 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 22u 0x0026) to ((replace2 22) 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0x0026)
+debug: Simplified (replace3 aggregate%updated_data%2#0 24u 0x004d) to ((replace2 24) aggregate%updated_data%2#0 0x004d)
 debug: Simplified (replace3 aggregate%updated_data%6#0 24u aggregate%tail_offset_bytes%2#0) to ((replace2 24) aggregate%updated_data%6#0 aggregate%tail_offset_bytes%2#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -6571,6 +6562,10 @@ debug: Merged linear block@15 into block@9
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%total_length%1#0: uint64 = (len array#15) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:49:12-20, ir_type=uint64, name='aggregate%total_length%0', version=0)]
+debug: Replacing redundant declaration let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) array#15) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:49:12-20, ir_type=bytes, name='aggregate%array_trimmed%0', version=0)]
+debug: Replacing redundant declaration let aggregate%total_length%2#0: uint64 = (len array#15) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:49:12-20, ir_type=uint64, name='aggregate%total_length%0', version=0)]
+debug: Replacing redundant declaration let aggregate%array_trimmed%2#0: bytes = ((extract 2 0) array#15) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:49:12-20, ir_type=bytes, name='aggregate%array_trimmed%0', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%6#0: bytes[8] = (itob 4u) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:57:18-61, ir_type=bytes[8], name='aggregate%as_bytes%3', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%9#0: bytes[8] = (itob 4u) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:57:18-61, ir_type=bytes[8], name='aggregate%as_bytes%3', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%11#0: bytes[8] = (itob 2u) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:59:16-65, ir_type=bytes[8], name='aggregate%as_bytes%8', version=0)]
@@ -6595,6 +6590,10 @@ debug: Replacing redundant declaration let aggregate%as_bytes%53#0: bytes[8] = (
 debug: Replacing redundant declaration let aggregate%as_bytes%54#0: bytes[8] = (itob 31u) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:146-148:16-9, ir_type=bytes[8], name='aggregate%as_bytes%52', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%58#0: bytes[8] = (itob 26u) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:157-165:15-9, ir_type=bytes[8], name='aggregate%as_bytes%55', version=0)]
 debug: Replacing redundant declaration let aggregate%as_bytes%59#0: bytes[8] = (itob 38u) with copy of existing registers [Register(source_location=arc4_dynamic_arrays/contract.py:157-165:15-9, ir_type=bytes[8], name='aggregate%as_bytes%56', version=0)]
+debug: Found equivalence set: aggregate%total_length%0#0, aggregate%total_length%1#0, aggregate%total_length%2#0
+debug: selected aggregate%total_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_trimmed%0#0, aggregate%array_trimmed%1#0, aggregate%array_trimmed%2#0
+debug: selected aggregate%array_trimmed%0#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%3#0, aggregate%as_bytes%6#0, aggregate%as_bytes%9#0
 debug: selected aggregate%as_bytes%3#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%8#0, aggregate%as_bytes%11#0
@@ -6633,7 +6632,7 @@ debug: Found equivalence set: aggregate%as_bytes%55#0, aggregate%as_bytes%58#0
 debug: selected aggregate%as_bytes%55#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%56#0, aggregate%as_bytes%59#0
 debug: selected aggregate%as_bytes%56#0 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -7122,15 +7121,12 @@ debug: Begin optimization pass 2/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 arc4_dynamic_arrays/contract.py:176:9 debug: constant function call to _puya_lib.arc4.dynamic_array_pop_fixed_size in algopy.arc4.ARC4Contract.approval_program
-arc4_dynamic_arrays/contract.py:52:16 debug: constant function call to _puya_lib.arc4.dynamic_array_pop_fixed_size in algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%4#3, array#16
-debug: selected array#16 from equivalence set
 debug: Found equivalence set: tmp%4#2, tmp%32#0
 debug: selected tmp%4#2 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%head%0#0
@@ -7147,24 +7143,9 @@ debug: Removing unused variable aggregate%head%8#0
 debug: Removing unused variable array#14
 debug: Removing unused variable aggregate%write_offset%0#0
 debug: Removing unused variable aggregate%write_offset_with_length_header%0#0
-debug: Removing unused variable array#15
 debug: Removing unused variable aggregate%total_length%0#0
-debug: Removing unused variable aggregate%array_trimmed%0#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
-debug: Removing unused variable aggregate%encoded_element%0#0
-debug: Removing unused variable aggregate%total_length%1#0
-debug: Removing unused variable aggregate%array_trimmed%1#0
 debug: Removing unused variable aggregate%bytes_offset%1#0
-debug: Removing unused variable aggregate%encoded_element%1#0
-debug: Removing unused variable aggregate%array_length%0#0
-debug: Removing unused variable sub%0#3
-debug: Removing unused variable aggregate%total_length%2#0
-debug: Removing unused variable aggregate%array_trimmed%2#0
-debug: Removing unused variable aggregate%bytes_offset%2#0
-debug: Removing unused variable aggregate%encoded_element%2#0
-debug: Removing unused variable array#19
-debug: Removing unused variable fixed_byte_size#1
-debug: Removing unused variable tmp%11#4
 debug: Removing unused variable aggregate%total_length%3#0
 debug: Removing unused variable aggregate%length%0#0
 debug: Removing unused variable aggregate%as_bytes%1#0
@@ -7388,13 +7369,10 @@ debug: Removing unused variable aggregate%tail_offset%0#0
 debug: Removing unused variable aggregate%tail_offset%1#0
 debug: Removing unused variable aggregate%tail_offset%2#0
 debug: Removing unused variable aggregate%tail_offset_bytes%0#0
-debug: Removing unused variable aggregate%updated_data%2#0
 debug: Removing unused variable aggregate%tail_offset%3#0
 debug: Removing unused variable aggregate%tail_offset%4#0
 debug: Removing unused variable aggregate%tail_offset%5#0
 debug: Removing unused variable aggregate%tail_offset_bytes%1#0
-debug: Removing unused variable struct2#1
-debug: Removing unused variable tmp%25#1
 debug: Removing unused variable aggregate%head%73#0
 debug: Removing unused variable aggregate%head%74#0
 debug: Removing unused variable aggregate%head%75#0
@@ -7510,19 +7488,18 @@ debug: Removing unused variable aggregate%data_beyond_item%1#0
 debug: Removing unused variable aggregate%old_value_length%1#0
 debug: Removing unused variable aggregate%tail_offset%6#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len 0x00020000000000000003040500000400000000002aff) to 22u
-debug: Simplified (- 22u 10u) to 12u
-debug: Simplified (substring3 0x00020000000000000003040500000400000000002aff 0u 12u) to 0x000200000000000000030405
-debug: Simplified (extract_uint16 0x000200000000000000030405 0u) to 2u
-debug: Simplified (- 2u 1u) to 1u
-debug: Simplified ((extract 6 0) tmp%0#7) to 0x0001
-debug: Simplified ((replace2 0) 0x000200000000000000030405 0x0001) to 0x000100000000000000030405
-debug: Simplified (extract_uint16 0x000100000000000000030405 0u) // on error: invalid array length header to 1u
-debug: Simplified (- 1u 1u) // on error: cannot pop from empty array to 0u
-debug: Simplified ((extract 2 0) 0x000100000000000000030405) to 0x00000000000000030405
-debug: Simplified (* 0u 10u) to 0u
-debug: Simplified (extract3 0x00000000000000030405 0u 10u) // on error: index access is out of bounds to 0x00000000000000030405
-debug: Simplified (== 0x00000000000000030405 0x00000000000000030405) to 1u
+debug: Simplified ((replace2 12) 0x00020000000000000003040500000000000000030405 0x00000400000000002aff) // on error: index access is out of bounds to 0x00020000000000000003040500000400000000002aff
+debug: Simplified ((extract 2 0) 0x00020000000000000003040500000400000000002aff) to 0x0000000000000003040500000400000000002aff
+debug: Simplified ((extract 2 10) 0x00020000000000000003040500000400000000002aff) to 0x00000000000000030405
+debug: Simplified ((extract 12 10) 0x00020000000000000003040500000400000000002aff) to 0x00000400000000002aff
+debug: Simplified (extract_uint16 0x00020000000000000003040500000400000000002aff 0u) // on error: invalid array length header to 2u
+debug: Simplified (- 2u 1u) // on error: cannot pop from empty array to 1u
+debug: Simplified (* 1u 10u) to 10u
+debug: Simplified (extract3 0x0000000000000003040500000400000000002aff 10u 10u) // on error: index access is out of bounds to 0x00000400000000002aff
+debug: Simplified (== 0x00000400000000002aff 0x00000400000000002aff) to 1u
+debug: Simplified ((replace2 22) 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0x0026) to 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
+debug: Simplified ((replace2 24) 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0x004d) to 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
+debug: Simplified (== 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565) to 1u
 debug: Simplified (len 0x0004ffff0000002a007b) to 10u
 debug: Simplified (- 10u 2u) to 8u
 debug: Simplified (substring3 0x0004ffff0000002a007b 0u 8u) to 0x0004ffff0000002a
@@ -7543,9 +7520,6 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
-debug: Replaced predecessor block@16 with block@4 in block@17
-debug: Merged linear block@16 into block@4
-debug: Merged linear block@17 into block@4
 debug: Replaced predecessor block@14 with block@9 in block@15
 debug: Merged linear block@14 into block@9
 debug: Merged linear block@15 into block@9
@@ -7657,9 +7631,183 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Begin optimization pass 3/100
+debug: marking single-use function _puya_lib.arc4.dynamic_array_pop_fixed_size for inlining
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+arc4_dynamic_arrays/contract.py:52:16 debug: inlining call to _puya_lib.arc4.dynamic_array_pop_fixed_size in algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: tmp%4#3, array#16
+debug: selected array#16 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array#15
+debug: Removing unused variable aggregate%array_trimmed%0#0
+debug: Removing unused variable aggregate%encoded_element%0#0
+debug: Removing unused variable aggregate%encoded_element%1#0
+debug: Removing unused variable aggregate%array_length%0#0
+debug: Removing unused variable sub%0#3
+debug: Removing unused variable aggregate%bytes_offset%2#0
+debug: Removing unused variable aggregate%encoded_element%2#0
+debug: Removing unused variable array#17
+debug: Removing unused variable fixed_byte_size#0
+debug: Removing unused variable tmp%11#4
+debug: Removing unused variable aggregate%updated_data%2#0
+debug: Removing unused variable struct2#1
+debug: Removing unused variable tmp%25#1
+debug: Removing unused variable tmp%0#3
+debug: Removing unused variable tmp%1#1
+debug: Removing unused variable result#1
+debug: Removing unused variable array_length#1
+debug: Removing unused variable length_minus_1#0
+debug: Removing unused variable tmp%0#4
+debug: Removing unused variable tmp%1#2
+debug: Removing unused variable tmp%4#2
+debug: Removing unused variable aggregate%updated_data%4#0
+debug: Removing unused variable aggregate%updated_data%5#0
+debug: Removing unused variable aggregate%updated_data%6#0
+debug: Removing unused variable aggregate%new_value_length%1#0
+debug: Removing unused variable aggregate%tail_offset%7#0
+debug: Removing unused variable aggregate%tail_offset%8#0
+debug: Removing unused variable aggregate%as_bytes%61#0
+debug: Removing unused variable aggregate%tail_offset_bytes%2#0
+debug: Removing unused variable tup2#1
+debug: Removing unused variable tmp%33#0
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (len 0x00020000000000000003040500000400000000002aff) to 22u
+debug: Simplified (- 22u 10u) to 12u
+debug: Simplified (substring3 0x00020000000000000003040500000400000000002aff 0u 12u) to 0x000200000000000000030405
+debug: Simplified (extract_uint16 0x000200000000000000030405 0u) to 2u
+debug: Simplified (- 2u 1u) to 1u
+debug: Simplified ((extract 6 0) tmp%0#7) to 0x0001
+debug: Simplified ((replace2 0) 0x000200000000000000030405 0x0001) to 0x000100000000000000030405
+debug: Simplified (extract_uint16 0x000100000000000000030405 0u) // on error: invalid array length header to 1u
+debug: Simplified (- 1u 1u) // on error: cannot pop from empty array to 0u
+debug: Simplified ((extract 2 0) 0x000100000000000000030405) to 0x00000000000000030405
+debug: Simplified (* 0u 10u) to 0u
+debug: Simplified (extract3 0x00000000000000030405 0u 10u) // on error: index access is out of bounds to 0x00000000000000030405
+debug: Simplified (== 0x00000000000000030405 0x00000000000000030405) to 1u
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Replaced predecessor block@14 with block@4 in block@15
+debug: Merged linear block@14 into block@4
+debug: Merged linear block@15 into block@4
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_read_dynamic_element
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size
 debug: Unused subroutines removed
-debug: Begin optimization pass 3/100
+debug: Begin optimization pass 4/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -7681,24 +7829,6 @@ debug: Removing unused variable aggregate%array_trimmed%3#0
 debug: Removing unused variable aggregate%bytes_offset%3#0
 debug: Removing unused variable aggregate%encoded_element%3#0
 debug: Removing unused variable tmp%15#5
-debug: Removing unused variable tmp%0#3
-debug: Removing unused variable tmp%1#1
-debug: Removing unused variable result#1
-debug: Removing unused variable array_length#1
-debug: Removing unused variable length_minus_1#0
-debug: Removing unused variable tmp%0#4
-debug: Removing unused variable tmp%1#2
-debug: Removing unused variable tmp%4#2
-debug: Removing unused variable aggregate%updated_data%4#0
-debug: Removing unused variable aggregate%updated_data%5#0
-debug: Removing unused variable aggregate%updated_data%6#0
-debug: Removing unused variable aggregate%new_value_length%1#0
-debug: Removing unused variable aggregate%tail_offset%7#0
-debug: Removing unused variable aggregate%tail_offset%8#0
-debug: Removing unused variable aggregate%as_bytes%61#0
-debug: Removing unused variable aggregate%tail_offset_bytes%2#0
-debug: Removing unused variable tup2#1
-debug: Removing unused variable tmp%33#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7792,7 +7922,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 4/100
+debug: Begin optimization pass 5/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -7893,7 +8023,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 4, ending loop
+debug: No optimizations performed in pass 5, ending loop
 debug: optimizing clear program of test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract at level 2
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
