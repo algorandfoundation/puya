@@ -1,7 +1,7 @@
 import algokit_utils as au
 import pytest
 
-from tests import TEST_CASES_DIR
+from tests import AWST_DIR, TEST_CASES_DIR
 from tests.utils.deployer import Deployer
 
 
@@ -123,3 +123,9 @@ def test_extract_start_oob(deployer_o: Deployer) -> None:
 def test_substring_end_oob(deployer_o: Deployer) -> None:
     with pytest.raises(au.LogicError, match="substring3: end index beyond end of source"):
         deployer_o.create_bare((_EXTRACT_PATH, "SubstringEndOOB"))
+
+
+def test_logical_fold_non_bool(deployer_o: Deployer) -> None:
+    # && and || with non-boolean constant operands should return 0 or 1 on the AVM.
+    # Without the fix, the optimizer folds 5 && 3 to 3 instead of 1.
+    deployer_o.create_bare(AWST_DIR / "logical_fold_non_bool")
