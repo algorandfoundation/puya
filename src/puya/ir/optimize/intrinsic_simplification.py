@@ -694,6 +694,8 @@ def _try_fold_intrinsic(
                     # note there is a difference of behaviour between extract with stack args
                     # and with immediates - zero is to the end with immediates,
                     # and zero length with stacks
+                    if len(byte_const.value) < S + L:
+                        return None  # would fail at runtime
                     if intrinsic.immediates and L == 0:
                         extracted = byte_const.value[S:]
                     else:
@@ -757,7 +759,7 @@ def _try_fold_intrinsic(
                     ],
                 )
             ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
-                if E < S:
+                if not (S <= E <= len(byte_const.value)):
                     return None  # would fail at runtime, lets hope this is unreachable 😬
                 extracted = byte_const.value[S:E]
                 return models.BytesConstant(
@@ -1158,10 +1160,16 @@ def _get_bytes_length_safe(
         if isinstance(byte_arg_defn.source, models.Intrinsic):
             # TODO: could expand this to e.g. substring, bzero with additional testing
             if byte_arg_defn.source.op is AVMOp.extract:
-                _, length = byte_arg_defn.source.immediates
+                start, length = byte_arg_defn.source.immediates
                 assert isinstance(length, int)
                 if length != 0:
-                    return length
+                    # verify the source is long enough for this extract
+                    (source_arg,) = byte_arg_defn.source.args
+                    source_len = _get_bytes_length_safe(register_assignments, source_arg)
+                    assert isinstance(start, int)
+                    if source_len is not None and (start + length) <= source_len:
+                        # only trust the extract length if we trust the source size
+                        return length
                 return None
             (return_ir_type,) = byte_arg_defn.source.op_signature.returns
             return return_ir_type.num_bytes
