@@ -29,7 +29,7 @@ def test_xor_identity_fold_biguint(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "xor_identity_fold_biguint.py")
 
 
-def test_gebit_bytes_fold_oob(deployer_o: Deployer) -> None:
+def test_getbit_bytes_fold_oob(deployer_o: Deployer) -> None:
     # solves compiler crash when trying to fold OOB getbit acces into Bytes constant.
     with pytest.raises(au.LogicError, match="had error 'getbit index beyond byteslice'"):
         deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "getbit_fold_oob_bytes.py")
