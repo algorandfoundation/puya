@@ -1485,11 +1485,10 @@ def _try_simplify_uint64_binary_op(
             return attrs.evolve(intrinsic, args=[new_a, new_b])
     if not isinstance(c, int):
         return c
-    if c < 0:
-        # Value cannot be folded as it would result in a negative uint64
-        # TODO: what about overflow?
-        return None
-    return models.UInt64Constant(value=c, source_location=intrinsic.source_location)
+    if 0 <= c <= algo_constants.MAX_UINT64:
+        # Only fold if it would result in a valid uint64
+        return models.UInt64Constant(value=c, source_location=intrinsic.source_location)
+    return None
 
 
 def _try_simplify_bytes_binary_op(
