@@ -105,3 +105,21 @@ def test_uint64_triple_mul_overflow_fold(deployer_o: Deployer) -> None:
                 "UInt64TripleMulOverflow",
             )
         )
+
+
+_EXTRACT_PATH = TEST_CASES_DIR / "regression_tests" / "extract_fold_oob.py"
+
+
+def test_extract_length_oob(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match="extraction end 5 is beyond length: 1"):
+        deployer_o.create_bare((_EXTRACT_PATH, "ExtractLengthOOB"))
+
+
+def test_extract_start_oob(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match="extraction start 5 is beyond length: 1"):
+        deployer_o.create_bare((_EXTRACT_PATH, "ExtractStartOOB"))
+
+
+def test_substring_end_oob(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match="substring3: end index beyond end of source"):
+        deployer_o.create_bare((_EXTRACT_PATH, "SubstringEndOOB"))
