@@ -85,3 +85,23 @@ def test_uint64_exp_overflow_fold(deployer_o: Deployer) -> None:
         deployer_o.create_bare(
             (TEST_CASES_DIR / "regression_tests" / "uint64_overflow_fold.py", "UInt64ExpOverflow")
         )
+
+
+def test_uint64_triple_add_overflow_fold(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match=r"\+ overflowed"):
+        deployer_o.create_bare(
+            (
+                TEST_CASES_DIR / "regression_tests" / "uint64_triple_overflow_fold.py",
+                "UInt64TripleAddOverflow",
+            )
+        )
+
+
+def test_uint64_triple_mul_overflow_fold(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match=r"\* overflowed"):
+        deployer_o.create_bare(
+            (
+                TEST_CASES_DIR / "regression_tests" / "uint64_triple_overflow_fold.py",
+                "UInt64TripleMulOverflow",
+            )
+        )
