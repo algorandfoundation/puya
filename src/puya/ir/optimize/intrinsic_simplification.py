@@ -612,6 +612,8 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
             ]:
+                if index >= 64:
+                    return None
                 if value:
                     setbit_result = source | (1 << index)
                 else:
