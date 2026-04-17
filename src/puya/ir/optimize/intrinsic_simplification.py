@@ -1464,9 +1464,9 @@ def _try_simplify_uint64_binary_op(
                     c = int(a_const and b_const)
                 case AVMOp.or_:
                     c = int(a_const or b_const)
-                case AVMOp.shl:
+                case AVMOp.shl if b_const < 64:
                     c = (a_const << b_const) % (2**64)
-                case AVMOp.shr:
+                case AVMOp.shr if b_const < 64:
                     c = a_const >> b_const
                 case AVMOp.exp:
                     if a_const == 0 and b_const == 0:
