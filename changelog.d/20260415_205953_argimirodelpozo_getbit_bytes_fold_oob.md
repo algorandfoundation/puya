@@ -32,7 +32,7 @@ For top level release notes, leave all the headers commented out.
 
 ### Fixed
 
-- Fixed a miscompilation where `getbit` accessing an out of bounds index in a constant `UInt64` would be folded into a constant 0 integer. The AVM should panic in this scenario.
+- Fixed a miscompilation where `getbit` accessing an out of bounds index in a constant `uint64` would be folded into a constant 0 integer. The AVM should panic in this scenario.
 
 - Fixed a compiler crash when attempting to constant-fold a `getbit` out of bounds index access into a bytes constant.
 
