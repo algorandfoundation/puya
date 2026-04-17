@@ -50,7 +50,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@6: // test_imm_fixed_array_route_L95
         exit 1u
     block@7: // fixed_initialize_route_L101
-        exit 1u
+        test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing]()
+        goto block@21
     block@8: // add_payment_route_L131
         test_cases.mutable_native_types.contract.Contract.add_payment[routing]()
         goto block@21
@@ -119,16 +120,13 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
     block@4: // after_for_L273
         return total#1
 
-subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint64)) -> uint64:
-    block@0: // L279
-        let tmp%0#0: uint64 = (extract_uint64 val#0 0u)
-        let tmp%1#0: uint64 = (extract_uint64 val#0 8u)
-        let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
-        return tmp%2#0
-
 subroutine test_cases.mutable_native_types.contract.do_something(pay: Encoded(uint8[32],uint64,uint64)) -> Encoded(uint8[32],uint64,uint64):
     block@0: // L284
         return pay#0
+
+subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing]() -> void:
+    block@0: // L101
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing]() -> void:
     block@0: // L131
@@ -291,9 +289,13 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum[routi
         (assert maybe_exists%0#0) // check self.nested exists
         let fixed_a#0: Encoded(uint64,uint64) = ((extract 0 16) maybe_value%0#0)
         let fixed_b#0: Encoded(uint64,uint64) = ((extract 16 16) maybe_value%0#0)
-        let tmp%0#1: uint64 = test_cases.mutable_native_types.contract.add(fixed_a#0)
-        let tmp%1#1: uint64 = test_cases.mutable_native_types.contract.add(fixed_b#0)
-        let result#0: uint64 = (+ tmp%0#1 tmp%1#1)
+        let tmp%0#2: uint64 = (extract_uint64 fixed_a#0 0u)
+        let tmp%1#2: uint64 = (extract_uint64 fixed_a#0 8u)
+        let tmp%2#1: uint64 = (+ tmp%0#2 tmp%1#2)
+        let tmp%0#3: uint64 = (extract_uint64 fixed_b#0 0u)
+        let tmp%1#3: uint64 = (extract_uint64 fixed_b#0 8u)
+        let tmp%2#2: uint64 = (+ tmp%0#3 tmp%1#3)
+        let result#0: uint64 = (+ tmp%2#1 tmp%2#2)
         let tmp%3#0: bool = (< result#0 100u)
         goto tmp%3#0 ? block@2 : block@3
     block@2: // if_body_L192

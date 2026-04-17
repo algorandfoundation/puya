@@ -10151,15 +10151,11 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (* 0u 8u) to 0u
-debug: Simplified (replace3 arr_3#0 0u aggregate%val_as_bytes%0#0) // on error: index access is out of bounds to 0x000000000000000000000000000000000000000000000000
 debug: Simplified (* 1u 8u) to 8u
-debug: Simplified (replace3 0x000000000000000000000000000000000000000000000000 8u aggregate%val_as_bytes%1#0) // on error: index access is out of bounds to 0x000000000000000000000000000000010000000000000000
 debug: Simplified (* 2u 8u) to 16u
-debug: Simplified (replace3 0x000000000000000000000000000000010000000000000000 16u aggregate%val_as_bytes%2#0) // on error: index access is out of bounds to 0x000000000000000000000000000000010000000000000002
 debug: Simplified (concat 0x aggregate%val_as_bytes%3#0) to aggregate%val_as_bytes%3#0
 debug: Simplified (concat aggregate%val_as_bytes%3#0 aggregate%val_as_bytes%4#0) to 0x00000000000000000000000000000001
 debug: Simplified (concat 0x00000000000000000000000000000001 aggregate%val_as_bytes%5#0) to 0x000000000000000000000000000000010000000000000002
-debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
 debug: Simplified (concat 0x aggregate%val_as_bytes%6#0) to aggregate%val_as_bytes%6#0
 debug: Simplified (concat aggregate%val_as_bytes%6#0 aggregate%val_as_bytes%7#0) to 0x00000000000000010000000000000001
 debug: Simplified (concat 0x00000000000000010000000000000001 aggregate%val_as_bytes%8#0) to 0x000000000000000100000000000000010000000000000001
@@ -10182,7 +10178,6 @@ debug: Simplified (concat 0x000300000000000000000000000000000001 aggregate%val_a
 debug: Simplified (extract_uint16 0x0003000000000000000000000000000000010000000000000002 0u) // on error: invalid array length header to 3u
 debug: Simplified (== 3u 3u) to 1u
 debug: Simplified ((extract 2 0) 0x0003000000000000000000000000000000010000000000000002) to 0x000000000000000000000000000000010000000000000002
-debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
 debug: Simplified (concat 0x aggregate%val_as_bytes%12#0) to aggregate%val_as_bytes%12#0
 debug: Simplified (concat aggregate%val_as_bytes%12#0 aggregate%val_as_bytes%13#0) to 0x00000000000000000000000000000001
 debug: Simplified (concat 0x00000000000000000000000000000001 aggregate%val_as_bytes%14#0) to 0x000000000000000000000000000000010000000000000002
@@ -10195,11 +10190,12 @@ debug: Simplified (btoi 0x0000000000000002) to 2u
 debug: Simplified (concat 0x aggregate%val_as_bytes%15#0) to aggregate%val_as_bytes%15#0
 debug: Simplified (concat aggregate%val_as_bytes%15#0 aggregate%val_as_bytes%16#0) to 0x00000000000000000000000000000001
 debug: Simplified (concat 0x00000000000000000000000000000001 aggregate%val_as_bytes%17#0) to 0x000000000000000000000000000000010000000000000002
-debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
 debug: Simplified (concat 0x 0x0000000000000000) to 0x0000000000000000
 debug: Simplified (concat 0x0000000000000000 0x0000000000000001) to 0x00000000000000000000000000000001
 debug: Simplified (concat 0x00000000000000000000000000000001 0x0000000000000002) to 0x000000000000000000000000000000010000000000000002
-debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
+debug: Simplified (replace3 arr_3#0 0u aggregate%val_as_bytes%0#0) // on error: index access is out of bounds to ((replace2 0) arr_3#0 aggregate%val_as_bytes%0#0) // on error: index access is out of bounds
+debug: Simplified (replace3 arr_3#1 8u aggregate%val_as_bytes%1#0) // on error: index access is out of bounds to ((replace2 8) arr_3#1 aggregate%val_as_bytes%1#0) // on error: index access is out of bounds
+debug: Simplified (replace3 arr_3#2 16u aggregate%val_as_bytes%2#0) // on error: index access is out of bounds to ((replace2 16) arr_3#2 aggregate%val_as_bytes%2#0) // on error: index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -10216,18 +10212,25 @@ debug: Replacing redundant declaration let aggregate%val_as_bytes%8#0: bytes[8] 
 debug: Replacing redundant declaration let aggregate%val_as_bytes%9#0: bytes[8] = (itob 0u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:104:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%0', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%10#0: bytes[8] = (itob 1u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:105:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%1', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%11#0: bytes[8] = (itob 2u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:106:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%2', version=0)]
+debug: Replacing redundant declaration let tmp%10#0: bool = (== arr_3#3 0x000000000000000000000000000000010000000000000002) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:111:15-40, ir_type=bool, name='tmp%1', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%12#0: bytes[8] = (itob 0u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:104:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%0', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%13#0: bytes[8] = (itob 1u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:105:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%1', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%14#0: bytes[8] = (itob 2u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:106:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%2', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%15#0: bytes[8] = (itob 0u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:104:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%0', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%16#0: bytes[8] = (itob 1u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:105:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%1', version=0)]
 debug: Replacing redundant declaration let aggregate%val_as_bytes%17#0: bytes[8] = (itob 2u) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:106:8-28, ir_type=bytes[8], name='aggregate%val_as_bytes%2', version=0)]
+debug: Replacing redundant declaration let tmp%14#0: bool = (== arr_3#3 0x000000000000000000000000000000010000000000000002) with copy of existing registers [Register(source_location=mutable_native_types/contract.py:111:15-40, ir_type=bool, name='tmp%1', version=0)]
 debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%val_as_bytes%3#0, aggregate%head%0#0, aggregate%val_as_bytes%9#0, aggregate%val_as_bytes%12#0, aggregate%head%9#0, aggregate%val_as_bytes%15#0, aggregate%head%12#0
 debug: selected aggregate%val_as_bytes%0#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%1#0, aggregate%val_as_bytes%4#0, aggregate%val_as_bytes%6#0, aggregate%head%3#0, aggregate%val_as_bytes%7#0, aggregate%val_as_bytes%8#0, aggregate%val_as_bytes%10#0, aggregate%val_as_bytes%13#0, aggregate%val_as_bytes%16#0
 debug: selected aggregate%val_as_bytes%1#0 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%2#0, aggregate%val_as_bytes%5#0, aggregate%val_as_bytes%11#0, aggregate%val_as_bytes%14#0, aggregate%val_as_bytes%17#0
 debug: selected aggregate%val_as_bytes%2#0 from equivalence set
+debug: Found equivalence set: tmp%1#0, tmp%10#0, tmp%14#0
+debug: selected tmp%1#0 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Removing redundant assert of tmp%1#0
+debug: Removing redundant assert of tmp%1#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -10822,19 +10825,11 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable arr_3#0
-debug: Removing unused variable aggregate%val_as_bytes%0#0
 debug: Removing unused variable aggregate%write_offset%0#0
-debug: Removing unused variable arr_3#1
-debug: Removing unused variable aggregate%val_as_bytes%1#0
 debug: Removing unused variable aggregate%write_offset%1#0
-debug: Removing unused variable arr_3#2
-debug: Removing unused variable aggregate%val_as_bytes%2#0
 debug: Removing unused variable aggregate%write_offset%2#0
-debug: Removing unused variable arr_3#3
 debug: Removing unused variable aggregate%head%1#0
 debug: Removing unused variable arr_3_from_tuple#0
-debug: Removing unused variable tmp%1#0
 debug: Removing unused variable aggregate%head%4#0
 debug: Removing unused variable arr_3_from_full#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
@@ -10857,7 +10852,6 @@ debug: Removing unused variable dynamic_arr#0
 debug: Removing unused variable aggregate%array_length%0#0
 debug: Removing unused variable eq%0#0
 debug: Removing unused variable converted_array%0#0
-debug: Removing unused variable tmp%10#0
 debug: Removing unused variable aggregate%head%10#0
 debug: Removing unused variable aggregate%head%11#0
 debug: Removing unused variable aggregate%extract%0#0
@@ -10868,12 +10862,15 @@ debug: Removing unused variable aggregate%extract%2#0
 debug: Removing unused variable tmp%13#0
 debug: Removing unused variable aggregate%head%13#0
 debug: Removing unused variable aggregate%head%14#0
-debug: Removing unused variable tmp%14#0
 debug: Removing unused variable aggregate%head%15#0
 debug: Removing unused variable aggregate%head%16#0
 debug: Removing unused variable static_array#0
-debug: Removing unused variable tmp%16#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified ((replace2 0) arr_3#0 aggregate%val_as_bytes%0#0) // on error: index access is out of bounds to 0x000000000000000000000000000000000000000000000000
+debug: Simplified ((replace2 8) 0x000000000000000000000000000000000000000000000000 aggregate%val_as_bytes%1#0) // on error: index access is out of bounds to 0x000000000000000000000000000000010000000000000000
+debug: Simplified ((replace2 16) 0x000000000000000000000000000000010000000000000000 aggregate%val_as_bytes%2#0) // on error: index access is out of bounds to 0x000000000000000000000000000000010000000000000002
+debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
+debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -11174,10 +11171,9 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Output IR to mutable_native_types/out/Contract.ir/Contract.approval.201.ssa.array.opt.ir
 debug: Begin optimization pass 3/100
-debug: marking trivial method test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing] as inlineable
+debug: marking simple function test_cases.mutable_native_types.contract.add for inlining (complexity=3 <= threshold=3)
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
-mutable_native_types/contract.py:101:6 debug: inlining call to test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing] in algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -11188,10 +11184,7 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
-debug: Merged linear block@23 into block@7
 debug: Optimizer: Remove Linear Jumps
-debug: Removing jump block block@24
-debug: branching to block@24 will be replaced with block@21
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
@@ -11220,6 +11213,348 @@ debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.contract.add
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.do_something
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable arr_3#0
+debug: Removing unused variable aggregate%val_as_bytes%0#0
+debug: Removing unused variable arr_3#1
+debug: Removing unused variable aggregate%val_as_bytes%1#0
+debug: Removing unused variable arr_3#2
+debug: Removing unused variable aggregate%val_as_bytes%2#0
+debug: Removing unused variable arr_3#3
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable tmp%16#0
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.create_storage[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.struct_return[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.tup_return[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]
+debug: Optimizer: Perform Subroutine Inlining
+mutable_native_types/contract.py:190:18 debug: inlining call to test_cases.mutable_native_types.contract.add in test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]
+mutable_native_types/contract.py:190:33 debug: inlining call to test_cases.mutable_native_types.contract.add in test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: fixed_a#0, val#0
+debug: selected fixed_a#0 from equivalence set
+debug: Found equivalence set: tmp%2#1, tmp%0#1
+debug: selected tmp%2#1 from equivalence set
+debug: Found equivalence set: fixed_b#0, val#1
+debug: selected fixed_b#0 from equivalence set
+debug: Found equivalence set: tmp%2#2, tmp%1#1
+debug: selected tmp%2#2 from equivalence set
+debug: Copy propagation made 6 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Replaced predecessor block@4 with block@0 in block@5
+debug: Merged linear block@4 into block@0
+debug: Replaced predecessor block@5 with block@0 in block@6
+debug: Merged linear block@5 into block@0
+debug: Replaced predecessor block@6 with block@0 in block@7
+debug: Merged linear block@6 into block@0
+debug: Replaced predecessor block@7 with block@0 in block@3
+debug: Replaced predecessor block@7 with block@0 in block@2
+debug: Merged linear block@7 into block@0
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%54#0
+debug: Removing unused variable aggregate%bytes_len%2#0
+debug: Removing unused variable aggregate%array_len%2#0
+debug: Removing unused variable tmp%56#0
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: removing unused subroutine test_cases.mutable_native_types.contract.add
+debug: Unused subroutines removed
+debug: Output IR to mutable_native_types/out/Contract.ir/Contract.approval.202.ssa.array.opt.ir
+debug: Begin optimization pass 4/100
+debug: marking trivial method test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing] as inlineable
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+mutable_native_types/contract.py:101:6 debug: inlining call to test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing] in algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Merged linear block@23 into block@7
+debug: Optimizer: Remove Linear Jumps
+debug: Removing jump block block@24
+debug: branching to block@24 will be replaced with block@21
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.contract.sum_frozen_arr
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
@@ -11466,10 +11801,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%54#0
-debug: Removing unused variable aggregate%bytes_len%2#0
-debug: Removing unused variable aggregate%array_len%2#0
-debug: Removing unused variable tmp%56#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -11504,331 +11835,6 @@ debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[routing]
-debug: Unused subroutines removed
-debug: Output IR to mutable_native_types/out/Contract.ir/Contract.approval.202.ssa.array.opt.ir
-debug: Begin optimization pass 4/100
-debug: marking simple function test_cases.mutable_native_types.contract.add for inlining (complexity=3 <= threshold=3)
-debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.sum_frozen_arr
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.add
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.do_something
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.create_storage[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.struct_return[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.tup_return[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]
-debug: Optimizer: Perform Subroutine Inlining
-mutable_native_types/contract.py:190:18 debug: inlining call to test_cases.mutable_native_types.contract.add in test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]
-mutable_native_types/contract.py:190:33 debug: inlining call to test_cases.mutable_native_types.contract.add in test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: fixed_a#0, val#0
-debug: selected fixed_a#0 from equivalence set
-debug: Found equivalence set: tmp%2#1, tmp%0#1
-debug: selected tmp%2#1 from equivalence set
-debug: Found equivalence set: fixed_b#0, val#1
-debug: selected fixed_b#0 from equivalence set
-debug: Found equivalence set: tmp%2#2, tmp%1#1
-debug: selected tmp%2#2 from equivalence set
-debug: Copy propagation made 6 modifications
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Replaced predecessor block@4 with block@0 in block@5
-debug: Merged linear block@4 into block@0
-debug: Replaced predecessor block@5 with block@0 in block@6
-debug: Merged linear block@5 into block@0
-debug: Replaced predecessor block@6 with block@0 in block@7
-debug: Merged linear block@6 into block@0
-debug: Replaced predecessor block@7 with block@0 in block@3
-debug: Replaced predecessor block@7 with block@0 in block@2
-debug: Merged linear block@7 into block@0
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.test_match_struct[routing]
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: removing unused subroutine test_cases.mutable_native_types.contract.add
 debug: Unused subroutines removed
 debug: Output IR to mutable_native_types/out/Contract.ir/Contract.approval.203.ssa.array.opt.ir
 debug: Begin optimization pass 5/100
