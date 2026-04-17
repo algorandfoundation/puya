@@ -1,7 +1,12 @@
-| PC | TEAL Bytes | TEAL               | Source      | Location                                                                            |
-|--: | :----------| :------------------| :-----------| :-----------------------------------------------------------------------------------|
-|  0 | 0b         | #pragma version 11 |             |                                                                                     |
-|    | # main     | main:              |             | test_cases.regression_tests.shift_fold_oob.ShlFoldOOB.approval_program() -> uint64: |
-|    |            |                    | return True | regression_tests/shift_fold_oob.py:7                                                |
-|  1 | 81 01      |     pushint 1      |        ---- | regression_tests/shift_fold_oob.py:7:15-19                                          |
-|  3 | 43         |     return         | ----------- | regression_tests/shift_fold_oob.py:7:8-19                                           |
+| PC | TEAL Bytes  | TEAL               | Source                    | Location                                                                            |
+|--: | :-----------| :------------------| :-------------------------| :-----------------------------------------------------------------------------------|
+|  0 | 0b          | #pragma version 11 |                           |                                                                                     |
+|    | # main      | main:              |                           | test_cases.regression_tests.shift_fold_oob.ShlFoldOOB.approval_program() -> uint64: |
+|    |             |                    | assert op.shl(1, 64) == 0 | regression_tests/shift_fold_oob.py:6                                                |
+|  1 | 83 02 01 40 |     pushints 1 64  |               -----       | regression_tests/shift_fold_oob.py:6:22-27                                          |
+|  5 | 90          |     shl            |        -------------      | regression_tests/shift_fold_oob.py:6:15-28                                          |
+|  6 | 14          |     !              |        ------------------ | regression_tests/shift_fold_oob.py:6:15-33                                          |
+|  7 | 44          |     assert         | ------------------------- | regression_tests/shift_fold_oob.py:6:8-33                                           |
+|    |             |                    | return True               | regression_tests/shift_fold_oob.py:7                                                |
+|  8 | 81 01       |     pushint 1      |        ----               | regression_tests/shift_fold_oob.py:7:15-19                                          |
+| 10 | 43          |     return         | -----------               | regression_tests/shift_fold_oob.py:7:8-19                                           |
