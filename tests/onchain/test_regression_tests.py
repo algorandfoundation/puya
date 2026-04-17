@@ -64,3 +64,24 @@ def test_shr_fold_oob(deployer_o: Deployer) -> None:
 def test_replace_fold_oob(deployer_o: Deployer) -> None:
     with pytest.raises(au.LogicError, match="replacement end 3 beyond original length: 0"):
         deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "replace_fold_oob.py")
+
+
+def test_uint64_add_overflow_fold(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match=r"\+ overflowed"):
+        deployer_o.create_bare(
+            (TEST_CASES_DIR / "regression_tests" / "uint64_overflow_fold.py", "UInt64AddOverflow")
+        )
+
+
+def test_uint64_mul_overflow_fold(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match=r"\* overflowed"):
+        deployer_o.create_bare(
+            (TEST_CASES_DIR / "regression_tests" / "uint64_overflow_fold.py", "UInt64MulOverflow")
+        )
+
+
+def test_uint64_exp_overflow_fold(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match=r"2\^64 overflow"):
+        deployer_o.create_bare(
+            (TEST_CASES_DIR / "regression_tests" / "uint64_overflow_fold.py", "UInt64ExpOverflow")
+        )
