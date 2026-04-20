@@ -27,8 +27,8 @@ class StaticallyFailingOps(Contract):
         start = UInt64(300)
         log(op.extract(Bytes(b"ab"), start, UInt64(5)))
 
-        # substring — immediates form: E<S and E>len
-        log(op.substring(Bytes(b"ab"), 5, 1))
+        # substring — immediates form: E>len
+        # note: don't test E<S, this will cause compilation failure
         log(op.substring(Bytes(b"ab"), 0, 5))
         # substring3 — stack form (E>len, and E<S)
         sub_start = UInt64(300)
