@@ -101,35 +101,28 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
                     if end > len(a_bytes):
                         return "substring of constant bytes is out of bounds"
         case AVMOp.substring3, [
-            models.BytesConstant(value=a_bytes),
-            models.UInt64Constant(value=start),
+            bytes_arg,
+            maybe_start,
             models.UInt64Constant(value=end),
         ]:
-            if end < start:
-                return "substring3 of constant bytes has end preceding start"
-            if end > len(a_bytes):
-                return "substring3 of constant bytes is out of bounds"
-        case AVMOp.substring3, [
-            _,
-            _,
-            models.UInt64Constant(value=end),
-        ]:
-            if end > algo_constants.MAX_BYTES_LENGTH:
-                return "substring3 of constant bytes is out of bounds"
+            if end > _bytes_length_lower_bound(bytes_arg):
+                return "substring3 end out of bounds"
+            if isinstance(maybe_start, models.UInt64Constant) and end < maybe_start.value:
+                return "substring3 end preceding start"
         case AVMOp.replace2, [
-            models.BytesConstant(value=a_bytes),
+            bytes_arg,
             models.BytesConstant(value=b_bytes),
         ]:
             match intrinsic.immediates:
-                case [int(start)] if start + len(b_bytes) > len(a_bytes):
-                    return "replace2 of constant bytes is out of bounds"
+                case [int(start)] if (start + len(b_bytes) > _bytes_length_lower_bound(bytes_arg)):
+                    return "replace2 out of bounds"
         case AVMOp.replace3, [
-            models.BytesConstant(value=a_bytes),
+            bytes_arg,
             models.UInt64Constant(value=start),
             models.BytesConstant(value=b_bytes),
         ]:
-            if start + len(b_bytes) > len(a_bytes):
-                return "replace3 of constant bytes is out of bounds"
+            if start + len(b_bytes) > _bytes_length_lower_bound(bytes_arg):
+                return "replace3 out of bounds"
         case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64, [
             models.BytesConstant(value=a_bytes),
             models.UInt64Constant(value=offset),
