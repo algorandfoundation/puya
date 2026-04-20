@@ -4,7 +4,6 @@ from puya import algo_constants, log
 from puya.avm import AVMType
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
-from puya.ir.types_ import PrimitiveIRType
 from puya.ir.validation._base import DestructuredIRValidator
 
 logger = log.get_logger(__name__)
@@ -154,25 +153,36 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
                     if index >= (8 * algo_constants.MAX_BYTES_LENGTH):
                         return "getbit index exceeds max bytes length"
         case AVMOp.setbit, [
-            models.UInt64Constant(ir_type=PrimitiveIRType.uint64),
-            models.UInt64Constant(value=index),
-            _,
-        ]:
-            if index >= 64:
-                return "setbit of constant uint64 with index >= 64"
-        case AVMOp.setbit, [
             models.BytesConstant(value=a_bytes),
             models.UInt64Constant(value=index),
             _,
         ]:
             if index >= 8 * len(a_bytes):
                 return "setbit of constant bytes with index out of bounds"
+        case AVMOp.setbit, [
+            a,
+            models.UInt64Constant(value=index),
+            _,
+        ]:
+            match a.ir_type.avm_type:
+                case AVMType.uint64:
+                    if index >= 64:
+                        return "setbit of uint64 with index >= 64"
+                case AVMType.bytes | AVMType.any:
+                    if index >= (8 * algo_constants.MAX_BYTES_LENGTH):
+                        return "setbit index exceeds max bytes length"
         case AVMOp.getbyte, [
             models.BytesConstant(value=a_bytes),
             models.UInt64Constant(value=index),
         ]:
             if index >= len(a_bytes):
                 return "getbyte of constant bytes with index out of bounds"
+        case AVMOp.getbyte, [
+            _,
+            models.UInt64Constant(value=index),
+        ]:
+            if index >= algo_constants.MAX_BYTES_LENGTH:
+                return "getbyte index exceeds max bytes length"
         case AVMOp.setbyte, [
             models.BytesConstant(value=a_bytes),
             models.UInt64Constant(value=index),
@@ -180,4 +190,11 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
         ]:
             if index >= len(a_bytes):
                 return "setbyte of constant bytes with index out of bounds"
+        case AVMOp.setbyte, [
+            _,
+            models.UInt64Constant(value=index),
+            _,
+        ]:
+            if index >= algo_constants.MAX_BYTES_LENGTH:
+                return "setbyte index exceeds max bytes length"
     return None
