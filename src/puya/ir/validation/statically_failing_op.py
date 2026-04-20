@@ -1,6 +1,7 @@
 import typing
 
 from puya import algo_constants, log
+from puya.avm import AVMType
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.types_ import PrimitiveIRType
@@ -136,17 +137,22 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
             if offset + byte_size > len(a_bytes):
                 return f"{intrinsic.op.code} of constant bytes is out of bounds"
         case AVMOp.getbit, [
-            models.UInt64Constant(ir_type=PrimitiveIRType.uint64),
-            models.UInt64Constant(value=index),
-        ]:
-            if index >= 64:
-                return "getbit of constant uint64 with index >= 64"
-        case AVMOp.getbit, [
             models.BytesConstant(value=a_bytes),
             models.UInt64Constant(value=index),
         ]:
             if index >= 8 * len(a_bytes):
                 return "getbit of constant bytes with index out of bounds"
+        case AVMOp.getbit, [
+            a,
+            models.UInt64Constant(value=index),
+        ]:
+            match a.ir_type.avm_type:
+                case AVMType.uint64:
+                    if index >= 64:
+                        return "getbit of uint64 with index >= 64"
+                case AVMType.bytes | AVMType.any:
+                    if index >= (8 * algo_constants.MAX_BYTES_LENGTH):
+                        return "getbit index exceeds max bytes length"
         case AVMOp.setbit, [
             models.UInt64Constant(ir_type=PrimitiveIRType.uint64),
             models.UInt64Constant(value=index),
