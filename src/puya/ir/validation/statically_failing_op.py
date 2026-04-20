@@ -80,23 +80,23 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
                 case [int(start), int(length)]:
                     max_len = _bytes_length_lower_bound(arg)
                     if start > max_len:
-                        return "extract of bytes is out of bounds"
+                        return "start index for extract is out of bounds"
                     if length != 0 and start + length > max_len:
-                        return "extract of bytes is out of bounds"
+                        return "end index for extract is out of bounds"
         case AVMOp.extract3, [
             arg,
             models.UInt64Constant(value=start),
             models.UInt64Constant(value=length),
         ]:
             if start + length > _bytes_length_lower_bound(arg):
-                return "extract3 of bytes is out of bounds"
+                return "extract3 buffer overflow"
         case AVMOp.substring, [arg]:
             match intrinsic.immediates:
                 case [_, int(end)]:
                     # note: we don't check if end is before start, TEAL model does this,
                     #       to match algod behaviour
                     if end > _bytes_length_lower_bound(arg):
-                        return "substring of bytes is out of bounds"
+                        return "substring buffer overflow"
         case AVMOp.substring3, [
             arg,
             models.UInt64Constant(value=start),
@@ -105,25 +105,25 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
             if end < start:
                 return "substring3 has end preceding start"
             if end > _bytes_length_lower_bound(arg):
-                return "substring3 of bytes is out of bounds"
+                return "substring3 buffer overflow"
         case AVMOp.substring3, [
             arg,
             _,
             models.UInt64Constant(value=end),
         ]:
             if end > _bytes_length_lower_bound(arg):
-                return "substring3 of bytes is out of bounds"
+                return "substring3 buffer overflow"
         case AVMOp.replace2, [arg, models.BytesConstant(value=b_bytes)]:
             match intrinsic.immediates:
                 case [int(start)] if start + len(b_bytes) > _bytes_length_lower_bound(arg):
-                    return "replace2 of bytes is out of bounds"
+                    return "replace2 buffer overflow"
         case AVMOp.replace3, [
             arg,
             models.UInt64Constant(value=start),
             models.BytesConstant(value=b_bytes),
         ]:
             if start + len(b_bytes) > _bytes_length_lower_bound(arg):
-                return "replace3 of bytes is out of bounds"
+                return "replace3 buffer overflow"
         case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64, [
             models.BytesConstant(value=a_bytes),
             models.UInt64Constant(value=offset),
@@ -134,7 +134,7 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
                 AVMOp.extract_uint64: 8,
             }[intrinsic.op]
             if offset + byte_size > len(a_bytes):
-                return f"{intrinsic.op.code} of constant bytes is out of bounds"
+                return f"bytes constant is too small for {intrinsic.op.code}"
         case AVMOp.getbit, [
             arg,
             models.UInt64Constant(value=index),
@@ -142,10 +142,10 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
             match arg.ir_type.avm_type:
                 case AVMType.uint64:
                     if index >= 64:
-                        return "getbit of uint64 index out of bounds"
+                        return "index for getbit of uint64 is out of bounds"
                 case AVMType.bytes | AVMType.any:
                     if index >= (8 * _bytes_length_lower_bound(arg)):
-                        return "getbit of bytes index out of bounds"
+                        return "index for getbit of bytes is out of bounds"
         case AVMOp.setbit, [
             arg,
             models.UInt64Constant(value=index),
@@ -154,23 +154,23 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
             match arg.ir_type.avm_type:
                 case AVMType.uint64:
                     if index >= 64:
-                        return "setbit of uint64 index out of bounds"
+                        return "index for setbit of uint64 is out of bounds"
                 case AVMType.bytes | AVMType.any:
                     if index >= (8 * _bytes_length_lower_bound(arg)):
-                        return "setbit of bytes index out of bounds"
+                        return "index for setbit of bytes is out of bounds"
         case AVMOp.getbyte, [
             bytes_arg,
             models.UInt64Constant(value=index),
         ]:
             if index >= _bytes_length_lower_bound(bytes_arg):
-                return "getbyte index out of bounds"
+                return "index for getbyte is out of bounds"
         case AVMOp.setbyte, [
             bytes_arg,
             models.UInt64Constant(value=index),
             _,
         ]:
             if index >= _bytes_length_lower_bound(bytes_arg):
-                return "setbyte index out of bounds"
+                return "index for setbyte is out of bounds"
     return None
 
 
