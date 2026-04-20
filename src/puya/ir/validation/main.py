@@ -8,6 +8,7 @@ from puya.ir.validation.itxn_result_field_validator import ITxnResultFieldValida
 from puya.ir.validation.min_avm_version_validator import MinAvmVersionValidator
 from puya.ir.validation.op_run_mode_validator import OpRunModeValidator
 from puya.ir.validation.slot_reservation import SlotReservationValidator
+from puya.ir.validation.statically_failing_op import StaticallyFailingOpValidator
 
 
 def validate_module_artifact(context: CompileContext, artifact: ModuleArtifact) -> None:
@@ -19,5 +20,6 @@ def validate_module_artifact(context: CompileContext, artifact: ModuleArtifact) 
         CompileReferenceValidator,
         SlotReservationValidator,
         NoInfiniteLoopsValidator,
+        StaticallyFailingOpValidator,
     ):
         validator_cls.validate(context, artifact)
