@@ -129,3 +129,9 @@ def test_logical_fold_non_bool(deployer_o: Deployer) -> None:
     # && and || with non-boolean constant operands should return 0 or 1 on the AVM.
     # Without the fix, the optimizer folds 5 && 3 to 3 instead of 1.
     deployer_o.create_bare(AWST_DIR / "logical_fold_non_bool")
+
+
+def test_logical_fold_or_identity(deployer_o: Deployer) -> None:
+    # 0 || x and x || 0 should return 0 or 1 on the AVM when x is a non-bool uint64.
+    # Without the fix, the optimizer folds these to x unconditionally.
+    deployer_o.create_bare(AWST_DIR / "logical_fold_or_identity", args=[5])
