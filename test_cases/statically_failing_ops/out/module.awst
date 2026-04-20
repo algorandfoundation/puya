@@ -1,0 +1,55 @@
+contract StaticallyFailingOps
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.statically_failing_ops.contract.StaticallyFailingOps.approval_program(): bool
+  {
+    log(itob(18446744073709551615u + 1u))
+    log(itob(4294967296u * 4294967296u))
+    log(itob(1u - 2u))
+    log(itob(5u // 0u))
+    log(itob(5u % 0u))
+    log(itob(0u ** 0u))
+    log(itob(2u ** 64u))
+    log(itob(shl(1u, 64u)))
+    log(itob(shr(1u, 64u)))
+    log(itob(btoi(hex<"313233343536373839">)))
+    log(bzero(5000u))
+    log(extract<0, 5>(hex<"6162">))
+    log(extract<5, 0>(hex<"6162">))
+    start: uint64 = 300u
+    log(extract3(hex<"6162">, start, 5u))
+    log(substring<5, 1>(hex<"6162">))
+    log(substring<0, 5>(hex<"6162">))
+    sub_start: uint64 = 300u
+    log(substring3(hex<"6162">, sub_start, 500u))
+    log(replace2<0>(hex<"">, hex<"616263">))
+    rep_start: uint64 = 300u
+    log(replace3(hex<"">, rep_start, hex<"616263">))
+    log(itob(extract_uint16(hex<"61">, 0u)))
+    log(itob(extract_uint32(hex<"616263">, 0u)))
+    log(itob(extract_uint64(hex<"61626364656667">, 0u)))
+    log(itob(reinterpret_cast<uint64>(getbit(0u, 64u))))
+    log(itob(reinterpret_cast<uint64>(getbit(hex<"61">, 8u))))
+    log(itob(setbit(0u, 64u, true)))
+    log(setbit(hex<"61">, 8u, true))
+    log(itob(getbyte(hex<"61">, 1u)))
+    log(setbyte(hex<"61">, 1u, 0u))
+    r: uint64 = global<Round>()
+    log(extract3(hex<"6162">, r, 0u))
+    log(substring3(hex<"6162">, r, r))
+    log(replace3(hex<"">, r, hex<"616263">))
+    return true
+  }
+  
+  subroutine test_cases.statically_failing_ops.contract.StaticallyFailingOps.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
