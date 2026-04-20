@@ -22,34 +22,61 @@ class StaticallyFailingOpValidator(DestructuredIRValidator):
 
 def _check(intrinsic: models.Intrinsic) -> str | None:
     match intrinsic.op, intrinsic.args:
-        case AVMOp.add, [models.UInt64Constant(value=a), models.UInt64Constant(value=b)]:
+        case AVMOp.add, [
+            models.UInt64Constant(value=a),
+            models.UInt64Constant(value=b),
+        ]:
             if a + b > algo_constants.MAX_UINT64:
                 return "uint64 addition of constants overflows"
-        case AVMOp.mul, [models.UInt64Constant(value=a), models.UInt64Constant(value=b)]:
+        case AVMOp.mul, [
+            models.UInt64Constant(value=a),
+            models.UInt64Constant(value=b),
+        ]:
             if a * b > algo_constants.MAX_UINT64:
                 return "uint64 multiplication of constants overflows"
-        case AVMOp.sub, [models.UInt64Constant(value=a), models.UInt64Constant(value=b)]:
+        case AVMOp.sub, [
+            models.UInt64Constant(value=a),
+            models.UInt64Constant(value=b),
+        ]:
             if b > a:
                 return "uint64 subtraction of constants underflows"
-        case AVMOp.div_floor, [_, models.UInt64Constant(value=0)]:
+        case AVMOp.div_floor, [
+            _,
+            models.UInt64Constant(value=0),
+        ]:
             return "uint64 division by constant zero"
-        case AVMOp.mod, [_, models.UInt64Constant(value=0)]:
+        case AVMOp.mod, [
+            _,
+            models.UInt64Constant(value=0),
+        ]:
             return "uint64 modulo by constant zero"
-        case AVMOp.exp, [models.UInt64Constant(value=a), models.UInt64Constant(value=b)]:
+        case AVMOp.exp, [
+            models.UInt64Constant(value=a),
+            models.UInt64Constant(value=b),
+        ]:
             if a == 0 and b == 0:
                 return "uint64 exp result is undefined"
             if a**b > algo_constants.MAX_UINT64:
                 return "uint64 exp of constants overflows"
-        case ((AVMOp.shl | AVMOp.shr), [_, models.UInt64Constant(value=b)]):
+        case AVMOp.shl | AVMOp.shr, [
+            _,
+            models.UInt64Constant(value=b),
+        ]:
             if b >= 64:
                 return "uint64 shift by constant amount >= 64"
-        case AVMOp.btoi, [models.BytesConstant(value=a_bytes)]:
+        case AVMOp.btoi, [
+            models.BytesConstant(value=a_bytes),
+        ]:
             if len(a_bytes) > 8:
                 return "btoi of constant bytes exceeds 8 bytes"
-        case AVMOp.bzero, [models.UInt64Constant(value=a)]:
+        case AVMOp.bzero, [
+            models.UInt64Constant(value=a),
+        ]:
             if a > algo_constants.MAX_BYTES_LENGTH:
                 return "bzero of constant length exceeds AVM stack byte limit"
-        case AVMOp.extract, [models.BytesConstant(value=a_bytes)]:
+        case AVMOp.extract, [
+            models.BytesConstant(value=a_bytes),
+        ]:
             # extract with immediates: S, L — L==0 extracts to end (valid iff S <= len)
             match intrinsic.immediates:
                 case [int(start), int(length)]:
@@ -58,56 +85,49 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
                             return "extract of constant bytes is out of bounds"
                     elif start + length > len(a_bytes):
                         return "extract of constant bytes is out of bounds"
-        case (
-            AVMOp.extract3,
-            [
-                models.BytesConstant(value=a_bytes),
-                models.UInt64Constant(value=start),
-                models.UInt64Constant(value=length),
-            ],
-        ):
+        case AVMOp.extract3, [
+            models.BytesConstant(value=a_bytes),
+            models.UInt64Constant(value=start),
+            models.UInt64Constant(value=length),
+        ]:
             if start + length > len(a_bytes):
                 return "extract3 of constant bytes is out of bounds"
-        case AVMOp.substring, [models.BytesConstant(value=a_bytes)]:
+        case AVMOp.substring, [
+            models.BytesConstant(value=a_bytes),
+        ]:
             match intrinsic.immediates:
                 case [int(start), int(end)]:
                     if end < start:
                         return "substring of constant bytes has end preceding start"
                     if end > len(a_bytes):
                         return "substring of constant bytes is out of bounds"
-        case (
-            AVMOp.substring3,
-            [
-                models.BytesConstant(value=a_bytes),
-                models.UInt64Constant(value=start),
-                models.UInt64Constant(value=end),
-            ],
-        ):
+        case AVMOp.substring3, [
+            models.BytesConstant(value=a_bytes),
+            models.UInt64Constant(value=start),
+            models.UInt64Constant(value=end),
+        ]:
             if end < start:
                 return "substring3 of constant bytes has end preceding start"
             if end > len(a_bytes):
                 return "substring3 of constant bytes is out of bounds"
-        case (
-            AVMOp.replace2,
-            [models.BytesConstant(value=a_bytes), models.BytesConstant(value=b_bytes)],
-        ):
+        case AVMOp.replace2, [
+            models.BytesConstant(value=a_bytes),
+            models.BytesConstant(value=b_bytes),
+        ]:
             match intrinsic.immediates:
                 case [int(start)] if start + len(b_bytes) > len(a_bytes):
                     return "replace2 of constant bytes is out of bounds"
-        case (
-            AVMOp.replace3,
-            [
-                models.BytesConstant(value=a_bytes),
-                models.UInt64Constant(value=start),
-                models.BytesConstant(value=b_bytes),
-            ],
-        ):
+        case AVMOp.replace3, [
+            models.BytesConstant(value=a_bytes),
+            models.UInt64Constant(value=start),
+            models.BytesConstant(value=b_bytes),
+        ]:
             if start + len(b_bytes) > len(a_bytes):
                 return "replace3 of constant bytes is out of bounds"
-        case (
-            (AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64),
-            [models.BytesConstant(value=a_bytes), models.UInt64Constant(value=offset)],
-        ):
+        case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64, [
+            models.BytesConstant(value=a_bytes),
+            models.UInt64Constant(value=offset),
+        ]:
             byte_size = {
                 AVMOp.extract_uint16: 2,
                 AVMOp.extract_uint32: 4,
@@ -115,13 +135,10 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
             }[intrinsic.op]
             if offset + byte_size > len(a_bytes):
                 return f"{intrinsic.op.code} of constant bytes is out of bounds"
-        case (
-            AVMOp.getbit,
-            [
-                models.UInt64Constant(ir_type=PrimitiveIRType.uint64),
-                models.UInt64Constant(value=index),
-            ],
-        ):
+        case AVMOp.getbit, [
+            models.UInt64Constant(ir_type=PrimitiveIRType.uint64),
+            models.UInt64Constant(value=index),
+        ]:
             if index >= 64:
                 return "getbit of constant uint64 with index >= 64"
         case AVMOp.getbit, [
@@ -130,14 +147,11 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
         ]:
             if index >= 8 * len(a_bytes):
                 return "getbit of constant bytes with index out of bounds"
-        case (
-            AVMOp.setbit,
-            [
-                models.UInt64Constant(ir_type=PrimitiveIRType.uint64),
-                models.UInt64Constant(value=index),
-                _,
-            ],
-        ):
+        case AVMOp.setbit, [
+            models.UInt64Constant(ir_type=PrimitiveIRType.uint64),
+            models.UInt64Constant(value=index),
+            _,
+        ]:
             if index >= 64:
                 return "setbit of constant uint64 with index >= 64"
         case AVMOp.setbit, [
