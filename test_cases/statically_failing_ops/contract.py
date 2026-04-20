@@ -35,6 +35,8 @@ class StaticallyFailingOps(Contract):
         log(op.substring(Bytes(b"ab"), sub_start, UInt64(500)))
         sub_start2 = UInt64(500)
         log(op.substring(Bytes(b"ab"), sub_start2, UInt64(0)))
+        # substring3 — runtime bytes with constant end > MAX_BYTES_LENGTH
+        log(op.substring(Txn.application_args(0), UInt64(0), UInt64(5000)))
 
         # replace2 — imm form, and replace3 — stack form
         log(op.replace(Bytes(b""), 0, Bytes(b"abc")))
