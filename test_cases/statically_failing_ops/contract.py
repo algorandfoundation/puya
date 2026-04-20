@@ -1,4 +1,4 @@
-from algopy import Bytes, Contract, Global, UInt64, log, op
+from algopy import Bytes, Contract, Global, Txn, UInt64, log, op
 
 
 class StaticallyFailingOps(Contract):
@@ -46,15 +46,20 @@ class StaticallyFailingOps(Contract):
         log(op.itob(op.extract_uint32(Bytes(b"abc"), 0)))
         log(op.itob(op.extract_uint64(Bytes(b"abcdefg"), 0)))
 
-        # getbit / setbit — uint64 and bytes variants
+        # getbit / setbit — constant-bytes, uint64, and runtime-bytes variants
+        runtime_bytes = Txn.application_args(0)
         log(op.itob(UInt64(op.getbit(UInt64(0), 64))))
         log(op.itob(UInt64(op.getbit(Bytes(b"a"), 8))))
+        log(op.itob(UInt64(op.getbit(runtime_bytes, UInt64(8 * 4096)))))
         log(op.itob(op.setbit_uint64(UInt64(0), 64, True)))
         log(op.setbit_bytes(Bytes(b"a"), 8, True))
+        log(op.setbit_bytes(runtime_bytes, UInt64(8 * 4096), True))
 
-        # getbyte / setbyte
+        # getbyte / setbyte — constant-bytes and runtime-bytes variants
         log(op.itob(op.getbyte(Bytes(b"a"), 1)))
+        log(op.itob(op.getbyte(runtime_bytes, UInt64(4096))))
         log(op.setbyte(Bytes(b"a"), 1, 0))
+        log(op.setbyte(runtime_bytes, UInt64(4096), 0))
 
         # helper-None coverage: runtime-variable indices so start/length aren't const
         r = Global.round
