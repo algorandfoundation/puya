@@ -3,7 +3,7 @@
 
 // test_cases.statically_failing_ops.contract.StaticallyFailingOps.approval_program() -> uint64:
 main:
-    intcblock 0 1 64 5 300 4294967296
+    intcblock 0 1 64 5 300 4294967296 32768
     bytecblock 0x6162 0x61 0x616263 0x
     b main_block@0
 
@@ -183,21 +183,31 @@ main_block@0:
     itob
     log
     // statically_failing_ops/contract.py:49-50
-    // # getbit / setbit — uint64 and bytes variants
+    // # getbit / setbit — constant-bytes, uint64, and runtime-bytes variants
+    // runtime_bytes = Txn.application_args(0)
+    txna ApplicationArgs 0
+    // statically_failing_ops/contract.py:51
     // log(op.itob(UInt64(op.getbit(UInt64(0), 64))))
     intc_0 // 0
     intc_2 // 64
     getbit
     itob
     log
-    // statically_failing_ops/contract.py:51
+    // statically_failing_ops/contract.py:52
     // log(op.itob(UInt64(op.getbit(Bytes(b"a"), 8))))
     bytec_1 // 0x61
     pushint 8
     getbit
     itob
     log
-    // statically_failing_ops/contract.py:52
+    // statically_failing_ops/contract.py:53
+    // log(op.itob(UInt64(op.getbit(runtime_bytes, UInt64(8 * 4096)))))
+    dup
+    intc 6 // 32768
+    getbit
+    itob
+    log
+    // statically_failing_ops/contract.py:54
     // log(op.itob(op.setbit_uint64(UInt64(0), 64, True)))
     intc_0 // 0
     intc_2 // 64
@@ -205,54 +215,74 @@ main_block@0:
     setbit
     itob
     log
-    // statically_failing_ops/contract.py:53
+    // statically_failing_ops/contract.py:55
     // log(op.setbit_bytes(Bytes(b"a"), 8, True))
     bytec_1 // 0x61
     pushint 8
     intc_1 // 1
     setbit
     log
-    // statically_failing_ops/contract.py:55-56
-    // # getbyte / setbyte
+    // statically_failing_ops/contract.py:56
+    // log(op.setbit_bytes(runtime_bytes, UInt64(8 * 4096), True))
+    dup
+    intc 6 // 32768
+    intc_1 // 1
+    setbit
+    log
+    // statically_failing_ops/contract.py:58-59
+    // # getbyte / setbyte — constant-bytes and runtime-bytes variants
     // log(op.itob(op.getbyte(Bytes(b"a"), 1)))
     bytec_1 // 0x61
     intc_1 // 1
     getbyte
     itob
     log
-    // statically_failing_ops/contract.py:57
+    // statically_failing_ops/contract.py:60
+    // log(op.itob(op.getbyte(runtime_bytes, UInt64(4096))))
+    dup
+    pushint 4096
+    getbyte
+    itob
+    log
+    // statically_failing_ops/contract.py:61
     // log(op.setbyte(Bytes(b"a"), 1, 0))
     bytec_1 // 0x61
     intc_1 // 1
     intc_0 // 0
     setbyte
     log
-    // statically_failing_ops/contract.py:59-60
+    // statically_failing_ops/contract.py:62
+    // log(op.setbyte(runtime_bytes, UInt64(4096), 0))
+    pushint 4096
+    intc_0 // 0
+    setbyte
+    log
+    // statically_failing_ops/contract.py:64-65
     // # helper-None coverage: runtime-variable indices so start/length aren't const
     // r = Global.round
     global Round
-    // statically_failing_ops/contract.py:61
+    // statically_failing_ops/contract.py:66
     // log(op.extract(Bytes(b"ab"), r, UInt64(0)))
     bytec_0 // 0x6162
     dig 1
     intc_0 // 0
     extract3
     log
-    // statically_failing_ops/contract.py:62
+    // statically_failing_ops/contract.py:67
     // log(op.substring(Bytes(b"ab"), r, r))
     bytec_0 // 0x6162
     dig 1
     dig 2
     substring3
     log
-    // statically_failing_ops/contract.py:63
+    // statically_failing_ops/contract.py:68
     // log(op.replace(Bytes(b""), r, Bytes(b"abc")))
     bytec_3 // 0x
     uncover 1
     bytec_2 // 0x616263
     replace3
     log
-    // statically_failing_ops/contract.py:65
+    // statically_failing_ops/contract.py:70
     // return True
     intc_1 // 1
     return
