@@ -12,6 +12,7 @@ contract BooleanBinaryOps
     test_cases.boolean_binary_ops.contract.test_union_boolean_binary_ops()
     test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops()
     test_cases.boolean_binary_ops.contract.test_literal_conditionals(true=true, false=false)
+    test_cases.boolean_binary_ops.contract.test_or_bool_identity()
     return true
   }
   
@@ -135,4 +136,11 @@ subroutine test_literal_conditionals(true: bool, false: bool): void
   assert(y == 4u)
   z: uint64 = (0u != 0u) ? (0u) : ((true) ? (3u) : (0u))
   assert(z == 3u)
+}
+
+subroutine test_or_bool_identity(): void
+{
+  r: uint64 = global<Round>()
+  assert(||(0u != 0u, r != 0u))
+  assert(||(r != 0u, 0u != 0u))
 }
