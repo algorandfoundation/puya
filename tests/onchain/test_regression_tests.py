@@ -45,3 +45,17 @@ def test_getbit_uint64_fold_oob(deployer_o: Deployer) -> None:
 def test_setbit_uint64_fold_oob(deployer_o: Deployer) -> None:
     with pytest.raises(au.LogicError, match="setbit index > 63 with Uint"):
         deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "setbit_fold_oob_uint64.py")
+
+
+def test_shl_fold_oob(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match=r"shl arg too big, \(64\)"):
+        deployer_o.create_bare(
+            (TEST_CASES_DIR / "regression_tests" / "shift_fold_oob.py", "ShlFoldOOB")
+        )
+
+
+def test_shr_fold_oob(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match=r"shr arg too big, \(64\)"):
+        deployer_o.create_bare(
+            (TEST_CASES_DIR / "regression_tests" / "shift_fold_oob.py", "ShrFoldOOB")
+        )
