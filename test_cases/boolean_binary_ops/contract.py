@@ -11,6 +11,7 @@ class BooleanBinaryOps(Contract):
         test_literal_boolean_binary_ops()
         test_literal_conditionals(true=True, false=False)
         test_or_bool_identity()
+        test_bool_numeric_comparison(true=True, false=False)
         return True
 
     def clear_state_program(self) -> bool:
@@ -121,6 +122,21 @@ def test_literal_boolean_binary_ops() -> None:
     assert op.bitlen(one and 4) == 3
     empty_bytes = Bytes()
     assert op.bitlen(empty_bytes or b"hello") > 0
+
+
+@subroutine
+def test_bool_numeric_comparison(*, true: bool, false: bool) -> None:
+    assert true == 1
+    assert true != 0
+    assert false == 0
+    assert false != 1
+    assert true == UInt64(1)
+    assert false == UInt64(0)
+
+    # flip the order
+    assert 0 <= false
+    assert 1 >= true
+    assert UInt64(0) != true
 
 
 @subroutine
