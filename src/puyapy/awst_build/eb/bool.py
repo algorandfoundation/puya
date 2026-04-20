@@ -78,15 +78,19 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
     def compare(
         self, other: InstanceBuilder, op: BuilderComparisonOp, location: SourceLocation
     ) -> InstanceBuilder:
-        if other.pytype != pytypes.BoolType:
-            return NotImplemented  # type: ignore[no-any-return]
-        cmp_expr = NumericComparisonExpression(
-            source_location=location,
-            lhs=self.resolve(),
-            operator=NumericComparison(op.value),
-            rhs=other.resolve(),
-        )
-        return BoolExpressionBuilder(cmp_expr)
+        if other.pytype == pytypes.BoolType:
+            cmp_expr = NumericComparisonExpression(
+                source_location=location,
+                lhs=self.resolve(),
+                operator=NumericComparison(op.value),
+                rhs=other.resolve(),
+            )
+            return BoolExpressionBuilder(cmp_expr)
+        if other.pytype == pytypes.IntLiteralType:
+            from puyapy.awst_build.eb.uint64 import _upcast_bool
+
+            return _upcast_bool(self, location).compare(other, op, location)
+        return NotImplemented  # type: ignore[no-any-return]
 
     @typing.override
     def bool_binary_op(
