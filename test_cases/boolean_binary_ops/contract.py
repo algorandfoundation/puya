@@ -10,6 +10,7 @@ class BooleanBinaryOps(Contract):
         test_union_boolean_binary_ops()
         test_literal_boolean_binary_ops()
         test_literal_conditionals(true=True, false=False)
+        test_or_bool_identity()
         return True
 
     def clear_state_program(self) -> bool:
@@ -132,3 +133,14 @@ def test_literal_conditionals(*, true: bool, false: bool) -> None:
     assert y == 4
     z = UInt64(0 or (3 if true else 0))
     assert z == 3
+
+
+@subroutine
+def test_or_bool_identity() -> None:
+    # tuple != expands to chained ||: after constant folding the 0-vs-0 element(s),
+    # the remainder is `0u || <bool>` / `<bool> || 0u` in the assert's bool context,
+    # exercising the identity fold arms that only apply when the other operand is
+    # known boolean.
+    r = Global.round
+    assert (UInt64(0), r) != (UInt64(0), UInt64(0))
+    assert (r, UInt64(0)) != (UInt64(0), UInt64(0))
