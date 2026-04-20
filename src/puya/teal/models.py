@@ -5,7 +5,7 @@ from collections.abc import Iterable, Mapping, Sequence
 import attrs
 
 from puya.avm import OnCompletionAction, TransactionType
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes
 from puya.mir import models as mir
@@ -463,8 +463,15 @@ class TemplateVar(TealOp):
 
 @attrs.frozen
 class Intrinsic(TealOp):
-    immediates: Sequence[int | str]
+    immediates: Sequence[int | str] = attrs.field()
     error_message: str | None
+
+    @immediates.validator
+    def _validate_immediates(self, _: object, value: Sequence[int | str]) -> None:
+        if self.op_code == "substring":
+            match value:
+                case [int(start), int(end)] if start > end:
+                    raise CodeError("substring end is before start", self.source_location)
 
     @typing.override
     @property

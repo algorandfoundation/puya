@@ -548,3 +548,15 @@ def test_annotation_supertype() -> arc4.DynamicArray[arc4.Byte]:
 def test_annotation_subtype() -> arc4.DynamicBytes:
     c: arc4.DynamicBytes = arc4.DynamicArray(arc4.Byte(), arc4.Byte()) # type: ignore[assignment] ## E: type annotation does not match expression value type
     return c
+
+## case: substring_start_after_end
+from algopy import *
+
+class InvalidSubstringArgs(Contract):
+    def approval_program(self) -> bool:
+        value = Txn.application_args(0)
+        assert op.substring(value, 5, 3) == b"" ## E: substring end is before start
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
