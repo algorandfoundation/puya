@@ -51,21 +51,31 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
                     f"bzero length {a} exceeds AVM stack byte limit"
                     f" ({algo_constants.MAX_BYTES_LENGTH})"
                 )
+        case AVMOp.extract, [models.BytesConstant(value=a_bytes)]:
+            # extract with immediates: S, L — L==0 extracts to end (valid iff S <= len)
+            match intrinsic.immediates:
+                case [int(start), int(length)]:
+                    if length == 0:
+                        if start > len(a_bytes):
+                            return f"extract start {start} exceeds input length {len(a_bytes)}"
+                    elif start + length > len(a_bytes):
+                        return (
+                            f"extract range [{start}, {start + length})"
+                            f" exceeds input length {len(a_bytes)}"
+                        )
         case (
-            (AVMOp.extract | AVMOp.extract3),
-            [models.BytesConstant(value=a_bytes), *rest],
+            AVMOp.extract3,
+            [
+                models.BytesConstant(value=a_bytes),
+                models.UInt64Constant(value=start),
+                models.UInt64Constant(value=length),
+            ],
         ):
-            s, length = _extract_start_length(intrinsic, rest)
-            if s is not None and length is not None:
-                if length == 0 and intrinsic.op is AVMOp.extract:
-                    # extract with immediates and L==0 extracts to end — valid iff S <= len
-                    if s > len(a_bytes):
-                        return f"extract start {s} exceeds input length {len(a_bytes)}"
-                elif s + length > len(a_bytes):
-                    return (
-                        f"extract range [{s}, {s + length}) exceeds"
-                        f" input length {len(a_bytes)}"
-                    )
+            if start + length > len(a_bytes):
+                return (
+                    f"extract range [{start}, {start + length})"
+                    f" exceeds input length {len(a_bytes)}"
+                )
         case (
             (AVMOp.substring | AVMOp.substring3),
             [models.BytesConstant(value=a_bytes), *rest],
@@ -149,22 +159,6 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
             if index >= len(a_bytes):
                 return f"byte index {index} exceeds input length {len(a_bytes)}"
     return None
-
-
-def _extract_start_length(
-    intrinsic: models.Intrinsic, stack_rest: Sequence[models.Value]
-) -> tuple[int | None, int | None]:
-    # extract with immediates: 1 stack arg (the bytes), 2 int immediates (S, L)
-    # extract3 with stack args: 3 stack args (bytes, S, L), no immediates
-    if not stack_rest:
-        match intrinsic.immediates:
-            case [int(s), int(length)]:
-                return s, length
-    elif len(stack_rest) == 2:
-        match stack_rest:
-            case [models.UInt64Constant(value=s), models.UInt64Constant(value=length)]:
-                return s, length
-    return None, None
 
 
 def _replace_start_and_bytes(
