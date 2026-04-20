@@ -40,3 +40,8 @@ def test_getbit_uint64_fold_oob(deployer_o: Deployer) -> None:
     # Without the fix, the optimizer folds this to UInt64(0) and the panic is lost.
     with pytest.raises(au.LogicError, match="had error 'getbit index > 63 with Uint'"):
         deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "getbit_fold_oob_uint64.py")
+
+
+def test_setbit_uint64_fold_oob(deployer_o: Deployer) -> None:
+    with pytest.raises(au.LogicError, match="setbit index > 63 with Uint"):
+        deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "setbit_fold_oob_uint64.py")

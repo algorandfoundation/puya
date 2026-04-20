@@ -1,0 +1,26 @@
+| PC | TEAL Bytes        | TEAL                    | Source                                       | Location                                                                                             |
+|--: | :-----------------| :-----------------------| :--------------------------------------------| :----------------------------------------------------------------------------------------------------|
+|  0 | 0b                | #pragma version 11      |                                              |                                                                                                      |
+|    | # main            | main:                   |                                              | test_cases.regression_tests.setbit_fold_oob_uint64.SetBitFoldOOBUInt64.approval_program() -> uint64: |
+|  1 | 20 04 00 40 01 2a |     intcblock 0 64 1 42 |                                              |                                                                                                      |
+|  7 | 42 00 00          |     b main_block@0      |                                              |                                                                                                      |
+|    | # main_block@0    | main_block@0:           |                                              |                                                                                                      |
+|    |                   |                         | assert op.setbit_uint64(0, 64, True) == 0    | regression_tests/setbit_fold_oob_uint64.py:8                                                         |
+| 10 | 22                |     intc_0 // 0         |                         -                    | regression_tests/setbit_fold_oob_uint64.py:8:32-33                                                   |
+| 11 | 23                |     intc_1 // 64        |                            --                | regression_tests/setbit_fold_oob_uint64.py:8:35-37                                                   |
+| 12 | 24                |     intc_2 // 1         |                                ----          | regression_tests/setbit_fold_oob_uint64.py:8:39-43                                                   |
+| 13 | 54                |     setbit              |        -----------------------------         | regression_tests/setbit_fold_oob_uint64.py:8:15-44                                                   |
+| 14 | 22                |     intc_0 // 0         |                                         -    | regression_tests/setbit_fold_oob_uint64.py:8:48-49                                                   |
+| 15 | 12                |     ==                  |        ----------------------------------    | regression_tests/setbit_fold_oob_uint64.py:8:15-49                                                   |
+| 16 | 44                |     assert              | -----------------------------------------    | regression_tests/setbit_fold_oob_uint64.py:8:8-49                                                    |
+|    |                   |                         | assert op.setbit_uint64(42, 64, False) == 42 | regression_tests/setbit_fold_oob_uint64.py:10                                                        |
+| 17 | 25                |     intc_3 // 42        |                         --                   | regression_tests/setbit_fold_oob_uint64.py:10:32-34                                                  |
+| 18 | 23                |     intc_1 // 64        |                             --               | regression_tests/setbit_fold_oob_uint64.py:10:36-38                                                  |
+| 19 | 22                |     intc_0 // 0         |                                 -----        | regression_tests/setbit_fold_oob_uint64.py:10:40-45                                                  |
+| 20 | 54                |     setbit              |        -------------------------------       | regression_tests/setbit_fold_oob_uint64.py:10:15-46                                                  |
+| 21 | 25                |     intc_3 // 42        |                                           -- | regression_tests/setbit_fold_oob_uint64.py:10:50-52                                                  |
+| 22 | 12                |     ==                  |        ------------------------------------- | regression_tests/setbit_fold_oob_uint64.py:10:15-52                                                  |
+| 23 | 44                |     assert              | -------------------------------------------- | regression_tests/setbit_fold_oob_uint64.py:10:8-52                                                   |
+|    |                   |                         | return True                                  | regression_tests/setbit_fold_oob_uint64.py:11                                                        |
+| 24 | 24                |     intc_2 // 1         |        ----                                  | regression_tests/setbit_fold_oob_uint64.py:11:15-19                                                  |
+| 25 | 43                |     return              | -----------                                  | regression_tests/setbit_fold_oob_uint64.py:11:8-19                                                   |
