@@ -30,9 +30,11 @@ class StaticallyFailingOps(Contract):
         # substring — immediates form: E<S and E>len
         log(op.substring(Bytes(b"ab"), 5, 1))
         log(op.substring(Bytes(b"ab"), 0, 5))
-        # substring3 — stack form
+        # substring3 — stack form (E>len, and E<S)
         sub_start = UInt64(300)
         log(op.substring(Bytes(b"ab"), sub_start, UInt64(500)))
+        sub_start2 = UInt64(500)
+        log(op.substring(Bytes(b"ab"), sub_start2, UInt64(0)))
 
         # replace2 — imm form, and replace3 — stack form
         log(op.replace(Bytes(b""), 0, Bytes(b"abc")))

@@ -1,5 +1,4 @@
 import typing
-from collections.abc import Sequence
 
 from puya import algo_constants, log
 from puya.ir import models
@@ -76,27 +75,46 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
                     f"extract range [{start}, {start + length})"
                     f" exceeds input length {len(a_bytes)}"
                 )
+        case AVMOp.substring, [models.BytesConstant(value=a_bytes)]:
+            match intrinsic.immediates:
+                case [int(start), int(end)]:
+                    if end < start:
+                        return f"substring end {end} precedes start {start}"
+                    if end > len(a_bytes):
+                        return f"substring end {end} exceeds input length {len(a_bytes)}"
         case (
-            (AVMOp.substring | AVMOp.substring3),
-            [models.BytesConstant(value=a_bytes), *rest],
-        ):
-            s, e = _substring_start_end(intrinsic, rest)
-            if s is not None and e is not None:
-                if e < s:
-                    return f"substring end {e} precedes start {s}"
-                if e > len(a_bytes):
-                    return f"substring end {e} exceeds input length {len(a_bytes)}"
-        case (
-            (AVMOp.replace2 | AVMOp.replace3),
+            AVMOp.substring3,
             [
                 models.BytesConstant(value=a_bytes),
-                *rest,
+                models.UInt64Constant(value=start),
+                models.UInt64Constant(value=end),
             ],
         ):
-            s, b_bytes = _replace_start_and_bytes(intrinsic, rest)
-            if s is not None and b_bytes is not None and s + len(b_bytes) > len(a_bytes):
+            if end < start:
+                return f"substring end {end} precedes start {start}"
+            if end > len(a_bytes):
+                return f"substring end {end} exceeds input length {len(a_bytes)}"
+        case (
+            AVMOp.replace2,
+            [models.BytesConstant(value=a_bytes), models.BytesConstant(value=b_bytes)],
+        ):
+            match intrinsic.immediates:
+                case [int(start)] if start + len(b_bytes) > len(a_bytes):
+                    return (
+                        f"replace at offset {start} of {len(b_bytes)} bytes"
+                        f" exceeds input length {len(a_bytes)}"
+                    )
+        case (
+            AVMOp.replace3,
+            [
+                models.BytesConstant(value=a_bytes),
+                models.UInt64Constant(value=start),
+                models.BytesConstant(value=b_bytes),
+            ],
+        ):
+            if start + len(b_bytes) > len(a_bytes):
                 return (
-                    f"replace at offset {s} of {len(b_bytes)} bytes"
+                    f"replace at offset {start} of {len(b_bytes)} bytes"
                     f" exceeds input length {len(a_bytes)}"
                 )
         case (
@@ -159,35 +177,3 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
             if index >= len(a_bytes):
                 return f"byte index {index} exceeds input length {len(a_bytes)}"
     return None
-
-
-def _replace_start_and_bytes(
-    intrinsic: models.Intrinsic, stack_rest: Sequence[models.Value]
-) -> tuple[int | None, bytes | None]:
-    # replace2 with imm: 2 stack args (A, B), 1 int immediate (S)
-    # replace3 with stack args: 3 stack args (A, S, B), no immediates
-    match intrinsic.op, intrinsic.immediates, stack_rest:
-        case AVMOp.replace2, [int(s)], [models.BytesConstant(value=b_bytes)]:
-            return s, b_bytes
-        case AVMOp.replace3, [], [
-            models.UInt64Constant(value=s),
-            models.BytesConstant(value=b_bytes),
-        ]:
-            return s, b_bytes
-    return None, None
-
-
-def _substring_start_end(
-    intrinsic: models.Intrinsic, stack_rest: Sequence[models.Value]
-) -> tuple[int | None, int | None]:
-    # substring with immediates: 1 stack arg, 2 int immediates (S, E)
-    # substring3 with stack args: 3 stack args (bytes, S, E)
-    if not stack_rest:
-        match intrinsic.immediates:
-            case [int(s), int(e)]:
-                return s, e
-    elif len(stack_rest) == 2:
-        match stack_rest:
-            case [models.UInt64Constant(value=s), models.UInt64Constant(value=e)]:
-                return s, e
-    return None, None
