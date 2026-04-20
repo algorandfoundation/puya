@@ -74,55 +74,56 @@ def _check(intrinsic: models.Intrinsic) -> str | None:
         ]:
             if a > algo_constants.MAX_BYTES_LENGTH:
                 return "bzero of constant length exceeds AVM stack byte limit"
-        case AVMOp.extract, [
-            models.BytesConstant(value=a_bytes),
-        ]:
+        case AVMOp.extract, [arg]:
             # extract with immediates: S, L — L==0 extracts to end (valid iff S <= len)
             match intrinsic.immediates:
                 case [int(start), int(length)]:
-                    if start > len(a_bytes):
-                        return "extract of constant bytes is out of bounds"
-                    if length != 0 and start + length > len(a_bytes):
-                        return "extract of constant bytes is out of bounds"
+                    max_len = _bytes_length_lower_bound(arg)
+                    if start > max_len:
+                        return "extract of bytes is out of bounds"
+                    if length != 0 and start + length > max_len:
+                        return "extract of bytes is out of bounds"
         case AVMOp.extract3, [
-            models.BytesConstant(value=a_bytes),
+            arg,
             models.UInt64Constant(value=start),
             models.UInt64Constant(value=length),
         ]:
-            if start + length > len(a_bytes):
-                return "extract3 of constant bytes is out of bounds"
-        case AVMOp.substring, [
-            models.BytesConstant(value=a_bytes),
-        ]:
+            if start + length > _bytes_length_lower_bound(arg):
+                return "extract3 of bytes is out of bounds"
+        case AVMOp.substring, [arg]:
             match intrinsic.immediates:
                 case [_, int(end)]:
                     # note: we don't check if end is before start, TEAL model does this,
                     #       to match algod behaviour
-                    if end > len(a_bytes):
-                        return "substring of constant bytes is out of bounds"
+                    if end > _bytes_length_lower_bound(arg):
+                        return "substring of bytes is out of bounds"
         case AVMOp.substring3, [
-            bytes_arg,
-            maybe_start,
+            arg,
+            models.UInt64Constant(value=start),
             models.UInt64Constant(value=end),
         ]:
-            if end > _bytes_length_lower_bound(bytes_arg):
-                return "substring3 end out of bounds"
-            if isinstance(maybe_start, models.UInt64Constant) and end < maybe_start.value:
-                return "substring3 end preceding start"
-        case AVMOp.replace2, [
-            bytes_arg,
-            models.BytesConstant(value=b_bytes),
+            if end < start:
+                return "substring3 has end preceding start"
+            if end > _bytes_length_lower_bound(arg):
+                return "substring3 of bytes is out of bounds"
+        case AVMOp.substring3, [
+            arg,
+            _,
+            models.UInt64Constant(value=end),
         ]:
+            if end > _bytes_length_lower_bound(arg):
+                return "substring3 of bytes is out of bounds"
+        case AVMOp.replace2, [arg, models.BytesConstant(value=b_bytes)]:
             match intrinsic.immediates:
-                case [int(start)] if (start + len(b_bytes) > _bytes_length_lower_bound(bytes_arg)):
-                    return "replace2 out of bounds"
+                case [int(start)] if start + len(b_bytes) > _bytes_length_lower_bound(arg):
+                    return "replace2 of bytes is out of bounds"
         case AVMOp.replace3, [
-            bytes_arg,
+            arg,
             models.UInt64Constant(value=start),
             models.BytesConstant(value=b_bytes),
         ]:
-            if start + len(b_bytes) > _bytes_length_lower_bound(bytes_arg):
-                return "replace3 out of bounds"
+            if start + len(b_bytes) > _bytes_length_lower_bound(arg):
+                return "replace3 of bytes is out of bounds"
         case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64, [
             models.BytesConstant(value=a_bytes),
             models.UInt64Constant(value=offset),
