@@ -1419,12 +1419,16 @@ def _try_simplify_uint64_binary_op(
             c = b
         elif b_const == 1 and op in (AVMOp.mul, AVMOp.div_floor):
             c = a
-        elif a_const == 0 and op in (AVMOp.add, AVMOp.or_):
+        elif a_const == 0 and op == AVMOp.add:
             c = b
-        elif b_const == 0 and op in (AVMOp.add, AVMOp.sub, AVMOp.or_):
+        elif b_const == 0 and op in (AVMOp.add, AVMOp.sub):
             c = a
         elif 0 in (a_const, b_const) and op in (AVMOp.mul, AVMOp.and_):
             c = 0
+        elif bool_context and a_const == 0 and op == AVMOp.or_:
+            c = b
+        elif bool_context and b_const == 0 and op == AVMOp.or_:
+            c = a
         # 0 != b <-> b
         #   OR
         # 0 < b <-> b
