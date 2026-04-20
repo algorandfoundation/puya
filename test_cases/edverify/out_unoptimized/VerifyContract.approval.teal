@@ -3,6 +3,7 @@
 
 // test_cases.edverify.contract.VerifyContract.approval_program() -> uint64:
 main:
+    intcblock 1 0
     b main_block@0
 
 main_block@0:
@@ -14,13 +15,16 @@ main_block@0:
     assert
     // edverify/contract.py:8
     // op.Txn.application_args(0),
-    txna ApplicationArgs 0
+    intc_1 // 0
+    txnas ApplicationArgs
     // edverify/contract.py:9
     // op.Txn.application_args(1),
-    txna ApplicationArgs 1
+    intc_0 // 1
+    txnas ApplicationArgs
     // edverify/contract.py:10
     // op.Txn.application_args(2),
-    txna ApplicationArgs 2
+    pushint 2
+    txnas ApplicationArgs
     // edverify/contract.py:7-11
     // result = op.ed25519verify_bare(
     //     op.Txn.application_args(0),
@@ -33,13 +37,13 @@ main_block@0:
     ed25519verify_bare
     // edverify/contract.py:12
     // log(op.itob(UInt64(1) if result else UInt64(0)))
-    pushint 0
-    pushint 1
+    intc_1 // 0
+    intc_0 // 1
     uncover 2
     select
     itob
     log
     // edverify/contract.py:13
     // return True
-    pushint 1
+    intc_0 // 1
     return

@@ -3,7 +3,6 @@
 
 // test_cases.intrinsics.immediate_variants.ImmediateVariants.approval_program() -> uint64:
 main:
-    intcblock 0 2
     bytecblock 0x068101
     // intrinsics/immediate_variants.py:19
     // num_app_args = Txn.num_app_args
@@ -16,8 +15,7 @@ main:
     assert
     // intrinsics/immediate_variants.py:21
     // assert GTxn.num_app_args(UInt64(0)) == num_app_args
-    intc_0 // 0
-    gtxns NumAppArgs
+    gtxn 0 NumAppArgs
     ==
     assert
     // intrinsics/immediate_variants.py:22
@@ -25,8 +23,7 @@ main:
     txna ApplicationArgs 0
     // intrinsics/immediate_variants.py:23
     // assert Txn.application_args(UInt64(0)) == first_arg
-    intc_0 // 0
-    txnas ApplicationArgs
+    dup
     dig 1
     ==
     assert
@@ -38,23 +35,19 @@ main:
     assert
     // intrinsics/immediate_variants.py:25
     // assert GTxn.application_args(0, UInt64(0)) == first_arg
-    intc_0 // 0
-    gtxnas 0 ApplicationArgs
+    gtxna 0 ApplicationArgs 0
     dig 1
     ==
     assert
     // intrinsics/immediate_variants.py:26
     // assert GTxn.application_args(UInt64(0), 0) == first_arg
-    intc_0 // 0
-    gtxnsa ApplicationArgs 0
+    gtxna 0 ApplicationArgs 0
     dig 1
     ==
     assert
     // intrinsics/immediate_variants.py:27
     // assert GTxn.application_args(UInt64(0), UInt64(0)) == first_arg
-    intc_0 // 0
-    dup
-    gtxnsas ApplicationArgs
+    gtxna 0 ApplicationArgs 0
     dig 1
     ==
     assert
@@ -79,7 +72,7 @@ main:
     itxn_field ClearStateProgram
     // intrinsics/immediate_variants.py:35
     // ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
-    intc_0 // 0
+    pushint 0
     itxn_field Fee
     // intrinsics/immediate_variants.py:36
     // ITxnCreate.set_application_args(first_arg)
@@ -100,7 +93,7 @@ main:
     // intrinsics/immediate_variants.py:41
     // assert ITxn.num_app_args() == 2
     itxn NumAppArgs
-    intc_1 // 2
+    pushint 2
     ==
     assert
     // intrinsics/immediate_variants.py:42
@@ -118,7 +111,7 @@ main:
     // intrinsics/immediate_variants.py:45
     // assert GITxn.num_app_args(0) == 2
     gitxn 0 NumAppArgs
-    intc_1 // 2
+    pushint 2
     ==
     assert
     // intrinsics/immediate_variants.py:46

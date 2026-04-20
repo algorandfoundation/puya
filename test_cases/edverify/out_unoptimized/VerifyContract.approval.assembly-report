@@ -1,31 +1,35 @@
-| PC | TEAL Bytes     | TEAL                       | Source                                           | Location                                                                  |
-|--: | :--------------| :--------------------------| :------------------------------------------------| :-------------------------------------------------------------------------|
-|  0 | 0b             | #pragma version 11         |                                                  |                                                                           |
-|    | # main         | main:                      |                                                  | test_cases.edverify.contract.VerifyContract.approval_program() -> uint64: |
-|  1 | 42 00 00       |     b main_block@0         |                                                  |                                                                           |
-|    | # main_block@0 | main_block@0:              |                                                  |                                                                           |
-|    |                |                            | assert op.Txn.num_app_args == 3                  | edverify/contract.py:6                                                    |
-|  4 | 31 1b          |     txn NumAppArgs         |        -------------------                       | edverify/contract.py:6:15-34                                              |
-|  6 | 81 03          |     pushint 3              |                               -                  | edverify/contract.py:6:38-39                                              |
-|  8 | 12             |     ==                     |        ------------------------                  | edverify/contract.py:6:15-39                                              |
-|  9 | 44             |     assert                 | -------------------------------                  | edverify/contract.py:6:8-39                                               |
-|    |                |                            | op.Txn.application_args(0),                      | edverify/contract.py:8                                                    |
-| 10 | 36 1a 00       |     txna ApplicationArgs 0 | --------------------------                       | edverify/contract.py:8:12-38                                              |
-|    |                |                            | op.Txn.application_args(1),                      | edverify/contract.py:9                                                    |
-| 13 | 36 1a 01       |     txna ApplicationArgs 1 | --------------------------                       | edverify/contract.py:9:12-38                                              |
-|    |                |                            | op.Txn.application_args(2),                      | edverify/contract.py:10                                                   |
-| 16 | 36 1a 02       |     txna ApplicationArgs 2 | --------------------------                       | edverify/contract.py:10:12-38                                             |
-| 19 | 4f 02          |     uncover 2              |                                                  | edverify/contract.py:7-11:17-9                                            |
-| 21 | 4f 02          |     uncover 2              |                                                  | edverify/contract.py:7-11:17-9                                            |
-| 23 | 4f 02          |     uncover 2              |                                                  | edverify/contract.py:7-11:17-9                                            |
-| 25 | 84             |     ed25519verify_bare     |                                                  | edverify/contract.py:7-11:17-9                                            |
-|    |                |                            | log(op.itob(UInt64(1) if result else UInt64(0))) | edverify/contract.py:12                                                   |
-| 26 | 81 00          |     pushint 0              |                                      ---------   | edverify/contract.py:12:45-54                                             |
-| 28 | 81 01          |     pushint 1              |             ---------                            | edverify/contract.py:12:20-29                                             |
-| 30 | 4f 02          |     uncover 2              |             ----------------------------------   | edverify/contract.py:12:20-54                                             |
-| 32 | 4d             |     select                 |             ----------------------------------   | edverify/contract.py:12:20-54                                             |
-| 33 | 16             |     itob                   |     -------------------------------------------  | edverify/contract.py:12:12-55                                             |
-| 34 | b0             |     log                    | ------------------------------------------------ | edverify/contract.py:12:8-56                                              |
-|    |                |                            | return True                                      | edverify/contract.py:13                                                   |
-| 35 | 81 01          |     pushint 1              |        ----                                      | edverify/contract.py:13:15-19                                             |
-| 37 | 43             |     return                 | -----------                                      | edverify/contract.py:13:8-19                                              |
+| PC | TEAL Bytes     | TEAL                      | Source                                           | Location                                                                  |
+|--: | :--------------| :-------------------------| :------------------------------------------------| :-------------------------------------------------------------------------|
+|  0 | 0b             | #pragma version 11        |                                                  |                                                                           |
+|    | # main         | main:                     |                                                  | test_cases.edverify.contract.VerifyContract.approval_program() -> uint64: |
+|  1 | 20 02 01 00    |     intcblock 1 0         |                                                  |                                                                           |
+|  5 | 42 00 00       |     b main_block@0        |                                                  |                                                                           |
+|    | # main_block@0 | main_block@0:             |                                                  |                                                                           |
+|    |                |                           | assert op.Txn.num_app_args == 3                  | edverify/contract.py:6                                                    |
+|  8 | 31 1b          |     txn NumAppArgs        |        -------------------                       | edverify/contract.py:6:15-34                                              |
+| 10 | 81 03          |     pushint 3             |                               -                  | edverify/contract.py:6:38-39                                              |
+| 12 | 12             |     ==                    |        ------------------------                  | edverify/contract.py:6:15-39                                              |
+| 13 | 44             |     assert                | -------------------------------                  | edverify/contract.py:6:8-39                                               |
+|    |                |                           | op.Txn.application_args(0),                      | edverify/contract.py:8                                                    |
+| 14 | 23             |     intc_1 // 0           |                         -                        | edverify/contract.py:8:36-37                                              |
+| 15 | c0 1a          |     txnas ApplicationArgs | --------------------------                       | edverify/contract.py:8:12-38                                              |
+|    |                |                           | op.Txn.application_args(1),                      | edverify/contract.py:9                                                    |
+| 17 | 22             |     intc_0 // 1           |                         -                        | edverify/contract.py:9:36-37                                              |
+| 18 | c0 1a          |     txnas ApplicationArgs | --------------------------                       | edverify/contract.py:9:12-38                                              |
+|    |                |                           | op.Txn.application_args(2),                      | edverify/contract.py:10                                                   |
+| 20 | 81 02          |     pushint 2             |                         -                        | edverify/contract.py:10:36-37                                             |
+| 22 | c0 1a          |     txnas ApplicationArgs | --------------------------                       | edverify/contract.py:10:12-38                                             |
+| 24 | 4f 02          |     uncover 2             |                                                  | edverify/contract.py:7-11:17-9                                            |
+| 26 | 4f 02          |     uncover 2             |                                                  | edverify/contract.py:7-11:17-9                                            |
+| 28 | 4f 02          |     uncover 2             |                                                  | edverify/contract.py:7-11:17-9                                            |
+| 30 | 84             |     ed25519verify_bare    |                                                  | edverify/contract.py:7-11:17-9                                            |
+|    |                |                           | log(op.itob(UInt64(1) if result else UInt64(0))) | edverify/contract.py:12                                                   |
+| 31 | 23             |     intc_1 // 0           |                                      ---------   | edverify/contract.py:12:45-54                                             |
+| 32 | 22             |     intc_0 // 1           |             ---------                            | edverify/contract.py:12:20-29                                             |
+| 33 | 4f 02          |     uncover 2             |             ----------------------------------   | edverify/contract.py:12:20-54                                             |
+| 35 | 4d             |     select                |             ----------------------------------   | edverify/contract.py:12:20-54                                             |
+| 36 | 16             |     itob                  |     -------------------------------------------  | edverify/contract.py:12:12-55                                             |
+| 37 | b0             |     log                   | ------------------------------------------------ | edverify/contract.py:12:8-56                                              |
+|    |                |                           | return True                                      | edverify/contract.py:13                                                   |
+| 38 | 22             |     intc_0 // 1           |        ----                                      | edverify/contract.py:13:15-19                                             |
+| 39 | 43             |     return                | -----------                                      | edverify/contract.py:13:8-19                                              |

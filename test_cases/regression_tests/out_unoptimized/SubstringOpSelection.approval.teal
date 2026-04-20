@@ -1,0 +1,33 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.op_variant_selection.SubstringOpSelection.approval_program() -> uint64:
+main:
+    bytecblock 0xabababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab
+    b main_block@0
+
+main_block@0:
+    // regression_tests/op_variant_selection.py:27-28
+    // # end > 255 forces substring3 (uint64 stack args) over substring (uint8 immediates)
+    // assert op.substring(b"\xab" * 300, 0, 300) == b"\xab" * 300
+    bytec_0 // 0xabababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab
+    pushint 0
+    pushint 300
+    substring3
+    bytec_0 // 0xabababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab
+    ==
+    assert
+    // regression_tests/op_variant_selection.py:29-30
+    // # start > 255 likewise
+    // assert op.substring(b"\xcd" * 260, 256, 259) == b"\xcd\xcd\xcd"
+    pushbytes 0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd
+    pushint 256
+    pushint 259
+    substring3
+    pushbytes 0xcdcdcd
+    ==
+    assert
+    // regression_tests/op_variant_selection.py:31
+    // return True
+    pushint 1
+    return

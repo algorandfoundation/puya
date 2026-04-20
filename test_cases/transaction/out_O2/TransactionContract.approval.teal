@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 2 3
+    intcblock 1 2 3 6
     pushbytes ""
     dupn 2
     txn OnCompletion
@@ -18,19 +18,19 @@ main:
 
 main_group_init_route@11:
     txn GroupIndex
-    intc_3 // 3
+    intc_2 // 3
     -
     dup
     bury 4
     txn GroupIndex
-    intc_2 // 2
+    intc_1 // 2
     -
     bury 3
     txn GroupIndex
     intc_0 // 1
     -
     bury 2
-    intc_1 // 0
+    pushint 0
 
 main_for_body@20:
     swap
@@ -45,8 +45,7 @@ main_for_body@20:
     switch main_for_header_1@21 main_for_header_2@22
     dig 2
     gtxns TxID
-    intc_1 // 0
-    gtxns TxID
+    gtxn 0 TxID
     ==
     assert
     intc_0 // 1
@@ -54,7 +53,7 @@ main_for_body@20:
 
 main_for_header_2@22:
     dup
-    intc_2 // 2
+    intc_1 // 2
     b main_for_body@20
 
 main_for_header_1@21:
@@ -64,17 +63,17 @@ main_for_header_1@21:
 
 main_any_txn_route@10:
     txn GroupIndex
-    intc_3 // 3
+    intc_2 // 3
     -
     txn GroupIndex
-    intc_2 // 2
+    intc_1 // 2
     -
     bury 3
     txn GroupIndex
     intc_0 // 1
     -
     bury 2
-    intc_1 // 0
+    pushint 0
 
 main_for_body@26:
     swap
@@ -90,7 +89,7 @@ main_after_for@35:
 
 main_for_header_2@28:
     dup
-    intc_2 // 2
+    intc_1 // 2
     b main_for_body@26
 
 main_for_header_1@27:
@@ -100,20 +99,20 @@ main_for_header_1@27:
 
 main_multiple_txns_route@9:
     txn GroupIndex
-    intc_3 // 3
+    intc_2 // 3
     -
     dup
     gtxns TypeEnum
-    pushint 6 // appl
+    intc_3 // appl
     ==
     assert // transaction type is appl
     txn GroupIndex
-    intc_2 // 2
+    intc_1 // 2
     -
     dup
     bury 4
     gtxns TypeEnum
-    pushint 6 // appl
+    intc_3 // appl
     ==
     assert // transaction type is appl
     txn GroupIndex
@@ -122,10 +121,10 @@ main_multiple_txns_route@9:
     dup
     bury 3
     gtxns TypeEnum
-    pushint 6 // appl
+    intc_3 // appl
     ==
     assert // transaction type is appl
-    intc_1 // 0
+    pushint 0
 
 main_for_body@32:
     swap
@@ -138,7 +137,7 @@ main_for_body@32:
 
 main_for_header_2@34:
     dup
-    intc_2 // 2
+    intc_1 // 2
     b main_for_body@32
 
 main_for_header_1@33:
@@ -152,7 +151,7 @@ main_application_call_route@8:
     -
     dup
     gtxns TypeEnum
-    pushint 6 // appl
+    intc_3 // appl
     ==
     assert // transaction type is appl
     dup
@@ -209,31 +208,25 @@ main_application_call_route@8:
     gtxns NumClearStateProgramPages
     assert // num_clear_state_program_pages
     dup
-    intc_1 // 0
-    gtxnsas ApplicationArgs
+    gtxnsa ApplicationArgs 0
     len
     assert // app_args(0)
     dup
-    intc_1 // 0
-    gtxnsas Accounts
+    gtxnsa Accounts 0
     global ZeroAddress
     !=
     assert // accounts(0)
     dup
-    intc_1 // 0
-    gtxnsas Assets
+    gtxnsa Assets 0
     assert // assets(0)
     dup
-    intc_1 // 0
-    gtxnsas Applications
+    gtxnsa Applications 0
     assert // apps(0)
     dup
-    intc_1 // 0
-    gtxnsas ApprovalProgramPages
+    gtxnsa ApprovalProgramPages 0
     len
     assert // approval_program_pages(0)
-    intc_1 // 0
-    gtxnsas ClearStateProgramPages
+    gtxnsa ClearStateProgramPages 0
     len
     assert // clear_state_program_pages(0)
     intc_0 // 1
@@ -303,7 +296,7 @@ main_asset_config_route@5:
     -
     dup
     gtxns TypeEnum
-    intc_3 // acfg
+    intc_2 // acfg
     ==
     assert // transaction type is acfg
     dup
@@ -360,7 +353,7 @@ main_key_route@4:
     -
     dup
     gtxns TypeEnum
-    intc_2 // keyreg
+    intc_1 // keyreg
     ==
     assert // transaction type is keyreg
     dup

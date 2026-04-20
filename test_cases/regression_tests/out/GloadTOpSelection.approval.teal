@@ -1,0 +1,13 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.op_variant_selection.GloadTOpSelection.approval_program() -> uint64:
+main:
+    // regression_tests/op_variant_selection.py:49-52
+    // # T > 255, I <= 255 lets the optimizer downgrade gloadss -> gloads
+    // # (I as uint8 immediate, T on stack). At O0 it stays as gloadss.
+    // # Compile-only: runtime would fail since T is not a reachable group index.
+    // return op.gload_uint64(256, 0)
+    pushint 256
+    gloads 0
+    return

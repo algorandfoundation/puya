@@ -88,22 +88,22 @@ contract Logger
   
   abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_resource_by_index(asset: asset, app: application, acc: account): tuple<asset,application,account>
   {
-    asset_idx: uint64 = btoi(txna<ApplicationArgs, 1>())
+    asset_idx: uint64 = btoi(txnas<ApplicationArgs>(1u))
     assert(asset == txnas<Assets>(asset_idx), comment="expected asset to be passed by index")
-    app_idx: uint64 = btoi(txna<ApplicationArgs, 2>())
+    app_idx: uint64 = btoi(txnas<ApplicationArgs>(2u))
     assert(app == txnas<Applications>(app_idx), comment="expected application to be passed by index")
-    acc_idx: uint64 = btoi(txna<ApplicationArgs, 3>())
+    acc_idx: uint64 = btoi(txnas<ApplicationArgs>(3u))
     assert(acc == txnas<Accounts>(acc_idx), comment="expected account to be passed by index")
     return (asset, app, acc)
   }
   
   abimethod test_cases.typed_itxn_abi_call.logger.Logger.echo_resource_by_value(asset: asset, app: application, acc: account): tuple<asset,application,account>
   {
-    asset_id: uint64 = btoi(txna<ApplicationArgs, 1>())
+    asset_id: uint64 = btoi(txnas<ApplicationArgs>(1u))
     assert(reinterpret_cast<uint64>(asset) == asset_id, comment="expected asset to be passed by value")
-    app_id: uint64 = btoi(txna<ApplicationArgs, 2>())
+    app_id: uint64 = btoi(txnas<ApplicationArgs>(2u))
     assert(reinterpret_cast<uint64>(app) == app_id, comment="expected application to be passed by value")
-    address: bytes = txna<ApplicationArgs, 3>()
+    address: bytes = txnas<ApplicationArgs>(3u)
     assert(reinterpret_cast<bytes>(acc) == address, comment="expected account to be passed by value")
     return (asset, app, acc)
   }
@@ -122,7 +122,7 @@ contract Logger
   abimethod test_cases.typed_itxn_abi_call.logger.Logger.return_args_after_14th(_a1: arc4.uint64, _a2: arc4.uint64, _a3: arc4.uint64, _a4: arc4.uint64, _a5: arc4.uint64, _a6: arc4.uint64, _a7: arc4.uint64, _a8: arc4.uint64, _a9: arc4.uint64, _a10: arc4.uint64, _a11: arc4.uint64, _a12: arc4.uint64, _a13: arc4.uint64, _a14: arc4.uint64, a15: arc4.uint8, a16: arc4.uint8, a17: arc4.uint8, a18: arc4.uint8, a19: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>, a20: arc4.uint8): arc4.dynamic_array<arc4.uint8>
   {
     last_arg: arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8> = arc4_encode((a15, a16, a17, a18, a19, a20), arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8,arc4.tuple<arc4.uint8,arc4.uint8,arc4.uint8,arc4.uint8>,arc4.uint8>)
-    assert(txna<ApplicationArgs, 15>() == reinterpret_cast<bytes>(last_arg))
+    assert(txnas<ApplicationArgs>(15u) == reinterpret_cast<bytes>(last_arg))
     return arc4_encode(reinterpret_cast<bytes>(last_arg), arc4.dynamic_array<arc4.uint8>)
   }
   
