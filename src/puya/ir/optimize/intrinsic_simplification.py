@@ -234,7 +234,10 @@ class _AssignmentWorkQueue:
 
     def enqueue(self, op: models.Assignment) -> bool:
         if (
-            isinstance(op.source, models.Intrinsic)
+            # TODO: currently, only single-value returning intrinsics are supported,
+            #       but ops such as addw could be constant folded as well
+            len(op.targets) == 1
+            and isinstance(op.source, models.Intrinsic)
             and op.source.op.code in self._constant_evaluable
             and set_add(self._set, op)
         ):
@@ -1455,9 +1458,13 @@ def _try_simplify_uint64_binary_op(
                     c = a_const - b_const
                 case AVMOp.mul:
                     c = a_const * b_const
-                case AVMOp.div_floor if b_const != 0:
+                case AVMOp.div_floor:
+                    if b_const == 0:
+                        return None
                     c = a_const // b_const
-                case AVMOp.mod if b_const != 0:
+                case AVMOp.mod:
+                    if b_const == 0:
+                        return None
                     c = a_const % b_const
                 case AVMOp.lt:
                     c = 1 if a_const < b_const else 0
@@ -1475,9 +1482,13 @@ def _try_simplify_uint64_binary_op(
                     c = 1 if (a_const and b_const) else 0
                 case AVMOp.or_:
                     c = 1 if (a_const or b_const) else 0
-                case AVMOp.shl if b_const < 64:
+                case AVMOp.shl:
+                    if b_const >= 64:
+                        return None
                     c = (a_const << b_const) % (2**64)
-                case AVMOp.shr if b_const < 64:
+                case AVMOp.shr:
+                    if b_const >= 64:
+                        return None
                     c = a_const >> b_const
                 case AVMOp.exp:
                     if a_const == 0 and b_const == 0:
@@ -1491,7 +1502,7 @@ def _try_simplify_uint64_binary_op(
                     c = a_const ^ b_const
                 case _:
                     logger.debug(
-                        f"Don't know how to simplify {a_const} {intrinsic.op.code} {b_const}"
+                        f"don't know how to simplify {a_const} {intrinsic.op.code} {b_const}"
                     )
         # 0 == b <-> !b
         elif a_const == 0 and op == AVMOp.eq:
@@ -1557,9 +1568,13 @@ def _try_simplify_bytes_binary_op(
                         c = a_const - b_const
                     case AVMOp.mul_bytes:
                         c = a_const * b_const
-                    case AVMOp.div_floor_bytes if b_const != 0:
+                    case AVMOp.div_floor_bytes:
+                        if b_const == 0:
+                            return None
                         c = a_const // b_const
-                    case AVMOp.mod_bytes if b_const != 0:
+                    case AVMOp.mod_bytes:
+                        if b_const == 0:
+                            return None
                         c = a_const % b_const
                     case AVMOp.lt_bytes:
                         c = 1 if a_const < b_const else 0
