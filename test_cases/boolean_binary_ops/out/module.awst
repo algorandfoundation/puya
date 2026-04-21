@@ -13,6 +13,7 @@ contract BooleanBinaryOps
     test_cases.boolean_binary_ops.contract.test_literal_boolean_binary_ops()
     test_cases.boolean_binary_ops.contract.test_literal_conditionals(true=true, false=false)
     test_cases.boolean_binary_ops.contract.test_or_bool_identity()
+    test_cases.boolean_binary_ops.contract.test_bool_numeric_comparison(true=true, false=false)
     return true
   }
   
@@ -124,6 +125,19 @@ subroutine test_literal_boolean_binary_ops(): void
   assert(bitlen((one == 0u) ? (one) : (4u)) == 3u)
   empty_bytes: bytes = hex<"">
   assert(bitlen((len(empty_bytes) != 0u) ? (empty_bytes) : (hex<"68656C6C6F">)) > 0u)
+}
+
+subroutine test_bool_numeric_comparison(true: bool, false: bool): void
+{
+  assert(reinterpret_cast<uint64>(true) == 1u)
+  assert(reinterpret_cast<uint64>(true) != 0u)
+  assert(reinterpret_cast<uint64>(false) == 0u)
+  assert(reinterpret_cast<uint64>(false) != 1u)
+  assert(1u == reinterpret_cast<uint64>(true))
+  assert(0u == reinterpret_cast<uint64>(false))
+  assert(reinterpret_cast<uint64>(false) >= 0u)
+  assert(reinterpret_cast<uint64>(true) <= 1u)
+  assert(0u != reinterpret_cast<uint64>(true))
 }
 
 subroutine test_literal_conditionals(true: bool, false: bool): void
