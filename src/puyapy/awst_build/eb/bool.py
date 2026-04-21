@@ -16,6 +16,7 @@ from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._utils import upcast_bool_to_uint64
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
     InstanceBuilder,
@@ -87,9 +88,7 @@ class BoolExpressionBuilder(NotIterableInstanceExpressionBuilder):
             )
             return BoolExpressionBuilder(cmp_expr)
         if other.pytype == pytypes.IntLiteralType:
-            from puyapy.awst_build.eb.uint64 import _upcast_bool
-
-            return _upcast_bool(self, location).compare(other, op, location)
+            return upcast_bool_to_uint64(self, location).compare(other, op, location)
         return NotImplemented  # type: ignore[no-any-return]
 
     @typing.override

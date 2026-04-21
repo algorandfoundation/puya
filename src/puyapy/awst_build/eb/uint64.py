@@ -4,12 +4,10 @@ from collections.abc import Sequence
 import attrs
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import (
     Expression,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
     Statement,
     UInt64AugmentedAssignment,
     UInt64BinaryOperation,
@@ -23,7 +21,7 @@ from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
-from puyapy.awst_build.eb._utils import dummy_statement
+from puyapy.awst_build.eb._utils import dummy_statement, upcast_bool_to_uint64
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -71,7 +69,7 @@ class UInt64TypeBuilder(TypeBuilder):
             case InstanceBuilder(pytype=pytypes.IntLiteralType):
                 return arg.resolve_literal(converter=UInt64TypeBuilder(location))
             case InstanceBuilder(pytype=pytypes.BoolType):
-                return _upcast_bool(arg, location)
+                return upcast_bool_to_uint64(arg, location)
             case _:
                 return UInt64ExpressionBuilder(UInt64Constant(value=0, source_location=location))
 
@@ -197,17 +195,5 @@ def _translate_uint64_math_operator(
 def _resolve_literal_and_upcast_bool(other: InstanceBuilder) -> InstanceBuilder:
     other = other.resolve_literal(converter=UInt64TypeBuilder(other.source_location))
     if other.pytype == pytypes.BoolType:
-        return _upcast_bool(other)
+        return upcast_bool_to_uint64(other)
     return other
-
-
-def _upcast_bool(
-    builder: InstanceBuilder, location: SourceLocation | None = None
-) -> InstanceBuilder:
-    assert builder.pytype == pytypes.BoolType
-    expr = ReinterpretCast(
-        expr=builder.resolve(),
-        wtype=wtypes.uint64_wtype,
-        source_location=location or builder.source_location,
-    )
-    return UInt64ExpressionBuilder(expr)
