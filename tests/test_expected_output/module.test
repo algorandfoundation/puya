@@ -92,9 +92,55 @@ def one() -> IntAlias:
 
 ## case: recursive_type_alias
 
+import typing
 from algopy import arc4
 
-Arr = arc4.DynamicArray["Arr"]  ## E: recursive type aliases are not supported
+# this is valid. added here to catch any regression.
+Nested_Tuple = arc4.Tuple[arc4.Tuple[arc4.UInt64, arc4.UInt64], arc4.Tuple[arc4.String, arc4.String]]
+
+# auto-recursion through union
+JSON: typing.TypeAlias = int | float | str | bool | None | list["JSON"] | dict[str, "JSON"] ## E: unsupported type-alias format
+
+# auto-recursion through generic param
+Arr = arc4.DynamicArray["Arr"] ## E: recursive type aliases are not supported
+
+# mutually recursive aliases
+Leaf: typing.TypeAlias = int
+Branch: typing.TypeAlias = tuple["Tree", "Tree"] ## E: recursive type aliases are not supported
+Tree: typing.TypeAlias = Leaf | Branch ## E: unsupported type-alias format
+
+# mutual recursion through generic params
+Arr1 = arc4.DynamicArray["Arr2"] ## E: recursive type aliases are not supported
+Arr2 = arc4.DynamicArray["Arr1"] ## E: recursive type aliases are not supported
+
+# recursive generic type
+T = typing.TypeVar("T") ## E: unsupported type-form \
+                        ## E: unsupported statement type at module level
+
+class LinkedList(arc4.ARC4Contract, typing.Generic[T]):
+    head: T
+    tail: "LinkedList[T] | None" ## E: type unions are unsupported at this location
+
+# self-referential classes
+class TreeNode(arc4.Struct):
+    value: arc4.UInt64
+    left: "TreeNode | None" ## E: Unknown type: recursive_type_alias.TreeNode
+    right: "TreeNode | None"
+
+# "phantom" recursion
+Nested: typing.TypeAlias = T | list["Nested[T]"] ## E: unsupported type-alias format
+
+## case: invalid_recursive_type
+from typing import TypeAlias
+
+Bad: TypeAlias = "Bad" ## E: Cannot resolve name "Bad" (possible cyclic definition)  [misc] \
+                       ## E: unsupported type-alias format
+A: TypeAlias = "B" ## E: Cannot resolve name "B" (possible cyclic definition)  [misc] \
+                   ## E: unsupported type-alias format \
+                   ## E: Cannot resolve name "A" (possible cyclic definition)  [misc]
+B: TypeAlias = "A" ## E: Cannot resolve name "B" (possible cyclic definition)  [misc] \
+                   ## E: unsupported type-alias format
+
 
 ## case: for_not_supported
 
