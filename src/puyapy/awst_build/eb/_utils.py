@@ -136,6 +136,20 @@ def cast_to_bytes(expr: Expression, location: SourceLocation | None = None) -> R
     )
 
 
+def upcast_bool_to_uint64(
+    builder: InstanceBuilder, location: SourceLocation | None = None
+) -> InstanceBuilder:
+    from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
+
+    assert builder.pytype == pytypes.BoolType
+    expr = ReinterpretCast(
+        expr=builder.resolve(),
+        wtype=wtypes.uint64_wtype,
+        source_location=location or builder.source_location,
+    )
+    return UInt64ExpressionBuilder(expr)
+
+
 class CopyBuilder(FunctionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation, typ: pytypes.PyType):
         super().__init__(location)
