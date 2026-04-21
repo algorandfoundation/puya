@@ -209,11 +209,21 @@ def type_to_pytype(
     _resolving_aliases: frozenset[str] = frozenset(),
 ) -> pytypes.PyType:
     loc = source_location
-    proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
     if isinstance(mypy_type, mypy.types.TypeAliasType):
-        proper_type_or_alias = mypy_type
-    else:
-        proper_type_or_alias = mypy.types.get_proper_type(mypy_type)
+        if mypy_type.alias is None:
+            raise InternalError("mypy type alias type missing alias reference", loc)
+        alias_fullname = mypy_type.alias.fullname
+        if alias_fullname in _resolving_aliases:
+            raise CodeError("recursive type aliases are not supported", loc)
+        result = registry.get(alias_fullname)
+        if result is not None:
+            return _maybe_parameterise_pytype(
+                registry, result, mypy_type.args, loc, _resolving_aliases=_resolving_aliases
+            )
+        # fall through to resolve the proper type, which will do a single expansion of
+        # the type alias, but track that we're now resolving this alias name
+        _resolving_aliases |= {alias_fullname}
+
     recurse = functools.partial(
         type_to_pytype,
         registry,
@@ -222,21 +232,8 @@ def type_to_pytype(
         in_func_sig=in_func_sig,
         _resolving_aliases=_resolving_aliases,
     )
-    match proper_type_or_alias:
-        case mypy.types.TypeAliasType(alias=alias, args=args):
-            if alias is None:
-                raise InternalError("mypy type alias type missing alias reference", loc)
-            result = registry.get(alias.fullname)
-            if result is None:
-                if alias.fullname in _resolving_aliases:
-                    raise CodeError("recursive type aliases are not supported", loc)
-                return recurse(
-                    mypy.types.get_proper_type(proper_type_or_alias),
-                    _resolving_aliases=_resolving_aliases | {alias.fullname},
-                )
-            return _maybe_parameterise_pytype(
-                registry, result, args, loc, _resolving_aliases=_resolving_aliases
-            )
+
+    match mypy.types.get_proper_type(mypy_type):
         # this is how variadic tuples are represented in mypy types...
         case mypy.types.Instance(type=mypy.nodes.TypeInfo(fullname="builtins.tuple"), args=args):
             try:
