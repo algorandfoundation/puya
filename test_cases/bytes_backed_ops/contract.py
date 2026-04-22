@@ -3,9 +3,9 @@ import typing
 from algopy import (
     Account,
     Array,
+    BaseContract,
     BigUInt,
     Bytes,
-    Contract,
     FixedBytes,
     ImmutableArray,
     String,
@@ -28,7 +28,7 @@ class NativeStruct(Struct):
     b: UInt64
 
 
-class BytesBackedOpsContract(Contract):
+class BytesBackedOpsContract(BaseContract):
     def approval_program(self) -> bool:
         test_hash_ops()
         test_byte_manipulation_ops()
