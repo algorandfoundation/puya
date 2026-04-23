@@ -662,11 +662,13 @@ def _try_fold_intrinsic(
             if left_const.value == b"":
                 return right_arg
             if right_const is not None:
+                result_value = left_const.value + right_const.value
+                if len(result_value) > algo_constants.MAX_BYTES_LENGTH:
+                    return None  # would fail at runtime
                 # two constants, just fold
                 target_encoding = _choose_encoding(
                     left_const.encoding, right_const.encoding, is_concat=True
                 )
-                result_value = left_const.value + right_const.value
                 result = models.BytesConstant(
                     value=result_value,
                     encoding=target_encoding,
@@ -947,10 +949,12 @@ def _try_simplify_triple_concat(
             models.BytesConstant() as bytes_const1,
             models.BytesConstant() as bytes_const2,
         ):
+            new_const_value = bytes_const1.value + bytes_const2.value
+            if len(new_const_value) > algo_constants.MAX_BYTES_LENGTH:
+                return None  # would fail at runtime
             target_encoding = _choose_encoding(
                 bytes_const1.encoding, bytes_const2.encoding, is_concat=True
             )
-            new_const_value = bytes_const1.value + bytes_const2.value
             new_byte_const = models.BytesConstant(
                 value=new_const_value,
                 encoding=target_encoding,
@@ -967,10 +971,12 @@ def _try_simplify_triple_concat(
             models.BytesConstant() as bytes_const2,
             models.Value() as reg,
         ):
+            new_const_value = bytes_const1.value + bytes_const2.value
+            if len(new_const_value) > algo_constants.MAX_BYTES_LENGTH:
+                return None  # would fail at runtime
             target_encoding = _choose_encoding(
                 bytes_const1.encoding, bytes_const2.encoding, is_concat=True
             )
-            new_const_value = bytes_const1.value + bytes_const2.value
             new_byte_const = models.BytesConstant(
                 value=new_const_value,
                 encoding=target_encoding,
