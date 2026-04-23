@@ -151,9 +151,7 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.bootstrap[ro
 subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.append[routing]() -> void:
     block@0: // L18
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.large_box_operations.array_uint64.ArrayUInt64.append(tmp%1#0)
@@ -162,13 +160,7 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.append[routi
 subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.concat[routing]() -> void:
     block@0: // L22
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        __internal_validate_Encoded(len+uint64[])(tmp%0#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
         test_cases.large_box_operations.array_uint64.ArrayUInt64.concat(as_Encoded(len+uint64[])%0#0)
         exit 1u
@@ -186,9 +178,7 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.pop[routing]
 subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.get[routing]() -> void:
     block@0: // L30
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = test_cases.large_box_operations.array_uint64.ArrayUInt64.get(tmp%1#0)
@@ -202,15 +192,11 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.get[routing]
 subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.set[routing]() -> void:
     block@0: // L34
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%1#0)
         test_cases.large_box_operations.array_uint64.ArrayUInt64.set(tmp%1#0, tmp%3#0)
@@ -219,13 +205,7 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.set[routing]
 subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.verify[routing]() -> void:
     block@0: // L38
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        __internal_validate_Encoded(len+uint64[])(tmp%0#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
         test_cases.large_box_operations.array_uint64.ArrayUInt64.verify(as_Encoded(len+uint64[])%0#0)
         exit 1u
@@ -337,4 +317,22 @@ subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.verify(expec
         let value_internal%0#0: uint64 = (+ value_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L43
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 
+
+subroutine __internal_validate_Encoded(len+uint64[])(value: Encoded(len+uint64[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint64[])
         return 

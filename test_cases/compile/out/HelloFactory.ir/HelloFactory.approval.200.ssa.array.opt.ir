@@ -69,7 +69,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
         let aggregate%encoded_value%0#0: bytes = 0x000568656c6c6f
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD)
+        ((itxn_field ApprovalProgramPages) CyACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQA7gAQkN408NhoAjgEAJTEZFEQxGEEADoAE0KKCADYaAI4BADAAgAQg3zpUNhoAjgEAEwAxGYEFEjEYEEMxGYEEEjEYEEM2GgFJiAAvVwIAKExnIkM2GgFJiAAgVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkOKAQCL/yNZgQIIi/8VEkSJ)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x000568656c6c6f)
         ((itxn_field TypeEnum) appl)
@@ -91,11 +91,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract[routing
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 result#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len result#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(result#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -138,11 +134,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl[ro
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 result#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len result#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(result#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -185,11 +177,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx[ro
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 result#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len result#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(result#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -227,7 +215,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large[r
         let result#0: Encoded(uint64) = ((extract 4 0) txn.LastLog#0)
         let len%0#0: uint64 = (len result#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -248,7 +236,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
         let aggregate%encoded_value%0#0: bytes = 0x000568656c6c6f
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD)
+        ((itxn_field ApprovalProgramPages) CyACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQA7gAQkN408NhoAjgEAJTEZFEQxGEEADoAE0KKCADYaAI4BADAAgAQg3zpUNhoAjgEAEwAxGYEFEjEYEEMxGYEEEjEYEEM2GgFJiAAvVwIAKExnIkM2GgFJiAAgVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkOKAQCL/yNZgQIIi/8VEkSJ)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x000568656c6c6f)
         ((itxn_field TypeEnum) appl)
@@ -270,11 +258,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create[routing]() -
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%5#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%5#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%5#0)
         let result#0: string = ((extract 6 0) awst_tmp%0#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
@@ -314,11 +298,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl[routing
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%4#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%4#0)
         let result#0: string = ((extract 6 0) awst_tmp%0#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
@@ -358,11 +338,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx[routing
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%4#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%4#0)
         let result#0: string = ((extract 6 0) awst_tmp%0#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
@@ -394,11 +370,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large[routin
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%3#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%3#0)
+        let value#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
-        let result#0: uint64 = (btoi tmp%3#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let result#0: uint64 = (btoi value#0)
         let tmp%5#0: bool = (== result#0 4096u)
         (assert tmp%5#0)
         itxn_begin
@@ -422,7 +398,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         ((itxn_field GlobalNumUint) 4u)
         ((itxn_field GlobalNumByteSlice) 6u)
         ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD)
+        ((itxn_field ApprovalProgramPages) CyACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQA7gAQkN408NhoAjgEAJTEZFEQxGEEADoAE0KKCADYaAI4BADAAgAQg3zpUNhoAjgEAEwAxGYEFEjEYEEMxGYEEEjEYEEM2GgFJiAAvVwIAKExnIkM2GgFJiAAgVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkOKAQCL/yNZgQIIi/8VEkSJ)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x0003686579)
         ((itxn_field TypeEnum) appl)
@@ -461,11 +437,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         let tmp%8#0: bool = (== tmp%7#0 0x151f7c75)
         (assert tmp%8#0) // application log value is not the result of an ABI return
         let tmp%9#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%9#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%9#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%9#0)
         let result#0: string = ((extract 6 0) awst_tmp%0#0)
         let tmp%11#0: bool = (== result#0 "hey there")
         (assert tmp%11#0)
@@ -509,17 +481,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
         let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%4#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%4#0)
         let result#0: string = ((extract 6 0) awst_tmp%0#0)
         let tmp%6#0: bool = (== result#0 "hi there")
         (assert tmp%6#0)
         itxn_begin
         ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD)
+        ((itxn_field ApprovalProgramPages) CyACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQA7gAQkN408NhoAjgEAJTEZFEQxGEEADoAE0KKCADYaAI4BADAAgAQg3zpUNhoAjgEAEwAxGYEFEjEYEEMxGYEEEjEYEEM2GgFJiAAvVwIAKExnIkM2GgFJiAAgVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkOKAQCL/yNZgQIIi/8VEkSJ)
         ((itxn_field OnCompletion) UpdateApplication)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field TypeEnum) appl)
@@ -537,11 +505,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update[routing]() -
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
         let tmp%10#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%10#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%10#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%10#0)
         let result#1: string = ((extract 6 0) awst_tmp%1#0)
         let tmp%12#0: bool = (== result#1 "hi there")
         (assert tmp%12#0)
@@ -580,12 +544,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants[routing]
         let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
         (assert tmp%3#0) // application log value is not the result of an ABI return
-        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
+        let value#0: Encoded(len+uint8[]) = ((extract 4 0) awst_tmp%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%4#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for bytes
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
         let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
         let tmp%9#0: bool = (== result#0 NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDRTKMQ)
         (assert tmp%9#0)
@@ -607,7 +571,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         let aggregate%encoded_value%0#0: bytes = 0x0003686579
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAO4AEJDeNPDYaAI4BACUxGRREMRhBAA6ABNCiggA2GgCOAQA2AIAEIN86VDYaAI4BABMAMRmBBRIxGBBDMRmBBBIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCRD)
+        ((itxn_field ApprovalProgramPages) CyACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQA7gAQkN408NhoAjgEAJTEZFEQxGEEADoAE0KKCADYaAI4BADAAgAQg3zpUNhoAjgEAEwAxGYEFEjEYEEMxGYEEEjEYEEM2GgFJiAAvVwIAKExnIkM2GgFJiAAgVwIAIyhlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkOKAQCL/yNZgQIIi/8VEkSJ)
         ((itxn_field ApplicationArgs) method "create(string)void")
         ((itxn_field ApplicationArgs) 0x0003686579)
         ((itxn_field TypeEnum) appl)
@@ -630,11 +594,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
         let tmp%5#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%5#0 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%5#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%5#0)
         let result#0: string = ((extract 6 0) awst_tmp%0#0)
         let tmp%7#0: bool = (== result#0 "hey there")
         (assert tmp%7#0)
@@ -646,3 +606,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params[r
         ((itxn_field Fee) 0u)
         itxn_submit
         exit 1u
+
+subroutine __internal_validate_Encoded(len+utf8[])(value: Encoded(len+utf8[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        return 

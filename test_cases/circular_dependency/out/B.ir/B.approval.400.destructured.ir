@@ -35,11 +35,11 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.circular_dependency.b.B.pong[routing]() -> void:
     block@0: // L26
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let a#0: uint64 = (btoi tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let a#0: uint64 = (btoi value#0)
         itxn_begin
         ((itxn_field ApplicationID) a#0)
         ((itxn_field ApplicationArgs) method "pong()string")
@@ -47,26 +47,26 @@ subroutine test_cases.circular_dependency.b.B.pong[routing]() -> void:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%1#1: bool = (== tmp%0#0 0x151f7c75)
+        let tmp%0#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%1#1: bool = (== tmp%0#1 0x151f7c75)
         (assert tmp%1#1) // application log value is not the result of an ABI return
-        let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#1 0u) // on error: invalid array length header
+        let value#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%2#1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
-        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%2#1)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        let tmp%4#0: bytes = (concat 0x151f7c75 value#0)
         (log tmp%4#0)
         exit 1u
 
 subroutine test_cases.circular_dependency.b.B.create_a[routing]() -> void:
     block@0: // L33
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let factory_id#0: uint64 = (btoi tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let factory_id#0: uint64 = (btoi value#0)
         itxn_begin
         ((itxn_field ApplicationID) factory_id#0)
         ((itxn_field ApplicationArgs) method "deploy_a()uint64")
@@ -74,13 +74,13 @@ subroutine test_cases.circular_dependency.b.B.create_a[routing]() -> void:
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%1#1: bool = (== tmp%0#0 0x151f7c75)
+        let tmp%0#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%1#1: bool = (== tmp%0#1 0x151f7c75)
         (assert tmp%1#1) // application log value is not the result of an ABI return
-        let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%2#1)
+        let value#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for application
-        let tmp%4#0: bytes = (concat 0x151f7c75 tmp%2#1)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let tmp%4#0: bytes = (concat 0x151f7c75 value#0)
         (log tmp%4#0)
         exit 1u

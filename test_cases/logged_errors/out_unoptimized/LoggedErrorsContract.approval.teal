@@ -77,10 +77,7 @@ test_logged_errs_block@0:
     // @abimethod
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs
     intc_1 // 1
@@ -236,4 +233,18 @@ test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_if_body@
     err // AER:arg08:arg is eight (08)
 
 test_cases.logged_errors.contract.LoggedErrorsContract.test_logged_errs_after_if_else@16:
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
     retsub

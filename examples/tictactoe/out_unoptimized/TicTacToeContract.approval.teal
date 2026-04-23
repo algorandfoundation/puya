@@ -97,10 +97,7 @@ new_game_block@0:
     // @arc4.abimethod(create="allow")
     txna ApplicationArgs 1
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    callsub __internal_validate_Encoded(uint64,uint64)
     dup
     intc_1 // 0
     intc_3 // 8
@@ -125,10 +122,7 @@ join_game_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    callsub __internal_validate_Encoded(uint64,uint64)
     dup
     intc_1 // 0
     intc_3 // 8
@@ -169,10 +163,7 @@ play_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    callsub __internal_validate_Encoded(uint64,uint64)
     dup
     intc_1 // 0
     intc_3 // 8
@@ -894,4 +885,18 @@ did_win_after_if_else@14:
     // return False
     intc_1 // 0
     frame_bury 0
+    retsub
+
+
+// __internal_validate_Encoded(uint64,uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64,uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,uint64)_block@0
+
+__internal_validate_Encoded(uint64,uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 16
+    ==
+    assert // invalid number of bytes for Encoded(uint64,uint64)
     retsub

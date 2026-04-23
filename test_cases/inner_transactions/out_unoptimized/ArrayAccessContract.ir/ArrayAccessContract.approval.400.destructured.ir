@@ -40,9 +40,7 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call[routing]() -> void:
     block@0: // L21
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.bool
+        __internal_validate_Encoded(bool8)(tmp%0#0)
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%0#0
         test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(as_Encoded(bool8)%0#0)
         exit 1u
@@ -106,4 +104,11 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         (assert tmp%13#0) // correct args used 3
         goto block@8
     block@8: // after_if_else_L36
+        return 
+
+subroutine __internal_validate_Encoded(bool8)(value: Encoded(bool8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(bool8)
         return 

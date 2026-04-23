@@ -271,13 +271,11 @@ store_tuple:
     extract 2 0
     intc_1 // 0
 
-store_tuple_for_header@1:
-    // tuple_support/nested_tuples.py:61
-    // @arc4.abimethod()
+store_tuple_for_header@2:
     dup
     dig 4
     <
-    bz store_tuple_after_for@4
+    bz store_tuple_after_for@5
     dupn 2
     intc_2 // 2
     *
@@ -332,11 +330,9 @@ store_tuple_for_header@1:
     intc_0 // 1
     +
     bury 1
-    b store_tuple_for_header@1
+    b store_tuple_for_header@2
 
-store_tuple_after_for@4:
-    // tuple_support/nested_tuples.py:61
-    // @arc4.abimethod()
+store_tuple_after_for@5:
     dig 2
     intc_2 // 2
     +
@@ -344,7 +340,7 @@ store_tuple_after_for@4:
     +
     dig 6
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
+    assert // invalid number of bytes for Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
     // tuple_support/nested_tuples.py:63
     // self.pwl = pwl
     bytec 4 // "pwl"
@@ -383,7 +379,9 @@ store_tuple_in_box:
     len
     pushint 16
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+    assert // invalid number of bytes for Encoded(uint64,uint64)
+    // tuple_support/nested_tuples.py:69
+    // @arc4.abimethod()
     dup
     extract 0 8
     dig 1
@@ -417,7 +415,7 @@ is_tuple_in_box:
     len
     pushint 16
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+    assert // invalid number of bytes for Encoded(uint64,uint64)
     // tuple_support/nested_tuples.py:75
     // return key in self.box
     bytec_1 // "box"
@@ -448,7 +446,7 @@ load_tuple_from_box:
     len
     pushint 16
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+    assert // invalid number of bytes for Encoded(uint64,uint64)
     // tuple_support/nested_tuples.py:79
     // return self.box[key]
     bytec_1 // "box"
@@ -475,7 +473,7 @@ maybe_load_tuple_from_box:
     len
     pushint 16
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+    assert // invalid number of bytes for Encoded(uint64,uint64)
     // tuple_support/nested_tuples.py:83
     // maybe_value, exists = self.box.maybe(key)
     bytec_1 // "box"
@@ -530,7 +528,7 @@ load_tuple_from_box_or_default:
     len
     pushint 16
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+    assert // invalid number of bytes for Encoded(uint64,uint64)
     // tuple_support/nested_tuples.py:88
     // return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
     bytec_1 // "box"
@@ -584,7 +582,9 @@ load_tuple_from_local_state_or_default:
     dig 1
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for Encoded(len+utf8[])
+    // tuple_support/nested_tuples.py:90
+    // @arc4.abimethod()
     extract 2 0
     // tuple_support/nested_tuples.py:92
     // local = LocalState(SimpleTup, key=echo(key))
@@ -600,7 +600,7 @@ load_tuple_from_local_state_or_default:
     intc_1 // 0
     uncover 2
     app_local_get_ex
-    bz load_tuple_from_local_state_or_default_ternary_false@3
+    bz load_tuple_from_local_state_or_default_ternary_false@5
     dupn 2
     intc_1 // 0
     extract_uint64
@@ -608,7 +608,7 @@ load_tuple_from_local_state_or_default:
     intc_3 // 8
     extract_uint64
 
-load_tuple_from_local_state_or_default_ternary_merge@4:
+load_tuple_from_local_state_or_default_ternary_merge@6:
     // tuple_support/nested_tuples.py:90
     // @arc4.abimethod()
     swap
@@ -623,10 +623,10 @@ load_tuple_from_local_state_or_default_ternary_merge@4:
     intc_0 // 1
     return
 
-load_tuple_from_local_state_or_default_ternary_false@3:
+load_tuple_from_local_state_or_default_ternary_false@5:
     dig 1
     dig 3
-    b load_tuple_from_local_state_or_default_ternary_merge@4
+    b load_tuple_from_local_state_or_default_ternary_merge@6
 
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple[routing]() -> void:
@@ -1041,7 +1041,9 @@ nested_tuple_params:
     +
     uncover 5
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+    assert // invalid number of bytes for Encoded((len+utf8[]),((len+uint8[]),(uint64)))
+    // tuple_support/nested_tuples.py:149
+    // @arc4.abimethod()
     cover 4
     cover 4
     substring3
@@ -1129,7 +1131,9 @@ named_tuple:
     +
     +
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
+    assert // invalid number of bytes for Encoded(uint64,(len+uint8[]),(len+utf8[]))
+    // tuple_support/nested_tuples.py:156
+    // @arc4.abimethod()
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -1192,7 +1196,9 @@ nested_named_tuple_params:
     pushint 18
     +
     ==
-    assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
+    assert // invalid number of bytes for Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
+    // tuple_support/nested_tuples.py:161
+    // @arc4.abimethod()
     bytec_0 // 0x151f7c75
     swap
     concat

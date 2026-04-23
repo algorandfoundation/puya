@@ -51,30 +51,30 @@ subroutine verify:
     verify_block@0:
         // regression_tests/jira_ak_752.py:13
         // @abimethod
-        txna ApplicationArgs 1                                                                        proof#0
-        l-load-copy proof#0 0                                                                         proof#0,proof#0 (copy)
-        int 0                                                                                         proof#0,proof#0 (copy),0
-        extract_uint16 // on error: invalid array length header                                       proof#0,aggregate%array_length%0#0
-        int 32                                                                                        proof#0,aggregate%array_length%0#0,32
-        *                                                                                             proof#0,mul%0#0
-        int 2                                                                                         proof#0,mul%0#0,2
-        +                                                                                             proof#0,add%0#0
-        l-load-copy proof#0 1                                                                         proof#0,add%0#0,proof#0 (copy)
-        len                                                                                           proof#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                              proof#0,len%0#0,add%0#0
-        ==                                                                                            proof#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> proof#0
+        txna ApplicationArgs 1                                                                        value#0
+        l-load-copy value#0 0                                                                         value#0,value#0 (copy)
+        int 0                                                                                         value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                       value#0,aggregate%array_length%0#0
+        int 32                                                                                        value#0,aggregate%array_length%0#0,32
+        *                                                                                             value#0,mul%0#0
+        int 2                                                                                         value#0,mul%0#0,2
+        +                                                                                             value#0,add%0#0
+        l-load-copy value#0 1                                                                         value#0,add%0#0,value#0 (copy)
+        len                                                                                           value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                              value#0,len%0#0,add%0#0
+        ==                                                                                            value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[32][])                                value#0
         // regression_tests/jira_ak_752.py:18
         // x = proof[8].bytes  # ok
-        l-load-copy proof#0 0                                                                         proof#0,proof#0 (copy)
-        int 258                                                                                       proof#0,proof#0 (copy),258
-        int 32                                                                                        proof#0,proof#0 (copy),258,32
-        extract3                                                                                      proof#0,x#0
+        l-load-copy value#0 0                                                                         value#0,value#0 (copy)
+        int 258                                                                                       value#0,value#0 (copy),258
+        int 32                                                                                        value#0,value#0 (copy),258,32
+        extract3                                                                                      value#0,x#0
         // regression_tests/jira_ak_752.py:19
         // y = proof[6].bytes + proof[7].bytes  # ok
-        l-load-copy proof#0 1                                                                         proof#0,x#0,proof#0 (copy)
-        extract 194 32                                                                                proof#0,x#0,aggregate%encoded_element%1#0
-        l-load proof#0 2                                                                              x#0,aggregate%encoded_element%1#0,proof#0
+        l-load-copy value#0 1                                                                         value#0,x#0,value#0 (copy)
+        extract 194 32                                                                                value#0,x#0,aggregate%encoded_element%1#0
+        l-load value#0 2                                                                              x#0,aggregate%encoded_element%1#0,value#0
         extract 226 32                                                                                x#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0
         l-load aggregate%encoded_element%1#0 1                                                        x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0
         l-load-copy aggregate%encoded_element%2#0 1                                                   x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0 (copy)

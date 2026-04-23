@@ -51,11 +51,11 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
     block@0: // L25
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let asset#0: uint64 = (btoi value#0)
         let tmp%0#1: account = (txn Sender)
         let tmp%1#1: account = (global CreatorAddress)
         let tmp%2#0: bool = (== tmp%0#1 tmp%1#1)
@@ -76,16 +76,16 @@ subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
 
 subroutine examples.auction.contract.Auction.start_auction[routing]() -> void:
     block@0: // L40
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let starting_price#0: uint64 = (btoi tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let length#0: uint64 = (btoi tmp%2#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let starting_price#0: uint64 = (btoi value#0)
+        let value#1: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for Encoded(uint64)
+        let length#0: uint64 = (btoi value#1)
         let tmp%4#0: uint64 = (txn GroupIndex)
         let axfer#0: uint64 = (- tmp%4#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) axfer#0)
@@ -169,11 +169,11 @@ subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:
 
 subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
     block@0: // L97
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let asset#0: uint64 = (btoi value#0)
         let tmp%0#1: uint64 = (global LatestTimestamp)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
         (assert maybe_exists%0#0) // check self.auction_end exists

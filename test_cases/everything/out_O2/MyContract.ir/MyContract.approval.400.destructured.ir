@@ -9,12 +9,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%7#0: bool = (&& tmp%3#0 tmp%5#0)
         (assert tmp%7#0)
-        let name#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 name#0 0u) // on error: invalid array length header
+        let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len name#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
         let tmp%0#6: account = (txn Sender)
         let tmp%2#6: bool = (!= tmp%0#6 addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         (assert tmp%2#6) // You are banned, goodbye
@@ -31,7 +31,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "counter" tmp%3#0)
         goto block@29
     block@29: // after_if_else_L50
-        (app_local_put 0u "name" name#0)
+        (app_local_put 0u "name" value#0)
         exit 1u
     block@5: // close_out_route_L69
         let tmp%8#0: uint64 = (txn OnCompletion)
@@ -87,11 +87,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let a#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len a#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         let b#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len b#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        let len%0#0: uint64 = (len b#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         let tmp%0#5: uint64 = (btoi a#0)
         let tmp%1#1: uint64 = (btoi b#0)
         let tmp%2#0: uint64 = (+ tmp%0#5 tmp%1#1)

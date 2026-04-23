@@ -58,14 +58,10 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.create[rout
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get[routing]() -> void:
     block@0: // L36
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let account#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%2#0)
         let key#0: account = decode_bytes<account>(tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
@@ -77,19 +73,13 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get[routing
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_default[routing]() -> void:
     block@0: // L40
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let account#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%2#0)
         let key#0: account = decode_bytes<account>(tmp%2#0)
         let default#0: Encoded(uint64,uint8[4]) = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len default#0)
-        let eq%2#0: bool = (== len%2#0 12u)
-        (assert eq%2#0) // invalid number of bytes for test_cases.local_map.account_struct.Data
+        __internal_validate_Encoded(uint64,uint8[4])(default#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
         let state_get%0#0: bytes = (select default#0 maybe_value%0#0 maybe_exists%0#0)
@@ -100,19 +90,13 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_de
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.set[routing]() -> void:
     block@0: // L44
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let account#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%2#0)
         let key#0: account = decode_bytes<account>(tmp%2#0)
         let value#0: Encoded(uint64,uint8[4]) = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len value#0)
-        let eq%2#0: bool = (== len%2#0 12u)
-        (assert eq%2#0) // invalid number of bytes for test_cases.local_map.account_struct.Data
+        __internal_validate_Encoded(uint64,uint8[4])(value#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         (app_local_put account#0 map_prefixed_key%0#0 value#0)
         exit 1u
@@ -120,14 +104,10 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.set[routing
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.delete[routing]() -> void:
     block@0: // L48
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let account#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%2#0)
         let key#0: account = decode_bytes<account>(tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         (app_local_del account#0 map_prefixed_key%0#0)
@@ -136,14 +116,10 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.delete[rout
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.in_[routing]() -> void:
     block@0: // L52
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let account#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%2#0)
         let key#0: account = decode_bytes<account>(tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (_%0#0: Encoded(uint64,uint8[4]), maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
@@ -162,14 +138,10 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.prefix[rout
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.maybe[routing]() -> void:
     block@0: // L60
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let account#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%2#0)
         let key#0: account = decode_bytes<account>(tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (value#0: Encoded(uint64,uint8[4]), exists#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
@@ -188,14 +160,10 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.maybe[routi
 subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_state[routing]() -> void:
     block@0: // L68
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let account#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%2#0)
         let key#0: account = decode_bytes<account>(tmp%2#0)
         let local_state#0: bytes = (concat "map" key#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u local_state#0)
@@ -203,3 +171,17 @@ subroutine test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_sta
         let tmp%5#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%5#0)
         exit 1u
+
+subroutine __internal_validate_Encoded(uint8[32])(value: Encoded(uint8[32])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        return 
+
+subroutine __internal_validate_Encoded(uint64,uint8[4])(value: Encoded(uint64,uint8[4])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 12u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64,uint8[4])
+        return 

@@ -83,33 +83,31 @@ subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> v
 
 subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]() -> void:
     block@0: // L19
-        let addresses#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(addresses#0)
+        let value#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = (* length%0#0 32u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len addresses#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[32][])
         let tmp%1#0: uint64 = (txn GroupIndex)
         let funds#0: uint64 = (- tmp%1#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) funds#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let verifier#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%0#1: account = ((gtxns Receiver) funds#0)
         let tmp%1#1: account = (global CurrentApplicationAddress)
         let tmp%2#1: bool = (== tmp%0#1 tmp%1#1)
         (assert tmp%2#1) // assert target is match for conditions
-        let reinterpret_bool%0#0: bool = array_len(addresses#0)
+        let reinterpret_bool%0#0: bool = array_len(value#0)
         (assert reinterpret_bool%0#0) // must provide some accounts
         let tmp%3#1: uint64 = ((gtxns Amount) funds#0)
-        let tmp%4#0: uint64 = array_len(addresses#0)
+        let tmp%4#0: uint64 = array_len(value#0)
         let share#0: uint64 = (/ tmp%3#1 tmp%4#0)
-        let array_item%0#0: Encoded(uint8[32]) = extract_value(addresses#0, 0u)
+        let array_item%0#0: Encoded(uint8[32]) = extract_value(value#0, 0u)
         let payFields#0: Encoded(uint64,uint64,(len+uint8[])) = bytes_encode<(uint64,uint64,(len+uint8[]))>(1u, share#0, array_item%0#0)
         itxn_begin
         let tuple_item%0#0: Encoded(uint64) = extract_value(payFields#0, 0)
@@ -122,23 +120,23 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[rout
         ((itxn_field Amount) tmp%8#0)
         ((itxn_field TypeEnum) tmp%7#0)
         ((itxn_field Fee) 0u)
-        let tmp%10#0: uint64 = array_len(addresses#0)
+        let tmp%10#0: uint64 = array_len(value#0)
         let value_internal%0#0: uint64 = 1u
-        goto block@2
-    block@2: // for_header_L32
-        let temp#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        goto block@4
+    block@4: // for_header_L32
+        let temp#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
         let continue_looping%0#0: bool = (< temp#0 tmp%10#0)
-        goto continue_looping%0#0 ? block@3 : block@5
-    block@3: // for_body_L32
-        let addr#0: Encoded(uint8[32]) = extract_value(addresses#0, temp#0)
+        goto continue_looping%0#0 ? block@5 : block@7
+    block@5: // for_body_L32
+        let addr#0: Encoded(uint8[32]) = extract_value(value#0, temp#0)
         itxn_next
         ((itxn_field Receiver) addr#0)
         ((itxn_field Amount) tmp%8#0)
         ((itxn_field TypeEnum) tmp%7#0)
         ((itxn_field Fee) 0u)
         let value_internal%0#2: uint64 = (+ temp#0 1u)
-        goto block@2
-    block@5: // after_for_L32
+        goto block@4
+    block@7: // after_for_L32
         itxn_next
         ((itxn_field ApplicationID) verifier#0)
         ((itxn_field ApplicationArgs) method "verify()void")
@@ -154,9 +152,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[rout
 subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]() -> void:
     block@0: // L54
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let count#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         itxn_begin
         let tmp%0#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Hi")
@@ -164,7 +160,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
         ((itxn_field ApplicationArgs) tmp%0#1)
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) C4EBQw==)
-        ((itxn_field ApprovalProgramPages) CyAEAAIBBCYDCGdyZWV0aW5nASAEFR98dTEYQAAEKIAAZ4ICBCQ3jTwEoOgYcjYaAI4CADUALTEZFEQxGEEAFoICBNCiggAEUYC6IDYaAI4CADUAWwCABACSJa42GgCOAQASADEZJRIxGBBDMRmBBRIxGBBDNhoBSSJZIwhLARUSRFcCAChMZyRDNhoBSSJZIwhLARUSRFcCACIoZUQpUExQSRUWVwYCTFAqTFCwJEM2GgFJFUsBIllJJRJESwJLAUsDUiJZgQYISwMjWUlLAhJESwRLAUsFUkkiWSMITwMITwQSRCIoZUQpUE4ETgRSVwIAUExXAgBQSRUWVwYCTFAqTFCwJEM=)
+        ((itxn_field ApprovalProgramPages) CyAEAAECBCYDCGdyZWV0aW5nASAEFR98dTEYQAAEKIAAZ4ICBCQ3jTwEoOgYcjYaAI4CADUALTEZFEQxGEEAFoICBNCiggAEUYC6IDYaAI4CAC8ATwCABACSJa42GgCOAQASADEZJRIxGBBDMRmBBRIxGBBDNhoBSYgAf1cCAChMZyNDNhoBSYgAcFcCACIoZUQpUExQSRUWVwYCTFAqTFCwI0M2GgFJFUsBIllJJRJESwJLAUsDUiJZgQYISwMkWUlLAhJESwRLAUsFUkkiWSQITwMITwQSRCIoZUQpUE4ETgRSVwIAUExXAgBQSRUWVwYCTFAqTFCwI0OKAQCL/yJZJAiL/xUSRIk=)
         ((itxn_field OnCompletion) 0u)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -202,3 +198,10 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
     block@9: // after_for_L58
         itxn_submit
         exit 1u
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 

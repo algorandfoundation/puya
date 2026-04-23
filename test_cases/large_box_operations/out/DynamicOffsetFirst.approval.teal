@@ -186,33 +186,28 @@ concat:
     // @public
     txna ApplicationArgs 1
     dup
+    callsub __internal_validate_Encoded(len+uint64[])
+    // large_box_operations/dynamic_offset_first.py:52
+    // self.box.value.nested.nested.arr.extend(array)
+    dup
+    extract 2 0
+    swap
     pushint 0
     extract_uint16 // on error: invalid array length header
     dup
     intc_0 // 8
     *
-    dup
-    intc_1 // 2
-    +
-    dig 3
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    // large_box_operations/dynamic_offset_first.py:52
-    // self.box.value.nested.nested.arr.extend(array)
-    uncover 2
-    extract 2 0
     bytec_0 // "box"
     intc_1 // 2
-    dig 3
+    dig 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     pushint 4
-    uncover 3
+    uncover 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     intc_3 // 42
-    uncover 2
+    uncover 3
     uncover 3
     intc_0 // 8
     callsub box_dynamic_array_concat_fixed
@@ -231,7 +226,9 @@ append:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/dynamic_offset_first.py:54
+    // @public
     btoi
     // large_box_operations/dynamic_offset_first.py:56
     // self.box.value.nested.nested.arr.append(value)
@@ -349,16 +346,7 @@ verify:
     // @public
     txna ApplicationArgs 1
     dup
-    pushint 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 8
-    *
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     callsub test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.verify
     pop
     intc_2 // 1
@@ -374,7 +362,9 @@ get:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/dynamic_offset_first.py:73
+    // @public
     btoi
     // large_box_operations/dynamic_offset_first.py:75
     // return self.box.value.nested.nested.arr[idx]
@@ -413,14 +403,16 @@ set:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/dynamic_offset_first.py:77
+    // @public
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     // large_box_operations/dynamic_offset_first.py:79
     // self.box.value.nested.nested.arr[idx] = value
     bytec_0 // "box"
@@ -548,4 +540,21 @@ test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.verify:
     >
     assert // expected box length >4096
     frame_dig -1
+    retsub
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint64[]):
+    proto 1 0
+    frame_dig -1
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint64[])
     retsub

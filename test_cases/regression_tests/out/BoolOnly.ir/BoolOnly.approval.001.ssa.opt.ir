@@ -37,12 +37,7 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]() -> void:
     block@0: // L5
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%0#0)
         let inp#0: bytes = decode_bytes<bytes>(tmp%0#0)
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#1: bool = (!= tmp%0#1 0u)
@@ -55,12 +50,7 @@ subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_convert[routing]
 subroutine test_cases.regression_tests.bool_only.BoolOnly.set_0_compare[routing]() -> void:
     block@0: // L9
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%0#0)
         let inp#0: bytes = decode_bytes<bytes>(tmp%0#0)
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#1: bool = (> tmp%0#1 0u)
@@ -87,4 +77,14 @@ subroutine test_cases.regression_tests.bool_only.BoolOnly.bool_only_properties[r
 
 subroutine test_cases.regression_tests.bool_only.BoolOnly.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(len+uint8[])(value: Encoded(len+uint8[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
         return 

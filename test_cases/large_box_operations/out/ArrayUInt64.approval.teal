@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 2 1 0
+    intcblock 8 0 1 2
     bytecblock "box" 0x151f7c75
     // large_box_operations/array_uint64.py:10
     // class ArrayUInt64(ARC4Contract):
@@ -33,7 +33,7 @@ box_dynamic_array_concat_fixed:
     proto 5 0
     frame_dig -5
     frame_dig -4
-    intc_1 // 2
+    intc_3 // 2
     box_extract
     btoi
     frame_dig -5
@@ -56,7 +56,7 @@ box_dynamic_array_concat_fixed:
     uncover 2
     box_replace
     frame_dig -4
-    intc_1 // 2
+    intc_3 // 2
     +
     swap
     frame_dig -1
@@ -64,7 +64,7 @@ box_dynamic_array_concat_fixed:
     +
     frame_dig -5
     swap
-    intc_3 // 0
+    intc_1 // 0
     frame_dig -3
     box_splice
     retsub
@@ -95,13 +95,15 @@ append:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/array_uint64.py:18
+    // @public
     btoi
     // large_box_operations/array_uint64.py:20
     // self.box.value.append(value)
     itob
     bytec_0 // "box"
-    intc_3 // 0
+    intc_1 // 0
     uncover 2
     intc_2 // 1
     intc_0 // 8
@@ -118,24 +120,17 @@ concat:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_3 // 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    intc_0 // 8
-    *
-    intc_1 // 2
-    +
-    dig 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     // large_box_operations/array_uint64.py:24
     // self.box.value.extend(array)
-    swap
+    dup
     extract 2 0
+    swap
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
     bytec_0 // "box"
-    intc_3 // 0
-    uncover 2
+    intc_1 // 0
+    uncover 3
     uncover 3
     intc_0 // 8
     callsub box_dynamic_array_concat_fixed
@@ -150,8 +145,8 @@ pop:
     // large_box_operations/array_uint64.py:28
     // return self.box.value.pop()
     bytec_0 // "box"
-    intc_3 // 0
-    intc_1 // 2
+    intc_1 // 0
+    intc_3 // 2
     box_extract
     btoi
     intc_2 // 1
@@ -159,7 +154,7 @@ pop:
     dup
     intc_0 // 8
     *
-    intc_1 // 2
+    intc_3 // 2
     +
     bytec_0 // "box"
     dig 1
@@ -171,7 +166,7 @@ pop:
     // large_box_operations/array_uint64.py:28
     // return self.box.value.pop()
     bytec_0 // "box"
-    intc_3 // 0
+    intc_1 // 0
     uncover 2
     box_replace
     // large_box_operations/array_uint64.py:28
@@ -216,13 +211,15 @@ get:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/array_uint64.py:30
+    // @public
     btoi
     // large_box_operations/array_uint64.py:32
     // return self.box.value[idx]
     intc_0 // 8
     *
-    intc_1 // 2
+    intc_3 // 2
     +
     bytec_0 // "box"
     swap
@@ -247,20 +244,22 @@ set:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/array_uint64.py:34
+    // @public
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     // large_box_operations/array_uint64.py:36
     // self.box.value[idx] = value
     swap
     intc_0 // 8
     *
-    intc_1 // 2
+    intc_3 // 2
     +
     bytec_0 // "box"
     swap
@@ -278,33 +277,26 @@ verify:
     // @public
     txna ApplicationArgs 1
     dupn 2
-    intc_3 // 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    cover 2
-    dup
-    intc_0 // 8
-    *
-    intc_1 // 2
-    +
-    uncover 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     // large_box_operations/array_uint64.py:40-42
     // # rather than asserting box.value directly (which would attempt to load the whole box)
     // # assert the length and individual items
     // assert self.box.value.length == expected.length
     bytec_0 // "box"
-    intc_3 // 0
-    intc_1 // 2
+    intc_1 // 0
+    intc_3 // 2
     box_extract
     btoi
+    swap
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
     ==
     assert
     // large_box_operations/array_uint64.py:43
     // for i in urange(expected.length):
-    intc_3 // 0
+    intc_1 // 0
 
 verify_for_header@2:
     // large_box_operations/array_uint64.py:43
@@ -318,7 +310,7 @@ verify_for_header@2:
     dupn 2
     intc_0 // 8
     *
-    intc_1 // 2
+    intc_3 // 2
     dig 1
     +
     bytec_0 // "box"
@@ -344,3 +336,20 @@ verify_after_for@5:
     // @public
     intc_2 // 1
     return
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint64[]):
+    proto 1 0
+    frame_dig -1
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 8
+    *
+    intc_3 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint64[])
+    retsub

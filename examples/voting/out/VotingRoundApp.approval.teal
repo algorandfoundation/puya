@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 8
+    intcblock 0 1 8 10
     bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" 0x068101 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -45,7 +45,7 @@ main_create_NoOp@10:
 ensure_budget:
     proto 2 0
     frame_dig -2
-    pushint 10
+    intc_3 // 10
     +
 
 ensure_budget_while_top@1:
@@ -94,7 +94,7 @@ itoa:
     frame_dig -1
     // voting/voting.py:252
     // radix = digits.length
-    pushint 10
+    intc_3 // 10
     // voting/voting.py:253
     // if i < radix:
     <
@@ -115,7 +115,7 @@ itoa_after_if_else@2:
     frame_dig -1
     // voting/voting.py:252
     // radix = digits.length
-    pushint 10
+    intc_3 // 10
     // voting/voting.py:255
     // return itoa(i // radix) + String.from_bytes(digits[i % radix])
     /
@@ -123,7 +123,7 @@ itoa_after_if_else@2:
     frame_dig -1
     // voting/voting.py:252
     // radix = digits.length
-    pushint 10
+    intc_3 // 10
     // voting/voting.py:255
     // return itoa(i // radix) + String.from_bytes(digits[i % radix])
     %
@@ -145,83 +145,51 @@ create:
     // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     txna ApplicationArgs 3
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 2 0
     txna ApplicationArgs 4
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // voting/voting.py:58
+    // @arc4.abimethod(create="require")
     btoi
     txna ApplicationArgs 5
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // voting/voting.py:58
+    // @arc4.abimethod(create="require")
     btoi
     txna ApplicationArgs 6
     dup
     cover 6
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    cover 7
-    dup
-    intc_2 // 2
-    +
-    uncover 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     txna ApplicationArgs 7
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // voting/voting.py:58
+    // @arc4.abimethod(create="require")
     btoi
     txna ApplicationArgs 8
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 2 0
     // voting/voting.py:70
     // assert start_time < end_time, "End time should be after start time"
@@ -272,7 +240,9 @@ create:
     app_global_put
     // voting/voting.py:219
     // assert option_counts.length, "option_counts should be non-empty"
-    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dupn 2
     assert // option_counts should be non-empty
     // voting/voting.py:220
     // assert option_counts.length <= 112, "Can't have more than 112 questions"
@@ -373,7 +343,7 @@ bootstrap:
     bytec 14 // "total_options"
     app_global_get_ex
     assert // check self.total_options exists
-    intc_3 // 8
+    intc_2 // 8
     *
     // voting/voting.py:101-102
     // # tally box value
@@ -686,7 +656,7 @@ close_after_if_else@10:
     dig 4
     dup
     cover 2
-    intc_3 // 8
+    intc_2 // 8
     box_extract
     btoi
     // voting/voting.py:141
@@ -844,14 +814,7 @@ get_preconditions:
     // @arc4.abimethod(readonly=True)
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     // voting/voting.py:163
     // is_voting_open=arc4.UInt64(self.voting_open()),
@@ -912,28 +875,13 @@ vote:
     assert // transaction type is pay
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
     cover 3
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    intc_2 // 2
-    +
-    uncover 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     // voting/voting.py:176
     // ensure_budget(7700, fee_source=OpUpFeeSource.GroupCredit)
     pushint 7700
@@ -970,7 +918,11 @@ vote:
     cover 3
     // voting/voting.py:182
     // assert answer_ids.length == questions_count, "Number of answers incorrect"
-    dig 1
+    swap
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    uncover 2
     ==
     assert // Number of answers incorrect
     // voting/voting.py:185
@@ -1061,7 +1013,7 @@ vote_for_header@2:
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
     bytec_3 // "V"
     dig 1
-    intc_3 // 8
+    intc_2 // 8
     box_extract
     btoi
     // voting/voting.py:246
@@ -1198,4 +1150,34 @@ allowed_to_vote:
     frame_dig -1
     swap
     ed25519verify_bare
+    retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
+    retsub
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
     retsub

@@ -248,10 +248,7 @@ test_cases.group_side_effects.contract.AppExpectingEffects.log_group_block@0:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     // group_side_effects/contract.py:30
     // == (app_call.group_index + 1) * Global.group_size
     frame_dig -1
@@ -271,4 +268,18 @@ test_cases.group_side_effects.contract.AppExpectingEffects.log_group_block@0:
     //     == (app_call.group_index + 1) * Global.group_size
     // )
     assert
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
     retsub

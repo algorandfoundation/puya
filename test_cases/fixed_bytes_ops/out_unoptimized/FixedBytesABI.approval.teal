@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 6 2
+    intcblock 0 1 6 11
     bytecblock 0x1651487b
     b main_block@0
 
@@ -110,24 +110,12 @@ test_itxn_validate_caller_bytes_block@0:
     // @arc4.abimethod(resource_encoding="index")
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Applications
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes
     intc_1 // 1
@@ -143,24 +131,12 @@ test_itxn_validate_callee_manual_block@0:
     // @arc4.abimethod(resource_encoding="index")
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Applications
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual
     intc_1 // 1
@@ -176,24 +152,12 @@ test_itxn_validate_callee_router_block@0:
     // @arc4.abimethod(resource_encoding="index")
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Applications
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router
     intc_1 // 1
@@ -209,10 +173,7 @@ test_static_to_dynamic_encoding_block@0:
     // @arc4.abimethod(resource_encoding="index")
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Applications
     callsub test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding
@@ -241,7 +202,7 @@ test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_by
     // val,
     frame_dig -1
     len
-    pushint 11
+    intc_3 // 11
     ==
     assert // invalid size
     frame_dig -1
@@ -405,7 +366,7 @@ test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encod
     itxn_begin
     // fixed_bytes_ops/abi_values.py:43
     // fb,
-    pushint 11
+    intc_3 // 11
     itob
     extract 6 2
     // fixed_bytes_ops/abi_values.py:40
@@ -443,4 +404,38 @@ test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encod
     //     app_id=checker,
     // )
     itxn_submit
+    retsub
+
+
+// __internal_validate_Encoded(uint8)(value: bytes) -> void:
+__internal_validate_Encoded(uint8):
+    proto 1 0
+    b __internal_validate_Encoded(uint8)_block@0
+
+__internal_validate_Encoded(uint8)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for Encoded(uint8)
+    retsub
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+uint8[])_block@0
+
+__internal_validate_Encoded(len+uint8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
     retsub

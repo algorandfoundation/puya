@@ -57,9 +57,7 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
     block@0: // L25
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%0#1: account = (txn Sender)
         let tmp%1#1: account = (global CreatorAddress)
@@ -82,14 +80,10 @@ subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
 subroutine examples.auction.contract.Auction.start_auction[routing]() -> void:
     block@0: // L40
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let starting_price#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let length#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%4#0: uint64 = (txn GroupIndex)
         let axfer#0: uint64 = (- tmp%4#0 1u)
@@ -179,9 +173,7 @@ subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:
 subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
     block@0: // L97
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%0#1: uint64 = (global LatestTimestamp)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
@@ -206,4 +198,11 @@ subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
 
 subroutine examples.auction.contract.Auction.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         return 

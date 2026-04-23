@@ -47,18 +47,13 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.get[routing]() -> void:
     block@0: // L17
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let account#0: account = tmp%0#0
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        let account#0: account = value#0
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let key#0: bytes = ((extract 2 0) tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
@@ -75,26 +70,16 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.get[routing]() -> void:
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.get_with_default[routing]() -> void:
     block@0: // L21
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let account#0: account = tmp%0#0
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        let account#0: account = value#0
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let key#0: bytes = ((extract 2 0) tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
-        let length%1#0: uint64 = aggregate%array_length%1#0
-        let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 add%1#0)
-        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%4#0)
         let default#0: bytes = ((extract 2 0) tmp%4#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
@@ -111,26 +96,16 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.get_with_default[routing]() 
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.set[routing]() -> void:
     block@0: // L25
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#1: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#1)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let account#0: account = tmp%0#0
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        let account#0: account = value#1
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let key#0: bytes = ((extract 2 0) tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%4#0 0u) // on error: invalid array length header
-        let length%1#0: uint64 = aggregate%array_length%1#0
-        let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 add%1#0)
-        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%4#0)
         let value#0: bytes = ((extract 2 0) tmp%4#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         (app_local_put account#0 map_prefixed_key%0#0 value#0)
@@ -138,18 +113,13 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.set[routing]() -> void:
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.delete[routing]() -> void:
     block@0: // L29
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let account#0: account = tmp%0#0
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        let account#0: account = value#0
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let key#0: bytes = ((extract 2 0) tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         (app_local_del account#0 map_prefixed_key%0#0)
@@ -157,18 +127,13 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.delete[routing]() -> void:
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.in_[routing]() -> void:
     block@0: // L33
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let account#0: account = tmp%0#0
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        let account#0: account = value#0
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let key#0: bytes = ((extract 2 0) tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (_%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
@@ -193,18 +158,13 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.prefix[routing]() -> void:
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.maybe[routing]() -> void:
     block@0: // L41
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#3: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#3)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let account#0: account = tmp%0#0
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        let account#0: account = value#3
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let key#0: bytes = ((extract 2 0) tmp%2#0)
         let map_prefixed_key%0#0: bytes = (concat "map" key#0)
         let (value#0: bytes, exists#0: bool) = (app_local_get_ex account#0 0u map_prefixed_key%0#0)
@@ -235,18 +195,13 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.maybe[routing]() -> void:
 
 subroutine test_cases.local_map.bytes.LocalMapBytes.get_via_state[routing]() -> void:
     block@0: // L49
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let account#0: account = tmp%0#0
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        let account#0: account = value#0
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let key#0: bytes = ((extract 2 0) tmp%2#0)
         let state#0: bytes = (concat "map" key#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex account#0 0u state#0)
@@ -260,3 +215,13 @@ subroutine test_cases.local_map.bytes.LocalMapBytes.get_via_state[routing]() -> 
         let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
         (log tmp%6#0)
         exit 1u
+
+subroutine __internal_validate_Encoded(len+uint8[])(value: Encoded(len+uint8[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
+        return 

@@ -48,9 +48,7 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.regression_tests.jira_241.Jira241.oh_no[routing]() -> void:
     block@0: // L5
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.bool
+        __internal_validate_Encoded(bool8)(tmp%0#0)
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%0#0
         let aggregate%get_bit%0#0: bool = (getbit as_Encoded(bool8)%0#0 0u)
         let tmp%1#0: bool = aggregate%get_bit%0#0
@@ -60,9 +58,7 @@ subroutine test_cases.regression_tests.jira_241.Jira241.oh_no[routing]() -> void
 subroutine test_cases.regression_tests.jira_241.Jira241.oh_yes[routing]() -> void:
     block@0: // L9
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.bool
+        __internal_validate_Encoded(bool8)(tmp%0#0)
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%0#0
         let aggregate%get_bit%0#0: bool = (getbit as_Encoded(bool8)%0#0 0u)
         let tmp%1#0: bool = aggregate%get_bit%0#0
@@ -75,4 +71,11 @@ subroutine test_cases.regression_tests.jira_241.Jira241.oh_no(wrong_size: bool) 
 
 subroutine test_cases.regression_tests.jira_241.Jira241.oh_yes(wrong_size: bool) -> void:
     block@0: // L9
+        return 
+
+subroutine __internal_validate_Encoded(bool8)(value: Encoded(bool8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(bool8)
         return 

@@ -3,7 +3,72 @@
 
 // test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_program() -> uint64:
 main:
+    bytecblock 0x000568656c6c6f
+    // arc4_encode_decode/contract.py:68
+    // original = Arc4Struct(x=arc4.UInt64(42), y=arc4.String("hello"))
+    pushbytes 0x000000000000002a000a000568656c6c6f
+    // arc4_encode_decode/contract.py:70
+    // decoded = arc4.decode(Arc4Struct, encoded)
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]))
+    // arc4_encode_decode/contract.py:68
+    // original = Arc4Struct(x=arc4.UInt64(42), y=arc4.String("hello"))
+    bytec_0 // 0x000568656c6c6f
+    // arc4_encode_decode/contract.py:98
+    // decoded = arc4.decode(String, encoded)
+    callsub __internal_validate_Encoded(len+utf8[])
+    // arc4_encode_decode/contract.py:68
+    // original = Arc4Struct(x=arc4.UInt64(42), y=arc4.String("hello"))
+    bytec_0 // 0x000568656c6c6f
+    // arc4_encode_decode/contract.py:165
+    // decoded = arc4.decode(arc4.String, encoded)
+    callsub __internal_validate_Encoded(len+utf8[])
+    // arc4_encode_decode/contract.py:181
+    // encoded = arc4.encode(value)
+    pushbytes 0x0000000000000005000a000474657374
+    // arc4_encode_decode/contract.py:182
+    // decoded = arc4.decode(MyNamedTuple, encoded)
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]))
     // arc4_encode_decode/contract.py:51
     // return True
     pushint 1
     return
+
+
+// __internal_validate_Encoded(uint64,(len+utf8[]))(value: bytes) -> void:
+__internal_validate_Encoded(uint64,(len+utf8[])):
+    proto 1 0
+    frame_dig -1
+    len
+    frame_dig -1
+    pushint 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+    frame_dig -1
+    swap
+    dig 2
+    substring3
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    ==
+    assert // invalid number of bytes for Encoded(uint64,(len+utf8[]))
+    retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    frame_dig -1
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
+    retsub

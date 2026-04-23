@@ -380,10 +380,7 @@ append_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 32
-    ==
-    assert // invalid number of bytes for test_cases.large_box_operations.nested.Parent
+    callsub __internal_validate_Encoded(uint64,(uint64,uint64),uint64)
     callsub test_cases.large_box_operations.nested.NestedArrayUInt64.append
     intc_2 // 1
     return
@@ -398,16 +395,7 @@ concat_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 32
-    *
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.large_box_operations.nested.Parent>
+    callsub __internal_validate_Encoded(len+(uint64,(uint64,uint64),uint64)[])
     callsub test_cases.large_box_operations.nested.NestedArrayUInt64.concat
     intc_2 // 1
     return
@@ -438,10 +426,7 @@ get_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.large_box_operations.nested.NestedArrayUInt64.get
     bytec_2 // 0x151f7c75
@@ -461,17 +446,11 @@ set_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     txna ApplicationArgs 2
     dup
-    len
-    intc_3 // 32
-    ==
-    assert // invalid number of bytes for test_cases.large_box_operations.nested.Parent
+    callsub __internal_validate_Encoded(uint64,(uint64,uint64),uint64)
     callsub test_cases.large_box_operations.nested.NestedArrayUInt64.set
     intc_2 // 1
     return
@@ -486,16 +465,7 @@ verify_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 32
-    *
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.large_box_operations.nested.Parent>
+    callsub __internal_validate_Encoded(len+(uint64,(uint64,uint64),uint64)[])
     callsub test_cases.large_box_operations.nested.NestedArrayUInt64.verify
     intc_2 // 1
     return
@@ -925,4 +895,52 @@ test_cases.large_box_operations.nested.NestedArrayUInt64.verify_block@0:
     intc 4 // 4096
     >
     assert // expected box length >4096
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
+    retsub
+
+
+// __internal_validate_Encoded(uint64,(uint64,uint64),uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64,(uint64,uint64),uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,(uint64,uint64),uint64)_block@0
+
+__internal_validate_Encoded(uint64,(uint64,uint64),uint64)_block@0:
+    frame_dig -1
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for Encoded(uint64,(uint64,uint64),uint64)
+    retsub
+
+
+// __internal_validate_Encoded(len+(uint64,(uint64,uint64),uint64)[])(value: bytes) -> void:
+__internal_validate_Encoded(len+(uint64,(uint64,uint64),uint64)[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+(uint64,(uint64,uint64),uint64)[])_block@0
+
+__internal_validate_Encoded(len+(uint64,(uint64,uint64),uint64)[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 32
+    *
+    intc_1 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+(uint64,(uint64,uint64),uint64)[])
     retsub

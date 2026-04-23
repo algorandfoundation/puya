@@ -234,22 +234,10 @@ test_implicit_conversion_abi_call_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 8
-    *
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     txna ApplicationArgs 2
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call
     intc_2 // 1
@@ -346,4 +334,38 @@ test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi
     // array/unused_opt_allowed.py:26
     // arc4.abi_call("dont_call((uint64[],uint64)[])uint64", indirect_nested_arr, app_id=app)
     itxn_submit
+    retsub
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint64[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+uint64[])_block@0
+
+__internal_validate_Encoded(len+uint64[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 8
+    *
+    intc_1 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint64[])
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
     retsub

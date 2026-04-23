@@ -59,7 +59,7 @@ subroutine create:
         int 32                                                                                 root#0,len%0#0,32
         ==                                                                                     root#0,eq%0#0
         l-load eq%0#0 0                                                                        root#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                root#0
+        assert // invalid number of bytes for Encoded(uint8[32])                               root#0
         // merkle/contract.py:12
         // self.root = root.bytes
         byte "root"                                                                            root#0,"root"
@@ -76,35 +76,37 @@ subroutine verify:
     verify_block@0:
         // merkle/contract.py:14
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                 proof#0
-        l-store-copy proof#0 0                                                                 proof#0,proof#0 (copy)
-        v-store proof#0                                                                        proof#0
-        l-load-copy proof#0 0                                                                  proof#0,proof#0 (copy)
-        int 0                                                                                  proof#0,proof#0 (copy),0
-        extract_uint16 // on error: invalid array length header                                proof#0,aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                                              proof#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                                                     proof#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                    proof#0,aggregate%array_length%0#0
-        int 32                                                                                 proof#0,aggregate%array_length%0#0,32
-        *                                                                                      proof#0,mul%0#0
-        l-load mul%0#0 0                                                                       proof#0,mul%0#0
-        int 2                                                                                  proof#0,mul%0#0,2
-        +                                                                                      proof#0,add%0#0
-        l-load proof#0 1                                                                       add%0#0,proof#0
+        txna ApplicationArgs 1                                                                 value#0
+        l-store-copy value#0 0                                                                 value#0,value#0 (copy)
+        v-store value#0                                                                        value#0
+        l-load-copy value#0 0                                                                  value#0,value#0 (copy)
+        int 0                                                                                  value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                value#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                              value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                     value#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                    value#0,aggregate%array_length%0#0
+        int 32                                                                                 value#0,aggregate%array_length%0#0,32
+        *                                                                                      value#0,mul%0#0
+        l-load mul%0#0 0                                                                       value#0,mul%0#0
+        int 2                                                                                  value#0,mul%0#0,2
+        +                                                                                      value#0,add%0#0
+        l-load value#0 1                                                                       add%0#0,value#0
         len                                                                                    add%0#0,len%0#0
         l-load len%0#0 0                                                                       add%0#0,len%0#0
         l-load add%0#0 1                                                                       len%0#0,add%0#0
         ==                                                                                     eq%0#0
         l-load eq%0#0 0                                                                        eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> 
+        assert // invalid number of bytes for Encoded(len+uint8[32][])
+        // merkle/contract.py:14
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                                 leaf#0
         l-load-copy leaf#0 0                                                                   leaf#0,leaf#0 (copy)
-        len                                                                                    leaf#0,len%1#0
-        l-load len%1#0 0                                                                       leaf#0,len%1#0
-        int 32                                                                                 leaf#0,len%1#0,32
-        ==                                                                                     leaf#0,eq%1#0
-        l-load eq%1#0 0                                                                        leaf#0,eq%1#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                leaf#0
+        len                                                                                    leaf#0,len%0#0
+        l-load len%0#0 0                                                                       leaf#0,len%0#0
+        int 32                                                                                 leaf#0,len%0#0,32
+        ==                                                                                     leaf#0,eq%0#0
+        l-load eq%0#0 0                                                                        leaf#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                               leaf#0
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
         int 0                                                                                  leaf#0,0
@@ -136,7 +138,7 @@ subroutine verify:
     verify_for_body@3:
         // merkle/contract.py:23
         // computed = hash_pair(computed, proof[idx].bytes)
-        v-load proof#0                                                                         proof#0
+        v-load value#0                                                                         value#0
         extract 2 0                                                                            aggregate%array_trimmed%0#0
         v-load idx#0                                                                           aggregate%array_trimmed%0#0,idx#0
         int 32                                                                                 aggregate%array_trimmed%0#0,idx#0,32

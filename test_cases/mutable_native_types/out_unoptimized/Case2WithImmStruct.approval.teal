@@ -197,10 +197,7 @@ add_tup_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 16
-    ==
-    assert // invalid number of bytes for test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup
+    callsub __internal_validate_Encoded(uint64,uint64)
     callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup
     intc_2 // 1
     return
@@ -215,10 +212,7 @@ get_tup_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup
     bytec_1 // 0x151f7c75
@@ -255,16 +249,7 @@ add_many_tups_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 16
-    *
-    pushint 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>
+    callsub __internal_validate_Encoded(len+(uint64,uint64)[])
     callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups
     intc_2 // 1
     return
@@ -279,10 +264,7 @@ add_fixed_tups_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    pushint 48
-    ==
-    assert // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>
+    callsub __internal_validate_Encoded((uint64,uint64)[3])
     callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups
     intc_2 // 1
     return
@@ -297,10 +279,7 @@ set_a_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a
     intc_2 // 1
@@ -316,10 +295,7 @@ set_b_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b
     intc_2 // 1
@@ -335,10 +311,7 @@ get_3_tups_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups
     bytec_1 // 0x151f7c75
@@ -1220,4 +1193,66 @@ _check_owner_block@0:
     //     self.tup_bag.value.app == Global.current_application_id
     // ), "this error should be impossible"
     assert // this error should be impossible
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
+    retsub
+
+
+// __internal_validate_Encoded(uint64,uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64,uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,uint64)_block@0
+
+__internal_validate_Encoded(uint64,uint64)_block@0:
+    frame_dig -1
+    len
+    intc_3 // 16
+    ==
+    assert // invalid number of bytes for Encoded(uint64,uint64)
+    retsub
+
+
+// __internal_validate_Encoded(len+(uint64,uint64)[])(value: bytes) -> void:
+__internal_validate_Encoded(len+(uint64,uint64)[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+(uint64,uint64)[])_block@0
+
+__internal_validate_Encoded(len+(uint64,uint64)[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 16
+    *
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+(uint64,uint64)[])
+    retsub
+
+
+// __internal_validate_Encoded((uint64,uint64)[3])(value: bytes) -> void:
+__internal_validate_Encoded((uint64,uint64)[3]):
+    proto 1 0
+    b __internal_validate_Encoded((uint64,uint64)[3])_block@0
+
+__internal_validate_Encoded((uint64,uint64)[3])_block@0:
+    frame_dig -1
+    len
+    pushint 48
+    ==
+    assert // invalid number of bytes for Encoded((uint64,uint64)[3])
     retsub

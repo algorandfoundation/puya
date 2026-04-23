@@ -41,7 +41,9 @@ test_logged_errs:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // logged_errors/contract.py:6
+    // @abimethod
     btoi
     dup
     // logged_errors/contract.py:8-9
@@ -49,104 +51,104 @@ test_logged_errs:
     // logged_assert(arg != 1, "01")
     intc_1 // 1
     !=
-    bnz test_logged_errs_after_assert@3
+    bnz test_logged_errs_after_assert@5
     pushbytes "ERR:01"
     log
     err // ERR:01
 
-test_logged_errs_after_assert@3:
+test_logged_errs_after_assert@5:
     // logged_errors/contract.py:10-11
     // # "ERR:arg02:arg is two"
     // logged_assert(arg != 2, "arg02", error_message="arg is two")
     dup
     pushint 2
     !=
-    bnz test_logged_errs_after_assert@5
+    bnz test_logged_errs_after_assert@7
     pushbytes "ERR:arg02:arg is two"
     log
     err // ERR:arg02:arg is two
 
-test_logged_errs_after_assert@5:
+test_logged_errs_after_assert@7:
     // logged_errors/contract.py:12-13
     // # "AER:arg03"
     // logged_assert(arg != 3, "arg03", prefix="AER")
     dup
     pushint 3
     !=
-    bnz test_logged_errs_after_assert@7
+    bnz test_logged_errs_after_assert@9
     pushbytes "AER:arg03"
     log
     err // AER:arg03
 
-test_logged_errs_after_assert@7:
+test_logged_errs_after_assert@9:
     // logged_errors/contract.py:14-15
     // # "AER:arg04:arg is 4"
     // logged_assert(arg != 4, "arg04", error_message="arg is 4", prefix="AER")
     dup
     pushint 4
     !=
-    bnz test_logged_errs_after_assert@9
+    bnz test_logged_errs_after_assert@11
     pushbytes "AER:arg04:arg is 4"
     log
     err // AER:arg04:arg is 4
 
-test_logged_errs_after_assert@9:
+test_logged_errs_after_assert@11:
     // logged_errors/contract.py:17-18
     // # "ERR:arg05"
     // if arg == 5:
     dup
     pushint 5
     ==
-    bz test_logged_errs_after_if_else@11
+    bz test_logged_errs_after_if_else@13
     // logged_errors/contract.py:19
     // logged_err("arg05")
     pushbytes "ERR:arg05"
     log
     err // ERR:arg05
 
-test_logged_errs_after_if_else@11:
+test_logged_errs_after_if_else@13:
     // logged_errors/contract.py:20-21
     // # "ERR:arg06:arg was 6"
     // if arg == 6:
     dup
     pushint 6
     ==
-    bz test_logged_errs_after_if_else@13
+    bz test_logged_errs_after_if_else@15
     // logged_errors/contract.py:22
     // logged_err("06", error_message="arg was 6")
     pushbytes "ERR:06:arg was 6"
     log
     err // ERR:06:arg was 6
 
-test_logged_errs_after_if_else@13:
+test_logged_errs_after_if_else@15:
     // logged_errors/contract.py:23-24
     // # "AER:arg07"
     // if arg == 7:
     dup
     pushint 7
     ==
-    bz test_logged_errs_after_if_else@15
+    bz test_logged_errs_after_if_else@17
     // logged_errors/contract.py:25
     // logged_err("arg07", prefix="AER")
     pushbytes "AER:arg07"
     log
     err // AER:arg07
 
-test_logged_errs_after_if_else@15:
+test_logged_errs_after_if_else@17:
     // logged_errors/contract.py:26-27
     // # "AER:arg08:arg is seven (08)"
     // if arg == 8:
     dup
     intc_0 // 8
     ==
-    bz test_logged_errs_after_if_else@17
+    bz test_logged_errs_after_if_else@19
     // logged_errors/contract.py:28
     // logged_err("arg08", error_message="arg is eight (08)", prefix="AER")
     pushbytes "AER:arg08:arg is eight (08)"
     log
     err // AER:arg08:arg is eight (08)
 
-test_logged_errs_after_if_else@17:
+test_logged_errs_after_if_else@19:
     // logged_errors/contract.py:6
     // @abimethod
     intc_1 // 1

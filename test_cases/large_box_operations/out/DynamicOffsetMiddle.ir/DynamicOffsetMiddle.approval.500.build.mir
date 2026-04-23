@@ -272,31 +272,20 @@ subroutine concat:
         txna ApplicationArgs 1                                                                array#0
         v-store array#0
         v-load array#0                                                                        array#0
-        int 0                                                                                 array#0,0
-        extract_uint16 // on error: invalid array length header                               aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                     aggregate%array_length%0#0
-        int 8                                                                                 aggregate%array_length%0#0,8
-        *                                                                                     mul%0#0
-        v-store mul%0#0
-        v-load mul%0#0                                                                        mul%0#0
-        int 2                                                                                 mul%0#0,2
-        +                                                                                     add%0#0
-        v-store add%0#0
-        v-load array#0                                                                        array#0
-        len                                                                                   len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                        len%0#0
-        v-load add%0#0                                                                        len%0#0,add%0#0
-        ==                                                                                    eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                         eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>
+        callsub __internal_validate_Encoded(len+uint64[])
         // large_box_operations/dynamic_offset_middle.py:52
         // self.box.value.nested.nested.arr.extend(array)
         v-load array#0                                                                        array#0
         extract 2 0                                                                           extract_to_end%0#0
         v-store extract_to_end%0#0
+        v-load array#0                                                                        array#0
+        int 0                                                                                 array#0,0
+        extract_uint16 // on error: invalid array length header                               aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
+        v-load aggregate%array_length%0#0                                                     aggregate%array_length%0#0
+        int 8                                                                                 aggregate%array_length%0#0,8
+        *                                                                                     box%mul%0#0
+        v-store box%mul%0#0
         byte "box"                                                                            "box"
         int 2                                                                                 "box",2
         int 2                                                                                 "box",2,2
@@ -311,7 +300,7 @@ subroutine concat:
         v-store box%offset%5#0
         byte "box"                                                                            "box"
         int 4                                                                                 "box",4
-        v-load mul%0#0                                                                        "box",4,mul%0#0
+        v-load box%mul%0#0                                                                    "box",4,box%mul%0#0
         callsub box_update_offset_inc
         byte "box"                                                                            "box"
         v-load box%offset%5#0                                                                 "box",box%offset%5#0
@@ -330,9 +319,9 @@ subroutine append:
     append_block@0:
         // large_box_operations/dynamic_offset_middle.py:54
         // @public
-        txna ApplicationArgs 1                                                                tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                        tmp%0#0
+        txna ApplicationArgs 1                                                                value#1
+        v-store value#1
+        v-load value#1                                                                        value#1
         len                                                                                   len%0#0
         v-store len%0#0
         v-load len%0#0                                                                        len%0#0
@@ -340,8 +329,10 @@ subroutine append:
         ==                                                                                    eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                         eq%0#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%0#0                                                                        tmp%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // large_box_operations/dynamic_offset_middle.py:54
+        // @public
+        v-load value#1                                                                        value#1
         btoi                                                                                  value#0
         v-store value#0
         // large_box_operations/dynamic_offset_middle.py:56
@@ -537,26 +528,7 @@ subroutine verify:
         txna ApplicationArgs 1                                                                tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                        tmp%0#0
-        int 0                                                                                 tmp%0#0,0
-        extract_uint16 // on error: invalid array length header                               aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                     aggregate%array_length%0#0
-        int 8                                                                                 aggregate%array_length%0#0,8
-        *                                                                                     mul%0#0
-        v-store mul%0#0
-        v-load mul%0#0                                                                        mul%0#0
-        int 2                                                                                 mul%0#0,2
-        +                                                                                     add%0#0
-        v-store add%0#0
-        v-load tmp%0#0                                                                        tmp%0#0
-        len                                                                                   len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                        len%0#0
-        v-load add%0#0                                                                        len%0#0,add%0#0
-        ==                                                                                    eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                         eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>
+        callsub __internal_validate_Encoded(len+uint64[])
         v-load tmp%0#0                                                                        tmp%0#0
         callsub test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.verify verify%0#0
         v-store verify%0#0
@@ -569,9 +541,9 @@ subroutine get:
     get_block@0:
         // large_box_operations/dynamic_offset_middle.py:73
         // @public
-        txna ApplicationArgs 1                                                                tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                        tmp%0#0
+        txna ApplicationArgs 1                                                                value#0
+        v-store value#0
+        v-load value#0                                                                        value#0
         len                                                                                   len%0#0
         v-store len%0#0
         v-load len%0#0                                                                        len%0#0
@@ -579,8 +551,10 @@ subroutine get:
         ==                                                                                    eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                         eq%0#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%0#0                                                                        tmp%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // large_box_operations/dynamic_offset_middle.py:73
+        // @public
+        v-load value#0                                                                        value#0
         btoi                                                                                  idx#0
         v-store idx#0
         // large_box_operations/dynamic_offset_middle.py:75
@@ -645,9 +619,9 @@ subroutine set:
     set_block@0:
         // large_box_operations/dynamic_offset_middle.py:77
         // @public
-        txna ApplicationArgs 1                                                                tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                        tmp%0#0
+        txna ApplicationArgs 1                                                                value#0
+        v-store value#0
+        v-load value#0                                                                        value#0
         len                                                                                   len%0#0
         v-store len%0#0
         v-load len%0#0                                                                        len%0#0
@@ -655,21 +629,23 @@ subroutine set:
         ==                                                                                    eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                         eq%0#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%0#0                                                                        tmp%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // large_box_operations/dynamic_offset_middle.py:77
+        // @public
+        v-load value#0                                                                        value#0
         btoi                                                                                  idx#0
         v-store idx#0
-        txna ApplicationArgs 2                                                                tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                        tmp%2#0
-        len                                                                                   len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                        len%1#0
-        int 8                                                                                 len%1#0,8
-        ==                                                                                    eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                         eq%1#0
-        assert // invalid number of bytes for arc4.uint64
+        txna ApplicationArgs 2                                                                value#0
+        v-store value#0
+        v-load value#0                                                                        value#0
+        len                                                                                   len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                        len%0#0
+        int 8                                                                                 len%0#0,8
+        ==                                                                                    eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                         eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
         // large_box_operations/dynamic_offset_middle.py:79
         // self.box.value.nested.nested.arr[idx] = value
         byte "box"                                                                            "box"
@@ -712,7 +688,7 @@ subroutine set:
         v-store box%offset%3#0
         byte "box"                                                                            "box"
         v-load box%offset%3#0                                                                 "box",box%offset%3#0
-        v-load tmp%2#0                                                                        "box",box%offset%3#0,tmp%2#0
+        v-load value#0                                                                        "box",box%offset%3#0,value#0
         box_replace // on error: index out of bounds
         // large_box_operations/dynamic_offset_middle.py:77
         // @public
@@ -893,5 +869,32 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
         assert // expected box length >4096                                                   (𝕡) expected#0 |
         p-load expected#0                                                                     (𝕡) expected#0 | expected#0 (copy)
         retsub                                                                                expected#0 (copy)
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint64[]):
+    __internal_validate_Encoded(len+uint64[])_block@0:                                        (𝕡) value#0 |
+        p-load value#0                                                                        (𝕡) value#0 | value#0 (copy)
+        int 0                                                                                 (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                               (𝕡) value#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                                    (𝕡) value#0 |
+        v-load aggregate%array_length%0#0                                                     (𝕡) value#0 | aggregate%array_length%0#0
+        int 8                                                                                 (𝕡) value#0 | aggregate%array_length%0#0,8
+        *                                                                                     (𝕡) value#0 | mul%0#0
+        v-store mul%0#0                                                                       (𝕡) value#0 |
+        v-load mul%0#0                                                                        (𝕡) value#0 | mul%0#0
+        int 2                                                                                 (𝕡) value#0 | mul%0#0,2
+        +                                                                                     (𝕡) value#0 | add%0#0
+        v-store add%0#0                                                                       (𝕡) value#0 |
+        p-load value#0                                                                        (𝕡) value#0 | value#0 (copy)
+        len                                                                                   (𝕡) value#0 | len%0#0
+        v-store len%0#0                                                                       (𝕡) value#0 |
+        v-load len%0#0                                                                        (𝕡) value#0 | len%0#0
+        v-load add%0#0                                                                        (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                                    (𝕡) value#0 | eq%0#0
+        v-store eq%0#0                                                                        (𝕡) value#0 |
+        v-load eq%0#0                                                                         (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint64[])                           (𝕡) value#0 |
+        retsub
 
 

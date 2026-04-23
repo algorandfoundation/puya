@@ -20,16 +20,7 @@ main:
 main_verify_route@12:
     txna ApplicationArgs 1
     dup
-    pushint 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 8
-    *
-    intc_0 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     callsub verify
     pop
     intc_2 // 1
@@ -41,14 +32,14 @@ main_set_route@11:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     dup
     btoi
     bytec_0 // "box"
@@ -128,7 +119,7 @@ main_get_route@10:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     btoi
     bytec_0 // "box"
     pushint 24
@@ -348,35 +339,30 @@ main_pop_route@9:
 main_concat_route@8:
     txna ApplicationArgs 1
     dup
+    callsub __internal_validate_Encoded(len+uint64[])
+    dup
+    extract 2 0
+    dig 1
     pushint 0
     extract_uint16 // on error: invalid array length header
     dup
     intc_1 // 8
     *
-    dup
-    intc_0 // 2
-    +
-    dig 3
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    dig 2
-    extract 2 0
     bytec_0 // "box"
     pushint 10
-    dig 3
+    dig 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     intc_3 // 12
-    dig 3
+    dig 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     pushint 22
-    uncover 3
+    uncover 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     pushint 24
-    uncover 2
+    uncover 3
     uncover 3
     intc_1 // 8
     callsub box_dynamic_array_concat_fixed
@@ -442,7 +428,7 @@ main_append_route@7:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     btoi
     dup
     itob
@@ -832,4 +818,21 @@ verify_after_while@11:
     >
     assert // expected box length >4096
     frame_dig -1
+    retsub
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint64[]):
+    proto 1 0
+    frame_dig -1
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 8
+    *
+    intc_0 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint64[])
     retsub

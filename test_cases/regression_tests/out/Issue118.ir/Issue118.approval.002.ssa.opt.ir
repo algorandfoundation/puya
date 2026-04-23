@@ -26,29 +26,29 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.regression_tests.issue_118.Issue118.verify[routing]() -> void:
     block@0: // L7
-        let values#0: Encoded(len+uint256[]) = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(values#0)
+        let value#0: Encoded(len+uint256[]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = (* length%0#0 32u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len values#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint256>
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint256[])
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#1: bool = (!= tmp%0#1 0u)
         let val1#0: Encoded(bool8) = bytes_encode<bool8>(tmp%1#1)
-        let tmp%3#0: uint64 = array_len(values#0)
+        let tmp%3#0: uint64 = array_len(value#0)
         let tmp%4#0: bool = (!= tmp%3#0 2u)
-        goto tmp%4#0 ? block@2 : block@3
-    block@2: // if_body_L13
+        goto tmp%4#0 ? block@4 : block@5
+    block@4: // if_body_L13
         let tmp%5#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("")
         let tmp%6#0: Encoded(bool1,(len+utf8[])) = bytes_encode<(bool1,(len+utf8[]))>(val1#0, tmp%5#0)
-        goto block@4
-    block@3: // after_if_else_L12
+        goto block@6
+    block@5: // after_if_else_L12
         let tmp%7#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("")
         let tmp%8#0: Encoded(bool1,(len+utf8[])) = bytes_encode<(bool1,(len+utf8[]))>(val1#0, tmp%7#0)
-        goto block@4
-    block@4: // after_inlined_test_cases.regression_tests.issue_118.Issue118.verify_L7
-        let tmp%1#0: Encoded(bool1,(len+utf8[])) = φ(tmp%6#0 <- block@2, tmp%8#0 <- block@3)
+        goto block@6
+    block@6: // after_inlined_test_cases.regression_tests.issue_118.Issue118.verify_L7
+        let tmp%1#0: Encoded(bool1,(len+utf8[])) = φ(tmp%6#0 <- block@4, tmp%8#0 <- block@5)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
         exit 1u

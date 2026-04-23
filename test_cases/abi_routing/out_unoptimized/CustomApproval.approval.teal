@@ -81,10 +81,7 @@ add_one_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.abi_routing.custom_approval.CustomApproval.add_one
     itob
@@ -213,4 +210,18 @@ algopy._contract.Contract.__init__:
     b algopy._contract.Contract.__init___block@0
 
 algopy._contract.Contract.__init___block@0:
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
     retsub

@@ -34,14 +34,7 @@ set_0_convert:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     // regression_tests/bool_only.py:7
     // return op.setbit_bytes(inp, 0, bool(Txn.num_app_args))
@@ -73,14 +66,7 @@ set_0_compare:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     // regression_tests/bool_only.py:11
     // return op.setbit_bytes(inp, 0, Txn.num_app_args > 0)
@@ -148,3 +134,18 @@ bool_only_properties:
     // @arc4.abimethod()
     intc_1 // 1
     return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
+    retsub

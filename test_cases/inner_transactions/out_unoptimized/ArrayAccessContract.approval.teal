@@ -78,10 +78,7 @@ test_branching_array_call_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.bool
+    callsub __internal_validate_Encoded(bool8)
     callsub test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call
     intc_1 // 1
     return
@@ -250,3 +247,17 @@ test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_ar
     // ).submit()
     itxn_submit
     b test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call_after_if_else@5
+
+
+// __internal_validate_Encoded(bool8)(value: bytes) -> void:
+__internal_validate_Encoded(bool8):
+    proto 1 0
+    b __internal_validate_Encoded(bool8)_block@0
+
+__internal_validate_Encoded(bool8)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for Encoded(bool8)
+    retsub

@@ -33,13 +33,9 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routing]() -> void:
     block@0: // L14
         let a#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len a#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(a#0)
         let b#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len b#0)
-        let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(b#0)
         let x#0: Encoded(uint8,uint8) = bytes_encode<(uint8,uint8)>(b#0, a#0)
         let event%0#0: bytes = (concat method "Swapped(uint8,uint8)" x#0)
         (log event%0#0)
@@ -86,17 +82,17 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routi
 
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom[routing]() -> void:
     block@0: // L46
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
+        let value#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for arc4.bool
-        let tmp%2#1: Encoded((len+utf8[]),bool8) = bytes_encode<((len+utf8[]),bool8)>(tmp%0#0, tmp%2#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        let value#1: Encoded(bool8) = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 1u)
+        (assert eq%0#1) // invalid number of bytes for Encoded(bool8)
+        let tmp%2#1: Encoded((len+utf8[]),bool8) = bytes_encode<((len+utf8[]),bool8)>(value#0, value#1)
         let event%0#0: bytes = (concat method "Custom(string,bool)" tmp%2#1)
         (log event%0#0)
         (log event%0#0)
@@ -105,18 +101,26 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom[routin
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitDynamicBytes[routing]() -> void:
     block@0: // L51
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%0#0)
         let y#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let length%1#0: uint64 = array_len(y#0)
-        let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%1#0: uint64 = (len y#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(y#0)
         let tmp%1#1: Encoded((len+uint8[]),(len+uint8[])) = bytes_encode<((len+uint8[]),(len+uint8[]))>(tmp%0#0, y#0)
         let event%0#0: bytes = (concat method "DB(byte[],byte[])" tmp%1#1)
         (log event%0#0)
         exit 1u
+
+subroutine __internal_validate_Encoded(uint8)(value: Encoded(uint8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8)
+        return 
+
+subroutine __internal_validate_Encoded(len+uint8[])(value: Encoded(len+uint8[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
+        return 

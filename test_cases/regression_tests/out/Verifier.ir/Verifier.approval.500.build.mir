@@ -68,10 +68,10 @@ subroutine verify:
     verify_block@0:
         // regression_tests/jira_ak_752.py:13
         // @abimethod
-        txna ApplicationArgs 1                                                                        proof#0
-        v-store proof#0
-        v-load proof#0                                                                                proof#0
-        int 0                                                                                         proof#0,0
+        txna ApplicationArgs 1                                                                        value#0
+        v-store value#0
+        v-load value#0                                                                                value#0
+        int 0                                                                                         value#0,0
         extract_uint16 // on error: invalid array length header                                       aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                             aggregate%array_length%0#0
@@ -82,7 +82,7 @@ subroutine verify:
         int 2                                                                                         mul%0#0,2
         +                                                                                             add%0#0
         v-store add%0#0
-        v-load proof#0                                                                                proof#0
+        v-load value#0                                                                                value#0
         len                                                                                           len%0#0
         v-store len%0#0
         v-load len%0#0                                                                                len%0#0
@@ -90,20 +90,20 @@ subroutine verify:
         ==                                                                                            eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                                 eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> 
+        assert // invalid number of bytes for Encoded(len+uint8[32][])
         // regression_tests/jira_ak_752.py:18
         // x = proof[8].bytes  # ok
-        v-load proof#0                                                                                proof#0
-        int 258                                                                                       proof#0,258
-        int 32                                                                                        proof#0,258,32
+        v-load value#0                                                                                value#0
+        int 258                                                                                       value#0,258
+        int 32                                                                                        value#0,258,32
         extract3                                                                                      x#0
         v-store x#0
         // regression_tests/jira_ak_752.py:19
         // y = proof[6].bytes + proof[7].bytes  # ok
-        v-load proof#0                                                                                proof#0
+        v-load value#0                                                                                value#0
         extract 194 32                                                                                aggregate%encoded_element%1#0
         v-store aggregate%encoded_element%1#0
-        v-load proof#0                                                                                proof#0
+        v-load value#0                                                                                value#0
         extract 226 32                                                                                aggregate%encoded_element%2#0
         v-store aggregate%encoded_element%2#0
         v-load aggregate%encoded_element%1#0                                                          aggregate%encoded_element%1#0

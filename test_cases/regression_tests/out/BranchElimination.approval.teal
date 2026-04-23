@@ -171,13 +171,11 @@ calculate:
     extract 2 0
     intc_0 // 0
 
-calculate_for_header@1:
-    // regression_tests/leftover_branch.py:29
-    // @arc4.abimethod
+calculate_for_header@2:
     dup
     dig 5
     <
-    bz calculate_after_for@4
+    bz calculate_after_for@5
     dupn 2
     intc_2 // 2
     *
@@ -205,24 +203,24 @@ calculate_for_header@1:
     intc_1 // 1
     +
     bury 1
-    b calculate_for_header@1
+    b calculate_for_header@2
 
-calculate_after_for@4:
-    // regression_tests/leftover_branch.py:29
-    // @arc4.abimethod
+calculate_after_for@5:
     dig 3
     intc_2 // 2
     +
     dig 3
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>
+    assert // invalid number of bytes for Encoded(len+(len+uint64[])[])
+    // regression_tests/leftover_branch.py:29
+    // @arc4.abimethod
     txna ApplicationArgs 2
     dup
     bury 15
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     // regression_tests/leftover_branch.py:35
     // total = UInt64(0)
     intc_0 // 0
@@ -236,7 +234,7 @@ calculate_after_for@4:
     intc_0 // 0
     bury 10
 
-calculate_for_header@6:
+calculate_for_header@10:
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     dig 9
@@ -244,7 +242,7 @@ calculate_for_header@6:
     <
     dup
     bury 12
-    bz calculate_after_for@19
+    bz calculate_after_for@23
     dig 10
     assert // index out of bounds
     // regression_tests/leftover_branch.py:39
@@ -279,13 +277,13 @@ calculate_for_header@6:
     intc_0 // 0
     bury 9
 
-calculate_for_header@8:
+calculate_for_header@12:
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
     dig 8
     dig 12
     <
-    bz calculate_after_for@17
+    bz calculate_after_for@21
     // regression_tests/leftover_branch.py:42
     // value = inner_list[j]
     dig 14
@@ -303,7 +301,7 @@ calculate_for_header@8:
     // if value >= threshold:
     dig 14
     b>=
-    bz calculate_after_if_else@15
+    bz calculate_after_if_else@19
     // regression_tests/leftover_branch.py:44
     // has_next = j < last_inner_list_index
     dig 8
@@ -311,7 +309,7 @@ calculate_for_header@8:
     <
     // regression_tests/leftover_branch.py:45
     // if has_next:
-    bz calculate_after_if_else@15
+    bz calculate_after_if_else@19
     // regression_tests/leftover_branch.py:46
     // total += 1
     dig 5
@@ -333,7 +331,7 @@ calculate_for_header@8:
     // if value < next_value:
     dig 13
     b>
-    bz calculate_after_if_else@15
+    bz calculate_after_if_else@19
     // regression_tests/leftover_branch.py:49
     // total *= 2
     dig 5
@@ -347,25 +345,25 @@ calculate_for_header@8:
     +
     bury 7
 
-calculate_after_if_else@15:
+calculate_after_if_else@19:
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
     dig 8
     intc_1 // 1
     +
     bury 9
-    b calculate_for_header@8
+    b calculate_for_header@12
 
-calculate_after_for@17:
+calculate_after_for@21:
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     dig 9
     intc_1 // 1
     +
     bury 10
-    b calculate_for_header@6
+    b calculate_for_header@10
 
-calculate_after_for@19:
+calculate_after_for@23:
     // regression_tests/leftover_branch.py:29
     // @arc4.abimethod
     intc_1 // 1

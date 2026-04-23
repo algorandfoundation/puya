@@ -90,26 +90,7 @@ subroutine test_firstly:
         txna ApplicationArgs 1                                                                      addresses#0
         v-store addresses#0
         v-load addresses#0                                                                          addresses#0
-        int 0                                                                                       addresses#0,0
-        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
-        int 32                                                                                      aggregate%array_length%0#0,32
-        *                                                                                           mul%0#0
-        v-store mul%0#0
-        v-load mul%0#0                                                                              mul%0#0
-        int 2                                                                                       mul%0#0,2
-        +                                                                                           add%0#0
-        v-store add%0#0
-        v-load addresses#0                                                                          addresses#0
-        len                                                                                         len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                              len%0#0
-        v-load add%0#0                                                                              len%0#0,add%0#0
-        ==                                                                                          eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                               eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> 
+        callsub __internal_validate_Encoded(len+uint8[32][])
         txn GroupIndex                                                                              tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                              tmp%1#0
@@ -125,18 +106,20 @@ subroutine test_firstly:
         v-store gtxn_type_matches%0#0
         v-load gtxn_type_matches%0#0                                                                gtxn_type_matches%0#0
         assert // transaction type is pay
-        txna ApplicationArgs 2                                                                      tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                              tmp%2#0
-        len                                                                                         len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                              len%1#0
-        int 8                                                                                       len%1#0,8
-        ==                                                                                          eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                               eq%1#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%2#0                                                                              tmp%2#0
+        txna ApplicationArgs 2                                                                      value#0
+        v-store value#0
+        v-load value#0                                                                              value#0
+        len                                                                                         len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                              len%0#0
+        int 8                                                                                       len%0#0,8
+        ==                                                                                          eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                               eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // dynamic_itxn_group/contract.py:16
+        // @public
+        v-load value#0                                                                              value#0
         btoi                                                                                        verifier#0
         v-store verifier#0
         // dynamic_itxn_group/contract.py:20
@@ -154,6 +137,10 @@ subroutine test_firstly:
         assert // Funds must be sent to app
         // dynamic_itxn_group/contract.py:22
         // assert addresses.length, "must provide some accounts"
+        v-load addresses#0                                                                          addresses#0
+        int 0                                                                                       addresses#0,0
+        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
         assert // must provide some accounts
         // dynamic_itxn_group/contract.py:23
@@ -277,26 +264,7 @@ subroutine test_looply:
         txna ApplicationArgs 1                                                                      addresses#0
         v-store addresses#0
         v-load addresses#0                                                                          addresses#0
-        int 0                                                                                       addresses#0,0
-        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
-        int 32                                                                                      aggregate%array_length%0#0,32
-        *                                                                                           mul%0#0
-        v-store mul%0#0
-        v-load mul%0#0                                                                              mul%0#0
-        int 2                                                                                       mul%0#0,2
-        +                                                                                           add%0#0
-        v-store add%0#0
-        v-load addresses#0                                                                          addresses#0
-        len                                                                                         len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                              len%0#0
-        v-load add%0#0                                                                              len%0#0,add%0#0
-        ==                                                                                          eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                               eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> 
+        callsub __internal_validate_Encoded(len+uint8[32][])
         txn GroupIndex                                                                              tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                              tmp%1#0
@@ -312,18 +280,20 @@ subroutine test_looply:
         v-store gtxn_type_matches%0#0
         v-load gtxn_type_matches%0#0                                                                gtxn_type_matches%0#0
         assert // transaction type is pay
-        txna ApplicationArgs 2                                                                      tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                              tmp%2#0
-        len                                                                                         len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                              len%1#0
-        int 8                                                                                       len%1#0,8
-        ==                                                                                          eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                               eq%1#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%2#0                                                                              tmp%2#0
+        txna ApplicationArgs 2                                                                      value#0
+        v-store value#0
+        v-load value#0                                                                              value#0
+        len                                                                                         len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                              len%0#0
+        int 8                                                                                       len%0#0,8
+        ==                                                                                          eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                               eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // dynamic_itxn_group/contract.py:39
+        // @public
+        v-load value#0                                                                              value#0
         btoi                                                                                        verifier#0
         v-store verifier#0
         // dynamic_itxn_group/contract.py:43
@@ -341,6 +311,10 @@ subroutine test_looply:
         assert // Funds must be sent to app
         // dynamic_itxn_group/contract.py:45
         // assert addresses.length, "must provide some accounts"
+        v-load addresses#0                                                                          addresses#0
+        int 0                                                                                       addresses#0,0
+        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
         assert // must provide some accounts
         // dynamic_itxn_group/contract.py:46
@@ -467,26 +441,7 @@ subroutine test_firstly_abi_call:
         txna ApplicationArgs 1                                                                      addresses#0
         v-store addresses#0
         v-load addresses#0                                                                          addresses#0
-        int 0                                                                                       addresses#0,0
-        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
-        int 32                                                                                      aggregate%array_length%0#0,32
-        *                                                                                           mul%0#0
-        v-store mul%0#0
-        v-load mul%0#0                                                                              mul%0#0
-        int 2                                                                                       mul%0#0,2
-        +                                                                                           add%0#0
-        v-store add%0#0
-        v-load addresses#0                                                                          addresses#0
-        len                                                                                         len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                              len%0#0
-        v-load add%0#0                                                                              len%0#0,add%0#0
-        ==                                                                                          eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                               eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> 
+        callsub __internal_validate_Encoded(len+uint8[32][])
         txn GroupIndex                                                                              tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                              tmp%1#0
@@ -502,18 +457,20 @@ subroutine test_firstly_abi_call:
         v-store gtxn_type_matches%0#0
         v-load gtxn_type_matches%0#0                                                                gtxn_type_matches%0#0
         assert // transaction type is pay
-        txna ApplicationArgs 2                                                                      tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                              tmp%2#0
-        len                                                                                         len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                              len%1#0
-        int 8                                                                                       len%1#0,8
-        ==                                                                                          eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                               eq%1#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%2#0                                                                              tmp%2#0
+        txna ApplicationArgs 2                                                                      value#0
+        v-store value#0
+        v-load value#0                                                                              value#0
+        len                                                                                         len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                              len%0#0
+        int 8                                                                                       len%0#0,8
+        ==                                                                                          eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                               eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // dynamic_itxn_group/contract.py:62
+        // @public
+        v-load value#0                                                                              value#0
         btoi                                                                                        verifier#0
         v-store verifier#0
         // dynamic_itxn_group/contract.py:66
@@ -531,6 +488,10 @@ subroutine test_firstly_abi_call:
         assert // Funds must be sent to app
         // dynamic_itxn_group/contract.py:68
         // assert addresses.length, "must provide some accounts"
+        v-load addresses#0                                                                          addresses#0
+        int 0                                                                                       addresses#0,0
+        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
         assert // must provide some accounts
         // dynamic_itxn_group/contract.py:69
@@ -648,26 +609,7 @@ subroutine test_looply_abi_call:
         txna ApplicationArgs 1                                                                      addresses#0
         v-store addresses#0
         v-load addresses#0                                                                          addresses#0
-        int 0                                                                                       addresses#0,0
-        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
-        int 32                                                                                      aggregate%array_length%0#0,32
-        *                                                                                           mul%0#0
-        v-store mul%0#0
-        v-load mul%0#0                                                                              mul%0#0
-        int 2                                                                                       mul%0#0,2
-        +                                                                                           add%0#0
-        v-store add%0#0
-        v-load addresses#0                                                                          addresses#0
-        len                                                                                         len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                              len%0#0
-        v-load add%0#0                                                                              len%0#0,add%0#0
-        ==                                                                                          eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                               eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> 
+        callsub __internal_validate_Encoded(len+uint8[32][])
         txn GroupIndex                                                                              tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                              tmp%1#0
@@ -683,18 +625,20 @@ subroutine test_looply_abi_call:
         v-store gtxn_type_matches%0#0
         v-load gtxn_type_matches%0#0                                                                gtxn_type_matches%0#0
         assert // transaction type is pay
-        txna ApplicationArgs 2                                                                      tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                              tmp%2#0
-        len                                                                                         len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                              len%1#0
-        int 8                                                                                       len%1#0,8
-        ==                                                                                          eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                               eq%1#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%2#0                                                                              tmp%2#0
+        txna ApplicationArgs 2                                                                      value#0
+        v-store value#0
+        v-load value#0                                                                              value#0
+        len                                                                                         len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                              len%0#0
+        int 8                                                                                       len%0#0,8
+        ==                                                                                          eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                               eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // dynamic_itxn_group/contract.py:83
+        // @public
+        v-load value#0                                                                              value#0
         btoi                                                                                        verifier#0
         v-store verifier#0
         // dynamic_itxn_group/contract.py:87
@@ -712,6 +656,10 @@ subroutine test_looply_abi_call:
         assert // Funds must be sent to app
         // dynamic_itxn_group/contract.py:89
         // assert addresses.length, "must provide some accounts"
+        v-load addresses#0                                                                          addresses#0
+        int 0                                                                                       addresses#0,0
+        extract_uint16 // on error: invalid array length header                                     aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                           aggregate%array_length%0#0
         assert // must provide some accounts
         // dynamic_itxn_group/contract.py:90
@@ -822,5 +770,32 @@ subroutine test_looply_abi_call:
         // @public
         int 1                                                                                       1
         return
+
+
+// __internal_validate_Encoded(len+uint8[32][])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint8[32][]):
+    __internal_validate_Encoded(len+uint8[32][])_block@0:                                           (𝕡) value#0 |
+        p-load value#0                                                                              (𝕡) value#0 | value#0 (copy)
+        int 0                                                                                       (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                     (𝕡) value#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                                          (𝕡) value#0 |
+        v-load aggregate%array_length%0#0                                                           (𝕡) value#0 | aggregate%array_length%0#0
+        int 32                                                                                      (𝕡) value#0 | aggregate%array_length%0#0,32
+        *                                                                                           (𝕡) value#0 | mul%0#0
+        v-store mul%0#0                                                                             (𝕡) value#0 |
+        v-load mul%0#0                                                                              (𝕡) value#0 | mul%0#0
+        int 2                                                                                       (𝕡) value#0 | mul%0#0,2
+        +                                                                                           (𝕡) value#0 | add%0#0
+        v-store add%0#0                                                                             (𝕡) value#0 |
+        p-load value#0                                                                              (𝕡) value#0 | value#0 (copy)
+        len                                                                                         (𝕡) value#0 | len%0#0
+        v-store len%0#0                                                                             (𝕡) value#0 |
+        v-load len%0#0                                                                              (𝕡) value#0 | len%0#0
+        v-load add%0#0                                                                              (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                                          (𝕡) value#0 | eq%0#0
+        v-store eq%0#0                                                                              (𝕡) value#0 |
+        v-load eq%0#0                                                                               (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[32][])                              (𝕡) value#0 |
+        retsub
 
 

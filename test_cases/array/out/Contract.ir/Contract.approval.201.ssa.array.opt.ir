@@ -563,24 +563,24 @@ subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursag
 
 subroutine test_cases.array.uint64.Contract.test_allocations[routing]() -> void:
     block@0: // L134
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let num#0: uint64 = (btoi tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let num#0: uint64 = (btoi value#0)
         let value_internal%0#0: uint64 = 0u
-        goto block@2
-    block@2: // for_header_L136
-        let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
+        goto block@4
+    block@4: // for_header_L136
+        let _i#0: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@5)
         let continue_looping%0#0: bool = (< _i#0 num#0)
-        goto continue_looping%0#0 ? block@3 : block@5
-    block@3: // for_body_L137
+        goto continue_looping%0#0 ? block@5 : block@7
+    block@5: // for_body_L137
         let alloc_test#0: Encoded(uint64[])* = new()
         store(alloc_test#0, 0x)
         test_cases.array.uint64.add_x(alloc_test#0, 1u)
         let value_internal%0#2: uint64 = (+ _i#0 1u)
-        goto block@2
-    block@5: // after_for_L136
+        goto block@4
+    block@7: // after_for_L136
         exit 1u
 
 subroutine test_cases.array.uint64.Contract.test_iteration[routing]() -> void:

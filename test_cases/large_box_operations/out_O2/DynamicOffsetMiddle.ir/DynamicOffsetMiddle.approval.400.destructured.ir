@@ -21,25 +21,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         exit 1u
     block@7: // concat_route_L50
         let array#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
-        let mul%0#0: uint64 = (* aggregate%array_length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len array#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        __internal_validate_Encoded(len+uint64[])(array#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header
+        let box%mul%0#1: uint64 = (* aggregate%array_length%0#0 8u)
         let box%box_extract%4#0: bytes = (box_extract "box" 2u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
         let box%offset%5#0: uint64 = (+ box%btoi%3#0 36u)
-        _puya_lib.box_arc4.box_update_offset_inc("box", 4u, mul%0#0)
+        _puya_lib.box_arc4.box_update_offset_inc("box", 4u, box%mul%0#1)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, aggregate%array_length%0#0, 8u)
         exit 1u
     block@8: // append_route_L54
-        let tmp%0#2: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#2)
+        let value#2: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#2)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let value#1: uint64 = (btoi tmp%0#2)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let value#1: uint64 = (btoi value#2)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob value#1)
         let box%box_extract%4#0: bytes = (box_extract "box" 2u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
@@ -78,25 +75,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         let (box_size#0: uint64, _exists#0: bool) = (box_len "box")
         let new_size#0: uint64 = (- box_size#0 8u)
         (box_resize "box" new_size#0)
-        let tmp%2#1: bytes = (concat 0x151f7c75 box%box_extract%7#0)
-        (log tmp%2#1)
+        let tmp%2#2: bytes = (concat 0x151f7c75 box%box_extract%7#0)
+        (log tmp%2#2)
         exit 1u
     block@10: // verify_route_L62
-        let tmp%0#2: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%0#2 0u) // on error: invalid array length header
-        let mul%0#0: uint64 = (* aggregate%array_length%2#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#2)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
-        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.verify(tmp%0#2)
+        let tmp%0#5: bytes = (txna ApplicationArgs 1)
+        __internal_validate_Encoded(len+uint64[])(tmp%0#5)
+        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.verify(tmp%0#5)
         exit 1u
     block@11: // get_route_L73
-        let tmp%0#2: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#2)
+        let value#2: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#2)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let idx#0: uint64 = (btoi tmp%0#2)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let idx#0: uint64 = (btoi value#2)
         let box%box_extract%3#0: bytes = (box_extract "box" 2u 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%3#0)
         let box%offset%5#0: uint64 = (+ box%btoi%2#0 36u)
@@ -112,15 +104,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%4#1)
         exit 1u
     block@12: // set_route_L77
-        let tmp%0#2: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#2)
+        let value#2: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#2)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let idx#0: uint64 = (btoi tmp%0#2)
-        let tmp%2#1: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#1)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let idx#0: uint64 = (btoi value#2)
+        let value#2: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%0#0: uint64 = (len value#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         let box%box_extract%0#0: bytes = (box_extract "box" 2u 2u)
         let box%btoi%0#0: uint64 = (btoi box%box_extract%0#0)
         let box%offset%2#0: uint64 = (+ box%btoi%0#0 36u)
@@ -131,7 +123,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let box%add%1#0: uint64 = (+ box%offset%2#0 2u)
         let box%element_offset%0#0: uint64 = (* idx#0 8u)
         let box%offset%3#0: uint64 = (+ box%add%1#0 box%element_offset%0#0)
-        (box_replace "box" box%offset%3#0 tmp%2#1) // on error: index out of bounds
+        (box_replace "box" box%offset%3#0 value#2) // on error: index out of bounds
         exit 1u
     block@15: // after_if_else_L28
         fail
@@ -217,3 +209,13 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
         let tmp%13#0: bool = (> value%0#0 4096u)
         (assert tmp%13#0) // expected box length >4096
         return expected#0
+
+subroutine __internal_validate_Encoded(len+uint64[])(value: Encoded(len+uint64[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let mul%0#0: uint64 = (* aggregate%array_length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint64[])
+        return 

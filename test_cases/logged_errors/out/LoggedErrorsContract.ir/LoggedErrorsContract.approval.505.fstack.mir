@@ -51,13 +51,15 @@ subroutine test_logged_errs:
     test_logged_errs_block@0:
         // logged_errors/contract.py:6
         // @abimethod
-        txna ApplicationArgs 1                                                          tmp%0#0
-        l-load-copy tmp%0#0 0                                                           tmp%0#0,tmp%0#0 (copy)
-        len                                                                             tmp%0#0,len%0#0
-        int 8                                                                           tmp%0#0,len%0#0,8
-        ==                                                                              tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                               tmp%0#0
-        l-load tmp%0#0 0                                                                tmp%0#0
+        txna ApplicationArgs 1                                                          value#0
+        l-load-copy value#0 0                                                           value#0,value#0 (copy)
+        len                                                                             value#0,len%0#0
+        int 8                                                                           value#0,len%0#0,8
+        ==                                                                              value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                           value#0
+        // logged_errors/contract.py:6
+        // @abimethod
+        l-load value#0 0                                                                value#0
         btoi                                                                            arg#0
         l-store-copy arg#0 0                                                            arg#0,arg#0 (copy)
         f-store arg#0                                                                   (𝕗) arg#0 | arg#0
@@ -66,121 +68,121 @@ subroutine test_logged_errs:
         l-load arg#0 0                                                                  (𝕗) arg#0 | arg#0
         int 1                                                                           (𝕗) arg#0 | arg#0,1
         !=                                                                              (𝕗) arg#0 | tmp%0#1
-        bz test_logged_errs_logged_error_handling@2 ; b test_logged_errs_after_assert@3 (𝕗) arg#0 |
+        bz test_logged_errs_logged_error_handling@4 ; b test_logged_errs_after_assert@5 (𝕗) arg#0 |
 
-    test_logged_errs_logged_error_handling@2:                                           (𝕗) arg#0 |
+    test_logged_errs_logged_error_handling@4:                                           (𝕗) arg#0 |
         // logged_errors/contract.py:9
         // logged_assert(arg != 1, "01")
         byte "ERR:01"                                                                   (𝕗) arg#0 | "ERR:01"
         log                                                                             (𝕗) arg#0 |
         err // ERR:01                                                                   (𝕗) arg#0 |
 
-    test_logged_errs_after_assert@3:                                                    (𝕗) arg#0 |
+    test_logged_errs_after_assert@5:                                                    (𝕗) arg#0 |
         // logged_errors/contract.py:11
         // logged_assert(arg != 2, "arg02", error_message="arg is two")
         f-load arg#0                                                                    (𝕗) arg#0 | arg#0
         int 2                                                                           (𝕗) arg#0 | arg#0,2
         !=                                                                              (𝕗) arg#0 | tmp%1#1
-        bz test_logged_errs_logged_error_handling@4 ; b test_logged_errs_after_assert@5 (𝕗) arg#0 |
+        bz test_logged_errs_logged_error_handling@6 ; b test_logged_errs_after_assert@7 (𝕗) arg#0 |
 
-    test_logged_errs_logged_error_handling@4:                                           (𝕗) arg#0 |
+    test_logged_errs_logged_error_handling@6:                                           (𝕗) arg#0 |
         // logged_errors/contract.py:11
         // logged_assert(arg != 2, "arg02", error_message="arg is two")
         byte "ERR:arg02:arg is two"                                                     (𝕗) arg#0 | "ERR:arg02:arg is two"
         log                                                                             (𝕗) arg#0 |
         err // ERR:arg02:arg is two                                                     (𝕗) arg#0 |
 
-    test_logged_errs_after_assert@5:                                                    (𝕗) arg#0 |
+    test_logged_errs_after_assert@7:                                                    (𝕗) arg#0 |
         // logged_errors/contract.py:13
         // logged_assert(arg != 3, "arg03", prefix="AER")
         f-load arg#0                                                                    (𝕗) arg#0 | arg#0
         int 3                                                                           (𝕗) arg#0 | arg#0,3
         !=                                                                              (𝕗) arg#0 | tmp%2#0
-        bz test_logged_errs_logged_error_handling@6 ; b test_logged_errs_after_assert@7 (𝕗) arg#0 |
+        bz test_logged_errs_logged_error_handling@8 ; b test_logged_errs_after_assert@9 (𝕗) arg#0 |
 
-    test_logged_errs_logged_error_handling@6:                                           (𝕗) arg#0 |
+    test_logged_errs_logged_error_handling@8:                                           (𝕗) arg#0 |
         // logged_errors/contract.py:13
         // logged_assert(arg != 3, "arg03", prefix="AER")
         byte "AER:arg03"                                                                (𝕗) arg#0 | "AER:arg03"
         log                                                                             (𝕗) arg#0 |
         err // AER:arg03                                                                (𝕗) arg#0 |
 
-    test_logged_errs_after_assert@7:                                                    (𝕗) arg#0 |
+    test_logged_errs_after_assert@9:                                                    (𝕗) arg#0 |
         // logged_errors/contract.py:15
         // logged_assert(arg != 4, "arg04", error_message="arg is 4", prefix="AER")
         f-load arg#0                                                                    (𝕗) arg#0 | arg#0
         int 4                                                                           (𝕗) arg#0 | arg#0,4
         !=                                                                              (𝕗) arg#0 | tmp%3#0
-        bz test_logged_errs_logged_error_handling@8 ; b test_logged_errs_after_assert@9 (𝕗) arg#0 |
+        bz test_logged_errs_logged_error_handling@10 ; b test_logged_errs_after_assert@11 (𝕗) arg#0 | 
 
-    test_logged_errs_logged_error_handling@8:                                           (𝕗) arg#0 |
+    test_logged_errs_logged_error_handling@10:                                          (𝕗) arg#0 |
         // logged_errors/contract.py:15
         // logged_assert(arg != 4, "arg04", error_message="arg is 4", prefix="AER")
         byte "AER:arg04:arg is 4"                                                       (𝕗) arg#0 | "AER:arg04:arg is 4"
         log                                                                             (𝕗) arg#0 |
         err // AER:arg04:arg is 4                                                       (𝕗) arg#0 |
 
-    test_logged_errs_after_assert@9:                                                    (𝕗) arg#0 |
+    test_logged_errs_after_assert@11:                                                   (𝕗) arg#0 |
         // logged_errors/contract.py:18
         // if arg == 5:
         f-load arg#0                                                                    (𝕗) arg#0 | arg#0
         int 5                                                                           (𝕗) arg#0 | arg#0,5
         ==                                                                              (𝕗) arg#0 | tmp%4#0
-        bz test_logged_errs_after_if_else@11 ; b test_logged_errs_if_body@10            (𝕗) arg#0 |
+        bz test_logged_errs_after_if_else@13 ; b test_logged_errs_if_body@12            (𝕗) arg#0 |
 
-    test_logged_errs_if_body@10:                                                        (𝕗) arg#0 |
+    test_logged_errs_if_body@12:                                                        (𝕗) arg#0 |
         // logged_errors/contract.py:19
         // logged_err("arg05")
         byte "ERR:arg05"                                                                (𝕗) arg#0 | "ERR:arg05"
         log                                                                             (𝕗) arg#0 |
         err // ERR:arg05                                                                (𝕗) arg#0 |
 
-    test_logged_errs_after_if_else@11:                                                  (𝕗) arg#0 |
+    test_logged_errs_after_if_else@13:                                                  (𝕗) arg#0 |
         // logged_errors/contract.py:21
         // if arg == 6:
         f-load arg#0                                                                    (𝕗) arg#0 | arg#0
         int 6                                                                           (𝕗) arg#0 | arg#0,6
         ==                                                                              (𝕗) arg#0 | tmp%5#0
-        bz test_logged_errs_after_if_else@13 ; b test_logged_errs_if_body@12            (𝕗) arg#0 |
+        bz test_logged_errs_after_if_else@15 ; b test_logged_errs_if_body@14            (𝕗) arg#0 |
 
-    test_logged_errs_if_body@12:                                                        (𝕗) arg#0 |
+    test_logged_errs_if_body@14:                                                        (𝕗) arg#0 |
         // logged_errors/contract.py:22
         // logged_err("06", error_message="arg was 6")
         byte "ERR:06:arg was 6"                                                         (𝕗) arg#0 | "ERR:06:arg was 6"
         log                                                                             (𝕗) arg#0 |
         err // ERR:06:arg was 6                                                         (𝕗) arg#0 |
 
-    test_logged_errs_after_if_else@13:                                                  (𝕗) arg#0 |
+    test_logged_errs_after_if_else@15:                                                  (𝕗) arg#0 |
         // logged_errors/contract.py:24
         // if arg == 7:
         f-load arg#0                                                                    (𝕗) arg#0 | arg#0
         int 7                                                                           (𝕗) arg#0 | arg#0,7
         ==                                                                              (𝕗) arg#0 | tmp%6#0
-        bz test_logged_errs_after_if_else@15 ; b test_logged_errs_if_body@14            (𝕗) arg#0 |
+        bz test_logged_errs_after_if_else@17 ; b test_logged_errs_if_body@16            (𝕗) arg#0 |
 
-    test_logged_errs_if_body@14:                                                        (𝕗) arg#0 |
+    test_logged_errs_if_body@16:                                                        (𝕗) arg#0 |
         // logged_errors/contract.py:25
         // logged_err("arg07", prefix="AER")
         byte "AER:arg07"                                                                (𝕗) arg#0 | "AER:arg07"
         log                                                                             (𝕗) arg#0 |
         err // AER:arg07                                                                (𝕗) arg#0 |
 
-    test_logged_errs_after_if_else@15:                                                  (𝕗) arg#0 |
+    test_logged_errs_after_if_else@17:                                                  (𝕗) arg#0 |
         // logged_errors/contract.py:27
         // if arg == 8:
         f-load arg#0                                                                    (𝕗) arg#0 | arg#0
         int 8                                                                           (𝕗) arg#0 | arg#0,8
         ==                                                                              (𝕗) arg#0 | tmp%7#0
-        bz test_logged_errs_after_if_else@17 ; b test_logged_errs_if_body@16            (𝕗) arg#0 |
+        bz test_logged_errs_after_if_else@19 ; b test_logged_errs_if_body@18            (𝕗) arg#0 |
 
-    test_logged_errs_if_body@16:                                                        (𝕗) arg#0 |
+    test_logged_errs_if_body@18:                                                        (𝕗) arg#0 |
         // logged_errors/contract.py:28
         // logged_err("arg08", error_message="arg is eight (08)", prefix="AER")
         byte "AER:arg08:arg is eight (08)"                                              (𝕗) arg#0 | "AER:arg08:arg is eight (08)"
         log                                                                             (𝕗) arg#0 |
         err // AER:arg08:arg is eight (08)                                              (𝕗) arg#0 |
 
-    test_logged_errs_after_if_else@17:                                                  (𝕗) arg#0 |
+    test_logged_errs_after_if_else@19:                                                  (𝕗) arg#0 |
         // logged_errors/contract.py:6
         // @abimethod
         int 1                                                                           (𝕗) arg#0 | 1

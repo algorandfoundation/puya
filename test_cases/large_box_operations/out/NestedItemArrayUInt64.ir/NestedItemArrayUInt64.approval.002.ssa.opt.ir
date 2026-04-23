@@ -531,7 +531,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.app
         let value#0: Encoded((uint64,bool1),uint64) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 17u)
-        (assert eq%0#0) // invalid number of bytes for test_cases.large_box_operations.nested_item.Parent
+        (assert eq%0#0) // invalid number of bytes for Encoded((uint64,bool1),uint64)
         let tmp%0#1: Encoded(((uint64,bool1),uint64)[]) = bytes_encode<((uint64,bool1),uint64)[]>(value#0)
         let box%mul%0#0: uint64 = 17u
         let box%add%0#0: uint64 = 2u
@@ -574,9 +574,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.pop
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_uint[routing]() -> void:
     block@0: // L72
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let box%offset%2#0: uint64 = 6u
         let box%offset%3#0: uint64 = 24u
@@ -608,9 +606,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_bool[routing]() -> void:
     block@0: // L76
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let box%offset%2#0: uint64 = 6u
         let box%offset%3#0: uint64 = 24u
@@ -644,14 +640,10 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_arr_append[routing]() -> void:
     block@0: // L80
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let item_idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let value#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let storage_value%0#0: bytes = box_read("box")
         let box%add%0#0: uint64 = 4u
@@ -683,9 +675,7 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nested_arr_pop[routing]() -> void:
     block@0: // L84
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let item_idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let storage_value%0#0: bytes = box_read("box")
         let box%add%0#0: uint64 = 4u
@@ -753,20 +743,20 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.nes
 
 subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.dynamic_append[routing]() -> void:
     block@0: // L88
-        let item#0: Encoded((len+uint64[])) = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len item#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 item#0 0u) // on error: invalid tuple encoding
+        let value#0: Encoded((len+uint64[])) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 2u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((len+uint64[]))
-        let substring3%0#0: bytes = (substring3 item#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let length%0#0: uint64 = array_len(substring3%0#0)
         let mul%0#0: uint64 = (* length%0#0 8u)
         let add%1#0: uint64 = (+ mul%0#0 4u)
         let eq%1#0: bool = (== tuple_len%0#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for test_cases.large_box_operations.nested_item.ItemWithArray
+        (assert eq%1#0) // invalid number of bytes for Encoded((len+uint64[]))
         let storage_value%0#0: bytes = box_read("box")
         let tuple_item%0#0: Encoded(len+((len+uint64[]))[]) = extract_value(storage_value%0#0, 2)
-        let tmp%0#1: Encoded(((len+uint64[]))[]) = bytes_encode<((len+uint64[]))[]>(item#0)
+        let tmp%0#1: Encoded(((len+uint64[]))[]) = bytes_encode<((len+uint64[]))[]>(value#0)
         let tmp%1#0: Encoded(len+((len+uint64[]))[]) = array_concat(tuple_item%0#0, tmp%0#1, 1u)
         let updated_tuple%0#0: Encoded((uint64,(len+((uint64,bool1),uint64)[]),uint64),(len+uint8[4096][]),(len+((len+uint64[]))[])) = replace_value(storage_value%0#0, 2, tmp%1#0)
         box_write("box", updated_tuple%0#0)
@@ -801,3 +791,10 @@ subroutine test_cases.large_box_operations.nested_item.NestedItemArrayUInt64.cle
         _puya_lib.box_arc4.box_update_offset_dec("box", 4u, 4096u)
         _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("box", box%btoi%3#0, 4096u)
         exit 1u
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 

@@ -379,10 +379,7 @@ set_governor_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    pushint 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     callsub examples.amm.contract.ConstantProductAMM.set_governor
     intc_1 // 1
     return
@@ -405,18 +402,12 @@ bootstrap_block@0:
     assert // transaction type is pay
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     txna ApplicationArgs 2
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     uncover 2
@@ -464,26 +455,17 @@ mint_block@0:
     assert // transaction type is axfer
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     txna ApplicationArgs 2
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     txna ApplicationArgs 3
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     uncover 4
@@ -520,26 +502,17 @@ burn_block@0:
     assert // transaction type is axfer
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     txna ApplicationArgs 2
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     txna ApplicationArgs 3
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     uncover 3
@@ -574,18 +547,12 @@ swap_block@0:
     assert // transaction type is axfer
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     txna ApplicationArgs 2
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     btoi
     txnas Assets
     uncover 2
@@ -1482,4 +1449,32 @@ _current_b_balance_block@0:
     assert // check self.asset_b exists
     asset_holding_get AssetBalance
     assert // account opted into asset
+    retsub
+
+
+// __internal_validate_Encoded(uint8[32])(value: bytes) -> void:
+__internal_validate_Encoded(uint8[32]):
+    proto 1 0
+    b __internal_validate_Encoded(uint8[32])_block@0
+
+__internal_validate_Encoded(uint8[32])_block@0:
+    frame_dig -1
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for Encoded(uint8[32])
+    retsub
+
+
+// __internal_validate_Encoded(uint8)(value: bytes) -> void:
+__internal_validate_Encoded(uint8):
+    proto 1 0
+    b __internal_validate_Encoded(uint8)_block@0
+
+__internal_validate_Encoded(uint8)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for Encoded(uint8)
     retsub

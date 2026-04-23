@@ -90,10 +90,7 @@ test_native_struct_block@0:
     // arc4_encode_decode/contract.py:62
     // decoded = arc4.decode(NativeStruct, encoded)
     dup
-    len
-    pushint 9
-    ==
-    assert // invalid number of bytes for test_cases.arc4_encode_decode.contract.NativeStruct
+    callsub __internal_validate_Encoded(uint64,bool1)
     // arc4_encode_decode/contract.py:63
     // assert decoded == original
     ==
@@ -128,31 +125,7 @@ test_arc4_struct_block@0:
     dupn 2
     // arc4_encode_decode/contract.py:70
     // decoded = arc4.decode(Arc4Struct, encoded)
-    len
-    cover 1
-    dup
-    intc_2 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 10
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    dig 1
-    uncover 1
-    uncover 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    pushint 10
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for test_cases.arc4_encode_decode.contract.Arc4Struct
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]))
     // arc4_encode_decode/contract.py:71
     // assert decoded == original
     ==
@@ -181,10 +154,7 @@ test_uint64_block@0:
     // arc4_encode_decode/contract.py:80
     // decoded = arc4.decode(UInt64, encoded)
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     // arc4_encode_decode/contract.py:76
     // value = UInt64(42)
@@ -221,10 +191,7 @@ test_biguint_block@0:
     // arc4_encode_decode/contract.py:88
     // decoded = arc4.decode(BigUInt, encoded)
     dup
-    len
-    pushint 64
-    ==
-    assert // invalid number of bytes for biguint
+    callsub __internal_validate_Encoded(uint512)
     // arc4_encode_decode/contract.py:86
     // value = BigUInt(42)
     bytec 4 // 0x2a
@@ -264,16 +231,7 @@ test_string_block@0:
     // arc4_encode_decode/contract.py:98
     // decoded = arc4.decode(String, encoded)
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 2 0
     // arc4_encode_decode/contract.py:94
     // value = String("hello")
@@ -314,16 +272,7 @@ test_bytes_block@0:
     // arc4_encode_decode/contract.py:108
     // decoded = arc4.decode(Bytes, encoded)
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for bytes
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     // arc4_encode_decode/contract.py:104
     // value = Bytes(b"\x01\x02\x03")
@@ -355,10 +304,7 @@ test_bool_block@0:
     // arc4_encode_decode/contract.py:116
     // decoded_true = arc4.decode(bool, encoded_true)
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for bool
+    callsub __internal_validate_Encoded(bool8)
     intc_0 // 0
     getbit
     // arc4_encode_decode/contract.py:117
@@ -379,10 +325,7 @@ test_bool_block@0:
     // arc4_encode_decode/contract.py:121
     // decoded_false = arc4.decode(bool, encoded_false)
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for bool
+    callsub __internal_validate_Encoded(bool8)
     intc_0 // 0
     getbit
     // arc4_encode_decode/contract.py:122
@@ -402,10 +345,7 @@ test_account_block@0:
     bytec 6 // addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
     // arc4_encode_decode/contract.py:129
     // decoded = arc4.decode(Account, encoded)
-    len
-    pushint 32
-    ==
-    assert // invalid number of bytes for account
+    callsub __internal_validate_Encoded(uint8[32])
     // arc4_encode_decode/contract.py:127
     // value = Account("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ")
     bytec 6 // addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
@@ -437,10 +377,7 @@ test_asset_block@0:
     // arc4_encode_decode/contract.py:138
     // decoded = arc4.decode(Asset, encoded)
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for asset
+    callsub __internal_validate_Encoded(uint64)
     btoi
     // arc4_encode_decode/contract.py:135
     // value = Asset(42)
@@ -472,10 +409,7 @@ test_application_block@0:
     // arc4_encode_decode/contract.py:147
     // decoded = arc4.decode(Application, encoded)
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for application
+    callsub __internal_validate_Encoded(uint64)
     btoi
     // arc4_encode_decode/contract.py:144
     // value = Application(123)
@@ -505,10 +439,7 @@ test_arc4_uint64_block@0:
     bytec_0 // 0x000000000000002a
     // arc4_encode_decode/contract.py:156
     // decoded = arc4.decode(arc4.UInt64, encoded)
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     // arc4_encode_decode/contract.py:153
     // value = arc4.UInt64(42)
     bytec_0 // 0x000000000000002a
@@ -544,16 +475,7 @@ test_arc4_string_block@0:
     // arc4_encode_decode/contract.py:165
     // decoded = arc4.decode(arc4.String, encoded)
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // arc4_encode_decode/contract.py:166
     // assert decoded == value
     ==
@@ -591,10 +513,7 @@ test_tuple_block@0:
     // arc4_encode_decode/contract.py:174
     // decoded = arc4.decode(tuple[UInt64, UInt64], encoded)
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for tuple<uint64,uint64>
+    callsub __internal_validate_Encoded(uint64,uint64)
     dup
     intc_0 // 0
     intc_2 // 8
@@ -663,31 +582,7 @@ test_named_tuple_block@0:
     // arc4_encode_decode/contract.py:182
     // decoded = arc4.decode(MyNamedTuple, encoded)
     dup
-    len
-    cover 1
-    dup
-    intc_2 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 10
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    dig 1
-    uncover 1
-    uncover 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_3 // 2
-    +
-    pushint 10
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for test_cases.arc4_encode_decode.contract.MyNamedTuple
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]))
     dup
     intc_0 // 0
     intc_2 // 8
@@ -745,16 +640,7 @@ test_arc4_dynamic_array_block@0:
     dupn 2
     // arc4_encode_decode/contract.py:190
     // decoded = arc4.decode(arc4.DynamicArray[arc4.UInt64], encoded)
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 8
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     // arc4_encode_decode/contract.py:191
     // assert decoded == value
     ==
@@ -779,12 +665,201 @@ test_arc4_static_array_block@0:
     dupn 2
     // arc4_encode_decode/contract.py:198
     // decoded = arc4.decode(arc4.StaticArray[arc4.UInt64, typing.Literal[2]], encoded)
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint64, 2>
+    callsub __internal_validate_Encoded(uint64[2])
     // arc4_encode_decode/contract.py:199
     // assert decoded == value
     ==
     assert
+    retsub
+
+
+// __internal_validate_Encoded(uint64,bool1)(value: bytes) -> void:
+__internal_validate_Encoded(uint64,bool1):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,bool1)_block@0
+
+__internal_validate_Encoded(uint64,bool1)_block@0:
+    frame_dig -1
+    len
+    pushint 9
+    ==
+    assert // invalid number of bytes for Encoded(uint64,bool1)
+    retsub
+
+
+// __internal_validate_Encoded(uint64,(len+utf8[]))(value: bytes) -> void:
+__internal_validate_Encoded(uint64,(len+utf8[])):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,(len+utf8[]))_block@0
+
+__internal_validate_Encoded(uint64,(len+utf8[]))_block@0:
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+    frame_dig -1
+    uncover 1
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_3 // 2
+    +
+    pushint 10
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(uint64,(len+utf8[]))
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
+    retsub
+
+
+// __internal_validate_Encoded(uint512)(value: bytes) -> void:
+__internal_validate_Encoded(uint512):
+    proto 1 0
+    b __internal_validate_Encoded(uint512)_block@0
+
+__internal_validate_Encoded(uint512)_block@0:
+    frame_dig -1
+    len
+    pushint 64
+    ==
+    assert // invalid number of bytes for Encoded(uint512)
+    retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+utf8[])_block@0
+
+__internal_validate_Encoded(len+utf8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_3 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
+    retsub
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+uint8[])_block@0
+
+__internal_validate_Encoded(len+uint8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_3 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
+    retsub
+
+
+// __internal_validate_Encoded(bool8)(value: bytes) -> void:
+__internal_validate_Encoded(bool8):
+    proto 1 0
+    b __internal_validate_Encoded(bool8)_block@0
+
+__internal_validate_Encoded(bool8)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for Encoded(bool8)
+    retsub
+
+
+// __internal_validate_Encoded(uint8[32])(value: bytes) -> void:
+__internal_validate_Encoded(uint8[32]):
+    proto 1 0
+    b __internal_validate_Encoded(uint8[32])_block@0
+
+__internal_validate_Encoded(uint8[32])_block@0:
+    frame_dig -1
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for Encoded(uint8[32])
+    retsub
+
+
+// __internal_validate_Encoded(uint64,uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64,uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,uint64)_block@0
+
+__internal_validate_Encoded(uint64,uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 16
+    ==
+    assert // invalid number of bytes for Encoded(uint64,uint64)
+    retsub
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint64[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+uint64[])_block@0
+
+__internal_validate_Encoded(len+uint64[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 8
+    *
+    intc_3 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint64[])
+    retsub
+
+
+// __internal_validate_Encoded(uint64[2])(value: bytes) -> void:
+__internal_validate_Encoded(uint64[2]):
+    proto 1 0
+    b __internal_validate_Encoded(uint64[2])_block@0
+
+__internal_validate_Encoded(uint64[2])_block@0:
+    frame_dig -1
+    len
+    pushint 16
+    ==
+    assert // invalid number of bytes for Encoded(uint64[2])
     retsub

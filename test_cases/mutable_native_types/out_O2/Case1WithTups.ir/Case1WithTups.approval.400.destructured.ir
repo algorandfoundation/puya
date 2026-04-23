@@ -11,8 +11,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "create_box()void" => block@6, method "num_tups()uint64" => block@7, method "add_tup((uint64,uint64))void" => block@8, method "get_tup(uint64)(uint64,uint64)" => block@9, method "sum()uint64" => block@10, method "add_many_tups((uint64,uint64)[])void" => block@11, method "add_fixed_tups((uint64,uint64)[3])void" => block@12, method "set_a(uint64)void" => block@13, method "set_b(uint64)void" => block@14, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@15, method "get_all_tups()(uint64,uint64)[]" => block@16, * => block@19}
     block@6: // create_box_route_L45
-        let tmp%0#17: bool = (box_create "tup_bag" 4273u)
-        (assert tmp%0#17) // box already exists
+        let tmp%0#16: bool = (box_create "tup_bag" 4273u)
+        (assert tmp%0#16) // box already exists
         let tmp%1#11: account = (txn Sender)
         (box_replace "tup_bag" 136u tmp%1#11) // on error: index out of bounds
         let tmp%2#0: uint64 = (global CurrentApplicationID)
@@ -28,20 +28,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%2#4)
         exit 1u
     block@8: // add_tup_route_L56
-        let tmp%0#4: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#4)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.case1_with_tups.NamedTup
-        let aggregate%item0%0#0: uint64 = (extract_uint64 tmp%0#4 0u)
-        let aggregate%item1%0#0: uint64 = (extract_uint64 tmp%0#4 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64,uint64)
+        let aggregate%item0%0#0: uint64 = (extract_uint64 value#0 0u)
+        let aggregate%item1%0#0: uint64 = (extract_uint64 value#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(aggregate%item0%0#0, aggregate%item1%0#0)
         exit 1u
     block@9: // get_tup_route_L63
-        let tmp%0#4: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#4)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let index#0: uint64 = (btoi tmp%0#4)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let index#0: uint64 = (btoi value#0)
         let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
         let tmp%1#8: bool = (< index#0 tmp%0#1)
@@ -79,20 +79,20 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%2#4)
         exit 1u
     block@11: // add_many_tups_route_L77
-        let tups#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let mul%0#0: uint64 = (* aggregate%array_length%0#0 16u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tups#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+(uint64,uint64)[])
         let item_index_internal%0#0: uint64 = 0u
         goto block@46
     block@46: // for_header_L79
         let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@47 : block@48
     block@47: // for_body_L80
-        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) tups#0)
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) value#0)
         let aggregate%bytes_offset%2#0: uint64 = (* item_index_internal%0#0 16u)
         let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%2#0 16u) // on error: index access is out of bounds
         let tup.a#2: uint64 = (extract_uint64 aggregate%encoded_element%2#0 0u)
@@ -103,10 +103,10 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@48: // after_for_L79
         exit 1u
     block@12: // add_fixed_tups_route_L82
-        let tups#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tups#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>
+        (assert eq%0#0) // invalid number of bytes for Encoded((uint64,uint64)[3])
         let item_index_internal%0#0: uint64 = 0u
         goto block@41
     block@41: // for_header_L84
@@ -114,18 +114,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto continue_looping%0#0 ? block@42 : block@48
     block@42: // for_body_L85
         let aggregate%bytes_offset%3#0: uint64 = (* item_index_internal%0#0 16u)
-        let aggregate%encoded_element%3#0: bytes = (extract3 tups#0 aggregate%bytes_offset%3#0 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%3#0: bytes = (extract3 value#0 aggregate%bytes_offset%3#0 16u) // on error: index access is out of bounds
         let tup.a#2: uint64 = (extract_uint64 aggregate%encoded_element%3#0 0u)
         let tup.b#2: uint64 = (extract_uint64 aggregate%encoded_element%3#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#2, tup.b#2)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@41
     block@13: // set_a_route_L87
-        let tmp%0#4: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#4)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let a#0: uint64 = (btoi tmp%0#4)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let a#0: uint64 = (btoi value#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
@@ -150,11 +150,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = value_internal%0#0
         goto block@36
     block@14: // set_b_route_L94
-        let tmp%0#4: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#4)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let b#0: uint64 = (btoi tmp%0#4)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let b#0: uint64 = (btoi value#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
@@ -179,11 +179,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = value_internal%0#0
         goto block@31
     block@15: // get_3_tups_route_L101
-        let tmp%0#4: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#4)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let start#0: uint64 = (btoi tmp%0#4)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let start#0: uint64 = (btoi value#0)
         let box%box_extract%0#1: bytes = (box_extract "tup_bag" 0u 8u) // on error: index out of bounds
         let tmp%0#1: uint64 = (btoi box%box_extract%0#1)
         let tmp%1#5: uint64 = (+ start#0 3u)
@@ -231,8 +231,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let new_items_bytes#0: bytes = (concat aggregate%extract%18#0 aggregate%extract%19#0)
         let array_length#0: uint64 = (extract_uint16 result#0 0u)
         let new_array_length#0: uint64 = (+ array_length#0 1u)
-        let tmp%0#4: bytes = (itob new_array_length#0)
-        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#4)
+        let tmp%0#18: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#18)
         let result#0: bytes = ((replace2 0) result#0 new_len_u16#0)
         let result#0: bytes = (concat result#0 new_items_bytes#0)
         let value_internal%0#0: uint64 = (+ i#0 1u)

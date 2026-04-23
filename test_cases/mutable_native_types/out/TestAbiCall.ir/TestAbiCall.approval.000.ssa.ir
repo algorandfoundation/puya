@@ -373,9 +373,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
         let tmp%7#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%7#0)
-        let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct
+        __internal_validate_Encoded(uint64,uint64)(tmp%7#0)
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%7#0
         let res#0: Encoded(uint64,uint64) = as_Encoded(uint64,uint64)%0#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
@@ -587,9 +585,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         let tmp%15#0: bool = (== tmp%14#0 0x151f7c75)
         (assert tmp%15#0) // application log value is not the result of an ABI return
         let tmp%16#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let len%1#0: uint64 = (len tmp%16#0)
-        let eq%1#0: bool = (== len%1#0 16u)
-        (assert eq%1#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.FixedStruct
+        __internal_validate_Encoded(uint64,uint64)(tmp%16#0)
         let as_Encoded(uint64,uint64)%1#0: Encoded(uint64,uint64) = tmp%16#0
         let res#1: Encoded(uint64,uint64) = as_Encoded(uint64,uint64)%1#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
@@ -1019,9 +1015,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
         let tmp%10#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%10#0)
-        let eq%0#0: bool = (== len%0#0 24u)
-        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.NestedStruct
+        __internal_validate_Encoded((uint64,uint64),uint64)(tmp%10#0)
         let as_Encoded((uint64,uint64),uint64)%0#0: Encoded((uint64,uint64),uint64) = tmp%10#0
         let res#0: Encoded((uint64,uint64),uint64) = as_Encoded((uint64,uint64),uint64)%0#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
@@ -1236,9 +1230,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         let tmp%21#0: bool = (== tmp%20#0 0x151f7c75)
         (assert tmp%21#0) // application log value is not the result of an ABI return
         let tmp%22#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let len%1#0: uint64 = (len tmp%22#0)
-        let eq%1#0: bool = (== len%1#0 24u)
-        (assert eq%1#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.NestedStruct
+        __internal_validate_Encoded((uint64,uint64),uint64)(tmp%22#0)
         let as_Encoded((uint64,uint64),uint64)%1#0: Encoded((uint64,uint64),uint64) = tmp%22#0
         let res#1: Encoded((uint64,uint64),uint64) = as_Encoded((uint64,uint64),uint64)%1#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
@@ -1675,34 +1667,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let tmp%14#0: bool = (== tmp%13#0 0x151f7c75)
         (assert tmp%14#0) // application log value is not the result of an ABI return
         let tmp%15#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let tuple_len%0#0: uint64 = (len tmp%15#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%15#0 16u) // on error: invalid tuple encoding
-        let eq%0#0: bool = (== extract_uint16%0#0 22u)
-        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let substring3%0#0: bytes = (substring3 tmp%15#0 extract_uint16%0#0 tuple_len%0#0)
-        let length%0#0: uint64 = array_len(substring3%0#0)
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let add%1#0: uint64 = (+ 22u add%0#0)
-        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%15#0 18u) // on error: invalid tuple encoding
-        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
-        (assert eq%1#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let substring3%1#0: bytes = (substring3 tmp%15#0 extract_uint16%1#0 tuple_len%0#0)
-        let length%1#0: uint64 = array_len(substring3%1#0)
-        let mul%1#0: uint64 = (* length%1#0 1u)
-        let add%2#0: uint64 = (+ mul%1#0 2u)
-        let add%3#0: uint64 = (+ add%1#0 add%2#0)
-        let extract_uint16%2#0: uint64 = (extract_uint16 tmp%15#0 20u) // on error: invalid tuple encoding
-        let eq%2#0: bool = (== extract_uint16%2#0 add%3#0)
-        (assert eq%2#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let substring3%2#0: bytes = (substring3 tmp%15#0 extract_uint16%2#0 tuple_len%0#0)
-        let length%2#0: uint64 = array_len(substring3%2#0)
-        let mul%2#0: uint64 = (* length%2#0 16u)
-        let add%4#0: uint64 = (+ mul%2#0 2u)
-        let add%5#0: uint64 = (+ add%3#0 add%4#0)
-        let len%0#0: uint64 = (len tmp%15#0)
-        let eq%3#0: bool = (== len%0#0 add%5#0)
-        (assert eq%3#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
+        __internal_validate_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))(tmp%15#0)
         let as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%15#0
         let res#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%0#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
@@ -1918,34 +1883,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let tmp%26#0: bool = (== tmp%25#0 0x151f7c75)
         (assert tmp%26#0) // application log value is not the result of an ABI return
         let tmp%27#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let tuple_len%1#0: uint64 = (len tmp%27#0)
-        let extract_uint16%3#0: uint64 = (extract_uint16 tmp%27#0 16u) // on error: invalid tuple encoding
-        let eq%4#0: bool = (== extract_uint16%3#0 22u)
-        (assert eq%4#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let substring3%3#0: bytes = (substring3 tmp%27#0 extract_uint16%3#0 tuple_len%1#0)
-        let length%3#0: uint64 = array_len(substring3%3#0)
-        let mul%3#0: uint64 = (* length%3#0 1u)
-        let add%6#0: uint64 = (+ mul%3#0 2u)
-        let add%7#0: uint64 = (+ 22u add%6#0)
-        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%27#0 18u) // on error: invalid tuple encoding
-        let eq%5#0: bool = (== extract_uint16%4#0 add%7#0)
-        (assert eq%5#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let substring3%4#0: bytes = (substring3 tmp%27#0 extract_uint16%4#0 tuple_len%1#0)
-        let length%4#0: uint64 = array_len(substring3%4#0)
-        let mul%4#0: uint64 = (* length%4#0 1u)
-        let add%8#0: uint64 = (+ mul%4#0 2u)
-        let add%9#0: uint64 = (+ add%7#0 add%8#0)
-        let extract_uint16%5#0: uint64 = (extract_uint16 tmp%27#0 20u) // on error: invalid tuple encoding
-        let eq%6#0: bool = (== extract_uint16%5#0 add%9#0)
-        (assert eq%6#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
-        let substring3%5#0: bytes = (substring3 tmp%27#0 extract_uint16%5#0 tuple_len%1#0)
-        let length%5#0: uint64 = array_len(substring3%5#0)
-        let mul%5#0: uint64 = (* length%5#0 16u)
-        let add%10#0: uint64 = (+ mul%5#0 2u)
-        let add%11#0: uint64 = (+ add%9#0 add%10#0)
-        let len%1#0: uint64 = (len tmp%27#0)
-        let eq%7#0: bool = (== len%1#0 add%11#0)
-        (assert eq%7#0) // invalid number of bytes for test_cases.mutable_native_types.abi_call.DynamicStruct
+        __internal_validate_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))(tmp%27#0)
         let as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = tmp%27#0
         let res#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
@@ -2374,9 +2312,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
         let tmp%7#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#0: uint64 = (len tmp%7#0)
-        let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
+        __internal_validate_Encoded((uint64,uint64)[3])(tmp%7#0)
         let as_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = tmp%7#0
         let res#0: Encoded((uint64,uint64)[3]) = as_Encoded((uint64,uint64)[3])%0#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
@@ -2590,9 +2526,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let tmp%15#0: bool = (== tmp%14#0 0x151f7c75)
         (assert tmp%15#0) // application log value is not the result of an ABI return
         let tmp%16#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let len%1#0: uint64 = (len tmp%16#0)
-        let eq%1#0: bool = (== len%1#0 48u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
+        __internal_validate_Encoded((uint64,uint64)[3])(tmp%16#0)
         let as_Encoded((uint64,uint64)[3])%1#0: Encoded((uint64,uint64)[3]) = tmp%16#0
         let res#1: Encoded((uint64,uint64)[3]) = as_Encoded((uint64,uint64)[3])%1#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
@@ -3021,12 +2955,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
         let tmp%7#0: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%7#0)
-        let mul%0#0: uint64 = (* length%0#0 16u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%7#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
+        __internal_validate_Encoded(len+(uint64,uint64)[])(tmp%7#0)
         let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%7#0
         let res#0: Encoded(len+(uint64,uint64)[]) = as_Encoded(len+(uint64,uint64)[])%0#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
@@ -3240,12 +3169,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         let tmp%15#0: bool = (== tmp%14#0 0x151f7c75)
         (assert tmp%15#0) // application log value is not the result of an ABI return
         let tmp%16#0: bytes = ((extract 4 0) awst_tmp%1#0)
-        let length%1#0: uint64 = array_len(tmp%16#0)
-        let mul%1#0: uint64 = (* length%1#0 16u)
-        let add%1#0: uint64 = (+ mul%1#0 2u)
-        let len%1#0: uint64 = (len tmp%16#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
+        __internal_validate_Encoded(len+(uint64,uint64)[])(tmp%16#0)
         let as_Encoded(len+(uint64,uint64)[])%1#0: Encoded(len+(uint64,uint64)[]) = tmp%16#0
         let res#1: Encoded(len+(uint64,uint64)[]) = as_Encoded(len+(uint64,uint64)[])%1#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
@@ -4103,4 +4027,67 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_log() -> vo
 
 subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(uint64,uint64)(value: Encoded(uint64,uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64,uint64)
+        return 
+
+subroutine __internal_validate_Encoded(len+(uint64,uint64)[])(value: Encoded(len+(uint64,uint64)[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = (* length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+(uint64,uint64)[])
+        return 
+
+subroutine __internal_validate_Encoded((uint64,uint64)[3])(value: Encoded((uint64,uint64)[3])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for Encoded((uint64,uint64)[3])
+        return 
+
+subroutine __internal_validate_Encoded((uint64,uint64),uint64)(value: Encoded((uint64,uint64),uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 24u)
+        (assert eq%0#0) // invalid number of bytes for Encoded((uint64,uint64),uint64)
+        return 
+
+subroutine __internal_validate_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))(value: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))) -> void:
+    block@0: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 16u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 22u)
+        (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
+        let length%0#0: uint64 = array_len(substring3%0#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let add%1#0: uint64 = (+ 22u add%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 value#0 18u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
+        (assert eq%1#0) // invalid tail pointer at index 3 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let substring3%1#0: bytes = (substring3 value#0 extract_uint16%1#0 tuple_len%0#0)
+        let length%1#0: uint64 = array_len(substring3%1#0)
+        let mul%1#0: uint64 = (* length%1#0 1u)
+        let add%2#0: uint64 = (+ mul%1#0 2u)
+        let add%3#0: uint64 = (+ add%1#0 add%2#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 value#0 20u) // on error: invalid tuple encoding
+        let eq%2#0: bool = (== extract_uint16%2#0 add%3#0)
+        (assert eq%2#0) // invalid tail pointer at index 4 of (uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
+        let substring3%2#0: bytes = (substring3 value#0 extract_uint16%2#0 tuple_len%0#0)
+        let length%2#0: uint64 = array_len(substring3%2#0)
+        let mul%2#0: uint64 = (* length%2#0 16u)
+        let add%4#0: uint64 = (+ mul%2#0 2u)
+        let add%5#0: uint64 = (+ add%3#0 add%4#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%3#0: bool = (== len%0#0 add%5#0)
+        (assert eq%3#0) // invalid number of bytes for Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))
         return 

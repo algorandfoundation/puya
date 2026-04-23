@@ -32,24 +32,24 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bytes = (txna ApplicationArgs 0)
         switch tmp%6#0 {method "write_at_index(uint64,string)void" => block@6, method "read_at_index(uint64)(uint64,string)" => block@7, * => block@10}
     block@6: // write_at_index_route_L16
-        let tmp%0#3: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#3)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let index#0: uint64 = (btoi tmp%0#3)
-        let tmp%2#1: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#1 0u) // on error: invalid array length header
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let index#0: uint64 = (btoi value#0)
+        let value#0: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#1)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let value#0: string = ((extract 2 0) tmp%2#1)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        let value#1: string = ((extract 2 0) value#0)
         let tmp%0#1: uint64 = (global LatestTimestamp)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%0#1)
-        let aggregate%length%1#0: uint64 = (len value#0)
+        let aggregate%length%1#0: uint64 = (len value#1)
         let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%length%1#0)
         let aggregate%length_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%5#0)
-        let aggregate%encoded_value%1#0: bytes = (concat aggregate%length_uint16%1#0 value#0)
+        let aggregate%encoded_value%1#0: bytes = (concat aggregate%length_uint16%1#0 value#1)
         let aggregate%head%6#0: bytes = (concat aggregate%val_as_bytes%1#0 0x000a)
         let new_item#0: bytes = (concat aggregate%head%6#0 aggregate%encoded_value%1#0)
         let (array_head_and_tail#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "data")
@@ -78,8 +78,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#0)
         let tail_offset#0: uint64 = (+ tail_offset#0 new_item_length#0)
         let tail_offset#0: uint64 = (- tail_offset#0 original_item_length#0)
-        let tmp%0#3: bytes = (itob tail_offset#0)
-        let tail_offset_bytes#0: bytes = ((extract 6 0) tmp%0#3)
+        let tmp%0#8: bytes = (itob tail_offset#0)
+        let tail_offset_bytes#0: bytes = ((extract 6 0) tmp%0#8)
         let new_head_and_tail#0: bytes = (replace3 new_head_and_tail#0 head_offset#0 tail_offset_bytes#0)
         let value_internal%0#2: uint64 = (+ head_offset#0 2u)
         let head_offset#0: uint64 = value_internal%0#2
@@ -88,11 +88,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "data" new_head_and_tail#0)
         exit 1u
     block@7: // read_at_index_route_L20
-        let tmp%0#3: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#3)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let index#0: uint64 = (btoi tmp%0#3)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let index#0: uint64 = (btoi value#0)
         let (array_head_and_tail#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "data")
         (assert maybe_exists%0#0) // check self.data exists
         let tmp%0#1: uint64 = (* index#0 2u)

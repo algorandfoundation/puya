@@ -207,13 +207,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
 subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.concat[routing]() -> void:
     block@0: // L50
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        __internal_validate_Encoded(len+uint64[])(tmp%0#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
         test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.concat(as_Encoded(len+uint64[])%0#0)
         exit 1u
@@ -221,9 +215,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
 subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.append[routing]() -> void:
     block@0: // L54
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.append(tmp%1#0)
@@ -242,13 +234,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
 subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.verify[routing]() -> void:
     block@0: // L62
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        __internal_validate_Encoded(len+uint64[])(tmp%0#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = tmp%0#0
         let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.verify(as_Encoded(len+uint64[])%0#0)
         exit 1u
@@ -256,9 +242,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
 subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.get[routing]() -> void:
     block@0: // L73
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.get(tmp%1#0)
@@ -272,15 +256,11 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
 subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.set[routing]() -> void:
     block@0: // L77
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%1#0)
         test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.set(tmp%1#0, tmp%3#0)
@@ -562,4 +542,22 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
         let box%element_offset%0#0: uint64 = (* idx#0 8u)
         let box%offset%3#0: uint64 = (+ box%add%1#0 box%element_offset%0#0)
         (box_replace "box" box%offset%3#0 encoded_value%0#0) // on error: index out of bounds
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 
+
+subroutine __internal_validate_Encoded(len+uint64[])(value: Encoded(len+uint64[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint64[])
         return 

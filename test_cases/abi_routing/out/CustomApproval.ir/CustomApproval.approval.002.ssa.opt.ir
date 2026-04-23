@@ -58,11 +58,11 @@ main test_cases.abi_routing.custom_approval.CustomApproval.approval_program:
 
 subroutine test_cases.abi_routing.custom_approval.CustomApproval.add_one[routing]() -> void:
     block@0: // L23
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let x#0: uint64 = decode_bytes<uint64>(tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let x#0: uint64 = decode_bytes<uint64>(value#0)
         let tmp%0#1: uint64 = (+ x#0 1u)
         let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#1)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)

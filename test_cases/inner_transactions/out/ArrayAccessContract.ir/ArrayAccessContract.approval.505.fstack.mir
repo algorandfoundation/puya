@@ -51,23 +51,23 @@ subroutine test_branching_array_call:
     test_branching_array_call_block@0:
         // inner_transactions/array_access.py:21
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                           maybe#0
-        l-load-copy maybe#0 0                                                            maybe#0,maybe#0 (copy)
-        len                                                                              maybe#0,len%0#0
-        int 1                                                                            maybe#0,len%0#0,1
-        ==                                                                               maybe#0,eq%0#0
-        assert // invalid number of bytes for arc4.bool                                  maybe#0
+        txna ApplicationArgs 1                                                           value#0
+        l-load-copy value#0 0                                                            value#0,value#0 (copy)
+        len                                                                              value#0,len%0#0
+        int 1                                                                            value#0,len%0#0,1
+        ==                                                                               value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(bool8)                             value#0
         // inner_transactions/array_access.py:23
         // if maybe:
-        l-load maybe#0 0                                                                 maybe#0
-        byte 0x00                                                                        maybe#0,0x00
+        l-load value#0 0                                                                 value#0
+        byte 0x00                                                                        value#0,0x00
         !=                                                                               tmp%1#0
         l-store-copy tmp%1#0 0                                                           tmp%1#0,tmp%1#0 (copy)
         f-store tmp%1#0                                                                  (𝕗) tmp%1#0 | tmp%1#0
         l-load tmp%1#0 0                                                                 (𝕗) tmp%1#0 | tmp%1#0
-        bz test_branching_array_call_else_body@4 ; b test_branching_array_call_if_body@2 (𝕗) tmp%1#0 |
+        bz test_branching_array_call_else_body@6 ; b test_branching_array_call_if_body@4 (𝕗) tmp%1#0 |
 
-    test_branching_array_call_if_body@2:                                                 (𝕗) tmp%1#0 |
+    test_branching_array_call_if_body@4:                                                 (𝕗) tmp%1#0 |
         // inner_transactions/array_access.py:24-28
         // create_app_txn = itxn.ApplicationCall(
         //     approval_program=ALWAYS_APPROVE,
@@ -102,9 +102,9 @@ subroutine test_branching_array_call:
         //     app_args=(Bytes(b"1"), Bytes(b"2")),
         // ).submit()
         itxn_submit                                                                      (𝕗) tmp%1#0 |
-        b test_branching_array_call_after_if_else@6                                      (𝕗) tmp%1#0 |
+        b test_branching_array_call_after_if_else@8                                      (𝕗) tmp%1#0 |
 
-    test_branching_array_call_else_body@4:                                               (𝕗) tmp%1#0 |
+    test_branching_array_call_else_body@6:                                               (𝕗) tmp%1#0 |
         // inner_transactions/array_access.py:30-35
         // create_app_txn = itxn.ApplicationCall(
         //     approval_program=ALWAYS_APPROVE,
@@ -147,15 +147,15 @@ subroutine test_branching_array_call:
         //     note=b"different param set",
         // ).submit()
         itxn_submit                                                                      (𝕗) tmp%1#0 |
-        b test_branching_array_call_after_if_else@6                                      (𝕗) tmp%1#0 |
+        b test_branching_array_call_after_if_else@8                                      (𝕗) tmp%1#0 |
 
-    test_branching_array_call_after_if_else@6:                                           (𝕗) tmp%1#0 |
+    test_branching_array_call_after_if_else@8:                                           (𝕗) tmp%1#0 |
         // inner_transactions/array_access.py:36
         // if maybe:
         f-load tmp%1#0                                                                   (𝕗) tmp%1#0 | tmp%1#0
-        bz test_branching_array_call_else_body@8 ; b test_branching_array_call_if_body@7 (𝕗) tmp%1#0 |
+        bz test_branching_array_call_else_body@10 ; b test_branching_array_call_if_body@9 (𝕗) tmp%1#0 | 
 
-    test_branching_array_call_if_body@7:                                                 (𝕗) tmp%1#0 |
+    test_branching_array_call_if_body@9:                                                 (𝕗) tmp%1#0 |
         // inner_transactions/array_access.py:37
         // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
         itxna ApplicationArgs 0                                                          (𝕗) tmp%1#0 | tmp%4#0
@@ -168,9 +168,9 @@ subroutine test_branching_array_call:
         byte 0x32                                                                        (𝕗) tmp%1#0 | tmp%6#0,0x32
         ==                                                                               (𝕗) tmp%1#0 | tmp%7#0
         assert // correct args used 2                                                    (𝕗) tmp%1#0 |
-        b test_branching_array_call_after_if_else@9                                      (𝕗) tmp%1#0 |
+        b test_branching_array_call_after_if_else@11                                     (𝕗) tmp%1#0 |
 
-    test_branching_array_call_else_body@8:                                               (𝕗) tmp%1#0 |
+    test_branching_array_call_else_body@10:                                              (𝕗) tmp%1#0 |
         // inner_transactions/array_access.py:40
         // assert create_app_txn.app_args(0) == b"3", "correct args used 1"
         itxna ApplicationArgs 0                                                          (𝕗) tmp%1#0 | tmp%8#0
@@ -189,9 +189,9 @@ subroutine test_branching_array_call:
         byte 0x35                                                                        (𝕗) tmp%1#0 | tmp%12#0,0x35
         ==                                                                               (𝕗) tmp%1#0 | tmp%13#0
         assert // correct args used 3                                                    (𝕗) tmp%1#0 |
-        b test_branching_array_call_after_if_else@9                                      (𝕗) tmp%1#0 |
+        b test_branching_array_call_after_if_else@11                                     (𝕗) tmp%1#0 |
 
-    test_branching_array_call_after_if_else@9:                                           (𝕗) tmp%1#0 |
+    test_branching_array_call_after_if_else@11:                                          (𝕗) tmp%1#0 |
         // inner_transactions/array_access.py:21
         // @arc4.abimethod
         int 1                                                                            (𝕗) tmp%1#0 | 1

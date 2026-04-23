@@ -57,23 +57,23 @@ subroutine verify:
     verify_block@0:
         // regression_tests/issue_118.py:7
         // @abimethod
-        txna ApplicationArgs 1                                                         values#0
-        l-load-copy values#0 0                                                         values#0,values#0 (copy)
-        int 0                                                                          values#0,values#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        values#0,aggregate%array_length%0#0
-        l-load-copy aggregate%array_length%0#0 0                                       values#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        int 32                                                                         values#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),32
-        *                                                                              values#0,aggregate%array_length%0#0,mul%0#0
-        l-load mul%0#0 0                                                               values#0,aggregate%array_length%0#0,mul%0#0
-        int 2                                                                          values#0,aggregate%array_length%0#0,mul%0#0,2
-        +                                                                              values#0,aggregate%array_length%0#0,add%0#0
-        l-load values#0 2                                                              aggregate%array_length%0#0,add%0#0,values#0
+        txna ApplicationArgs 1                                                         value#0
+        l-load-copy value#0 0                                                          value#0,value#0 (copy)
+        int 0                                                                          value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                        value#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                       value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 32                                                                         value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),32
+        *                                                                              value#0,aggregate%array_length%0#0,mul%0#0
+        l-load mul%0#0 0                                                               value#0,aggregate%array_length%0#0,mul%0#0
+        int 2                                                                          value#0,aggregate%array_length%0#0,mul%0#0,2
+        +                                                                              value#0,aggregate%array_length%0#0,add%0#0
+        l-load value#0 2                                                               aggregate%array_length%0#0,add%0#0,value#0
         len                                                                            aggregate%array_length%0#0,add%0#0,len%0#0
         l-load len%0#0 0                                                               aggregate%array_length%0#0,add%0#0,len%0#0
         l-load add%0#0 1                                                               aggregate%array_length%0#0,len%0#0,add%0#0
         ==                                                                             aggregate%array_length%0#0,eq%0#0
         l-load eq%0#0 0                                                                aggregate%array_length%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint256>         aggregate%array_length%0#0
+        assert // invalid number of bytes for Encoded(len+uint256[])                   aggregate%array_length%0#0
         // regression_tests/issue_118.py:10
         // bool(Txn.num_app_args)
         txn NumAppArgs                                                                 aggregate%array_length%0#0,tmp%0#1
@@ -95,9 +95,9 @@ subroutine verify:
         int 2                                                                          aggregate%array_length%0#0,2
         !=                                                                             tmp%4#0
         l-load tmp%4#0 0                                                               tmp%4#0
-        bz verify_after_if_else@3 ; b verify_if_body@2
+        bz verify_after_if_else@5 ; b verify_if_body@4
 
-    verify_if_body@2:
+    verify_if_body@4:
         // regression_tests/issue_118.py:13
         // return Tuple((val1, String("")))
         v-load val1#0                                                                  val1#0
@@ -107,9 +107,9 @@ subroutine verify:
         v-store tmp%1#0
         // regression_tests/issue_118.py:7
         // @abimethod
-        b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4
+        b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@6
 
-    verify_after_if_else@3:
+    verify_after_if_else@5:
         // regression_tests/issue_118.py:14
         // return Tuple((val1, String("")))
         v-load val1#0                                                                  val1#0
@@ -119,9 +119,9 @@ subroutine verify:
         v-store tmp%1#0
         // regression_tests/issue_118.py:7
         // @abimethod
-        b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4
+        b verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@6
 
-    verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4:
+    verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@6:
         // regression_tests/issue_118.py:7
         // @abimethod
         byte 0x151f7c75                                                                0x151f7c75

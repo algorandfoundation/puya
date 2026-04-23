@@ -173,22 +173,7 @@ subroutine log_greetings:
         txna ApplicationArgs 1                                                name#0
         v-store name#0
         v-load name#0                                                         name#0
-        int 0                                                                 name#0,0
-        extract_uint16 // on error: invalid array length header               aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                     aggregate%array_length%0#0
-        int 2                                                                 aggregate%array_length%0#0,2
-        +                                                                     add%0#0
-        v-store add%0#0
-        v-load name#0                                                         name#0
-        len                                                                   len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                        len%0#0
-        v-load add%0#0                                                        len%0#0,add%0#0
-        ==                                                                    eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                         eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+utf8[])
         // inner_transactions/c2c.py:25-28
         // hello_call = itxn.ApplicationCall(
         //     app_id=self.hello_app,
@@ -241,22 +226,7 @@ subroutine log_greetings:
         extract 4 0                                                           greeting#0
         v-store greeting#0
         v-load greeting#0                                                     greeting#0
-        int 0                                                                 greeting#0,0
-        extract_uint16 // on error: invalid array length header               aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                     aggregate%array_length%1#0
-        int 2                                                                 aggregate%array_length%1#0,2
-        +                                                                     add%0#0
-        v-store add%0#0
-        v-load greeting#0                                                     greeting#0
-        len                                                                   len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                        len%0#0
-        v-load add%0#0                                                        len%0#0,add%0#0
-        ==                                                                    eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                         eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+utf8[])
         // inner_transactions/c2c.py:30
         // log("HelloWorld returned: ", greeting.native)
         v-load hello_call.LastLog#0                                           hello_call.LastLog#0
@@ -272,5 +242,28 @@ subroutine log_greetings:
         // @arc4.abimethod()
         int 1                                                                 1
         return
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+utf8[]):
+    __internal_validate_Encoded(len+utf8[])_block@0:                          (𝕡) value#0 |
+        p-load value#0                                                        (𝕡) value#0 | value#0 (copy)
+        int 0                                                                 (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header               (𝕡) value#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                    (𝕡) value#0 |
+        v-load aggregate%array_length%0#0                                     (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                                 (𝕡) value#0 | aggregate%array_length%0#0,2
+        +                                                                     (𝕡) value#0 | add%0#0
+        v-store add%0#0                                                       (𝕡) value#0 |
+        p-load value#0                                                        (𝕡) value#0 | value#0 (copy)
+        len                                                                   (𝕡) value#0 | len%0#0
+        v-store len%0#0                                                       (𝕡) value#0 |
+        v-load len%0#0                                                        (𝕡) value#0 | len%0#0
+        v-load add%0#0                                                        (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                    (𝕡) value#0 | eq%0#0
+        v-store eq%0#0                                                        (𝕡) value#0 |
+        v-load eq%0#0                                                         (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+utf8[])             (𝕡) value#0 |
+        retsub
 
 

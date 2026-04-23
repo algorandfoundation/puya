@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 2 8
+    intcblock 0 6 8 2
     bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x9bf81913 0x16e03919 0x00027331 0x00026231 0x0000000000000001 0x0000000000000001000a00056c6f672031 0x01 0xb4b4334e "echo: s1" 0x0000000000000003 0x4a444c77 0x000173 0x2659e818 0x000162 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x00 0x48142d5e 0x000b6563686f3a207475706c65 0x0000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x0f101112deadbeef14 0x6563686f3a206231 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x000000000000002a 0xddd07185
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
@@ -34,30 +34,18 @@ test_is_a_b:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     txna ApplicationArgs 3
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:25
+    // @arc4.abimethod
     btoi
     // typed_abi_call/typed_c2c.py:27-32
     // arc4.abi_call(
@@ -91,9 +79,11 @@ test_method_selector_kinds:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:34
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:37
     // result, _txn = arc4.abi_call(Logger.echo, arc4.String("test1"), app_id=app)
@@ -117,14 +107,7 @@ test_method_selector_kinds:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // typed_abi_call/typed_c2c.py:38
     // assert result == "echo: test1"
     pushbytes 0x000b6563686f3a207465737431
@@ -152,14 +135,7 @@ test_method_selector_kinds:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // typed_abi_call/typed_c2c.py:40
     // assert result == "echo: test2"
     pushbytes 0x000b6563686f3a207465737432
@@ -187,14 +163,7 @@ test_method_selector_kinds:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // typed_abi_call/typed_c2c.py:42
     // assert result == "echo: test3"
     pushbytes 0x000b6563686f3a207465737433
@@ -222,14 +191,7 @@ test_method_selector_kinds:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // typed_abi_call/typed_c2c.py:44
     // assert result == "echo: test4"
     pushbytes 0x000b6563686f3a207465737434
@@ -256,14 +218,7 @@ test_method_selector_kinds:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // typed_abi_call/typed_c2c.py:46
     // assert result == "echo: test5"
     pushbytes 0x000b6563686f3a207465737435
@@ -282,9 +237,11 @@ test_method_overload:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:48
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:50
     // arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app)
@@ -307,15 +264,7 @@ test_method_overload:
     ==
     assert // application log value is not the result of an ABI return
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // typed_abi_call/typed_c2c.py:51
     // assert arc4.String.from_log(op.ITxn.last_log()) == "echo: typed + ignore"
     itxn LastLog
@@ -326,14 +275,7 @@ test_method_overload:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     pushbytes 0x00146563686f3a207479706564202b2069676e6f7265
     ==
     assert
@@ -361,14 +303,7 @@ test_method_overload:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     pushbytes 0x00166563686f3a20756e7479706564202b2069676e6f7265
     ==
     assert
@@ -394,14 +329,7 @@ test_method_overload:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     itxn LastLog
     // typed_abi_call/typed_c2c.py:57
     // assert result[0] == "echo: tuple"
@@ -418,14 +346,7 @@ test_method_overload:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // typed_abi_call/typed_c2c.py:57
     // assert result[0] == "echo: tuple"
     bytec 24 // 0x000b6563686f3a207475706c65
@@ -456,14 +377,7 @@ test_method_overload:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     pushbytes 0x000d6563686f3a20756e7479706564
     ==
     assert
@@ -480,9 +394,11 @@ test_arg_conversion:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:63
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:65
     // txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app)
@@ -521,7 +437,7 @@ test_arg_conversion:
     itxn LastLog
     // typed_abi_call/typed_c2c.py:69
     // assert txn.last_log == op.itob(2)
-    intc_2 // 2
+    intc_3 // 2
     itob
     ==
     assert
@@ -597,9 +513,11 @@ test_15plus_args:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:80
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:82-105
     // result, txn = arc4.abi_call(
@@ -735,15 +653,7 @@ test_15plus_args:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     // typed_abi_call/typed_c2c.py:106
     // assert result.native == Bytes.from_hex("0F101112DEADBEEF14")
     extract 6 0
@@ -763,9 +673,11 @@ test_void:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:108
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:110
     // txn = arc4.abi_call(LOG_METHOD_NAME + "(string)void", "World1", app_id=app)
@@ -859,17 +771,21 @@ test_ref_types:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:122
+    // @arc4.abimethod()
     dup
     btoi
     txna ApplicationArgs 2
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:122
+    // @arc4.abimethod()
     dup
     btoi
     // typed_abi_call/typed_c2c.py:124-130
@@ -943,9 +859,11 @@ test_account_to_address:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:136
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:138-142
     // txn = arc4.abi_call(
@@ -994,9 +912,11 @@ test_native_string:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:145
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:147
     // result1, _txn = arc4.abi_call(Logger.echo_native_string, "s", app_id=app)
@@ -1020,15 +940,7 @@ test_native_string:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 6 0
     // typed_abi_call/typed_c2c.py:148
     // assert result1 == "echo: s"
@@ -1062,15 +974,7 @@ test_native_string:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 6 0
     // typed_abi_call/typed_c2c.py:151
     // assert result2 == result1
@@ -1103,15 +1007,7 @@ test_native_string:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 6 0
     // typed_abi_call/typed_c2c.py:154
     // assert result3 == result1
@@ -1130,9 +1026,11 @@ test_native_bytes:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:156
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:158
     // result1, _txn = arc4.abi_call(Logger.echo_native_bytes, b"b", app_id=app)
@@ -1156,15 +1054,7 @@ test_native_bytes:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for bytes
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 6 0
     // typed_abi_call/typed_c2c.py:159
     // assert result1 == b"echo: b"
@@ -1198,15 +1088,7 @@ test_native_bytes:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for bytes
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 6 0
     // typed_abi_call/typed_c2c.py:162
     // assert result2 == result1
@@ -1245,15 +1127,7 @@ test_native_bytes:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for bytes
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 6 0
     // typed_abi_call/typed_c2c.py:167
     // assert result3 == result1
@@ -1272,9 +1146,11 @@ test_native_uint64:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:169
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:171
     // result1, _txn = arc4.abi_call(Logger.echo_native_uint64, 1, app_id=app)
@@ -1301,14 +1177,16 @@ test_native_uint64:
     extract 4 0
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:171
+    // result1, _txn = arc4.abi_call(Logger.echo_native_uint64, 1, app_id=app)
     btoi
     // typed_abi_call/typed_c2c.py:172
     // assert result1 == 2
     dup
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:174
@@ -1334,9 +1212,11 @@ test_native_uint64:
     extract 4 0
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:174
+    // result2, _txn = arc4.abi_call(Logger.echo_native_uint64, UInt64(1), app_id=app)
     btoi
     // typed_abi_call/typed_c2c.py:175
     // assert result2 == result1
@@ -1366,9 +1246,11 @@ test_native_uint64:
     extract 4 0
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:177
+    // result3, _txn = arc4.abi_call(Logger.echo_native_uint64, arc4.UInt64(1), app_id=app)
     btoi
     // typed_abi_call/typed_c2c.py:178
     // assert result3 == result1
@@ -1387,9 +1269,11 @@ test_native_biguint:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:180
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:182
     // result1, _txn = arc4.abi_call(Logger.echo_native_biguint, 2, app_id=app)
@@ -1416,7 +1300,7 @@ test_native_biguint:
     len
     pushint 64
     ==
-    assert // invalid number of bytes for biguint
+    assert // invalid number of bytes for Encoded(uint512)
     // typed_abi_call/typed_c2c.py:183
     // assert result1 == 3
     dup
@@ -1452,7 +1336,7 @@ test_native_biguint:
     len
     pushint 64
     ==
-    assert // invalid number of bytes for biguint
+    assert // invalid number of bytes for Encoded(uint512)
     // typed_abi_call/typed_c2c.py:186
     // assert result2 == result1
     dig 1
@@ -1483,7 +1367,7 @@ test_native_biguint:
     len
     pushint 64
     ==
-    assert // invalid number of bytes for biguint
+    assert // invalid number of bytes for Encoded(uint512)
     // typed_abi_call/typed_c2c.py:189
     // assert result3 == result1
     b==
@@ -1501,9 +1385,11 @@ test_native_tuple:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:191
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:193-203
     // # python literals
@@ -1578,54 +1464,30 @@ test_native_tuple:
     dup
     extract 4 0
     dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    dig 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    uncover 3
-    +
-    uncover 4
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
     // typed_abi_call/typed_c2c.py:204
     // s, b, u, bu = result1.native
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_3 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    dig 2
+    len
     dig 3
     uncover 3
-    uncover 3
+    uncover 2
     substring3
     dig 3
     extract 16 64
     // typed_abi_call/typed_c2c.py:205
     // assert s.native == "echo: s1"
-    swap
+    uncover 2
     extract 2 0
     dup
     bytec 10 // "echo: s1"
@@ -1642,10 +1504,10 @@ test_native_tuple:
     // typed_abi_call/typed_c2c.py:207
     // assert u.as_uint64() == 2
     uncover 4
-    intc_3 // 8
+    intc_2 // 8
     extract_uint64
     dup
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:208
@@ -1710,40 +1572,7 @@ test_native_tuple:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 2
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
     // typed_abi_call/typed_c2c.py:221
     // assert result1 == result2
     dig 5
@@ -1807,40 +1636,7 @@ test_native_tuple:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 2
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint512>
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
     // typed_abi_call/typed_c2c.py:234
     // assert result1 == result3
     uncover 5
@@ -1901,50 +1697,27 @@ test_native_tuple:
     dup
     extract 4 0
     dup
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_3 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    extract 2 0
+    dig 2
     len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    dig 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
     uncover 3
-    +
-    uncover 4
-    ==
-    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
-    cover 3
+    uncover 3
+    uncover 2
     substring3
     extract 2 0
-    swap
-    extract 2 0
     dig 2
-    intc_3 // 8
+    intc_2 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -1982,9 +1755,11 @@ test_native_tuple_method_ref:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:250
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:252-260
     // # test with literal args
@@ -2045,50 +1820,27 @@ test_native_tuple_method_ref:
     dup
     extract 4 0
     dup
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_3 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    extract 2 0
+    dig 2
     len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    dig 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
     uncover 3
-    +
-    uncover 4
-    ==
-    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
-    cover 3
+    uncover 3
+    uncover 2
     substring3
     extract 2 0
-    swap
-    extract 2 0
     dig 2
-    intc_3 // 8
+    intc_2 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -2107,7 +1859,7 @@ test_native_tuple_method_ref:
     // typed_abi_call/typed_c2c.py:264
     // assert u == 2
     dig 1
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:265
@@ -2171,50 +1923,27 @@ test_native_tuple_method_ref:
     dup
     extract 4 0
     dup
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_3 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    extract 2 0
+    dig 2
     len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    dig 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
     uncover 3
-    +
-    uncover 4
-    ==
-    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
-    cover 3
+    uncover 3
+    uncover 2
     substring3
     extract 2 0
-    swap
-    extract 2 0
     dig 2
-    intc_3 // 8
+    intc_2 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -2293,50 +2022,27 @@ test_native_tuple_method_ref:
     dup
     extract 4 0
     dup
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_3 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    extract 2 0
+    dig 2
     len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    dig 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
     uncover 3
-    +
-    uncover 4
-    ==
-    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
-    cover 3
+    uncover 3
+    uncover 2
     substring3
     extract 2 0
-    swap
-    extract 2 0
     dig 2
-    intc_3 // 8
+    intc_2 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -2413,50 +2119,27 @@ test_native_tuple_method_ref:
     dup
     extract 4 0
     dup
+    callsub __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_3 // 2
+    extract_uint16
+    dig 2
+    uncover 2
+    dig 2
+    substring3
+    extract 2 0
+    dig 2
     len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 76
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 2
-    dig 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 78
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
     uncover 3
-    +
-    uncover 4
-    ==
-    assert // invalid number of bytes for tuple<string,bytes,uint64,biguint>
-    cover 3
+    uncover 3
+    uncover 2
     substring3
     extract 2 0
-    swap
-    extract 2 0
     dig 2
-    intc_3 // 8
+    intc_2 // 8
     extract_uint64
     uncover 3
     extract 16 64
@@ -2491,9 +2174,11 @@ test_nested_tuples:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:300
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:302-307
     // # literal args
@@ -2533,95 +2218,22 @@ test_nested_tuples:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    dig 1
+    callsub __internal_validate_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+    dup
     intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
-    dig 2
+    extract_uint16
     dig 1
-    dig 3
-    substring3
-    dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+    intc_3 // 2
+    extract_uint16
     dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 6
-    +
-    dig 2
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-    uncover 3
-    swap
-    uncover 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    +
-    pushint 4
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    len
-    dig 1
-    pushint 16
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 18
-    ==
-    assert // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
-    dig 2
-    swap
     uncover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 20
-    +
-    uncover 4
-    +
-    uncover 5
-    ==
-    assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
-    cover 4
-    cover 4
+    dig 2
     substring3
     dup
     intc_0 // 0
     extract_uint16
     dig 1
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 2
     uncover 2
@@ -2635,11 +2247,24 @@ test_nested_tuples:
     uncover 2
     substring3
     dig 3
+    len
+    uncover 4
+    uncover 4
+    uncover 2
+    substring3
+    dup
     intc_0 // 0
     extract_uint64
-    uncover 4
+    dig 1
     extract 8 8
+    dig 2
+    pushint 16
+    extract_uint16
+    dig 3
+    len
     uncover 4
+    cover 2
+    substring3
     extract 2 0
     // typed_abi_call/typed_c2c.py:309
     // assert s1 == "echo: s1"
@@ -2656,7 +2281,7 @@ test_nested_tuples:
     // typed_abi_call/typed_c2c.py:311
     // assert u64_1 == 2
     uncover 2
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:312
@@ -2708,95 +2333,22 @@ test_nested_tuples:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    dig 1
+    callsub __internal_validate_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+    dup
     intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
-    dig 2
+    extract_uint16
     dig 1
-    dig 3
-    substring3
-    dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+    intc_3 // 2
+    extract_uint16
     dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 6
-    +
-    dig 2
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-    uncover 3
-    swap
-    uncover 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    +
-    pushint 4
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    len
-    dig 1
-    pushint 16
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 18
-    ==
-    assert // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
-    dig 2
-    swap
     uncover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 20
-    +
-    uncover 4
-    +
-    uncover 5
-    ==
-    assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
-    cover 4
-    cover 4
+    dig 2
     substring3
     dup
     intc_0 // 0
     extract_uint16
     dig 1
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 2
     uncover 2
@@ -2810,11 +2362,24 @@ test_nested_tuples:
     uncover 2
     substring3
     dig 3
+    len
+    uncover 4
+    uncover 4
+    uncover 2
+    substring3
+    dup
     intc_0 // 0
     extract_uint64
-    uncover 4
+    dig 1
     extract 8 8
+    dig 2
+    pushint 16
+    extract_uint16
+    dig 3
+    len
     uncover 4
+    cover 2
+    substring3
     extract 2 0
     // typed_abi_call/typed_c2c.py:322
     // assert s1 == "echo: s1"
@@ -2835,7 +2400,7 @@ test_nested_tuples:
     // typed_abi_call/typed_c2c.py:324
     // assert u64_1 == 2
     uncover 2
-    intc_2 // 2
+    intc_3 // 2
     ==
     assert
     // typed_abi_call/typed_c2c.py:325
@@ -2901,95 +2466,22 @@ test_nested_tuples:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    dig 1
+    callsub __internal_validate_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+    dup
     intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
-    dig 2
+    extract_uint16
     dig 1
-    dig 3
-    substring3
-    dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+    intc_3 // 2
+    extract_uint16
     dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 6
-    +
-    dig 2
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-    uncover 3
-    swap
-    uncover 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    +
-    pushint 4
-    +
-    dig 3
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
-    dig 4
-    dig 1
-    dig 5
-    substring3
-    dup
-    len
-    dig 1
-    pushint 16
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 18
-    ==
-    assert // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
-    dig 2
-    swap
     uncover 2
-    substring3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 20
-    +
-    uncover 4
-    +
-    uncover 5
-    ==
-    assert // invalid number of bytes for tuple<tuple<string,arc4.dynamic_array<arc4.uint8>>,tuple<uint64,arc4.uint64,bytes>>
-    cover 4
-    cover 4
+    dig 2
     substring3
     dup
     intc_0 // 0
     extract_uint16
     dig 1
-    intc_2 // 2
+    intc_3 // 2
     extract_uint16
     dig 2
     uncover 2
@@ -3003,11 +2495,24 @@ test_nested_tuples:
     uncover 2
     substring3
     dig 3
+    len
+    uncover 4
+    uncover 4
+    uncover 2
+    substring3
+    dup
     intc_0 // 0
     extract_uint64
-    uncover 4
+    dig 1
     extract 8 8
+    dig 2
+    pushint 16
+    extract_uint16
+    dig 3
+    len
     uncover 4
+    cover 2
+    substring3
     extract 2 0
     // typed_abi_call/typed_c2c.py:340
     // assert s1 == "echo: s1b"
@@ -3051,9 +2556,11 @@ test_no_args:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:346
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:348
     // result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
@@ -3076,9 +2583,11 @@ test_no_args:
     extract 4 0
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:348
+    // result, _txn = arc4.abi_call(Logger.no_args, app_id=app)
     btoi
     // typed_abi_call/typed_c2c.py:349
     // assert result == 42
@@ -3106,9 +2615,9 @@ test_no_args:
     extract 4 0
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
     // typed_abi_call/typed_c2c.py:351
     // assert arc4_result == 42
     bytec 32 // 0x000000000000002a
@@ -3133,9 +2642,9 @@ test_no_args:
     assert // application log value is not the result of an ABI return
     extract 4 0
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for Encoded(uint64)
     // typed_abi_call/typed_c2c.py:354
     // assert arc4.UInt64.from_log(op.ITxn.last_log()) == 42
     itxn LastLog
@@ -3147,9 +2656,11 @@ test_no_args:
     extract 4 0
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:354
+    // assert arc4.UInt64.from_log(op.ITxn.last_log()) == 42
     bytec 32 // 0x000000000000002a
     b==
     assert
@@ -3166,9 +2677,11 @@ test_named_tuples:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:356
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:358-363
     // result, _txn = arc4.abi_call(
@@ -3215,7 +2728,14 @@ test_named_tuples:
     len
     pushint 1
     ==
-    assert // invalid number of bytes for bool
+    assert // invalid number of bytes for Encoded(bool8)
+    // typed_abi_call/typed_c2c.py:358-363
+    // result, _txn = arc4.abi_call(
+    //     Logger.logs_are_equal,
+    //     (UInt64(1), String("log 1")),
+    //     LogMessage(level=UInt64(1), message=String("log 1")),
+    //     app_id=app,
+    // )
     intc_0 // 0
     getbit
     // typed_abi_call/typed_c2c.py:364
@@ -3265,7 +2785,14 @@ test_named_tuples:
     len
     pushint 1
     ==
-    assert // invalid number of bytes for bool
+    assert // invalid number of bytes for Encoded(bool8)
+    // typed_abi_call/typed_c2c.py:365-370
+    // result, _txn = arc4.abi_call(
+    //     Logger.logs_are_equal,
+    //     (UInt64(2), String("log 2")),
+    //     LogMessage(level=UInt64(1), message=String("log 1")),
+    //     app_id=app,
+    // )
     intc_0 // 0
     getbit
     // typed_abi_call/typed_c2c.py:371
@@ -3285,9 +2812,11 @@ test_arc4_struct:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:373
+    // @arc4.abimethod()
     btoi
     // typed_abi_call/typed_c2c.py:376-380
     // result, txn = arc4.abi_call(
@@ -3324,24 +2853,7 @@ test_arc4_struct:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    dig 1
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 10
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 12
-    +
-    ==
-    assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]))
     itxn LastLog
     // typed_abi_call/typed_c2c.py:381
     // assert result == log, "expected output to match input"
@@ -3362,24 +2874,7 @@ test_arc4_struct:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    len
-    dig 1
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 10
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 12
-    +
-    ==
-    assert // invalid number of bytes for test_cases.typed_abi_call.logger.LogStruct
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]))
     // typed_abi_call/typed_c2c.py:375
     // log = LogStruct(level=arc4.UInt64(1), message=arc4.String("log 1"))
     bytec 7 // 0x0000000000000001000a00056c6f672031
@@ -3400,16 +2895,20 @@ test_resource_encoding:
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:384
+    // @arc4.abimethod()
     btoi
     txna ApplicationArgs 2
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // typed_abi_call/typed_c2c.py:384
+    // @arc4.abimethod()
     dup
     btoi
     // typed_abi_call/typed_c2c.py:386
@@ -3461,7 +2960,11 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for tuple<asset,application,account>
+    assert // invalid number of bytes for Encoded(uint64,uint64,uint8[32])
+    // typed_abi_call/typed_c2c.py:389-391
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
+    // )
     dup
     pushint 4
     extract_uint64
@@ -3523,7 +3026,11 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for tuple<asset,application,account>
+    assert // invalid number of bytes for Encoded(uint64,uint64,uint8[32])
+    // typed_abi_call/typed_c2c.py:394-396
+    // result, txn = arc4.abi_call(
+    //     Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call
+    // )
     dup
     pushint 4
     extract_uint64
@@ -3589,7 +3096,11 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for tuple<asset,application,account>
+    assert // invalid number of bytes for Encoded(uint64,uint64,uint8[32])
+    // typed_abi_call/typed_c2c.py:399-401
+    // result, txn = arc4.abi_call(
+    //     LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
+    // )
     dup
     pushint 4
     extract_uint64
@@ -3649,7 +3160,11 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for tuple<asset,application,account>
+    assert // invalid number of bytes for Encoded(uint64,uint64,uint8[32])
+    // typed_abi_call/typed_c2c.py:404-406
+    // result, txn = arc4.abi_call(
+    //     LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call
+    // )
     dup
     pushint 4
     extract_uint64
@@ -3727,7 +3242,15 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for tuple<asset,application,account>
+    assert // invalid number of bytes for Encoded(uint64,uint64,uint8[32])
+    // typed_abi_call/typed_c2c.py:409-415
+    // result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
+    //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
+    //     asset,
+    //     app,
+    //     acc,
+    //     app_id=app_to_call,
+    // )
     dup
     pushint 4
     extract_uint64
@@ -3784,7 +3307,15 @@ test_resource_encoding:
     len
     pushint 48
     ==
-    assert // invalid number of bytes for tuple<asset,application,account>
+    assert // invalid number of bytes for Encoded(uint64,uint64,uint8[32])
+    // typed_abi_call/typed_c2c.py:418-424
+    // result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
+    //     "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
+    //     asset,
+    //     app,
+    //     acc,
+    //     app_id=app_to_call,
+    // )
     dup
     pushint 4
     extract_uint64
@@ -3811,3 +3342,182 @@ test_resource_encoding:
     // @arc4.abimethod()
     pushint 1
     return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
+    retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
+    retsub
+
+
+// __internal_validate_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))(value: bytes) -> void:
+__internal_validate_Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[]))):
+    proto 1 0
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4
+    ==
+    assert // invalid tail pointer at index 0 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+    frame_dig -1
+    swap
+    dig 2
+    substring3
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 6
+    +
+    dig 2
+    intc_3 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    +
+    pushint 4
+    +
+    frame_dig -1
+    intc_3 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of (((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+    frame_dig -1
+    swap
+    dig 3
+    substring3
+    dup
+    len
+    dig 1
+    pushint 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[]))
+    swap
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 20
+    +
+    +
+    ==
+    assert // invalid number of bytes for Encoded(((len+utf8[]),(len+utf8[])),(uint64,uint64,(len+uint8[])))
+    retsub
+
+
+// __internal_validate_Encoded(uint64,(len+utf8[]))(value: bytes) -> void:
+__internal_validate_Encoded(uint64,(len+utf8[])):
+    proto 1 0
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_2 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+    frame_dig -1
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    ==
+    assert // invalid number of bytes for Encoded(uint64,(len+utf8[]))
+    retsub
+
+
+// __internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)(value: bytes) -> void:
+__internal_validate_Encoded((len+utf8[]),(len+uint8[]),uint64,uint512):
+    proto 1 0
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 76
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+    frame_dig -1
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 78
+    +
+    frame_dig -1
+    intc_3 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]),uint64,uint512)
+    frame_dig -1
+    swap
+    dig 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    +
+    ==
+    assert // invalid number of bytes for Encoded((len+utf8[]),(len+uint8[]),uint64,uint512)
+    retsub

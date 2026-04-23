@@ -140,7 +140,9 @@ subroutine arc4_uint32_via_uint64:
         int 4                                                     x#0,len%0#0,4
         ==                                                        x#0,eq%0#0
         l-load eq%0#0 0                                           x#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint32         x#0
+        assert // invalid number of bytes for Encoded(uint32)     x#0
+        // regression_tests/numeric_encode_round_trips.py:6
+        // @public
         byte 0x151f7c75                                           x#0,0x151f7c75
         l-load x#0 1                                              0x151f7c75,x#0
         concat                                                    tmp%2#0
@@ -162,7 +164,9 @@ subroutine arc4_uint64_via_uint64:
         int 8                                                     x#0,len%0#0,8
         ==                                                        x#0,eq%0#0
         l-load eq%0#0 0                                           x#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64         x#0
+        assert // invalid number of bytes for Encoded(uint64)     x#0
+        // regression_tests/numeric_encode_round_trips.py:10
+        // @public
         byte 0x151f7c75                                           x#0,0x151f7c75
         l-load x#0 1                                              0x151f7c75,x#0
         concat                                                    tmp%2#0
@@ -184,7 +188,7 @@ subroutine arc4_uint128_via_uint64:
         int 16                                                    x#0,len%0#0,len%0#0 (copy),16
         ==                                                        x#0,len%0#0,eq%0#0
         l-load eq%0#0 0                                           x#0,len%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint128        x#0,len%0#0
+        assert // invalid number of bytes for Encoded(uint128)    x#0,len%0#0
         // regression_tests/numeric_encode_round_trips.py:16
         // return arc4.UInt128(x.as_uint64())
         l-load-copy x#0 1                                         x#0,len%0#0,x#0 (copy)
@@ -222,15 +226,17 @@ subroutine uint64_via_arc4_uint32:
     uint64_via_arc4_uint32_block@0:
         // regression_tests/numeric_encode_round_trips.py:19
         // @public
-        txna ApplicationArgs 1                                    tmp%0#0
-        l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
-        len                                                       tmp%0#0,len%0#0
-        l-load len%0#0 0                                          tmp%0#0,len%0#0
-        int 8                                                     tmp%0#0,len%0#0,8
-        ==                                                        tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                           tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64         tmp%0#0
-        l-load tmp%0#0 0                                          tmp%0#0
+        txna ApplicationArgs 1                                    value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        len                                                       value#0,len%0#0
+        l-load len%0#0 0                                          value#0,len%0#0
+        int 8                                                     value#0,len%0#0,8
+        ==                                                        value#0,eq%0#0
+        l-load eq%0#0 0                                           value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)     value#0
+        // regression_tests/numeric_encode_round_trips.py:19
+        // @public
+        l-load value#0 0                                          value#0
         btoi                                                      x#0
         // regression_tests/numeric_encode_round_trips.py:21
         // return arc4.UInt32(x).as_uint64()
@@ -264,16 +270,18 @@ subroutine uint64_via_arc4_uint64:
     uint64_via_arc4_uint64_block@0:
         // regression_tests/numeric_encode_round_trips.py:23
         // @public
-        txna ApplicationArgs 1                                    tmp%0#0
-        l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
-        len                                                       tmp%0#0,len%0#0
-        l-load len%0#0 0                                          tmp%0#0,len%0#0
-        int 8                                                     tmp%0#0,len%0#0,8
-        ==                                                        tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                           tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64         tmp%0#0
-        byte 0x151f7c75                                           tmp%0#0,0x151f7c75
-        l-load tmp%0#0 1                                          0x151f7c75,tmp%0#0
+        txna ApplicationArgs 1                                    value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        len                                                       value#0,len%0#0
+        l-load len%0#0 0                                          value#0,len%0#0
+        int 8                                                     value#0,len%0#0,8
+        ==                                                        value#0,eq%0#0
+        l-load eq%0#0 0                                           value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)     value#0
+        // regression_tests/numeric_encode_round_trips.py:23
+        // @public
+        byte 0x151f7c75                                           value#0,0x151f7c75
+        l-load value#0 1                                          0x151f7c75,value#0
         concat                                                    tmp%4#0
         l-load tmp%4#0 0                                          tmp%4#0
         log
@@ -286,16 +294,18 @@ subroutine uint64_via_arc4_uint128:
     uint64_via_arc4_uint128_block@0:
         // regression_tests/numeric_encode_round_trips.py:27
         // @public
-        txna ApplicationArgs 1                                    tmp%0#0
-        l-load-copy tmp%0#0 0                                     tmp%0#0,tmp%0#0 (copy)
-        len                                                       tmp%0#0,len%0#0
-        l-load len%0#0 0                                          tmp%0#0,len%0#0
-        int 8                                                     tmp%0#0,len%0#0,8
-        ==                                                        tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                           tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64         tmp%0#0
-        byte 0x151f7c75                                           tmp%0#0,0x151f7c75
-        l-load tmp%0#0 1                                          0x151f7c75,tmp%0#0
+        txna ApplicationArgs 1                                    value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        len                                                       value#0,len%0#0
+        l-load len%0#0 0                                          value#0,len%0#0
+        int 8                                                     value#0,len%0#0,8
+        ==                                                        value#0,eq%0#0
+        l-load eq%0#0 0                                           value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)     value#0
+        // regression_tests/numeric_encode_round_trips.py:27
+        // @public
+        byte 0x151f7c75                                           value#0,0x151f7c75
+        l-load value#0 1                                          0x151f7c75,value#0
         concat                                                    tmp%4#0
         l-load tmp%4#0 0                                          tmp%4#0
         log
@@ -315,7 +325,9 @@ subroutine arc4_uint32_via_biguint:
         int 4                                                     x#0,len%0#0,4
         ==                                                        x#0,eq%0#0
         l-load eq%0#0 0                                           x#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint32         x#0
+        assert // invalid number of bytes for Encoded(uint32)     x#0
+        // regression_tests/numeric_encode_round_trips.py:32
+        // @public
         byte 0x151f7c75                                           x#0,0x151f7c75
         l-load x#0 1                                              0x151f7c75,x#0
         concat                                                    tmp%2#0
@@ -337,7 +349,9 @@ subroutine arc4_uint64_via_biguint:
         int 8                                                     x#0,len%0#0,8
         ==                                                        x#0,eq%0#0
         l-load eq%0#0 0                                           x#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64         x#0
+        assert // invalid number of bytes for Encoded(uint64)     x#0
+        // regression_tests/numeric_encode_round_trips.py:36
+        // @public
         byte 0x151f7c75                                           x#0,0x151f7c75
         l-load x#0 1                                              0x151f7c75,x#0
         concat                                                    tmp%2#0
@@ -359,7 +373,9 @@ subroutine arc4_uint128_via_biguint:
         int 16                                                    x#0,len%0#0,16
         ==                                                        x#0,eq%0#0
         l-load eq%0#0 0                                           x#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint128        x#0
+        assert // invalid number of bytes for Encoded(uint128)    x#0
+        // regression_tests/numeric_encode_round_trips.py:40
+        // @public
         byte 0x151f7c75                                           x#0,0x151f7c75
         l-load x#0 1                                              0x151f7c75,x#0
         concat                                                    tmp%2#0
@@ -374,25 +390,25 @@ subroutine biguint_via_arc4_uint32:
     biguint_via_arc4_uint32_block@0:
         // regression_tests/numeric_encode_round_trips.py:45
         // @public
-        txna ApplicationArgs 1                                    x#0
-        l-load-copy x#0 0                                         x#0,x#0 (copy)
-        len                                                       x#0,len%0#0
-        l-load-copy len%0#0 0                                     x#0,len%0#0,len%0#0 (copy)
-        int 64                                                    x#0,len%0#0,len%0#0 (copy),64
-        ==                                                        x#0,len%0#0,eq%0#0
-        l-load eq%0#0 0                                           x#0,len%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint512        x#0,len%0#0
+        txna ApplicationArgs 1                                    value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        len                                                       value#0,len%0#0
+        l-load-copy len%0#0 0                                     value#0,len%0#0,len%0#0 (copy)
+        int 64                                                    value#0,len%0#0,len%0#0 (copy),64
+        ==                                                        value#0,len%0#0,eq%0#0
+        l-load eq%0#0 0                                           value#0,len%0#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint512)    value#0,len%0#0
         // regression_tests/numeric_encode_round_trips.py:47
         // return arc4.UInt32(x).as_biguint()
-        l-load len%0#0 0                                          x#0,len%0#0
-        int 4                                                     x#0,len%0#0,4
-        <=                                                        x#0,aggregate%len_ok%0#0
-        l-load aggregate%len_ok%0#0 0                             x#0,aggregate%len_ok%0#0
-        assert // overflow                                        x#0
-        int 4                                                     x#0,4
-        bzero                                                     x#0,aggregate%bzero%0#0
-        l-load x#0 1                                              aggregate%bzero%0#0,x#0
-        l-load aggregate%bzero%0#0 1                              x#0,aggregate%bzero%0#0
+        l-load len%0#0 0                                          value#0,len%0#0
+        int 4                                                     value#0,len%0#0,4
+        <=                                                        value#0,aggregate%len_ok%0#0
+        l-load aggregate%len_ok%0#0 0                             value#0,aggregate%len_ok%0#0
+        assert // overflow                                        value#0
+        int 4                                                     value#0,4
+        bzero                                                     value#0,aggregate%bzero%0#0
+        l-load value#0 1                                          aggregate%bzero%0#0,value#0
+        l-load aggregate%bzero%0#0 1                              value#0,aggregate%bzero%0#0
         b|                                                        aggregate%arc4_encoded%0#0
         // regression_tests/numeric_encode_round_trips.py:45
         // @public
@@ -422,25 +438,25 @@ subroutine biguint_via_arc4_uint64:
     biguint_via_arc4_uint64_block@0:
         // regression_tests/numeric_encode_round_trips.py:49
         // @public
-        txna ApplicationArgs 1                                    x#0
-        l-load-copy x#0 0                                         x#0,x#0 (copy)
-        len                                                       x#0,len%0#0
-        l-load-copy len%0#0 0                                     x#0,len%0#0,len%0#0 (copy)
-        int 64                                                    x#0,len%0#0,len%0#0 (copy),64
-        ==                                                        x#0,len%0#0,eq%0#0
-        l-load eq%0#0 0                                           x#0,len%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint512        x#0,len%0#0
+        txna ApplicationArgs 1                                    value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        len                                                       value#0,len%0#0
+        l-load-copy len%0#0 0                                     value#0,len%0#0,len%0#0 (copy)
+        int 64                                                    value#0,len%0#0,len%0#0 (copy),64
+        ==                                                        value#0,len%0#0,eq%0#0
+        l-load eq%0#0 0                                           value#0,len%0#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint512)    value#0,len%0#0
         // regression_tests/numeric_encode_round_trips.py:51
         // return arc4.UInt64(x).as_biguint()
-        l-load len%0#0 0                                          x#0,len%0#0
-        int 8                                                     x#0,len%0#0,8
-        <=                                                        x#0,aggregate%len_ok%0#0
-        l-load aggregate%len_ok%0#0 0                             x#0,aggregate%len_ok%0#0
-        assert // overflow                                        x#0
-        int 8                                                     x#0,8
-        bzero                                                     x#0,aggregate%bzero%0#0
-        l-load x#0 1                                              aggregate%bzero%0#0,x#0
-        l-load aggregate%bzero%0#0 1                              x#0,aggregate%bzero%0#0
+        l-load len%0#0 0                                          value#0,len%0#0
+        int 8                                                     value#0,len%0#0,8
+        <=                                                        value#0,aggregate%len_ok%0#0
+        l-load aggregate%len_ok%0#0 0                             value#0,aggregate%len_ok%0#0
+        assert // overflow                                        value#0
+        int 8                                                     value#0,8
+        bzero                                                     value#0,aggregate%bzero%0#0
+        l-load value#0 1                                          aggregate%bzero%0#0,value#0
+        l-load aggregate%bzero%0#0 1                              value#0,aggregate%bzero%0#0
         b|                                                        aggregate%arc4_encoded%0#0
         // regression_tests/numeric_encode_round_trips.py:49
         // @public
@@ -470,25 +486,25 @@ subroutine biguint_via_arc4_uint128:
     biguint_via_arc4_uint128_block@0:
         // regression_tests/numeric_encode_round_trips.py:53
         // @public
-        txna ApplicationArgs 1                                    x#0
-        l-load-copy x#0 0                                         x#0,x#0 (copy)
-        len                                                       x#0,len%0#0
-        l-load-copy len%0#0 0                                     x#0,len%0#0,len%0#0 (copy)
-        int 64                                                    x#0,len%0#0,len%0#0 (copy),64
-        ==                                                        x#0,len%0#0,eq%0#0
-        l-load eq%0#0 0                                           x#0,len%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint512        x#0,len%0#0
+        txna ApplicationArgs 1                                    value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        len                                                       value#0,len%0#0
+        l-load-copy len%0#0 0                                     value#0,len%0#0,len%0#0 (copy)
+        int 64                                                    value#0,len%0#0,len%0#0 (copy),64
+        ==                                                        value#0,len%0#0,eq%0#0
+        l-load eq%0#0 0                                           value#0,len%0#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint512)    value#0,len%0#0
         // regression_tests/numeric_encode_round_trips.py:55
         // return arc4.UInt128(x).as_biguint()
-        l-load len%0#0 0                                          x#0,len%0#0
-        int 16                                                    x#0,len%0#0,16
-        <=                                                        x#0,aggregate%len_ok%0#0
-        l-load aggregate%len_ok%0#0 0                             x#0,aggregate%len_ok%0#0
-        assert // overflow                                        x#0
-        int 16                                                    x#0,16
-        bzero                                                     x#0,aggregate%bzero%0#0
-        l-load x#0 1                                              aggregate%bzero%0#0,x#0
-        l-load aggregate%bzero%0#0 1                              x#0,aggregate%bzero%0#0
+        l-load len%0#0 0                                          value#0,len%0#0
+        int 16                                                    value#0,len%0#0,16
+        <=                                                        value#0,aggregate%len_ok%0#0
+        l-load aggregate%len_ok%0#0 0                             value#0,aggregate%len_ok%0#0
+        assert // overflow                                        value#0
+        int 16                                                    value#0,16
+        bzero                                                     value#0,aggregate%bzero%0#0
+        l-load value#0 1                                          aggregate%bzero%0#0,value#0
+        l-load aggregate%bzero%0#0 1                              value#0,aggregate%bzero%0#0
         b|                                                        aggregate%arc4_encoded%0#0
         // regression_tests/numeric_encode_round_trips.py:53
         // @public

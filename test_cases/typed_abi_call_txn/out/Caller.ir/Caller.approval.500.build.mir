@@ -90,53 +90,25 @@ subroutine test_call_with_txn:
         txna ApplicationArgs 1                                                         tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                 tmp%0#0
-        int 0                                                                          tmp%0#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
-        int 2                                                                          aggregate%array_length%0#0,2
-        +                                                                              add%0#0
-        v-store add%0#0
-        v-load tmp%0#0                                                                 tmp%0#0
-        len                                                                            len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                 len%0#0
-        v-load add%0#0                                                                 len%0#0,add%0#0
-        ==                                                                             eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+uint8[])
         txna ApplicationArgs 2                                                         tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                 tmp%2#0
-        int 0                                                                          tmp%2#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                              aggregate%array_length%1#0
-        int 2                                                                          aggregate%array_length%1#0,2
-        +                                                                              add%1#0
-        v-store add%1#0
-        v-load tmp%2#0                                                                 tmp%2#0
-        len                                                                            len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                 len%1#0
-        v-load add%1#0                                                                 len%1#0,add%1#0
-        ==                                                                             eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                  eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        txna ApplicationArgs 3                                                         tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                 tmp%4#0
-        len                                                                            len%2#0
-        v-store len%2#0
-        v-load len%2#0                                                                 len%2#0
-        int 8                                                                          len%2#0,8
-        ==                                                                             eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                  eq%2#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%4#0                                                                 tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])
+        txna ApplicationArgs 3                                                         value#0
+        v-store value#0
+        v-load value#0                                                                 value#0
+        len                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                 len%0#0
+        int 8                                                                          len%0#0,8
+        ==                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                  eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // typed_abi_call_txn/caller.py:15
+        // @arc4.abimethod
+        v-load value#0                                                                 value#0
         btoi                                                                           app#0
         v-store app#0
         // typed_abi_call_txn/caller.py:22-28
@@ -210,9 +182,9 @@ subroutine test_call_with_txn:
         v-load tmp%3#1                                                                 tmp%3#1
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%0#0                                                            awst_tmp%0#0
-        extract 4 0                                                                    tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                 tmp%4#0
+        extract 4 0                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                 value#0
         len                                                                            len%0#0
         v-store len%0#0
         v-load len%0#0                                                                 len%0#0
@@ -220,8 +192,16 @@ subroutine test_call_with_txn:
         ==                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
-        v-load tmp%4#0                                                                 tmp%4#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // typed_abi_call_txn/caller.py:22-28
+        // asset_id, _txn = arc4.abi_call(
+        //     TxnContract.call_with_txn,
+        //     a,
+        //     txn,
+        //     b,
+        //     app_id=app,
+        // )
+        v-load value#0                                                                 value#0
         btoi                                                                           asset_id#0
         v-store asset_id#0
         // typed_abi_call_txn/caller.py:29
@@ -242,53 +222,25 @@ subroutine test_call_with_acfg:
         txna ApplicationArgs 1                                                         tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                 tmp%0#0
-        int 0                                                                          tmp%0#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
-        int 2                                                                          aggregate%array_length%0#0,2
-        +                                                                              add%0#0
-        v-store add%0#0
-        v-load tmp%0#0                                                                 tmp%0#0
-        len                                                                            len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                 len%0#0
-        v-load add%0#0                                                                 len%0#0,add%0#0
-        ==                                                                             eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+uint8[])
         txna ApplicationArgs 2                                                         tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                 tmp%2#0
-        int 0                                                                          tmp%2#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                              aggregate%array_length%1#0
-        int 2                                                                          aggregate%array_length%1#0,2
-        +                                                                              add%1#0
-        v-store add%1#0
-        v-load tmp%2#0                                                                 tmp%2#0
-        len                                                                            len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                 len%1#0
-        v-load add%1#0                                                                 len%1#0,add%1#0
-        ==                                                                             eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                  eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        txna ApplicationArgs 3                                                         tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                 tmp%4#0
-        len                                                                            len%2#0
-        v-store len%2#0
-        v-load len%2#0                                                                 len%2#0
-        int 8                                                                          len%2#0,8
-        ==                                                                             eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                  eq%2#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%4#0                                                                 tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])
+        txna ApplicationArgs 3                                                         value#0
+        v-store value#0
+        v-load value#0                                                                 value#0
+        len                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                 len%0#0
+        int 8                                                                          len%0#0,8
+        ==                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                  eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // typed_abi_call_txn/caller.py:31
+        // @arc4.abimethod
+        v-load value#0                                                                 value#0
         btoi                                                                           app#0
         v-store app#0
         // typed_abi_call_txn/caller.py:38-44
@@ -362,9 +314,9 @@ subroutine test_call_with_acfg:
         v-load tmp%3#1                                                                 tmp%3#1
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%0#0                                                            awst_tmp%0#0
-        extract 4 0                                                                    tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                 tmp%4#0
+        extract 4 0                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                 value#0
         len                                                                            len%0#0
         v-store len%0#0
         v-load len%0#0                                                                 len%0#0
@@ -372,7 +324,7 @@ subroutine test_call_with_acfg:
         ==                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for Encoded(uint64)
         // typed_abi_call_txn/caller.py:31
         // @arc4.abimethod
         int 1                                                                          1
@@ -387,53 +339,25 @@ subroutine test_call_with_infer:
         txna ApplicationArgs 1                                                         tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                 tmp%0#0
-        int 0                                                                          tmp%0#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
-        int 2                                                                          aggregate%array_length%0#0,2
-        +                                                                              add%0#0
-        v-store add%0#0
-        v-load tmp%0#0                                                                 tmp%0#0
-        len                                                                            len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                 len%0#0
-        v-load add%0#0                                                                 len%0#0,add%0#0
-        ==                                                                             eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+uint8[])
         txna ApplicationArgs 2                                                         tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                 tmp%2#0
-        int 0                                                                          tmp%2#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                              aggregate%array_length%1#0
-        int 2                                                                          aggregate%array_length%1#0,2
-        +                                                                              add%1#0
-        v-store add%1#0
-        v-load tmp%2#0                                                                 tmp%2#0
-        len                                                                            len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                 len%1#0
-        v-load add%1#0                                                                 len%1#0,add%1#0
-        ==                                                                             eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                  eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        txna ApplicationArgs 3                                                         tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                 tmp%4#0
-        len                                                                            len%2#0
-        v-store len%2#0
-        v-load len%2#0                                                                 len%2#0
-        int 8                                                                          len%2#0,8
-        ==                                                                             eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                  eq%2#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%4#0                                                                 tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])
+        txna ApplicationArgs 3                                                         value#0
+        v-store value#0
+        v-load value#0                                                                 value#0
+        len                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                 len%0#0
+        int 8                                                                          len%0#0,8
+        ==                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                  eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // typed_abi_call_txn/caller.py:46
+        // @arc4.abimethod
+        v-load value#0                                                                 value#0
         btoi                                                                           app#0
         v-store app#0
         // typed_abi_call_txn/caller.py:53-59
@@ -497,9 +421,9 @@ subroutine test_call_with_infer:
         v-load tmp%3#1                                                                 tmp%3#1
         assert // application log value is not the result of an ABI return
         v-load awst_tmp%0#0                                                            awst_tmp%0#0
-        extract 4 0                                                                    tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                 tmp%4#0
+        extract 4 0                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                 value#0
         len                                                                            len%0#0
         v-store len%0#0
         v-load len%0#0                                                                 len%0#0
@@ -507,7 +431,7 @@ subroutine test_call_with_infer:
         ==                                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for Encoded(uint64)
         // typed_abi_call_txn/caller.py:46
         // @arc4.abimethod
         int 1                                                                          1
@@ -522,53 +446,25 @@ subroutine test_call_with_acfg_no_return:
         txna ApplicationArgs 1                                                         tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                                 tmp%0#0
-        int 0                                                                          tmp%0#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                              aggregate%array_length%0#0
-        int 2                                                                          aggregate%array_length%0#0,2
-        +                                                                              add%0#0
-        v-store add%0#0
-        v-load tmp%0#0                                                                 tmp%0#0
-        len                                                                            len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                                 len%0#0
-        v-load add%0#0                                                                 len%0#0,add%0#0
-        ==                                                                             eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                  eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+uint8[])
         txna ApplicationArgs 2                                                         tmp%2#0
         v-store tmp%2#0
         v-load tmp%2#0                                                                 tmp%2#0
-        int 0                                                                          tmp%2#0,0
-        extract_uint16 // on error: invalid array length header                        aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                              aggregate%array_length%1#0
-        int 2                                                                          aggregate%array_length%1#0,2
-        +                                                                              add%1#0
-        v-store add%1#0
-        v-load tmp%2#0                                                                 tmp%2#0
-        len                                                                            len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                 len%1#0
-        v-load add%1#0                                                                 len%1#0,add%1#0
-        ==                                                                             eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                  eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        txna ApplicationArgs 3                                                         tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                                 tmp%4#0
-        len                                                                            len%2#0
-        v-store len%2#0
-        v-load len%2#0                                                                 len%2#0
-        int 8                                                                          len%2#0,8
-        ==                                                                             eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                  eq%2#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%4#0                                                                 tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])
+        txna ApplicationArgs 3                                                         value#0
+        v-store value#0
+        v-load value#0                                                                 value#0
+        len                                                                            len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                 len%0#0
+        int 8                                                                          len%0#0,8
+        ==                                                                             eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                  eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // typed_abi_call_txn/caller.py:61
+        // @arc4.abimethod
+        v-load value#0                                                                 value#0
         btoi                                                                           app#0
         v-store app#0
         // typed_abi_call_txn/caller.py:68-70
@@ -642,5 +538,28 @@ subroutine test_call_with_acfg_no_return:
         // @arc4.abimethod
         int 1                                                                          1
         return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint8[]):
+    __internal_validate_Encoded(len+uint8[])_block@0:                                  (𝕡) value#0 |
+        p-load value#0                                                                 (𝕡) value#0 | value#0 (copy)
+        int 0                                                                          (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                        (𝕡) value#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                             (𝕡) value#0 |
+        v-load aggregate%array_length%0#0                                              (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                                          (𝕡) value#0 | aggregate%array_length%0#0,2
+        +                                                                              (𝕡) value#0 | add%0#0
+        v-store add%0#0                                                                (𝕡) value#0 |
+        p-load value#0                                                                 (𝕡) value#0 | value#0 (copy)
+        len                                                                            (𝕡) value#0 | len%0#0
+        v-store len%0#0                                                                (𝕡) value#0 |
+        v-load len%0#0                                                                 (𝕡) value#0 | len%0#0
+        v-load add%0#0                                                                 (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                             (𝕡) value#0 | eq%0#0
+        v-store eq%0#0                                                                 (𝕡) value#0 |
+        v-load eq%0#0                                                                  (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[])                     (𝕡) value#0 |
+        retsub
 
 

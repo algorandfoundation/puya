@@ -227,15 +227,17 @@ subroutine append:
     append_block@0:
         // large_box_operations/struct_array_uint64.py:32
         // @public
-        txna ApplicationArgs 1                                                            tmp%0#0
-        l-load-copy tmp%0#0 0                                                             tmp%0#0,tmp%0#0 (copy)
-        len                                                                               tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                  tmp%0#0,len%0#0
-        int 8                                                                             tmp%0#0,len%0#0,8
-        ==                                                                                tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                   tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                 tmp%0#0
-        l-load tmp%0#0 0                                                                  tmp%0#0
+        txna ApplicationArgs 1                                                            value#1
+        l-load-copy value#1 0                                                             value#1,value#1 (copy)
+        len                                                                               value#1,len%0#0
+        l-load len%0#0 0                                                                  value#1,len%0#0
+        int 8                                                                             value#1,len%0#0,8
+        ==                                                                                value#1,eq%0#0
+        l-load eq%0#0 0                                                                   value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                             value#1
+        // large_box_operations/struct_array_uint64.py:32
+        // @public
+        l-load value#1 0                                                                  value#1
         btoi                                                                              value#0
         // large_box_operations/struct_array_uint64.py:34
         // self.box.value.arr.append(value)
@@ -264,32 +266,24 @@ subroutine concat:
         // @public
         txna ApplicationArgs 1                                                            array#0
         l-load-copy array#0 0                                                             array#0,array#0 (copy)
-        int 0                                                                             array#0,array#0 (copy),0
-        extract_uint16 // on error: invalid array length header                           array#0,aggregate%array_length%0#0
-        l-load-copy aggregate%array_length%0#0 0                                          array#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        int 8                                                                             array#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),8
-        *                                                                                 array#0,aggregate%array_length%0#0,mul%0#0
-        l-load-copy mul%0#0 0                                                             array#0,aggregate%array_length%0#0,mul%0#0,mul%0#0 (copy)
-        int 2                                                                             array#0,aggregate%array_length%0#0,mul%0#0,mul%0#0 (copy),2
-        +                                                                                 array#0,aggregate%array_length%0#0,mul%0#0,add%0#0
-        l-load-copy array#0 3                                                             array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,array#0 (copy)
-        len                                                                               array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                  array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                  array#0,aggregate%array_length%0#0,mul%0#0,len%0#0,add%0#0
-        ==                                                                                array#0,aggregate%array_length%0#0,mul%0#0,eq%0#0
-        l-load eq%0#0 0                                                                   array#0,aggregate%array_length%0#0,mul%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                  array#0,aggregate%array_length%0#0,mul%0#0
+        callsub __internal_validate_Encoded(len+uint64[])                                 array#0
         // large_box_operations/struct_array_uint64.py:38
         // self.box.value.arr.extend(array)
-        l-load array#0 2                                                                  aggregate%array_length%0#0,mul%0#0,array#0
-        extract 2 0                                                                       aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0
-        byte "box"                                                                        aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box"
-        int 18                                                                            aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",18
-        l-load mul%0#0 3                                                                  aggregate%array_length%0#0,extract_to_end%0#0,"box",18,mul%0#0
-        callsub box_update_offset_inc                                                     aggregate%array_length%0#0,extract_to_end%0#0
-        byte "box"                                                                        aggregate%array_length%0#0,extract_to_end%0#0,"box"
-        int 20                                                                            aggregate%array_length%0#0,extract_to_end%0#0,"box",20
-        l-load extract_to_end%0#0 2                                                       aggregate%array_length%0#0,"box",20,extract_to_end%0#0
+        l-load-copy array#0 0                                                             array#0,array#0 (copy)
+        extract 2 0                                                                       array#0,extract_to_end%0#0
+        l-load array#0 1                                                                  extract_to_end%0#0,array#0
+        int 0                                                                             extract_to_end%0#0,array#0,0
+        extract_uint16 // on error: invalid array length header                           extract_to_end%0#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                          extract_to_end%0#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 8                                                                             extract_to_end%0#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),8
+        *                                                                                 extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0
+        byte "box"                                                                        extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0,"box"
+        int 18                                                                            extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0,"box",18
+        l-load box%mul%0#0 2                                                              extract_to_end%0#0,aggregate%array_length%0#0,"box",18,box%mul%0#0
+        callsub box_update_offset_inc                                                     extract_to_end%0#0,aggregate%array_length%0#0
+        byte "box"                                                                        extract_to_end%0#0,aggregate%array_length%0#0,"box"
+        int 20                                                                            extract_to_end%0#0,aggregate%array_length%0#0,"box",20
+        l-load extract_to_end%0#0 3                                                       aggregate%array_length%0#0,"box",20,extract_to_end%0#0
         l-load aggregate%array_length%0#0 3                                               "box",20,extract_to_end%0#0,aggregate%array_length%0#0
         int 8                                                                             "box",20,extract_to_end%0#0,aggregate%array_length%0#0,8
         callsub box_dynamic_array_concat_fixed
@@ -419,15 +413,17 @@ subroutine get:
     get_block@0:
         // large_box_operations/struct_array_uint64.py:44
         // @public
-        txna ApplicationArgs 1                                                            tmp%0#0
-        l-load-copy tmp%0#0 0                                                             tmp%0#0,tmp%0#0 (copy)
-        len                                                                               tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                  tmp%0#0,len%0#0
-        int 8                                                                             tmp%0#0,len%0#0,8
-        ==                                                                                tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                   tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                 tmp%0#0
-        l-load tmp%0#0 0                                                                  tmp%0#0
+        txna ApplicationArgs 1                                                            value#0
+        l-load-copy value#0 0                                                             value#0,value#0 (copy)
+        len                                                                               value#0,len%0#0
+        l-load len%0#0 0                                                                  value#0,len%0#0
+        int 8                                                                             value#0,len%0#0,8
+        ==                                                                                value#0,eq%0#0
+        l-load eq%0#0 0                                                                   value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                             value#0
+        // large_box_operations/struct_array_uint64.py:44
+        // @public
+        l-load value#0 0                                                                  value#0
         btoi                                                                              idx#0
         // large_box_operations/struct_array_uint64.py:46
         // return self.box.value.arr[idx]
@@ -468,46 +464,48 @@ subroutine set:
     set_block@0:
         // large_box_operations/struct_array_uint64.py:48
         // @public
-        txna ApplicationArgs 1                                                            tmp%0#0
-        l-load-copy tmp%0#0 0                                                             tmp%0#0,tmp%0#0 (copy)
-        len                                                                               tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                  tmp%0#0,len%0#0
-        int 8                                                                             tmp%0#0,len%0#0,8
-        ==                                                                                tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                   tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                 tmp%0#0
-        l-load tmp%0#0 0                                                                  tmp%0#0
+        txna ApplicationArgs 1                                                            value#0
+        l-load-copy value#0 0                                                             value#0,value#0 (copy)
+        len                                                                               value#0,len%0#0
+        l-load len%0#0 0                                                                  value#0,len%0#0
+        int 8                                                                             value#0,len%0#0,8
+        ==                                                                                value#0,eq%0#0
+        l-load eq%0#0 0                                                                   value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                             value#0
+        // large_box_operations/struct_array_uint64.py:48
+        // @public
+        l-load value#0 0                                                                  value#0
         btoi                                                                              idx#0
-        txna ApplicationArgs 2                                                            idx#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                             idx#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                               idx#0,tmp%2#0,len%1#0
-        l-load len%1#0 0                                                                  idx#0,tmp%2#0,len%1#0
-        int 8                                                                             idx#0,tmp%2#0,len%1#0,8
-        ==                                                                                idx#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                                                   idx#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                 idx#0,tmp%2#0
+        txna ApplicationArgs 2                                                            idx#0,value#0
+        l-load-copy value#0 0                                                             idx#0,value#0,value#0 (copy)
+        len                                                                               idx#0,value#0,len%0#0
+        l-load len%0#0 0                                                                  idx#0,value#0,len%0#0
+        int 8                                                                             idx#0,value#0,len%0#0,8
+        ==                                                                                idx#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                                   idx#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                             idx#0,value#0
         // large_box_operations/struct_array_uint64.py:50
         // self.box.value.arr[idx] = value
-        byte "box"                                                                        idx#0,tmp%2#0,"box"
-        int 20                                                                            idx#0,tmp%2#0,"box",20
-        int 2                                                                             idx#0,tmp%2#0,"box",20,2
-        box_extract                                                                       idx#0,tmp%2#0,box%box_extract%0#0
-        l-load box%box_extract%0#0 0                                                      idx#0,tmp%2#0,box%box_extract%0#0
-        btoi                                                                              idx#0,tmp%2#0,box%btoi%0#0
-        l-load-copy idx#0 2                                                               idx#0,tmp%2#0,box%btoi%0#0,idx#0 (copy)
-        l-load box%btoi%0#0 1                                                             idx#0,tmp%2#0,idx#0 (copy),box%btoi%0#0
-        <                                                                                 idx#0,tmp%2#0,box%index_ok%0#0
-        l-load box%index_ok%0#0 0                                                         idx#0,tmp%2#0,box%index_ok%0#0
-        assert // index out of bounds                                                     idx#0,tmp%2#0
-        l-load idx#0 1                                                                    tmp%2#0,idx#0
-        int 8                                                                             tmp%2#0,idx#0,8
-        *                                                                                 tmp%2#0,box%element_offset%0#0
-        int 22                                                                            tmp%2#0,box%element_offset%0#0,22
-        l-load box%element_offset%0#0 1                                                   tmp%2#0,22,box%element_offset%0#0
-        +                                                                                 tmp%2#0,box%offset%1#0
-        byte "box"                                                                        tmp%2#0,box%offset%1#0,"box"
-        l-load box%offset%1#0 1                                                           tmp%2#0,"box",box%offset%1#0
-        l-load tmp%2#0 2                                                                  "box",box%offset%1#0,tmp%2#0
+        byte "box"                                                                        idx#0,value#0,"box"
+        int 20                                                                            idx#0,value#0,"box",20
+        int 2                                                                             idx#0,value#0,"box",20,2
+        box_extract                                                                       idx#0,value#0,box%box_extract%0#0
+        l-load box%box_extract%0#0 0                                                      idx#0,value#0,box%box_extract%0#0
+        btoi                                                                              idx#0,value#0,box%btoi%0#0
+        l-load-copy idx#0 2                                                               idx#0,value#0,box%btoi%0#0,idx#0 (copy)
+        l-load box%btoi%0#0 1                                                             idx#0,value#0,idx#0 (copy),box%btoi%0#0
+        <                                                                                 idx#0,value#0,box%index_ok%0#0
+        l-load box%index_ok%0#0 0                                                         idx#0,value#0,box%index_ok%0#0
+        assert // index out of bounds                                                     idx#0,value#0
+        l-load idx#0 1                                                                    value#0,idx#0
+        int 8                                                                             value#0,idx#0,8
+        *                                                                                 value#0,box%element_offset%0#0
+        int 22                                                                            value#0,box%element_offset%0#0,22
+        l-load box%element_offset%0#0 1                                                   value#0,22,box%element_offset%0#0
+        +                                                                                 value#0,box%offset%1#0
+        byte "box"                                                                        value#0,box%offset%1#0,"box"
+        l-load box%offset%1#0 1                                                           value#0,"box",box%offset%1#0
+        l-load value#0 2                                                                  "box",box%offset%1#0,value#0
         box_replace // on error: index out of bounds
         // large_box_operations/struct_array_uint64.py:48
         // @public
@@ -522,21 +520,7 @@ subroutine verify:
         // @public
         txna ApplicationArgs 1                                                            tmp%0#0
         l-load-copy tmp%0#0 0                                                             tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                             tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                           tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                               tmp%0#0,aggregate%array_length%0#0
-        int 8                                                                             tmp%0#0,aggregate%array_length%0#0,8
-        *                                                                                 tmp%0#0,mul%0#0
-        l-load mul%0#0 0                                                                  tmp%0#0,mul%0#0
-        int 2                                                                             tmp%0#0,mul%0#0,2
-        +                                                                                 tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                             tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                               tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                  tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                  tmp%0#0,len%0#0,add%0#0
-        ==                                                                                tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                   tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                  tmp%0#0
+        callsub __internal_validate_Encoded(len+uint64[])                                 tmp%0#0
         l-load tmp%0#0 0                                                                  tmp%0#0
         callsub test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.verify verify%0#0
         v-store verify%0#0
@@ -628,5 +612,27 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
         assert // expected box length >4096                                               (𝕡) expected#0 |
         p-load expected#0                                                                 (𝕡) expected#0 | expected#0 (copy)
         retsub                                                                            expected#0 (copy)
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint64[]):
+    __internal_validate_Encoded(len+uint64[])_block@0:                                    (𝕡) value#0 |
+        p-load value#0                                                                    (𝕡) value#0 | value#0 (copy)
+        int 0                                                                             (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                           (𝕡) value#0 | aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                               (𝕡) value#0 | aggregate%array_length%0#0
+        int 8                                                                             (𝕡) value#0 | aggregate%array_length%0#0,8
+        *                                                                                 (𝕡) value#0 | mul%0#0
+        l-load mul%0#0 0                                                                  (𝕡) value#0 | mul%0#0
+        int 2                                                                             (𝕡) value#0 | mul%0#0,2
+        +                                                                                 (𝕡) value#0 | add%0#0
+        p-load value#0                                                                    (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                               (𝕡) value#0 | add%0#0,len%0#0
+        l-load len%0#0 0                                                                  (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                  (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                                (𝕡) value#0 | eq%0#0
+        l-load eq%0#0 0                                                                   (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint64[])                       (𝕡) value#0 |
+        retsub
 
 

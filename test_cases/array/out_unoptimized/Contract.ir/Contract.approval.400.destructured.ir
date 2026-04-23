@@ -411,9 +411,7 @@ subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursag
 subroutine test_cases.array.uint64.Contract.test_allocations[routing]() -> void:
     block@0: // L134
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.array.uint64.Contract.test_allocations(tmp%1#0)
@@ -1434,4 +1432,11 @@ subroutine test_cases.array.uint64.Contract.test_unobserved_write() -> void:
         let tmp%3#0: uint64 = (btoi array_item%0#0)
         let tmp%4#0: bool = (== tmp%3#0 1u)
         (assert tmp%4#0)
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         return 

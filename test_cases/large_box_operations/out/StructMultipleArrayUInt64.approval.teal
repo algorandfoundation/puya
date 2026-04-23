@@ -275,7 +275,9 @@ append:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/struct_multiple_array_uint64.py:49
+    // @public
     btoi
     // large_box_operations/struct_multiple_array_uint64.py:51
     // self.box.value.arr1.append(value)
@@ -356,37 +358,32 @@ concat:
     // @public
     txna ApplicationArgs 1
     dup
+    callsub __internal_validate_Encoded(len+uint64[])
+    // large_box_operations/struct_multiple_array_uint64.py:57
+    // self.box.value.arr1.extend(array)
+    dup
+    extract 2 0
+    dig 1
     pushint 0
     extract_uint16 // on error: invalid array length header
     dup
     intc_1 // 8
     *
-    dup
-    intc_0 // 2
-    +
-    dig 3
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    // large_box_operations/struct_multiple_array_uint64.py:57
-    // self.box.value.arr1.extend(array)
-    dig 2
-    extract 2 0
     bytec_0 // "box"
     pushint 10
-    dig 3
+    dig 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     intc_3 // 12
-    dig 3
+    dig 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     pushint 22
-    uncover 3
+    uncover 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     pushint 24
-    uncover 2
+    uncover 3
     uncover 3
     intc_1 // 8
     callsub box_dynamic_array_concat_fixed
@@ -608,7 +605,9 @@ get:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/struct_multiple_array_uint64.py:68
+    // @public
     btoi
     // large_box_operations/struct_multiple_array_uint64.py:70
     // result = self.box.value.arr1[idx]
@@ -709,14 +708,18 @@ set:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/struct_multiple_array_uint64.py:75
+    // @public
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // large_box_operations/struct_multiple_array_uint64.py:75
+    // @public
     dup
     btoi
     // large_box_operations/struct_multiple_array_uint64.py:77
@@ -805,16 +808,7 @@ verify:
     // @public
     txna ApplicationArgs 1
     dup
-    pushint 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 8
-    *
-    intc_0 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     callsub test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify
     pop
     intc_2 // 1
@@ -960,4 +954,21 @@ test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArray
     >
     assert // expected box length >4096
     frame_dig -1
+    retsub
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint64[]):
+    proto 1 0
+    frame_dig -1
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 8
+    *
+    intc_0 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint64[])
     retsub

@@ -37,9 +37,7 @@ subroutine test_cases.regression_tests.issue_434.Issue434.__puya_arc4_router__()
 subroutine test_cases.regression_tests.issue_434.Issue434.method[routing]() -> void:
     block@0: // L6
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = decode_bytes<uint64>(as_Encoded(uint64)%0#0)
         test_cases.regression_tests.issue_434.Issue434.method(tmp%1#0)
@@ -79,4 +77,11 @@ subroutine test_cases.regression_tests.issue_434.Issue434.method(c: uint64) -> v
 
 subroutine test_cases.regression_tests.issue_434.Issue434.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         return 

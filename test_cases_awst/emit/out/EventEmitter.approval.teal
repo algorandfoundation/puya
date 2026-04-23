@@ -33,13 +33,13 @@ emitSwapped:
     len
     intc_0 // 1
     ==
-    assert // invalid number of bytes for arc4.uint8
+    assert // invalid number of bytes for Encoded(uint8)
     txna ApplicationArgs 2
     dup
     len
     intc_0 // 1
     ==
-    assert // invalid number of bytes for arc4.uint8
+    assert // invalid number of bytes for Encoded(uint8)
     dup
     dig 2
     concat
@@ -156,13 +156,13 @@ emitCustom:
     dig 1
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for Encoded(len+utf8[])
     txna ApplicationArgs 2
     dup
     len
     intc_0 // 1
     ==
-    assert // invalid number of bytes for arc4.bool
+    assert // invalid number of bytes for Encoded(bool8)
     bytec_1 // 0x0003
     swap
     concat
@@ -182,28 +182,13 @@ emitCustom:
 emitDynamicBytes:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    dup
-    uncover 2
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
+    callsub __internal_validate_Encoded(len+uint8[])
     dig 1
     len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     pushint 4
-    uncover 2
     +
     itob
     extract 6 2
@@ -220,3 +205,18 @@ emitDynamicBytes:
     log
     intc_0 // 1
     return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    frame_dig -1
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
+    retsub

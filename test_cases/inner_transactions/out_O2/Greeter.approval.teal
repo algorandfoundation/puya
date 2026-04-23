@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 2 6 1
+    intcblock 0 6 1
     bytecblock "hello_app" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
@@ -27,14 +27,7 @@ main_after_if_else@2:
 main_log_greetings_route@7:
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     itxn_begin
     intc_0 // 0
     bytec_0 // "hello_app"
@@ -44,7 +37,7 @@ main_log_greetings_route@7:
     itxn_field ApplicationArgs
     itxn_field ApplicationID
     itxn_field ApplicationArgs
-    intc_2 // appl
+    intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -57,21 +50,13 @@ main_log_greetings_route@7:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 6 0
     pushbytes "HelloWorld returned: "
     swap
     concat
     log
-    intc_3 // 1
+    intc_2 // 1
     return
 
 main_bootstrap_route@6:
@@ -86,7 +71,7 @@ main_bootstrap_route@6:
     itxn_field ClearStateProgramPages
     pushbytes 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
     itxn_field ApprovalProgramPages
-    intc_2 // appl
+    intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -100,7 +85,7 @@ main_bootstrap_route@6:
     swap
     concat
     log
-    intc_3 // 1
+    intc_2 // 1
     return
 
 main___algopy_default_create@11:
@@ -110,3 +95,18 @@ main___algopy_default_create@11:
     !
     &&
     return
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
+    retsub

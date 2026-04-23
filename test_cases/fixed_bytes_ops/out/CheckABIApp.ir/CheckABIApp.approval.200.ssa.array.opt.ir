@@ -40,10 +40,10 @@ subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.manual_validate[rou
 
 subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate[routing]() -> void:
     block@0: // L53
-        let value#0: bytes[11] = (txna ApplicationArgs 1)
+        let value#0: Encoded(uint8[11]) = (txna ApplicationArgs 1)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 11u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 11>
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[11])
         exit 1u
 
 subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality[routing]() -> void:
@@ -53,7 +53,7 @@ subroutine test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_pers
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
         let tmp%0#1: bytes = ((extract 2 0) value#0)
         let tmp%1#0: bool = (== tmp%0#1 0x68656c6c6f20776f726c64)
         (assert tmp%1#0)

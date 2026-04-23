@@ -68,10 +68,10 @@ subroutine test_implicit_conversion_abi_call:
     test_implicit_conversion_abi_call_block@0:
         // array/unused_opt_allowed.py:13
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    arr#0
-        v-store arr#0
-        v-load arr#0                                                                              arr#0
-        int 0                                                                                     arr#0,0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
+        int 0                                                                                     value#0,0
         extract_uint16 // on error: invalid array length header                                   aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                         aggregate%array_length%0#0
@@ -82,7 +82,7 @@ subroutine test_implicit_conversion_abi_call:
         int 2                                                                                     mul%0#0,2
         +                                                                                         add%0#0
         v-store add%0#0
-        v-load arr#0                                                                              arr#0
+        v-load value#0                                                                            value#0
         len                                                                                       len%0#0
         v-store len%0#0
         v-load len%0#0                                                                            len%0#0
@@ -90,19 +90,23 @@ subroutine test_implicit_conversion_abi_call:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>
-        txna ApplicationArgs 2                                                                    tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                            tmp%1#0
-        len                                                                                       len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                            len%1#0
-        int 8                                                                                     len%1#0,8
-        ==                                                                                        eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                             eq%1#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%1#0                                                                            tmp%1#0
+        assert // invalid number of bytes for Encoded(len+uint64[])
+        // array/unused_opt_allowed.py:13
+        // @arc4.abimethod()
+        txna ApplicationArgs 2                                                                    value#1
+        v-store value#1
+        v-load value#1                                                                            value#1
+        len                                                                                       len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                            len%0#0
+        int 8                                                                                     len%0#0,8
+        ==                                                                                        eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                             eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // array/unused_opt_allowed.py:13
+        // @arc4.abimethod()
+        v-load value#1                                                                            value#1
         btoi                                                                                      app#0
         v-store app#0
         // array/unused_opt_allowed.py:18
@@ -112,7 +116,7 @@ subroutine test_implicit_conversion_abi_call:
         itxn_field ApplicationID
         method dont_call(uint64[])uint64                                                          Method(dont_call(uint64[])uint64)
         itxn_field ApplicationArgs
-        v-load arr#0                                                                              arr#0
+        v-load value#0                                                                            value#0
         itxn_field ApplicationArgs
         int appl                                                                                  appl
         itxn_field TypeEnum
@@ -122,7 +126,7 @@ subroutine test_implicit_conversion_abi_call:
         // array/unused_opt_allowed.py:21
         // nested_arr = nested_arr.append(arr)
         byte 0x0002                                                                               0x0002
-        v-load arr#0                                                                              0x0002,arr#0
+        v-load value#0                                                                            0x0002,value#0
         concat                                                                                    new_head_and_tail#0
         v-store new_head_and_tail#0
         byte 0x0001                                                                               0x0001
@@ -154,10 +158,10 @@ subroutine test_implicit_conversion_abi_call:
         itob                                                                                      tmp%0#3
         v-store tmp%0#3
         v-load tmp%0#3                                                                            tmp%0#3
-        extract 6 0                                                                               tmp%1#0
-        v-store tmp%1#0
+        extract 6 0                                                                               tmp%1#1
+        v-store tmp%1#1
         v-load result#0                                                                           result#0
-        v-load tmp%1#0                                                                            result#0,tmp%1#0
+        v-load tmp%1#1                                                                            result#0,tmp%1#1
         concat                                                                                    result#0
         v-store result#0
         v-load head_offset#0                                                                      head_offset#0
@@ -192,10 +196,10 @@ subroutine test_implicit_conversion_abi_call:
         itob                                                                                      tmp%0#3
         v-store tmp%0#3
         v-load tmp%0#3                                                                            tmp%0#3
-        extract 6 0                                                                               tmp%1#0
-        v-store tmp%1#0
+        extract 6 0                                                                               tmp%1#1
+        v-store tmp%1#1
         v-load result#0                                                                           result#0
-        v-load tmp%1#0                                                                            result#0,tmp%1#0
+        v-load tmp%1#1                                                                            result#0,tmp%1#1
         concat                                                                                    result#0
         v-store result#0
         v-load head_offset#0                                                                      head_offset#0

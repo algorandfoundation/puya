@@ -47,9 +47,7 @@ subroutine test_cases.circular_dependency.a.A.name[routing]() -> void:
 subroutine test_cases.circular_dependency.a.A.ping[routing]() -> void:
     block@0: // L18
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let b#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         itxn_begin
         ((itxn_field ApplicationID) b#0)
@@ -62,12 +60,7 @@ subroutine test_cases.circular_dependency.a.A.ping[routing]() -> void:
         let tmp%1#1: bool = (== tmp%0#1 0x151f7c75)
         (assert tmp%1#1) // application log value is not the result of an ABI return
         let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
-        let length%0#0: uint64 = array_len(tmp%2#1)
-        let mul%0#0: uint64 = length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#1: uint64 = (len tmp%2#1)
-        let eq%0#1: bool = (== len%0#1 add%0#0)
-        (assert eq%0#1) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(tmp%2#1)
         let result#0: string = decode_bytes<string>(tmp%2#1)
         let tmp%3#0: Encoded(len+utf8[]) = tmp%2#1
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
@@ -84,9 +77,7 @@ subroutine test_cases.circular_dependency.a.A.pong[routing]() -> void:
 subroutine test_cases.circular_dependency.a.A.create_b[routing]() -> void:
     block@0: // L27
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let factory_id#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         itxn_begin
         ((itxn_field ApplicationID) factory_id#0)
@@ -99,9 +90,7 @@ subroutine test_cases.circular_dependency.a.A.create_b[routing]() -> void:
         let tmp%1#1: bool = (== tmp%0#1 0x151f7c75)
         (assert tmp%1#1) // application log value is not the result of an ABI return
         let tmp%2#1: bytes = ((extract 4 0) awst_tmp%0#0)
-        let len%0#1: uint64 = (len tmp%2#1)
-        let eq%0#1: bool = (== len%0#1 8u)
-        (assert eq%0#1) // invalid number of bytes for application
+        __internal_validate_Encoded(uint64)(tmp%2#1)
         let result#0: uint64 = decode_bytes<uint64>(tmp%2#1)
         let tmp%3#0: Encoded(uint64) = tmp%2#1
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
@@ -110,4 +99,21 @@ subroutine test_cases.circular_dependency.a.A.create_b[routing]() -> void:
 
 subroutine test_cases.circular_dependency.a.A.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 
+
+subroutine __internal_validate_Encoded(len+utf8[])(value: Encoded(len+utf8[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
         return 

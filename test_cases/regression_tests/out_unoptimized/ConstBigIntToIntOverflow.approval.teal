@@ -96,10 +96,7 @@ get_abs_bound1_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1
     itob
@@ -189,4 +186,18 @@ test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2_
     btoi
     // regression_tests/biguint_opt.py:23
     // return abs_bound
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
     retsub

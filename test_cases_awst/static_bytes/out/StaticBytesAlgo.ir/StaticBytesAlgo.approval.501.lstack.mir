@@ -71,24 +71,24 @@ subroutine main:
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]() -> void:
 subroutine hashAddresses:
     hashAddresses_block@0:
-        txna ApplicationArgs 1                                                   a1#0
-        l-load-copy a1#0 0                                                       a1#0,a1#0 (copy)
-        len                                                                      a1#0,len%0#0
-        l-load len%0#0 0                                                         a1#0,len%0#0
-        int 32                                                                   a1#0,len%0#0,32
-        ==                                                                       a1#0,eq%0#0
-        l-load eq%0#0 0                                                          a1#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>  a1#0
-        txna ApplicationArgs 2                                                   a1#0,a2#0
-        l-load-copy a2#0 0                                                       a1#0,a2#0,a2#0 (copy)
-        len                                                                      a1#0,a2#0,len%1#0
-        l-load len%1#0 0                                                         a1#0,a2#0,len%1#0
-        int 32                                                                   a1#0,a2#0,len%1#0,32
-        ==                                                                       a1#0,a2#0,eq%1#0
-        l-load eq%1#0 0                                                          a1#0,a2#0,eq%1#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>  a1#0,a2#0
-        l-load a1#0 1                                                            a2#0,a1#0
-        l-load a2#0 1                                                            a1#0,a2#0
+        txna ApplicationArgs 1                                                   value#0
+        l-load-copy value#0 0                                                    value#0,value#0 (copy)
+        len                                                                      value#0,len%0#0
+        l-load len%0#0 0                                                         value#0,len%0#0
+        int 32                                                                   value#0,len%0#0,32
+        ==                                                                       value#0,eq%0#0
+        l-load eq%0#0 0                                                          value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                 value#0
+        txna ApplicationArgs 2                                                   value#0,value#1
+        l-load-copy value#1 0                                                    value#0,value#1,value#1 (copy)
+        len                                                                      value#0,value#1,len%0#0
+        l-load len%0#0 0                                                         value#0,value#1,len%0#0
+        int 32                                                                   value#0,value#1,len%0#0,32
+        ==                                                                       value#0,value#1,eq%0#0
+        l-load eq%0#0 0                                                          value#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                 value#0,value#1
+        l-load value#0 1                                                         value#1,value#0
+        l-load value#1 1                                                         value#0,value#1
         concat                                                                   tmp%0#1
         l-load tmp%0#1 0                                                         tmp%0#1
         sha512_256                                                               tmp%1#1
@@ -104,15 +104,15 @@ subroutine hashAddresses:
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]() -> void:
 subroutine receiveB32:
     receiveB32_block@0:
-        txna ApplicationArgs 1                                                   tmp%0#0
-        l-load-copy tmp%0#0 0                                                    tmp%0#0,tmp%0#0 (copy)
-        len                                                                      tmp%0#0,len%0#0
-        l-load len%0#0 0                                                         tmp%0#0,len%0#0
-        int 32                                                                   tmp%0#0,len%0#0,32
-        ==                                                                       tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>  tmp%0#0
-        l-load tmp%0#0 0                                                         tmp%0#0
+        txna ApplicationArgs 1                                                   value#0
+        l-load-copy value#0 0                                                    value#0,value#0 (copy)
+        len                                                                      value#0,len%0#0
+        l-load len%0#0 0                                                         value#0,len%0#0
+        int 32                                                                   value#0,len%0#0,32
+        ==                                                                       value#0,eq%0#0
+        l-load eq%0#0 0                                                          value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                 value#0
+        l-load value#0 0                                                         value#0
         callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32 tmp%2#0
         byte 0x151f7c75                                                          tmp%2#0,0x151f7c75
         l-load tmp%2#0 1                                                         0x151f7c75,tmp%2#0
@@ -126,36 +126,36 @@ subroutine receiveB32:
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
 subroutine receiveBytes:
     receiveBytes_block@0:
-        txna ApplicationArgs 1                                                   tmp%0#0
-        l-load-copy tmp%0#0 0                                                    tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                  tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                      tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                    tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                        tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                    tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                      tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                         tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                         tmp%0#0,len%0#0,add%0#0
-        ==                                                                       tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>     tmp%0#0
-        l-load tmp%0#0 0                                                         tmp%0#0
+        txna ApplicationArgs 1                                                   value#0
+        l-load-copy value#0 0                                                    value#0,value#0 (copy)
+        int 0                                                                    value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                  value#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                      value#0,aggregate%array_length%0#0
+        int 2                                                                    value#0,aggregate%array_length%0#0,2
+        +                                                                        value#0,add%0#0
+        l-load-copy value#0 1                                                    value#0,add%0#0,value#0 (copy)
+        len                                                                      value#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                         value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                         value#0,len%0#0,add%0#0
+        ==                                                                       value#0,eq%0#0
+        l-load eq%0#0 0                                                          value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[])               value#0
+        l-load value#0 0                                                         value#0
         extract 2 0                                                              b#0
-        txna ApplicationArgs 2                                                   b#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                    b#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                      b#0,tmp%2#0,len%1#0
-        l-load len%1#0 0                                                         b#0,tmp%2#0,len%1#0
-        int 8                                                                    b#0,tmp%2#0,len%1#0,8
-        ==                                                                       b#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                                          b#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                        b#0,tmp%2#0
-        l-load tmp%2#0 0                                                         b#0,tmp%2#0
+        txna ApplicationArgs 2                                                   b#0,value#0
+        l-load-copy value#0 0                                                    b#0,value#0,value#0 (copy)
+        len                                                                      b#0,value#0,len%0#0
+        l-load len%0#0 0                                                         b#0,value#0,len%0#0
+        int 8                                                                    b#0,value#0,len%0#0,8
+        ==                                                                       b#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                          b#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                    b#0,value#0
+        l-load value#0 0                                                         b#0,value#0
         btoi                                                                     b#0,length#0
         l-load b#0 1                                                             length#0,b#0
-        len                                                                      length#0,tmp%0#1
-        l-load tmp%0#1 0                                                         length#0,tmp%0#1
-        l-load length#0 1                                                        tmp%0#1,length#0
+        len                                                                      length#0,tmp%0#0
+        l-load tmp%0#0 0                                                         length#0,tmp%0#0
+        l-load length#0 1                                                        tmp%0#0,length#0
         ==                                                                       tmp%1#1
         l-load tmp%1#1 0                                                         tmp%1#1
         assert
@@ -166,14 +166,14 @@ subroutine receiveBytes:
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[routing]() -> void:
 subroutine returnLength:
     returnLength_block@0:
-        txna ApplicationArgs 1                                                   b#0
-        l-load b#0 0                                                             b#0
+        txna ApplicationArgs 1                                                   value#0
+        l-load value#0 0                                                         value#0
         len                                                                      len%0#0
         l-load-copy len%0#0 0                                                    len%0#0,len%0#0 (copy)
         int 32                                                                   len%0#0,len%0#0 (copy),32
         ==                                                                       len%0#0,eq%0#0
         l-load eq%0#0 0                                                          len%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>  len%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                 len%0#0
         l-load len%0#0 0                                                         len%0#0
         itob                                                                     aggregate%val_as_bytes%0#0
         byte 0x151f7c75                                                          aggregate%val_as_bytes%0#0,0x151f7c75

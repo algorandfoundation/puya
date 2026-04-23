@@ -153,17 +153,17 @@ subroutine register:
     register_block@0:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        txna ApplicationArgs 1                                                          name#0
-        v-store name#0
-        v-load name#0                                                                   name#0
-        int 0                                                                           name#0,0
+        txna ApplicationArgs 1                                                          value#0
+        v-store value#0
+        v-load value#0                                                                  value#0
+        int 0                                                                           value#0,0
         extract_uint16 // on error: invalid array length header                         aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                               aggregate%array_length%0#0
         int 2                                                                           aggregate%array_length%0#0,2
         +                                                                               add%0#0
         v-store add%0#0
-        v-load name#0                                                                   name#0
+        v-load value#0                                                                  value#0
         len                                                                             len%0#0
         v-store len%0#0
         v-load len%0#0                                                                  len%0#0
@@ -171,7 +171,7 @@ subroutine register:
         ==                                                                              eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                   eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        assert // invalid number of bytes for Encoded(len+utf8[])
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
         txn Sender                                                                      tmp%0#2
@@ -195,9 +195,9 @@ subroutine register:
         ==                                                                              tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                  tmp%1#0
-        bz register_after_if_else@5 ; b register_if_body@2
+        bz register_after_if_else@7 ; b register_if_body@4
 
-    register_if_body@2:
+    register_if_body@4:
         // everything/contract.py:51
         // sender_name, sender_name_existed = self.name.maybe(account=0)
         int 0                                                                           0
@@ -209,9 +209,9 @@ subroutine register:
         // everything/contract.py:52
         // if not sender_name_existed:
         v-load sender_name_existed#0                                                    sender_name_existed#0
-        bz register_if_body@3 ; b register_after_if_else@5
+        bz register_if_body@5 ; b register_after_if_else@7
 
-    register_if_body@3:
+    register_if_body@5:
         // everything/contract.py:53
         // self.counter += multiplicative_identity()  # has full FuncDef
         int 0                                                                           0
@@ -232,14 +232,14 @@ subroutine register:
         byte "counter"                                                                  "counter"
         v-load tmp%3#0                                                                  "counter",tmp%3#0
         app_global_put
-        b register_after_if_else@5
+        b register_after_if_else@7
 
-    register_after_if_else@5:
+    register_after_if_else@7:
         // everything/contract.py:54
         // self.name[0] = name
         int 0                                                                           0
         byte "name"                                                                     0,"name"
-        v-load name#0                                                                   0,"name",name#0
+        v-load value#0                                                                  0,"name",value#0
         app_local_put
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
@@ -378,18 +378,20 @@ subroutine calculate:
         ==                                                                              eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                   eq%0#0
-        assert // invalid number of bytes for arc4.uint64
+        assert // invalid number of bytes for Encoded(uint64)
+        // everything/contract.py:64
+        // @abimethod
         txna ApplicationArgs 2                                                          b#0
         v-store b#0
         v-load b#0                                                                      b#0
-        len                                                                             len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                  len%1#0
-        int 8                                                                           len%1#0,8
-        ==                                                                              eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                   eq%1#0
-        assert // invalid number of bytes for arc4.uint64
+        len                                                                             len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                  len%0#0
+        int 8                                                                           len%0#0,8
+        ==                                                                              eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                   eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
         // everything/my_base.py:15
         // return arc4.UInt64(a.as_uint64() + b.as_uint64())
         v-load a#0                                                                      a#0

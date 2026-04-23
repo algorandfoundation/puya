@@ -157,16 +157,7 @@ greet_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    pushint 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 2 0
     callsub test_cases.compile.apps.HelloBase.greet
     dup
@@ -239,4 +230,24 @@ test_cases.compile.apps.HelloBase.greet_block@0:
     concat
     frame_dig -1
     concat
+    retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+utf8[])_block@0
+
+__internal_validate_Encoded(len+utf8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
     retsub

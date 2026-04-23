@@ -95,10 +95,7 @@ oh_no_block@0:
     // @arc4.abimethod(default_args={"wrong_size": False})
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.bool
+    callsub __internal_validate_Encoded(bool8)
     intc_0 // 0
     getbit
     callsub test_cases.regression_tests.jira_241.Jira241.oh_no
@@ -115,10 +112,7 @@ oh_yes_block@0:
     // @arc4.abimethod(default_args={"wrong_size": True})
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.bool
+    callsub __internal_validate_Encoded(bool8)
     intc_0 // 0
     getbit
     callsub test_cases.regression_tests.jira_241.Jira241.oh_yes
@@ -147,4 +141,18 @@ test_cases.regression_tests.jira_241.Jira241.oh_yes:
     b test_cases.regression_tests.jira_241.Jira241.oh_yes_block@0
 
 test_cases.regression_tests.jira_241.Jira241.oh_yes_block@0:
+    retsub
+
+
+// __internal_validate_Encoded(bool8)(value: bytes) -> void:
+__internal_validate_Encoded(bool8):
+    proto 1 0
+    b __internal_validate_Encoded(bool8)_block@0
+
+__internal_validate_Encoded(bool8)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for Encoded(bool8)
     retsub

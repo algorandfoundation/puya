@@ -63,55 +63,7 @@ struct_arg:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    dig 1
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 12
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 14
-    +
-    dig 2
-    pushint 10
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
-    uncover 3
-    swap
-    dig 3
-    substring3
-    dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 3
-    ==
-    assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
-    dig 2
-    swap
-    uncover 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 5
-    +
-    uncover 2
-    +
-    uncover 2
-    ==
-    assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))
     txna ApplicationArgs 2
     dup
     len
@@ -131,9 +83,17 @@ struct_arg:
     pushint 5
     +
     ==
-    assert // invalid number of bytes for test_cases.arc_56.contract.SharedStruct
+    assert // invalid number of bytes for Encoded((len+uint8[]),uint8)
     // arc_56/contract.py:91
     // assert arg.shared == shared, "this might error"
+    dig 1
+    pushint 10
+    extract_uint16
+    dig 2
+    len
+    uncover 3
+    cover 2
+    substring3
     ==
     assert // this might error
     // arc_56/contract.py:88
@@ -150,55 +110,17 @@ struct_return:
     // @arc4.abimethod(readonly=True)
     txna ApplicationArgs 1
     dup
-    len
-    dig 1
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))
+    // arc_56/contract.py:96
+    // assert arg.shared == echo(arg.shared), "this won't error"
     dup
-    pushint 12
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 14
-    +
-    dig 2
     pushint 10
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
-    uncover 3
-    swap
-    dig 3
-    substring3
-    dup
-    len
+    extract_uint16
     dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 3
-    ==
-    assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
-    dig 2
-    swap
-    uncover 2
+    len
     substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 5
-    +
-    uncover 2
-    +
-    uncover 2
-    ==
-    assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
+    // arc_56/contract.py:94
+    // @arc4.abimethod(readonly=True)
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -213,51 +135,7 @@ errors:
     // @arc4.abimethod(name="emits_error", readonly=True)
     txna ApplicationArgs 1
     dup
-    len
-    dig 1
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 12
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 14
-    +
-    dig 2
-    pushint 10
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
-    dig 3
-    swap
-    dig 3
-    substring3
-    dup
-    len
-    dig 1
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 3
-    ==
-    assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
-    swap
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 5
-    +
-    +
-    ==
-    assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
+    callsub __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))
     // arc_56/contract.py:101
     // assert arg.a.bytes == arc4.UInt8(0).bytes, "this will error"
     extract 0 8
@@ -299,12 +177,14 @@ conditional_emit:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for arc4.bool
+    assert // invalid number of bytes for Encoded(bool8)
+    // arc_56/contract.py:113
+    // @arc4.abimethod()
     intc_0 // 0
     getbit
     // arc_56/contract.py:115
     // if should_emit:
-    bz conditional_emit_after_if_else@3
+    bz conditional_emit_after_if_else@5
     // arc_56/contract.py:116-120
     // arc4.emit(
     //     "Anonymous2",
@@ -314,7 +194,7 @@ conditional_emit:
     pushbytes 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33
     log
 
-conditional_emit_after_if_else@3:
+conditional_emit_after_if_else@5:
     // arc_56/contract.py:113
     // @arc4.abimethod()
     intc_1 // 1
@@ -376,7 +256,7 @@ template_value:
 with_constant_defaults:
     intc_0 // 0
     bytec_0 // ""
-    dupn 5
+    dupn 3
     // arc_56/contract.py:131-143
     // @arc4.abimethod(
     //     default_args={
@@ -396,13 +276,41 @@ with_constant_defaults:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // arc_56/contract.py:131-143
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a": arc4.UInt64(123),
+    //         "c": Bytes(b"123"),
+    //         "b": UInt64(234),
+    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+    //         "e": (UInt64(42), String("on the edge")),
+    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+    //         "h": constant_method(),
+    //         "i": echo_number(UInt64(1234)),
+    //     }
+    // )
     txna ApplicationArgs 2
     dup
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // arc_56/contract.py:131-143
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a": arc4.UInt64(123),
+    //         "c": Bytes(b"123"),
+    //         "b": UInt64(234),
+    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+    //         "e": (UInt64(42), String("on the edge")),
+    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+    //         "h": constant_method(),
+    //         "i": echo_number(UInt64(1234)),
+    //     }
+    // )
     btoi
     txna ApplicationArgs 3
     dup
@@ -413,14 +321,42 @@ with_constant_defaults:
     dig 1
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    assert // invalid number of bytes for Encoded(len+uint8[])
+    // arc_56/contract.py:131-143
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a": arc4.UInt64(123),
+    //         "c": Bytes(b"123"),
+    //         "b": UInt64(234),
+    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+    //         "e": (UInt64(42), String("on the edge")),
+    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+    //         "h": constant_method(),
+    //         "i": echo_number(UInt64(1234)),
+    //     }
+    // )
     extract 2 0
     txna ApplicationArgs 4
     dup
     len
     pushint 16
     ==
-    assert // invalid number of bytes for test_cases.arc_56.contract.EventOnly
+    assert // invalid number of bytes for Encoded(uint64,uint64)
+    // arc_56/contract.py:131-143
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a": arc4.UInt64(123),
+    //         "c": Bytes(b"123"),
+    //         "b": UInt64(234),
+    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+    //         "e": (UInt64(42), String("on the edge")),
+    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+    //         "h": constant_method(),
+    //         "i": echo_number(UInt64(1234)),
+    //     }
+    // )
     txna ApplicationArgs 5
     dup
     len
@@ -442,17 +378,7 @@ with_constant_defaults:
     +
     uncover 2
     ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>>
-    swap
-    intc_0 // 0
-    extract_uint64
-    swap
-    extract 2 0
-    txna ApplicationArgs 6
-    pushint 4
-    intc_0 // 0
-
-with_constant_defaults_for_header@1:
+    assert // invalid number of bytes for Encoded(uint64,(len+utf8[]))
     // arc_56/contract.py:131-143
     // @arc4.abimethod(
     //     default_args={
@@ -467,10 +393,20 @@ with_constant_defaults_for_header@1:
     //         "i": echo_number(UInt64(1234)),
     //     }
     // )
+    swap
+    intc_0 // 0
+    extract_uint64
+    swap
+    extract 2 0
+    txna ApplicationArgs 6
+    pushint 4
+    intc_0 // 0
+
+with_constant_defaults_for_header@8:
     dup
     intc_2 // 2
     <
-    bz with_constant_defaults_after_for@4
+    bz with_constant_defaults_after_for@11
     dupn 2
     intc_2 // 2
     *
@@ -496,9 +432,14 @@ with_constant_defaults_for_header@1:
     intc_1 // 1
     +
     bury 1
-    b with_constant_defaults_for_header@1
+    b with_constant_defaults_for_header@8
 
-with_constant_defaults_after_for@4:
+with_constant_defaults_after_for@11:
+    dig 2
+    len
+    dig 2
+    ==
+    assert // invalid number of bytes for Encoded((len+utf8[])[2])
     // arc_56/contract.py:131-143
     // @arc4.abimethod(
     //     default_args={
@@ -513,57 +454,37 @@ with_constant_defaults_after_for@4:
     //         "i": echo_number(UInt64(1234)),
     //     }
     // )
-    dig 2
-    len
-    dig 2
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2>
     txna ApplicationArgs 7
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 17
+    bury 15
     intc_2 // 2
     *
-    bury 12
+    bury 3
     dup
     len
     bury 11
     extract 2 0
-    bury 16
+    bury 14
     intc_0 // 0
-    bury 12
+    bury 1
 
-with_constant_defaults_for_header@5:
-    // arc_56/contract.py:131-143
-    // @arc4.abimethod(
-    //     default_args={
-    //         "a": arc4.UInt64(123),
-    //         "c": Bytes(b"123"),
-    //         "b": UInt64(234),
-    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
-    //         "e": (UInt64(42), String("on the edge")),
-    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
-    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
-    //         "h": constant_method(),
-    //         "i": echo_number(UInt64(1234)),
-    //     }
-    // )
-    dig 11
-    dig 15
-    <
-    bz with_constant_defaults_after_for@8
-    dig 11
+with_constant_defaults_for_header@14:
     dup
+    dig 13
+    <
+    bz with_constant_defaults_after_for@17
+    dupn 2
     intc_2 // 2
     *
-    dig 17
+    dig 15
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 14
+    dig 5
     dup
     cover 4
     ==
@@ -576,13 +497,19 @@ with_constant_defaults_for_header@5:
     intc_2 // 2
     +
     +
-    bury 12
+    bury 3
     intc_1 // 1
     +
-    bury 12
-    b with_constant_defaults_for_header@5
+    bury 1
+    b with_constant_defaults_for_header@14
 
-with_constant_defaults_after_for@8:
+with_constant_defaults_after_for@17:
+    dig 1
+    intc_2 // 2
+    +
+    dig 10
+    ==
+    assert // invalid number of bytes for Encoded(len+(len+utf8[])[])
     // arc_56/contract.py:131-143
     // @arc4.abimethod(
     //     default_args={
@@ -597,28 +524,50 @@ with_constant_defaults_after_for@8:
     //         "i": echo_number(UInt64(1234)),
     //     }
     // )
-    dig 10
-    intc_2 // 2
-    +
-    dig 10
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>>
     txna ApplicationArgs 8
     dup
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // arc_56/contract.py:131-143
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a": arc4.UInt64(123),
+    //         "c": Bytes(b"123"),
+    //         "b": UInt64(234),
+    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+    //         "e": (UInt64(42), String("on the edge")),
+    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+    //         "h": constant_method(),
+    //         "i": echo_number(UInt64(1234)),
+    //     }
+    // )
     btoi
-    bury 14
+    bury 12
     txna ApplicationArgs 9
     dup
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for arc4.uint64
+    assert // invalid number of bytes for Encoded(uint64)
+    // arc_56/contract.py:131-143
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a": arc4.UInt64(123),
+    //         "c": Bytes(b"123"),
+    //         "b": UInt64(234),
+    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+    //         "e": (UInt64(42), String("on the edge")),
+    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+    //         "h": constant_method(),
+    //         "i": echo_number(UInt64(1234)),
+    //     }
+    // )
     btoi
-    bury 13
+    bury 11
     // arc_56/contract.py:156
     // assert a
     dig 8
@@ -640,32 +589,32 @@ with_constant_defaults_after_for@8:
     extract 0 8
     bytec_0 // 0x
     b!=
-    bnz with_constant_defaults_bool_true@11
+    bnz with_constant_defaults_bool_true@21
     dig 5
     extract 8 8
     bytec_0 // 0x
     b!=
-    bz with_constant_defaults_bool_false@12
+    bz with_constant_defaults_bool_false@22
 
-with_constant_defaults_bool_true@11:
+with_constant_defaults_bool_true@21:
     intc_1 // 1
 
-with_constant_defaults_bool_merge@13:
+with_constant_defaults_bool_merge@23:
     // arc_56/contract.py:159
     // assert d.x or d.y
     assert
     // arc_56/contract.py:160
     // assert e[0] or e[1]
     dig 4
-    bnz with_constant_defaults_bool_true@15
+    bnz with_constant_defaults_bool_true@25
     dig 3
     len
-    bz with_constant_defaults_bool_false@16
+    bz with_constant_defaults_bool_false@26
 
-with_constant_defaults_bool_true@15:
+with_constant_defaults_bool_true@25:
     intc_1 // 1
 
-with_constant_defaults_bool_merge@17:
+with_constant_defaults_bool_merge@27:
     // arc_56/contract.py:160
     // assert e[0] or e[1]
     assert
@@ -685,19 +634,19 @@ with_constant_defaults_bool_merge@17:
     assert
     // arc_56/contract.py:162
     // assert g.length == 2
-    dig 14
+    dig 12
     intc_2 // 2
     ==
     assert
     // arc_56/contract.py:163
     // assert h == 42
-    dig 13
+    dig 11
     pushint 42
     ==
     assert
     // arc_56/contract.py:164
     // assert i == 1234
-    dig 12
+    dig 10
     pushint 1234
     ==
     assert
@@ -718,10 +667,62 @@ with_constant_defaults_bool_merge@17:
     intc_1 // 1
     return
 
-with_constant_defaults_bool_false@16:
+with_constant_defaults_bool_false@26:
     intc_0 // 0
-    b with_constant_defaults_bool_merge@17
+    b with_constant_defaults_bool_merge@27
 
-with_constant_defaults_bool_false@12:
+with_constant_defaults_bool_false@22:
     intc_0 // 0
-    b with_constant_defaults_bool_merge@13
+    b with_constant_defaults_bool_merge@23
+
+
+// __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))(value: bytes) -> void:
+__internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)):
+    proto 1 0
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 12
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+    frame_dig -1
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 14
+    +
+    frame_dig -1
+    pushint 10
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8))
+    frame_dig -1
+    swap
+    dig 3
+    substring3
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 3
+    ==
+    assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
+    swap
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 5
+    +
+    +
+    ==
+    assert // invalid number of bytes for Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))
+    retsub

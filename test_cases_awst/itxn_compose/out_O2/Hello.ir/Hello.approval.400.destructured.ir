@@ -33,11 +33,7 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         switch tmp%15#0 {method "greet(string)string" => block@8, method "sendGreetings((string,string))string" => block@9, * => block@14}
     block@8: // greet_route_L26
         let tmp%0#1: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#1 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#1)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(tmp%0#1)
         let name#0: string = ((extract 2 0) tmp%0#1)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%0#0) // check GlobalState exists
@@ -51,27 +47,27 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         (log tmp%4#2)
         exit 1u
     block@9: // sendGreetings_route_L30
-        let a#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len a#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 a#0 0u) // on error: invalid tuple encoding
+        let value#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 4u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-        let substring3%0#0: bytes = (substring3 a#0 extract_uint16%0#0 tuple_len%0#0)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 6u)
-        let extract_uint16%1#0: uint64 = (extract_uint16 a#0 2u) // on error: invalid tuple encoding
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let add%1#0: uint64 = (+ aggregate%array_length%0#0 6u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 value#0 2u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-        let substring3%1#0: bytes = (substring3 a#0 extract_uint16%1#0 tuple_len%0#0)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
-        let add%2#0: uint64 = (+ aggregate%array_length%2#0 2u)
+        let substring3%1#0: bytes = (substring3 value#0 extract_uint16%1#0 tuple_len%0#0)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
+        let add%2#0: uint64 = (+ aggregate%array_length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
-        (assert eq%2#0) // invalid number of bytes for tests/approvals/precompiled-apps.algo.ts::Greeting
+        (assert eq%2#0) // invalid number of bytes for Encoded((len+utf8[]),(len+utf8[]))
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%0#0) // check GlobalState exists
         let tmp%1#2: bytes = (concat maybe_value%0#0 " ")
-        let aggregate%substring3%0#0: bytes = (substring3 a#0 extract_uint16%0#0 extract_uint16%1#0)
+        let aggregate%substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 extract_uint16%1#0)
         let tmp%2#2: string = ((extract 2 0) aggregate%substring3%0#0)
         let tmp%3#1: bytes = (concat tmp%1#2 tmp%2#2)
         let tmp%4#1: string = ((extract 2 0) substring3%1#0)
@@ -88,13 +84,18 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         switch tmp%16#0 {method "helloCreate(string)void" => block@12, * => block@14}
     block@12: // helloCreate_route_L36
         let tmp%0#1: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%0#1 0u) // on error: invalid array length header
-        let add%0#0: uint64 = (+ aggregate%array_length%3#0 2u)
-        let len%0#0: uint64 = (len tmp%0#1)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(tmp%0#1)
         let greeting#0: string = ((extract 2 0) tmp%0#1)
         (app_global_put "greeting" greeting#0)
         exit 1u
     block@14: // after_if_else_L35
         fail
+
+subroutine __internal_validate_Encoded(len+utf8[])(value: Encoded(len+utf8[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        return 

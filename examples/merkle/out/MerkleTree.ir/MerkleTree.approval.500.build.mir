@@ -67,7 +67,7 @@ subroutine create:
         ==                                                                                     eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                          eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        assert // invalid number of bytes for Encoded(uint8[32])
         // merkle/contract.py:12
         // self.root = root.bytes
         byte "root"                                                                            "root"
@@ -84,10 +84,10 @@ subroutine verify:
     verify_block@0:
         // merkle/contract.py:14
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                 proof#0
-        v-store proof#0
-        v-load proof#0                                                                         proof#0
-        int 0                                                                                  proof#0,0
+        txna ApplicationArgs 1                                                                 value#0
+        v-store value#0
+        v-load value#0                                                                         value#0
+        int 0                                                                                  value#0,0
         extract_uint16 // on error: invalid array length header                                aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                      aggregate%array_length%0#0
@@ -98,7 +98,7 @@ subroutine verify:
         int 2                                                                                  mul%0#0,2
         +                                                                                      add%0#0
         v-store add%0#0
-        v-load proof#0                                                                         proof#0
+        v-load value#0                                                                         value#0
         len                                                                                    len%0#0
         v-store len%0#0
         v-load len%0#0                                                                         len%0#0
@@ -106,18 +106,20 @@ subroutine verify:
         ==                                                                                     eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                          eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>> 
+        assert // invalid number of bytes for Encoded(len+uint8[32][])
+        // merkle/contract.py:14
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                                 leaf#0
         v-store leaf#0
         v-load leaf#0                                                                          leaf#0
-        len                                                                                    len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                         len%1#0
-        int 32                                                                                 len%1#0,32
-        ==                                                                                     eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                          eq%1#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        len                                                                                    len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                         len%0#0
+        int 32                                                                                 len%0#0,32
+        ==                                                                                     eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                          eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])
         // merkle/contract.py:16
         // return self.root == compute_root_hash(proof, leaf.bytes)
         int 0                                                                                  0
@@ -150,7 +152,7 @@ subroutine verify:
     verify_for_body@3:
         // merkle/contract.py:23
         // computed = hash_pair(computed, proof[idx].bytes)
-        v-load proof#0                                                                         proof#0
+        v-load value#0                                                                         value#0
         extract 2 0                                                                            aggregate%array_trimmed%0#0
         v-store aggregate%array_trimmed%0#0
         v-load idx#0                                                                           idx#0

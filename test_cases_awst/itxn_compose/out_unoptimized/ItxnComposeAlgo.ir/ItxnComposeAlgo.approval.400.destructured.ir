@@ -45,13 +45,7 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
 subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]() -> void:
     block@0: // L19
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 32u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        __internal_validate_Encoded(len+uint8[32][])(tmp%0#0)
         let as_Encoded(len+uint8[32][])%0#0: Encoded(len+uint8[32][]) = tmp%0#0
         let tmp%1#0: uint64 = (txn GroupIndex)
         let gtxn_idx%0#0: uint64 = (- tmp%1#0 1u)
@@ -59,9 +53,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[rout
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%2#0
         let tmp%3#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(as_Encoded(len+uint8[32][])%0#0, gtxn_idx%0#0, tmp%3#0)
@@ -70,9 +62,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[rout
 subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]() -> void:
     block@0: // L54
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin(tmp%1#0)
@@ -204,7 +194,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
         ((itxn_field GlobalNumUint) 0u)
         ((itxn_field ClearStateProgramPages) C0IAAIEBQw==)
         (itxn_field ClearStateProgramPages)
-        ((itxn_field ApprovalProgramPages) CyAEAAECBCYECGdyZWV0aW5nAAQVH3x1ASBCAAAxGEAACUIAAIgBk0IAAEIAADYaAIAEJDeNPIAEoOgYck8CjgIAZwBXQgAAMRkiEkQxGCITQQAtQgAANhoAgATQooIAgARRgLogTwKOAgANAAdCAABCAAAAiACXQv/2iABpQv/wNhoAgAQAkiWuTwGOAQAGQgAAQv/eiAAkQv/3MRklEjEYIhMQRIgANkL/nDEZgQUSMRgiExBEiAAdQv+LQgAANhoBSSJZIwskCEsBFRJEVwIAiACJI0NCAACIAIwjQ0IAAIgAiCNDQgAANhoBSSJZIwskCEsBFRJEVwIAiABySRUWVwYCTwFQKk8BULAjQ0IAADYaAUkVTgFJIllJJRJESwFPAUsDUiJZIwskCCUISwEkWUlLAhJESwJPAU8EUiJZIwskCAhLARUSRIgAN0kVFlcGAk8BUCpPAVCwI0OKAQBCAAAoi/9niUIAAIlCAACJigEBQgAAIihlRClPAVArUIv/UImKAQFCAAAiKGVEKU8BUCtQi/8iWYv/JFmL/08CTwJSVwIAUIv/JFmL/xWL/08CTwJSVwIAUIlCAABCAABCAAAoKWeJ)
+        ((itxn_field ApprovalProgramPages) CyAEAAECBCYECGdyZWV0aW5nAAQVH3x1ASBCAAAxGEAACUIAAIgBUUIAAEIAADYaAIAEJDeNPIAEoOgYck8CjgIAZwBXQgAAMRkiEkQxGCITQQAtQgAANhoAgATQooIAgARRgLogTwKOAgANAAdCAABCAAAAiACHQv/2iABhQv/wNhoAgAQAkiWuTwGOAQAGQgAAQv/eiAAkQv/3MRklEjEYIhMQRIgALkL/nDEZgQUSMRgiExBEiAAVQv+LQgAANhoBSYgAv1cCAIgATyNDQgAAiABSI0NCAACIAE4jQ0IAADYaAUmIAJ1XAgCIAEBJFRZXBgJPAVAqTwFQsCNDQgAANhoBSYgAkYgAN0kVFlcGAk8BUCpPAVCwI0OKAQBCAAAoi/9niUIAAIlCAACJigEBQgAAIihlRClPAVArUIv/UImKAQFCAAAiKGVEKU8BUCtQi/8iWYv/JFmL/08CTwJSVwIAUIv/JFmL/xWL/08CTwJSVwIAUIlCAABCAABCAAAoKWeJigEAQgAAi/8iWSMLJAiL/xUSRImKAQBCAACL/xWL/yJZSSUSRIv/TwFLAlIiWSMLJAglCIv/JFlJSwISRIv/TwFPA1IiWSMLJAgIi/8VEkSJ)
         (itxn_field ApprovalProgramPages)
         ((itxn_field OnCompletion) 0u)
         ((itxn_field TypeEnum) appl)
@@ -268,4 +258,22 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
 
 subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.__algots__.defaultCreate() -> void:
     block@0: // L18
+        return 
+
+subroutine __internal_validate_Encoded(len+uint8[32][])(value: Encoded(len+uint8[32][])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 32u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[32][])
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         return 

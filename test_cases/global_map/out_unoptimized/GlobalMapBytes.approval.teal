@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2
+    intcblock 0 1
     bytecblock "map" 0x151f7c75 0x00 0x
     b main_block@0
 
@@ -167,16 +167,7 @@ get_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.global_map.bytes.GlobalMapBytes.get
     dup
@@ -202,29 +193,11 @@ get_with_default_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.global_map.bytes.GlobalMapBytes.get_with_default
     dup
@@ -250,29 +223,11 @@ set_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.global_map.bytes.GlobalMapBytes.set
     intc_1 // 1
@@ -288,16 +243,7 @@ delete_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.global_map.bytes.GlobalMapBytes.delete
     intc_1 // 1
@@ -313,16 +259,7 @@ in__block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.global_map.bytes.GlobalMapBytes.in_
     bytec_2 // 0x00
@@ -368,16 +305,7 @@ maybe_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.global_map.bytes.GlobalMapBytes.maybe
     cover 1
@@ -417,16 +345,7 @@ get_via_state_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     callsub test_cases.global_map.bytes.GlobalMapBytes.get_via_state
     dup
@@ -627,4 +546,24 @@ test_cases.global_map.bytes.GlobalMapBytes.get_via_state_block@0:
     uncover 1
     app_global_get_ex
     assert // check GlobalState exists
+    retsub
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+uint8[])_block@0
+
+__internal_validate_Encoded(len+uint8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
     retsub

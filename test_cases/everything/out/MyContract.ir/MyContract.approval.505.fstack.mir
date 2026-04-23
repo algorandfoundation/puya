@@ -126,80 +126,80 @@ subroutine register:
     register_block@0:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        txna ApplicationArgs 1                                                          name#0
-        l-store-copy name#0 0                                                           name#0,name#0 (copy)
-        f-store name#0                                                                  (𝕗) name#0 | name#0
-        l-load-copy name#0 0                                                            (𝕗) name#0 | name#0,name#0 (copy)
-        int 0                                                                           (𝕗) name#0 | name#0,name#0 (copy),0
-        extract_uint16 // on error: invalid array length header                         (𝕗) name#0 | name#0,aggregate%array_length%0#0
-        int 2                                                                           (𝕗) name#0 | name#0,aggregate%array_length%0#0,2
-        +                                                                               (𝕗) name#0 | name#0,add%0#0
-        l-load name#0 1                                                                 (𝕗) name#0 | add%0#0,name#0
-        len                                                                             (𝕗) name#0 | add%0#0,len%0#0
-        l-load add%0#0 1                                                                (𝕗) name#0 | len%0#0,add%0#0
-        ==                                                                              (𝕗) name#0 | eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>            (𝕗) name#0 |
+        txna ApplicationArgs 1                                                          value#0
+        l-store-copy value#0 0                                                          value#0,value#0 (copy)
+        f-store value#0                                                                 (𝕗) value#0 | value#0
+        l-load-copy value#0 0                                                           (𝕗) value#0 | value#0,value#0 (copy)
+        int 0                                                                           (𝕗) value#0 | value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                         (𝕗) value#0 | value#0,aggregate%array_length%0#0
+        int 2                                                                           (𝕗) value#0 | value#0,aggregate%array_length%0#0,2
+        +                                                                               (𝕗) value#0 | value#0,add%0#0
+        l-load value#0 1                                                                (𝕗) value#0 | add%0#0,value#0
+        len                                                                             (𝕗) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                (𝕗) value#0 | len%0#0,add%0#0
+        ==                                                                              (𝕗) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+utf8[])                       (𝕗) value#0 |
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        txn Sender                                                                      (𝕗) name#0 | tmp%0#2
+        txn Sender                                                                      (𝕗) value#0 | tmp%0#2
         // everything/contract.py:25
         // addr = Account(BANNED)
-        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               (𝕗) name#0 | tmp%0#2,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"               (𝕗) value#0 | tmp%0#2,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        !=                                                                              (𝕗) name#0 | tmp%2#0
-        assert // You are banned, goodbye                                               (𝕗) name#0 |
+        !=                                                                              (𝕗) value#0 | tmp%2#0
+        assert // You are banned, goodbye                                               (𝕗) value#0 |
         // everything/contract.py:50
         // if op.Txn.on_completion == OnCompleteAction.OptIn:
-        txn OnCompletion                                                                (𝕗) name#0 | tmp%0#1
-        int OptIn                                                                       (𝕗) name#0 | tmp%0#1,OptIn
-        ==                                                                              (𝕗) name#0 | tmp%1#0
-        bz register_after_if_else@5 ; b register_if_body@2                              (𝕗) name#0 |
+        txn OnCompletion                                                                (𝕗) value#0 | tmp%0#1
+        int OptIn                                                                       (𝕗) value#0 | tmp%0#1,OptIn
+        ==                                                                              (𝕗) value#0 | tmp%1#0
+        bz register_after_if_else@7 ; b register_if_body@4                              (𝕗) value#0 |
 
-    register_if_body@2:                                                                 (𝕗) name#0 |
+    register_if_body@4:                                                                 (𝕗) value#0 |
         // everything/contract.py:51
         // sender_name, sender_name_existed = self.name.maybe(account=0)
-        int 0                                                                           (𝕗) name#0 | 0
-        int 0                                                                           (𝕗) name#0 | 0,0
-        byte "name"                                                                     (𝕗) name#0 | 0,0,"name"
-        app_local_get_ex                                                                (𝕗) name#0 | sender_name#0,sender_name_existed#0
-        l-store sender_name_existed#0 1                                                 (𝕗) name#0 | sender_name_existed#0,sender_name#0
-        pop 1                                                                           (𝕗) name#0 | sender_name_existed#0
+        int 0                                                                           (𝕗) value#0 | 0
+        int 0                                                                           (𝕗) value#0 | 0,0
+        byte "name"                                                                     (𝕗) value#0 | 0,0,"name"
+        app_local_get_ex                                                                (𝕗) value#0 | sender_name#0,sender_name_existed#0
+        l-store sender_name_existed#0 1                                                 (𝕗) value#0 | sender_name_existed#0,sender_name#0
+        pop 1                                                                           (𝕗) value#0 | sender_name_existed#0
         // everything/contract.py:52
         // if not sender_name_existed:
-        l-load sender_name_existed#0 0                                                  (𝕗) name#0 | sender_name_existed#0
-        bz register_if_body@3 ; b register_after_if_else@5                              (𝕗) name#0 |
+        l-load sender_name_existed#0 0                                                  (𝕗) value#0 | sender_name_existed#0
+        bz register_if_body@5 ; b register_after_if_else@7                              (𝕗) value#0 |
 
-    register_if_body@3:                                                                 (𝕗) name#0 |
+    register_if_body@5:                                                                 (𝕗) value#0 |
         // everything/contract.py:53
         // self.counter += multiplicative_identity()  # has full FuncDef
-        int 0                                                                           (𝕗) name#0 | 0
-        byte "counter"                                                                  (𝕗) name#0 | 0,"counter"
-        app_global_get_ex                                                               (𝕗) name#0 | maybe_value%1#0,maybe_exists%1#0
-        assert // check self.counter exists                                             (𝕗) name#0 | maybe_value%1#0
-        l-load maybe_value%1#0 0                                                        (𝕗) name#0 | maybe_value%1#0
+        int 0                                                                           (𝕗) value#0 | 0
+        byte "counter"                                                                  (𝕗) value#0 | 0,"counter"
+        app_global_get_ex                                                               (𝕗) value#0 | maybe_value%1#0,maybe_exists%1#0
+        assert // check self.counter exists                                             (𝕗) value#0 | maybe_value%1#0
+        l-load maybe_value%1#0 0                                                        (𝕗) value#0 | maybe_value%1#0
         // everything/my_base.py:20
         // return UInt64(1)
-        int 1                                                                           (𝕗) name#0 | maybe_value%1#0,1
+        int 1                                                                           (𝕗) value#0 | maybe_value%1#0,1
         // everything/contract.py:53
         // self.counter += multiplicative_identity()  # has full FuncDef
-        +                                                                               (𝕗) name#0 | tmp%3#0
-        byte "counter"                                                                  (𝕗) name#0 | tmp%3#0,"counter"
-        l-load tmp%3#0 1                                                                (𝕗) name#0 | "counter",tmp%3#0
-        app_global_put                                                                  (𝕗) name#0 |
-        b register_after_if_else@5                                                      (𝕗) name#0 |
+        +                                                                               (𝕗) value#0 | tmp%3#0
+        byte "counter"                                                                  (𝕗) value#0 | tmp%3#0,"counter"
+        l-load tmp%3#0 1                                                                (𝕗) value#0 | "counter",tmp%3#0
+        app_global_put                                                                  (𝕗) value#0 |
+        b register_after_if_else@7                                                      (𝕗) value#0 |
 
-    register_after_if_else@5:                                                           (𝕗) name#0 |
+    register_after_if_else@7:                                                           (𝕗) value#0 |
         // everything/contract.py:54
         // self.name[0] = name
-        int 0                                                                           (𝕗) name#0 | 0
-        byte "name"                                                                     (𝕗) name#0 | 0,"name"
-        f-load name#0                                                                   (𝕗) name#0 | 0,"name",name#0
-        app_local_put                                                                   (𝕗) name#0 |
+        int 0                                                                           (𝕗) value#0 | 0
+        byte "name"                                                                     (𝕗) value#0 | 0,"name"
+        f-load value#0                                                                  (𝕗) value#0 | 0,"name",value#0
+        app_local_put                                                                   (𝕗) value#0 |
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        int 1                                                                           (𝕗) name#0 | 1
-        return                                                                          (𝕗) name#0 |
+        int 1                                                                           (𝕗) value#0 | 1
+        return                                                                          (𝕗) value#0 |
 
 
 // test_cases.everything.contract.Everything.say_hello[routing]() -> void:
@@ -300,13 +300,15 @@ subroutine calculate:
         len                                                                             a#0,len%0#0
         int 8                                                                           a#0,len%0#0,8
         ==                                                                              a#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                               a#0
+        assert // invalid number of bytes for Encoded(uint64)                           a#0
+        // everything/contract.py:64
+        // @abimethod
         txna ApplicationArgs 2                                                          a#0,b#0
         l-load-copy b#0 0                                                               a#0,b#0,b#0 (copy)
-        len                                                                             a#0,b#0,len%1#0
-        int 8                                                                           a#0,b#0,len%1#0,8
-        ==                                                                              a#0,b#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                               a#0,b#0
+        len                                                                             a#0,b#0,len%0#0
+        int 8                                                                           a#0,b#0,len%0#0,8
+        ==                                                                              a#0,b#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                           a#0,b#0
         // everything/my_base.py:15
         // return arc4.UInt64(a.as_uint64() + b.as_uint64())
         l-load a#0 1                                                                    b#0,a#0

@@ -89,12 +89,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.concat[routing]() -> void:
     block@0: // L50
         let array#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(array#0)
-        let mul%0#0: uint64 = (* length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len array#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        __internal_validate_Encoded(len+uint64[])(array#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
         let tmp%0#1: uint64 = array_len(array#0)
         let box%box_extract%4#0: bytes = (box_extract "box" 4u 2u)
@@ -105,11 +100,11 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
 
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append[routing]() -> void:
     block@0: // L54
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#1: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#1)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let value#0: uint64 = decode_bytes<uint64>(tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let value#0: uint64 = decode_bytes<uint64>(value#1)
         let tmp%0#1: Encoded(uint64[]) = bytes_encode<uint64[]>(value#0)
         let box%box_extract%4#0: bytes = (box_extract "box" 4u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
@@ -145,22 +140,17 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify[routing]() -> void:
     block@0: // L62
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = (* length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
+        __internal_validate_Encoded(len+uint64[])(tmp%0#0)
         let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(tmp%0#0)
         exit 1u
 
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.get[routing]() -> void:
     block@0: // L73
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let idx#0: uint64 = decode_bytes<uint64>(value#0)
         let box%box_extract%3#0: bytes = (box_extract "box" 4u 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%3#0)
         let box%offset%5#0: uint64 = (+ box%btoi%2#0 36u)
@@ -178,15 +168,15 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
 
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.set[routing]() -> void:
     block@0: // L77
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let idx#0: uint64 = decode_bytes<uint64>(value#0)
+        let value#1: Encoded(uint64) = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for Encoded(uint64)
         let box%box_extract%0#0: bytes = (box_extract "box" 4u 2u)
         let box%btoi%0#0: uint64 = (btoi box%box_extract%0#0)
         let box%offset%2#0: uint64 = (+ box%btoi%0#0 36u)
@@ -197,7 +187,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         let box%add%1#0: uint64 = (+ box%offset%2#0 2u)
         let box%element_offset%0#0: uint64 = (* idx#0 8u)
         let box%offset%3#0: uint64 = (+ box%add%1#0 box%element_offset%0#0)
-        (box_replace "box" box%offset%3#0 tmp%2#0) // on error: index out of bounds
+        (box_replace "box" box%offset%3#0 value#1) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.verify(expected: Encoded(len+uint64[])) -> Encoded(len+uint64[]):
@@ -253,3 +243,13 @@ subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast
         let tmp%13#0: bool = (> value%0#0 4096u)
         (assert tmp%13#0) // expected box length >4096
         return expected#0
+
+subroutine __internal_validate_Encoded(len+uint64[])(value: Encoded(len+uint64[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint64[])
+        return 

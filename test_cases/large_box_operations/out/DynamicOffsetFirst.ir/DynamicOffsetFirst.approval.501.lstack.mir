@@ -270,36 +270,28 @@ subroutine concat:
         // @public
         txna ApplicationArgs 1                                                              array#0
         l-load-copy array#0 0                                                               array#0,array#0 (copy)
-        int 0                                                                               array#0,array#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             array#0,aggregate%array_length%0#0
-        l-load-copy aggregate%array_length%0#0 0                                            array#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        int 8                                                                               array#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),8
-        *                                                                                   array#0,aggregate%array_length%0#0,mul%0#0
-        l-load-copy mul%0#0 0                                                               array#0,aggregate%array_length%0#0,mul%0#0,mul%0#0 (copy)
-        int 2                                                                               array#0,aggregate%array_length%0#0,mul%0#0,mul%0#0 (copy),2
-        +                                                                                   array#0,aggregate%array_length%0#0,mul%0#0,add%0#0
-        l-load-copy array#0 3                                                               array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,array#0 (copy)
-        len                                                                                 array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                    array#0,aggregate%array_length%0#0,mul%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                    array#0,aggregate%array_length%0#0,mul%0#0,len%0#0,add%0#0
-        ==                                                                                  array#0,aggregate%array_length%0#0,mul%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     array#0,aggregate%array_length%0#0,mul%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                    array#0,aggregate%array_length%0#0,mul%0#0
+        callsub __internal_validate_Encoded(len+uint64[])                                   array#0
         // large_box_operations/dynamic_offset_first.py:52
         // self.box.value.nested.nested.arr.extend(array)
-        l-load array#0 2                                                                    aggregate%array_length%0#0,mul%0#0,array#0
-        extract 2 0                                                                         aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0
-        byte "box"                                                                          aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box"
-        int 2                                                                               aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",2
-        l-load-copy mul%0#0 3                                                               aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",2,mul%0#0 (copy)
-        callsub box_update_offset_inc                                                       aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0
-        byte "box"                                                                          aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box"
-        int 4                                                                               aggregate%array_length%0#0,mul%0#0,extract_to_end%0#0,"box",4
-        l-load mul%0#0 3                                                                    aggregate%array_length%0#0,extract_to_end%0#0,"box",4,mul%0#0
-        callsub box_update_offset_inc                                                       aggregate%array_length%0#0,extract_to_end%0#0
-        byte "box"                                                                          aggregate%array_length%0#0,extract_to_end%0#0,"box"
-        int 42                                                                              aggregate%array_length%0#0,extract_to_end%0#0,"box",42
-        l-load extract_to_end%0#0 2                                                         aggregate%array_length%0#0,"box",42,extract_to_end%0#0
+        l-load-copy array#0 0                                                               array#0,array#0 (copy)
+        extract 2 0                                                                         array#0,extract_to_end%0#0
+        l-load array#0 1                                                                    extract_to_end%0#0,array#0
+        int 0                                                                               extract_to_end%0#0,array#0,0
+        extract_uint16 // on error: invalid array length header                             extract_to_end%0#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                            extract_to_end%0#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 8                                                                               extract_to_end%0#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),8
+        *                                                                                   extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0
+        byte "box"                                                                          extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0,"box"
+        int 2                                                                               extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0,"box",2
+        l-load-copy box%mul%0#0 2                                                           extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0,"box",2,box%mul%0#0 (copy)
+        callsub box_update_offset_inc                                                       extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0
+        byte "box"                                                                          extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0,"box"
+        int 4                                                                               extract_to_end%0#0,aggregate%array_length%0#0,box%mul%0#0,"box",4
+        l-load box%mul%0#0 2                                                                extract_to_end%0#0,aggregate%array_length%0#0,"box",4,box%mul%0#0
+        callsub box_update_offset_inc                                                       extract_to_end%0#0,aggregate%array_length%0#0
+        byte "box"                                                                          extract_to_end%0#0,aggregate%array_length%0#0,"box"
+        int 42                                                                              extract_to_end%0#0,aggregate%array_length%0#0,"box",42
+        l-load extract_to_end%0#0 3                                                         aggregate%array_length%0#0,"box",42,extract_to_end%0#0
         l-load aggregate%array_length%0#0 3                                                 "box",42,extract_to_end%0#0,aggregate%array_length%0#0
         int 8                                                                               "box",42,extract_to_end%0#0,aggregate%array_length%0#0,8
         callsub box_dynamic_array_concat_fixed
@@ -314,15 +306,17 @@ subroutine append:
     append_block@0:
         // large_box_operations/dynamic_offset_first.py:54
         // @public
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#1
+        l-load-copy value#1 0                                                               value#1,value#1 (copy)
+        len                                                                                 value#1,len%0#0
+        l-load len%0#0 0                                                                    value#1,len%0#0
+        int 8                                                                               value#1,len%0#0,8
+        ==                                                                                  value#1,eq%0#0
+        l-load eq%0#0 0                                                                     value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#1
+        // large_box_operations/dynamic_offset_first.py:54
+        // @public
+        l-load value#1 0                                                                    value#1
         btoi                                                                                value#0
         // large_box_operations/dynamic_offset_first.py:56
         // self.box.value.nested.nested.arr.append(value)
@@ -455,21 +449,7 @@ subroutine verify:
         // @public
         txna ApplicationArgs 1                                                              tmp%0#0
         l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                               tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 tmp%0#0,aggregate%array_length%0#0
-        int 8                                                                               tmp%0#0,aggregate%array_length%0#0,8
-        *                                                                                   tmp%0#0,mul%0#0
-        l-load mul%0#0 0                                                                    tmp%0#0,mul%0#0
-        int 2                                                                               tmp%0#0,mul%0#0,2
-        +                                                                                   tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                               tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                    tmp%0#0,len%0#0,add%0#0
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                    tmp%0#0
+        callsub __internal_validate_Encoded(len+uint64[])                                   tmp%0#0
         l-load tmp%0#0 0                                                                    tmp%0#0
         callsub test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.verify verify%0#0
         v-store verify%0#0
@@ -482,15 +462,17 @@ subroutine get:
     get_block@0:
         // large_box_operations/dynamic_offset_first.py:73
         // @public
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // large_box_operations/dynamic_offset_first.py:73
+        // @public
+        l-load value#0 0                                                                    value#0
         btoi                                                                                idx#0
         // large_box_operations/dynamic_offset_first.py:75
         // return self.box.value.nested.nested.arr[idx]
@@ -531,46 +513,48 @@ subroutine set:
     set_block@0:
         // large_box_operations/dynamic_offset_first.py:77
         // @public
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // large_box_operations/dynamic_offset_first.py:77
+        // @public
+        l-load value#0 0                                                                    value#0
         btoi                                                                                idx#0
-        txna ApplicationArgs 2                                                              idx#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                               idx#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                                 idx#0,tmp%2#0,len%1#0
-        l-load len%1#0 0                                                                    idx#0,tmp%2#0,len%1#0
-        int 8                                                                               idx#0,tmp%2#0,len%1#0,8
-        ==                                                                                  idx#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                                                     idx#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                   idx#0,tmp%2#0
+        txna ApplicationArgs 2                                                              idx#0,value#0
+        l-load-copy value#0 0                                                               idx#0,value#0,value#0 (copy)
+        len                                                                                 idx#0,value#0,len%0#0
+        l-load len%0#0 0                                                                    idx#0,value#0,len%0#0
+        int 8                                                                               idx#0,value#0,len%0#0,8
+        ==                                                                                  idx#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                                     idx#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               idx#0,value#0
         // large_box_operations/dynamic_offset_first.py:79
         // self.box.value.nested.nested.arr[idx] = value
-        byte "box"                                                                          idx#0,tmp%2#0,"box"
-        int 42                                                                              idx#0,tmp%2#0,"box",42
-        int 2                                                                               idx#0,tmp%2#0,"box",42,2
-        box_extract                                                                         idx#0,tmp%2#0,box%box_extract%0#0
-        l-load box%box_extract%0#0 0                                                        idx#0,tmp%2#0,box%box_extract%0#0
-        btoi                                                                                idx#0,tmp%2#0,box%btoi%0#0
-        l-load-copy idx#0 2                                                                 idx#0,tmp%2#0,box%btoi%0#0,idx#0 (copy)
-        l-load box%btoi%0#0 1                                                               idx#0,tmp%2#0,idx#0 (copy),box%btoi%0#0
-        <                                                                                   idx#0,tmp%2#0,box%index_ok%0#0
-        l-load box%index_ok%0#0 0                                                           idx#0,tmp%2#0,box%index_ok%0#0
-        assert // index out of bounds                                                       idx#0,tmp%2#0
-        l-load idx#0 1                                                                      tmp%2#0,idx#0
-        int 8                                                                               tmp%2#0,idx#0,8
-        *                                                                                   tmp%2#0,box%element_offset%0#0
-        int 44                                                                              tmp%2#0,box%element_offset%0#0,44
-        l-load box%element_offset%0#0 1                                                     tmp%2#0,44,box%element_offset%0#0
-        +                                                                                   tmp%2#0,box%offset%3#0
-        byte "box"                                                                          tmp%2#0,box%offset%3#0,"box"
-        l-load box%offset%3#0 1                                                             tmp%2#0,"box",box%offset%3#0
-        l-load tmp%2#0 2                                                                    "box",box%offset%3#0,tmp%2#0
+        byte "box"                                                                          idx#0,value#0,"box"
+        int 42                                                                              idx#0,value#0,"box",42
+        int 2                                                                               idx#0,value#0,"box",42,2
+        box_extract                                                                         idx#0,value#0,box%box_extract%0#0
+        l-load box%box_extract%0#0 0                                                        idx#0,value#0,box%box_extract%0#0
+        btoi                                                                                idx#0,value#0,box%btoi%0#0
+        l-load-copy idx#0 2                                                                 idx#0,value#0,box%btoi%0#0,idx#0 (copy)
+        l-load box%btoi%0#0 1                                                               idx#0,value#0,idx#0 (copy),box%btoi%0#0
+        <                                                                                   idx#0,value#0,box%index_ok%0#0
+        l-load box%index_ok%0#0 0                                                           idx#0,value#0,box%index_ok%0#0
+        assert // index out of bounds                                                       idx#0,value#0
+        l-load idx#0 1                                                                      value#0,idx#0
+        int 8                                                                               value#0,idx#0,8
+        *                                                                                   value#0,box%element_offset%0#0
+        int 44                                                                              value#0,box%element_offset%0#0,44
+        l-load box%element_offset%0#0 1                                                     value#0,44,box%element_offset%0#0
+        +                                                                                   value#0,box%offset%3#0
+        byte "box"                                                                          value#0,box%offset%3#0,"box"
+        l-load box%offset%3#0 1                                                             value#0,"box",box%offset%3#0
+        l-load value#0 2                                                                    "box",box%offset%3#0,value#0
         box_replace // on error: index out of bounds
         // large_box_operations/dynamic_offset_first.py:77
         // @public
@@ -706,5 +690,27 @@ subroutine test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFir
         assert // expected box length >4096                                                 (𝕡) expected#0 |
         p-load expected#0                                                                   (𝕡) expected#0 | expected#0 (copy)
         retsub                                                                              expected#0 (copy)
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint64[]):
+    __internal_validate_Encoded(len+uint64[])_block@0:                                      (𝕡) value#0 |
+        p-load value#0                                                                      (𝕡) value#0 | value#0 (copy)
+        int 0                                                                               (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                             (𝕡) value#0 | aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                 (𝕡) value#0 | aggregate%array_length%0#0
+        int 8                                                                               (𝕡) value#0 | aggregate%array_length%0#0,8
+        *                                                                                   (𝕡) value#0 | mul%0#0
+        l-load mul%0#0 0                                                                    (𝕡) value#0 | mul%0#0
+        int 2                                                                               (𝕡) value#0 | mul%0#0,2
+        +                                                                                   (𝕡) value#0 | add%0#0
+        p-load value#0                                                                      (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                                 (𝕡) value#0 | add%0#0,len%0#0
+        l-load len%0#0 0                                                                    (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                    (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                                  (𝕡) value#0 | eq%0#0
+        l-load eq%0#0 0                                                                     (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint64[])                         (𝕡) value#0 |
+        retsub
 
 

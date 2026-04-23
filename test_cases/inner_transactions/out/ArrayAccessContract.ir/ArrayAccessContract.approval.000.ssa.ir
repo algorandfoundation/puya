@@ -37,9 +37,7 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.__puya
 subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call[routing]() -> void:
     block@0: // L21
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.bool
+        __internal_validate_Encoded(bool8)(tmp%0#0)
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%0#0
         test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(as_Encoded(bool8)%0#0)
         exit 1u
@@ -353,4 +351,11 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
 
 subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(bool8)(value: Encoded(bool8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(bool8)
         return 

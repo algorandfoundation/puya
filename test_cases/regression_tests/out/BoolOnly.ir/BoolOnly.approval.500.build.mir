@@ -83,22 +83,7 @@ subroutine set_0_convert:
         txna ApplicationArgs 1                                                   tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                           tmp%0#0
-        int 0                                                                    tmp%0#0,0
-        extract_uint16 // on error: invalid array length header                  aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                        aggregate%array_length%0#0
-        int 2                                                                    aggregate%array_length%0#0,2
-        +                                                                        add%0#0
-        v-store add%0#0
-        v-load tmp%0#0                                                           tmp%0#0
-        len                                                                      len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                           len%0#0
-        v-load add%0#0                                                           len%0#0,add%0#0
-        ==                                                                       eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                            eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+uint8[])
         v-load tmp%0#0                                                           tmp%0#0
         extract 2 0                                                              inp#0
         v-store inp#0
@@ -148,22 +133,7 @@ subroutine set_0_compare:
         txna ApplicationArgs 1                                                   tmp%0#0
         v-store tmp%0#0
         v-load tmp%0#0                                                           tmp%0#0
-        int 0                                                                    tmp%0#0,0
-        extract_uint16 // on error: invalid array length header                  aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                        aggregate%array_length%0#0
-        int 2                                                                    aggregate%array_length%0#0,2
-        +                                                                        add%0#0
-        v-store add%0#0
-        v-load tmp%0#0                                                           tmp%0#0
-        len                                                                      len%0#0
-        v-store len%0#0
-        v-load len%0#0                                                           len%0#0
-        v-load add%0#0                                                           len%0#0,add%0#0
-        ==                                                                       eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                            eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        callsub __internal_validate_Encoded(len+uint8[])
         v-load tmp%0#0                                                           tmp%0#0
         extract 2 0                                                              inp#0
         v-store inp#0
@@ -252,5 +222,28 @@ subroutine bool_only_properties:
         // @arc4.abimethod()
         int 1                                                                    1
         return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint8[]):
+    __internal_validate_Encoded(len+uint8[])_block@0:                            (𝕡) value#0 |
+        p-load value#0                                                           (𝕡) value#0 | value#0 (copy)
+        int 0                                                                    (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                  (𝕡) value#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                       (𝕡) value#0 |
+        v-load aggregate%array_length%0#0                                        (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                                    (𝕡) value#0 | aggregate%array_length%0#0,2
+        +                                                                        (𝕡) value#0 | add%0#0
+        v-store add%0#0                                                          (𝕡) value#0 |
+        p-load value#0                                                           (𝕡) value#0 | value#0 (copy)
+        len                                                                      (𝕡) value#0 | len%0#0
+        v-store len%0#0                                                          (𝕡) value#0 |
+        v-load len%0#0                                                           (𝕡) value#0 | len%0#0
+        v-load add%0#0                                                           (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                       (𝕡) value#0 | eq%0#0
+        v-store eq%0#0                                                           (𝕡) value#0 |
+        v-load eq%0#0                                                            (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[])               (𝕡) value#0 |
+        retsub
 
 

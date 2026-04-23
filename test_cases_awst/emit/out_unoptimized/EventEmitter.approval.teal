@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 0 2 3
+    intcblock 0 1 2 3
     bytecblock 0x 0x0b6325ed 0xd4a6bd33 0x00 0xa313c066
     b main_block@0
 
@@ -12,18 +12,18 @@ main_block@0:
 
 main_block@1:
     txn NumAppArgs
-    intc_1 // 0
+    intc_0 // 0
     !=
     bz main___algots__.defaultCreate@10
     b main_abi_routing@2
 
 main_abi_routing@2:
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     assert
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     !=
     bz main_create_NoOp@8
     b main_call_NoOp@3
@@ -63,15 +63,15 @@ main_create_NoOp@8:
 
 main___algots__.defaultCreate@10:
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     ==
     &&
     assert
     callsub __algots__.defaultCreate
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -82,18 +82,12 @@ emitSwapped:
 emitSwapped_block@0:
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     txna ApplicationArgs 2
     dup
-    len
-    intc_0 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
+    callsub __internal_validate_Encoded(uint8)
     callsub tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -104,27 +98,15 @@ emitCustom:
 emitCustom_block@0:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
-    len
-    intc_0 // 1
-    ==
-    assert // invalid number of bytes for arc4.bool
-    intc_1 // 0
+    callsub __internal_validate_Encoded(bool8)
+    intc_0 // 0
     getbit
     callsub tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -135,31 +117,13 @@ emitDynamicBytes:
 emitDynamicBytes_block@0:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     extract 2 0
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+uint8[])
     callsub tests/approvals/arc-28-events.algo.ts::EventEmitter.emitDynamicBytes
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -280,7 +244,7 @@ tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped_block@0:
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     itob
     extract 6 2
     intc_2 // 2
@@ -312,7 +276,7 @@ tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped_block@0:
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     itob
     extract 6 2
     bytec_0 // 0x
@@ -409,7 +373,7 @@ tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom_block@0:
     frame_dig -2
     concat
     bytec_3 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     frame_dig -1
     setbit
     intc_3 // 3
@@ -433,7 +397,7 @@ tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom_block@0:
     frame_dig -2
     concat
     bytec_3 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     frame_dig -1
     setbit
     intc_3 // 3
@@ -497,4 +461,72 @@ __algots__.defaultCreate:
     b __algots__.defaultCreate_block@0
 
 __algots__.defaultCreate_block@0:
+    retsub
+
+
+// __internal_validate_Encoded(uint8)(value: bytes) -> void:
+__internal_validate_Encoded(uint8):
+    proto 1 0
+    b __internal_validate_Encoded(uint8)_block@0
+
+__internal_validate_Encoded(uint8)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for Encoded(uint8)
+    retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+utf8[])_block@0
+
+__internal_validate_Encoded(len+utf8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
+    retsub
+
+
+// __internal_validate_Encoded(bool8)(value: bytes) -> void:
+__internal_validate_Encoded(bool8):
+    proto 1 0
+    b __internal_validate_Encoded(bool8)_block@0
+
+__internal_validate_Encoded(bool8)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for Encoded(bool8)
+    retsub
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+uint8[])_block@0
+
+__internal_validate_Encoded(len+uint8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint8[])
     retsub

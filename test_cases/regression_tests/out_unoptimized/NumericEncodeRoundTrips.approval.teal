@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8 64 4
+    intcblock 1 64 4 8
     bytecblock 0x151f7c75
     b main_block@0
 
@@ -171,10 +171,7 @@ arc4_uint32_via_uint64_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 4
-    ==
-    assert // invalid number of bytes for arc4.uint32
+    callsub __internal_validate_Encoded(uint32)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_uint64
     bytec_0 // 0x151f7c75
     uncover 1
@@ -193,10 +190,7 @@ arc4_uint64_via_uint64_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_uint64
     bytec_0 // 0x151f7c75
     uncover 1
@@ -215,10 +209,7 @@ arc4_uint128_via_uint64_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.uint128
+    callsub __internal_validate_Encoded(uint128)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_uint64
     bytec_0 // 0x151f7c75
     uncover 1
@@ -238,10 +229,7 @@ uint64_via_arc4_uint32_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint32
     itob
@@ -262,10 +250,7 @@ uint64_via_arc4_uint64_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint64
     itob
@@ -286,10 +271,7 @@ uint64_via_arc4_uint128_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.uint64_via_arc4_uint128
     itob
@@ -311,10 +293,7 @@ arc4_uint32_via_biguint_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 4
-    ==
-    assert // invalid number of bytes for arc4.uint32
+    callsub __internal_validate_Encoded(uint32)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint32_via_biguint
     bytec_0 // 0x151f7c75
     uncover 1
@@ -333,10 +312,7 @@ arc4_uint64_via_biguint_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint64_via_biguint
     bytec_0 // 0x151f7c75
     uncover 1
@@ -355,10 +331,7 @@ arc4_uint128_via_biguint_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.uint128
+    callsub __internal_validate_Encoded(uint128)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.arc4_uint128_via_biguint
     bytec_0 // 0x151f7c75
     uncover 1
@@ -378,17 +351,14 @@ biguint_via_arc4_uint32_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 64
-    ==
-    assert // invalid number of bytes for arc4.uint512
+    callsub __internal_validate_Encoded(uint512)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint32
     dup
     len
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
@@ -408,17 +378,14 @@ biguint_via_arc4_uint64_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 64
-    ==
-    assert // invalid number of bytes for arc4.uint512
+    callsub __internal_validate_Encoded(uint512)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint64
     dup
     len
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
@@ -438,17 +405,14 @@ biguint_via_arc4_uint128_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 64
-    ==
-    assert // invalid number of bytes for arc4.uint512
+    callsub __internal_validate_Encoded(uint512)
     callsub test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.biguint_via_arc4_uint128
     dup
     len
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
-    intc_2 // 64
+    intc_1 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
@@ -479,8 +443,8 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.a
     pushint 32
     <=
     assert // overflow
-    intc_3 // 4
-    intc_3 // 4
+    intc_2 // 4
+    intc_2 // 4
     extract3
     retsub
 
@@ -515,12 +479,12 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.a
     // return arc4.UInt128(x.as_uint64())
     frame_dig -1
     bitlen
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
     frame_dig -1
     len
-    intc_1 // 8
+    intc_3 // 8
     -
     frame_dig -1
     uncover 1
@@ -551,8 +515,8 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.u
     pushint 32
     <=
     assert // overflow
-    intc_3 // 4
-    intc_3 // 4
+    intc_2 // 4
+    intc_2 // 4
     extract3
     btoi
     retsub
@@ -593,12 +557,12 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.u
     b|
     dup
     bitlen
-    intc_2 // 64
+    intc_1 // 64
     <=
     assert // overflow
     dup
     len
-    intc_1 // 8
+    intc_3 // 8
     -
     extract_uint64
     retsub
@@ -619,10 +583,10 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.a
     frame_dig -1
     dup
     len
-    intc_3 // 4
+    intc_2 // 4
     <=
     assert // overflow
-    intc_3 // 4
+    intc_2 // 4
     bzero
     b|
     retsub
@@ -642,10 +606,10 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.a
     frame_dig -1
     dup
     len
-    intc_1 // 8
+    intc_3 // 8
     <=
     assert // overflow
-    intc_1 // 8
+    intc_3 // 8
     bzero
     b|
     retsub
@@ -688,10 +652,10 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.b
     // return arc4.UInt32(x).as_biguint()
     frame_dig -1
     len
-    intc_3 // 4
+    intc_2 // 4
     <=
     assert // overflow
-    intc_3 // 4
+    intc_2 // 4
     bzero
     frame_dig -1
     b|
@@ -711,10 +675,10 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.b
     // return arc4.UInt64(x).as_biguint()
     frame_dig -1
     len
-    intc_1 // 8
+    intc_3 // 8
     <=
     assert // overflow
-    intc_1 // 8
+    intc_3 // 8
     bzero
     frame_dig -1
     b|
@@ -741,4 +705,60 @@ test_cases.regression_tests.numeric_encode_round_trips.NumericEncodeRoundTrips.b
     bzero
     frame_dig -1
     b|
+    retsub
+
+
+// __internal_validate_Encoded(uint32)(value: bytes) -> void:
+__internal_validate_Encoded(uint32):
+    proto 1 0
+    b __internal_validate_Encoded(uint32)_block@0
+
+__internal_validate_Encoded(uint32)_block@0:
+    frame_dig -1
+    len
+    intc_2 // 4
+    ==
+    assert // invalid number of bytes for Encoded(uint32)
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
+    retsub
+
+
+// __internal_validate_Encoded(uint128)(value: bytes) -> void:
+__internal_validate_Encoded(uint128):
+    proto 1 0
+    b __internal_validate_Encoded(uint128)_block@0
+
+__internal_validate_Encoded(uint128)_block@0:
+    frame_dig -1
+    len
+    pushint 16
+    ==
+    assert // invalid number of bytes for Encoded(uint128)
+    retsub
+
+
+// __internal_validate_Encoded(uint512)(value: bytes) -> void:
+__internal_validate_Encoded(uint512):
+    proto 1 0
+    b __internal_validate_Encoded(uint512)_block@0
+
+__internal_validate_Encoded(uint512)_block@0:
+    frame_dig -1
+    len
+    intc_1 // 64
+    ==
+    assert // invalid number of bytes for Encoded(uint512)
     retsub

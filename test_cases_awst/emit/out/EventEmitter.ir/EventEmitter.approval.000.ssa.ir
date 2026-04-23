@@ -48,14 +48,10 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.__puya_arc4_route
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routing]() -> void:
     block@0: // L14
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(tmp%0#0)
         let as_Encoded(uint8)%0#0: Encoded(uint8) = tmp%0#0
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%1#0)
-        let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(tmp%1#0)
         let as_Encoded(uint8)%1#0: Encoded(uint8) = tmp%1#0
         tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped(as_Encoded(uint8)%0#0, as_Encoded(uint8)%1#0)
         exit 1u
@@ -63,18 +59,11 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routi
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom[routing]() -> void:
     block@0: // L46
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(tmp%0#0)
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%0#0
         let tmp%1#0: string = decode_bytes<string>(as_Encoded(len+utf8[])%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for arc4.bool
+        __internal_validate_Encoded(bool8)(tmp%2#0)
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%2#0
         let tmp%3#0: bool = decode_bytes<bool>(as_Encoded(bool8)%0#0)
         tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom(tmp%1#0, tmp%3#0)
@@ -83,21 +72,11 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom[routin
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitDynamicBytes[routing]() -> void:
     block@0: // L51
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%0#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
         let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = (* length%1#0 1u)
-        let add%1#0: uint64 = (+ mul%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%2#0
         tests/approvals/arc-28-events.algo.ts::EventEmitter.emitDynamicBytes(tmp%1#0, as_Encoded(len+uint8[])%1#0)
         exit 1u
@@ -184,4 +163,38 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitDynamicBytes(
 
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.__algots__.defaultCreate() -> void:
     block@0: // L13
+        return 
+
+subroutine __internal_validate_Encoded(uint8)(value: Encoded(uint8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8)
+        return 
+
+subroutine __internal_validate_Encoded(len+utf8[])(value: Encoded(len+utf8[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        return 
+
+subroutine __internal_validate_Encoded(bool8)(value: Encoded(bool8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(bool8)
+        return 
+
+subroutine __internal_validate_Encoded(len+uint8[])(value: Encoded(len+uint8[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
         return 

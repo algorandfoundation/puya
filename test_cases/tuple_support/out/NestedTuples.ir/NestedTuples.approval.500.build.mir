@@ -359,13 +359,13 @@ subroutine store_tuple:
     store_tuple_block@0:
         // tuple_support/nested_tuples.py:61
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       tuple_len%0#0
         v-store tuple_len%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 0                                                                                     tmp%0#0,0
+        v-load value#0                                                                            value#0
+        int 0                                                                                     value#0,0
         extract_uint16 // on error: invalid tuple encoding                                        extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                                 extract_uint16%0#0
@@ -374,9 +374,9 @@ subroutine store_tuple:
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
         assert // invalid tail pointer at index 0 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[])) 
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%0#0                                                                 tmp%0#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                                      tmp%0#0,extract_uint16%0#0,tuple_len%0#0
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%0#0                                                                 value#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                      value#0,extract_uint16%0#0,tuple_len%0#0
         substring3                                                                                substring3%0#0
         v-store substring3%0#0
         v-load substring3%0#0                                                                     substring3%0#0
@@ -454,8 +454,8 @@ subroutine store_tuple:
         int 22                                                                                    add%3#0,22
         +                                                                                         add%5#0
         v-store add%5#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 2                                                                                     tmp%0#0,2
+        v-load value#0                                                                            value#0
+        int 2                                                                                     value#0,2
         extract_uint16 // on error: invalid tuple encoding                                        extract_uint16%4#0
         v-store extract_uint16%4#0
         v-load extract_uint16%4#0                                                                 extract_uint16%4#0
@@ -464,9 +464,9 @@ subroutine store_tuple:
         v-store eq%4#0
         v-load eq%4#0                                                                             eq%4#0
         assert // invalid tail pointer at index 1 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[])) 
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%4#0                                                                 tmp%0#0,extract_uint16%4#0
-        v-load tuple_len%0#0                                                                      tmp%0#0,extract_uint16%4#0,tuple_len%0#0
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%4#0                                                                 value#0,extract_uint16%4#0
+        v-load tuple_len%0#0                                                                      value#0,extract_uint16%4#0,tuple_len%0#0
         substring3                                                                                substring3%4#0
         v-store substring3%4#0
         v-load substring3%4#0                                                                     substring3%4#0
@@ -482,21 +482,17 @@ subroutine store_tuple:
         v-store array_data%0#0
         int 0                                                                                     0
         v-store index%0#0
-        b store_tuple_for_header@1
+        b store_tuple_for_header@2
 
-    store_tuple_for_header@1:
-        // tuple_support/nested_tuples.py:61
-        // @arc4.abimethod()
+    store_tuple_for_header@2:
         v-load index%0#0                                                                          index%0#0
         v-load aggregate%array_length%2#0                                                         index%0#0,aggregate%array_length%2#0
         <                                                                                         continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                               continue_looping%0#0
-        bz store_tuple_after_for@4 ; b store_tuple_for_body@2
+        bz store_tuple_after_for@5 ; b store_tuple_for_body@3
 
-    store_tuple_for_body@2:
-        // tuple_support/nested_tuples.py:61
-        // @arc4.abimethod()
+    store_tuple_for_body@3:
         v-load index%0#0                                                                          index%0#0
         int 2                                                                                     index%0#0,2
         *                                                                                         head_offset_bytes%0#0
@@ -580,11 +576,9 @@ subroutine store_tuple:
         int 1                                                                                     index%0#0,1
         +                                                                                         index%0#0
         v-store index%0#0
-        b store_tuple_for_header@1
+        b store_tuple_for_header@2
 
-    store_tuple_after_for@4:
-        // tuple_support/nested_tuples.py:61
-        // @arc4.abimethod()
+    store_tuple_after_for@5:
         v-load num_bytes%0#0                                                                      num_bytes%0#0
         int 2                                                                                     num_bytes%0#0,2
         +                                                                                         num_bytes%1#0
@@ -598,11 +592,11 @@ subroutine store_tuple:
         ==                                                                                        eq%7#0
         v-store eq%7#0
         v-load eq%7#0                                                                             eq%7#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList 
+        assert // invalid number of bytes for Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[])) 
         // tuple_support/nested_tuples.py:63
         // self.pwl = pwl
         byte "pwl"                                                                                "pwl"
-        v-load tmp%0#0                                                                            "pwl",tmp%0#0
+        v-load value#0                                                                            "pwl",value#0
         app_global_put
         // tuple_support/nested_tuples.py:61
         // @arc4.abimethod()
@@ -639,9 +633,9 @@ subroutine store_tuple_in_box:
     store_tuple_in_box_block@0:
         // tuple_support/nested_tuples.py:69
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       len%0#0
         v-store len%0#0
         v-load len%0#0                                                                            len%0#0
@@ -649,12 +643,14 @@ subroutine store_tuple_in_box:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup 
-        v-load tmp%0#0                                                                            tmp%0#0
+        assert // invalid number of bytes for Encoded(uint64,uint64)
+        // tuple_support/nested_tuples.py:69
+        // @arc4.abimethod()
+        v-load value#0                                                                            value#0
         extract 0 8                                                                               aggregate%extract%0#0
         v-store aggregate%extract%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 8                                                                                     tmp%0#0,8
+        v-load value#0                                                                            value#0
+        int 8                                                                                     value#0,8
         extract_uint64                                                                            key.b#0
         v-store key.b#0
         // tuple_support/nested_tuples.py:71
@@ -664,7 +660,7 @@ subroutine store_tuple_in_box:
         +                                                                                         tmp%0#1
         v-store tmp%0#1
         byte "box"                                                                                "box"
-        v-load tmp%0#0                                                                            "box",tmp%0#0
+        v-load value#0                                                                            "box",value#0
         concat                                                                                    map_prefixed_key%0#0
         v-store map_prefixed_key%0#0
         v-load tmp%0#1                                                                            tmp%0#1
@@ -688,9 +684,9 @@ subroutine is_tuple_in_box:
     is_tuple_in_box_block@0:
         // tuple_support/nested_tuples.py:73
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       len%0#0
         v-store len%0#0
         v-load len%0#0                                                                            len%0#0
@@ -698,11 +694,11 @@ subroutine is_tuple_in_box:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup 
+        assert // invalid number of bytes for Encoded(uint64,uint64)
         // tuple_support/nested_tuples.py:75
         // return key in self.box
         byte "box"                                                                                "box"
-        v-load tmp%0#0                                                                            "box",tmp%0#0
+        v-load value#0                                                                            "box",value#0
         concat                                                                                    map_prefixed_key%0#0
         v-store map_prefixed_key%0#0
         v-load map_prefixed_key%0#0                                                               map_prefixed_key%0#0
@@ -731,9 +727,9 @@ subroutine load_tuple_from_box:
     load_tuple_from_box_block@0:
         // tuple_support/nested_tuples.py:77
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       len%0#0
         v-store len%0#0
         v-load len%0#0                                                                            len%0#0
@@ -741,11 +737,11 @@ subroutine load_tuple_from_box:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup 
+        assert // invalid number of bytes for Encoded(uint64,uint64)
         // tuple_support/nested_tuples.py:79
         // return self.box[key]
         byte "box"                                                                                "box"
-        v-load tmp%0#0                                                                            "box",tmp%0#0
+        v-load value#0                                                                            "box",value#0
         concat                                                                                    map_prefixed_key%0#0
         v-store map_prefixed_key%0#0
         v-load map_prefixed_key%0#0                                                               map_prefixed_key%0#0
@@ -771,9 +767,9 @@ subroutine maybe_load_tuple_from_box:
     maybe_load_tuple_from_box_block@0:
         // tuple_support/nested_tuples.py:81
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       len%0#0
         v-store len%0#0
         v-load len%0#0                                                                            len%0#0
@@ -781,11 +777,11 @@ subroutine maybe_load_tuple_from_box:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup 
+        assert // invalid number of bytes for Encoded(uint64,uint64)
         // tuple_support/nested_tuples.py:83
         // maybe_value, exists = self.box.maybe(key)
         byte "box"                                                                                "box"
-        v-load tmp%0#0                                                                            "box",tmp%0#0
+        v-load value#0                                                                            "box",value#0
         concat                                                                                    map_prefixed_key%0#0
         v-store map_prefixed_key%0#0
         v-load map_prefixed_key%0#0                                                               map_prefixed_key%0#0
@@ -862,9 +858,9 @@ subroutine load_tuple_from_box_or_default:
     load_tuple_from_box_or_default_block@0:
         // tuple_support/nested_tuples.py:86
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       len%0#0
         v-store len%0#0
         v-load len%0#0                                                                            len%0#0
@@ -872,11 +868,11 @@ subroutine load_tuple_from_box_or_default:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup 
+        assert // invalid number of bytes for Encoded(uint64,uint64)
         // tuple_support/nested_tuples.py:88
         // return self.box.get(key, default=simple_tup(UInt64(4), UInt64(2)))
         byte "box"                                                                                "box"
-        v-load tmp%0#0                                                                            "box",tmp%0#0
+        v-load value#0                                                                            "box",value#0
         concat                                                                                    map_prefixed_key%0#0
         v-store map_prefixed_key%0#0
         int 4                                                                                     4
@@ -943,17 +939,17 @@ subroutine load_tuple_from_local_state_or_default:
     load_tuple_from_local_state_or_default_block@0:
         // tuple_support/nested_tuples.py:90
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 0                                                                                     tmp%0#0,0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
+        int 0                                                                                     value#0,0
         extract_uint16 // on error: invalid array length header                                   aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                         aggregate%array_length%0#0
         int 2                                                                                     aggregate%array_length%0#0,2
         +                                                                                         add%0#0
         v-store add%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        v-load value#0                                                                            value#0
         len                                                                                       len%0#0
         v-store len%0#0
         v-load len%0#0                                                                            len%0#0
@@ -961,8 +957,10 @@ subroutine load_tuple_from_local_state_or_default:
         ==                                                                                        eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        v-load tmp%0#0                                                                            tmp%0#0
+        assert // invalid number of bytes for Encoded(len+utf8[])
+        // tuple_support/nested_tuples.py:90
+        // @arc4.abimethod()
+        v-load value#0                                                                            value#0
         extract 2 0                                                                               key#0
         v-store key#0
         // tuple_support/nested_tuples.py:92
@@ -986,9 +984,9 @@ subroutine load_tuple_from_local_state_or_default:
         v-store maybe_exists%0#0                                                                  maybe_value%0#0
         v-store maybe_value%0#0
         v-load maybe_exists%0#0                                                                   maybe_exists%0#0
-        bz load_tuple_from_local_state_or_default_ternary_false@3 ; b load_tuple_from_local_state_or_default_ternary_true@2 
+        bz load_tuple_from_local_state_or_default_ternary_false@5 ; b load_tuple_from_local_state_or_default_ternary_true@4 
 
-    load_tuple_from_local_state_or_default_ternary_true@2:
+    load_tuple_from_local_state_or_default_ternary_true@4:
         // tuple_support/nested_tuples.py:93
         // return local.get(get_sender_inefficiently(), default=simple_tup(UInt64(4), UInt64(2)))
         v-load maybe_value%0#0                                                                    maybe_value%0#0
@@ -1003,16 +1001,16 @@ subroutine load_tuple_from_local_state_or_default:
         v-store ternary_result%0.b#2
         v-load aggregate%item0%0#0                                                                aggregate%item0%0#0
         v-store ternary_result%0.a#2
-        b load_tuple_from_local_state_or_default_ternary_merge@4
+        b load_tuple_from_local_state_or_default_ternary_merge@6
 
-    load_tuple_from_local_state_or_default_ternary_false@3:
+    load_tuple_from_local_state_or_default_ternary_false@5:
         v-load tmp%3#1                                                                            tmp%3#1
         v-store ternary_result%0.b#2
         v-load tmp%2#1                                                                            tmp%2#1
         v-store ternary_result%0.a#2
-        b load_tuple_from_local_state_or_default_ternary_merge@4
+        b load_tuple_from_local_state_or_default_ternary_merge@6
 
-    load_tuple_from_local_state_or_default_ternary_merge@4:
+    load_tuple_from_local_state_or_default_ternary_merge@6:
         // tuple_support/nested_tuples.py:90
         // @arc4.abimethod()
         v-load ternary_result%0.a#2                                                               ternary_result%0.a#2
@@ -1523,13 +1521,13 @@ subroutine nested_tuple_params:
     nested_tuple_params_block@0:
         // tuple_support/nested_tuples.py:149
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       tuple_len%0#0
         v-store tuple_len%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 0                                                                                     tmp%0#0,0
+        v-load value#0                                                                            value#0
+        int 0                                                                                     value#0,0
         extract_uint16 // on error: invalid tuple encoding                                        extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                                 extract_uint16%0#0
@@ -1538,9 +1536,9 @@ subroutine nested_tuple_params:
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
         assert // invalid tail pointer at index 0 of ((len+utf8[]),((len+uint8[]),(uint64))) 
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%0#0                                                                 tmp%0#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                                      tmp%0#0,extract_uint16%0#0,tuple_len%0#0
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%0#0                                                                 value#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                      value#0,extract_uint16%0#0,tuple_len%0#0
         substring3                                                                                substring3%0#0
         v-store substring3%0#0
         v-load substring3%0#0                                                                     substring3%0#0
@@ -1551,8 +1549,8 @@ subroutine nested_tuple_params:
         int 6                                                                                     aggregate%array_length%0#0,6
         +                                                                                         add%1#0
         v-store add%1#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 2                                                                                     tmp%0#0,2
+        v-load value#0                                                                            value#0
+        int 2                                                                                     value#0,2
         extract_uint16 // on error: invalid tuple encoding                                        extract_uint16%1#0
         v-store extract_uint16%1#0
         v-load extract_uint16%1#0                                                                 extract_uint16%1#0
@@ -1561,9 +1559,9 @@ subroutine nested_tuple_params:
         v-store eq%1#0
         v-load eq%1#0                                                                             eq%1#0
         assert // invalid tail pointer at index 1 of ((len+utf8[]),((len+uint8[]),(uint64))) 
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%1#0                                                                 tmp%0#0,extract_uint16%1#0
-        v-load tuple_len%0#0                                                                      tmp%0#0,extract_uint16%1#0,tuple_len%0#0
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%1#0                                                                 value#0,extract_uint16%1#0
+        v-load tuple_len%0#0                                                                      value#0,extract_uint16%1#0,tuple_len%0#0
         substring3                                                                                substring3%1#0
         v-store substring3%1#0
         v-load substring3%1#0                                                                     substring3%1#0
@@ -1601,10 +1599,12 @@ subroutine nested_tuple_params:
         ==                                                                                        eq%3#0
         v-store eq%3#0
         v-load eq%3#0                                                                             eq%3#0
-        assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>> 
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%0#0                                                                 tmp%0#0,extract_uint16%0#0
-        v-load extract_uint16%1#0                                                                 tmp%0#0,extract_uint16%0#0,extract_uint16%1#0
+        assert // invalid number of bytes for Encoded((len+utf8[]),((len+uint8[]),(uint64))) 
+        // tuple_support/nested_tuples.py:149
+        // @arc4.abimethod()
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%0#0                                                                 value#0,extract_uint16%0#0
+        v-load extract_uint16%1#0                                                                 value#0,extract_uint16%0#0,extract_uint16%1#0
         substring3                                                                                aggregate%substring3%0#0
         v-store aggregate%substring3%0#0
         v-load aggregate%substring3%0#0                                                           aggregate%substring3%0#0
@@ -1693,13 +1693,13 @@ subroutine named_tuple:
     named_tuple_block@0:
         // tuple_support/nested_tuples.py:156
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       tuple_len%0#0
         v-store tuple_len%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 8                                                                                     tmp%0#0,8
+        v-load value#0                                                                            value#0
+        int 8                                                                                     value#0,8
         extract_uint16 // on error: invalid tuple encoding                                        extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                                 extract_uint16%0#0
@@ -1708,9 +1708,9 @@ subroutine named_tuple:
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
         assert // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%0#0                                                                 tmp%0#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                                      tmp%0#0,extract_uint16%0#0,tuple_len%0#0
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%0#0                                                                 value#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                      value#0,extract_uint16%0#0,tuple_len%0#0
         substring3                                                                                substring3%0#0
         v-store substring3%0#0
         v-load substring3%0#0                                                                     substring3%0#0
@@ -1721,8 +1721,8 @@ subroutine named_tuple:
         int 14                                                                                    aggregate%array_length%0#0,14
         +                                                                                         add%1#0
         v-store add%1#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 10                                                                                    tmp%0#0,10
+        v-load value#0                                                                            value#0
+        int 10                                                                                    value#0,10
         extract_uint16 // on error: invalid tuple encoding                                        extract_uint16%1#0
         v-store extract_uint16%1#0
         v-load extract_uint16%1#0                                                                 extract_uint16%1#0
@@ -1731,9 +1731,9 @@ subroutine named_tuple:
         v-store eq%1#0
         v-load eq%1#0                                                                             eq%1#0
         assert // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%1#0                                                                 tmp%0#0,extract_uint16%1#0
-        v-load tuple_len%0#0                                                                      tmp%0#0,extract_uint16%1#0,tuple_len%0#0
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%1#0                                                                 value#0,extract_uint16%1#0
+        v-load tuple_len%0#0                                                                      value#0,extract_uint16%1#0,tuple_len%0#0
         substring3                                                                                substring3%1#0
         v-store substring3%1#0
         v-load substring3%1#0                                                                     substring3%1#0
@@ -1753,9 +1753,11 @@ subroutine named_tuple:
         ==                                                                                        eq%2#0
         v-store eq%2#0
         v-load eq%2#0                                                                             eq%2#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child 
+        assert // invalid number of bytes for Encoded(uint64,(len+uint8[]),(len+utf8[]))
+        // tuple_support/nested_tuples.py:156
+        // @arc4.abimethod()
         byte 0x151f7c75                                                                           0x151f7c75
-        v-load tmp%0#0                                                                            0x151f7c75,tmp%0#0
+        v-load value#0                                                                            0x151f7c75,value#0
         concat                                                                                    tmp%8#0
         v-store tmp%8#0
         v-load tmp%8#0                                                                            tmp%8#0
@@ -1769,13 +1771,13 @@ subroutine nested_named_tuple_params:
     nested_named_tuple_params_block@0:
         // tuple_support/nested_tuples.py:161
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
+        txna ApplicationArgs 1                                                                    value#0
+        v-store value#0
+        v-load value#0                                                                            value#0
         len                                                                                       tuple_len%0#0
         v-store tuple_len%0#0
-        v-load tmp%0#0                                                                            tmp%0#0
-        int 16                                                                                    tmp%0#0,16
+        v-load value#0                                                                            value#0
+        int 16                                                                                    value#0,16
         extract_uint16 // on error: invalid tuple encoding                                        extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                                 extract_uint16%0#0
@@ -1784,9 +1786,9 @@ subroutine nested_named_tuple_params:
         v-store eq%0#0
         v-load eq%0#0                                                                             eq%0#0
         assert // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))) 
-        v-load tmp%0#0                                                                            tmp%0#0
-        v-load extract_uint16%0#0                                                                 tmp%0#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                                      tmp%0#0,extract_uint16%0#0,tuple_len%0#0
+        v-load value#0                                                                            value#0
+        v-load extract_uint16%0#0                                                                 value#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                                      value#0,extract_uint16%0#0,tuple_len%0#0
         substring3                                                                                substring3%0#0
         v-store substring3%0#0
         v-load substring3%0#0                                                                     substring3%0#0
@@ -1851,9 +1853,11 @@ subroutine nested_named_tuple_params:
         ==                                                                                        eq%3#0
         v-store eq%3#0
         v-load eq%3#0                                                                             eq%3#0
-        assert // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent 
+        assert // invalid number of bytes for Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))) 
+        // tuple_support/nested_tuples.py:161
+        // @arc4.abimethod()
         byte 0x151f7c75                                                                           0x151f7c75
-        v-load tmp%0#0                                                                            0x151f7c75,tmp%0#0
+        v-load value#0                                                                            0x151f7c75,value#0
         concat                                                                                    tmp%12#0
         v-store tmp%12#0
         v-load tmp%12#0                                                                           tmp%12#0

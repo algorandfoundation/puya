@@ -1416,15 +1416,17 @@ subroutine test_bool_array:
     test_bool_array_block@0:
         // array/immutable.py:155
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // array/immutable.py:155
+        // @arc4.abimethod()
+        l-load value#0 0                                                                    value#0
         btoi                                                                                length#0
         v-store length#0
         // array/immutable.py:157
@@ -1612,8 +1614,8 @@ subroutine test_bool_array:
         int 1                                                                               array_length#0,1
         -                                                                                   new_length#0
         l-load-copy new_length#0 0                                                          new_length#0,new_length#0 (copy)
-        itob                                                                                new_length#0,tmp%0#0
-        l-load tmp%0#0 0                                                                    new_length#0,tmp%0#0
+        itob                                                                                new_length#0,tmp%0#3
+        l-load tmp%0#3 0                                                                    new_length#0,tmp%0#3
         extract 6 0                                                                         new_length#0,result#0
         v-load arr#0                                                                        new_length#0,result#0,arr#0
         extract 2 0                                                                         new_length#0,result#0,data#0
@@ -2449,21 +2451,7 @@ subroutine test_implicit_conversion_log:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                              arr#0
         l-load-copy arr#0 0                                                                 arr#0,arr#0 (copy)
-        int 0                                                                               arr#0,arr#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 arr#0,aggregate%array_length%0#0
-        int 8                                                                               arr#0,aggregate%array_length%0#0,8
-        *                                                                                   arr#0,mul%0#0
-        l-load mul%0#0 0                                                                    arr#0,mul%0#0
-        int 2                                                                               arr#0,mul%0#0,2
-        +                                                                                   arr#0,add%0#0
-        l-load-copy arr#0 1                                                                 arr#0,add%0#0,arr#0 (copy)
-        len                                                                                 arr#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                    arr#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                    arr#0,len%0#0,add%0#0
-        ==                                                                                  arr#0,eq%0#0
-        l-load eq%0#0 0                                                                     arr#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                    arr#0
+        callsub __internal_validate_Encoded(len+uint64[])                                   arr#0
         // array/immutable.py:252
         // log(arr)
         l-load arr#0 0                                                                      arr#0
@@ -2481,21 +2469,7 @@ subroutine test_implicit_conversion_emit:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                              arr#0
         l-load-copy arr#0 0                                                                 arr#0,arr#0 (copy)
-        int 0                                                                               arr#0,arr#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 arr#0,aggregate%array_length%0#0
-        int 8                                                                               arr#0,aggregate%array_length%0#0,8
-        *                                                                                   arr#0,mul%0#0
-        l-load mul%0#0 0                                                                    arr#0,mul%0#0
-        int 2                                                                               arr#0,mul%0#0,2
-        +                                                                                   arr#0,add%0#0
-        l-load-copy arr#0 1                                                                 arr#0,add%0#0,arr#0 (copy)
-        len                                                                                 arr#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                    arr#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                    arr#0,len%0#0,add%0#0
-        ==                                                                                  arr#0,eq%0#0
-        l-load eq%0#0 0                                                                     arr#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                    arr#0
+        callsub __internal_validate_Encoded(len+uint64[])                                   arr#0
         // array/immutable.py:256
         // arc4.emit("emit_test", arr)
         byte 0xfa40c0530002                                                                 arr#0,0xfa40c0530002
@@ -2514,51 +2488,49 @@ subroutine test_nested_array:
     test_nested_array_block@0:
         // array/immutable.py:258
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // array/immutable.py:258
+        // @arc4.abimethod()
+        l-load value#0 0                                                                    value#0
         btoi                                                                                arr_to_add#0
         v-store arr_to_add#0
-        txna ApplicationArgs 2                                                              arr#0
-        l-store-copy arr#0 0                                                                arr#0,arr#0 (copy)
-        v-store arr#0                                                                       arr#0
-        l-load-copy arr#0 0                                                                 arr#0,arr#0 (copy)
-        int 0                                                                               arr#0,arr#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr#0,aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                                           arr#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                                                  arr#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 arr#0,aggregate%array_length%0#0
-        int 2                                                                               arr#0,aggregate%array_length%0#0,2
-        *                                                                                   arr#0,num_bytes%0#0
-        v-store num_bytes%0#0                                                               arr#0
-        l-load-copy arr#0 0                                                                 arr#0,arr#0 (copy)
-        len                                                                                 arr#0,total_length%0#0
-        v-store total_length%0#0                                                            arr#0
-        l-load arr#0 0                                                                      arr#0
+        txna ApplicationArgs 2                                                              value#0
+        l-store-copy value#0 0                                                              value#0,value#0 (copy)
+        v-store value#0                                                                     value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        int 0                                                                               value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                             value#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                           value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                  value#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                 value#0,aggregate%array_length%0#0
+        int 2                                                                               value#0,aggregate%array_length%0#0,2
+        *                                                                                   value#0,num_bytes%0#0
+        v-store num_bytes%0#0                                                               value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,total_length%0#0
+        v-store total_length%0#0                                                            value#0
+        l-load value#0 0                                                                    value#0
         extract 2 0                                                                         array_data%0#0
         v-store array_data%0#0
         int 0                                                                               0
         v-store index%0#0
-        b test_nested_array_for_header@1
+        b test_nested_array_for_header@2
 
-    test_nested_array_for_header@1:
-        // array/immutable.py:258
-        // @arc4.abimethod()
+    test_nested_array_for_header@2:
         v-load index%0#0                                                                    index%0#0
         v-load aggregate%array_length%0#0                                                   index%0#0,aggregate%array_length%0#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_nested_array_after_for@4 ; b test_nested_array_for_body@2
+        bz test_nested_array_after_for@5 ; b test_nested_array_for_body@3
 
-    test_nested_array_for_body@2:
-        // array/immutable.py:258
-        // @arc4.abimethod()
+    test_nested_array_for_body@3:
         v-load index%0#0                                                                    index%0#0
         l-store-copy index%0#0 0                                                            index%0#0,index%0#0 (copy)
         int 2                                                                               index%0#0,index%0#0 (copy),2
@@ -2596,37 +2568,37 @@ subroutine test_nested_array:
         int 1                                                                               index%0#0,1
         +                                                                                   index%0#0
         v-store index%0#0
-        b test_nested_array_for_header@1
+        b test_nested_array_for_header@2
 
-    test_nested_array_after_for@4:
-        // array/immutable.py:258
-        // @arc4.abimethod()
+    test_nested_array_after_for@5:
         v-load num_bytes%0#0                                                                num_bytes%0#0
         int 2                                                                               num_bytes%0#0,2
         +                                                                                   num_bytes%1#0
         v-load total_length%0#0                                                             num_bytes%1#0,total_length%0#0
         l-load num_bytes%1#0 1                                                              total_length%0#0,num_bytes%1#0
-        ==                                                                                  eq%1#0
-        l-load eq%1#0 0                                                                     eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<uint64>> 
+        ==                                                                                  eq%0#0
+        l-load eq%0#0 0                                                                     eq%0#0
+        assert // invalid number of bytes for Encoded(len+(len+uint64[])[])
         // array/immutable.py:263
         // for i in urange(arr_to_add):
         int 0                                                                               0
         l-store value_internal%0#0 0                                                        value_internal%0#0
+        v-load value#0                                                                      value_internal%0#0,value#0
+        v-store arr#2                                                                       value_internal%0#0
         l-load value_internal%0#0 0                                                         value_internal%0#0
         v-store i#0
-        b test_nested_array_for_header@6
+        b test_nested_array_for_header@8
 
-    test_nested_array_for_header@6:
+    test_nested_array_for_header@8:
         // array/immutable.py:263
         // for i in urange(arr_to_add):
         v-load i#0                                                                          i#0
         v-load arr_to_add#0                                                                 i#0,arr_to_add#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_nested_array_after_for@13 ; b test_nested_array_for_body@7
+        bz test_nested_array_after_for@15 ; b test_nested_array_for_body@9
 
-    test_nested_array_for_body@7:
+    test_nested_array_for_body@9:
         // array/immutable.py:264
         // extra_arr = ImmutableArray[UInt64]()
         byte 0x0000                                                                         0x0000
@@ -2637,18 +2609,18 @@ subroutine test_nested_array:
         l-store value_internal%1#0 0                                                        value_internal%1#0
         l-load value_internal%1#0 0                                                         value_internal%1#0
         v-store j#0
-        b test_nested_array_for_header@8
+        b test_nested_array_for_header@10
 
-    test_nested_array_for_header@8:
+    test_nested_array_for_header@10:
         // array/immutable.py:265
         // for j in urange(i):
         v-load j#0                                                                          j#0
         v-load i#0                                                                          j#0,i#0
         <                                                                                   continue_looping%1#0
         l-load continue_looping%1#0 0                                                       continue_looping%1#0
-        bz test_nested_array_after_for@11 ; b test_nested_array_for_body@9
+        bz test_nested_array_after_for@13 ; b test_nested_array_for_body@11
 
-    test_nested_array_for_body@9:
+    test_nested_array_for_body@11:
         // array/immutable.py:266
         // extra_arr = extra_arr.append(j)
         v-load j#0                                                                          j#0
@@ -2664,8 +2636,8 @@ subroutine test_nested_array:
         int 1                                                                               j#0,new_items_bytes#0,extra_arr#0,array_length#0,1
         +                                                                                   j#0,new_items_bytes#0,extra_arr#0,new_array_length#0
         l-load new_array_length#0 0                                                         j#0,new_items_bytes#0,extra_arr#0,new_array_length#0
-        itob                                                                                j#0,new_items_bytes#0,extra_arr#0,tmp%0#0
-        l-load tmp%0#0 0                                                                    j#0,new_items_bytes#0,extra_arr#0,tmp%0#0
+        itob                                                                                j#0,new_items_bytes#0,extra_arr#0,tmp%0#3
+        l-load tmp%0#3 0                                                                    j#0,new_items_bytes#0,extra_arr#0,tmp%0#3
         extract 6 0                                                                         j#0,new_items_bytes#0,extra_arr#0,new_len_u16#0
         l-load extra_arr#0 1                                                                j#0,new_items_bytes#0,new_len_u16#0,extra_arr#0
         l-load new_len_u16#0 1                                                              j#0,new_items_bytes#0,extra_arr#0,new_len_u16#0
@@ -2681,19 +2653,19 @@ subroutine test_nested_array:
         +                                                                                   value_internal%1#0
         l-load value_internal%1#0 0                                                         value_internal%1#0
         v-store j#0
-        b test_nested_array_for_header@8
+        b test_nested_array_for_header@10
 
-    test_nested_array_after_for@11:
+    test_nested_array_after_for@13:
         // array/immutable.py:267
         // arr = arr.append(extra_arr)
         byte 0x0002                                                                         0x0002
         v-load extra_arr#0                                                                  0x0002,extra_arr#0
         concat                                                                              aggregate%concat%0#0
-        v-load arr#0                                                                        aggregate%concat%0#0,arr#0
-        l-load aggregate%concat%0#0 1                                                       arr#0,aggregate%concat%0#0
-        int 1                                                                               arr#0,aggregate%concat%0#0,1
-        callsub dynamic_array_concat_dynamic_element                                        arr#0
-        v-store arr#0
+        v-load arr#2                                                                        aggregate%concat%0#0,arr#2
+        l-load aggregate%concat%0#0 1                                                       arr#2,aggregate%concat%0#0
+        int 1                                                                               arr#2,aggregate%concat%0#0,1
+        callsub dynamic_array_concat_dynamic_element                                        arr#2
+        v-store arr#2
         // array/immutable.py:263
         // for i in urange(arr_to_add):
         v-load i#0                                                                          i#0
@@ -2701,36 +2673,36 @@ subroutine test_nested_array:
         +                                                                                   value_internal%0#0
         l-load value_internal%0#0 0                                                         value_internal%0#0
         v-store i#0
-        b test_nested_array_for_header@6
+        b test_nested_array_for_header@8
 
-    test_nested_array_after_for@13:
+    test_nested_array_after_for@15:
         // array/immutable.py:270
         // totals = ImmutableArray[UInt64]()
         byte 0x0000                                                                         0x0000
         v-store totals#0
         // array/immutable.py:271
         // for inner_arr in arr:
-        v-load arr#0                                                                        arr#0
-        int 0                                                                               arr#0,0
+        v-load arr#2                                                                        arr#2
+        int 0                                                                               arr#2,0
         extract_uint16 // on error: invalid array length header                             aggregate%array_length%2#0
         v-store aggregate%array_length%2#0
         int 0                                                                               0
         v-store item_index_internal%0#0
-        b test_nested_array_for_header@14
+        b test_nested_array_for_header@16
 
-    test_nested_array_for_header@14:
+    test_nested_array_for_header@16:
         // array/immutable.py:271
         // for inner_arr in arr:
         v-load item_index_internal%0#0                                                      item_index_internal%0#0
         v-load aggregate%array_length%2#0                                                   item_index_internal%0#0,aggregate%array_length%2#0
         <                                                                                   continue_looping%2#0
         l-load continue_looping%2#0 0                                                       continue_looping%2#0
-        bz test_nested_array_after_for@17 ; b test_nested_array_for_body@15
+        bz test_nested_array_after_for@19 ; b test_nested_array_for_body@17
 
-    test_nested_array_for_body@15:
+    test_nested_array_for_body@17:
         // array/immutable.py:271
         // for inner_arr in arr:
-        v-load arr#0                                                                        arr#0
+        v-load arr#2                                                                        arr#2
         extract 2 0                                                                         aggregate%array_head_and_tail%0#0
         v-load item_index_internal%0#0                                                      aggregate%array_head_and_tail%0#0,item_index_internal%0#0
         int 2                                                                               aggregate%array_head_and_tail%0#0,item_index_internal%0#0,2
@@ -2765,18 +2737,18 @@ subroutine test_nested_array:
         v-store aggregate%array_length%3#0
         int 0                                                                               0
         v-store item_index_internal%0#3
-        b test_nested_array_for_header@19
+        b test_nested_array_for_header@21
 
-    test_nested_array_for_header@19:
+    test_nested_array_for_header@21:
         // array/immutable.py:520
         // for i in arr:
         v-load item_index_internal%0#3                                                      item_index_internal%0#3
         v-load aggregate%array_length%3#0                                                   item_index_internal%0#3,aggregate%array_length%3#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_nested_array_after_for@21 ; b test_nested_array_for_body@20
+        bz test_nested_array_after_for@23 ; b test_nested_array_for_body@22
 
-    test_nested_array_for_body@20:
+    test_nested_array_for_body@22:
         // array/immutable.py:520
         // for i in arr:
         v-load inner_arr#0                                                                  inner_arr#0
@@ -2798,9 +2770,9 @@ subroutine test_nested_array:
         int 1                                                                               item_index_internal%0#3,1
         +                                                                                   item_index_internal%0#3
         v-store item_index_internal%0#3
-        b test_nested_array_for_header@19
+        b test_nested_array_for_header@21
 
-    test_nested_array_after_for@21:
+    test_nested_array_after_for@23:
         // array/immutable.py:272
         // totals = totals.append(sum_arr(inner_arr))
         v-load total#0                                                                      total#0
@@ -2815,8 +2787,8 @@ subroutine test_nested_array:
         int 1                                                                               new_items_bytes#0,totals#0,array_length#0,1
         +                                                                                   new_items_bytes#0,totals#0,new_array_length#0
         l-load new_array_length#0 0                                                         new_items_bytes#0,totals#0,new_array_length#0
-        itob                                                                                new_items_bytes#0,totals#0,tmp%0#0
-        l-load tmp%0#0 0                                                                    new_items_bytes#0,totals#0,tmp%0#0
+        itob                                                                                new_items_bytes#0,totals#0,tmp%0#3
+        l-load tmp%0#3 0                                                                    new_items_bytes#0,totals#0,tmp%0#3
         extract 6 0                                                                         new_items_bytes#0,totals#0,new_len_u16#0
         l-load totals#0 1                                                                   new_items_bytes#0,new_len_u16#0,totals#0
         l-load new_len_u16#0 1                                                              new_items_bytes#0,totals#0,new_len_u16#0
@@ -2829,9 +2801,9 @@ subroutine test_nested_array:
         int 1                                                                               item_index_internal%0#0,1
         +                                                                                   item_index_internal%0#0
         v-store item_index_internal%0#0
-        b test_nested_array_for_header@14
+        b test_nested_array_for_header@16
 
-    test_nested_array_after_for@17:
+    test_nested_array_after_for@19:
         // array/immutable.py:258
         // @arc4.abimethod()
         byte 0x151f7c75                                                                     0x151f7c75
@@ -3234,187 +3206,73 @@ subroutine sum_uints_and_lengths_and_trues:
         l-store-copy arr1#0 0                                                               arr1#0,arr1#0 (copy)
         v-store arr1#0                                                                      arr1#0
         l-load-copy arr1#0 0                                                                arr1#0,arr1#0 (copy)
-        int 0                                                                               arr1#0,arr1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr1#0,aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                                           arr1#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                                                  arr1#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 arr1#0,aggregate%array_length%0#0
-        int 8                                                                               arr1#0,aggregate%array_length%0#0,8
-        *                                                                                   arr1#0,mul%0#0
-        l-load mul%0#0 0                                                                    arr1#0,mul%0#0
-        int 2                                                                               arr1#0,mul%0#0,2
-        +                                                                                   arr1#0,add%0#0
-        l-load arr1#0 1                                                                     add%0#0,arr1#0
-        len                                                                                 add%0#0,len%0#0
-        l-load len%0#0 0                                                                    add%0#0,len%0#0
-        l-load add%0#0 1                                                                    len%0#0,add%0#0
-        ==                                                                                  eq%0#0
-        l-load eq%0#0 0                                                                     eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>
-        txna ApplicationArgs 2                                                              arr2#0
-        l-store-copy arr2#0 0                                                               arr2#0,arr2#0 (copy)
-        v-store arr2#0                                                                      arr2#0
-        l-load-copy arr2#0 0                                                                arr2#0,arr2#0 (copy)
-        int 0                                                                               arr2#0,arr2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr2#0,aggregate%array_length%1#0
-        l-store-copy aggregate%array_length%1#0 0                                           arr2#0,aggregate%array_length%1#0,aggregate%array_length%1#0 (copy)
-        v-store aggregate%array_length%1#0                                                  arr2#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                                 arr2#0,aggregate%array_length%1#0
-        int 7                                                                               arr2#0,aggregate%array_length%1#0,7
-        +                                                                                   arr2#0,add%1#0
-        l-load add%1#0 0                                                                    arr2#0,add%1#0
-        int 8                                                                               arr2#0,add%1#0,8
-        /                                                                                   arr2#0,div_floor%0#0
-        l-load div_floor%0#0 0                                                              arr2#0,div_floor%0#0
-        int 2                                                                               arr2#0,div_floor%0#0,2
-        +                                                                                   arr2#0,add%2#0
-        l-load arr2#0 1                                                                     add%2#0,arr2#0
-        len                                                                                 add%2#0,len%1#0
-        l-load len%1#0 0                                                                    add%2#0,len%1#0
-        l-load add%2#0 1                                                                    len%1#0,add%2#0
-        ==                                                                                  eq%1#0
-        l-load eq%1#0 0                                                                     eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<bool>
-        txna ApplicationArgs 3                                                              arr3#0
-        l-store-copy arr3#0 0                                                               arr3#0,arr3#0 (copy)
-        v-store arr3#0                                                                      arr3#0
-        l-load-copy arr3#0 0                                                                arr3#0,arr3#0 (copy)
-        int 0                                                                               arr3#0,arr3#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr3#0,aggregate%array_length%2#0
-        l-store-copy aggregate%array_length%2#0 0                                           arr3#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
-        v-store aggregate%array_length%2#0                                                  arr3#0,aggregate%array_length%2#0
-        l-load aggregate%array_length%2#0 0                                                 arr3#0,aggregate%array_length%2#0
-        int 9                                                                               arr3#0,aggregate%array_length%2#0,9
-        *                                                                                   arr3#0,mul%2#0
-        l-load mul%2#0 0                                                                    arr3#0,mul%2#0
-        int 2                                                                               arr3#0,mul%2#0,2
-        +                                                                                   arr3#0,add%3#0
-        l-load arr3#0 1                                                                     add%3#0,arr3#0
-        len                                                                                 add%3#0,len%2#0
-        l-load len%2#0 0                                                                    add%3#0,len%2#0
-        l-load add%3#0 1                                                                    len%2#0,add%3#0
-        ==                                                                                  eq%2#0
-        l-load eq%2#0 0                                                                     eq%2#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple> 
-        txna ApplicationArgs 4                                                              arr4#0
-        l-store-copy arr4#0 0                                                               arr4#0,arr4#0 (copy)
-        v-store arr4#0                                                                      arr4#0
-        l-load-copy arr4#0 0                                                                arr4#0,arr4#0 (copy)
-        int 0                                                                               arr4#0,arr4#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr4#0,aggregate%array_length%3#0
-        l-store-copy aggregate%array_length%3#0 0                                           arr4#0,aggregate%array_length%3#0,aggregate%array_length%3#0 (copy)
-        v-store aggregate%array_length%3#0                                                  arr4#0,aggregate%array_length%3#0
-        l-load aggregate%array_length%3#0 0                                                 arr4#0,aggregate%array_length%3#0
-        int 2                                                                               arr4#0,aggregate%array_length%3#0,2
-        *                                                                                   arr4#0,num_bytes%0#0
-        v-store num_bytes%0#0                                                               arr4#0
-        l-load-copy arr4#0 0                                                                arr4#0,arr4#0 (copy)
-        len                                                                                 arr4#0,total_length%0#0
-        v-store total_length%0#0                                                            arr4#0
-        l-load arr4#0 0                                                                     arr4#0
-        extract 2 0                                                                         array_data%0#0
-        v-store array_data%0#0
-        int 0                                                                               0
-        v-store index%0#0
-        b sum_uints_and_lengths_and_trues_for_header@1
-
-    sum_uints_and_lengths_and_trues_for_header@1:
+        callsub __internal_validate_Encoded(len+uint64[])                                   arr1#0
+        txna ApplicationArgs 2                                                              arr1#0,value#0
+        l-store-copy value#0 0                                                              arr1#0,value#0,value#0 (copy)
+        v-store value#0                                                                     arr1#0,value#0
+        l-load-copy value#0 0                                                               arr1#0,value#0,value#0 (copy)
+        int 0                                                                               arr1#0,value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                             arr1#0,value#0,aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                           arr1#0,value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                  arr1#0,value#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                 arr1#0,value#0,aggregate%array_length%0#0
+        int 7                                                                               arr1#0,value#0,aggregate%array_length%0#0,7
+        +                                                                                   arr1#0,value#0,add%0#0
+        l-load add%0#0 0                                                                    arr1#0,value#0,add%0#0
+        int 8                                                                               arr1#0,value#0,add%0#0,8
+        /                                                                                   arr1#0,value#0,div_floor%0#0
+        l-load div_floor%0#0 0                                                              arr1#0,value#0,div_floor%0#0
+        int 2                                                                               arr1#0,value#0,div_floor%0#0,2
+        +                                                                                   arr1#0,value#0,add%1#0
+        l-load value#0 1                                                                    arr1#0,add%1#0,value#0
+        len                                                                                 arr1#0,add%1#0,len%0#0
+        l-load len%0#0 0                                                                    arr1#0,add%1#0,len%0#0
+        l-load add%1#0 1                                                                    arr1#0,len%0#0,add%1#0
+        ==                                                                                  arr1#0,eq%0#0
+        l-load eq%0#0 0                                                                     arr1#0,eq%0#0
+        assert // invalid number of bytes for Encoded(len+bool1[])                          arr1#0
         // array/immutable.py:341
         // @arc4.abimethod()
-        v-load index%0#0                                                                    index%0#0
-        v-load aggregate%array_length%3#0                                                   index%0#0,aggregate%array_length%3#0
-        <                                                                                   continue_looping%0#0
-        l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz sum_uints_and_lengths_and_trues_after_for@4 ; b sum_uints_and_lengths_and_trues_for_body@2 
-
-    sum_uints_and_lengths_and_trues_for_body@2:
-        // array/immutable.py:341
-        // @arc4.abimethod()
-        v-load index%0#0                                                                    index%0#0
-        l-store-copy index%0#0 0                                                            index%0#0,index%0#0 (copy)
-        int 2                                                                               index%0#0,index%0#0 (copy),2
-        *                                                                                   index%0#0,head_offset_bytes%0#0
-        v-load array_data%0#0                                                               index%0#0,head_offset_bytes%0#0,array_data%0#0
-        l-store-copy array_data%0#0 1                                                       index%0#0,array_data%0#0,head_offset_bytes%0#0,array_data%0#0 (copy)
-        l-load head_offset_bytes%0#0 1                                                      index%0#0,array_data%0#0,array_data%0#0 (copy),head_offset_bytes%0#0
-        extract_uint16 // on error: invalid array encoding                                  index%0#0,array_data%0#0,item_offset%0#0
-        l-load-copy item_offset%0#0 0                                                       index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy)
-        v-load num_bytes%0#0                                                                index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0
-        l-store-copy num_bytes%0#0 3                                                        index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0 (copy)
-        ==                                                                                  index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
-        l-load offset_is_correct%0#0 0                                                      index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
-        assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])                    index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0
-        l-load-copy array_data%0#0 1                                                        index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy)
-        len                                                                                 index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
-        l-load array_data%0#0 2                                                             index%0#0,num_bytes%0#0,item_offset%0#0,total_length%1#0,array_data%0#0
-        l-load item_offset%0#0 2                                                            index%0#0,num_bytes%0#0,total_length%1#0,array_data%0#0,item_offset%0#0
-        l-load total_length%1#0 2                                                           index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
-        substring3                                                                          index%0#0,num_bytes%0#0,extract_to_end%0#0
-        l-load-copy extract_to_end%0#0 0                                                    index%0#0,num_bytes%0#0,extract_to_end%0#0,extract_to_end%0#0 (copy)
-        len                                                                                 index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0
-        l-load-copy extract_to_end%0#0 1                                                    index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_to_end%0#0 (copy)
-        int 8                                                                               index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_to_end%0#0 (copy),8
-        extract_uint16 // on error: invalid tuple encoding                                  index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0
-        l-load-copy extract_uint16%0#0 0                                                    index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
-        int 10                                                                              index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),10
-        ==                                                                                  index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,eq%3#0
-        l-load eq%3#0 0                                                                     index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,eq%3#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))                  index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0
-        l-load extract_to_end%0#0 2                                                         index%0#0,num_bytes%0#0,tuple_len%0#0,extract_uint16%0#0,extract_to_end%0#0
-        l-load extract_uint16%0#0 1                                                         index%0#0,num_bytes%0#0,tuple_len%0#0,extract_to_end%0#0,extract_uint16%0#0
-        l-load tuple_len%0#0 2                                                              index%0#0,num_bytes%0#0,extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
-        substring3                                                                          index%0#0,num_bytes%0#0,substring3%0#0
-        l-load substring3%0#0 0                                                             index%0#0,num_bytes%0#0,substring3%0#0
-        int 0                                                                               index%0#0,num_bytes%0#0,substring3%0#0,0
-        extract_uint16 // on error: invalid array length header                             index%0#0,num_bytes%0#0,aggregate%array_length%4#0
-        l-load aggregate%array_length%4#0 0                                                 index%0#0,num_bytes%0#0,aggregate%array_length%4#0
-        int 12                                                                              index%0#0,num_bytes%0#0,aggregate%array_length%4#0,12
-        +                                                                                   index%0#0,num_bytes%0#0,add%5#0
-        l-load num_bytes%0#0 1                                                              index%0#0,add%5#0,num_bytes%0#0
-        l-load add%5#0 1                                                                    index%0#0,num_bytes%0#0,add%5#0
-        +                                                                                   index%0#0,num_bytes%0#0
-        v-store num_bytes%0#0                                                               index%0#0
-        l-load index%0#0 0                                                                  index%0#0
-        int 1                                                                               index%0#0,1
-        +                                                                                   index%0#0
-        v-store index%0#0
-        b sum_uints_and_lengths_and_trues_for_header@1
-
-    sum_uints_and_lengths_and_trues_after_for@4:
-        // array/immutable.py:341
-        // @arc4.abimethod()
-        v-load num_bytes%0#0                                                                num_bytes%0#0
-        int 2                                                                               num_bytes%0#0,2
-        +                                                                                   num_bytes%1#0
-        v-load total_length%0#0                                                             num_bytes%1#0,total_length%0#0
-        l-load num_bytes%1#0 1                                                              total_length%0#0,num_bytes%1#0
-        ==                                                                                  eq%4#0
-        l-load eq%4#0 0                                                                     eq%4#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple> 
+        txna ApplicationArgs 3                                                              arr1#0,arr3#0
+        l-store-copy arr3#0 0                                                               arr1#0,arr3#0,arr3#0 (copy)
+        v-store arr3#0                                                                      arr1#0,arr3#0
+        l-load arr3#0 0                                                                     arr1#0,arr3#0
+        callsub __internal_validate_Encoded(len+(uint64,bool1,bool1)[])                     arr1#0
+        txna ApplicationArgs 4                                                              arr1#0,arr4#0
+        l-store-copy arr4#0 0                                                               arr1#0,arr4#0,arr4#0 (copy)
+        v-store arr4#0                                                                      arr1#0,arr4#0
+        l-load arr4#0 0                                                                     arr1#0,arr4#0
+        callsub __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])                    arr1#0
         // array/immutable.py:349
         // sum1 = sum2 = sum3 = sum4 = UInt64()
-        int 0                                                                               0
-        v-store sum4#0
-        int 0                                                                               0
-        v-store sum3#0
-        int 0                                                                               0
-        v-store sum2#0
-        int 0                                                                               0
-        v-store sum1#0
+        int 0                                                                               arr1#0,0
+        v-store sum4#0                                                                      arr1#0
+        int 0                                                                               arr1#0,0
+        v-store sum3#0                                                                      arr1#0
+        int 0                                                                               arr1#0,0
+        v-store sum2#0                                                                      arr1#0
+        int 0                                                                               arr1#0,0
+        v-store sum1#0                                                                      arr1#0
+        // array/immutable.py:350
+        // for i in arr1:
+        l-load arr1#0 0                                                                     arr1#0
+        int 0                                                                               arr1#0,0
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
         int 0                                                                               0
         v-store item_index_internal%0#0
-        b sum_uints_and_lengths_and_trues_for_header@6
+        b sum_uints_and_lengths_and_trues_for_header@4
 
-    sum_uints_and_lengths_and_trues_for_header@6:
+    sum_uints_and_lengths_and_trues_for_header@4:
         // array/immutable.py:350
         // for i in arr1:
         v-load item_index_internal%0#0                                                      item_index_internal%0#0
-        v-load aggregate%array_length%0#0                                                   item_index_internal%0#0,aggregate%array_length%0#0
+        v-load aggregate%array_length%1#0                                                   item_index_internal%0#0,aggregate%array_length%1#0
         <                                                                                   continue_looping%0#0
         l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz sum_uints_and_lengths_and_trues_after_for@9 ; b sum_uints_and_lengths_and_trues_for_body@7 
+        bz sum_uints_and_lengths_and_trues_after_for@7 ; b sum_uints_and_lengths_and_trues_for_body@5 
 
-    sum_uints_and_lengths_and_trues_for_body@7:
+    sum_uints_and_lengths_and_trues_for_body@5:
         // array/immutable.py:350
         // for i in arr1:
         v-load arr1#0                                                                       arr1#0
@@ -3436,67 +3294,73 @@ subroutine sum_uints_and_lengths_and_trues:
         int 1                                                                               item_index_internal%0#0,1
         +                                                                                   item_index_internal%0#0
         v-store item_index_internal%0#0
-        b sum_uints_and_lengths_and_trues_for_header@6
+        b sum_uints_and_lengths_and_trues_for_header@4
 
-    sum_uints_and_lengths_and_trues_after_for@9:
+    sum_uints_and_lengths_and_trues_after_for@7:
         int 0                                                                               0
         v-store item_index_internal%1#0
-        b sum_uints_and_lengths_and_trues_for_header@10
+        b sum_uints_and_lengths_and_trues_for_header@8
 
-    sum_uints_and_lengths_and_trues_for_header@10:
+    sum_uints_and_lengths_and_trues_for_header@8:
         // array/immutable.py:352
         // for b in arr2:
         v-load item_index_internal%1#0                                                      item_index_internal%1#0
-        v-load aggregate%array_length%1#0                                                   item_index_internal%1#0,aggregate%array_length%1#0
+        v-load aggregate%array_length%0#0                                                   item_index_internal%1#0,aggregate%array_length%0#0
         <                                                                                   continue_looping%1#0
         l-load continue_looping%1#0 0                                                       continue_looping%1#0
-        bz sum_uints_and_lengths_and_trues_after_for@15 ; b sum_uints_and_lengths_and_trues_for_body@11 
+        bz sum_uints_and_lengths_and_trues_after_for@13 ; b sum_uints_and_lengths_and_trues_for_body@9 
 
-    sum_uints_and_lengths_and_trues_for_body@11:
+    sum_uints_and_lengths_and_trues_for_body@9:
         // array/immutable.py:352
         // for b in arr2:
         v-load item_index_internal%1#0                                                      item_index_internal%1#0
         int 16                                                                              item_index_internal%1#0,16
         +                                                                                   aggregate%add%0#0
-        v-load arr2#0                                                                       aggregate%add%0#0,arr2#0
-        l-load aggregate%add%0#0 1                                                          arr2#0,aggregate%add%0#0
+        v-load value#0                                                                      aggregate%add%0#0,value#0
+        l-load aggregate%add%0#0 1                                                          value#0,aggregate%add%0#0
         getbit                                                                              b#0
         // array/immutable.py:353
         // if b:
         l-load b#0 0                                                                        b#0
-        bz sum_uints_and_lengths_and_trues_after_if_else@13 ; b sum_uints_and_lengths_and_trues_if_body@12 
+        bz sum_uints_and_lengths_and_trues_after_if_else@11 ; b sum_uints_and_lengths_and_trues_if_body@10 
 
-    sum_uints_and_lengths_and_trues_if_body@12:
+    sum_uints_and_lengths_and_trues_if_body@10:
         // array/immutable.py:354
         // sum2 += 1
         v-load sum2#0                                                                       sum2#0
         int 1                                                                               sum2#0,1
         +                                                                                   sum2#0
         v-store sum2#0
-        b sum_uints_and_lengths_and_trues_after_if_else@13
+        b sum_uints_and_lengths_and_trues_after_if_else@11
 
-    sum_uints_and_lengths_and_trues_after_if_else@13:
+    sum_uints_and_lengths_and_trues_after_if_else@11:
         v-load item_index_internal%1#0                                                      item_index_internal%1#0
         int 1                                                                               item_index_internal%1#0,1
         +                                                                                   item_index_internal%1#0
         v-store item_index_internal%1#0
-        b sum_uints_and_lengths_and_trues_for_header@10
+        b sum_uints_and_lengths_and_trues_for_header@8
 
-    sum_uints_and_lengths_and_trues_after_for@15:
+    sum_uints_and_lengths_and_trues_after_for@13:
+        // array/immutable.py:355
+        // for tup in arr3:
+        v-load arr3#0                                                                       arr3#0
+        int 0                                                                               arr3#0,0
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%3#0
+        v-store aggregate%array_length%3#0
         int 0                                                                               0
         v-store item_index_internal%2#0
-        b sum_uints_and_lengths_and_trues_for_header@16
+        b sum_uints_and_lengths_and_trues_for_header@14
 
-    sum_uints_and_lengths_and_trues_for_header@16:
+    sum_uints_and_lengths_and_trues_for_header@14:
         // array/immutable.py:355
         // for tup in arr3:
         v-load item_index_internal%2#0                                                      item_index_internal%2#0
-        v-load aggregate%array_length%2#0                                                   item_index_internal%2#0,aggregate%array_length%2#0
+        v-load aggregate%array_length%3#0                                                   item_index_internal%2#0,aggregate%array_length%3#0
         <                                                                                   continue_looping%2#0
         l-load continue_looping%2#0 0                                                       continue_looping%2#0
-        bz sum_uints_and_lengths_and_trues_after_for@23 ; b sum_uints_and_lengths_and_trues_for_body@17 
+        bz sum_uints_and_lengths_and_trues_after_for@21 ; b sum_uints_and_lengths_and_trues_for_body@15 
 
-    sum_uints_and_lengths_and_trues_for_body@17:
+    sum_uints_and_lengths_and_trues_for_body@15:
         // array/immutable.py:355
         // for tup in arr3:
         v-load arr3#0                                                                       arr3#0
@@ -3527,10 +3391,25 @@ subroutine sum_uints_and_lengths_and_trues:
         // array/immutable.py:357
         // if tup.bar:
         l-load tup.bar#0 0                                                                  tup.bar#0
+        bz sum_uints_and_lengths_and_trues_after_if_else@17 ; b sum_uints_and_lengths_and_trues_if_body@16 
+
+    sum_uints_and_lengths_and_trues_if_body@16:
+        // array/immutable.py:358
+        // sum3 += 1
+        v-load sum3#0                                                                       sum3#0
+        int 1                                                                               sum3#0,1
+        +                                                                                   sum3#0
+        v-store sum3#0
+        b sum_uints_and_lengths_and_trues_after_if_else@17
+
+    sum_uints_and_lengths_and_trues_after_if_else@17:
+        // array/immutable.py:359
+        // if tup.baz:
+        v-load tup.baz#0                                                                    tup.baz#0
         bz sum_uints_and_lengths_and_trues_after_if_else@19 ; b sum_uints_and_lengths_and_trues_if_body@18 
 
     sum_uints_and_lengths_and_trues_if_body@18:
-        // array/immutable.py:358
+        // array/immutable.py:360
         // sum3 += 1
         v-load sum3#0                                                                       sum3#0
         int 1                                                                               sum3#0,1
@@ -3539,44 +3418,35 @@ subroutine sum_uints_and_lengths_and_trues:
         b sum_uints_and_lengths_and_trues_after_if_else@19
 
     sum_uints_and_lengths_and_trues_after_if_else@19:
-        // array/immutable.py:359
-        // if tup.baz:
-        v-load tup.baz#0                                                                    tup.baz#0
-        bz sum_uints_and_lengths_and_trues_after_if_else@21 ; b sum_uints_and_lengths_and_trues_if_body@20 
-
-    sum_uints_and_lengths_and_trues_if_body@20:
-        // array/immutable.py:360
-        // sum3 += 1
-        v-load sum3#0                                                                       sum3#0
-        int 1                                                                               sum3#0,1
-        +                                                                                   sum3#0
-        v-store sum3#0
-        b sum_uints_and_lengths_and_trues_after_if_else@21
-
-    sum_uints_and_lengths_and_trues_after_if_else@21:
         v-load item_index_internal%2#0                                                      item_index_internal%2#0
         int 1                                                                               item_index_internal%2#0,1
         +                                                                                   item_index_internal%2#0
         v-store item_index_internal%2#0
-        b sum_uints_and_lengths_and_trues_for_header@16
+        b sum_uints_and_lengths_and_trues_for_header@14
 
-    sum_uints_and_lengths_and_trues_after_for@23:
+    sum_uints_and_lengths_and_trues_after_for@21:
+        // array/immutable.py:361
+        // for idx, dyn_tup in uenumerate(arr4):
+        v-load arr4#0                                                                       arr4#0
+        int 0                                                                               arr4#0,0
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%4#0
+        v-store aggregate%array_length%4#0
         int 0                                                                               0
         l-store item_index_internal%3#0 0                                                   item_index_internal%3#0
         l-load item_index_internal%3#0 0                                                    item_index_internal%3#0
         v-store idx#0
-        b sum_uints_and_lengths_and_trues_for_header@24
+        b sum_uints_and_lengths_and_trues_for_header@22
 
-    sum_uints_and_lengths_and_trues_for_header@24:
+    sum_uints_and_lengths_and_trues_for_header@22:
         // array/immutable.py:361
         // for idx, dyn_tup in uenumerate(arr4):
         v-load idx#0                                                                        idx#0
-        v-load aggregate%array_length%3#0                                                   idx#0,aggregate%array_length%3#0
+        v-load aggregate%array_length%4#0                                                   idx#0,aggregate%array_length%4#0
         <                                                                                   continue_looping%3#0
         l-load continue_looping%3#0 0                                                       continue_looping%3#0
-        bz sum_uints_and_lengths_and_trues_after_for@27 ; b sum_uints_and_lengths_and_trues_for_body@25 
+        bz sum_uints_and_lengths_and_trues_after_for@25 ; b sum_uints_and_lengths_and_trues_for_body@23 
 
-    sum_uints_and_lengths_and_trues_for_body@25:
+    sum_uints_and_lengths_and_trues_for_body@23:
         // array/immutable.py:361
         // for idx, dyn_tup in uenumerate(arr4):
         v-load arr4#0                                                                       arr4#0
@@ -3622,9 +3492,9 @@ subroutine sum_uints_and_lengths_and_trues:
         +                                                                                   item_index_internal%3#0
         l-load item_index_internal%3#0 0                                                    item_index_internal%3#0
         v-store idx#0
-        b sum_uints_and_lengths_and_trues_for_header@24
+        b sum_uints_and_lengths_and_trues_for_header@22
 
-    sum_uints_and_lengths_and_trues_after_for@27:
+    sum_uints_and_lengths_and_trues_after_for@25:
         // array/immutable.py:341
         // @arc4.abimethod()
         v-load sum1#0                                                                       sum1#0
@@ -3658,15 +3528,17 @@ subroutine test_uint64_return:
     test_uint64_return_block@0:
         // array/immutable.py:368
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // array/immutable.py:368
+        // @arc4.abimethod()
+        l-load value#0 0                                                                    value#0
         btoi                                                                                append#0
         v-store append#0
         // array/immutable.py:370
@@ -3706,8 +3578,8 @@ subroutine test_uint64_return:
         int 1                                                                               i#0,new_items_bytes#0,arr#0,array_length#0,1
         +                                                                                   i#0,new_items_bytes#0,arr#0,new_array_length#0
         l-load new_array_length#0 0                                                         i#0,new_items_bytes#0,arr#0,new_array_length#0
-        itob                                                                                i#0,new_items_bytes#0,arr#0,tmp%0#0
-        l-load tmp%0#0 0                                                                    i#0,new_items_bytes#0,arr#0,tmp%0#0
+        itob                                                                                i#0,new_items_bytes#0,arr#0,tmp%0#3
+        l-load tmp%0#3 0                                                                    i#0,new_items_bytes#0,arr#0,tmp%0#3
         extract 6 0                                                                         i#0,new_items_bytes#0,arr#0,new_len_u16#0
         l-load arr#0 1                                                                      i#0,new_items_bytes#0,new_len_u16#0,arr#0
         l-load new_len_u16#0 1                                                              i#0,new_items_bytes#0,arr#0,new_len_u16#0
@@ -3742,15 +3614,17 @@ subroutine test_bool_return:
     test_bool_return_block@0:
         // array/immutable.py:375
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // array/immutable.py:375
+        // @arc4.abimethod()
+        l-load value#0 0                                                                    value#0
         btoi                                                                                append#0
         v-store append#0
         // array/immutable.py:377
@@ -3819,15 +3693,17 @@ subroutine test_tuple_return:
     test_tuple_return_block@0:
         // array/immutable.py:382
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // array/immutable.py:382
+        // @arc4.abimethod()
+        l-load value#0 0                                                                    value#0
         btoi                                                                                append#0
         v-store append#0
         // array/immutable.py:384
@@ -3888,8 +3764,8 @@ subroutine test_tuple_return:
         int 1                                                                               i#0,new_items_bytes#0,arr#0,array_length#0,1
         +                                                                                   i#0,new_items_bytes#0,arr#0,new_array_length#0
         l-load new_array_length#0 0                                                         i#0,new_items_bytes#0,arr#0,new_array_length#0
-        itob                                                                                i#0,new_items_bytes#0,arr#0,tmp%0#0
-        l-load tmp%0#0 0                                                                    i#0,new_items_bytes#0,arr#0,tmp%0#0
+        itob                                                                                i#0,new_items_bytes#0,arr#0,tmp%0#3
+        l-load tmp%0#3 0                                                                    i#0,new_items_bytes#0,arr#0,tmp%0#3
         extract 6 0                                                                         i#0,new_items_bytes#0,arr#0,new_len_u16#0
         l-load arr#0 1                                                                      i#0,new_items_bytes#0,new_len_u16#0,arr#0
         l-load new_len_u16#0 1                                                              i#0,new_items_bytes#0,arr#0,new_len_u16#0
@@ -3924,15 +3800,17 @@ subroutine test_dynamic_tuple_return:
     test_dynamic_tuple_return_block@0:
         // array/immutable.py:389
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 8                                                                               tmp%0#0,len%0#0,8
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                   tmp%0#0
-        l-load tmp%0#0 0                                                                    tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 8                                                                               value#0,len%0#0,8
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               value#0
+        // array/immutable.py:389
+        // @arc4.abimethod()
+        l-load value#0 0                                                                    value#0
         btoi                                                                                append#0
         v-store append#0
         // array/immutable.py:391
@@ -4015,30 +3893,18 @@ subroutine test_convert_to_array_and_back:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                              arr#0
         l-load-copy arr#0 0                                                                 arr#0,arr#0 (copy)
-        int 0                                                                               arr#0,arr#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             arr#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 arr#0,aggregate%array_length%0#0
-        int 9                                                                               arr#0,aggregate%array_length%0#0,9
-        *                                                                                   arr#0,mul%0#0
-        l-load mul%0#0 0                                                                    arr#0,mul%0#0
-        int 2                                                                               arr#0,mul%0#0,2
-        +                                                                                   arr#0,add%0#0
-        l-load-copy arr#0 1                                                                 arr#0,add%0#0,arr#0 (copy)
-        len                                                                                 arr#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                    arr#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                    arr#0,len%0#0,add%0#0
-        ==                                                                                  arr#0,eq%0#0
-        l-load eq%0#0 0                                                                     arr#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple> arr#0
-        txna ApplicationArgs 2                                                              arr#0,tmp%1#0
-        l-load-copy tmp%1#0 0                                                               arr#0,tmp%1#0,tmp%1#0 (copy)
-        len                                                                                 arr#0,tmp%1#0,len%1#0
-        l-load len%1#0 0                                                                    arr#0,tmp%1#0,len%1#0
-        int 8                                                                               arr#0,tmp%1#0,len%1#0,8
-        ==                                                                                  arr#0,tmp%1#0,eq%1#0
-        l-load eq%1#0 0                                                                     arr#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                   arr#0,tmp%1#0
-        l-load tmp%1#0 0                                                                    arr#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+(uint64,bool1,bool1)[])                     arr#0
+        txna ApplicationArgs 2                                                              arr#0,value#0
+        l-load-copy value#0 0                                                               arr#0,value#0,value#0 (copy)
+        len                                                                                 arr#0,value#0,len%0#0
+        l-load len%0#0 0                                                                    arr#0,value#0,len%0#0
+        int 8                                                                               arr#0,value#0,len%0#0,8
+        ==                                                                                  arr#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                                     arr#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                               arr#0,value#0
+        // array/immutable.py:396
+        // @arc4.abimethod()
+        l-load value#0 0                                                                    arr#0,value#0
         btoi                                                                                arr#0,append#0
         v-store append#0                                                                    arr#0
         // array/immutable.py:401
@@ -4147,7 +4013,9 @@ subroutine test_concat_with_arc4_tuple:
         int 16                                                                              arg#0,len%0#0,16
         ==                                                                                  arg#0,eq%0#0
         l-load eq%0#0 0                                                                     arg#0,eq%0#0
-        assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>           arg#0
+        assert // invalid number of bytes for Encoded(uint64,uint64)                        arg#0
+        // array/immutable.py:406
+        // @arc4.abimethod()
         byte 0x151f7c75000400000000000000010000000000000002                                 arg#0,0x151f7c75000400000000000000010000000000000002
         l-load arg#0 1                                                                      0x151f7c75000400000000000000010000000000000002,arg#0
         concat                                                                              tmp%2#0
@@ -4162,17 +4030,19 @@ subroutine test_concat_with_native_tuple:
     test_concat_with_native_tuple_block@0:
         // array/immutable.py:414
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                    tmp%0#0,len%0#0
-        int 16                                                                              tmp%0#0,len%0#0,16
-        ==                                                                                  tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>           tmp%0#0
-        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        extract 0 8                                                                         tmp%0#0,arg.0#0
-        l-load tmp%0#0 1                                                                    arg.0#0,tmp%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        len                                                                                 value#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,len%0#0
+        int 16                                                                              value#0,len%0#0,16
+        ==                                                                                  value#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64,uint64)                        value#0
+        // array/immutable.py:414
+        // @arc4.abimethod()
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        extract 0 8                                                                         value#0,arg.0#0
+        l-load value#0 1                                                                    arg.0#0,value#0
         extract 8 8                                                                         arg.0#0,arg.1#0
         // array/immutable.py:419
         // result = prefix + arg
@@ -4197,51 +4067,7 @@ subroutine test_dynamic_concat_with_arc4_tuple:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                              arg#0
         l-load-copy arg#0 0                                                                 arg#0,arg#0 (copy)
-        len                                                                                 arg#0,tuple_len%0#0
-        l-load-copy arg#0 1                                                                 arg#0,tuple_len%0#0,arg#0 (copy)
-        int 0                                                                               arg#0,tuple_len%0#0,arg#0 (copy),0
-        extract_uint16 // on error: invalid tuple encoding                                  arg#0,tuple_len%0#0,extract_uint16%0#0
-        l-load-copy extract_uint16%0#0 0                                                    arg#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
-        int 4                                                                               arg#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),4
-        ==                                                                                  arg#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     arg#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
-        assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))            arg#0,tuple_len%0#0,extract_uint16%0#0
-        l-load-copy arg#0 2                                                                 arg#0,tuple_len%0#0,extract_uint16%0#0,arg#0 (copy)
-        l-load extract_uint16%0#0 1                                                         arg#0,tuple_len%0#0,arg#0 (copy),extract_uint16%0#0
-        l-load-copy tuple_len%0#0 2                                                         arg#0,tuple_len%0#0,arg#0 (copy),extract_uint16%0#0,tuple_len%0#0 (copy)
-        substring3                                                                          arg#0,tuple_len%0#0,substring3%0#0
-        l-load substring3%0#0 0                                                             arg#0,tuple_len%0#0,substring3%0#0
-        int 0                                                                               arg#0,tuple_len%0#0,substring3%0#0,0
-        extract_uint16 // on error: invalid array length header                             arg#0,tuple_len%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 arg#0,tuple_len%0#0,aggregate%array_length%0#0
-        int 6                                                                               arg#0,tuple_len%0#0,aggregate%array_length%0#0,6
-        +                                                                                   arg#0,tuple_len%0#0,add%1#0
-        l-load-copy arg#0 2                                                                 arg#0,tuple_len%0#0,add%1#0,arg#0 (copy)
-        int 2                                                                               arg#0,tuple_len%0#0,add%1#0,arg#0 (copy),2
-        extract_uint16 // on error: invalid tuple encoding                                  arg#0,tuple_len%0#0,add%1#0,extract_uint16%1#0
-        l-load-copy extract_uint16%1#0 0                                                    arg#0,tuple_len%0#0,add%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
-        l-load-copy add%1#0 2                                                               arg#0,tuple_len%0#0,add%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy),add%1#0 (copy)
-        ==                                                                                  arg#0,tuple_len%0#0,add%1#0,extract_uint16%1#0,eq%1#0
-        l-load eq%1#0 0                                                                     arg#0,tuple_len%0#0,add%1#0,extract_uint16%1#0,eq%1#0
-        assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))            arg#0,tuple_len%0#0,add%1#0,extract_uint16%1#0
-        l-load-copy arg#0 3                                                                 arg#0,tuple_len%0#0,add%1#0,extract_uint16%1#0,arg#0 (copy)
-        l-load extract_uint16%1#0 1                                                         arg#0,tuple_len%0#0,add%1#0,arg#0 (copy),extract_uint16%1#0
-        l-load-copy tuple_len%0#0 3                                                         arg#0,tuple_len%0#0,add%1#0,arg#0 (copy),extract_uint16%1#0,tuple_len%0#0 (copy)
-        substring3                                                                          arg#0,tuple_len%0#0,add%1#0,substring3%1#0
-        l-load substring3%1#0 0                                                             arg#0,tuple_len%0#0,add%1#0,substring3%1#0
-        int 0                                                                               arg#0,tuple_len%0#0,add%1#0,substring3%1#0,0
-        extract_uint16 // on error: invalid array length header                             arg#0,tuple_len%0#0,add%1#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                                 arg#0,tuple_len%0#0,add%1#0,aggregate%array_length%1#0
-        int 2                                                                               arg#0,tuple_len%0#0,add%1#0,aggregate%array_length%1#0,2
-        +                                                                                   arg#0,tuple_len%0#0,add%1#0,add%2#0
-        l-load add%1#0 1                                                                    arg#0,tuple_len%0#0,add%2#0,add%1#0
-        l-load add%2#0 1                                                                    arg#0,tuple_len%0#0,add%1#0,add%2#0
-        +                                                                                   arg#0,tuple_len%0#0,add%3#0
-        l-load tuple_len%0#0 1                                                              arg#0,add%3#0,tuple_len%0#0
-        l-load add%3#0 1                                                                    arg#0,tuple_len%0#0,add%3#0
-        ==                                                                                  arg#0,eq%2#0
-        l-load eq%2#0 0                                                                     arg#0,eq%2#0
-        assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>> arg#0
+        callsub __internal_validate_Encoded((len+utf8[]),(len+utf8[]))                      arg#0
         // array/immutable.py:427
         // result = prefix + arg
         l-load arg#0 0                                                                      arg#0
@@ -4272,58 +4098,26 @@ subroutine test_dynamic_concat_with_native_tuple:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                              tmp%0#0
         l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
-        len                                                                                 tmp%0#0,tuple_len%0#0
-        l-load-copy tmp%0#0 1                                                               tmp%0#0,tuple_len%0#0,tmp%0#0 (copy)
-        int 0                                                                               tmp%0#0,tuple_len%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid tuple encoding                                  tmp%0#0,tuple_len%0#0,extract_uint16%0#0
-        l-load-copy extract_uint16%0#0 0                                                    tmp%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
-        int 4                                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),4
-        ==                                                                                  tmp%0#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     tmp%0#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
-        assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))            tmp%0#0,tuple_len%0#0,extract_uint16%0#0
-        l-load-copy tmp%0#0 2                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,tmp%0#0 (copy)
-        l-load-copy extract_uint16%0#0 1                                                    tmp%0#0,tuple_len%0#0,extract_uint16%0#0,tmp%0#0 (copy),extract_uint16%0#0 (copy)
-        l-load-copy tuple_len%0#0 3                                                         tmp%0#0,tuple_len%0#0,extract_uint16%0#0,tmp%0#0 (copy),extract_uint16%0#0 (copy),tuple_len%0#0 (copy)
-        substring3                                                                          tmp%0#0,tuple_len%0#0,extract_uint16%0#0,substring3%0#0
-        l-load substring3%0#0 0                                                             tmp%0#0,tuple_len%0#0,extract_uint16%0#0,substring3%0#0
-        int 0                                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,substring3%0#0,0
-        extract_uint16 // on error: invalid array length header                             tmp%0#0,tuple_len%0#0,extract_uint16%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 tmp%0#0,tuple_len%0#0,extract_uint16%0#0,aggregate%array_length%0#0
-        int 6                                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,aggregate%array_length%0#0,6
-        +                                                                                   tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0
-        l-load-copy tmp%0#0 3                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,tmp%0#0 (copy)
-        int 2                                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,tmp%0#0 (copy),2
-        extract_uint16 // on error: invalid tuple encoding                                  tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0
-        l-load-copy extract_uint16%1#0 0                                                    tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
-        l-load-copy add%1#0 2                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy),add%1#0 (copy)
-        ==                                                                                  tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,eq%1#0
-        l-load eq%1#0 0                                                                     tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,eq%1#0
-        assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))            tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0
-        l-load-copy tmp%0#0 4                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,tmp%0#0 (copy)
-        l-load-copy extract_uint16%1#0 1                                                    tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,tmp%0#0 (copy),extract_uint16%1#0 (copy)
-        l-load-copy tuple_len%0#0 5                                                         tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,tmp%0#0 (copy),extract_uint16%1#0 (copy),tuple_len%0#0 (copy)
-        substring3                                                                          tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,arg.1#0
-        l-load-copy arg.1#0 0                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,arg.1#0,arg.1#0 (copy)
-        int 0                                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,arg.1#0,arg.1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,arg.1#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                                 tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,arg.1#0,aggregate%array_length%1#0
-        int 2                                                                               tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,arg.1#0,aggregate%array_length%1#0,2
-        +                                                                                   tmp%0#0,tuple_len%0#0,extract_uint16%0#0,add%1#0,extract_uint16%1#0,arg.1#0,add%2#0
-        l-load add%1#0 3                                                                    tmp%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0,add%2#0,add%1#0
-        l-load add%2#0 1                                                                    tmp%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0,add%1#0,add%2#0
-        +                                                                                   tmp%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0,add%3#0
-        l-load tuple_len%0#0 4                                                              tmp%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0,add%3#0,tuple_len%0#0
-        l-load add%3#0 1                                                                    tmp%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0,tuple_len%0#0,add%3#0
-        ==                                                                                  tmp%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0,eq%2#0
-        l-load eq%2#0 0                                                                     tmp%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0,eq%2#0
-        assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>> tmp%0#0,extract_uint16%0#0,extract_uint16%1#0,arg.1#0
-        l-load tmp%0#0 3                                                                    extract_uint16%0#0,extract_uint16%1#0,arg.1#0,tmp%0#0
-        l-load extract_uint16%0#0 3                                                         extract_uint16%1#0,arg.1#0,tmp%0#0,extract_uint16%0#0
-        l-load extract_uint16%1#0 3                                                         arg.1#0,tmp%0#0,extract_uint16%0#0,extract_uint16%1#0
-        substring3                                                                          arg.1#0,arg.0#0
+        callsub __internal_validate_Encoded((len+utf8[]),(len+utf8[]))                      tmp%0#0
+        l-load-copy tmp%0#0 0                                                               tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                               tmp%0#0,tmp%0#0 (copy),0
+        extract_uint16                                                                      tmp%0#0,aggregate%extract_uint16%0#0
+        l-load-copy tmp%0#0 1                                                               tmp%0#0,aggregate%extract_uint16%0#0,tmp%0#0 (copy)
+        int 2                                                                               tmp%0#0,aggregate%extract_uint16%0#0,tmp%0#0 (copy),2
+        extract_uint16                                                                      tmp%0#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0
+        l-load-copy tmp%0#0 2                                                               tmp%0#0,aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy)
+        l-load aggregate%extract_uint16%0#0 2                                               tmp%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy),aggregate%extract_uint16%0#0
+        l-load-copy aggregate%extract_uint16%1#0 2                                          tmp%0#0,aggregate%extract_uint16%1#0,tmp%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%extract_uint16%1#0 (copy)
+        substring3                                                                          tmp%0#0,aggregate%extract_uint16%1#0,arg.0#0
+        l-load-copy tmp%0#0 2                                                               tmp%0#0,aggregate%extract_uint16%1#0,arg.0#0,tmp%0#0 (copy)
+        len                                                                                 tmp%0#0,aggregate%extract_uint16%1#0,arg.0#0,aggregate%len%0#0
+        l-load tmp%0#0 3                                                                    aggregate%extract_uint16%1#0,arg.0#0,aggregate%len%0#0,tmp%0#0
+        l-load aggregate%extract_uint16%1#0 3                                               arg.0#0,aggregate%len%0#0,tmp%0#0,aggregate%extract_uint16%1#0
+        l-load aggregate%len%0#0 2                                                          arg.0#0,tmp%0#0,aggregate%extract_uint16%1#0,aggregate%len%0#0
+        substring3                                                                          arg.0#0,arg.1#0
         // array/immutable.py:435
         // result = prefix + arg
-        l-load arg.0#0 0                                                                    arg.1#0,arg.0#0
+        l-load arg.0#0 1                                                                    arg.1#0,arg.0#0
         l-load arg.1#0 1                                                                    arg.0#0,arg.1#0
         concat                                                                              concat%1#0
         // array/immutable.py:434
@@ -4351,198 +4145,21 @@ subroutine test_concat_immutable_dynamic:
         // array/immutable.py:438
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                              imm1#0
-        l-store-copy imm1#0 0                                                               imm1#0,imm1#0 (copy)
-        v-store imm1#0                                                                      imm1#0
         l-load-copy imm1#0 0                                                                imm1#0,imm1#0 (copy)
-        int 0                                                                               imm1#0,imm1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             imm1#0,aggregate%array_length%0#0
-        l-store-copy aggregate%array_length%0#0 0                                           imm1#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        v-store aggregate%array_length%0#0                                                  imm1#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                                 imm1#0,aggregate%array_length%0#0
-        int 2                                                                               imm1#0,aggregate%array_length%0#0,2
-        *                                                                                   imm1#0,num_bytes%0#0
-        v-store num_bytes%0#0                                                               imm1#0
-        l-load-copy imm1#0 0                                                                imm1#0,imm1#0 (copy)
-        len                                                                                 imm1#0,total_length%0#0
-        v-store total_length%0#0                                                            imm1#0
-        l-load imm1#0 0                                                                     imm1#0
-        extract 2 0                                                                         array_data%0#0
-        v-store array_data%0#0
-        int 0                                                                               0
-        v-store index%0#0
-        b test_concat_immutable_dynamic_for_header@1
-
-    test_concat_immutable_dynamic_for_header@1:
-        // array/immutable.py:438
-        // @arc4.abimethod()
-        v-load index%0#0                                                                    index%0#0
-        v-load aggregate%array_length%0#0                                                   index%0#0,aggregate%array_length%0#0
-        <                                                                                   continue_looping%0#0
-        l-load continue_looping%0#0 0                                                       continue_looping%0#0
-        bz test_concat_immutable_dynamic_after_for@4 ; b test_concat_immutable_dynamic_for_body@2 
-
-    test_concat_immutable_dynamic_for_body@2:
-        // array/immutable.py:438
-        // @arc4.abimethod()
-        v-load index%0#0                                                                    index%0#0
-        l-store-copy index%0#0 0                                                            index%0#0,index%0#0 (copy)
-        int 2                                                                               index%0#0,index%0#0 (copy),2
-        *                                                                                   index%0#0,head_offset_bytes%0#0
-        v-load array_data%0#0                                                               index%0#0,head_offset_bytes%0#0,array_data%0#0
-        l-store-copy array_data%0#0 1                                                       index%0#0,array_data%0#0,head_offset_bytes%0#0,array_data%0#0 (copy)
-        l-load head_offset_bytes%0#0 1                                                      index%0#0,array_data%0#0,array_data%0#0 (copy),head_offset_bytes%0#0
-        extract_uint16 // on error: invalid array encoding                                  index%0#0,array_data%0#0,item_offset%0#0
-        l-load-copy item_offset%0#0 0                                                       index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy)
-        v-load num_bytes%0#0                                                                index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0
-        l-store-copy num_bytes%0#0 3                                                        index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0 (copy)
-        ==                                                                                  index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
-        l-load offset_is_correct%0#0 0                                                      index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
-        assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])                    index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0
-        l-load-copy array_data%0#0 1                                                        index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy)
-        len                                                                                 index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
-        l-load array_data%0#0 2                                                             index%0#0,num_bytes%0#0,item_offset%0#0,total_length%1#0,array_data%0#0
-        l-load item_offset%0#0 2                                                            index%0#0,num_bytes%0#0,total_length%1#0,array_data%0#0,item_offset%0#0
-        l-load total_length%1#0 2                                                           index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
-        substring3                                                                          index%0#0,num_bytes%0#0,extract_to_end%0#0
-        l-load-copy extract_to_end%0#0 0                                                    index%0#0,num_bytes%0#0,extract_to_end%0#0,extract_to_end%0#0 (copy)
-        len                                                                                 index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0
-        l-load-copy extract_to_end%0#0 1                                                    index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_to_end%0#0 (copy)
-        int 8                                                                               index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_to_end%0#0 (copy),8
-        extract_uint16 // on error: invalid tuple encoding                                  index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0
-        l-load-copy extract_uint16%0#0 0                                                    index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
-        int 10                                                                              index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),10
-        ==                                                                                  index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))                  index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0
-        l-load extract_to_end%0#0 2                                                         index%0#0,num_bytes%0#0,tuple_len%0#0,extract_uint16%0#0,extract_to_end%0#0
-        l-load extract_uint16%0#0 1                                                         index%0#0,num_bytes%0#0,tuple_len%0#0,extract_to_end%0#0,extract_uint16%0#0
-        l-load tuple_len%0#0 2                                                              index%0#0,num_bytes%0#0,extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
-        substring3                                                                          index%0#0,num_bytes%0#0,substring3%0#0
-        l-load substring3%0#0 0                                                             index%0#0,num_bytes%0#0,substring3%0#0
-        int 0                                                                               index%0#0,num_bytes%0#0,substring3%0#0,0
-        extract_uint16 // on error: invalid array length header                             index%0#0,num_bytes%0#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                                 index%0#0,num_bytes%0#0,aggregate%array_length%1#0
-        int 12                                                                              index%0#0,num_bytes%0#0,aggregate%array_length%1#0,12
-        +                                                                                   index%0#0,num_bytes%0#0,add%1#0
-        l-load num_bytes%0#0 1                                                              index%0#0,add%1#0,num_bytes%0#0
-        l-load add%1#0 1                                                                    index%0#0,num_bytes%0#0,add%1#0
-        +                                                                                   index%0#0,num_bytes%0#0
-        v-store num_bytes%0#0                                                               index%0#0
-        l-load index%0#0 0                                                                  index%0#0
-        int 1                                                                               index%0#0,1
-        +                                                                                   index%0#0
-        v-store index%0#0
-        b test_concat_immutable_dynamic_for_header@1
-
-    test_concat_immutable_dynamic_after_for@4:
-        // array/immutable.py:438
-        // @arc4.abimethod()
-        v-load num_bytes%0#0                                                                num_bytes%0#0
-        int 2                                                                               num_bytes%0#0,2
-        +                                                                                   num_bytes%1#0
-        v-load total_length%0#0                                                             num_bytes%1#0,total_length%0#0
-        l-load num_bytes%1#0 1                                                              total_length%0#0,num_bytes%1#0
-        ==                                                                                  eq%1#0
-        l-load eq%1#0 0                                                                     eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple> 
-        txna ApplicationArgs 2                                                              imm2#0
-        l-load-copy imm2#0 0                                                                imm2#0,imm2#0 (copy)
-        int 0                                                                               imm2#0,imm2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             imm2#0,aggregate%array_length%2#0
-        l-store-copy aggregate%array_length%2#0 0                                           imm2#0,aggregate%array_length%2#0,aggregate%array_length%2#0 (copy)
-        v-store aggregate%array_length%2#0                                                  imm2#0,aggregate%array_length%2#0
-        l-load aggregate%array_length%2#0 0                                                 imm2#0,aggregate%array_length%2#0
-        int 2                                                                               imm2#0,aggregate%array_length%2#0,2
-        *                                                                                   imm2#0,num_bytes%2#0
-        v-store num_bytes%2#0                                                               imm2#0
-        l-load-copy imm2#0 0                                                                imm2#0,imm2#0 (copy)
-        len                                                                                 imm2#0,total_length%2#0
-        v-store total_length%2#0                                                            imm2#0
-        l-load imm2#0 0                                                                     imm2#0
-        extract 2 0                                                                         array_data%1#0
-        v-store array_data%1#0
-        int 0                                                                               0
-        v-store index%1#0
-        b test_concat_immutable_dynamic_for_header@5
-
-    test_concat_immutable_dynamic_for_header@5:
-        // array/immutable.py:438
-        // @arc4.abimethod()
-        v-load index%1#0                                                                    index%1#0
-        v-load aggregate%array_length%2#0                                                   index%1#0,aggregate%array_length%2#0
-        <                                                                                   continue_looping%1#0
-        l-load continue_looping%1#0 0                                                       continue_looping%1#0
-        bz test_concat_immutable_dynamic_after_for@8 ; b test_concat_immutable_dynamic_for_body@6 
-
-    test_concat_immutable_dynamic_for_body@6:
-        // array/immutable.py:438
-        // @arc4.abimethod()
-        v-load index%1#0                                                                    index%1#0
-        l-store-copy index%1#0 0                                                            index%1#0,index%1#0 (copy)
-        int 2                                                                               index%1#0,index%1#0 (copy),2
-        *                                                                                   index%1#0,head_offset_bytes%1#0
-        v-load array_data%1#0                                                               index%1#0,head_offset_bytes%1#0,array_data%1#0
-        l-store-copy array_data%1#0 1                                                       index%1#0,array_data%1#0,head_offset_bytes%1#0,array_data%1#0 (copy)
-        l-load head_offset_bytes%1#0 1                                                      index%1#0,array_data%1#0,array_data%1#0 (copy),head_offset_bytes%1#0
-        extract_uint16 // on error: invalid array encoding                                  index%1#0,array_data%1#0,item_offset%1#0
-        l-load-copy item_offset%1#0 0                                                       index%1#0,array_data%1#0,item_offset%1#0,item_offset%1#0 (copy)
-        v-load num_bytes%2#0                                                                index%1#0,array_data%1#0,item_offset%1#0,item_offset%1#0 (copy),num_bytes%2#0
-        l-store-copy num_bytes%2#0 3                                                        index%1#0,num_bytes%2#0,array_data%1#0,item_offset%1#0,item_offset%1#0 (copy),num_bytes%2#0 (copy)
-        ==                                                                                  index%1#0,num_bytes%2#0,array_data%1#0,item_offset%1#0,offset_is_correct%1#0
-        l-load offset_is_correct%1#0 0                                                      index%1#0,num_bytes%2#0,array_data%1#0,item_offset%1#0,offset_is_correct%1#0
-        assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])                    index%1#0,num_bytes%2#0,array_data%1#0,item_offset%1#0
-        l-load-copy array_data%1#0 1                                                        index%1#0,num_bytes%2#0,array_data%1#0,item_offset%1#0,array_data%1#0 (copy)
-        len                                                                                 index%1#0,num_bytes%2#0,array_data%1#0,item_offset%1#0,total_length%3#0
-        l-load array_data%1#0 2                                                             index%1#0,num_bytes%2#0,item_offset%1#0,total_length%3#0,array_data%1#0
-        l-load item_offset%1#0 2                                                            index%1#0,num_bytes%2#0,total_length%3#0,array_data%1#0,item_offset%1#0
-        l-load total_length%3#0 2                                                           index%1#0,num_bytes%2#0,array_data%1#0,item_offset%1#0,total_length%3#0
-        substring3                                                                          index%1#0,num_bytes%2#0,extract_to_end%1#0
-        l-load-copy extract_to_end%1#0 0                                                    index%1#0,num_bytes%2#0,extract_to_end%1#0,extract_to_end%1#0 (copy)
-        len                                                                                 index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0
-        l-load-copy extract_to_end%1#0 1                                                    index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_to_end%1#0 (copy)
-        int 8                                                                               index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_to_end%1#0 (copy),8
-        extract_uint16 // on error: invalid tuple encoding                                  index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_uint16%1#0
-        l-load-copy extract_uint16%1#0 0                                                    index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
-        int 10                                                                              index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy),10
-        ==                                                                                  index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_uint16%1#0,eq%2#0
-        l-load eq%2#0 0                                                                     index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_uint16%1#0,eq%2#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))                  index%1#0,num_bytes%2#0,extract_to_end%1#0,tuple_len%1#0,extract_uint16%1#0
-        l-load extract_to_end%1#0 2                                                         index%1#0,num_bytes%2#0,tuple_len%1#0,extract_uint16%1#0,extract_to_end%1#0
-        l-load extract_uint16%1#0 1                                                         index%1#0,num_bytes%2#0,tuple_len%1#0,extract_to_end%1#0,extract_uint16%1#0
-        l-load tuple_len%1#0 2                                                              index%1#0,num_bytes%2#0,extract_to_end%1#0,extract_uint16%1#0,tuple_len%1#0
-        substring3                                                                          index%1#0,num_bytes%2#0,substring3%1#0
-        l-load substring3%1#0 0                                                             index%1#0,num_bytes%2#0,substring3%1#0
-        int 0                                                                               index%1#0,num_bytes%2#0,substring3%1#0,0
-        extract_uint16 // on error: invalid array length header                             index%1#0,num_bytes%2#0,aggregate%array_length%3#0
-        l-load aggregate%array_length%3#0 0                                                 index%1#0,num_bytes%2#0,aggregate%array_length%3#0
-        int 12                                                                              index%1#0,num_bytes%2#0,aggregate%array_length%3#0,12
-        +                                                                                   index%1#0,num_bytes%2#0,add%3#0
-        l-load num_bytes%2#0 1                                                              index%1#0,add%3#0,num_bytes%2#0
-        l-load add%3#0 1                                                                    index%1#0,num_bytes%2#0,add%3#0
-        +                                                                                   index%1#0,num_bytes%2#0
-        v-store num_bytes%2#0                                                               index%1#0
-        l-load index%1#0 0                                                                  index%1#0
-        int 1                                                                               index%1#0,1
-        +                                                                                   index%1#0
-        v-store index%1#0
-        b test_concat_immutable_dynamic_for_header@5
-
-    test_concat_immutable_dynamic_after_for@8:
-        // array/immutable.py:438
-        // @arc4.abimethod()
-        v-load num_bytes%2#0                                                                num_bytes%2#0
-        int 2                                                                               num_bytes%2#0,2
-        +                                                                                   num_bytes%3#0
-        v-load total_length%2#0                                                             num_bytes%3#0,total_length%2#0
-        l-load num_bytes%3#0 1                                                              total_length%2#0,num_bytes%3#0
-        ==                                                                                  eq%3#0
-        l-load eq%3#0 0                                                                     eq%3#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple> 
+        callsub __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])                    imm1#0
+        txna ApplicationArgs 2                                                              imm1#0,imm2#0
+        l-load-copy imm2#0 0                                                                imm1#0,imm2#0,imm2#0 (copy)
+        callsub __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])                    imm1#0,imm2#0
         // array/immutable.py:442
         // return imm1 + imm2
-        v-load imm1#0                                                                       imm1#0
-        v-load array_data%1#0                                                               imm1#0,array_data%1#0
-        v-load aggregate%array_length%2#0                                                   imm1#0,array_data%1#0,aggregate%array_length%2#0
+        l-load-copy imm2#0 0                                                                imm1#0,imm2#0,imm2#0 (copy)
+        extract 2 0                                                                         imm1#0,imm2#0,extract_to_end%0#0
+        l-load imm2#0 1                                                                     imm1#0,extract_to_end%0#0,imm2#0
+        int 0                                                                               imm1#0,extract_to_end%0#0,imm2#0,0
+        extract_uint16 // on error: invalid array length header                             imm1#0,extract_to_end%0#0,aggregate%array_length%0#0
+        l-load imm1#0 2                                                                     extract_to_end%0#0,aggregate%array_length%0#0,imm1#0
+        l-load extract_to_end%0#0 2                                                         aggregate%array_length%0#0,imm1#0,extract_to_end%0#0
+        l-load aggregate%array_length%0#0 2                                                 imm1#0,extract_to_end%0#0,aggregate%array_length%0#0
         callsub dynamic_array_concat_dynamic_element                                        tmp%1#1
         // array/immutable.py:438
         // @arc4.abimethod()
@@ -4560,48 +4177,48 @@ subroutine test_immutable_arc4:
     test_immutable_arc4_block@0:
         // array/immutable.py:444
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                              imm#0
-        l-load-copy imm#0 0                                                                 imm#0,imm#0 (copy)
-        int 0                                                                               imm#0,imm#0 (copy),0
-        extract_uint16 // on error: invalid array length header                             imm#0,aggregate%array_length%0#0
-        l-load-copy aggregate%array_length%0#0 0                                            imm#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        int 16                                                                              imm#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),16
-        *                                                                                   imm#0,aggregate%array_length%0#0,mul%0#0
-        l-load mul%0#0 0                                                                    imm#0,aggregate%array_length%0#0,mul%0#0
-        int 2                                                                               imm#0,aggregate%array_length%0#0,mul%0#0,2
-        +                                                                                   imm#0,aggregate%array_length%0#0,add%0#0
-        l-load-copy imm#0 2                                                                 imm#0,aggregate%array_length%0#0,add%0#0,imm#0 (copy)
-        len                                                                                 imm#0,aggregate%array_length%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                                    imm#0,aggregate%array_length%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                    imm#0,aggregate%array_length%0#0,len%0#0,add%0#0
-        ==                                                                                  imm#0,aggregate%array_length%0#0,eq%0#0
-        l-load eq%0#0 0                                                                     imm#0,aggregate%array_length%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyStruct> imm#0,aggregate%array_length%0#0
+        txna ApplicationArgs 1                                                              value#0
+        l-load-copy value#0 0                                                               value#0,value#0 (copy)
+        int 0                                                                               value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                             value#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                            value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        int 16                                                                              value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy),16
+        *                                                                                   value#0,aggregate%array_length%0#0,mul%0#0
+        l-load mul%0#0 0                                                                    value#0,aggregate%array_length%0#0,mul%0#0
+        int 2                                                                               value#0,aggregate%array_length%0#0,mul%0#0,2
+        +                                                                                   value#0,aggregate%array_length%0#0,add%0#0
+        l-load-copy value#0 2                                                               value#0,aggregate%array_length%0#0,add%0#0,value#0 (copy)
+        len                                                                                 value#0,aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                                    value#0,aggregate%array_length%0#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                    value#0,aggregate%array_length%0#0,len%0#0,add%0#0
+        ==                                                                                  value#0,aggregate%array_length%0#0,eq%0#0
+        l-load eq%0#0 0                                                                     value#0,aggregate%array_length%0#0,eq%0#0
+        assert // invalid number of bytes for Encoded(len+(uint64,uint64)[])                value#0,aggregate%array_length%0#0
         // array/immutable.py:446
         // assert imm, "expected non empty array"
-        l-load-copy aggregate%array_length%0#0 0                                            imm#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
-        assert // expected non empty array                                                  imm#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                            value#0,aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        assert // expected non empty array                                                  value#0,aggregate%array_length%0#0
         // array/immutable.py:447
         // imm = imm.replace(imm.length - 1, imm[0])
-        l-load aggregate%array_length%0#0 0                                                 imm#0,aggregate%array_length%0#0
-        int 1                                                                               imm#0,aggregate%array_length%0#0,1
-        -                                                                                   imm#0,tmp%3#0
-        l-load-copy imm#0 1                                                                 imm#0,tmp%3#0,imm#0 (copy)
-        extract 2 16                                                                        imm#0,tmp%3#0,aggregate%encoded_element%0#0
-        l-load tmp%3#0 1                                                                    imm#0,aggregate%encoded_element%0#0,tmp%3#0
-        int 16                                                                              imm#0,aggregate%encoded_element%0#0,tmp%3#0,16
-        *                                                                                   imm#0,aggregate%encoded_element%0#0,aggregate%write_offset%0#0
-        l-load aggregate%write_offset%0#0 0                                                 imm#0,aggregate%encoded_element%0#0,aggregate%write_offset%0#0
-        int 2                                                                               imm#0,aggregate%encoded_element%0#0,aggregate%write_offset%0#0,2
-        +                                                                                   imm#0,aggregate%encoded_element%0#0,aggregate%write_offset_with_length_header%0#0
-        l-load imm#0 2                                                                      aggregate%encoded_element%0#0,aggregate%write_offset_with_length_header%0#0,imm#0
-        l-load aggregate%write_offset_with_length_header%0#0 1                              aggregate%encoded_element%0#0,imm#0,aggregate%write_offset_with_length_header%0#0
-        l-load aggregate%encoded_element%0#0 2                                              imm#0,aggregate%write_offset_with_length_header%0#0,aggregate%encoded_element%0#0
-        replace3 // on error: index access is out of bounds                                 imm#0
+        l-load aggregate%array_length%0#0 0                                                 value#0,aggregate%array_length%0#0
+        int 1                                                                               value#0,aggregate%array_length%0#0,1
+        -                                                                                   value#0,tmp%3#0
+        l-load-copy value#0 1                                                               value#0,tmp%3#0,value#0 (copy)
+        extract 2 16                                                                        value#0,tmp%3#0,aggregate%encoded_element%0#0
+        l-load tmp%3#0 1                                                                    value#0,aggregate%encoded_element%0#0,tmp%3#0
+        int 16                                                                              value#0,aggregate%encoded_element%0#0,tmp%3#0,16
+        *                                                                                   value#0,aggregate%encoded_element%0#0,aggregate%write_offset%0#0
+        l-load aggregate%write_offset%0#0 0                                                 value#0,aggregate%encoded_element%0#0,aggregate%write_offset%0#0
+        int 2                                                                               value#0,aggregate%encoded_element%0#0,aggregate%write_offset%0#0,2
+        +                                                                                   value#0,aggregate%encoded_element%0#0,aggregate%write_offset_with_length_header%0#0
+        l-load value#0 2                                                                    aggregate%encoded_element%0#0,aggregate%write_offset_with_length_header%0#0,value#0
+        l-load aggregate%write_offset_with_length_header%0#0 1                              aggregate%encoded_element%0#0,value#0,aggregate%write_offset_with_length_header%0#0
+        l-load aggregate%encoded_element%0#0 2                                              value#0,aggregate%write_offset_with_length_header%0#0,aggregate%encoded_element%0#0
+        replace3 // on error: index access is out of bounds                                 imm#1
         // array/immutable.py:444
         // @arc4.abimethod()
-        byte 0x151f7c75                                                                     imm#0,0x151f7c75
-        l-load imm#0 1                                                                      0x151f7c75,imm#0
+        byte 0x151f7c75                                                                     imm#1,0x151f7c75
+        l-load imm#1 1                                                                      0x151f7c75,imm#1
         concat                                                                              tmp%2#0
         l-load tmp%2#0 0                                                                    tmp%2#0
         log
@@ -4783,5 +4400,193 @@ subroutine test_imm_fixed_arr:
         log
         int 1                                                                               1
         return
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint64[]):
+    __internal_validate_Encoded(len+uint64[])_block@0:                                      (𝕡) value#0 |
+        p-load value#0                                                                      (𝕡) value#0 | value#0 (copy)
+        int 0                                                                               (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                             (𝕡) value#0 | aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                 (𝕡) value#0 | aggregate%array_length%0#0
+        int 8                                                                               (𝕡) value#0 | aggregate%array_length%0#0,8
+        *                                                                                   (𝕡) value#0 | mul%0#0
+        l-load mul%0#0 0                                                                    (𝕡) value#0 | mul%0#0
+        int 2                                                                               (𝕡) value#0 | mul%0#0,2
+        +                                                                                   (𝕡) value#0 | add%0#0
+        p-load value#0                                                                      (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                                 (𝕡) value#0 | add%0#0,len%0#0
+        l-load len%0#0 0                                                                    (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                    (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                                  (𝕡) value#0 | eq%0#0
+        l-load eq%0#0 0                                                                     (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint64[])                         (𝕡) value#0 |
+        retsub
+
+
+// __internal_validate_Encoded(len+(uint64,bool1,bool1)[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+(uint64,bool1,bool1)[]):
+    __internal_validate_Encoded(len+(uint64,bool1,bool1)[])_block@0:                        (𝕡) value#0 |
+        p-load value#0                                                                      (𝕡) value#0 | value#0 (copy)
+        int 0                                                                               (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                             (𝕡) value#0 | aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                 (𝕡) value#0 | aggregate%array_length%0#0
+        int 9                                                                               (𝕡) value#0 | aggregate%array_length%0#0,9
+        *                                                                                   (𝕡) value#0 | mul%0#0
+        l-load mul%0#0 0                                                                    (𝕡) value#0 | mul%0#0
+        int 2                                                                               (𝕡) value#0 | mul%0#0,2
+        +                                                                                   (𝕡) value#0 | add%0#0
+        p-load value#0                                                                      (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                                 (𝕡) value#0 | add%0#0,len%0#0
+        l-load len%0#0 0                                                                    (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                                    (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                                  (𝕡) value#0 | eq%0#0
+        l-load eq%0#0 0                                                                     (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+(uint64,bool1,bool1)[])           (𝕡) value#0 |
+        retsub
+
+
+// __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+(uint64,(len+utf8[]))[]):
+    __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_block@0:                       (𝕡) value#0 |
+        p-load value#0                                                                      (𝕡) value#0 | value#0 (copy)
+        int 0                                                                               (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                             (𝕡) value#0 | aggregate%array_length%0#0
+        l-store-copy aggregate%array_length%0#0 0                                           (𝕡) value#0 | aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        v-store aggregate%array_length%0#0                                                  (𝕡) value#0 | aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                 (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                                               (𝕡) value#0 | aggregate%array_length%0#0,2
+        *                                                                                   (𝕡) value#0 | num_bytes%0#0
+        v-store num_bytes%0#0                                                               (𝕡) value#0 |
+        p-load value#0                                                                      (𝕡) value#0 | value#0 (copy)
+        len                                                                                 (𝕡) value#0 | total_length%0#0
+        v-store total_length%0#0                                                            (𝕡) value#0 |
+        p-load value#0                                                                      (𝕡) value#0 | value#0 (copy)
+        extract 2 0                                                                         (𝕡) value#0 | array_data%0#0
+        v-store array_data%0#0                                                              (𝕡) value#0 |
+        int 0                                                                               (𝕡) value#0 | 0
+        v-store index%0#0                                                                   (𝕡) value#0 |
+        b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_header@1             (𝕡) value#0 |
+
+    __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_header@1:                  (𝕡) value#0 |
+        v-load index%0#0                                                                    (𝕡) value#0 | index%0#0
+        v-load aggregate%array_length%0#0                                                   (𝕡) value#0 | index%0#0,aggregate%array_length%0#0
+        <                                                                                   (𝕡) value#0 | continue_looping%0#0
+        l-load continue_looping%0#0 0                                                       (𝕡) value#0 | continue_looping%0#0
+        bz __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_after_for@4 ; b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_body@2 (𝕡) value#0 | 
+
+    __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_body@2:                    (𝕡) value#0 |
+        v-load index%0#0                                                                    (𝕡) value#0 | index%0#0
+        l-store-copy index%0#0 0                                                            (𝕡) value#0 | index%0#0,index%0#0 (copy)
+        int 2                                                                               (𝕡) value#0 | index%0#0,index%0#0 (copy),2
+        *                                                                                   (𝕡) value#0 | index%0#0,head_offset_bytes%0#0
+        v-load array_data%0#0                                                               (𝕡) value#0 | index%0#0,head_offset_bytes%0#0,array_data%0#0
+        l-store-copy array_data%0#0 1                                                       (𝕡) value#0 | index%0#0,array_data%0#0,head_offset_bytes%0#0,array_data%0#0 (copy)
+        l-load head_offset_bytes%0#0 1                                                      (𝕡) value#0 | index%0#0,array_data%0#0,array_data%0#0 (copy),head_offset_bytes%0#0
+        extract_uint16 // on error: invalid array encoding                                  (𝕡) value#0 | index%0#0,array_data%0#0,item_offset%0#0
+        l-load-copy item_offset%0#0 0                                                       (𝕡) value#0 | index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy)
+        v-load num_bytes%0#0                                                                (𝕡) value#0 | index%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0
+        l-store-copy num_bytes%0#0 3                                                        (𝕡) value#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,item_offset%0#0 (copy),num_bytes%0#0 (copy)
+        ==                                                                                  (𝕡) value#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
+        l-load offset_is_correct%0#0 0                                                      (𝕡) value#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,offset_is_correct%0#0
+        assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])                    (𝕡) value#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0
+        l-load-copy array_data%0#0 1                                                        (𝕡) value#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,array_data%0#0 (copy)
+        len                                                                                 (𝕡) value#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
+        l-load array_data%0#0 2                                                             (𝕡) value#0 | index%0#0,num_bytes%0#0,item_offset%0#0,total_length%1#0,array_data%0#0
+        l-load item_offset%0#0 2                                                            (𝕡) value#0 | index%0#0,num_bytes%0#0,total_length%1#0,array_data%0#0,item_offset%0#0
+        l-load total_length%1#0 2                                                           (𝕡) value#0 | index%0#0,num_bytes%0#0,array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                                          (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0
+        l-load-copy extract_to_end%0#0 0                                                    (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,extract_to_end%0#0 (copy)
+        len                                                                                 (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0
+        l-load-copy extract_to_end%0#0 1                                                    (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_to_end%0#0 (copy)
+        int 8                                                                               (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_to_end%0#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                                  (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0
+        l-load-copy extract_uint16%0#0 0                                                    (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
+        int 10                                                                              (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),10
+        ==                                                                                  (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
+        l-load eq%0#0 0                                                                     (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0,eq%0#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))                  (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,tuple_len%0#0,extract_uint16%0#0
+        l-load extract_to_end%0#0 2                                                         (𝕡) value#0 | index%0#0,num_bytes%0#0,tuple_len%0#0,extract_uint16%0#0,extract_to_end%0#0
+        l-load extract_uint16%0#0 1                                                         (𝕡) value#0 | index%0#0,num_bytes%0#0,tuple_len%0#0,extract_to_end%0#0,extract_uint16%0#0
+        l-load tuple_len%0#0 2                                                              (𝕡) value#0 | index%0#0,num_bytes%0#0,extract_to_end%0#0,extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                          (𝕡) value#0 | index%0#0,num_bytes%0#0,substring3%0#0
+        l-load substring3%0#0 0                                                             (𝕡) value#0 | index%0#0,num_bytes%0#0,substring3%0#0
+        int 0                                                                               (𝕡) value#0 | index%0#0,num_bytes%0#0,substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                             (𝕡) value#0 | index%0#0,num_bytes%0#0,aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                                 (𝕡) value#0 | index%0#0,num_bytes%0#0,aggregate%array_length%1#0
+        int 12                                                                              (𝕡) value#0 | index%0#0,num_bytes%0#0,aggregate%array_length%1#0,12
+        +                                                                                   (𝕡) value#0 | index%0#0,num_bytes%0#0,add%1#0
+        l-load num_bytes%0#0 1                                                              (𝕡) value#0 | index%0#0,add%1#0,num_bytes%0#0
+        l-load add%1#0 1                                                                    (𝕡) value#0 | index%0#0,num_bytes%0#0,add%1#0
+        +                                                                                   (𝕡) value#0 | index%0#0,num_bytes%0#0
+        v-store num_bytes%0#0                                                               (𝕡) value#0 | index%0#0
+        l-load index%0#0 0                                                                  (𝕡) value#0 | index%0#0
+        int 1                                                                               (𝕡) value#0 | index%0#0,1
+        +                                                                                   (𝕡) value#0 | index%0#0
+        v-store index%0#0                                                                   (𝕡) value#0 |
+        b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_header@1             (𝕡) value#0 |
+
+    __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_after_for@4:                   (𝕡) value#0 |
+        v-load num_bytes%0#0                                                                (𝕡) value#0 | num_bytes%0#0
+        int 2                                                                               (𝕡) value#0 | num_bytes%0#0,2
+        +                                                                                   (𝕡) value#0 | num_bytes%1#0
+        v-load total_length%0#0                                                             (𝕡) value#0 | num_bytes%1#0,total_length%0#0
+        l-load num_bytes%1#0 1                                                              (𝕡) value#0 | total_length%0#0,num_bytes%1#0
+        ==                                                                                  (𝕡) value#0 | eq%1#0
+        l-load eq%1#0 0                                                                     (𝕡) value#0 | eq%1#0
+        assert // invalid number of bytes for Encoded(len+(uint64,(len+utf8[]))[])          (𝕡) value#0 |
+        retsub
+
+
+// __internal_validate_Encoded((len+utf8[]),(len+utf8[]))(value: bytes) -> void:
+subroutine __internal_validate_Encoded((len+utf8[]),(len+utf8[])):
+    __internal_validate_Encoded((len+utf8[]),(len+utf8[]))_block@0:                         (𝕡) value#0 |
+        p-load value#0                                                                      (𝕡) value#0 | value#0 (copy)
+        len                                                                                 (𝕡) value#0 | tuple_len%0#0
+        p-load value#0                                                                      (𝕡) value#0 | tuple_len%0#0,value#0 (copy)
+        int 0                                                                               (𝕡) value#0 | tuple_len%0#0,value#0 (copy),0
+        extract_uint16 // on error: invalid tuple encoding                                  (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0
+        l-load-copy extract_uint16%0#0 0                                                    (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
+        int 4                                                                               (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),4
+        ==                                                                                  (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,eq%0#0
+        l-load eq%0#0 0                                                                     (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,eq%0#0
+        assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))            (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0
+        p-load value#0                                                                      (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,value#0 (copy)
+        l-load extract_uint16%0#0 1                                                         (𝕡) value#0 | tuple_len%0#0,value#0 (copy),extract_uint16%0#0
+        l-load-copy tuple_len%0#0 2                                                         (𝕡) value#0 | tuple_len%0#0,value#0 (copy),extract_uint16%0#0,tuple_len%0#0 (copy)
+        substring3                                                                          (𝕡) value#0 | tuple_len%0#0,substring3%0#0
+        l-load substring3%0#0 0                                                             (𝕡) value#0 | tuple_len%0#0,substring3%0#0
+        int 0                                                                               (𝕡) value#0 | tuple_len%0#0,substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                             (𝕡) value#0 | tuple_len%0#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                                 (𝕡) value#0 | tuple_len%0#0,aggregate%array_length%0#0
+        int 6                                                                               (𝕡) value#0 | tuple_len%0#0,aggregate%array_length%0#0,6
+        +                                                                                   (𝕡) value#0 | tuple_len%0#0,add%1#0
+        p-load value#0                                                                      (𝕡) value#0 | tuple_len%0#0,add%1#0,value#0 (copy)
+        int 2                                                                               (𝕡) value#0 | tuple_len%0#0,add%1#0,value#0 (copy),2
+        extract_uint16 // on error: invalid tuple encoding                                  (𝕡) value#0 | tuple_len%0#0,add%1#0,extract_uint16%1#0
+        l-load-copy extract_uint16%1#0 0                                                    (𝕡) value#0 | tuple_len%0#0,add%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy)
+        l-load-copy add%1#0 2                                                               (𝕡) value#0 | tuple_len%0#0,add%1#0,extract_uint16%1#0,extract_uint16%1#0 (copy),add%1#0 (copy)
+        ==                                                                                  (𝕡) value#0 | tuple_len%0#0,add%1#0,extract_uint16%1#0,eq%1#0
+        l-load eq%1#0 0                                                                     (𝕡) value#0 | tuple_len%0#0,add%1#0,extract_uint16%1#0,eq%1#0
+        assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))            (𝕡) value#0 | tuple_len%0#0,add%1#0,extract_uint16%1#0
+        p-load value#0                                                                      (𝕡) value#0 | tuple_len%0#0,add%1#0,extract_uint16%1#0,value#0 (copy)
+        l-load extract_uint16%1#0 1                                                         (𝕡) value#0 | tuple_len%0#0,add%1#0,value#0 (copy),extract_uint16%1#0
+        l-load-copy tuple_len%0#0 3                                                         (𝕡) value#0 | tuple_len%0#0,add%1#0,value#0 (copy),extract_uint16%1#0,tuple_len%0#0 (copy)
+        substring3                                                                          (𝕡) value#0 | tuple_len%0#0,add%1#0,substring3%1#0
+        l-load substring3%1#0 0                                                             (𝕡) value#0 | tuple_len%0#0,add%1#0,substring3%1#0
+        int 0                                                                               (𝕡) value#0 | tuple_len%0#0,add%1#0,substring3%1#0,0
+        extract_uint16 // on error: invalid array length header                             (𝕡) value#0 | tuple_len%0#0,add%1#0,aggregate%array_length%1#0
+        l-load aggregate%array_length%1#0 0                                                 (𝕡) value#0 | tuple_len%0#0,add%1#0,aggregate%array_length%1#0
+        int 2                                                                               (𝕡) value#0 | tuple_len%0#0,add%1#0,aggregate%array_length%1#0,2
+        +                                                                                   (𝕡) value#0 | tuple_len%0#0,add%1#0,add%2#0
+        l-load add%1#0 1                                                                    (𝕡) value#0 | tuple_len%0#0,add%2#0,add%1#0
+        l-load add%2#0 1                                                                    (𝕡) value#0 | tuple_len%0#0,add%1#0,add%2#0
+        +                                                                                   (𝕡) value#0 | tuple_len%0#0,add%3#0
+        l-load tuple_len%0#0 1                                                              (𝕡) value#0 | add%3#0,tuple_len%0#0
+        l-load add%3#0 1                                                                    (𝕡) value#0 | tuple_len%0#0,add%3#0
+        ==                                                                                  (𝕡) value#0 | eq%2#0
+        l-load eq%2#0 0                                                                     (𝕡) value#0 | eq%2#0
+        assert // invalid number of bytes for Encoded((len+utf8[]),(len+utf8[]))            (𝕡) value#0 |
+        retsub
 
 

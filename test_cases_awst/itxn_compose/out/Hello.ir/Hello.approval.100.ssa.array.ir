@@ -103,12 +103,7 @@ subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> v
 subroutine tests/approvals/precompiled-apps.algo.ts::Hello.create[routing]() -> void:
     block@0: // L36
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(tmp%0#0)
         let greeting#0: string = ((extract 2 0) tmp%0#0)
         (app_global_put "greeting" greeting#0)
         exit 1u
@@ -116,12 +111,7 @@ subroutine tests/approvals/precompiled-apps.algo.ts::Hello.create[routing]() -> 
 subroutine tests/approvals/precompiled-apps.algo.ts::HelloBase.greet[routing]() -> void:
     block@0: // L26
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(tmp%0#0)
         let name#0: string = ((extract 2 0) tmp%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%0#0) // check GlobalState exists
@@ -139,37 +129,37 @@ subroutine tests/approvals/precompiled-apps.algo.ts::HelloBase.greet[routing]() 
 
 subroutine tests/approvals/precompiled-apps.algo.ts::HelloBase.sendGreetings[routing]() -> void:
     block@0: // L30
-        let a#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len a#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 a#0 0u) // on error: invalid tuple encoding
+        let value#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 4u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-        let substring3%0#0: bytes = (substring3 a#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let add%1#0: uint64 = (+ length%0#0 6u)
-        let extract_uint16%1#0: uint64 = (extract_uint16 a#0 2u) // on error: invalid tuple encoding
+        let extract_uint16%1#0: uint64 = (extract_uint16 value#0 2u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-        let substring3%1#0: bytes = (substring3 a#0 extract_uint16%1#0 tuple_len%0#0)
+        let substring3%1#0: bytes = (substring3 value#0 extract_uint16%1#0 tuple_len%0#0)
         let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let add%2#0: uint64 = (+ length%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let eq%2#0: bool = (== tuple_len%0#0 add%3#0)
-        (assert eq%2#0) // invalid number of bytes for tests/approvals/precompiled-apps.algo.ts::Greeting
+        (assert eq%2#0) // invalid number of bytes for Encoded((len+utf8[]),(len+utf8[]))
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%0#0) // check GlobalState exists
         let tmp%1#1: bytes = (concat maybe_value%0#0 " ")
-        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 a#0 0u)
-        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 a#0 2u)
-        let aggregate%substring3%0#0: bytes = (substring3 a#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 value#0 0u)
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 value#0 2u)
+        let aggregate%substring3%0#0: bytes = (substring3 value#0 aggregate%extract_uint16%0#0 aggregate%extract_uint16%1#0)
         let tuple_item%0#0: Encoded(len+utf8[]) = aggregate%substring3%0#0
         let tmp%2#1: string = ((extract 2 0) tuple_item%0#0)
         let tmp%3#1: bytes = (concat tmp%1#1 tmp%2#1)
-        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 a#0 2u)
-        let aggregate%len%0#0: uint64 = (len a#0)
-        let aggregate%substring3%1#0: bytes = (substring3 a#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
+        let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 value#0 2u)
+        let aggregate%len%0#0: uint64 = (len value#0)
+        let aggregate%substring3%1#0: bytes = (substring3 value#0 aggregate%extract_uint16%2#0 aggregate%len%0#0)
         let tuple_item%1#0: Encoded(len+utf8[]) = aggregate%substring3%1#0
         let tmp%4#0: string = ((extract 2 0) tuple_item%1#0)
         let tmp%5#0: bytes = (concat tmp%3#1 tmp%4#0)
@@ -182,3 +172,13 @@ subroutine tests/approvals/precompiled-apps.algo.ts::HelloBase.sendGreetings[rou
         let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
         (log tmp%3#0)
         exit 1u
+
+subroutine __internal_validate_Encoded(len+utf8[])(value: Encoded(len+utf8[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        return 

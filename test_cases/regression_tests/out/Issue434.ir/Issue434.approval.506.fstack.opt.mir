@@ -51,26 +51,28 @@ subroutine method:
     method_block@0:
         // regression_tests/issue_434.py:6
         // @arc4.abimethod
-        txna ApplicationArgs 1                                      tmp%0#0
-        l-load-copy tmp%0#0 0                                       tmp%0#0,tmp%0#0 (copy)
-        len                                                         tmp%0#0,len%0#0
-        int 8                                                       tmp%0#0,len%0#0,8
-        ==                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64           tmp%0#0
-        l-load tmp%0#0 0                                            tmp%0#0
+        txna ApplicationArgs 1                                      value#0
+        l-load-copy value#0 0                                       value#0,value#0 (copy)
+        len                                                         value#0,len%0#0
+        int 8                                                       value#0,len%0#0,8
+        ==                                                          value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)       value#0
+        // regression_tests/issue_434.py:6
+        // @arc4.abimethod
+        l-load value#0 0                                            value#0
         btoi                                                        c#0
         f-store c#0                                                 (𝕗) c#0 |
-        b method_while_top@2                                        (𝕗) c#0 |
+        b method_while_top@4                                        (𝕗) c#0 |
 
-    method_while_top@2:                                             (𝕗) c#0 |
+    method_while_top@4:                                             (𝕗) c#0 |
         // regression_tests/issue_434.py:8
         // while Global.opcode_budget() > 350:
         global OpcodeBudget                                         (𝕗) c#0 | tmp%0#1
         int 350                                                     (𝕗) c#0 | tmp%0#1,350
         >                                                           (𝕗) c#0 | tmp%1#1
-        bz method_after_while@4 ; b method_while_body@3             (𝕗) c#0 |
+        bz method_after_while@6 ; b method_while_body@5             (𝕗) c#0 |
 
-    method_while_body@3:                                            (𝕗) c#0 |
+    method_while_body@5:                                            (𝕗) c#0 |
         // regression_tests/issue_434.py:9
         // assert op.sha3_256(Txn.sender.bytes) != Txn.sender.bytes
         txn Sender                                                  (𝕗) c#0 | tmp%2#0
@@ -80,33 +82,33 @@ subroutine method:
         l-load tmp%4#0 1                                            (𝕗) c#0 | tmp%3#0,tmp%4#0
         !=                                                          (𝕗) c#0 | tmp%5#0
         assert                                                      (𝕗) c#0 |
-        b method_while_top@2                                        (𝕗) c#0 |
+        b method_while_top@4                                        (𝕗) c#0 |
 
-    method_after_while@4:                                           (𝕗) c#0 |
+    method_after_while@6:                                           (𝕗) c#0 |
         // regression_tests/issue_434.py:11
         // if c > 0:
         f-load c#0                                                  (𝕗) c#0 | c#0
-        bz method_else_body@6 ; b method_if_body@5                  (𝕗) c#0 |
+        bz method_else_body@8 ; b method_if_body@7                  (𝕗) c#0 |
 
-    method_if_body@5:                                               (𝕗) c#0 |
+    method_if_body@7:                                               (𝕗) c#0 |
         // regression_tests/issue_434.py:12
         // x = c + 2
         f-load c#0                                                  (𝕗) c#0 | c#0
         int 2                                                       (𝕗) c#0 | c#0,2
         +                                                           (𝕗) c#0 | x#0
         x-store x#0                                                 (𝕗) c#0 | (𝕏) x#0 |
-        b method_after_if_else@7                                    (𝕗) c#0 | (𝕏) x#0 |
+        b method_after_if_else@9                                    (𝕗) c#0 | (𝕏) x#0 |
 
-    method_else_body@6:                                             (𝕗) c#0 |
+    method_else_body@8:                                             (𝕗) c#0 |
         // regression_tests/issue_434.py:14
         // x = c + 2
         f-load c#0                                                  (𝕗) c#0 | c#0
         int 2                                                       (𝕗) c#0 | c#0,2
         +                                                           (𝕗) c#0 | x#0
         x-store x#0                                                 (𝕗) c#0 | (𝕏) x#0 |
-        b method_after_if_else@7                                    (𝕗) c#0 | (𝕏) x#0 |
+        b method_after_if_else@9                                    (𝕗) c#0 | (𝕏) x#0 |
 
-    method_after_if_else@7:                                         (𝕗) c#0 | (𝕏) x#0 |
+    method_after_if_else@9:                                         (𝕗) c#0 | (𝕏) x#0 |
         // regression_tests/issue_434.py:16
         // assert x - 2 == c
         x-load x#0                                                  (𝕗) c#0 | x#0

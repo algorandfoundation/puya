@@ -57,20 +57,22 @@ subroutine method:
     method_block@0:
         // regression_tests/issue_434.py:6
         // @arc4.abimethod
-        txna ApplicationArgs 1                                      tmp%0#0
-        l-load-copy tmp%0#0 0                                       tmp%0#0,tmp%0#0 (copy)
-        len                                                         tmp%0#0,len%0#0
-        l-load len%0#0 0                                            tmp%0#0,len%0#0
-        int 8                                                       tmp%0#0,len%0#0,8
-        ==                                                          tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                             tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64           tmp%0#0
-        l-load tmp%0#0 0                                            tmp%0#0
+        txna ApplicationArgs 1                                      value#0
+        l-load-copy value#0 0                                       value#0,value#0 (copy)
+        len                                                         value#0,len%0#0
+        l-load len%0#0 0                                            value#0,len%0#0
+        int 8                                                       value#0,len%0#0,8
+        ==                                                          value#0,eq%0#0
+        l-load eq%0#0 0                                             value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)       value#0
+        // regression_tests/issue_434.py:6
+        // @arc4.abimethod
+        l-load value#0 0                                            value#0
         btoi                                                        c#0
         v-store c#0
-        b method_while_top@2
+        b method_while_top@4
 
-    method_while_top@2:
+    method_while_top@4:
         // regression_tests/issue_434.py:8
         // while Global.opcode_budget() > 350:
         global OpcodeBudget                                         tmp%0#1
@@ -78,9 +80,9 @@ subroutine method:
         int 350                                                     tmp%0#1,350
         >                                                           tmp%1#1
         l-load tmp%1#1 0                                            tmp%1#1
-        bz method_after_while@4 ; b method_while_body@3
+        bz method_after_while@6 ; b method_while_body@5
 
-    method_while_body@3:
+    method_while_body@5:
         // regression_tests/issue_434.py:9
         // assert op.sha3_256(Txn.sender.bytes) != Txn.sender.bytes
         txn Sender                                                  tmp%2#0
@@ -92,33 +94,33 @@ subroutine method:
         !=                                                          tmp%5#0
         l-load tmp%5#0 0                                            tmp%5#0
         assert
-        b method_while_top@2
+        b method_while_top@4
 
-    method_after_while@4:
+    method_after_while@6:
         // regression_tests/issue_434.py:11
         // if c > 0:
         v-load c#0                                                  c#0
-        bz method_else_body@6 ; b method_if_body@5
+        bz method_else_body@8 ; b method_if_body@7
 
-    method_if_body@5:
+    method_if_body@7:
         // regression_tests/issue_434.py:12
         // x = c + 2
         v-load c#0                                                  c#0
         int 2                                                       c#0,2
         +                                                           x#0
         v-store x#0
-        b method_after_if_else@7
+        b method_after_if_else@9
 
-    method_else_body@6:
+    method_else_body@8:
         // regression_tests/issue_434.py:14
         // x = c + 2
         v-load c#0                                                  c#0
         int 2                                                       c#0,2
         +                                                           x#0
         v-store x#0
-        b method_after_if_else@7
+        b method_after_if_else@9
 
-    method_after_if_else@7:
+    method_after_if_else@9:
         // regression_tests/issue_434.py:16
         // assert x - 2 == c
         v-load x#0                                                  x#0

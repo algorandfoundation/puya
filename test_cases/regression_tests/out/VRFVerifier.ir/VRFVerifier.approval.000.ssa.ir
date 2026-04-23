@@ -66,30 +66,15 @@ subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_r
 subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]() -> void:
     block@0: // L5
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%0#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
         let tmp%1#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = (* length%1#0 1u)
-        let add%1#0: uint64 = (+ mul%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%2#0)
         let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%2#0
         let tmp%3#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%1#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let length%2#0: uint64 = array_len(tmp%4#0)
-        let mul%2#0: uint64 = (* length%2#0 1u)
-        let add%2#0: uint64 = (+ mul%2#0 2u)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 add%2#0)
-        (assert eq%2#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%4#0)
         let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = tmp%4#0
         let tmp%5#0: bytes = decode_bytes<bytes>(as_Encoded(len+uint8[])%2#0)
         let (tmp%6#0: bytes, tmp%7#0: bool) = test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(tmp%1#0, tmp%3#0, tmp%5#0)
@@ -106,4 +91,14 @@ subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(messag
 
 subroutine test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(len+uint8[])(value: Encoded(len+uint8[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
         return 

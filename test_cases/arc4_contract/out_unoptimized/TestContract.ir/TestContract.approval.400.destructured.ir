@@ -40,9 +40,7 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.arc4_contract.contract.TestContract.test_method[routing]() -> void:
     block@0: // L5
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: uint64 = test_cases.arc4_contract.contract.TestContract.test_method(tmp%1#0)
@@ -62,3 +60,10 @@ subroutine test_cases.arc4_contract.contract.TestContract.test_method(value: uin
 subroutine test_cases.arc4_contract.contract.TestContract.internal_method() -> uint64:
     block@0: // L10
         return 1u
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 

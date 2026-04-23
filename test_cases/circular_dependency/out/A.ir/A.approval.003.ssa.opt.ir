@@ -1,0 +1,100 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        goto tmp%0#1 ? block@2 : block@11
+    block@2: // abi_routing_L12
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0)
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0)
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "name()string" => block@4, method "ping(uint64)string" => block@5, method "pong()string" => block@6, method "create_b(uint64)uint64" => block@7, * => block@10}
+    block@4: // name_route_L14
+        test_cases.circular_dependency.a.A.name[routing]()
+        goto block@10
+    block@5: // ping_route_L18
+        test_cases.circular_dependency.a.A.ping[routing]()
+        goto block@10
+    block@6: // pong_route_L23
+        test_cases.circular_dependency.a.A.pong[routing]()
+        goto block@10
+    block@7: // create_b_route_L27
+        test_cases.circular_dependency.a.A.create_b[routing]()
+        goto block@10
+    block@10: // after_if_else_L12
+        fail
+    block@11: // __algopy_default_create_L1
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (! tmp%9#0)
+        let tmp%11#0: bool = (&& tmp%8#0 tmp%10#0)
+        (assert tmp%11#0)
+        exit 1u
+
+subroutine test_cases.circular_dependency.a.A.name[routing]() -> void:
+    block@0: // L14
+        let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("A")
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.circular_dependency.a.A.ping[routing]() -> void:
+    block@0: // L18
+        let value#1: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for Encoded(uint64)
+        let b#0: uint64 = decode_bytes<uint64>(value#1)
+        itxn_begin
+        ((itxn_field ApplicationID) b#0)
+        ((itxn_field ApplicationArgs) method "ping()string")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%1#1: bool = (== tmp%0#1 0x151f7c75)
+        (assert tmp%1#1) // application log value is not the result of an ABI return
+        let value#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let length%0#0: uint64 = array_len(value#0)
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        let tmp%4#0: bytes = (concat 0x151f7c75 value#0)
+        (log tmp%4#0)
+        exit 1u
+
+subroutine test_cases.circular_dependency.a.A.pong[routing]() -> void:
+    block@0: // L23
+        let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("pong")
+        let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
+        (log tmp%2#0)
+        exit 1u
+
+subroutine test_cases.circular_dependency.a.A.create_b[routing]() -> void:
+    block@0: // L27
+        let value#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let factory_id#0: uint64 = decode_bytes<uint64>(value#0)
+        itxn_begin
+        ((itxn_field ApplicationID) factory_id#0)
+        ((itxn_field ApplicationArgs) method "deploy_b()uint64")
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field Fee) 0u)
+        itxn_submit
+        let awst_tmp%0#0: bytes = (itxn LastLog)
+        let tmp%0#1: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%1#1: bool = (== tmp%0#1 0x151f7c75)
+        (assert tmp%1#1) // application log value is not the result of an ABI return
+        let value#1: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for Encoded(uint64)
+        let tmp%4#0: bytes = (concat 0x151f7c75 value#1)
+        (log tmp%4#0)
+        exit 1u

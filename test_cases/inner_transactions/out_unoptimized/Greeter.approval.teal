@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 2 6
+    intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
     b main_block@0
 
@@ -122,16 +122,7 @@ log_greetings_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     callsub test_cases.inner_transactions.c2c.Greeter.log_greetings
     intc_1 // 1
     return
@@ -181,7 +172,7 @@ test_cases.inner_transactions.c2c.Greeter.bootstrap_block@0:
     itxn_field ApprovalProgramPages
     // inner_transactions/c2c.py:14
     // itxn.ApplicationCall(
-    intc_3 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -256,7 +247,7 @@ test_cases.inner_transactions.c2c.Greeter.log_greetings_block@0:
     itxn_field ApplicationID
     // inner_transactions/c2c.py:25
     // hello_call = itxn.ApplicationCall(
-    intc_3 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -279,16 +270,7 @@ test_cases.inner_transactions.c2c.Greeter.log_greetings_next_txn@1:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub __internal_validate_Encoded(len+utf8[])
     // inner_transactions/c2c.py:30
     // log("HelloWorld returned: ", greeting.native)
     pushbytes "HelloWorld returned: "
@@ -298,4 +280,24 @@ test_cases.inner_transactions.c2c.Greeter.log_greetings_next_txn@1:
     extract 2 0
     concat
     log
+    retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+__internal_validate_Encoded(len+utf8[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+utf8[])_block@0
+
+__internal_validate_Encoded(len+utf8[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+utf8[])
     retsub

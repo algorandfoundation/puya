@@ -73,9 +73,9 @@ subroutine get_abs_bound1:
     get_abs_bound1_block@0:
         // regression_tests/biguint_opt.py:5
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                         tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                 tmp%0#0
+        txna ApplicationArgs 1                                         value#0
+        v-store value#0
+        v-load value#0                                                 value#0
         len                                                            len%0#0
         v-store len%0#0
         v-load len%0#0                                                 len%0#0
@@ -83,8 +83,10 @@ subroutine get_abs_bound1:
         ==                                                             eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                  eq%0#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%0#0                                                 tmp%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // regression_tests/biguint_opt.py:5
+        // @arc4.abimethod()
+        v-load value#0                                                 value#0
         btoi                                                           upper_bound#0
         v-store upper_bound#0
         // regression_tests/biguint_opt.py:7
@@ -94,17 +96,17 @@ subroutine get_abs_bound1:
         // regression_tests/biguint_opt.py:8
         // if upper_bound:
         v-load upper_bound#0                                           upper_bound#0
-        bz get_abs_bound1_after_if_else@3 ; b get_abs_bound1_if_body@2
+        bz get_abs_bound1_after_if_else@5 ; b get_abs_bound1_if_body@4
 
-    get_abs_bound1_if_body@2:
+    get_abs_bound1_if_body@4:
         // regression_tests/biguint_opt.py:13
         // abs_bound = op.btoi((BigUInt(1 << 64) - lower_bound).bytes)
         byte 0x010000000000000000                                      0x010000000000000000
         btoi                                                           abs_bound#0
         v-store abs_bound#0
-        b get_abs_bound1_after_if_else@3
+        b get_abs_bound1_after_if_else@5
 
-    get_abs_bound1_after_if_else@3:
+    get_abs_bound1_after_if_else@5:
         // regression_tests/biguint_opt.py:5
         // @arc4.abimethod()
         v-load abs_bound#0                                             abs_bound#0

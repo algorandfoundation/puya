@@ -40,18 +40,11 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_caller_bytes[routing]() -> void:
     block@0: // L9
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(tmp%0#0)
         let tmp%1#0: uint64 = (btoi tmp%0#0)
         let checker#0: uint64 = ((txnas Applications) tmp%1#0)
         let tmp%3#0: bytes = (txna ApplicationArgs 2)
-        let length%0#0: uint64 = array_len(tmp%3#0)
-        let mul%0#0: uint64 = length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%3#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%3#0)
         let val#0: bytes = decode_bytes<bytes>(tmp%3#0)
         itxn_begin
         let tmp%0#1: Encoded(uint8[11]) = bytes_encode<uint8[11]>(val#0)
@@ -66,18 +59,11 @@ subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validat
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_manual[routing]() -> void:
     block@0: // L18
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(tmp%0#0)
         let tmp%1#0: uint64 = (btoi tmp%0#0)
         let checker#0: uint64 = ((txnas Applications) tmp%1#0)
         let tmp%3#0: bytes = (txna ApplicationArgs 2)
-        let length%0#0: uint64 = array_len(tmp%3#0)
-        let mul%0#0: uint64 = length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%3#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%3#0)
         let val#0: bytes = decode_bytes<bytes>(tmp%3#0)
         itxn_begin
         let tmp%0#1: Encoded(uint8[11]) = bytes_encode<uint8[11]>(val#0)
@@ -92,18 +78,11 @@ subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validat
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validate_callee_router[routing]() -> void:
     block@0: // L28
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(tmp%0#0)
         let tmp%1#0: uint64 = (btoi tmp%0#0)
         let checker#0: uint64 = ((txnas Applications) tmp%1#0)
         let tmp%3#0: bytes = (txna ApplicationArgs 2)
-        let length%0#0: uint64 = array_len(tmp%3#0)
-        let mul%0#0: uint64 = length%0#0
-        let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%3#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+uint8[])(tmp%3#0)
         let val#0: bytes = decode_bytes<bytes>(tmp%3#0)
         itxn_begin
         let tmp%0#1: Encoded(uint8[11]) = bytes_encode<uint8[11]>(val#0)
@@ -118,9 +97,7 @@ subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_itxn_validat
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dynamic_encoding[routing]() -> void:
     block@0: // L38
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        __internal_validate_Encoded(uint8)(tmp%0#0)
         let tmp%1#0: uint64 = (btoi tmp%0#0)
         let checker#0: uint64 = ((txnas Applications) tmp%1#0)
         itxn_begin
@@ -135,4 +112,21 @@ subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.test_static_to_dy
 
 subroutine test_cases.fixed_bytes_ops.abi_values.FixedBytesABI.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(uint8)(value: Encoded(uint8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8)
+        return 
+
+subroutine __internal_validate_Encoded(len+uint8[])(value: Encoded(len+uint8[])) -> void:
+    block@0: // L1
+        let length%0#0: uint64 = array_len(value#0)
+        let mul%0#0: uint64 = length%0#0
+        let add%0#0: uint64 = (+ length%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
         return 

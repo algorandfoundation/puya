@@ -99,21 +99,23 @@ subroutine greet:
     greet_block@0:
         // compile/apps.py:32
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                        tmp%0#0
-        l-load-copy tmp%0#0 0                                                         tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                         tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                           tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                         tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                             tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                         tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                           tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                              tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                              tmp%0#0,len%0#0,add%0#0
-        ==                                                                            tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                               tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          tmp%0#0
-        l-load tmp%0#0 0                                                              tmp%0#0
+        txna ApplicationArgs 1                                                        value#0
+        l-load-copy value#0 0                                                         value#0,value#0 (copy)
+        int 0                                                                         value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                       value#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                           value#0,aggregate%array_length%0#0
+        int 2                                                                         value#0,aggregate%array_length%0#0,2
+        +                                                                             value#0,add%0#0
+        l-load-copy value#0 1                                                         value#0,add%0#0,value#0 (copy)
+        len                                                                           value#0,add%0#0,len%0#0
+        l-load len%0#0 0                                                              value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                              value#0,len%0#0,add%0#0
+        ==                                                                            value#0,eq%0#0
+        l-load eq%0#0 0                                                               value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(len+utf8[])                     value#0
+        // compile/apps.py:32
+        // @arc4.abimethod()
+        l-load value#0 0                                                              value#0
         extract 2 0                                                                   name#0
         // compile/apps.py:34
         // return self.greeting + " " + name
@@ -124,9 +126,9 @@ subroutine greet:
         assert // check self.greeting exists                                          name#0,maybe_value%0#0
         l-load maybe_value%0#0 0                                                      name#0,maybe_value%0#0
         byte " "                                                                      name#0,maybe_value%0#0," "
-        concat                                                                        name#0,tmp%0#0
-        l-load tmp%0#0 0                                                              name#0,tmp%0#0
-        l-load name#0 1                                                               tmp%0#0,name#0
+        concat                                                                        name#0,tmp%0#1
+        l-load tmp%0#1 0                                                              name#0,tmp%0#1
+        l-load name#0 1                                                               tmp%0#1,name#0
         concat                                                                        tmp%1#1
         // compile/apps.py:32
         // @arc4.abimethod()

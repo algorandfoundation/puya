@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 32 12
+    intcblock 0 1
     bytecblock "map" 0x151f7c75 0x00 0x
     b main_block@0
 
@@ -167,10 +167,7 @@ get_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     callsub test_cases.global_map.account_struct.GlobalMapAccountStruct.get
     bytec_1 // 0x151f7c75
     uncover 1
@@ -189,16 +186,10 @@ get_with_default_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     txna ApplicationArgs 2
     dup
-    len
-    intc_3 // 12
-    ==
-    assert // invalid number of bytes for test_cases.global_map.account_struct.Data
+    callsub __internal_validate_Encoded(uint64,uint8[4])
     callsub test_cases.global_map.account_struct.GlobalMapAccountStruct.get_with_default
     bytec_1 // 0x151f7c75
     uncover 1
@@ -217,16 +208,10 @@ set_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     txna ApplicationArgs 2
     dup
-    len
-    intc_3 // 12
-    ==
-    assert // invalid number of bytes for test_cases.global_map.account_struct.Data
+    callsub __internal_validate_Encoded(uint64,uint8[4])
     callsub test_cases.global_map.account_struct.GlobalMapAccountStruct.set
     intc_1 // 1
     return
@@ -241,10 +226,7 @@ delete_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     callsub test_cases.global_map.account_struct.GlobalMapAccountStruct.delete
     intc_1 // 1
     return
@@ -259,10 +241,7 @@ in__block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     callsub test_cases.global_map.account_struct.GlobalMapAccountStruct.in_
     bytec_2 // 0x00
     intc_0 // 0
@@ -307,10 +286,7 @@ maybe_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     callsub test_cases.global_map.account_struct.GlobalMapAccountStruct.maybe
     cover 1
     bytec_3 // 0x
@@ -338,10 +314,7 @@ get_via_state_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    callsub __internal_validate_Encoded(uint8[32])
     callsub test_cases.global_map.account_struct.GlobalMapAccountStruct.get_via_state
     bytec_1 // 0x151f7c75
     uncover 1
@@ -543,4 +516,32 @@ test_cases.global_map.account_struct.GlobalMapAccountStruct.get_via_state_block@
     uncover 1
     app_global_get_ex
     assert // check GlobalState exists
+    retsub
+
+
+// __internal_validate_Encoded(uint8[32])(value: bytes) -> void:
+__internal_validate_Encoded(uint8[32]):
+    proto 1 0
+    b __internal_validate_Encoded(uint8[32])_block@0
+
+__internal_validate_Encoded(uint8[32])_block@0:
+    frame_dig -1
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for Encoded(uint8[32])
+    retsub
+
+
+// __internal_validate_Encoded(uint64,uint8[4])(value: bytes) -> void:
+__internal_validate_Encoded(uint64,uint8[4]):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,uint8[4])_block@0
+
+__internal_validate_Encoded(uint64,uint8[4])_block@0:
+    frame_dig -1
+    len
+    pushint 12
+    ==
+    assert // invalid number of bytes for Encoded(uint64,uint8[4])
     retsub

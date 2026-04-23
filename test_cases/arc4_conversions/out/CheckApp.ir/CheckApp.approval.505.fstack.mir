@@ -153,18 +153,12 @@ subroutine check_uint64:
         len                                                                           value#0,len%0#0
         int 8                                                                         value#0,len%0#0,8
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                             value#0
+        assert // invalid number of bytes for Encoded(uint64)                         value#0
+        // arc4_conversions/contract.py:235
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%0#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%0#0,2
-        +                                                                             value#0,tmp%1#0,add%0#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%0#0,len%1#0
-        l-load add%0#0 1                                                              value#0,tmp%1#0,len%1#0,add%0#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:237
@@ -186,26 +180,10 @@ subroutine check_dynamic_bytes:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                        value#0
         l-load-copy value#0 0                                                         value#0,value#0 (copy)
-        int 0                                                                         value#0,value#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,aggregate%array_length%0#0
-        int 2                                                                         value#0,aggregate%array_length%0#0,2
-        +                                                                             value#0,add%0#0
-        l-load-copy value#0 1                                                         value#0,add%0#0,value#0 (copy)
-        len                                                                           value#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                              value#0,len%0#0,add%0#0
-        ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%1#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%1#0,2
-        +                                                                             value#0,tmp%1#0,add%1#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                              value#0,tmp%1#0,len%1#0,add%1#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:241
@@ -235,18 +213,12 @@ subroutine check_string:
         len                                                                           value#0,add%0#0,len%0#0
         l-load add%0#0 1                                                              value#0,len%0#0,add%0#0
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0
+        assert // invalid number of bytes for Encoded(len+utf8[])                     value#0
+        // arc4_conversions/contract.py:243
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%1#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%1#0,2
-        +                                                                             value#0,tmp%1#0,add%1#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                              value#0,tmp%1#0,len%1#0,add%1#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:245
@@ -271,18 +243,12 @@ subroutine check_biguint:
         len                                                                           value#0,len%0#0
         int 64                                                                        value#0,len%0#0,64
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint512                            value#0
+        assert // invalid number of bytes for Encoded(uint512)                        value#0
+        // arc4_conversions/contract.py:247
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%0#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%0#0,2
-        +                                                                             value#0,tmp%1#0,add%0#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%0#0,len%1#0
-        l-load add%0#0 1                                                              value#0,tmp%1#0,len%1#0,add%0#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:249
@@ -307,18 +273,12 @@ subroutine check_bool:
         len                                                                           value#0,len%0#0
         int 1                                                                         value#0,len%0#0,1
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.bool                               value#0
+        assert // invalid number of bytes for Encoded(bool8)                          value#0
+        // arc4_conversions/contract.py:251
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%0#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%0#0,2
-        +                                                                             value#0,tmp%1#0,add%0#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%0#0,len%1#0
-        l-load add%0#0 1                                                              value#0,tmp%1#0,len%1#0,add%0#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:253
@@ -350,18 +310,12 @@ subroutine check_dyn_array_uin64:
         len                                                                           value#0,add%0#0,len%0#0
         l-load add%0#0 1                                                              value#0,len%0#0,add%0#0
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>         value#0
+        assert // invalid number of bytes for Encoded(len+uint64[])                   value#0
+        // arc4_conversions/contract.py:255
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%1#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%1#0,2
-        +                                                                             value#0,tmp%1#0,add%1#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                              value#0,tmp%1#0,len%1#0,add%1#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:259
@@ -386,18 +340,12 @@ subroutine check_static_array_uin64_3:
         len                                                                           value#0,len%0#0
         int 24                                                                        value#0,len%0#0,24
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint64, 3>       value#0
+        assert // invalid number of bytes for Encoded(uint64[3])                      value#0
+        // arc4_conversions/contract.py:261
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%0#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%0#0,2
-        +                                                                             value#0,tmp%1#0,add%0#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%0#0,len%1#0
-        l-load add%0#0 1                                                              value#0,tmp%1#0,len%1#0,add%0#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:265
@@ -429,18 +377,12 @@ subroutine check_dyn_array_struct:
         len                                                                           value#0,add%0#0,len%0#0
         l-load add%0#0 1                                                              value#0,len%0#0,add%0#0
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4> value#0
+        assert // invalid number of bytes for Encoded(len+(uint64,uint8[32])[])       value#0
+        // arc4_conversions/contract.py:267
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%1#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%1#0,2
-        +                                                                             value#0,tmp%1#0,add%1#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%1#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                              value#0,tmp%1#0,len%1#0,add%1#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:271
@@ -465,18 +407,12 @@ subroutine check_static_array_struct:
         len                                                                           value#0,len%0#0
         int 120                                                                       value#0,len%0#0,120
         ==                                                                            value#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3> value#0
+        assert // invalid number of bytes for Encoded((uint64,uint8[32])[3])          value#0
+        // arc4_conversions/contract.py:273
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       value#0,tmp%1#0,aggregate%array_length%0#0
-        int 2                                                                         value#0,tmp%1#0,aggregate%array_length%0#0,2
-        +                                                                             value#0,tmp%1#0,add%0#0
-        l-load-copy tmp%1#0 1                                                         value#0,tmp%1#0,add%0#0,tmp%1#0 (copy)
-        len                                                                           value#0,tmp%1#0,add%0#0,len%1#0
-        l-load add%0#0 1                                                              value#0,tmp%1#0,len%1#0,add%0#0
-        ==                                                                            value#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              value#0,tmp%1#0
         l-load tmp%1#0 0                                                              value#0,tmp%1#0
         extract 2 0                                                                   value#0,expected#0
         // arc4_conversions/contract.py:277
@@ -516,19 +452,15 @@ subroutine check_dyn_array_dyn_struct:
         f-store array_data%0#0                                                        (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0 |
         int 0                                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0 | 0
         f-store index%0#0                                                             (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
-        b check_dyn_array_dyn_struct_for_header@1                                     (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
+        b check_dyn_array_dyn_struct_for_header@2                                     (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
 
-    check_dyn_array_dyn_struct_for_header@1:                                          (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
-        // arc4_conversions/contract.py:279
-        // @arc4.abimethod
+    check_dyn_array_dyn_struct_for_header@2:                                          (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
         f-load index%0#0                                                              (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | index%0#0
         f-load aggregate%array_length%0#0                                             (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | index%0#0,aggregate%array_length%0#0
         <                                                                             (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | continue_looping%0#0
-        bz check_dyn_array_dyn_struct_after_for@4 ; b check_dyn_array_dyn_struct_for_body@2 (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | 
+        bz check_dyn_array_dyn_struct_after_for@5 ; b check_dyn_array_dyn_struct_for_body@3 (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | 
 
-    check_dyn_array_dyn_struct_for_body@2:                                            (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
-        // arc4_conversions/contract.py:279
-        // @arc4.abimethod
+    check_dyn_array_dyn_struct_for_body@3:                                            (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
         f-load index%0#0                                                              (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | index%0#0
         l-store-copy index%0#0 0                                                      (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | index%0#0,index%0#0 (copy)
         int 2                                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | index%0#0,index%0#0 (copy),2
@@ -573,29 +505,21 @@ subroutine check_dyn_array_dyn_struct:
         int 1                                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | index%0#0,1
         +                                                                             (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | index%0#0
         f-store index%0#0                                                             (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
-        b check_dyn_array_dyn_struct_for_header@1                                     (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
+        b check_dyn_array_dyn_struct_for_header@2                                     (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
 
-    check_dyn_array_dyn_struct_after_for@4:                                           (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
-        // arc4_conversions/contract.py:279
-        // @arc4.abimethod
+    check_dyn_array_dyn_struct_after_for@5:                                           (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 |
         f-load num_bytes%0#0                                                          (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | num_bytes%0#0
         int 2                                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | num_bytes%0#0,2
         +                                                                             (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | num_bytes%1#0
         f-load total_length%0#0                                                       (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | num_bytes%1#0,total_length%0#0
         l-load num_bytes%1#0 1                                                        (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | total_length%0#0,num_bytes%1#0
         ==                                                                            (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4> (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | 
+        assert // invalid number of bytes for Encoded(len+(uint64,uint8[32],(len+uint8[]))[]) (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | 
+        // arc4_conversions/contract.py:279
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0
         l-load-copy tmp%1#0 0                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,aggregate%array_length%2#0
-        int 2                                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,aggregate%array_length%2#0,2
-        +                                                                             (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,add%2#0
-        l-load-copy tmp%1#0 1                                                         (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,add%2#0,tmp%1#0 (copy)
-        len                                                                           (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,add%2#0,len%1#0
-        l-load add%2#0 1                                                              (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,len%1#0,add%2#0
-        ==                                                                            (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0,eq%2#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0
         l-load tmp%1#0 0                                                              (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | tmp%1#0
         extract 2 0                                                                   (𝕗) value#0,aggregate%array_length%0#0,num_bytes%0#0,total_length%0#0,array_data%0#0,index%0#0 | expected#0
         // arc4_conversions/contract.py:283
@@ -621,19 +545,15 @@ subroutine check_static_array_dyn_struct:
         f-store num_bytes%0#0                                                         (𝕗) value#0,num_bytes%0#0 |
         int 0                                                                         (𝕗) value#0,num_bytes%0#0 | 0
         f-store index%0#0                                                             (𝕗) value#0,num_bytes%0#0,index%0#0 |
-        b check_static_array_dyn_struct_for_header@1                                  (𝕗) value#0,num_bytes%0#0,index%0#0 |
+        b check_static_array_dyn_struct_for_header@2                                  (𝕗) value#0,num_bytes%0#0,index%0#0 |
 
-    check_static_array_dyn_struct_for_header@1:                                       (𝕗) value#0,num_bytes%0#0,index%0#0 |
-        // arc4_conversions/contract.py:285
-        // @arc4.abimethod
+    check_static_array_dyn_struct_for_header@2:                                       (𝕗) value#0,num_bytes%0#0,index%0#0 |
         f-load index%0#0                                                              (𝕗) value#0,num_bytes%0#0,index%0#0 | index%0#0
         int 3                                                                         (𝕗) value#0,num_bytes%0#0,index%0#0 | index%0#0,3
         <                                                                             (𝕗) value#0,num_bytes%0#0,index%0#0 | continue_looping%0#0
-        bz check_static_array_dyn_struct_after_for@4 ; b check_static_array_dyn_struct_for_body@2 (𝕗) value#0,num_bytes%0#0,index%0#0 | 
+        bz check_static_array_dyn_struct_after_for@5 ; b check_static_array_dyn_struct_for_body@3 (𝕗) value#0,num_bytes%0#0,index%0#0 | 
 
-    check_static_array_dyn_struct_for_body@2:                                         (𝕗) value#0,num_bytes%0#0,index%0#0 |
-        // arc4_conversions/contract.py:285
-        // @arc4.abimethod
+    check_static_array_dyn_struct_for_body@3:                                         (𝕗) value#0,num_bytes%0#0,index%0#0 |
         f-load index%0#0                                                              (𝕗) value#0,num_bytes%0#0,index%0#0 | index%0#0
         l-store-copy index%0#0 0                                                      (𝕗) value#0,num_bytes%0#0,index%0#0 | index%0#0,index%0#0 (copy)
         int 2                                                                         (𝕗) value#0,num_bytes%0#0,index%0#0 | index%0#0,index%0#0 (copy),2
@@ -678,28 +598,20 @@ subroutine check_static_array_dyn_struct:
         int 1                                                                         (𝕗) value#0,num_bytes%0#0,index%0#0 | index%0#0,1
         +                                                                             (𝕗) value#0,num_bytes%0#0,index%0#0 | index%0#0
         f-store index%0#0                                                             (𝕗) value#0,num_bytes%0#0,index%0#0 |
-        b check_static_array_dyn_struct_for_header@1                                  (𝕗) value#0,num_bytes%0#0,index%0#0 |
+        b check_static_array_dyn_struct_for_header@2                                  (𝕗) value#0,num_bytes%0#0,index%0#0 |
 
-    check_static_array_dyn_struct_after_for@4:                                        (𝕗) value#0,num_bytes%0#0,index%0#0 |
-        // arc4_conversions/contract.py:285
-        // @arc4.abimethod
+    check_static_array_dyn_struct_after_for@5:                                        (𝕗) value#0,num_bytes%0#0,index%0#0 |
         f-load value#0                                                                (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0
         l-store-copy value#0 0                                                        (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,value#0 (copy)
         len                                                                           (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,len%0#0
         f-load num_bytes%0#0                                                          (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,len%0#0,num_bytes%0#0
         ==                                                                            (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,eq%1#0
-        assert // invalid number of bytes for arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3> (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0
+        assert // invalid number of bytes for Encoded((uint64,uint8[32],(len+uint8[]))[3]) (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0
+        // arc4_conversions/contract.py:285
+        // @arc4.abimethod
         txna ApplicationArgs 2                                                        (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0
         l-load-copy tmp%1#0 0                                                         (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,tmp%1#0 (copy)
-        int 0                                                                         (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,tmp%1#0 (copy),0
-        extract_uint16 // on error: invalid array length header                       (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,aggregate%array_length%1#0
-        int 2                                                                         (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,aggregate%array_length%1#0,2
-        +                                                                             (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,add%2#0
-        l-load-copy tmp%1#0 1                                                         (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,add%2#0,tmp%1#0 (copy)
-        len                                                                           (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,add%2#0,len%1#0
-        l-load add%2#0 1                                                              (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,len%1#0,add%2#0
-        ==                                                                            (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0,eq%2#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>          (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0
+        callsub __internal_validate_Encoded(len+uint8[])                              (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0
         l-load tmp%1#0 0                                                              (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,tmp%1#0
         extract 2 0                                                                   (𝕗) value#0,num_bytes%0#0,index%0#0 | value#0,expected#0
         // arc4_conversions/contract.py:289
@@ -719,22 +631,38 @@ subroutine check_static_bytes:
     check_static_bytes_block@0:
         // arc4_conversions/contract.py:291
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                        bytes32#0
-        l-load-copy bytes32#0 0                                                       bytes32#0,bytes32#0 (copy)
-        len                                                                           bytes32#0,len%0#0
-        int 32                                                                        bytes32#0,len%0#0,32
-        ==                                                                            bytes32#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>       bytes32#0
+        txna ApplicationArgs 1                                                        value#0
+        l-load-copy value#0 0                                                         value#0,value#0 (copy)
+        len                                                                           value#0,len%0#0
+        int 32                                                                        value#0,len%0#0,32
+        ==                                                                            value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                      value#0
         // arc4_conversions/contract.py:293
         // assert bytes32.bytes == Txn.sender.bytes, "expected to encode correctly"
-        txn Sender                                                                    bytes32#0,tmp%0#1
-        l-load bytes32#0 1                                                            tmp%0#1,bytes32#0
-        l-load tmp%0#1 1                                                              bytes32#0,tmp%0#1
+        txn Sender                                                                    value#0,tmp%0#1
+        l-load value#0 1                                                              tmp%0#1,value#0
+        l-load tmp%0#1 1                                                              value#0,tmp%0#1
         ==                                                                            tmp%1#0
         assert // expected to encode correctly
         // arc4_conversions/contract.py:291
         // @arc4.abimethod
         int 1                                                                         1
         return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint8[]):
+    __internal_validate_Encoded(len+uint8[])_block@0:                                 (𝕡) value#0 |
+        p-load value#0                                                                (𝕡) value#0 | value#0 (copy)
+        int 0                                                                         (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                       (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                                         (𝕡) value#0 | aggregate%array_length%0#0,2
+        +                                                                             (𝕡) value#0 | add%0#0
+        p-load value#0                                                                (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                           (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                              (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                            (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[])                    (𝕡) value#0 |
+        retsub
 
 

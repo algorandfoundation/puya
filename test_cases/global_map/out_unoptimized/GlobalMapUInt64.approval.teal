@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 8
+    intcblock 0 1
     bytecblock "map" 0x151f7c75 0x00
     b main_block@0
 
@@ -167,10 +167,7 @@ get_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.global_map.uint64.GlobalMapUInt64.get
     itob
@@ -191,17 +188,11 @@ get_with_default_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     txna ApplicationArgs 2
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.global_map.uint64.GlobalMapUInt64.get_with_default
     itob
@@ -222,17 +213,11 @@ set_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     txna ApplicationArgs 2
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.global_map.uint64.GlobalMapUInt64.set
     intc_1 // 1
@@ -248,10 +233,7 @@ delete_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.global_map.uint64.GlobalMapUInt64.delete
     intc_1 // 1
@@ -267,10 +249,7 @@ in__block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.global_map.uint64.GlobalMapUInt64.in_
     bytec_2 // 0x00
@@ -316,10 +295,7 @@ maybe_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.global_map.uint64.GlobalMapUInt64.maybe
     cover 1
@@ -349,10 +325,7 @@ get_via_state_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.global_map.uint64.GlobalMapUInt64.get_via_state
     itob
@@ -561,4 +534,18 @@ test_cases.global_map.uint64.GlobalMapUInt64.get_via_state_block@0:
     uncover 1
     app_global_get_ex
     assert // check GlobalState exists
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
     retsub

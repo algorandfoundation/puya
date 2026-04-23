@@ -68,17 +68,17 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@38: // if_body_L27
         exit 1u
     block@6: // calculate_route_L29
-        let nested_list#0: Encoded(len+(len+uint64[])[]) = (txna ApplicationArgs 1)
-        let length#2: uint64 = (extract_uint16 nested_list#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let length#2: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let num_bytes%0#0: uint64 = (* length#2 2u)
-        let total_length%0#0: uint64 = (len nested_list#0)
-        let array_data%0#0: bytes = ((extract 2 0) nested_list#0)
+        let total_length%0#0: uint64 = (len value#0)
+        let array_data%0#0: bytes = ((extract 2 0) value#0)
         let index%0#0: uint64 = 0u
         goto block@14
-    block@14: // for_header_L29
+    block@14: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 length#2)
         goto continue_looping%0#0 ? block@15 : block@16
-    block@15: // for_body_L29
+    block@15: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -91,14 +91,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%0#0)
         let index%0#0: uint64 = (+ index%0#0 1u)
         goto block@14
-    block@16: // after_for_L29
+    block@16: // after_for_L1
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
         let eq%0#0: bool = (== total_length%0#0 num_bytes%1#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>
-        let threshold#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len threshold#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+(len+uint64[])[])
+        let value#0: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#1 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
         let total#0: uint64 = 0u
         let num_boosts#0: uint64 = 0u
         let value_internal%0#0: uint64 = 0u
@@ -126,8 +126,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@20: // for_body_L42
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) inner_list#0)
         let aggregate%bytes_offset%0#0: uint64 = (* j#0 8u)
-        let value#0: Encoded(uint64) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let tmp%4#1: bool = (b>= value#0 threshold#0)
+        let value#2: Encoded(uint64) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
+        let tmp%4#1: bool = (b>= value#2 value#0)
         goto tmp%4#1 ? block@21 : block@26
     block@21: // if_body_L44
         let has_next#0: bool = (< j#0 last_inner_list_index#0)
@@ -137,7 +137,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%7#0: uint64 = (+ j#0 1u)
         let aggregate%bytes_offset%1#0: uint64 = (* tmp%7#0 8u)
         let next_value#0: Encoded(uint64) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%1#0 8u) // on error: index access is out of bounds
-        let tmp%8#0: bool = (b< value#0 next_value#0)
+        let tmp%8#0: bool = (b< value#2 next_value#0)
         goto tmp%8#0 ? block@23 : block@26
     block@23: // if_body_L49
         let total#0: uint64 = (* total#0 2u)

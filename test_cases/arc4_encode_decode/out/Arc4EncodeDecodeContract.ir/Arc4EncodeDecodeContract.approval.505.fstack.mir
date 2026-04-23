@@ -1,10 +1,77 @@
-// Op                                        Stack (out)
+// Op                                                                       Stack (out)
 // test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
+        // arc4_encode_decode/contract.py:68
+        // original = Arc4Struct(x=arc4.UInt64(42), y=arc4.String("hello"))
+        byte 0x000000000000002a000a000568656c6c6f                           0x000000000000002a000a000568656c6c6f
+        // arc4_encode_decode/contract.py:70
+        // decoded = arc4.decode(Arc4Struct, encoded)
+        callsub __internal_validate_Encoded(uint64,(len+utf8[]))
+        // arc4_encode_decode/contract.py:68
+        // original = Arc4Struct(x=arc4.UInt64(42), y=arc4.String("hello"))
+        byte 0x000568656c6c6f                                               0x000568656c6c6f
+        // arc4_encode_decode/contract.py:98
+        // decoded = arc4.decode(String, encoded)
+        callsub __internal_validate_Encoded(len+utf8[])
+        // arc4_encode_decode/contract.py:68
+        // original = Arc4Struct(x=arc4.UInt64(42), y=arc4.String("hello"))
+        byte 0x000568656c6c6f                                               0x000568656c6c6f
+        // arc4_encode_decode/contract.py:165
+        // decoded = arc4.decode(arc4.String, encoded)
+        callsub __internal_validate_Encoded(len+utf8[])
+        // arc4_encode_decode/contract.py:181
+        // encoded = arc4.encode(value)
+        byte 0x0000000000000005000a000474657374                             0x0000000000000005000a000474657374
+        // arc4_encode_decode/contract.py:182
+        // decoded = arc4.decode(MyNamedTuple, encoded)
+        callsub __internal_validate_Encoded(uint64,(len+utf8[]))
         // arc4_encode_decode/contract.py:51
         // return True
-        int 1                                1
+        int 1                                                               1
         return
+
+
+// __internal_validate_Encoded(uint64,(len+utf8[]))(value: bytes) -> void:
+subroutine __internal_validate_Encoded(uint64,(len+utf8[])):
+    __internal_validate_Encoded(uint64,(len+utf8[]))_block@0:               (𝕡) value#0 |
+        p-load value#0                                                      (𝕡) value#0 | value#0 (copy)
+        len                                                                 (𝕡) value#0 | tuple_len%0#0
+        p-load value#0                                                      (𝕡) value#0 | tuple_len%0#0,value#0 (copy)
+        int 8                                                               (𝕡) value#0 | tuple_len%0#0,value#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                  (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0
+        l-load-copy extract_uint16%0#0 0                                    (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy)
+        int 10                                                              (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,extract_uint16%0#0 (copy),10
+        ==                                                                  (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,eq%0#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))  (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0
+        p-load value#0                                                      (𝕡) value#0 | tuple_len%0#0,extract_uint16%0#0,value#0 (copy)
+        l-load extract_uint16%0#0 1                                         (𝕡) value#0 | tuple_len%0#0,value#0 (copy),extract_uint16%0#0
+        l-load-copy tuple_len%0#0 2                                         (𝕡) value#0 | tuple_len%0#0,value#0 (copy),extract_uint16%0#0,tuple_len%0#0 (copy)
+        substring3                                                          (𝕡) value#0 | tuple_len%0#0,substring3%0#0
+        int 0                                                               (𝕡) value#0 | tuple_len%0#0,substring3%0#0,0
+        extract_uint16 // on error: invalid array length header             (𝕡) value#0 | tuple_len%0#0,aggregate%array_length%0#0
+        int 12                                                              (𝕡) value#0 | tuple_len%0#0,aggregate%array_length%0#0,12
+        +                                                                   (𝕡) value#0 | tuple_len%0#0,add%1#0
+        l-load tuple_len%0#0 1                                              (𝕡) value#0 | add%1#0,tuple_len%0#0
+        l-load add%1#0 1                                                    (𝕡) value#0 | tuple_len%0#0,add%1#0
+        ==                                                                  (𝕡) value#0 | eq%1#0
+        assert // invalid number of bytes for Encoded(uint64,(len+utf8[]))  (𝕡) value#0 |
+        retsub
+
+
+// __internal_validate_Encoded(len+utf8[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+utf8[]):
+    __internal_validate_Encoded(len+utf8[])_block@0:                        (𝕡) value#0 |
+        p-load value#0                                                      (𝕡) value#0 | value#0 (copy)
+        int 0                                                               (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header             (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                               (𝕡) value#0 | aggregate%array_length%0#0,2
+        +                                                                   (𝕡) value#0 | add%0#0
+        p-load value#0                                                      (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                 (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                    (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                  (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+utf8[])           (𝕡) value#0 |
+        retsub
 
 

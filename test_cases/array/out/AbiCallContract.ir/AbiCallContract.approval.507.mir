@@ -51,47 +51,51 @@ subroutine test_implicit_conversion_abi_call:
     test_implicit_conversion_abi_call_block@0:
         // array/unused_opt_allowed.py:13
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                                    arr#0
-        l-load-copy arr#0 0                                                                       arr#0,arr#0 (copy)
-        int 0                                                                                     arr#0,arr#0 (copy),0
-        extract_uint16 // on error: invalid array length header                                   arr#0,aggregate%array_length%0#0
-        int 8                                                                                     arr#0,aggregate%array_length%0#0,8
-        *                                                                                         arr#0,mul%0#0
-        int 2                                                                                     arr#0,mul%0#0,2
-        +                                                                                         arr#0,add%0#0
-        l-load-copy arr#0 1                                                                       arr#0,add%0#0,arr#0 (copy)
-        len                                                                                       arr#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                                          arr#0,len%0#0,add%0#0
-        ==                                                                                        arr#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<uint64>                          arr#0
-        txna ApplicationArgs 2                                                                    arr#0,tmp%1#0
-        l-load-copy tmp%1#0 0                                                                     arr#0,tmp%1#0,tmp%1#0 (copy)
-        len                                                                                       arr#0,tmp%1#0,len%1#0
-        int 8                                                                                     arr#0,tmp%1#0,len%1#0,8
-        ==                                                                                        arr#0,tmp%1#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                         arr#0,tmp%1#0
-        l-load tmp%1#0 0                                                                          arr#0,tmp%1#0
-        btoi                                                                                      arr#0,app#0
-        l-store-copy app#0 0                                                                      arr#0,app#0,app#0
-        f-store app#0                                                                             (𝕗) app#0 | arr#0,app#0
+        txna ApplicationArgs 1                                                                    value#0
+        l-load-copy value#0 0                                                                     value#0,value#0 (copy)
+        int 0                                                                                     value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                                   value#0,aggregate%array_length%0#0
+        int 8                                                                                     value#0,aggregate%array_length%0#0,8
+        *                                                                                         value#0,mul%0#0
+        int 2                                                                                     value#0,mul%0#0,2
+        +                                                                                         value#0,add%0#0
+        l-load-copy value#0 1                                                                     value#0,add%0#0,value#0 (copy)
+        len                                                                                       value#0,add%0#0,len%0#0
+        l-load add%0#0 1                                                                          value#0,len%0#0,add%0#0
+        ==                                                                                        value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint64[])                               value#0
+        // array/unused_opt_allowed.py:13
+        // @arc4.abimethod()
+        txna ApplicationArgs 2                                                                    value#0,value#1
+        l-load-copy value#1 0                                                                     value#0,value#1,value#1 (copy)
+        len                                                                                       value#0,value#1,len%0#0
+        int 8                                                                                     value#0,value#1,len%0#0,8
+        ==                                                                                        value#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                     value#0,value#1
+        // array/unused_opt_allowed.py:13
+        // @arc4.abimethod()
+        l-load value#1 0                                                                          value#0,value#1
+        btoi                                                                                      value#0,app#0
+        l-store-copy app#0 0                                                                      value#0,app#0,app#0
+        f-store app#0                                                                             (𝕗) app#0 | value#0,app#0
         // array/unused_opt_allowed.py:18
         // arc4.abi_call("dont_call(uint64[])uint64", arr, app_id=app)
-        itxn_begin                                                                                (𝕗) app#0 | arr#0,app#0
-        l-load app#0 0                                                                            (𝕗) app#0 | arr#0,app#0
-        itxn_field ApplicationID                                                                  (𝕗) app#0 | arr#0
-        method dont_call(uint64[])uint64                                                          (𝕗) app#0 | arr#0,Method(dont_call(uint64[])uint64)
-        itxn_field ApplicationArgs                                                                (𝕗) app#0 | arr#0
-        l-load-copy arr#0 0                                                                       (𝕗) app#0 | arr#0,arr#0 (copy)
-        itxn_field ApplicationArgs                                                                (𝕗) app#0 | arr#0
-        int appl                                                                                  (𝕗) app#0 | arr#0,appl
-        itxn_field TypeEnum                                                                       (𝕗) app#0 | arr#0
-        int 0                                                                                     (𝕗) app#0 | arr#0,0
-        itxn_field Fee                                                                            (𝕗) app#0 | arr#0
-        itxn_submit                                                                               (𝕗) app#0 | arr#0
+        itxn_begin                                                                                (𝕗) app#0 | value#0,app#0
+        l-load app#0 0                                                                            (𝕗) app#0 | value#0,app#0
+        itxn_field ApplicationID                                                                  (𝕗) app#0 | value#0
+        method dont_call(uint64[])uint64                                                          (𝕗) app#0 | value#0,Method(dont_call(uint64[])uint64)
+        itxn_field ApplicationArgs                                                                (𝕗) app#0 | value#0
+        l-load-copy value#0 0                                                                     (𝕗) app#0 | value#0,value#0 (copy)
+        itxn_field ApplicationArgs                                                                (𝕗) app#0 | value#0
+        int appl                                                                                  (𝕗) app#0 | value#0,appl
+        itxn_field TypeEnum                                                                       (𝕗) app#0 | value#0
+        int 0                                                                                     (𝕗) app#0 | value#0,0
+        itxn_field Fee                                                                            (𝕗) app#0 | value#0
+        itxn_submit                                                                               (𝕗) app#0 | value#0
         // array/unused_opt_allowed.py:21
         // nested_arr = nested_arr.append(arr)
-        byte 0x0002                                                                               (𝕗) app#0 | arr#0,0x0002
-        l-load arr#0 1                                                                            (𝕗) app#0 | 0x0002,arr#0
+        byte 0x0002                                                                               (𝕗) app#0 | value#0,0x0002
+        l-load value#0 1                                                                          (𝕗) app#0 | 0x0002,value#0
         concat                                                                                    (𝕗) app#0 | new_head_and_tail#0
         f-store new_head_and_tail#0                                                               (𝕗) app#0,new_head_and_tail#0 |
         byte 0x0001                                                                               (𝕗) app#0,new_head_and_tail#0 | result#0
@@ -115,9 +119,9 @@ subroutine test_implicit_conversion_abi_call:
         l-load item_offset#0 1                                                                    (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,2,item_offset#0
         +                                                                                         (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,i#1
         itob                                                                                      (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%0#3
-        extract 6 0                                                                               (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#0
-        f-load result#0                                                                           (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#0,result#0
-        l-load tmp%1#0 1                                                                          (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,result#0,tmp%1#0
+        extract 6 0                                                                               (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#1
+        f-load result#0                                                                           (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#1,result#0
+        l-load tmp%1#1 1                                                                          (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,result#0,tmp%1#1
         concat                                                                                    (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,result#0
         f-store result#0                                                                          (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0
         l-load head_offset#0 0                                                                    (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0
@@ -143,9 +147,9 @@ subroutine test_implicit_conversion_abi_call:
         l-store-copy head_offset#0 1                                                              (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,new_head_and_tail#0,head_offset#0 (copy)
         extract_uint16                                                                            (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,item_offset#0
         itob                                                                                      (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%0#3
-        extract 6 0                                                                               (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#0
-        f-load result#0                                                                           (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#0,result#0
-        l-load tmp%1#0 1                                                                          (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,result#0,tmp%1#0
+        extract 6 0                                                                               (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#1
+        f-load result#0                                                                           (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,tmp%1#1,result#0
+        l-load tmp%1#1 1                                                                          (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,result#0,tmp%1#1
         concat                                                                                    (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0,result#0
         f-store result#0                                                                          (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0
         l-load head_offset#0 0                                                                    (𝕗) app#0,new_head_and_tail#0,result#0,head_offset#0 | head_offset#0

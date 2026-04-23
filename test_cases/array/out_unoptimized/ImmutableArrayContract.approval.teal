@@ -1382,10 +1382,7 @@ test_bool_array_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_bool_array
     intc_1 // 1
@@ -1449,16 +1446,7 @@ test_implicit_conversion_log_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 8
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     callsub test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log
     intc_1 // 1
     return
@@ -1473,16 +1461,7 @@ test_implicit_conversion_emit_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 8
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     callsub test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit
     intc_1 // 1
     return
@@ -1497,93 +1476,11 @@ test_nested_array_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     txna ApplicationArgs 2
-    dupn 2
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     dup
-    cover 2
-    intc_2 // 2
-    *
-    cover 1
-    dup
-    len
-    cover 1
-    intc_2 // 2
-    uncover 2
-    substring3
-    intc_0 // 0
-    b test_nested_array_for_header@1
-
-test_nested_array_for_header@1:
-    // array/immutable.py:258
-    // @arc4.abimethod()
-    dup
-    dig 4
-    <
-    bz test_nested_array_after_for@4
-    b test_nested_array_for_body@2
-
-test_nested_array_for_body@2:
-    // array/immutable.py:258
-    // @arc4.abimethod()
-    dup
-    intc_2 // 2
-    *
-    dig 2
-    dup
-    cover 2
-    uncover 1
-    extract_uint16 // on error: invalid array encoding
-    dup
-    dig 5
-    dup
-    cover 4
-    ==
-    assert // invalid tail pointer for (len+(len+uint64[])[])
-    dig 1
-    len
-    cover 1
-    uncover 2
-    uncover 1
-    uncover 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 8
-    *
-    intc_2 // 2
-    +
-    +
-    bury 3
-    b test_nested_array_for_footer@3
-
-test_nested_array_for_footer@3:
-    dup
-    intc_1 // 1
-    +
-    bury 1
-    b test_nested_array_for_header@1
-
-test_nested_array_after_for@4:
-    // array/immutable.py:258
-    // @arc4.abimethod()
-    dig 2
-    intc_2 // 2
-    +
-    dig 5
-    dup
-    cover 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<uint64>>
-    dig 6
-    uncover 1
+    callsub __internal_validate_Encoded(len+(len+uint64[])[])
     callsub test_cases.array.immutable.ImmutableArrayContract.test_nested_array
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1614,141 +1511,19 @@ sum_uints_and_lengths_and_trues_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 8
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub __internal_validate_Encoded(len+uint64[])
     txna ApplicationArgs 2
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    pushint 7
-    +
-    intc_3 // 8
-    /
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<bool>
+    callsub __internal_validate_Encoded(len+bool1[])
     txna ApplicationArgs 3
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 9
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
+    callsub __internal_validate_Encoded(len+(uint64,bool1,bool1)[])
     txna ApplicationArgs 4
-    dupn 2
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     dup
-    cover 2
-    intc_2 // 2
-    *
-    cover 1
-    dup
-    len
-    cover 1
-    intc_2 // 2
-    uncover 2
-    substring3
-    intc_0 // 0
-    b sum_uints_and_lengths_and_trues_for_header@1
-
-sum_uints_and_lengths_and_trues_for_header@1:
-    // array/immutable.py:341
-    // @arc4.abimethod()
-    dup
-    dig 4
-    <
-    bz sum_uints_and_lengths_and_trues_after_for@4
-    b sum_uints_and_lengths_and_trues_for_body@2
-
-sum_uints_and_lengths_and_trues_for_body@2:
-    // array/immutable.py:341
-    // @arc4.abimethod()
-    dup
-    intc_2 // 2
-    *
-    dig 2
-    dup
-    cover 2
-    uncover 1
-    extract_uint16 // on error: invalid array encoding
-    dup
-    dig 5
-    dup
-    cover 4
-    ==
-    assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-    dig 1
-    len
-    cover 1
-    uncover 2
-    uncover 1
-    uncover 2
-    substring3
-    dup
-    len
-    cover 1
-    dup
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 10
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    uncover 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    pushint 10
-    +
-    +
-    bury 3
-    b sum_uints_and_lengths_and_trues_for_footer@3
-
-sum_uints_and_lengths_and_trues_for_footer@3:
-    dup
-    intc_1 // 1
-    +
-    bury 1
-    b sum_uints_and_lengths_and_trues_for_header@1
-
-sum_uints_and_lengths_and_trues_after_for@4:
-    // array/immutable.py:341
-    // @arc4.abimethod()
-    dig 2
-    intc_2 // 2
-    +
-    dig 5
-    dup
-    cover 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
-    dig 8
-    dig 8
-    dig 8
+    callsub __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])
+    uncover 3
+    uncover 3
+    uncover 3
     uncover 3
     callsub test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues
     cover 3
@@ -1784,10 +1559,7 @@ test_uint64_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_uint64_return
     bytec_1 // 0x151f7c75
@@ -1807,10 +1579,7 @@ test_bool_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_bool_return
     bytec_1 // 0x151f7c75
@@ -1830,10 +1599,7 @@ test_tuple_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_tuple_return
     bytec_1 // 0x151f7c75
@@ -1853,10 +1619,7 @@ test_dynamic_tuple_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return
     bytec_1 // 0x151f7c75
@@ -1876,22 +1639,10 @@ test_convert_to_array_and_back_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 9
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
+    callsub __internal_validate_Encoded(len+(uint64,bool1,bool1)[])
     txna ApplicationArgs 2
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back
     bytec_1 // 0x151f7c75
@@ -1911,10 +1662,7 @@ test_concat_with_arc4_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    callsub __internal_validate_Encoded(uint64,uint64)
     callsub test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1933,10 +1681,7 @@ test_concat_with_native_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    pushint 16
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    callsub __internal_validate_Encoded(uint64,uint64)
     dup
     intc_0 // 0
     intc_3 // 8
@@ -1963,49 +1708,7 @@ test_dynamic_concat_with_arc4_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-    dig 1
-    uncover 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    pushint 4
-    +
-    dig 1
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-    dig 2
-    uncover 1
-    uncover 4
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    callsub __internal_validate_Encoded((len+utf8[]),(len+utf8[]))
     callsub test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple
     bytec_1 // 0x151f7c75
     uncover 1
@@ -2024,49 +1727,7 @@ test_dynamic_concat_with_native_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    len
-    cover 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 4
-    ==
-    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
-    dig 1
-    uncover 1
-    dig 3
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    pushint 4
-    +
-    dig 1
-    intc_2 // 2
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
-    dig 2
-    uncover 1
-    uncover 4
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    callsub __internal_validate_Encoded((len+utf8[]),(len+utf8[]))
     dup
     intc_0 // 0
     extract_uint16
@@ -2100,212 +1761,17 @@ test_dynamic_concat_with_native_tuple_block@0:
 
 // test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic[routing]() -> void:
 test_concat_immutable_dynamic:
-    intc_0 // 0
-    intc_0 // 0
-    intc_0 // 0
-    bytec_0 // ""
-    bytec_0 // ""
-    bytec_0 // ""
     b test_concat_immutable_dynamic_block@0
 
 test_concat_immutable_dynamic_block@0:
     // array/immutable.py:438
     // @arc4.abimethod()
     txna ApplicationArgs 1
-    dupn 2
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
     dup
-    cover 2
-    intc_2 // 2
-    *
-    cover 1
-    dup
-    len
-    cover 1
-    intc_2 // 2
-    uncover 2
-    substring3
-    intc_0 // 0
-    b test_concat_immutable_dynamic_for_header@1
-
-test_concat_immutable_dynamic_for_header@1:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dup
-    dig 4
-    <
-    bz test_concat_immutable_dynamic_after_for@4
-    b test_concat_immutable_dynamic_for_body@2
-
-test_concat_immutable_dynamic_for_body@2:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dup
-    intc_2 // 2
-    *
-    dig 2
-    dup
-    cover 2
-    uncover 1
-    extract_uint16 // on error: invalid array encoding
-    dup
-    dig 5
-    dup
-    cover 4
-    ==
-    assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-    dig 1
-    len
-    cover 1
-    uncover 2
-    uncover 1
-    uncover 2
-    substring3
-    dup
-    len
-    cover 1
-    dup
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 10
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    uncover 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    pushint 10
-    +
-    +
-    bury 3
-    b test_concat_immutable_dynamic_for_footer@3
-
-test_concat_immutable_dynamic_for_footer@3:
-    dup
-    intc_1 // 1
-    +
-    bury 1
-    b test_concat_immutable_dynamic_for_header@1
-
-test_concat_immutable_dynamic_after_for@4:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dig 2
-    intc_2 // 2
-    +
-    dig 5
-    dup
-    cover 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
-    bury 10
+    callsub __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])
     txna ApplicationArgs 2
     dup
-    bury 10
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    bury 9
-    intc_2 // 2
-    *
-    bury 7
-    dup
-    len
-    cover 1
-    intc_2 // 2
-    uncover 2
-    substring3
-    bury 11
-    intc_0 // 0
-    bury 8
-    b test_concat_immutable_dynamic_for_header@5
-
-test_concat_immutable_dynamic_for_header@5:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dig 7
-    dig 7
-    <
-    bz test_concat_immutable_dynamic_after_for@8
-    b test_concat_immutable_dynamic_for_body@6
-
-test_concat_immutable_dynamic_for_body@6:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dig 7
-    intc_2 // 2
-    *
-    dig 11
-    dup
-    cover 2
-    uncover 1
-    extract_uint16 // on error: invalid array encoding
-    dup
-    dig 8
-    dup
-    cover 4
-    ==
-    assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
-    dig 1
-    len
-    cover 1
-    uncover 2
-    uncover 1
-    uncover 2
-    substring3
-    dup
-    len
-    cover 1
-    dup
-    intc_3 // 8
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 10
-    ==
-    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-    uncover 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 1
-    *
-    intc_2 // 2
-    +
-    pushint 10
-    +
-    +
-    bury 6
-    b test_concat_immutable_dynamic_for_footer@7
-
-test_concat_immutable_dynamic_for_footer@7:
-    dig 7
-    intc_1 // 1
-    +
-    bury 8
-    b test_concat_immutable_dynamic_for_header@5
-
-test_concat_immutable_dynamic_after_for@8:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dig 5
-    intc_2 // 2
-    +
-    dig 9
-    dup
-    cover 2
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
-    dig 10
-    uncover 1
+    callsub __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])
     callsub test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic
     bytec_1 // 0x151f7c75
     uncover 1
@@ -2324,16 +1790,7 @@ test_immutable_arc4_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 16
-    *
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyStruct>
+    callsub __internal_validate_Encoded(len+(uint64,uint64)[])
     callsub test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4
     bytec_1 // 0x151f7c75
     uncover 1
@@ -6922,6 +6379,340 @@ test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr_after_for@8
     app_global_get_ex
     assert // check self.imm_fixed_arr exists
     frame_bury 0
+    retsub
+
+
+// __internal_validate_Encoded(len+uint64[])(value: bytes) -> void:
+__internal_validate_Encoded(len+uint64[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+uint64[])_block@0
+
+__internal_validate_Encoded(len+uint64[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+uint64[])
+    retsub
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
+    retsub
+
+
+// __internal_validate_Encoded(len+(len+uint64[])[])(value: bytes) -> void:
+__internal_validate_Encoded(len+(len+uint64[])[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+(len+uint64[])[])_block@0
+
+__internal_validate_Encoded(len+(len+uint64[])[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    intc_2 // 2
+    *
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_2 // 2
+    uncover 2
+    substring3
+    intc_0 // 0
+    b __internal_validate_Encoded(len+(len+uint64[])[])_for_header@1
+
+__internal_validate_Encoded(len+(len+uint64[])[])_for_header@1:
+    frame_dig 3
+    frame_dig 0
+    <
+    bz __internal_validate_Encoded(len+(len+uint64[])[])_after_for@4
+    b __internal_validate_Encoded(len+(len+uint64[])[])_for_body@2
+
+__internal_validate_Encoded(len+(len+uint64[])[])_for_body@2:
+    frame_dig 3
+    intc_2 // 2
+    *
+    frame_dig 2
+    dup
+    cover 2
+    uncover 1
+    extract_uint16 // on error: invalid array encoding
+    dup
+    frame_dig 1
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint64[])[])
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    +
+    frame_bury 1
+    b __internal_validate_Encoded(len+(len+uint64[])[])_for_footer@3
+
+__internal_validate_Encoded(len+(len+uint64[])[])_for_footer@3:
+    frame_dig 3
+    intc_1 // 1
+    +
+    frame_bury 3
+    b __internal_validate_Encoded(len+(len+uint64[])[])_for_header@1
+
+__internal_validate_Encoded(len+(len+uint64[])[])_after_for@4:
+    frame_dig 1
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+(len+uint64[])[])
+    retsub
+
+
+// __internal_validate_Encoded(len+bool1[])(value: bytes) -> void:
+__internal_validate_Encoded(len+bool1[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+bool1[])_block@0
+
+__internal_validate_Encoded(len+bool1[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    pushint 7
+    +
+    intc_3 // 8
+    /
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+bool1[])
+    retsub
+
+
+// __internal_validate_Encoded(len+(uint64,bool1,bool1)[])(value: bytes) -> void:
+__internal_validate_Encoded(len+(uint64,bool1,bool1)[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+(uint64,bool1,bool1)[])_block@0
+
+__internal_validate_Encoded(len+(uint64,bool1,bool1)[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 9
+    *
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+(uint64,bool1,bool1)[])
+    retsub
+
+
+// __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])(value: bytes) -> void:
+__internal_validate_Encoded(len+(uint64,(len+utf8[]))[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_block@0
+
+__internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    intc_2 // 2
+    *
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_2 // 2
+    uncover 2
+    substring3
+    intc_0 // 0
+    b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_header@1
+
+__internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_header@1:
+    frame_dig 3
+    frame_dig 0
+    <
+    bz __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_after_for@4
+    b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_body@2
+
+__internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_body@2:
+    frame_dig 3
+    intc_2 // 2
+    *
+    frame_dig 2
+    dup
+    cover 2
+    uncover 1
+    extract_uint16 // on error: invalid array encoding
+    dup
+    frame_dig 1
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,(len+utf8[]))[])
+    dig 1
+    len
+    cover 1
+    uncover 2
+    uncover 1
+    uncover 2
+    substring3
+    dup
+    len
+    cover 1
+    dup
+    intc_3 // 8
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+    uncover 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    pushint 10
+    +
+    +
+    frame_bury 1
+    b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_footer@3
+
+__internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_footer@3:
+    frame_dig 3
+    intc_1 // 1
+    +
+    frame_bury 3
+    b __internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_for_header@1
+
+__internal_validate_Encoded(len+(uint64,(len+utf8[]))[])_after_for@4:
+    frame_dig 1
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+(uint64,(len+utf8[]))[])
+    retsub
+
+
+// __internal_validate_Encoded(uint64,uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64,uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64,uint64)_block@0
+
+__internal_validate_Encoded(uint64,uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 16
+    ==
+    assert // invalid number of bytes for Encoded(uint64,uint64)
+    retsub
+
+
+// __internal_validate_Encoded((len+utf8[]),(len+utf8[]))(value: bytes) -> void:
+__internal_validate_Encoded((len+utf8[]),(len+utf8[])):
+    proto 1 0
+    b __internal_validate_Encoded((len+utf8[]),(len+utf8[]))_block@0
+
+__internal_validate_Encoded((len+utf8[]),(len+utf8[]))_block@0:
+    frame_dig -1
+    len
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 4
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]))
+    frame_dig -1
+    uncover 1
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    pushint 4
+    +
+    frame_dig -1
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]))
+    frame_dig -1
+    uncover 1
+    uncover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    *
+    intc_2 // 2
+    +
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded((len+utf8[]),(len+utf8[]))
+    retsub
+
+
+// __internal_validate_Encoded(len+(uint64,uint64)[])(value: bytes) -> void:
+__internal_validate_Encoded(len+(uint64,uint64)[]):
+    proto 1 0
+    b __internal_validate_Encoded(len+(uint64,uint64)[])_block@0
+
+__internal_validate_Encoded(len+(uint64,uint64)[])_block@0:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 16
+    *
+    intc_2 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for Encoded(len+(uint64,uint64)[])
     retsub
 
 

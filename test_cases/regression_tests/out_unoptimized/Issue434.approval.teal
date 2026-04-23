@@ -79,10 +79,7 @@ method_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
+    callsub __internal_validate_Encoded(uint64)
     btoi
     callsub test_cases.regression_tests.issue_434.Issue434.method
     intc_2 // 1
@@ -158,3 +155,17 @@ test_cases.regression_tests.issue_434.Issue434.method_else_body@5:
     +
     frame_bury 0
     b test_cases.regression_tests.issue_434.Issue434.method_after_if_else@6
+
+
+// __internal_validate_Encoded(uint64)(value: bytes) -> void:
+__internal_validate_Encoded(uint64):
+    proto 1 0
+    b __internal_validate_Encoded(uint64)_block@0
+
+__internal_validate_Encoded(uint64)_block@0:
+    frame_dig -1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for Encoded(uint64)
+    retsub

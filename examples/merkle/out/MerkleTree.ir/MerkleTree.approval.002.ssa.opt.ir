@@ -77,28 +77,24 @@ subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> v
 subroutine examples.merkle.contract.MerkleTree.create[routing]() -> void:
     block@0: // L10
         let root#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len root#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(root#0)
         (app_global_put "root" root#0)
         exit 1u
 
 subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
     block@0: // L14
-        let proof#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(proof#0)
+        let value#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = (* length%0#0 32u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len proof#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[32][])
         let leaf#0: Encoded(uint8[32]) = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len leaf#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(leaf#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
         (assert maybe_exists%0#0) // check self.root exists
-        let tmp%0#2: uint64 = array_len(proof#0)
+        let tmp%0#2: uint64 = array_len(value#0)
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L22
@@ -107,7 +103,7 @@ subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
         let continue_looping%0#0: bool = (< idx#0 tmp%0#2)
         goto continue_looping%0#0 ? block@3 : block@7
     block@3: // for_body_L23
-        let b#0: bytes = extract_value(proof#0, idx#0)
+        let b#0: bytes = extract_value(value#0, idx#0)
         let tmp%0#3: bool = (b< computed#1 b#0)
         goto tmp%0#3 ? block@4 : block@5
     block@4: // ternary_true_L29
@@ -127,3 +123,10 @@ subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
         (log tmp%4#0)
         exit 1u
+
+subroutine __internal_validate_Encoded(uint8[32])(value: Encoded(uint8[32])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        return 

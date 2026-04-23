@@ -42,13 +42,13 @@ test_branching_array_call:
     len
     intc_0 // 1
     ==
-    assert // invalid number of bytes for arc4.bool
+    assert // invalid number of bytes for Encoded(bool8)
     // inner_transactions/array_access.py:23
     // if maybe:
     pushbytes 0x00
     !=
     dup
-    bz test_branching_array_call_else_body@4
+    bz test_branching_array_call_else_body@6
     // inner_transactions/array_access.py:24-28
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
@@ -84,11 +84,11 @@ test_branching_array_call:
     // ).submit()
     itxn_submit
 
-test_branching_array_call_after_if_else@6:
+test_branching_array_call_after_if_else@8:
     // inner_transactions/array_access.py:36
     // if maybe:
     dup
-    bz test_branching_array_call_else_body@8
+    bz test_branching_array_call_else_body@10
     // inner_transactions/array_access.py:37
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
@@ -102,13 +102,13 @@ test_branching_array_call_after_if_else@6:
     ==
     assert // correct args used 2
 
-test_branching_array_call_after_if_else@9:
+test_branching_array_call_after_if_else@11:
     // inner_transactions/array_access.py:21
     // @arc4.abimethod
     intc_0 // 1
     return
 
-test_branching_array_call_else_body@8:
+test_branching_array_call_else_body@10:
     // inner_transactions/array_access.py:40
     // assert create_app_txn.app_args(0) == b"3", "correct args used 1"
     itxna ApplicationArgs 0
@@ -127,9 +127,9 @@ test_branching_array_call_else_body@8:
     pushbytes 0x35
     ==
     assert // correct args used 3
-    b test_branching_array_call_after_if_else@9
+    b test_branching_array_call_after_if_else@11
 
-test_branching_array_call_else_body@4:
+test_branching_array_call_else_body@6:
     // inner_transactions/array_access.py:30-35
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
@@ -172,4 +172,4 @@ test_branching_array_call_else_body@4:
     //     note=b"different param set",
     // ).submit()
     itxn_submit
-    b test_branching_array_call_after_if_else@6
+    b test_branching_array_call_after_if_else@8

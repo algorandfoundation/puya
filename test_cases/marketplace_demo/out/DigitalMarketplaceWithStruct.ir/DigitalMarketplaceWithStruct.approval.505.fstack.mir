@@ -126,13 +126,15 @@ subroutine allow_asset:
         int pay                                                                                       mbr_pay#0,gtxn_type%0#0,pay
         ==                                                                                            mbr_pay#0,gtxn_type_matches%0#0
         assert // transaction type is pay                                                             mbr_pay#0
-        txna ApplicationArgs 1                                                                        mbr_pay#0,tmp%1#0
-        l-load-copy tmp%1#0 0                                                                         mbr_pay#0,tmp%1#0,tmp%1#0 (copy)
-        len                                                                                           mbr_pay#0,tmp%1#0,len%0#0
-        int 8                                                                                         mbr_pay#0,tmp%1#0,len%0#0,8
-        ==                                                                                            mbr_pay#0,tmp%1#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                             mbr_pay#0,tmp%1#0
-        l-load tmp%1#0 0                                                                              mbr_pay#0,tmp%1#0
+        txna ApplicationArgs 1                                                                        mbr_pay#0,value#0
+        l-load-copy value#0 0                                                                         mbr_pay#0,value#0,value#0 (copy)
+        len                                                                                           mbr_pay#0,value#0,len%0#0
+        int 8                                                                                         mbr_pay#0,value#0,len%0#0,8
+        ==                                                                                            mbr_pay#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         mbr_pay#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:82
+        // @arc4.abimethod(name="allowAsset")
+        l-load value#0 0                                                                              mbr_pay#0,value#0
         btoi                                                                                          mbr_pay#0,asset#0
         // marketplace_demo/marketplace_with_mutable_struct.py:84
         // assert not Global.current_application_address.is_opted_in(asset)
@@ -214,21 +216,25 @@ subroutine first_deposit:
         int axfer                                                                                     mbr_pay#0,xfer#0,gtxn_type%1#0,axfer
         ==                                                                                            mbr_pay#0,xfer#0,gtxn_type_matches%1#0
         assert // transaction type is axfer                                                           mbr_pay#0,xfer#0
-        txna ApplicationArgs 1                                                                        mbr_pay#0,xfer#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                                         mbr_pay#0,xfer#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                                           mbr_pay#0,xfer#0,tmp%2#0,len%0#0
-        int 8                                                                                         mbr_pay#0,xfer#0,tmp%2#0,len%0#0,8
-        ==                                                                                            mbr_pay#0,xfer#0,tmp%2#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                             mbr_pay#0,xfer#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              mbr_pay#0,xfer#0,tmp%2#0
+        txna ApplicationArgs 1                                                                        mbr_pay#0,xfer#0,value#0
+        l-load-copy value#0 0                                                                         mbr_pay#0,xfer#0,value#0,value#0 (copy)
+        len                                                                                           mbr_pay#0,xfer#0,value#0,len%0#0
+        int 8                                                                                         mbr_pay#0,xfer#0,value#0,len%0#0,8
+        ==                                                                                            mbr_pay#0,xfer#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         mbr_pay#0,xfer#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:93
+        // @arc4.abimethod(name="firstDeposit")
+        l-load value#0 0                                                                              mbr_pay#0,xfer#0,value#0
         btoi                                                                                          mbr_pay#0,xfer#0,unitary_price#0
-        txna ApplicationArgs 2                                                                        mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                                         mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                                           mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,len%1#0
-        int 8                                                                                         mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,len%1#0,8
-        ==                                                                                            mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                             mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0
-        l-load tmp%4#0 0                                                                              mbr_pay#0,xfer#0,unitary_price#0,tmp%4#0
+        txna ApplicationArgs 2                                                                        mbr_pay#0,xfer#0,unitary_price#0,value#0
+        l-load-copy value#0 0                                                                         mbr_pay#0,xfer#0,unitary_price#0,value#0,value#0 (copy)
+        len                                                                                           mbr_pay#0,xfer#0,unitary_price#0,value#0,len%0#0
+        int 8                                                                                         mbr_pay#0,xfer#0,unitary_price#0,value#0,len%0#0,8
+        ==                                                                                            mbr_pay#0,xfer#0,unitary_price#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         mbr_pay#0,xfer#0,unitary_price#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:93
+        // @arc4.abimethod(name="firstDeposit")
+        l-load value#0 0                                                                              mbr_pay#0,xfer#0,unitary_price#0,value#0
         btoi                                                                                          mbr_pay#0,xfer#0,unitary_price#0,nonce#0
         // marketplace_demo/marketplace_with_mutable_struct.py:101
         // assert mbr_pay.sender == Txn.sender
@@ -389,13 +395,15 @@ subroutine deposit:
         int axfer                                                                                     xfer#0,gtxn_type%0#0,axfer
         ==                                                                                            xfer#0,gtxn_type_matches%0#0
         assert // transaction type is axfer                                                           xfer#0
-        txna ApplicationArgs 1                                                                        xfer#0,tmp%1#0
-        l-load-copy tmp%1#0 0                                                                         xfer#0,tmp%1#0,tmp%1#0 (copy)
-        len                                                                                           xfer#0,tmp%1#0,len%0#0
-        int 8                                                                                         xfer#0,tmp%1#0,len%0#0,8
-        ==                                                                                            xfer#0,tmp%1#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                             xfer#0,tmp%1#0
-        l-load tmp%1#0 0                                                                              xfer#0,tmp%1#0
+        txna ApplicationArgs 1                                                                        xfer#0,value#0
+        l-load-copy value#0 0                                                                         xfer#0,value#0,value#0 (copy)
+        len                                                                                           xfer#0,value#0,len%0#0
+        int 8                                                                                         xfer#0,value#0,len%0#0,8
+        ==                                                                                            xfer#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         xfer#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:120
+        // @arc4.abimethod
+        l-load value#0 0                                                                              xfer#0,value#0
         btoi                                                                                          xfer#0,nonce#0
         // marketplace_demo/marketplace_with_mutable_struct.py:122
         // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
@@ -497,29 +505,35 @@ subroutine set_price:
     set_price_block@0:
         // marketplace_demo/marketplace_with_mutable_struct.py:137
         // @arc4.abimethod(name="setPrice")
-        txna ApplicationArgs 1                                                                        tmp%0#0
-        l-load-copy tmp%0#0 0                                                                         tmp%0#0,tmp%0#0 (copy)
-        len                                                                                           tmp%0#0,len%0#0
-        int 8                                                                                         tmp%0#0,len%0#0,8
-        ==                                                                                            tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                             tmp%0#0
-        l-load tmp%0#0 0                                                                              tmp%0#0
+        txna ApplicationArgs 1                                                                        value#0
+        l-load-copy value#0 0                                                                         value#0,value#0 (copy)
+        len                                                                                           value#0,len%0#0
+        int 8                                                                                         value#0,len%0#0,8
+        ==                                                                                            value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:137
+        // @arc4.abimethod(name="setPrice")
+        l-load value#0 0                                                                              value#0
         btoi                                                                                          asset#0
-        txna ApplicationArgs 2                                                                        asset#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                                         asset#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                                           asset#0,tmp%2#0,len%1#0
-        int 8                                                                                         asset#0,tmp%2#0,len%1#0,8
-        ==                                                                                            asset#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                             asset#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              asset#0,tmp%2#0
+        txna ApplicationArgs 2                                                                        asset#0,value#0
+        l-load-copy value#0 0                                                                         asset#0,value#0,value#0 (copy)
+        len                                                                                           asset#0,value#0,len%0#0
+        int 8                                                                                         asset#0,value#0,len%0#0,8
+        ==                                                                                            asset#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         asset#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:137
+        // @arc4.abimethod(name="setPrice")
+        l-load value#0 0                                                                              asset#0,value#0
         btoi                                                                                          asset#0,nonce#0
-        txna ApplicationArgs 3                                                                        asset#0,nonce#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                                         asset#0,nonce#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                                           asset#0,nonce#0,tmp%4#0,len%2#0
-        int 8                                                                                         asset#0,nonce#0,tmp%4#0,len%2#0,8
-        ==                                                                                            asset#0,nonce#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64                                             asset#0,nonce#0,tmp%4#0
-        l-load tmp%4#0 0                                                                              asset#0,nonce#0,tmp%4#0
+        txna ApplicationArgs 3                                                                        asset#0,nonce#0,value#0
+        l-load-copy value#0 0                                                                         asset#0,nonce#0,value#0,value#0 (copy)
+        len                                                                                           asset#0,nonce#0,value#0,len%0#0
+        int 8                                                                                         asset#0,nonce#0,value#0,len%0#0,8
+        ==                                                                                            asset#0,nonce#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         asset#0,nonce#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:137
+        // @arc4.abimethod(name="setPrice")
+        l-load value#0 0                                                                              asset#0,nonce#0,value#0
         btoi                                                                                          asset#0,nonce#0,unitary_price#0
         // marketplace_demo/marketplace_with_mutable_struct.py:139
         // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -591,114 +605,122 @@ subroutine buy:
     buy_block@0:
         // marketplace_demo/marketplace_with_mutable_struct.py:150
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                        owner#0
-        l-load-copy owner#0 0                                                                         owner#0,owner#0 (copy)
-        len                                                                                           owner#0,len%0#0
-        int 32                                                                                        owner#0,len%0#0,32
-        ==                                                                                            owner#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                       owner#0
-        txna ApplicationArgs 2                                                                        owner#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                                         owner#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                                           owner#0,tmp%2#0,len%1#0
-        int 8                                                                                         owner#0,tmp%2#0,len%1#0,8
-        ==                                                                                            owner#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                             owner#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              owner#0,tmp%2#0
-        btoi                                                                                          owner#0,asset#0
-        txna ApplicationArgs 3                                                                        owner#0,asset#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                                         owner#0,asset#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                                           owner#0,asset#0,tmp%4#0,len%2#0
-        int 8                                                                                         owner#0,asset#0,tmp%4#0,len%2#0,8
-        ==                                                                                            owner#0,asset#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64                                             owner#0,asset#0,tmp%4#0
-        l-load tmp%4#0 0                                                                              owner#0,asset#0,tmp%4#0
-        btoi                                                                                          owner#0,asset#0,nonce#0
-        txn GroupIndex                                                                                owner#0,asset#0,nonce#0,tmp%6#0
-        int 1                                                                                         owner#0,asset#0,nonce#0,tmp%6#0,1
-        -                                                                                             owner#0,asset#0,nonce#0,buy_pay#0
-        l-load-copy buy_pay#0 0                                                                       owner#0,asset#0,nonce#0,buy_pay#0,buy_pay#0 (copy)
-        gtxns TypeEnum                                                                                owner#0,asset#0,nonce#0,buy_pay#0,gtxn_type%0#0
-        int pay                                                                                       owner#0,asset#0,nonce#0,buy_pay#0,gtxn_type%0#0,pay
-        ==                                                                                            owner#0,asset#0,nonce#0,buy_pay#0,gtxn_type_matches%0#0
-        assert // transaction type is pay                                                             owner#0,asset#0,nonce#0,buy_pay#0
-        txna ApplicationArgs 4                                                                        owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0
-        l-load-copy tmp%7#0 0                                                                         owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,tmp%7#0 (copy)
-        len                                                                                           owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,len%3#0
-        int 8                                                                                         owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,len%3#0,8
-        ==                                                                                            owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0,eq%3#0
-        assert // invalid number of bytes for arc4.uint64                                             owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0
-        l-load tmp%7#0 0                                                                              owner#0,asset#0,nonce#0,buy_pay#0,tmp%7#0
-        btoi                                                                                          owner#0,asset#0,nonce#0,buy_pay#0,quantity#0
+        txna ApplicationArgs 1                                                                        value#0
+        l-load-copy value#0 0                                                                         value#0,value#0 (copy)
+        len                                                                                           value#0,len%0#0
+        int 32                                                                                        value#0,len%0#0,32
+        ==                                                                                            value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                                      value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:150
+        // @arc4.abimethod
+        txna ApplicationArgs 2                                                                        value#0,value#1
+        l-load-copy value#1 0                                                                         value#0,value#1,value#1 (copy)
+        len                                                                                           value#0,value#1,len%0#0
+        int 8                                                                                         value#0,value#1,len%0#0,8
+        ==                                                                                            value#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         value#0,value#1
+        // marketplace_demo/marketplace_with_mutable_struct.py:150
+        // @arc4.abimethod
+        l-load value#1 0                                                                              value#0,value#1
+        btoi                                                                                          value#0,asset#0
+        txna ApplicationArgs 3                                                                        value#0,asset#0,value#1
+        l-load-copy value#1 0                                                                         value#0,asset#0,value#1,value#1 (copy)
+        len                                                                                           value#0,asset#0,value#1,len%0#0
+        int 8                                                                                         value#0,asset#0,value#1,len%0#0,8
+        ==                                                                                            value#0,asset#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         value#0,asset#0,value#1
+        // marketplace_demo/marketplace_with_mutable_struct.py:150
+        // @arc4.abimethod
+        l-load value#1 0                                                                              value#0,asset#0,value#1
+        btoi                                                                                          value#0,asset#0,nonce#0
+        txn GroupIndex                                                                                value#0,asset#0,nonce#0,tmp%6#0
+        int 1                                                                                         value#0,asset#0,nonce#0,tmp%6#0,1
+        -                                                                                             value#0,asset#0,nonce#0,buy_pay#0
+        l-load-copy buy_pay#0 0                                                                       value#0,asset#0,nonce#0,buy_pay#0,buy_pay#0 (copy)
+        gtxns TypeEnum                                                                                value#0,asset#0,nonce#0,buy_pay#0,gtxn_type%0#0
+        int pay                                                                                       value#0,asset#0,nonce#0,buy_pay#0,gtxn_type%0#0,pay
+        ==                                                                                            value#0,asset#0,nonce#0,buy_pay#0,gtxn_type_matches%0#0
+        assert // transaction type is pay                                                             value#0,asset#0,nonce#0,buy_pay#0
+        txna ApplicationArgs 4                                                                        value#0,asset#0,nonce#0,buy_pay#0,value#1
+        l-load-copy value#1 0                                                                         value#0,asset#0,nonce#0,buy_pay#0,value#1,value#1 (copy)
+        len                                                                                           value#0,asset#0,nonce#0,buy_pay#0,value#1,len%0#0
+        int 8                                                                                         value#0,asset#0,nonce#0,buy_pay#0,value#1,len%0#0,8
+        ==                                                                                            value#0,asset#0,nonce#0,buy_pay#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         value#0,asset#0,nonce#0,buy_pay#0,value#1
+        // marketplace_demo/marketplace_with_mutable_struct.py:150
+        // @arc4.abimethod
+        l-load value#1 0                                                                              value#0,asset#0,nonce#0,buy_pay#0,value#1
+        btoi                                                                                          value#0,asset#0,nonce#0,buy_pay#0,quantity#0
         // marketplace_demo/marketplace_with_mutable_struct.py:159
         // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
-        l-load-copy asset#0 3                                                                         owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,asset#0 (copy)
-        itob                                                                                          owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0
-        l-load-copy owner#0 5                                                                         owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0,owner#0 (copy)
-        l-load aggregate%val_as_bytes%0#0 1                                                           owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,owner#0 (copy),aggregate%val_as_bytes%0#0
-        concat                                                                                        owner#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%head%1#0
-        l-load nonce#0 3                                                                              owner#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,nonce#0
-        itob                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%head%1#0 1                                                                   owner#0,asset#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%1#0,aggregate%head%1#0
-        l-load aggregate%val_as_bytes%1#0 1                                                           owner#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
-        concat                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,key#0
+        l-load-copy asset#0 3                                                                         value#0,asset#0,nonce#0,buy_pay#0,quantity#0,asset#0 (copy)
+        itob                                                                                          value#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0
+        l-load-copy value#0 5                                                                         value#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%0#0,value#0 (copy)
+        l-load aggregate%val_as_bytes%0#0 1                                                           value#0,asset#0,nonce#0,buy_pay#0,quantity#0,value#0 (copy),aggregate%val_as_bytes%0#0
+        concat                                                                                        value#0,asset#0,nonce#0,buy_pay#0,quantity#0,aggregate%head%1#0
+        l-load nonce#0 3                                                                              value#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,nonce#0
+        itob                                                                                          value#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%head%1#0 1                                                                   value#0,asset#0,buy_pay#0,quantity#0,aggregate%val_as_bytes%1#0,aggregate%head%1#0
+        l-load aggregate%val_as_bytes%1#0 1                                                           value#0,asset#0,buy_pay#0,quantity#0,aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        concat                                                                                        value#0,asset#0,buy_pay#0,quantity#0,key#0
         // marketplace_demo/marketplace_with_mutable_struct.py:161
         // listing = self.listings[key].copy()
-        byte 0x6c697374696e6773                                                                       owner#0,asset#0,buy_pay#0,quantity#0,key#0,0x6c697374696e6773
-        l-load key#0 1                                                                                owner#0,asset#0,buy_pay#0,quantity#0,0x6c697374696e6773,key#0
-        concat                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0
-        l-load-copy map_prefixed_key%0#0 0                                                            owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,map_prefixed_key%0#0 (copy)
-        box_get                                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,aggregate%box_get%1#0
-        assert // check self.listings entry exists                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0
+        byte 0x6c697374696e6773                                                                       value#0,asset#0,buy_pay#0,quantity#0,key#0,0x6c697374696e6773
+        l-load key#0 1                                                                                value#0,asset#0,buy_pay#0,quantity#0,0x6c697374696e6773,key#0
+        concat                                                                                        value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0
+        l-load-copy map_prefixed_key%0#0 0                                                            value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,map_prefixed_key%0#0 (copy)
+        box_get                                                                                       value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,aggregate%box_get%1#0
+        assert // check self.listings entry exists                                                    value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0
         // marketplace_demo/marketplace_with_mutable_struct.py:163
         // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
-        l-load-copy listing#0 0                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,listing#0 (copy)
-        int 8                                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,listing#0 (copy),8
-        extract_uint64                                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0
-        l-load-copy asset#0 5                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset#0 (copy)
-        asset_params_get AssetDecimals                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,check%0#0
-        assert // asset exists                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0
+        l-load-copy listing#0 0                                                                       value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,listing#0 (copy)
+        int 8                                                                                         value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,listing#0 (copy),8
+        extract_uint64                                                                                value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0
+        l-load-copy asset#0 5                                                                         value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset#0 (copy)
+        asset_params_get AssetDecimals                                                                value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,check%0#0
+        assert // asset exists                                                                        value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0
         // marketplace_demo/marketplace_with_mutable_struct.py:69
         // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
-        l-load-copy price#0 1                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,price#0 (copy)
-        l-load-copy quantity#0 5                                                                      owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,price#0 (copy),quantity#0 (copy)
-        mulw                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0
+        l-load-copy price#0 1                                                                         value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,price#0 (copy)
+        l-load-copy quantity#0 5                                                                      value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,price#0 (copy),quantity#0 (copy)
+        mulw                                                                                          value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0
         // marketplace_demo/marketplace_with_mutable_struct.py:70
         // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
-        int 10                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10
-        l-load asset_decimals#0 3                                                                     owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10,asset_decimals#0
-        expw                                                                                          owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
+        int 10                                                                                        value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,asset_decimals#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10
+        l-load asset_decimals#0 3                                                                     value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_high#0,amount_not_scaled_low#0,10,asset_decimals#0
+        expw                                                                                          value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
         // marketplace_demo/marketplace_with_mutable_struct.py:71-73
         // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
         //     amount_not_scaled_high, amount_not_scaled_low, scaling_factor_high, scaling_factor_low
         // )
-        l-load amount_not_scaled_high#0 3                                                             owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0
-        l-load amount_not_scaled_low#0 3                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
-        l-load scaling_factor_high#0 3                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
-        l-load scaling_factor_low#0 3                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
-        divmodw                                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0,_remainder_low#0
-        pop 1                                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0
-        pop 1                                                                                         owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,_quotient_high#0,amount_to_be_paid#1
-        l-store amount_to_be_paid#1 1                                                                 owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,_quotient_high#0
-        l-store _quotient_high#0 0                                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,_quotient_high#0
+        l-load amount_not_scaled_high#0 3                                                             value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0
+        l-load amount_not_scaled_low#0 3                                                              value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,scaling_factor_high#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0
+        l-load scaling_factor_high#0 3                                                                value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,scaling_factor_low#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0
+        l-load scaling_factor_low#0 3                                                                 value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_not_scaled_high#0,amount_not_scaled_low#0,scaling_factor_high#0,scaling_factor_low#0
+        divmodw                                                                                       value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0,_remainder_low#0
+        pop 1                                                                                         value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,_quotient_high#0,amount_to_be_paid#1,_remainder_high#0
+        pop 1                                                                                         value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,_quotient_high#0,amount_to_be_paid#1
+        l-store amount_to_be_paid#1 1                                                                 value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,_quotient_high#0
+        l-store _quotient_high#0 0                                                                    value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,_quotient_high#0
         // marketplace_demo/marketplace_with_mutable_struct.py:74
         // assert _quotient_high == 0
-        l-load _quotient_high#0 0                                                                     owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,_quotient_high#0
-        !                                                                                             owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%8#2
-        assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
+        l-load _quotient_high#0 0                                                                     value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,_quotient_high#0
+        !                                                                                             value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%8#2
+        assert                                                                                        value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_mutable_struct.py:165
         // assert buy_pay.sender == Txn.sender
-        l-load-copy buy_pay#0 5                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,buy_pay#0 (copy)
-        gtxns Sender                                                                                  owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1
-        txn Sender                                                                                    owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1,tmp%4#1
-        l-load tmp%3#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%4#1,tmp%3#1
-        l-load tmp%4#1 1                                                                              owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1,tmp%4#1
-        ==                                                                                            owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%5#1
-        assert                                                                                        owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
+        l-load-copy buy_pay#0 5                                                                       value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,buy_pay#0 (copy)
+        gtxns Sender                                                                                  value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1
+        txn Sender                                                                                    value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1,tmp%4#1
+        l-load tmp%3#1 1                                                                              value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%4#1,tmp%3#1
+        l-load tmp%4#1 1                                                                              value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%3#1,tmp%4#1
+        ==                                                                                            value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%5#1
+        assert                                                                                        value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_mutable_struct.py:166
         // assert buy_pay.receiver == owner
-        l-load-copy buy_pay#0 5                                                                       owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,buy_pay#0 (copy)
-        gtxns Receiver                                                                                owner#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%6#1
-        l-load owner#0 8                                                                              asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%6#1,owner#0
+        l-load-copy buy_pay#0 5                                                                       value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,buy_pay#0 (copy)
+        gtxns Receiver                                                                                value#0,asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%6#1
+        l-load value#0 8                                                                              asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%6#1,value#0
         ==                                                                                            asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1,tmp%7#1
         assert                                                                                        asset#0,buy_pay#0,quantity#0,map_prefixed_key%0#0,listing#0,price#0,amount_to_be_paid#1
         // marketplace_demo/marketplace_with_mutable_struct.py:167
@@ -786,23 +808,27 @@ subroutine withdraw:
     withdraw_block@0:
         // marketplace_demo/marketplace_with_mutable_struct.py:181
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                        tmp%0#0
-        l-load-copy tmp%0#0 0                                                                         tmp%0#0,tmp%0#0 (copy)
-        len                                                                                           tmp%0#0,len%0#0
-        int 8                                                                                         tmp%0#0,len%0#0,8
-        ==                                                                                            tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                             tmp%0#0
-        l-load tmp%0#0 0                                                                              tmp%0#0
+        txna ApplicationArgs 1                                                                        value#0
+        l-load-copy value#0 0                                                                         value#0,value#0 (copy)
+        len                                                                                           value#0,len%0#0
+        int 8                                                                                         value#0,len%0#0,8
+        ==                                                                                            value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:181
+        // @arc4.abimethod
+        l-load value#0 0                                                                              value#0
         btoi                                                                                          asset#0
         l-store-copy asset#0 0                                                                        asset#0,asset#0 (copy)
         f-store asset#0                                                                               (𝕗) asset#0 | asset#0
-        txna ApplicationArgs 2                                                                        (𝕗) asset#0 | asset#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                                         (𝕗) asset#0 | asset#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                                           (𝕗) asset#0 | asset#0,tmp%2#0,len%1#0
-        int 8                                                                                         (𝕗) asset#0 | asset#0,tmp%2#0,len%1#0,8
-        ==                                                                                            (𝕗) asset#0 | asset#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                             (𝕗) asset#0 | asset#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              (𝕗) asset#0 | asset#0,tmp%2#0
+        txna ApplicationArgs 2                                                                        (𝕗) asset#0 | asset#0,value#0
+        l-load-copy value#0 0                                                                         (𝕗) asset#0 | asset#0,value#0,value#0 (copy)
+        len                                                                                           (𝕗) asset#0 | asset#0,value#0,len%0#0
+        int 8                                                                                         (𝕗) asset#0 | asset#0,value#0,len%0#0,8
+        ==                                                                                            (𝕗) asset#0 | asset#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         (𝕗) asset#0 | asset#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:181
+        // @arc4.abimethod
+        l-load value#0 0                                                                              (𝕗) asset#0 | asset#0,value#0
         btoi                                                                                          (𝕗) asset#0 | asset#0,nonce#0
         // marketplace_demo/marketplace_with_mutable_struct.py:183
         // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
@@ -980,64 +1006,74 @@ subroutine bid:
     bid_block@0:
         // marketplace_demo/marketplace_with_mutable_struct.py:200
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                        owner#0
-        l-load-copy owner#0 0                                                                         owner#0,owner#0 (copy)
-        len                                                                                           owner#0,len%0#0
-        int 32                                                                                        owner#0,len%0#0,32
-        ==                                                                                            owner#0,eq%0#0
-        assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>                       owner#0
-        txna ApplicationArgs 2                                                                        owner#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                                         owner#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                                           owner#0,tmp%2#0,len%1#0
-        int 8                                                                                         owner#0,tmp%2#0,len%1#0,8
-        ==                                                                                            owner#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                             owner#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              owner#0,tmp%2#0
-        btoi                                                                                          owner#0,asset#0
-        l-store-copy asset#0 0                                                                        owner#0,asset#0,asset#0 (copy)
-        f-store asset#0                                                                               (𝕗) asset#0 | owner#0,asset#0
-        txna ApplicationArgs 3                                                                        (𝕗) asset#0 | owner#0,asset#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                                         (𝕗) asset#0 | owner#0,asset#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                                           (𝕗) asset#0 | owner#0,asset#0,tmp%4#0,len%2#0
-        int 8                                                                                         (𝕗) asset#0 | owner#0,asset#0,tmp%4#0,len%2#0,8
-        ==                                                                                            (𝕗) asset#0 | owner#0,asset#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64                                             (𝕗) asset#0 | owner#0,asset#0,tmp%4#0
-        l-load tmp%4#0 0                                                                              (𝕗) asset#0 | owner#0,asset#0,tmp%4#0
-        btoi                                                                                          (𝕗) asset#0 | owner#0,asset#0,nonce#0
-        txn GroupIndex                                                                                (𝕗) asset#0 | owner#0,asset#0,nonce#0,tmp%6#0
-        int 1                                                                                         (𝕗) asset#0 | owner#0,asset#0,nonce#0,tmp%6#0,1
-        -                                                                                             (𝕗) asset#0 | owner#0,asset#0,nonce#0,bid_pay#0
-        l-store-copy bid_pay#0 0                                                                      (𝕗) asset#0 | owner#0,asset#0,nonce#0,bid_pay#0,bid_pay#0 (copy)
-        f-store bid_pay#0                                                                             (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,bid_pay#0
-        l-load bid_pay#0 0                                                                            (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,bid_pay#0
-        gtxns TypeEnum                                                                                (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,gtxn_type%0#0
-        int pay                                                                                       (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,gtxn_type%0#0,pay
-        ==                                                                                            (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,gtxn_type_matches%0#0
-        assert // transaction type is pay                                                             (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0
-        txna ApplicationArgs 4                                                                        (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,tmp%7#0
-        l-load-copy tmp%7#0 0                                                                         (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,tmp%7#0,tmp%7#0 (copy)
-        len                                                                                           (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,tmp%7#0,len%3#0
-        int 8                                                                                         (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,tmp%7#0,len%3#0,8
-        ==                                                                                            (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,tmp%7#0,eq%3#0
-        assert // invalid number of bytes for arc4.uint64                                             (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,tmp%7#0
-        l-load tmp%7#0 0                                                                              (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,tmp%7#0
-        btoi                                                                                          (𝕗) asset#0,bid_pay#0 | owner#0,asset#0,nonce#0,quantity#0
-        f-store quantity#0                                                                            (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0
-        txna ApplicationArgs 5                                                                        (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,tmp%9#0
-        l-load-copy tmp%9#0 0                                                                         (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,tmp%9#0,tmp%9#0 (copy)
-        len                                                                                           (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,tmp%9#0,len%4#0
-        int 8                                                                                         (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,tmp%9#0,len%4#0,8
-        ==                                                                                            (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,tmp%9#0,eq%4#0
-        assert // invalid number of bytes for arc4.uint64                                             (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,tmp%9#0
-        l-load tmp%9#0 0                                                                              (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,tmp%9#0
-        btoi                                                                                          (𝕗) asset#0,bid_pay#0,quantity#0 | owner#0,asset#0,nonce#0,unitary_price#0
-        f-store unitary_price#0                                                                       (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | owner#0,asset#0,nonce#0
+        txna ApplicationArgs 1                                                                        value#0
+        l-load-copy value#0 0                                                                         value#0,value#0 (copy)
+        len                                                                                           value#0,len%0#0
+        int 32                                                                                        value#0,len%0#0,32
+        ==                                                                                            value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint8[32])                                      value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:200
+        // @arc4.abimethod
+        txna ApplicationArgs 2                                                                        value#0,value#1
+        l-load-copy value#1 0                                                                         value#0,value#1,value#1 (copy)
+        len                                                                                           value#0,value#1,len%0#0
+        int 8                                                                                         value#0,value#1,len%0#0,8
+        ==                                                                                            value#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         value#0,value#1
+        // marketplace_demo/marketplace_with_mutable_struct.py:200
+        // @arc4.abimethod
+        l-load value#1 0                                                                              value#0,value#1
+        btoi                                                                                          value#0,asset#0
+        l-store-copy asset#0 0                                                                        value#0,asset#0,asset#0 (copy)
+        f-store asset#0                                                                               (𝕗) asset#0 | value#0,asset#0
+        txna ApplicationArgs 3                                                                        (𝕗) asset#0 | value#0,asset#0,value#1
+        l-load-copy value#1 0                                                                         (𝕗) asset#0 | value#0,asset#0,value#1,value#1 (copy)
+        len                                                                                           (𝕗) asset#0 | value#0,asset#0,value#1,len%0#0
+        int 8                                                                                         (𝕗) asset#0 | value#0,asset#0,value#1,len%0#0,8
+        ==                                                                                            (𝕗) asset#0 | value#0,asset#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         (𝕗) asset#0 | value#0,asset#0,value#1
+        // marketplace_demo/marketplace_with_mutable_struct.py:200
+        // @arc4.abimethod
+        l-load value#1 0                                                                              (𝕗) asset#0 | value#0,asset#0,value#1
+        btoi                                                                                          (𝕗) asset#0 | value#0,asset#0,nonce#0
+        txn GroupIndex                                                                                (𝕗) asset#0 | value#0,asset#0,nonce#0,tmp%6#0
+        int 1                                                                                         (𝕗) asset#0 | value#0,asset#0,nonce#0,tmp%6#0,1
+        -                                                                                             (𝕗) asset#0 | value#0,asset#0,nonce#0,bid_pay#0
+        l-store-copy bid_pay#0 0                                                                      (𝕗) asset#0 | value#0,asset#0,nonce#0,bid_pay#0,bid_pay#0 (copy)
+        f-store bid_pay#0                                                                             (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,bid_pay#0
+        l-load bid_pay#0 0                                                                            (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,bid_pay#0
+        gtxns TypeEnum                                                                                (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,gtxn_type%0#0
+        int pay                                                                                       (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,gtxn_type%0#0,pay
+        ==                                                                                            (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,gtxn_type_matches%0#0
+        assert // transaction type is pay                                                             (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0
+        txna ApplicationArgs 4                                                                        (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,value#1
+        l-load-copy value#1 0                                                                         (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,value#1,value#1 (copy)
+        len                                                                                           (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,value#1,len%0#0
+        int 8                                                                                         (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,value#1,len%0#0,8
+        ==                                                                                            (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,value#1
+        // marketplace_demo/marketplace_with_mutable_struct.py:200
+        // @arc4.abimethod
+        l-load value#1 0                                                                              (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,value#1
+        btoi                                                                                          (𝕗) asset#0,bid_pay#0 | value#0,asset#0,nonce#0,quantity#0
+        f-store quantity#0                                                                            (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0
+        txna ApplicationArgs 5                                                                        (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,value#1
+        l-load-copy value#1 0                                                                         (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,value#1,value#1 (copy)
+        len                                                                                           (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,value#1,len%0#0
+        int 8                                                                                         (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,value#1,len%0#0,8
+        ==                                                                                            (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,value#1,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,value#1
+        // marketplace_demo/marketplace_with_mutable_struct.py:200
+        // @arc4.abimethod
+        l-load value#1 0                                                                              (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,value#1
+        btoi                                                                                          (𝕗) asset#0,bid_pay#0,quantity#0 | value#0,asset#0,nonce#0,unitary_price#0
+        f-store unitary_price#0                                                                       (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | value#0,asset#0,nonce#0
         // marketplace_demo/marketplace_with_mutable_struct.py:210
         // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
-        l-load asset#0 1                                                                              (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | owner#0,nonce#0,asset#0
-        itob                                                                                          (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | owner#0,nonce#0,aggregate%val_as_bytes%0#0
-        l-load owner#0 2                                                                              (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | nonce#0,aggregate%val_as_bytes%0#0,owner#0
-        l-load aggregate%val_as_bytes%0#0 1                                                           (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | nonce#0,owner#0,aggregate%val_as_bytes%0#0
+        l-load asset#0 1                                                                              (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | value#0,nonce#0,asset#0
+        itob                                                                                          (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | value#0,nonce#0,aggregate%val_as_bytes%0#0
+        l-load value#0 2                                                                              (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | nonce#0,aggregate%val_as_bytes%0#0,value#0
+        l-load aggregate%val_as_bytes%0#0 1                                                           (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | nonce#0,value#0,aggregate%val_as_bytes%0#0
         concat                                                                                        (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | nonce#0,aggregate%head%1#0
         l-load nonce#0 1                                                                              (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | aggregate%head%1#0,nonce#0
         itob                                                                                          (𝕗) asset#0,bid_pay#0,quantity#0,unitary_price#0 | aggregate%head%1#0,aggregate%val_as_bytes%1#0
@@ -1242,23 +1278,27 @@ subroutine accept_bid:
     accept_bid_block@0:
         // marketplace_demo/marketplace_with_mutable_struct.py:236
         // @arc4.abimethod(name="acceptBid")
-        txna ApplicationArgs 1                                                                        tmp%0#0
-        l-load-copy tmp%0#0 0                                                                         tmp%0#0,tmp%0#0 (copy)
-        len                                                                                           tmp%0#0,len%0#0
-        int 8                                                                                         tmp%0#0,len%0#0,8
-        ==                                                                                            tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                             tmp%0#0
-        l-load tmp%0#0 0                                                                              tmp%0#0
+        txna ApplicationArgs 1                                                                        value#0
+        l-load-copy value#0 0                                                                         value#0,value#0 (copy)
+        len                                                                                           value#0,len%0#0
+        int 8                                                                                         value#0,len%0#0,8
+        ==                                                                                            value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:236
+        // @arc4.abimethod(name="acceptBid")
+        l-load value#0 0                                                                              value#0
         btoi                                                                                          asset#0
         l-store-copy asset#0 0                                                                        asset#0,asset#0 (copy)
         f-store asset#0                                                                               (𝕗) asset#0 | asset#0
-        txna ApplicationArgs 2                                                                        (𝕗) asset#0 | asset#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                                                         (𝕗) asset#0 | asset#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                                                           (𝕗) asset#0 | asset#0,tmp%2#0,len%1#0
-        int 8                                                                                         (𝕗) asset#0 | asset#0,tmp%2#0,len%1#0,8
-        ==                                                                                            (𝕗) asset#0 | asset#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                                             (𝕗) asset#0 | asset#0,tmp%2#0
-        l-load tmp%2#0 0                                                                              (𝕗) asset#0 | asset#0,tmp%2#0
+        txna ApplicationArgs 2                                                                        (𝕗) asset#0 | asset#0,value#0
+        l-load-copy value#0 0                                                                         (𝕗) asset#0 | asset#0,value#0,value#0 (copy)
+        len                                                                                           (𝕗) asset#0 | asset#0,value#0,len%0#0
+        int 8                                                                                         (𝕗) asset#0 | asset#0,value#0,len%0#0,8
+        ==                                                                                            (𝕗) asset#0 | asset#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                         (𝕗) asset#0 | asset#0,value#0
+        // marketplace_demo/marketplace_with_mutable_struct.py:236
+        // @arc4.abimethod(name="acceptBid")
+        l-load value#0 0                                                                              (𝕗) asset#0 | asset#0,value#0
         btoi                                                                                          (𝕗) asset#0 | asset#0,nonce#0
         // marketplace_demo/marketplace_with_mutable_struct.py:238
         // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)

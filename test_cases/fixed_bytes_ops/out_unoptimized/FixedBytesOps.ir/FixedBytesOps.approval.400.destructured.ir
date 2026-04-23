@@ -821,7 +821,12 @@ subroutine test_cases.fixed_bytes_ops.contract.FixedBytesOps.test_augmented_xor_
 
 subroutine test_cases.fixed_bytes_ops.contract.FixedBytesOps.validate_fixed_bytes_3(val: bytes[3]) -> void:
     block@0: // L153
-        let len%0#0: uint64 = (len val#0)
+        __internal_validate_Encoded(uint8[3])(val#0)
+        return 
+
+subroutine __internal_validate_Encoded(uint8[3])(value: Encoded(uint8[3])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 3u)
-        (assert eq%0#0) // invalid number of bytes for bytes[3]
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[3])
         return 

@@ -157,21 +157,25 @@ subroutine struct_arg:
         txna ApplicationArgs 1                                                           arg#0
         v-store arg#0
         v-load arg#0                                                                     arg#0
+        callsub __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))
+        txna ApplicationArgs 2                                                           value#0
+        v-store value#0
+        v-load value#0                                                                   value#0
         len                                                                              tuple_len%0#0
         v-store tuple_len%0#0
-        v-load arg#0                                                                     arg#0
-        int 8                                                                            arg#0,8
+        v-load value#0                                                                   value#0
+        int 0                                                                            value#0,0
         extract_uint16 // on error: invalid tuple encoding                               extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                        extract_uint16%0#0
-        int 12                                                                           extract_uint16%0#0,12
+        int 3                                                                            extract_uint16%0#0,3
         ==                                                                               eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                    eq%0#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) 
-        v-load arg#0                                                                     arg#0
-        v-load extract_uint16%0#0                                                        arg#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                             arg#0,extract_uint16%0#0,tuple_len%0#0
+        assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
+        v-load value#0                                                                   value#0
+        v-load extract_uint16%0#0                                                        value#0,extract_uint16%0#0
+        v-load tuple_len%0#0                                                             value#0,extract_uint16%0#0,tuple_len%0#0
         substring3                                                                       substring3%0#0
         v-store substring3%0#0
         v-load substring3%0#0                                                            substring3%0#0
@@ -179,98 +183,31 @@ subroutine struct_arg:
         extract_uint16 // on error: invalid array length header                          aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                aggregate%array_length%0#0
-        int 14                                                                           aggregate%array_length%0#0,14
+        int 5                                                                            aggregate%array_length%0#0,5
         +                                                                                add%1#0
         v-store add%1#0
-        v-load arg#0                                                                     arg#0
-        int 10                                                                           arg#0,10
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%1#0
-        v-store extract_uint16%1#0
-        v-load extract_uint16%1#0                                                        extract_uint16%1#0
-        v-load add%1#0                                                                   extract_uint16%1#0,add%1#0
+        v-load tuple_len%0#0                                                             tuple_len%0#0
+        v-load add%1#0                                                                   tuple_len%0#0,add%1#0
         ==                                                                               eq%1#0
         v-store eq%1#0
         v-load eq%1#0                                                                    eq%1#0
-        assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) 
-        v-load arg#0                                                                     arg#0
-        v-load extract_uint16%1#0                                                        arg#0,extract_uint16%1#0
-        v-load tuple_len%0#0                                                             arg#0,extract_uint16%1#0,tuple_len%0#0
-        substring3                                                                       substring3%1#0
-        v-store substring3%1#0
-        v-load substring3%1#0                                                            substring3%1#0
-        len                                                                              tuple_len%1#0
-        v-store tuple_len%1#0
-        v-load substring3%1#0                                                            substring3%1#0
-        int 0                                                                            substring3%1#0,0
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%2#0
-        v-store extract_uint16%2#0
-        v-load extract_uint16%2#0                                                        extract_uint16%2#0
-        int 3                                                                            extract_uint16%2#0,3
-        ==                                                                               eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                    eq%2#0
-        assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
-        v-load substring3%1#0                                                            substring3%1#0
-        v-load extract_uint16%2#0                                                        substring3%1#0,extract_uint16%2#0
-        v-load tuple_len%1#0                                                             substring3%1#0,extract_uint16%2#0,tuple_len%1#0
-        substring3                                                                       substring3%2#0
-        v-store substring3%2#0
-        v-load substring3%2#0                                                            substring3%2#0
-        int 0                                                                            substring3%2#0,0
-        extract_uint16 // on error: invalid array length header                          aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                                aggregate%array_length%1#0
-        int 5                                                                            aggregate%array_length%1#0,5
-        +                                                                                add%3#0
-        v-store add%3#0
-        v-load add%1#0                                                                   add%1#0
-        v-load add%3#0                                                                   add%1#0,add%3#0
-        +                                                                                add%4#0
-        v-store add%4#0
-        v-load tuple_len%0#0                                                             tuple_len%0#0
-        v-load add%4#0                                                                   tuple_len%0#0,add%4#0
-        ==                                                                               eq%3#0
-        v-store eq%3#0
-        v-load eq%3#0                                                                    eq%3#0
-        assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
-        txna ApplicationArgs 2                                                           shared#0
-        v-store shared#0
-        v-load shared#0                                                                  shared#0
-        len                                                                              tuple_len%2#0
-        v-store tuple_len%2#0
-        v-load shared#0                                                                  shared#0
-        int 0                                                                            shared#0,0
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%3#0
-        v-store extract_uint16%3#0
-        v-load extract_uint16%3#0                                                        extract_uint16%3#0
-        int 3                                                                            extract_uint16%3#0,3
-        ==                                                                               eq%4#0
-        v-store eq%4#0
-        v-load eq%4#0                                                                    eq%4#0
-        assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
-        v-load shared#0                                                                  shared#0
-        v-load extract_uint16%3#0                                                        shared#0,extract_uint16%3#0
-        v-load tuple_len%2#0                                                             shared#0,extract_uint16%3#0,tuple_len%2#0
-        substring3                                                                       substring3%3#0
-        v-store substring3%3#0
-        v-load substring3%3#0                                                            substring3%3#0
-        int 0                                                                            substring3%3#0,0
-        extract_uint16 // on error: invalid array length header                          aggregate%array_length%2#0
-        v-store aggregate%array_length%2#0
-        v-load aggregate%array_length%2#0                                                aggregate%array_length%2#0
-        int 5                                                                            aggregate%array_length%2#0,5
-        +                                                                                add%6#0
-        v-store add%6#0
-        v-load tuple_len%2#0                                                             tuple_len%2#0
-        v-load add%6#0                                                                   tuple_len%2#0,add%6#0
-        ==                                                                               eq%5#0
-        v-store eq%5#0
-        v-load eq%5#0                                                                    eq%5#0
-        assert // invalid number of bytes for test_cases.arc_56.contract.SharedStruct
+        assert // invalid number of bytes for Encoded((len+uint8[]),uint8)
         // arc_56/contract.py:91
         // assert arg.shared == shared, "this might error"
-        v-load substring3%1#0                                                            substring3%1#0
-        v-load shared#0                                                                  substring3%1#0,shared#0
+        v-load arg#0                                                                     arg#0
+        int 10                                                                           arg#0,10
+        extract_uint16                                                                   aggregate%extract_uint16%0#0
+        v-store aggregate%extract_uint16%0#0
+        v-load arg#0                                                                     arg#0
+        len                                                                              aggregate%len%0#0
+        v-store aggregate%len%0#0
+        v-load arg#0                                                                     arg#0
+        v-load aggregate%extract_uint16%0#0                                              arg#0,aggregate%extract_uint16%0#0
+        v-load aggregate%len%0#0                                                         arg#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                       aggregate%substring3%0#0
+        v-store aggregate%substring3%0#0
+        v-load aggregate%substring3%0#0                                                  aggregate%substring3%0#0
+        v-load value#0                                                                   aggregate%substring3%0#0,value#0
         ==                                                                               tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                   tmp%0#1
@@ -291,82 +228,23 @@ subroutine struct_return:
         txna ApplicationArgs 1                                                           arg#0
         v-store arg#0
         v-load arg#0                                                                     arg#0
-        len                                                                              tuple_len%0#0
-        v-store tuple_len%0#0
-        v-load arg#0                                                                     arg#0
-        int 8                                                                            arg#0,8
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%0#0
-        v-store extract_uint16%0#0
-        v-load extract_uint16%0#0                                                        extract_uint16%0#0
-        int 12                                                                           extract_uint16%0#0,12
-        ==                                                                               eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                    eq%0#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) 
-        v-load arg#0                                                                     arg#0
-        v-load extract_uint16%0#0                                                        arg#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                             arg#0,extract_uint16%0#0,tuple_len%0#0
-        substring3                                                                       substring3%0#0
-        v-store substring3%0#0
-        v-load substring3%0#0                                                            substring3%0#0
-        int 0                                                                            substring3%0#0,0
-        extract_uint16 // on error: invalid array length header                          aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                aggregate%array_length%0#0
-        int 14                                                                           aggregate%array_length%0#0,14
-        +                                                                                add%1#0
-        v-store add%1#0
+        callsub __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))
+        // arc_56/contract.py:96
+        // assert arg.shared == echo(arg.shared), "this won't error"
         v-load arg#0                                                                     arg#0
         int 10                                                                           arg#0,10
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%1#0
-        v-store extract_uint16%1#0
-        v-load extract_uint16%1#0                                                        extract_uint16%1#0
-        v-load add%1#0                                                                   extract_uint16%1#0,add%1#0
-        ==                                                                               eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                    eq%1#0
-        assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) 
+        extract_uint16                                                                   aggregate%extract_uint16%0#0
+        v-store aggregate%extract_uint16%0#0
         v-load arg#0                                                                     arg#0
-        v-load extract_uint16%1#0                                                        arg#0,extract_uint16%1#0
-        v-load tuple_len%0#0                                                             arg#0,extract_uint16%1#0,tuple_len%0#0
+        len                                                                              aggregate%len%0#0
+        v-store aggregate%len%0#0
+        v-load arg#0                                                                     arg#0
+        v-load aggregate%extract_uint16%0#0                                              arg#0,aggregate%extract_uint16%0#0
+        v-load aggregate%len%0#0                                                         arg#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
         substring3                                                                       s#0
         v-store s#0
-        v-load s#0                                                                       s#0
-        len                                                                              tuple_len%1#0
-        v-store tuple_len%1#0
-        v-load s#0                                                                       s#0
-        int 0                                                                            s#0,0
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%2#0
-        v-store extract_uint16%2#0
-        v-load extract_uint16%2#0                                                        extract_uint16%2#0
-        int 3                                                                            extract_uint16%2#0,3
-        ==                                                                               eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                    eq%2#0
-        assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
-        v-load s#0                                                                       s#0
-        v-load extract_uint16%2#0                                                        s#0,extract_uint16%2#0
-        v-load tuple_len%1#0                                                             s#0,extract_uint16%2#0,tuple_len%1#0
-        substring3                                                                       substring3%2#0
-        v-store substring3%2#0
-        v-load substring3%2#0                                                            substring3%2#0
-        int 0                                                                            substring3%2#0,0
-        extract_uint16 // on error: invalid array length header                          aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                                aggregate%array_length%1#0
-        int 5                                                                            aggregate%array_length%1#0,5
-        +                                                                                add%3#0
-        v-store add%3#0
-        v-load add%1#0                                                                   add%1#0
-        v-load add%3#0                                                                   add%1#0,add%3#0
-        +                                                                                add%4#0
-        v-store add%4#0
-        v-load tuple_len%0#0                                                             tuple_len%0#0
-        v-load add%4#0                                                                   tuple_len%0#0,add%4#0
-        ==                                                                               eq%3#0
-        v-store eq%3#0
-        v-load eq%3#0                                                                    eq%3#0
-        assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
+        // arc_56/contract.py:94
+        // @arc4.abimethod(readonly=True)
         byte 0x151f7c75                                                                  0x151f7c75
         v-load s#0                                                                       0x151f7c75,s#0
         concat                                                                           tmp%2#0
@@ -385,82 +263,7 @@ subroutine errors:
         txna ApplicationArgs 1                                                           arg#0
         v-store arg#0
         v-load arg#0                                                                     arg#0
-        len                                                                              tuple_len%0#0
-        v-store tuple_len%0#0
-        v-load arg#0                                                                     arg#0
-        int 8                                                                            arg#0,8
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%0#0
-        v-store extract_uint16%0#0
-        v-load extract_uint16%0#0                                                        extract_uint16%0#0
-        int 12                                                                           extract_uint16%0#0,12
-        ==                                                                               eq%0#0
-        v-store eq%0#0
-        v-load eq%0#0                                                                    eq%0#0
-        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) 
-        v-load arg#0                                                                     arg#0
-        v-load extract_uint16%0#0                                                        arg#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                             arg#0,extract_uint16%0#0,tuple_len%0#0
-        substring3                                                                       substring3%0#0
-        v-store substring3%0#0
-        v-load substring3%0#0                                                            substring3%0#0
-        int 0                                                                            substring3%0#0,0
-        extract_uint16 // on error: invalid array length header                          aggregate%array_length%0#0
-        v-store aggregate%array_length%0#0
-        v-load aggregate%array_length%0#0                                                aggregate%array_length%0#0
-        int 14                                                                           aggregate%array_length%0#0,14
-        +                                                                                add%1#0
-        v-store add%1#0
-        v-load arg#0                                                                     arg#0
-        int 10                                                                           arg#0,10
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%1#0
-        v-store extract_uint16%1#0
-        v-load extract_uint16%1#0                                                        extract_uint16%1#0
-        v-load add%1#0                                                                   extract_uint16%1#0,add%1#0
-        ==                                                                               eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                    eq%1#0
-        assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) 
-        v-load arg#0                                                                     arg#0
-        v-load extract_uint16%1#0                                                        arg#0,extract_uint16%1#0
-        v-load tuple_len%0#0                                                             arg#0,extract_uint16%1#0,tuple_len%0#0
-        substring3                                                                       substring3%1#0
-        v-store substring3%1#0
-        v-load substring3%1#0                                                            substring3%1#0
-        len                                                                              tuple_len%1#0
-        v-store tuple_len%1#0
-        v-load substring3%1#0                                                            substring3%1#0
-        int 0                                                                            substring3%1#0,0
-        extract_uint16 // on error: invalid tuple encoding                               extract_uint16%2#0
-        v-store extract_uint16%2#0
-        v-load extract_uint16%2#0                                                        extract_uint16%2#0
-        int 3                                                                            extract_uint16%2#0,3
-        ==                                                                               eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                    eq%2#0
-        assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)
-        v-load substring3%1#0                                                            substring3%1#0
-        v-load extract_uint16%2#0                                                        substring3%1#0,extract_uint16%2#0
-        v-load tuple_len%1#0                                                             substring3%1#0,extract_uint16%2#0,tuple_len%1#0
-        substring3                                                                       substring3%2#0
-        v-store substring3%2#0
-        v-load substring3%2#0                                                            substring3%2#0
-        int 0                                                                            substring3%2#0,0
-        extract_uint16 // on error: invalid array length header                          aggregate%array_length%1#0
-        v-store aggregate%array_length%1#0
-        v-load aggregate%array_length%1#0                                                aggregate%array_length%1#0
-        int 5                                                                            aggregate%array_length%1#0,5
-        +                                                                                add%3#0
-        v-store add%3#0
-        v-load add%1#0                                                                   add%1#0
-        v-load add%3#0                                                                   add%1#0,add%3#0
-        +                                                                                add%4#0
-        v-store add%4#0
-        v-load tuple_len%0#0                                                             tuple_len%0#0
-        v-load add%4#0                                                                   tuple_len%0#0,add%4#0
-        ==                                                                               eq%3#0
-        v-store eq%3#0
-        v-load eq%3#0                                                                    eq%3#0
-        assert // invalid number of bytes for test_cases.arc_56.contract.TopLevelStruct
+        callsub __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))
         // arc_56/contract.py:101
         // assert arg.a.bytes == arc4.UInt8(0).bytes, "this will error"
         v-load arg#0                                                                     arg#0
@@ -504,9 +307,9 @@ subroutine conditional_emit:
     conditional_emit_block@0:
         // arc_56/contract.py:113
         // @arc4.abimethod()
-        txna ApplicationArgs 1                                                           tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                   tmp%0#0
+        txna ApplicationArgs 1                                                           value#0
+        v-store value#0
+        v-load value#0                                                                   value#0
         len                                                                              len%0#0
         v-store len%0#0
         v-load len%0#0                                                                   len%0#0
@@ -514,17 +317,19 @@ subroutine conditional_emit:
         ==                                                                               eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                    eq%0#0
-        assert // invalid number of bytes for arc4.bool
-        v-load tmp%0#0                                                                   tmp%0#0
-        int 0                                                                            tmp%0#0,0
+        assert // invalid number of bytes for Encoded(bool8)
+        // arc_56/contract.py:113
+        // @arc4.abimethod()
+        v-load value#0                                                                   value#0
+        int 0                                                                            value#0,0
         getbit                                                                           should_emit#0
         v-store should_emit#0
         // arc_56/contract.py:115
         // if should_emit:
         v-load should_emit#0                                                             should_emit#0
-        bz conditional_emit_after_if_else@3 ; b conditional_emit_if_body@2
+        bz conditional_emit_after_if_else@5 ; b conditional_emit_if_body@4
 
-    conditional_emit_if_body@2:
+    conditional_emit_if_body@4:
         // arc_56/contract.py:116-120
         // arc4.emit(
         //     "Anonymous2",
@@ -533,9 +338,9 @@ subroutine conditional_emit:
         // )
         byte 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33        0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33
         log
-        b conditional_emit_after_if_else@3
+        b conditional_emit_after_if_else@5
 
-    conditional_emit_after_if_else@3:
+    conditional_emit_after_if_else@5:
         // arc_56/contract.py:113
         // @arc4.abimethod()
         int 1                                                                            1
@@ -649,72 +454,128 @@ subroutine with_constant_defaults:
         ==                                                                               eq%0#0
         v-store eq%0#0
         v-load eq%0#0                                                                    eq%0#0
-        assert // invalid number of bytes for arc4.uint64
-        txna ApplicationArgs 2                                                           tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                   tmp%1#0
-        len                                                                              len%1#0
-        v-store len%1#0
-        v-load len%1#0                                                                   len%1#0
-        int 8                                                                            len%1#0,8
-        ==                                                                               eq%1#0
-        v-store eq%1#0
-        v-load eq%1#0                                                                    eq%1#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%1#0                                                                   tmp%1#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // arc_56/contract.py:131-143
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        txna ApplicationArgs 2                                                           value#0
+        v-store value#0
+        v-load value#0                                                                   value#0
+        len                                                                              len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                   len%0#0
+        int 8                                                                            len%0#0,8
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // arc_56/contract.py:131-143
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        v-load value#0                                                                   value#0
         btoi                                                                             b#0
         v-store b#0
-        txna ApplicationArgs 3                                                           tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                   tmp%3#0
-        int 0                                                                            tmp%3#0,0
+        txna ApplicationArgs 3                                                           value#0
+        v-store value#0
+        v-load value#0                                                                   value#0
+        int 0                                                                            value#0,0
         extract_uint16 // on error: invalid array length header                          aggregate%array_length%0#0
         v-store aggregate%array_length%0#0
         v-load aggregate%array_length%0#0                                                aggregate%array_length%0#0
         int 2                                                                            aggregate%array_length%0#0,2
         +                                                                                add%0#0
         v-store add%0#0
-        v-load tmp%3#0                                                                   tmp%3#0
-        len                                                                              len%2#0
-        v-store len%2#0
-        v-load len%2#0                                                                   len%2#0
-        v-load add%0#0                                                                   len%2#0,add%0#0
-        ==                                                                               eq%2#0
-        v-store eq%2#0
-        v-load eq%2#0                                                                    eq%2#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        v-load tmp%3#0                                                                   tmp%3#0
+        v-load value#0                                                                   value#0
+        len                                                                              len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                   len%0#0
+        v-load add%0#0                                                                   len%0#0,add%0#0
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[])
+        // arc_56/contract.py:131-143
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        v-load value#0                                                                   value#0
         extract 2 0                                                                      c#0
         v-store c#0
-        txna ApplicationArgs 4                                                           d#0
-        v-store d#0
-        v-load d#0                                                                       d#0
-        len                                                                              len%3#0
-        v-store len%3#0
-        v-load len%3#0                                                                   len%3#0
-        int 16                                                                           len%3#0,16
-        ==                                                                               eq%3#0
-        v-store eq%3#0
-        v-load eq%3#0                                                                    eq%3#0
-        assert // invalid number of bytes for test_cases.arc_56.contract.EventOnly
-        txna ApplicationArgs 5                                                           tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                                   tmp%6#0
+        txna ApplicationArgs 4                                                           value#0
+        v-store value#0
+        v-load value#0                                                                   value#0
+        len                                                                              len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                   len%0#0
+        int 16                                                                           len%0#0,16
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
+        assert // invalid number of bytes for Encoded(uint64,uint64)
+        // arc_56/contract.py:131-143
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        txna ApplicationArgs 5                                                           value#2
+        v-store value#2
+        v-load value#2                                                                   value#2
         len                                                                              tuple_len%0#0
         v-store tuple_len%0#0
-        v-load tmp%6#0                                                                   tmp%6#0
-        int 8                                                                            tmp%6#0,8
+        v-load value#2                                                                   value#2
+        int 8                                                                            value#2,8
         extract_uint16 // on error: invalid tuple encoding                               extract_uint16%0#0
         v-store extract_uint16%0#0
         v-load extract_uint16%0#0                                                        extract_uint16%0#0
         int 10                                                                           extract_uint16%0#0,10
-        ==                                                                               eq%4#0
-        v-store eq%4#0
-        v-load eq%4#0                                                                    eq%4#0
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
         assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-        v-load tmp%6#0                                                                   tmp%6#0
-        v-load extract_uint16%0#0                                                        tmp%6#0,extract_uint16%0#0
-        v-load tuple_len%0#0                                                             tmp%6#0,extract_uint16%0#0,tuple_len%0#0
+        v-load value#2                                                                   value#2
+        v-load extract_uint16%0#0                                                        value#2,extract_uint16%0#0
+        v-load tuple_len%0#0                                                             value#2,extract_uint16%0#0,tuple_len%0#0
         substring3                                                                       substring3%0#0
         v-store substring3%0#0
         v-load substring3%0#0                                                            substring3%0#0
@@ -723,72 +584,58 @@ subroutine with_constant_defaults:
         v-store aggregate%array_length%1#0
         v-load aggregate%array_length%1#0                                                aggregate%array_length%1#0
         int 12                                                                           aggregate%array_length%1#0,12
-        +                                                                                add%2#0
-        v-store add%2#0
+        +                                                                                add%1#0
+        v-store add%1#0
         v-load tuple_len%0#0                                                             tuple_len%0#0
-        v-load add%2#0                                                                   tuple_len%0#0,add%2#0
-        ==                                                                               eq%5#0
-        v-store eq%5#0
-        v-load eq%5#0                                                                    eq%5#0
-        assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>> 
-        v-load tmp%6#0                                                                   tmp%6#0
-        int 0                                                                            tmp%6#0,0
+        v-load add%1#0                                                                   tuple_len%0#0,add%1#0
+        ==                                                                               eq%1#0
+        v-store eq%1#0
+        v-load eq%1#0                                                                    eq%1#0
+        assert // invalid number of bytes for Encoded(uint64,(len+utf8[]))
+        // arc_56/contract.py:131-143
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        v-load value#2                                                                   value#2
+        int 0                                                                            value#2,0
         extract_uint64                                                                   e.0#0
         v-store e.0#0
         v-load substring3%0#0                                                            substring3%0#0
         extract 2 0                                                                      e.1#0
         v-store e.1#0
-        txna ApplicationArgs 6                                                           f#0
-        v-store f#0
+        txna ApplicationArgs 6                                                           value#2
+        v-store value#2
         int 4                                                                            4
         v-store num_bytes%0#0
         int 0                                                                            0
         v-store index%0#0
-        b with_constant_defaults_for_header@1
+        b with_constant_defaults_for_header@8
 
-    with_constant_defaults_for_header@1:
-        // arc_56/contract.py:131-143
-        // @arc4.abimethod(
-        //     default_args={
-        //         "a": arc4.UInt64(123),
-        //         "c": Bytes(b"123"),
-        //         "b": UInt64(234),
-        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
-        //         "e": (UInt64(42), String("on the edge")),
-        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
-        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
-        //         "h": constant_method(),
-        //         "i": echo_number(UInt64(1234)),
-        //     }
-        // )
+    with_constant_defaults_for_header@8:
         v-load index%0#0                                                                 index%0#0
         int 2                                                                            index%0#0,2
         <                                                                                continue_looping%0#0
         v-store continue_looping%0#0
         v-load continue_looping%0#0                                                      continue_looping%0#0
-        bz with_constant_defaults_after_for@4 ; b with_constant_defaults_for_body@2
+        bz with_constant_defaults_after_for@11 ; b with_constant_defaults_for_body@9
 
-    with_constant_defaults_for_body@2:
-        // arc_56/contract.py:131-143
-        // @arc4.abimethod(
-        //     default_args={
-        //         "a": arc4.UInt64(123),
-        //         "c": Bytes(b"123"),
-        //         "b": UInt64(234),
-        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
-        //         "e": (UInt64(42), String("on the edge")),
-        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
-        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
-        //         "h": constant_method(),
-        //         "i": echo_number(UInt64(1234)),
-        //     }
-        // )
+    with_constant_defaults_for_body@9:
         v-load index%0#0                                                                 index%0#0
         int 2                                                                            index%0#0,2
         *                                                                                head_offset_bytes%0#0
         v-store head_offset_bytes%0#0
-        v-load f#0                                                                       f#0
-        v-load head_offset_bytes%0#0                                                     f#0,head_offset_bytes%0#0
+        v-load value#2                                                                   value#2
+        v-load head_offset_bytes%0#0                                                     value#2,head_offset_bytes%0#0
         extract_uint16 // on error: invalid array encoding                               item_offset%0#0
         v-store item_offset%0#0
         v-load item_offset%0#0                                                           item_offset%0#0
@@ -797,12 +644,12 @@ subroutine with_constant_defaults:
         v-store offset_is_correct%0#0
         v-load offset_is_correct%0#0                                                     offset_is_correct%0#0
         assert // invalid tail pointer for (len+utf8[])[2]
-        v-load f#0                                                                       f#0
+        v-load value#2                                                                   value#2
         len                                                                              total_length%0#0
         v-store total_length%0#0
-        v-load f#0                                                                       f#0
-        v-load item_offset%0#0                                                           f#0,item_offset%0#0
-        v-load total_length%0#0                                                          f#0,item_offset%0#0,total_length%0#0
+        v-load value#2                                                                   value#2
+        v-load item_offset%0#0                                                           value#2,item_offset%0#0
+        v-load total_length%0#0                                                          value#2,item_offset%0#0,total_length%0#0
         substring3                                                                       extract_to_end%0#0
         v-store extract_to_end%0#0
         v-load extract_to_end%0#0                                                        extract_to_end%0#0
@@ -811,19 +658,28 @@ subroutine with_constant_defaults:
         v-store aggregate%array_length%2#0
         v-load aggregate%array_length%2#0                                                aggregate%array_length%2#0
         int 2                                                                            aggregate%array_length%2#0,2
-        +                                                                                add%3#0
-        v-store add%3#0
+        +                                                                                add%0#0
+        v-store add%0#0
         v-load num_bytes%0#0                                                             num_bytes%0#0
-        v-load add%3#0                                                                   num_bytes%0#0,add%3#0
+        v-load add%0#0                                                                   num_bytes%0#0,add%0#0
         +                                                                                num_bytes%0#0
         v-store num_bytes%0#0
         v-load index%0#0                                                                 index%0#0
         int 1                                                                            index%0#0,1
         +                                                                                index%0#0
         v-store index%0#0
-        b with_constant_defaults_for_header@1
+        b with_constant_defaults_for_header@8
 
-    with_constant_defaults_after_for@4:
+    with_constant_defaults_after_for@11:
+        v-load value#2                                                                   value#2
+        len                                                                              len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                   len%0#0
+        v-load num_bytes%0#0                                                             len%0#0,num_bytes%0#0
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
+        assert // invalid number of bytes for Encoded((len+utf8[])[2])
         // arc_56/contract.py:131-143
         // @arc4.abimethod(
         //     default_args={
@@ -838,113 +694,86 @@ subroutine with_constant_defaults:
         //         "i": echo_number(UInt64(1234)),
         //     }
         // )
-        v-load f#0                                                                       f#0
-        len                                                                              len%5#0
-        v-store len%5#0
-        v-load len%5#0                                                                   len%5#0
-        v-load num_bytes%0#0                                                             len%5#0,num_bytes%0#0
-        ==                                                                               eq%6#0
-        v-store eq%6#0
-        v-load eq%6#0                                                                    eq%6#0
-        assert // invalid number of bytes for arc4.static_array<arc4.dynamic_array<arc4.uint8>, 2> 
-        txna ApplicationArgs 7                                                           g#0
-        v-store g#0
-        v-load g#0                                                                       g#0
-        int 0                                                                            g#0,0
+        txna ApplicationArgs 7                                                           value#4
+        v-store value#4
+        v-load value#4                                                                   value#4
+        int 0                                                                            value#4,0
         extract_uint16 // on error: invalid array length header                          aggregate%array_length%3#0
         v-store aggregate%array_length%3#0
         v-load aggregate%array_length%3#0                                                aggregate%array_length%3#0
         int 2                                                                            aggregate%array_length%3#0,2
-        *                                                                                num_bytes%1#0
-        v-store num_bytes%1#0
-        v-load g#0                                                                       g#0
-        len                                                                              total_length%1#0
-        v-store total_length%1#0
-        v-load g#0                                                                       g#0
+        *                                                                                num_bytes%0#0
+        v-store num_bytes%0#0
+        v-load value#4                                                                   value#4
+        len                                                                              total_length%0#0
+        v-store total_length%0#0
+        v-load value#4                                                                   value#4
         extract 2 0                                                                      array_data%0#0
         v-store array_data%0#0
         int 0                                                                            0
-        v-store index%1#0
-        b with_constant_defaults_for_header@5
+        v-store index%0#0
+        b with_constant_defaults_for_header@14
 
-    with_constant_defaults_for_header@5:
-        // arc_56/contract.py:131-143
-        // @arc4.abimethod(
-        //     default_args={
-        //         "a": arc4.UInt64(123),
-        //         "c": Bytes(b"123"),
-        //         "b": UInt64(234),
-        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
-        //         "e": (UInt64(42), String("on the edge")),
-        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
-        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
-        //         "h": constant_method(),
-        //         "i": echo_number(UInt64(1234)),
-        //     }
-        // )
-        v-load index%1#0                                                                 index%1#0
-        v-load aggregate%array_length%3#0                                                index%1#0,aggregate%array_length%3#0
-        <                                                                                continue_looping%1#0
-        v-store continue_looping%1#0
-        v-load continue_looping%1#0                                                      continue_looping%1#0
-        bz with_constant_defaults_after_for@8 ; b with_constant_defaults_for_body@6
+    with_constant_defaults_for_header@14:
+        v-load index%0#0                                                                 index%0#0
+        v-load aggregate%array_length%3#0                                                index%0#0,aggregate%array_length%3#0
+        <                                                                                continue_looping%0#0
+        v-store continue_looping%0#0
+        v-load continue_looping%0#0                                                      continue_looping%0#0
+        bz with_constant_defaults_after_for@17 ; b with_constant_defaults_for_body@15
 
-    with_constant_defaults_for_body@6:
-        // arc_56/contract.py:131-143
-        // @arc4.abimethod(
-        //     default_args={
-        //         "a": arc4.UInt64(123),
-        //         "c": Bytes(b"123"),
-        //         "b": UInt64(234),
-        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
-        //         "e": (UInt64(42), String("on the edge")),
-        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
-        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
-        //         "h": constant_method(),
-        //         "i": echo_number(UInt64(1234)),
-        //     }
-        // )
-        v-load index%1#0                                                                 index%1#0
-        int 2                                                                            index%1#0,2
-        *                                                                                head_offset_bytes%1#0
-        v-store head_offset_bytes%1#0
+    with_constant_defaults_for_body@15:
+        v-load index%0#0                                                                 index%0#0
+        int 2                                                                            index%0#0,2
+        *                                                                                head_offset_bytes%0#0
+        v-store head_offset_bytes%0#0
         v-load array_data%0#0                                                            array_data%0#0
-        v-load head_offset_bytes%1#0                                                     array_data%0#0,head_offset_bytes%1#0
-        extract_uint16 // on error: invalid array encoding                               item_offset%1#0
-        v-store item_offset%1#0
-        v-load item_offset%1#0                                                           item_offset%1#0
-        v-load num_bytes%1#0                                                             item_offset%1#0,num_bytes%1#0
-        ==                                                                               offset_is_correct%1#0
-        v-store offset_is_correct%1#0
-        v-load offset_is_correct%1#0                                                     offset_is_correct%1#0
+        v-load head_offset_bytes%0#0                                                     array_data%0#0,head_offset_bytes%0#0
+        extract_uint16 // on error: invalid array encoding                               item_offset%0#0
+        v-store item_offset%0#0
+        v-load item_offset%0#0                                                           item_offset%0#0
+        v-load num_bytes%0#0                                                             item_offset%0#0,num_bytes%0#0
+        ==                                                                               offset_is_correct%0#0
+        v-store offset_is_correct%0#0
+        v-load offset_is_correct%0#0                                                     offset_is_correct%0#0
         assert // invalid tail pointer for (len+(len+utf8[])[])
         v-load array_data%0#0                                                            array_data%0#0
-        len                                                                              total_length%2#0
-        v-store total_length%2#0
+        len                                                                              total_length%1#0
+        v-store total_length%1#0
         v-load array_data%0#0                                                            array_data%0#0
-        v-load item_offset%1#0                                                           array_data%0#0,item_offset%1#0
-        v-load total_length%2#0                                                          array_data%0#0,item_offset%1#0,total_length%2#0
-        substring3                                                                       extract_to_end%1#0
-        v-store extract_to_end%1#0
-        v-load extract_to_end%1#0                                                        extract_to_end%1#0
-        int 0                                                                            extract_to_end%1#0,0
+        v-load item_offset%0#0                                                           array_data%0#0,item_offset%0#0
+        v-load total_length%1#0                                                          array_data%0#0,item_offset%0#0,total_length%1#0
+        substring3                                                                       extract_to_end%0#0
+        v-store extract_to_end%0#0
+        v-load extract_to_end%0#0                                                        extract_to_end%0#0
+        int 0                                                                            extract_to_end%0#0,0
         extract_uint16 // on error: invalid array length header                          aggregate%array_length%4#0
         v-store aggregate%array_length%4#0
         v-load aggregate%array_length%4#0                                                aggregate%array_length%4#0
         int 2                                                                            aggregate%array_length%4#0,2
-        +                                                                                add%4#0
-        v-store add%4#0
-        v-load num_bytes%1#0                                                             num_bytes%1#0
-        v-load add%4#0                                                                   num_bytes%1#0,add%4#0
+        +                                                                                add%0#0
+        v-store add%0#0
+        v-load num_bytes%0#0                                                             num_bytes%0#0
+        v-load add%0#0                                                                   num_bytes%0#0,add%0#0
+        +                                                                                num_bytes%0#0
+        v-store num_bytes%0#0
+        v-load index%0#0                                                                 index%0#0
+        int 1                                                                            index%0#0,1
+        +                                                                                index%0#0
+        v-store index%0#0
+        b with_constant_defaults_for_header@14
+
+    with_constant_defaults_after_for@17:
+        v-load num_bytes%0#0                                                             num_bytes%0#0
+        int 2                                                                            num_bytes%0#0,2
         +                                                                                num_bytes%1#0
         v-store num_bytes%1#0
-        v-load index%1#0                                                                 index%1#0
-        int 1                                                                            index%1#0,1
-        +                                                                                index%1#0
-        v-store index%1#0
-        b with_constant_defaults_for_header@5
-
-    with_constant_defaults_after_for@8:
+        v-load total_length%0#0                                                          total_length%0#0
+        v-load num_bytes%1#0                                                             total_length%0#0,num_bytes%1#0
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
+        assert // invalid number of bytes for Encoded(len+(len+utf8[])[])
         // arc_56/contract.py:131-143
         // @arc4.abimethod(
         //     default_args={
@@ -959,42 +788,60 @@ subroutine with_constant_defaults:
         //         "i": echo_number(UInt64(1234)),
         //     }
         // )
-        v-load num_bytes%1#0                                                             num_bytes%1#0
-        int 2                                                                            num_bytes%1#0,2
-        +                                                                                num_bytes%2#0
-        v-store num_bytes%2#0
-        v-load total_length%1#0                                                          total_length%1#0
-        v-load num_bytes%2#0                                                             total_length%1#0,num_bytes%2#0
-        ==                                                                               eq%7#0
-        v-store eq%7#0
-        v-load eq%7#0                                                                    eq%7#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint8>> 
-        txna ApplicationArgs 8                                                           tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                  tmp%11#0
-        len                                                                              len%7#0
-        v-store len%7#0
-        v-load len%7#0                                                                   len%7#0
-        int 8                                                                            len%7#0,8
-        ==                                                                               eq%8#0
-        v-store eq%8#0
-        v-load eq%8#0                                                                    eq%8#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%11#0                                                                  tmp%11#0
+        txna ApplicationArgs 8                                                           value#4
+        v-store value#4
+        v-load value#4                                                                   value#4
+        len                                                                              len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                   len%0#0
+        int 8                                                                            len%0#0,8
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // arc_56/contract.py:131-143
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        v-load value#4                                                                   value#4
         btoi                                                                             h#0
         v-store h#0
-        txna ApplicationArgs 9                                                           tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                                                  tmp%13#0
-        len                                                                              len%8#0
-        v-store len%8#0
-        v-load len%8#0                                                                   len%8#0
-        int 8                                                                            len%8#0,8
-        ==                                                                               eq%9#0
-        v-store eq%9#0
-        v-load eq%9#0                                                                    eq%9#0
-        assert // invalid number of bytes for arc4.uint64
-        v-load tmp%13#0                                                                  tmp%13#0
+        txna ApplicationArgs 9                                                           value#4
+        v-store value#4
+        v-load value#4                                                                   value#4
+        len                                                                              len%0#0
+        v-store len%0#0
+        v-load len%0#0                                                                   len%0#0
+        int 8                                                                            len%0#0,8
+        ==                                                                               eq%0#0
+        v-store eq%0#0
+        v-load eq%0#0                                                                    eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)
+        // arc_56/contract.py:131-143
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        v-load value#4                                                                   value#4
         btoi                                                                             i#0
         v-store i#0
         // arc_56/contract.py:156
@@ -1018,7 +865,7 @@ subroutine with_constant_defaults:
         assert
         // arc_56/contract.py:159
         // assert d.x or d.y
-        v-load d#0                                                                       d#0
+        v-load value#0                                                                   value#0
         extract 0 8                                                                      aggregate%extract%1#0
         v-store aggregate%extract%1#0
         v-load aggregate%extract%1#0                                                     aggregate%extract%1#0
@@ -1026,12 +873,12 @@ subroutine with_constant_defaults:
         b!=                                                                              tmp%4#1
         v-store tmp%4#1
         v-load tmp%4#1                                                                   tmp%4#1
-        bz with_constant_defaults_or_contd@10 ; b with_constant_defaults_bool_true@11
+        bz with_constant_defaults_or_contd@20 ; b with_constant_defaults_bool_true@21
 
-    with_constant_defaults_or_contd@10:
+    with_constant_defaults_or_contd@20:
         // arc_56/contract.py:159
         // assert d.x or d.y
-        v-load d#0                                                                       d#0
+        v-load value#0                                                                   value#0
         extract 8 8                                                                      aggregate%extract%2#0
         v-store aggregate%extract%2#0
         v-load aggregate%extract%2#0                                                     aggregate%extract%2#0
@@ -1039,19 +886,19 @@ subroutine with_constant_defaults:
         b!=                                                                              tmp%5#1
         v-store tmp%5#1
         v-load tmp%5#1                                                                   tmp%5#1
-        bz with_constant_defaults_bool_false@12 ; b with_constant_defaults_bool_true@11
+        bz with_constant_defaults_bool_false@22 ; b with_constant_defaults_bool_true@21
 
-    with_constant_defaults_bool_true@11:
+    with_constant_defaults_bool_true@21:
         int 1                                                                            1
         v-store or_result%0#0
-        b with_constant_defaults_bool_merge@13
+        b with_constant_defaults_bool_merge@23
 
-    with_constant_defaults_bool_false@12:
+    with_constant_defaults_bool_false@22:
         int 0                                                                            0
         v-store or_result%0#0
-        b with_constant_defaults_bool_merge@13
+        b with_constant_defaults_bool_merge@23
 
-    with_constant_defaults_bool_merge@13:
+    with_constant_defaults_bool_merge@23:
         // arc_56/contract.py:159
         // assert d.x or d.y
         v-load or_result%0#0                                                             or_result%0#0
@@ -1059,47 +906,47 @@ subroutine with_constant_defaults:
         // arc_56/contract.py:160
         // assert e[0] or e[1]
         v-load e.0#0                                                                     e.0#0
-        bz with_constant_defaults_or_contd@14 ; b with_constant_defaults_bool_true@15
+        bz with_constant_defaults_or_contd@24 ; b with_constant_defaults_bool_true@25
 
-    with_constant_defaults_or_contd@14:
+    with_constant_defaults_or_contd@24:
         // arc_56/contract.py:160
         // assert e[0] or e[1]
         v-load e.1#0                                                                     e.1#0
         len                                                                              tmp%7#1
         v-store tmp%7#1
         v-load tmp%7#1                                                                   tmp%7#1
-        bz with_constant_defaults_bool_false@16 ; b with_constant_defaults_bool_true@15
+        bz with_constant_defaults_bool_false@26 ; b with_constant_defaults_bool_true@25
 
-    with_constant_defaults_bool_true@15:
+    with_constant_defaults_bool_true@25:
         int 1                                                                            1
         v-store or_result%1#0
-        b with_constant_defaults_bool_merge@17
+        b with_constant_defaults_bool_merge@27
 
-    with_constant_defaults_bool_false@16:
+    with_constant_defaults_bool_false@26:
         int 0                                                                            0
         v-store or_result%1#0
-        b with_constant_defaults_bool_merge@17
+        b with_constant_defaults_bool_merge@27
 
-    with_constant_defaults_bool_merge@17:
+    with_constant_defaults_bool_merge@27:
         // arc_56/contract.py:160
         // assert e[0] or e[1]
         v-load or_result%1#0                                                             or_result%1#0
         assert
-        v-load f#0                                                                       f#0
-        int 0                                                                            f#0,0
+        v-load value#2                                                                   value#2
+        int 0                                                                            value#2,0
         extract_uint16                                                                   item_start_offset#0
         v-store item_start_offset#0
-        v-load f#0                                                                       f#0
-        v-load item_start_offset#0                                                       f#0,item_start_offset#0
+        v-load value#2                                                                   value#2
+        v-load item_start_offset#0                                                       value#2,item_start_offset#0
         extract_uint16                                                                   item_length#0
         v-store item_length#0
         v-load item_length#0                                                             item_length#0
         int 2                                                                            item_length#0,2
-        +                                                                                tmp%3#1
-        v-store tmp%3#1
-        v-load f#0                                                                       f#0
-        v-load item_start_offset#0                                                       f#0,item_start_offset#0
-        v-load tmp%3#1                                                                   f#0,item_start_offset#0,tmp%3#1
+        +                                                                                tmp%3#0
+        v-store tmp%3#0
+        v-load value#2                                                                   value#2
+        v-load item_start_offset#0                                                       value#2,item_start_offset#0
+        v-load tmp%3#0                                                                   value#2,item_start_offset#0,tmp%3#0
         extract3                                                                         tmp%4#2
         v-store tmp%4#2
         // arc_56/contract.py:161
@@ -1150,5 +997,88 @@ subroutine with_constant_defaults:
         // )
         int 1                                                                            1
         return
+
+
+// __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))(value: bytes) -> void:
+subroutine __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)):
+    __internal_validate_Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))_block@0:      (𝕡) value#0 |
+        p-load value#0                                                                   (𝕡) value#0 | value#0 (copy)
+        len                                                                              (𝕡) value#0 | tuple_len%0#0
+        v-store tuple_len%0#0                                                            (𝕡) value#0 |
+        p-load value#0                                                                   (𝕡) value#0 | value#0 (copy)
+        int 8                                                                            (𝕡) value#0 | value#0 (copy),8
+        extract_uint16 // on error: invalid tuple encoding                               (𝕡) value#0 | extract_uint16%0#0
+        v-store extract_uint16%0#0                                                       (𝕡) value#0 |
+        v-load extract_uint16%0#0                                                        (𝕡) value#0 | extract_uint16%0#0
+        int 12                                                                           (𝕡) value#0 | extract_uint16%0#0,12
+        ==                                                                               (𝕡) value#0 | eq%0#0
+        v-store eq%0#0                                                                   (𝕡) value#0 |
+        v-load eq%0#0                                                                    (𝕡) value#0 | eq%0#0
+        assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) (𝕡) value#0 | 
+        p-load value#0                                                                   (𝕡) value#0 | value#0 (copy)
+        v-load extract_uint16%0#0                                                        (𝕡) value#0 | value#0 (copy),extract_uint16%0#0
+        v-load tuple_len%0#0                                                             (𝕡) value#0 | value#0 (copy),extract_uint16%0#0,tuple_len%0#0
+        substring3                                                                       (𝕡) value#0 | substring3%0#0
+        v-store substring3%0#0                                                           (𝕡) value#0 |
+        v-load substring3%0#0                                                            (𝕡) value#0 | substring3%0#0
+        int 0                                                                            (𝕡) value#0 | substring3%0#0,0
+        extract_uint16 // on error: invalid array length header                          (𝕡) value#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                               (𝕡) value#0 |
+        v-load aggregate%array_length%0#0                                                (𝕡) value#0 | aggregate%array_length%0#0
+        int 14                                                                           (𝕡) value#0 | aggregate%array_length%0#0,14
+        +                                                                                (𝕡) value#0 | add%1#0
+        v-store add%1#0                                                                  (𝕡) value#0 |
+        p-load value#0                                                                   (𝕡) value#0 | value#0 (copy)
+        int 10                                                                           (𝕡) value#0 | value#0 (copy),10
+        extract_uint16 // on error: invalid tuple encoding                               (𝕡) value#0 | extract_uint16%1#0
+        v-store extract_uint16%1#0                                                       (𝕡) value#0 |
+        v-load extract_uint16%1#0                                                        (𝕡) value#0 | extract_uint16%1#0
+        v-load add%1#0                                                                   (𝕡) value#0 | extract_uint16%1#0,add%1#0
+        ==                                                                               (𝕡) value#0 | eq%1#0
+        v-store eq%1#0                                                                   (𝕡) value#0 |
+        v-load eq%1#0                                                                    (𝕡) value#0 | eq%1#0
+        assert // invalid tail pointer at index 2 of (uint64,(len+utf8[]),((len+uint8[]),uint8)) (𝕡) value#0 | 
+        p-load value#0                                                                   (𝕡) value#0 | value#0 (copy)
+        v-load extract_uint16%1#0                                                        (𝕡) value#0 | value#0 (copy),extract_uint16%1#0
+        v-load tuple_len%0#0                                                             (𝕡) value#0 | value#0 (copy),extract_uint16%1#0,tuple_len%0#0
+        substring3                                                                       (𝕡) value#0 | substring3%1#0
+        v-store substring3%1#0                                                           (𝕡) value#0 |
+        v-load substring3%1#0                                                            (𝕡) value#0 | substring3%1#0
+        len                                                                              (𝕡) value#0 | tuple_len%1#0
+        v-store tuple_len%1#0                                                            (𝕡) value#0 |
+        v-load substring3%1#0                                                            (𝕡) value#0 | substring3%1#0
+        int 0                                                                            (𝕡) value#0 | substring3%1#0,0
+        extract_uint16 // on error: invalid tuple encoding                               (𝕡) value#0 | extract_uint16%2#0
+        v-store extract_uint16%2#0                                                       (𝕡) value#0 |
+        v-load extract_uint16%2#0                                                        (𝕡) value#0 | extract_uint16%2#0
+        int 3                                                                            (𝕡) value#0 | extract_uint16%2#0,3
+        ==                                                                               (𝕡) value#0 | eq%2#0
+        v-store eq%2#0                                                                   (𝕡) value#0 |
+        v-load eq%2#0                                                                    (𝕡) value#0 | eq%2#0
+        assert // invalid tail pointer at index 0 of ((len+uint8[]),uint8)               (𝕡) value#0 |
+        v-load substring3%1#0                                                            (𝕡) value#0 | substring3%1#0
+        v-load extract_uint16%2#0                                                        (𝕡) value#0 | substring3%1#0,extract_uint16%2#0
+        v-load tuple_len%1#0                                                             (𝕡) value#0 | substring3%1#0,extract_uint16%2#0,tuple_len%1#0
+        substring3                                                                       (𝕡) value#0 | substring3%2#0
+        v-store substring3%2#0                                                           (𝕡) value#0 |
+        v-load substring3%2#0                                                            (𝕡) value#0 | substring3%2#0
+        int 0                                                                            (𝕡) value#0 | substring3%2#0,0
+        extract_uint16 // on error: invalid array length header                          (𝕡) value#0 | aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0                                               (𝕡) value#0 |
+        v-load aggregate%array_length%1#0                                                (𝕡) value#0 | aggregate%array_length%1#0
+        int 5                                                                            (𝕡) value#0 | aggregate%array_length%1#0,5
+        +                                                                                (𝕡) value#0 | add%3#0
+        v-store add%3#0                                                                  (𝕡) value#0 |
+        v-load add%1#0                                                                   (𝕡) value#0 | add%1#0
+        v-load add%3#0                                                                   (𝕡) value#0 | add%1#0,add%3#0
+        +                                                                                (𝕡) value#0 | add%4#0
+        v-store add%4#0                                                                  (𝕡) value#0 |
+        v-load tuple_len%0#0                                                             (𝕡) value#0 | tuple_len%0#0
+        v-load add%4#0                                                                   (𝕡) value#0 | tuple_len%0#0,add%4#0
+        ==                                                                               (𝕡) value#0 | eq%3#0
+        v-store eq%3#0                                                                   (𝕡) value#0 |
+        v-load eq%3#0                                                                    (𝕡) value#0 | eq%3#0
+        assert // invalid number of bytes for Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)) (𝕡) value#0 | 
+        retsub
 
 

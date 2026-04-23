@@ -31,9 +31,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_native_struct() -> void:
         let encoded#0: bytes = original#0
         let tmp%1#0: bool = (== encoded#0 0x000000000000000180)
         (assert tmp%1#0)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 9u)
-        (assert eq%0#0) // invalid number of bytes for test_cases.arc4_encode_decode.contract.NativeStruct
+        __internal_validate_Encoded(uint64,bool1)(encoded#0)
         let as_Encoded(uint64,bool1)%0#0: Encoded(uint64,bool1) = encoded#0
         let decoded#0: Encoded(uint64,bool1) = as_Encoded(uint64,bool1)%0#0
         let tmp%2#0: bool = (== decoded#0 original#0)
@@ -57,19 +55,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_struct() -> void:
         let tmp%1#0: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
         let original#0: Encoded(uint64,(len+utf8[])) = tmp%1#0
         let encoded#0: bytes = original#0
-        let tuple_len%0#0: uint64 = (len encoded#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 encoded#0 8u) // on error: invalid tuple encoding
-        let eq%0#0: bool = (== extract_uint16%0#0 10u)
-        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-        let substring3%0#0: bytes = (substring3 encoded#0 extract_uint16%0#0 tuple_len%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let add%1#0: uint64 = (+ 10u add%0#0)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%1#0: bool = (== len%0#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for test_cases.arc4_encode_decode.contract.Arc4Struct
+        __internal_validate_Encoded(uint64,(len+utf8[]))(encoded#0)
         let as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = encoded#0
         let decoded#0: Encoded(uint64,(len+utf8[])) = as_Encoded(uint64,(len+utf8[]))%0#0
         let tmp%2#0: bool = (== decoded#0 original#0)
@@ -84,9 +70,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_uint64() -> void:
         let encoded#0: bytes = tmp%0#0
         let tmp%1#0: bool = (== encoded#0 0x000000000000002a)
         (assert tmp%1#0)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for uint64
+        __internal_validate_Encoded(uint64)(encoded#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
         let tmp%2#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let decoded#0: uint64 = tmp%2#0
@@ -104,9 +88,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_biguint() -> void:
         let aggregate%as_Encoded(uint512)%0#0: Encoded(uint512) = aggregate%arc4_encoded%0#0
         let tmp%0#0: Encoded(uint512) = aggregate%as_Encoded(uint512)%0#0
         let encoded#0: bytes = tmp%0#0
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 64u)
-        (assert eq%0#0) // invalid number of bytes for biguint
+        __internal_validate_Encoded(uint512)(encoded#0)
         let as_Encoded(uint512)%0#0: Encoded(uint512) = encoded#0
         let tmp%1#0: biguint = as_Encoded(uint512)%0#0
         let decoded#0: biguint = tmp%1#0
@@ -125,13 +107,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_string() -> void:
         let encoded#0: bytes = tmp%0#0
         let tmp%1#0: bool = (== encoded#0 0x000568656c6c6f)
         (assert tmp%1#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for string
+        __internal_validate_Encoded(len+utf8[])(encoded#0)
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded#0
         let tmp%2#0: string = ((extract 2 0) as_Encoded(len+utf8[])%0#0)
         let decoded#0: string = tmp%2#0
@@ -150,13 +126,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_bytes() -> void:
         let encoded#0: bytes = tmp%0#0
         let tmp%1#0: bool = (== encoded#0 0x0003010203)
         (assert tmp%1#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for bytes
+        __internal_validate_Encoded(len+uint8[])(encoded#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded#0
         let tmp%2#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
         let decoded#0: bytes = tmp%2#0
@@ -172,9 +142,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_bool() -> void:
         let encoded_true#0: bytes = tmp%0#0
         let tmp%1#0: bool = (== encoded_true#0 0x80)
         (assert tmp%1#0)
-        let len%0#0: uint64 = (len encoded_true#0)
-        let eq%0#0: bool = (== len%0#0 1u)
-        (assert eq%0#0) // invalid number of bytes for bool
+        __internal_validate_Encoded(bool8)(encoded_true#0)
         let as_Encoded(bool8)%0#0: Encoded(bool8) = encoded_true#0
         let aggregate%get_bit%0#0: bool = (getbit as_Encoded(bool8)%0#0 0u)
         let tmp%2#0: bool = aggregate%get_bit%0#0
@@ -186,9 +154,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_bool() -> void:
         let encoded_false#0: bytes = tmp%3#0
         let tmp%4#0: bool = (== encoded_false#0 0x00)
         (assert tmp%4#0)
-        let len%1#0: uint64 = (len encoded_false#0)
-        let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for bool
+        __internal_validate_Encoded(bool8)(encoded_false#0)
         let as_Encoded(bool8)%1#0: Encoded(bool8) = encoded_false#0
         let aggregate%get_bit%1#0: bool = (getbit as_Encoded(bool8)%1#0 0u)
         let tmp%5#0: bool = aggregate%get_bit%1#0
@@ -199,9 +165,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_bool() -> void:
 
 subroutine test_cases.arc4_encode_decode.contract.test_account() -> void:
     block@0: // L125
-        let len%0#0: uint64 = (len addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for account
+        __internal_validate_Encoded(uint8[32])(addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ)
         let tmp%2#0: bool = (== addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ)
         (assert tmp%2#0)
         return 
@@ -214,9 +178,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_asset() -> void:
         let encoded#0: bytes = tmp%0#0
         let tmp%1#0: bool = (== encoded#0 0x000000000000002a)
         (assert tmp%1#0)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for asset
+        __internal_validate_Encoded(uint64)(encoded#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
         let tmp%2#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let decoded#0: uint64 = tmp%2#0
@@ -232,9 +194,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_application() -> void:
         let encoded#0: bytes = tmp%0#0
         let tmp%1#0: bool = (== encoded#0 0x000000000000007b)
         (assert tmp%1#0)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for application
+        __internal_validate_Encoded(uint64)(encoded#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = encoded#0
         let tmp%2#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let decoded#0: uint64 = tmp%2#0
@@ -246,9 +206,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_uint64() -> void:
     block@0: // L151
         let tmp%0#0: bool = (== 0x000000000000002a 0x000000000000002a)
         (assert tmp%0#0)
-        let len%0#0: uint64 = (len 0x000000000000002a)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(0x000000000000002a)
         let tmp%1#0: bool = (b== 0x000000000000002a 0x000000000000002a)
         (assert tmp%1#0)
         return 
@@ -265,13 +223,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_string() -> void:
         let encoded#0: bytes = value#0
         let tmp%1#0: bool = (== encoded#0 0x000568656c6c6f)
         (assert tmp%1#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        __internal_validate_Encoded(len+utf8[])(encoded#0)
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded#0
         let decoded#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         let tmp%2#0: bool = (== decoded#0 value#0)
@@ -291,9 +243,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_tuple() -> void:
         let encoded#0: bytes = tmp%0#0
         let tmp%1#0: bool = (== encoded#0 0x00000000000000010000000000000002)
         (assert tmp%1#0)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for tuple<uint64,uint64>
+        __internal_validate_Encoded(uint64,uint64)(encoded#0)
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = encoded#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -326,19 +276,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_named_tuple() -> void:
         let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%0#0
         let tmp%0#0: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
         let encoded#0: bytes = tmp%0#0
-        let tuple_len%0#0: uint64 = (len encoded#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 encoded#0 8u) // on error: invalid tuple encoding
-        let eq%0#0: bool = (== extract_uint16%0#0 10u)
-        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
-        let substring3%0#0: bytes = (substring3 encoded#0 extract_uint16%0#0 tuple_len%0#0)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 1u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let add%1#0: uint64 = (+ 10u add%0#0)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%1#0: bool = (== len%0#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for test_cases.arc4_encode_decode.contract.MyNamedTuple
+        __internal_validate_Encoded(uint64,(len+utf8[]))(encoded#0)
         let as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = encoded#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,(len+utf8[]))%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -367,13 +305,7 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_dynamic_array() -> v
         let encoded_array%0#0: Encoded(len+uint64[]) = aggregate%as_Encoded(len+uint64[])%0#0
         let value#0: Encoded(len+uint64[]) = encoded_array%0#0
         let encoded#0: bytes = value#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 8u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+        __internal_validate_Encoded(len+uint64[])(encoded#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = encoded#0
         let decoded#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
         let tmp%0#0: bool = (== decoded#0 value#0)
@@ -388,11 +320,108 @@ subroutine test_cases.arc4_encode_decode.contract.test_arc4_static_array() -> vo
         let encoded_array%0#0: Encoded(uint64[2]) = aggregate%as_Encoded(uint64[2])%0#0
         let value#0: Encoded(uint64[2]) = encoded_array%0#0
         let encoded#0: bytes = value#0
-        let len%0#0: uint64 = (len encoded#0)
-        let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint64, 2>
+        __internal_validate_Encoded(uint64[2])(encoded#0)
         let as_Encoded(uint64[2])%0#0: Encoded(uint64[2]) = encoded#0
         let decoded#0: Encoded(uint64[2]) = as_Encoded(uint64[2])%0#0
         let tmp%0#0: bool = (== decoded#0 value#0)
         (assert tmp%0#0)
+        return 
+
+subroutine __internal_validate_Encoded(uint64,bool1)(value: Encoded(uint64,bool1)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 9u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64,bool1)
+        return 
+
+subroutine __internal_validate_Encoded(uint64,(len+utf8[]))(value: Encoded(uint64,(len+utf8[]))) -> void:
+    block@0: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 10u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+utf8[]))
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let add%1#0: uint64 = (+ 10u add%0#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%1#0: bool = (== len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for Encoded(uint64,(len+utf8[]))
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 
+
+subroutine __internal_validate_Encoded(uint512)(value: Encoded(uint512)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint512)
+        return 
+
+subroutine __internal_validate_Encoded(len+utf8[])(value: Encoded(len+utf8[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+utf8[])
+        return 
+
+subroutine __internal_validate_Encoded(len+uint8[])(value: Encoded(len+uint8[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint8[])
+        return 
+
+subroutine __internal_validate_Encoded(bool8)(value: Encoded(bool8)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(bool8)
+        return 
+
+subroutine __internal_validate_Encoded(uint8[32])(value: Encoded(uint8[32])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
+        return 
+
+subroutine __internal_validate_Encoded(uint64,uint64)(value: Encoded(uint64,uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64,uint64)
+        return 
+
+subroutine __internal_validate_Encoded(len+uint64[])(value: Encoded(len+uint64[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 8u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+uint64[])
+        return 
+
+subroutine __internal_validate_Encoded(uint64[2])(value: Encoded(uint64[2])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64[2])
         return 

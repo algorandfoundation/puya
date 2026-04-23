@@ -439,9 +439,13 @@ debug: Sealing block@10
 debug: Terminated block@10
 debug: Building IR for function examples.struct_in_box.contract.ExampleContract.add_user[routing]
 debug: Sealing block@0
+debug: Sealing block@0
+debug: Terminated block@0
 debug: Terminated block@0
 debug: Building IR for function examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]
 debug: Sealing block@0
+debug: Sealing block@0
+debug: Terminated block@0
 debug: Terminated block@0
 debug: Building IR for function examples.struct_in_box.contract.ExampleContract.get_user[routing]
 debug: Sealing block@0
@@ -544,6 +548,8 @@ debug: removing unused subroutine examples.struct_in_box.contract.ExampleContrac
 debug: removing unused subroutine algopy.arc4.ARC4Contract.approval_program
 debug: removing unused subroutine algopy.arc4.ARC4Contract.clear_state_program
 debug: removing unused subroutine algopy._contract.Contract.__init__
+debug: removing unused subroutine __internal_validate_Encoded((len+utf8[]),uint64,uint64)
+debug: removing unused subroutine __internal_validate_Encoded(uint64)
 debug: optimizing approval program of examples.struct_in_box.contract.ExampleContract at level 2
 debug: Begin optimization pass 1/100
 debug: marking single-use function _puya_lib.arc4.static_array_read_dynamic_element for inlining
@@ -557,6 +563,7 @@ debug: marking single-use function examples.struct_in_box.contract.ExampleContra
 debug: marking single-use function examples.struct_in_box.contract.ExampleContract.add_user for inlining
 debug: marking single-use function examples.struct_in_box.contract.ExampleContract.attach_asset_to_user for inlining
 debug: marking single-use function examples.struct_in_box.contract.ExampleContract.get_user for inlining
+debug: marking single-use function __internal_validate_Encoded((len+utf8[]),uint64,uint64) for inlining
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: inlining call to examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__ in algopy.arc4.ARC4Contract.approval_program
@@ -1085,8 +1092,6 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== tmp%2#0 NoOp) to (! tmp%2#0)
-debug: Simplified (* length%0#0 1u) to length%0#0
-debug: Simplified (+ 18u add%0#0) to (+ length%0#0 20u)
 debug: Simplified (== tmp%7#0 NoOp) to (! tmp%7#0)
 debug: Simplified (== tmp%9#0 0u) to (! tmp%9#0)
 debug: Optimizer: Inner Txn Field Replacer
@@ -1115,12 +1120,6 @@ debug: branching to block@6 will be replaced with block@8
 debug: branching to block@7 will be replaced with block@8
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let len%0#2: uint64 = (len tmp%0#3) with copy of existing registers [Register(source_location=struct_in_box/contract.py:30:5-21, ir_type=uint64, name='tuple_len%0', version=0)]
-debug: Found equivalence set: length%0#0, mul%0#0
-debug: selected length%0#0 from equivalence set
-debug: Found equivalence set: tuple_len%0#0, len%0#2
-debug: selected tuple_len%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -1128,18 +1127,19 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.struct_in_box.contract.ExampleContract.add_user[routing]
 debug: Optimizer: Perform Subroutine Inlining
+struct_in_box/contract.py:30:6 debug: inlining call to __internal_validate_Encoded((len+utf8[]),uint64,uint64) in examples.struct_in_box.contract.ExampleContract.add_user[routing]
 struct_in_box/contract.py:30:6 debug: inlining call to examples.struct_in_box.contract.ExampleContract.add_user in examples.struct_in_box.contract.ExampleContract.add_user[routing]
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, as_Encoded((len+utf8[]),uint64,uint64)%0#0, user#0
-debug: selected user#0 from equivalence set
+debug: Found equivalence set: tmp%0#0, value#0, as_Encoded((len+utf8[]),uint64,uint64)%0#0, user#0
+debug: selected value#0 from equivalence set
 debug: Found equivalence set: write_to_box%0#0, user#1
 debug: selected user#1 from equivalence set
-debug: Copy propagation made 6 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
+debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (* length%0#0 1u) to length%0#0
 debug: Simplified (+ 18u add%0#0) to (+ length%0#0 20u)
@@ -1149,11 +1149,15 @@ debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
 debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Merged linear block@1 into block@0
+debug: Replaced predecessor block@2 with block@0 in block@3
 debug: Merged linear block@2 into block@0
+debug: Replaced predecessor block@3 with block@0 in block@4
+debug: Merged linear block@3 into block@0
+debug: Merged linear block@4 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let len%0#0: uint64 = (len user#0) with copy of existing registers [Register(source_location=struct_in_box/contract.py:30:5-21, ir_type=uint64, name='tuple_len%0', version=0)]
+debug: Replacing redundant declaration let len%0#0: uint64 = (len value#0) with copy of existing registers [Register(source_location=INTERNAL:1, ir_type=uint64, name='tuple_len%0', version=0)]
 debug: Found equivalence set: length%0#0, mul%0#0
 debug: selected length%0#0 from equivalence set
 debug: Found equivalence set: tuple_len%0#0, len%0#0
@@ -1409,10 +1413,59 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine __internal_validate_Encoded((len+utf8[]),uint64,uint64)
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* length%0#0 1u) to length%0#0
+debug: Simplified (+ 18u add%0#0) to (+ length%0#0 20u)
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let len%0#0: uint64 = (len value#0) with copy of existing registers [Register(source_location=INTERNAL:1, ir_type=uint64, name='tuple_len%0', version=0)]
+debug: Found equivalence set: length%0#0, mul%0#0
+debug: selected length%0#0 from equivalence set
+debug: Found equivalence set: tuple_len%0#0, len%0#0
+debug: selected tuple_len%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine __internal_validate_Encoded(uint64)
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__
 debug: removing unused subroutine examples.struct_in_box.contract.ExampleContract.add_user
 debug: removing unused subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user
 debug: removing unused subroutine examples.struct_in_box.contract.ExampleContract.get_user
+debug: removing unused subroutine __internal_validate_Encoded((len+utf8[]),uint64,uint64)
 debug: Unused subroutines removed
 debug: Begin optimization pass 2/100
 debug: marking single-use function _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head for inlining
@@ -1437,10 +1490,10 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%1#0
 debug: Removing unused variable tmp%5#0
 debug: Removing unused variable add%0#0
-debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#3)
+debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Removing unused variable asset#0
 debug: Not removing unused assignment since source is not marked as pure: let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
-debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#3)
+debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Not removing unused assignment since source is not marked as pure: let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -1745,8 +1798,8 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable add%0#0
-debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
-debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
+debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
+debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -1889,6 +1942,26 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine __internal_validate_Encoded(uint64)
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine _puya_lib.arc4._itob16
 debug: removing unused subroutine _puya_lib.arc4._recalculate_head_for_elements_with_byte_length_head
 debug: removing unused subroutine examples.struct_in_box.contract.ExampleContract.add_user[routing]
@@ -1911,7 +1984,7 @@ debug: selected exists#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#3)
+debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Not removing unused assignment since source is not marked as pure: let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -2169,42 +2242,80 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine __internal_validate_Encoded(uint64)
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine examples.struct_in_box.contract.ExampleContract.box_exists
 debug: Unused subroutines removed
 debug: Begin optimization pass 4/100
 debug: marking simple function _puya_lib.arc4.dynamic_assert_index for inlining (complexity=3 <= threshold=3)
 debug: marking simple function examples.struct_in_box.contract.ExampleContract.read_from_box for inlining (complexity=2 <= threshold=3)
+debug: marking simple function __internal_validate_Encoded(uint64) for inlining (complexity=3 <= threshold=3)
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
+struct_in_box/contract.py:41:6 debug: inlining call to __internal_validate_Encoded(uint64) in algopy.arc4.ARC4Contract.approval_program
 struct_in_box/contract.py:43:16 debug: inlining call to examples.struct_in_box.contract.ExampleContract.read_from_box in algopy.arc4.ARC4Contract.approval_program
+struct_in_box/contract.py:35:6 debug: inlining call to __internal_validate_Encoded(uint64) in algopy.arc4.ARC4Contract.approval_program
+struct_in_box/contract.py:35:6 debug: inlining call to __internal_validate_Encoded(uint64) in algopy.arc4.ARC4Contract.approval_program
 struct_in_box/contract.py:37:16 debug: inlining call to examples.struct_in_box.contract.ExampleContract.read_from_box in algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: user_id#1, user_id#4
+debug: Found equivalence set: user_id#1, value#2, user_id#4
 debug: selected user_id#1 from equivalence set
+debug: Found equivalence set: tmp%1#1, value#3
+debug: selected value#3 from equivalence set
 debug: Found equivalence set: box_data#1, user#0
 debug: selected box_data#1 from equivalence set
-debug: Found equivalence set: user_id#0, user_id#3
+debug: Found equivalence set: user_id#0, value#1, user_id#3
 debug: selected user_id#0 from equivalence set
 debug: Found equivalence set: box_data#0, tmp%0#3
 debug: selected box_data#0 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#3)
+debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Not removing unused assignment since source is not marked as pure: let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
-debug: Replaced predecessor block@13 with block@5 in block@14
-debug: Merged linear block@13 into block@5
-debug: Merged linear block@14 into block@5
+debug: Replaced predecessor block@15 with block@5 in block@16
+debug: Merged linear block@15 into block@5
+debug: Replaced predecessor block@16 with block@5 in block@17
+debug: Merged linear block@16 into block@5
+debug: Replaced predecessor block@17 with block@5 in block@18
+debug: Merged linear block@17 into block@5
+debug: Replaced predecessor block@18 with block@5 in block@19
+debug: Merged linear block@18 into block@5
+debug: Replaced predecessor block@19 with block@5 in block@20
+debug: Merged linear block@19 into block@5
+debug: Merged linear block@20 into block@5
 debug: Replaced predecessor block@11 with block@6 in block@12
 debug: Merged linear block@11 into block@6
+debug: Replaced predecessor block@12 with block@6 in block@13
 debug: Merged linear block@12 into block@6
+debug: Replaced predecessor block@13 with block@6 in block@14
+debug: Merged linear block@13 into block@6
+debug: Merged linear block@14 into block@6
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
@@ -2433,7 +2544,28 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine __internal_validate_Encoded(uint64)
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine examples.struct_in_box.contract.ExampleContract.read_from_box
+debug: removing unused subroutine __internal_validate_Encoded(uint64)
 debug: Unused subroutines removed
 debug: Begin optimization pass 5/100
 debug: marking simple function _puya_lib.arc4.dynamic_assert_index for inlining (complexity=3 <= threshold=3)
@@ -2444,7 +2576,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#3)
+debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Not removing unused assignment since source is not marked as pure: let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -2702,11 +2834,11 @@ debug: selected user#1 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#3)
+debug: Not removing unused assignment since source is not marked as pure: let user#4: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(value#0)
 debug: Not removing unused assignment since source is not marked as pure: let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 user#3 2u 8u) to ((extract 2 8) user#3)
-debug: Simplified (replace3 box_data#1 10u tmp%1#1) to ((replace2 10) box_data#1 tmp%1#1)
+debug: Simplified (extract3 value#0 2u 8u) to ((extract 2 8) value#0)
+debug: Simplified (replace3 box_data#1 10u value#3) to ((replace2 10) box_data#1 value#3)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -2942,8 +3074,8 @@ struct_in_box/contract.py:33:9 debug: inlining call to examples.struct_in_box.co
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: user#3, user#6, user#4
-debug: selected user#3 from equivalence set
+debug: Found equivalence set: value#0, user#6, user#4
+debug: selected value#0 from equivalence set
 debug: Found equivalence set: user#1, user#5, user#2
 debug: selected user#1 from equivalence set
 debug: Copy propagation made 4 modifications
@@ -2963,7 +3095,7 @@ debug: Merged linear block@12 into block@5
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let box_key#1: bytes = ((extract 2 8) user#3) with copy of existing registers [Register(source_location=struct_in_box/contract.py:26:25-45, ir_type=Encoded(uint64), name='user_id', version=2)]
+debug: Replacing redundant declaration let box_key#1: bytes = ((extract 2 8) value#0) with copy of existing registers [Register(source_location=struct_in_box/contract.py:26:25-45, ir_type=Encoded(uint64), name='user_id', version=2)]
 debug: Found equivalence set: user_id#2, box_key#1
 debug: selected user_id#2 from equivalence set
 debug: Copy propagation made 2 modifications
@@ -3049,14 +3181,13 @@ debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.approval_pro
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in algopy.arc4.ARC4Contract.approval_program using strategy 'root_operand'
-debug: Coalescing user#1 with [user#3]
-debug: Coalescing eq%0#0 with [eq%0#2, eq%0#1]
-debug: Coalescing eq%1#0 with [eq%1#1]
+debug: Coalescing value#0 with [value#0, value#3]
+debug: Coalescing eq%0#0 with [eq%0#2, eq%0#3, eq%0#1]
 debug: Coalescing user_id#0 with [user_id#2, user_id#1]
 debug: Coalescing exists#0 with [exists#2, exists#1]
-debug: Coalescing len%0#0 with [len%0#1]
+debug: Coalescing len%0#0 with [len%0#1, len%0#2]
 debug: Coalescing box_data#0 with [box_data#1]
-debug: Coalescing resulted in 27 replacement/s
+debug: Coalescing resulted in 32 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: Performing post-SSA optimizations at level 2
 debug: Output IR to struct_in_box/out_O2/ExampleContract.ir/ExampleContract.approval.400.destructured.ir
@@ -3078,8 +3209,8 @@ debug: Inserted main_abi_routing@2.ops[10]: 'l-store-copy tmp%4#0 0'
 debug: Replaced main_abi_routing@2.ops[12]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
 debug: Inserted main_abi_routing@2.ops[15]: 'l-store-copy tmp%6#0 0'
 debug: Replaced main_abi_routing@2.ops[20]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
-debug: Inserted main_add_user_route@4.ops[1]: 'l-store-copy user#1 0'
-debug: Replaced main_add_user_route@4.ops[3]: 'v-load user#1' with 'l-load user#1'
+debug: Inserted main_add_user_route@4.ops[1]: 'l-store-copy value#0 0'
+debug: Replaced main_add_user_route@4.ops[3]: 'v-load value#0' with 'l-load value#0'
 debug: Inserted main_add_user_route@4.ops[9]: 'l-store-copy extract_uint16%0#0 0'
 debug: Replaced main_add_user_route@4.ops[11]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
 debug: Inserted main_add_user_route@4.ops[14]: 'l-store-copy eq%0#0 0'
@@ -3098,36 +3229,36 @@ debug: Inserted main_add_user_route@4.ops[32]: 'l-store-copy add%1#0 0'
 debug: Replaced main_add_user_route@4.ops[35]: 'v-load add%1#0' with 'l-load add%1#0'
 debug: Inserted main_add_user_route@4.ops[47]: 'l-store-copy exists#0 1'
 debug: Replaced main_add_user_route@4.ops[50]: 'v-load exists#0' with 'l-load exists#0'
-debug: Inserted main_add_user_route@4.ops[4]: 'l-store-copy user#1 0'
-debug: Replaced main_add_user_route@4.ops[7]: 'v-load user#1' with 'l-load user#1'
+debug: Inserted main_add_user_route@4.ops[4]: 'l-store-copy value#0 0'
+debug: Replaced main_add_user_route@4.ops[7]: 'v-load value#0' with 'l-load value#0'
 debug: Inserted main_add_user_route@4.ops[58]: 'l-store-copy user_id#0 0'
 debug: Replaced main_add_user_route@4.ops[61]: 'v-load user_id#0' with 'l-load user_id#0'
 debug: Inserted main_add_user_route@4.ops[13]: 'l-store-copy extract_uint16%0#0 0'
 debug: Replaced main_add_user_route@4.ops[21]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
 debug: Inserted main_add_user_route@4.ops[48]: 'l-store-copy user_id#0 0'
 debug: Replaced main_add_user_route@4.ops[59]: 'v-load user_id#0' with 'l-load user_id#0'
-debug: Inserted main_add_user_route@4.ops[8]: 'l-store-copy user#1 0'
-debug: Replaced main_add_user_route@4.ops[21]: 'v-load user#1' with 'l-load user#1'
+debug: Inserted main_add_user_route@4.ops[8]: 'l-store-copy value#0 0'
+debug: Replaced main_add_user_route@4.ops[21]: 'v-load value#0' with 'l-load value#0'
 debug: Inserted main_add_user_route@4.ops[24]: 'l-store-copy tuple_len%0#0 2'
 debug: Replaced main_add_user_route@4.ops[38]: 'v-load tuple_len%0#0' with 'l-load tuple_len%0#0'
 debug: Inserted main_add_user_route@4.ops[6]: 'l-store-copy tuple_len%0#0 1'
 debug: Replaced main_add_user_route@4.ops[24]: 'v-load tuple_len%0#0' with 'l-load tuple_len%0#0'
-debug: Inserted main_add_user_route@4.ops[47]: 'l-store-copy user#1 0'
-debug: Replaced main_add_user_route@4.ops[68]: 'v-load user#1' with 'l-load user#1'
-debug: Inserted main_add_user_route@4.ops[23]: 'l-store-copy user#1 2'
-debug: Replaced main_add_user_route@4.ops[47]: 'v-load user#1' with 'l-load user#1'
+debug: Inserted main_add_user_route@4.ops[47]: 'l-store-copy value#0 0'
+debug: Replaced main_add_user_route@4.ops[68]: 'v-load value#0' with 'l-load value#0'
+debug: Inserted main_add_user_route@4.ops[23]: 'l-store-copy value#0 2'
+debug: Replaced main_add_user_route@4.ops[47]: 'v-load value#0' with 'l-load value#0'
 debug: Inserted main_attach_asset_to_user_route@5.ops[1]: 'l-store-copy user_id#0 0'
 debug: Replaced main_attach_asset_to_user_route@5.ops[3]: 'v-load user_id#0' with 'l-load user_id#0'
 debug: Inserted main_attach_asset_to_user_route@5.ops[5]: 'l-store-copy len%0#0 0'
 debug: Replaced main_attach_asset_to_user_route@5.ops[7]: 'v-load len%0#0' with 'l-load len%0#0'
 debug: Inserted main_attach_asset_to_user_route@5.ops[10]: 'l-store-copy eq%0#0 0'
 debug: Replaced main_attach_asset_to_user_route@5.ops[12]: 'v-load eq%0#0' with 'l-load eq%0#0'
-debug: Inserted main_attach_asset_to_user_route@5.ops[15]: 'l-store-copy tmp%1#1 0'
-debug: Replaced main_attach_asset_to_user_route@5.ops[17]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted main_attach_asset_to_user_route@5.ops[19]: 'l-store-copy len%1#0 0'
-debug: Replaced main_attach_asset_to_user_route@5.ops[21]: 'v-load len%1#0' with 'l-load len%1#0'
-debug: Inserted main_attach_asset_to_user_route@5.ops[24]: 'l-store-copy eq%1#0 0'
-debug: Replaced main_attach_asset_to_user_route@5.ops[26]: 'v-load eq%1#0' with 'l-load eq%1#0'
+debug: Inserted main_attach_asset_to_user_route@5.ops[15]: 'l-store-copy value#0 0'
+debug: Replaced main_attach_asset_to_user_route@5.ops[17]: 'v-load value#0' with 'l-load value#0'
+debug: Inserted main_attach_asset_to_user_route@5.ops[19]: 'l-store-copy len%0#0 0'
+debug: Replaced main_attach_asset_to_user_route@5.ops[21]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted main_attach_asset_to_user_route@5.ops[24]: 'l-store-copy eq%0#0 0'
+debug: Replaced main_attach_asset_to_user_route@5.ops[26]: 'v-load eq%0#0' with 'l-load eq%0#0'
 debug: Inserted main_attach_asset_to_user_route@5.ops[37]: 'l-store-copy user#1 0'
 debug: Replaced main_attach_asset_to_user_route@5.ops[39]: 'v-load user#1' with 'l-load user#1'
 debug: Inserted main_attach_asset_to_user_route@5.ops[41]: 'l-store-copy box_key#0 0'
@@ -3140,8 +3271,8 @@ debug: Inserted main_attach_asset_to_user_route@5.ops[46]: 'l-store-copy box_key
 debug: Replaced main_attach_asset_to_user_route@5.ops[49]: 'v-load box_key#0' with 'l-load box_key#0'
 debug: Inserted main_attach_asset_to_user_route@5.ops[42]: 'l-store-copy user#1 0'
 debug: Replaced main_attach_asset_to_user_route@5.ops[51]: 'v-load user#1' with 'l-load user#1'
-debug: Inserted main_attach_asset_to_user_route@5.ops[18]: 'l-store-copy tmp%1#1 0'
-debug: Replaced main_attach_asset_to_user_route@5.ops[38]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted main_attach_asset_to_user_route@5.ops[18]: 'l-store-copy value#0 0'
+debug: Replaced main_attach_asset_to_user_route@5.ops[38]: 'v-load value#0' with 'l-load value#0'
 debug: Inserted main_attach_asset_to_user_route@5.ops[4]: 'l-store-copy user_id#0 0'
 debug: Replaced main_attach_asset_to_user_route@5.ops[30]: 'v-load user_id#0' with 'l-load user_id#0'
 debug: Inserted main_get_user_route@6.ops[1]: 'l-store-copy user_id#0 0'

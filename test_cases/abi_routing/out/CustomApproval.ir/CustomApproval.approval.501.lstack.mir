@@ -133,15 +133,17 @@ subroutine add_one:
     add_one_block@0:
         // abi_routing/custom_approval.py:23
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                               tmp%0#0
-        l-load-copy tmp%0#0 0                                                                tmp%0#0,tmp%0#0 (copy)
-        len                                                                                  tmp%0#0,len%0#0
-        l-load len%0#0 0                                                                     tmp%0#0,len%0#0
-        int 8                                                                                tmp%0#0,len%0#0,8
-        ==                                                                                   tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                      tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                                    tmp%0#0
-        l-load tmp%0#0 0                                                                     tmp%0#0
+        txna ApplicationArgs 1                                                               value#0
+        l-load-copy value#0 0                                                                value#0,value#0 (copy)
+        len                                                                                  value#0,len%0#0
+        l-load len%0#0 0                                                                     value#0,len%0#0
+        int 8                                                                                value#0,len%0#0,8
+        ==                                                                                   value#0,eq%0#0
+        l-load eq%0#0 0                                                                      value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                                value#0
+        // abi_routing/custom_approval.py:23
+        // @arc4.abimethod
+        l-load value#0 0                                                                     value#0
         btoi                                                                                 x#0
         // abi_routing/custom_approval.py:25
         // return x + 1

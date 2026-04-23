@@ -128,9 +128,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let tmp%1#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%1#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%1#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%1#0)
         let tmp%0#1: account = (global CurrentApplicationAddress)
         let (tmp%1#1: uint64, tmp%2#1: bool) = ((asset_holding_get AssetBalance) tmp%0#1 asset#0)
@@ -167,14 +165,10 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
         (assert gtxn_type_matches%1#0) // transaction type is axfer
         let tmp%2#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%2#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let unitary_price#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%4#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%4#0)
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         let tmp%0#1: account = ((gtxns Sender) mbr_pay#0)
         let tmp%1#1: account = (txn Sender)
@@ -219,9 +213,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
         let tmp%1#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%1#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%1#0)
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%1#0)
         let tmp%0#1: account = (txn Sender)
         let tmp%1#1: uint64 = ((gtxns XferAsset) xfer#0)
@@ -257,19 +249,13 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.set_price[routing]() -> void:
     block@0: // L137
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%4#0)
         let unitary_price#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         let tmp%0#1: account = (txn Sender)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(tmp%0#1, asset#0, nonce#0)
@@ -290,19 +276,13 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.buy[routing]() -> void:
     block@0: // L150
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let owner#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%4#0)
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         let tmp%6#0: uint64 = (txn GroupIndex)
         let buy_pay#0: uint64 = (- tmp%6#0 1u)
@@ -310,9 +290,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let tmp%7#0: bytes = (txna ApplicationArgs 4)
-        let len%3#0: uint64 = (len tmp%7#0)
-        let eq%3#0: bool = (== len%3#0 8u)
-        (assert eq%3#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%7#0)
         let quantity#0: uint64 = decode_bytes<uint64>(tmp%7#0)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(owner#0, asset#0, nonce#0)
         let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
@@ -356,14 +334,10 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.withdraw[routing]() -> void:
     block@0: // L181
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%0#1: account = (txn Sender)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(tmp%0#1, asset#0, nonce#0)
@@ -414,19 +388,13 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.bid[routing]() -> void:
     block@0: // L200
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 32u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        __internal_validate_Encoded(uint8[32])(tmp%0#0)
         let owner#0: account = decode_bytes<account>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%4#0)
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%4#0)
         let tmp%6#0: uint64 = (txn GroupIndex)
         let bid_pay#0: uint64 = (- tmp%6#0 1u)
@@ -434,14 +402,10 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let tmp%7#0: bytes = (txna ApplicationArgs 4)
-        let len%3#0: uint64 = (len tmp%7#0)
-        let eq%3#0: bool = (== len%3#0 8u)
-        (assert eq%3#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%7#0)
         let quantity#0: uint64 = decode_bytes<uint64>(tmp%7#0)
         let tmp%9#0: bytes = (txna ApplicationArgs 5)
-        let len%4#0: uint64 = (len tmp%9#0)
-        let eq%4#0: bool = (== len%4#0 8u)
-        (assert eq%4#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%9#0)
         let unitary_price#0: uint64 = decode_bytes<uint64>(tmp%9#0)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(owner#0, asset#0, nonce#0)
         let map_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
@@ -495,14 +459,10 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.accept_bid[routing]() -> void:
     block@0: // L236
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let asset#0: uint64 = decode_bytes<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%2#0)
         let nonce#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%0#1: account = (txn Sender)
         let key#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(tmp%0#1, asset#0, nonce#0)
@@ -567,4 +527,18 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 
+
+subroutine __internal_validate_Encoded(uint8[32])(value: Encoded(uint8[32])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint8[32])
         return 

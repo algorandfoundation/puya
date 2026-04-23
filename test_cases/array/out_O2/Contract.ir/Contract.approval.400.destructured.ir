@@ -332,11 +332,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%7#2)
         exit 1u
     block@12: // test_allocations_route_L134
-        let tmp%0#4: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#4)
+        let value#4: Encoded(uint64) = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#4)
         let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let num#0: uint64 = (btoi tmp%0#4)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        let num#0: uint64 = (btoi value#4)
         let value_internal%0#0: uint64 = 0u
         let _i#0: uint64 = value_internal%0#0
         goto block@50
@@ -436,8 +436,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let new_items_bytes#0: bytes = (itob i#0)
         let array_length#0: uint64 = (extract_uint16 arc4_arr#0 0u)
         let new_array_length#0: uint64 = (+ array_length#0 1u)
-        let tmp%0#4: bytes = (itob new_array_length#0)
-        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#4)
+        let tmp%0#14: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#14)
         let result#0: bytes = ((replace2 0) arc4_arr#0 new_len_u16#0)
         let arc4_arr#0: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#0)
         let slot_contents%4#0: Encoded(uint64[]) = load(local.4)
@@ -452,8 +452,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let new_items_count#0: uint64 = (/ aggregate%bytes_len%38#0 8u)
         let array_length#0: uint64 = (extract_uint16 arc4_arr#0 0u)
         let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
-        let tmp%0#4: bytes = (itob new_array_length#0)
-        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#4)
+        let tmp%0#14: bytes = (itob new_array_length#0)
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#14)
         let result#0: bytes = ((replace2 0) arc4_arr#0 new_len_u16#0)
         let combined_arr#0: Encoded(len+uint64[]) = (concat result#0 new_items_bytes#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 combined_arr#0 0u) // on error: invalid array length header

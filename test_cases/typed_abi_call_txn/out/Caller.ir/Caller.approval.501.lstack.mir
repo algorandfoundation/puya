@@ -79,41 +79,21 @@ subroutine test_call_with_txn:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                         tmp%0#0
         l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                            tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                              tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                            tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                               tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
-        ==                                                                             tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0
         txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
         l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                            tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
-        +                                                                              tmp%0#0,tmp%2#0,add%1#0
-        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load len%1#0 0                                                               tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
-        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                                                tmp%0#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0,tmp%2#0
-        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        l-load len%2#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
-        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        l-load eq%2#0 0                                                                tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64                              tmp%0#0,tmp%2#0,tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,value#0
+        l-load-copy value#0 0                                                          tmp%0#0,tmp%2#0,value#0,value#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,value#0,len%0#0
+        l-load len%0#0 0                                                               tmp%0#0,tmp%2#0,value#0,len%0#0
+        int 8                                                                          tmp%0#0,tmp%2#0,value#0,len%0#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                                tmp%0#0,tmp%2#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                          tmp%0#0,tmp%2#0,value#0
+        // typed_abi_call_txn/caller.py:15
+        // @arc4.abimethod
+        l-load value#0 0                                                               tmp%0#0,tmp%2#0,value#0
         btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:22-28
         // asset_id, _txn = arc4.abi_call(
@@ -183,15 +163,23 @@ subroutine test_call_with_txn:
         l-load tmp%3#1 0                                                               awst_tmp%0#0,tmp%3#1
         assert // application log value is not the result of an ABI return             awst_tmp%0#0
         l-load awst_tmp%0#0 0                                                          awst_tmp%0#0
-        extract 4 0                                                                    tmp%4#0
-        l-load-copy tmp%4#0 0                                                          tmp%4#0,tmp%4#0 (copy)
-        len                                                                            tmp%4#0,len%0#0
-        l-load len%0#0 0                                                               tmp%4#0,len%0#0
-        int 8                                                                          tmp%4#0,len%0#0,8
-        ==                                                                             tmp%4#0,eq%0#0
-        l-load eq%0#0 0                                                                tmp%4#0,eq%0#0
-        assert // invalid number of bytes for uint64                                   tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%4#0
+        extract 4 0                                                                    value#0
+        l-load-copy value#0 0                                                          value#0,value#0 (copy)
+        len                                                                            value#0,len%0#0
+        l-load len%0#0 0                                                               value#0,len%0#0
+        int 8                                                                          value#0,len%0#0,8
+        ==                                                                             value#0,eq%0#0
+        l-load eq%0#0 0                                                                value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                          value#0
+        // typed_abi_call_txn/caller.py:22-28
+        // asset_id, _txn = arc4.abi_call(
+        //     TxnContract.call_with_txn,
+        //     a,
+        //     txn,
+        //     b,
+        //     app_id=app,
+        // )
+        l-load value#0 0                                                               value#0
         btoi                                                                           asset_id#0
         // typed_abi_call_txn/caller.py:29
         // assert asset_id, "expected asset id"
@@ -210,41 +198,21 @@ subroutine test_call_with_acfg:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                         tmp%0#0
         l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                            tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                              tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                            tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                               tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
-        ==                                                                             tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0
         txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
         l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                            tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
-        +                                                                              tmp%0#0,tmp%2#0,add%1#0
-        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load len%1#0 0                                                               tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
-        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                                                tmp%0#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0,tmp%2#0
-        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        l-load len%2#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
-        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        l-load eq%2#0 0                                                                tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64                              tmp%0#0,tmp%2#0,tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,value#0
+        l-load-copy value#0 0                                                          tmp%0#0,tmp%2#0,value#0,value#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,value#0,len%0#0
+        l-load len%0#0 0                                                               tmp%0#0,tmp%2#0,value#0,len%0#0
+        int 8                                                                          tmp%0#0,tmp%2#0,value#0,len%0#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                                tmp%0#0,tmp%2#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                          tmp%0#0,tmp%2#0,value#0
+        // typed_abi_call_txn/caller.py:31
+        // @arc4.abimethod
+        l-load value#0 0                                                               tmp%0#0,tmp%2#0,value#0
         btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:38-44
         // arc4.abi_call(
@@ -314,14 +282,14 @@ subroutine test_call_with_acfg:
         l-load tmp%3#1 0                                                               awst_tmp%0#0,tmp%3#1
         assert // application log value is not the result of an ABI return             awst_tmp%0#0
         l-load awst_tmp%0#0 0                                                          awst_tmp%0#0
-        extract 4 0                                                                    tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%4#0
+        extract 4 0                                                                    value#0
+        l-load value#0 0                                                               value#0
         len                                                                            len%0#0
         l-load len%0#0 0                                                               len%0#0
         int 8                                                                          len%0#0,8
         ==                                                                             eq%0#0
         l-load eq%0#0 0                                                                eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for Encoded(uint64)
         // typed_abi_call_txn/caller.py:31
         // @arc4.abimethod
         int 1                                                                          1
@@ -335,41 +303,21 @@ subroutine test_call_with_infer:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                         tmp%0#0
         l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                            tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                              tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                            tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                               tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
-        ==                                                                             tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0
         txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
         l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                            tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
-        +                                                                              tmp%0#0,tmp%2#0,add%1#0
-        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load len%1#0 0                                                               tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
-        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                                                tmp%0#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0,tmp%2#0
-        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        l-load len%2#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
-        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        l-load eq%2#0 0                                                                tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64                              tmp%0#0,tmp%2#0,tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,value#0
+        l-load-copy value#0 0                                                          tmp%0#0,tmp%2#0,value#0,value#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,value#0,len%0#0
+        l-load len%0#0 0                                                               tmp%0#0,tmp%2#0,value#0,len%0#0
+        int 8                                                                          tmp%0#0,tmp%2#0,value#0,len%0#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                                tmp%0#0,tmp%2#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                          tmp%0#0,tmp%2#0,value#0
+        // typed_abi_call_txn/caller.py:46
+        // @arc4.abimethod
+        l-load value#0 0                                                               tmp%0#0,tmp%2#0,value#0
         btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:53-59
         // arc4.abi_call[UInt64](
@@ -429,14 +377,14 @@ subroutine test_call_with_infer:
         l-load tmp%3#1 0                                                               awst_tmp%0#0,tmp%3#1
         assert // application log value is not the result of an ABI return             awst_tmp%0#0
         l-load awst_tmp%0#0 0                                                          awst_tmp%0#0
-        extract 4 0                                                                    tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%4#0
+        extract 4 0                                                                    value#0
+        l-load value#0 0                                                               value#0
         len                                                                            len%0#0
         l-load len%0#0 0                                                               len%0#0
         int 8                                                                          len%0#0,8
         ==                                                                             eq%0#0
         l-load eq%0#0 0                                                                eq%0#0
-        assert // invalid number of bytes for uint64
+        assert // invalid number of bytes for Encoded(uint64)
         // typed_abi_call_txn/caller.py:46
         // @arc4.abimethod
         int 1                                                                          1
@@ -450,41 +398,21 @@ subroutine test_call_with_acfg_no_return:
         // @arc4.abimethod
         txna ApplicationArgs 1                                                         tmp%0#0
         l-load-copy tmp%0#0 0                                                          tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                            tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                          tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                              tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                          tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                            tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                               tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                               tmp%0#0,len%0#0,add%0#0
-        ==                                                                             tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                                tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0
         txna ApplicationArgs 2                                                         tmp%0#0,tmp%2#0
         l-load-copy tmp%2#0 0                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy)
-        int 0                                                                          tmp%0#0,tmp%2#0,tmp%2#0 (copy),0
-        extract_uint16 // on error: invalid array length header                        tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        l-load aggregate%array_length%1#0 0                                            tmp%0#0,tmp%2#0,aggregate%array_length%1#0
-        int 2                                                                          tmp%0#0,tmp%2#0,aggregate%array_length%1#0,2
-        +                                                                              tmp%0#0,tmp%2#0,add%1#0
-        l-load-copy tmp%2#0 1                                                          tmp%0#0,tmp%2#0,add%1#0,tmp%2#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load len%1#0 0                                                               tmp%0#0,tmp%2#0,add%1#0,len%1#0
-        l-load add%1#0 1                                                               tmp%0#0,tmp%2#0,len%1#0,add%1#0
-        ==                                                                             tmp%0#0,tmp%2#0,eq%1#0
-        l-load eq%1#0 0                                                                tmp%0#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>           tmp%0#0,tmp%2#0
-        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                                          tmp%0#0,tmp%2#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                                            tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        l-load len%2#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0,len%2#0
-        int 8                                                                          tmp%0#0,tmp%2#0,tmp%4#0,len%2#0,8
-        ==                                                                             tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        l-load eq%2#0 0                                                                tmp%0#0,tmp%2#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64                              tmp%0#0,tmp%2#0,tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%0#0,tmp%2#0,tmp%4#0
+        callsub __internal_validate_Encoded(len+uint8[])                               tmp%0#0,tmp%2#0
+        txna ApplicationArgs 3                                                         tmp%0#0,tmp%2#0,value#0
+        l-load-copy value#0 0                                                          tmp%0#0,tmp%2#0,value#0,value#0 (copy)
+        len                                                                            tmp%0#0,tmp%2#0,value#0,len%0#0
+        l-load len%0#0 0                                                               tmp%0#0,tmp%2#0,value#0,len%0#0
+        int 8                                                                          tmp%0#0,tmp%2#0,value#0,len%0#0,8
+        ==                                                                             tmp%0#0,tmp%2#0,value#0,eq%0#0
+        l-load eq%0#0 0                                                                tmp%0#0,tmp%2#0,value#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                          tmp%0#0,tmp%2#0,value#0
+        // typed_abi_call_txn/caller.py:61
+        // @arc4.abimethod
+        l-load value#0 0                                                               tmp%0#0,tmp%2#0,value#0
         btoi                                                                           tmp%0#0,tmp%2#0,app#0
         // typed_abi_call_txn/caller.py:68-70
         // txn1 = arc4.abi_call(
@@ -554,5 +482,24 @@ subroutine test_call_with_acfg_no_return:
         // @arc4.abimethod
         int 1                                                                          1
         return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint8[]):
+    __internal_validate_Encoded(len+uint8[])_block@0:                                  (𝕡) value#0 |
+        p-load value#0                                                                 (𝕡) value#0 | value#0 (copy)
+        int 0                                                                          (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                        (𝕡) value#0 | aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                            (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                                          (𝕡) value#0 | aggregate%array_length%0#0,2
+        +                                                                              (𝕡) value#0 | add%0#0
+        p-load value#0                                                                 (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                            (𝕡) value#0 | add%0#0,len%0#0
+        l-load len%0#0 0                                                               (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                               (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                             (𝕡) value#0 | eq%0#0
+        l-load eq%0#0 0                                                                (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[])                     (𝕡) value#0 |
+        retsub
 
 

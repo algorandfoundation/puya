@@ -96,9 +96,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tup
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup[routing]() -> void:
     block@0: // L56
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 16u)
-        (assert eq%0#0) // invalid number of bytes for test_cases.mutable_native_types.case1_with_tups.NamedTup
+        __internal_validate_Encoded(uint64,uint64)(tmp%0#0)
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -112,9 +110,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup[routing]() -> void:
     block@0: // L63
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let (tmp%2#0: uint64, tmp%3#0: uint64) = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(tmp%1#0)
@@ -143,13 +139,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum[rou
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups[routing]() -> void:
     block@0: // L77
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
-        let length%0#0: uint64 = aggregate%array_length%0#0
-        let mul%0#0: uint64 = (* length%0#0 16u)
-        let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 add%0#0)
-        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>
+        __internal_validate_Encoded(len+(uint64,uint64)[])(tmp%0#0)
         let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = tmp%0#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups(as_Encoded(len+(uint64,uint64)[])%0#0)
         exit 1u
@@ -157,9 +147,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_man
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups[routing]() -> void:
     block@0: // L82
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 48u)
-        (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>
+        __internal_validate_Encoded((uint64,uint64)[3])(tmp%0#0)
         let as_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = tmp%0#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups(as_Encoded((uint64,uint64)[3])%0#0)
         exit 1u
@@ -167,9 +155,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fix
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[routing]() -> void:
     block@0: // L87
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(tmp%1#0)
@@ -178,9 +164,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a[r
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[routing]() -> void:
     block@0: // L94
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(tmp%1#0)
@@ -189,9 +173,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b[r
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups[routing]() -> void:
     block@0: // L101
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
-        let eq%0#0: bool = (== len%0#0 8u)
-        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        __internal_validate_Encoded(uint64)(tmp%0#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: Encoded((uint64,uint64)[3]) = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups(tmp%1#0)
@@ -659,4 +641,36 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_
         let tmp%5#0: uint64 = (global CurrentApplicationID)
         let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
         (assert tmp%6#0) // this error should be impossible
+        return 
+
+subroutine __internal_validate_Encoded(uint64)(value: Encoded(uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64)
+        return 
+
+subroutine __internal_validate_Encoded(uint64,uint64)(value: Encoded(uint64,uint64)) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for Encoded(uint64,uint64)
+        return 
+
+subroutine __internal_validate_Encoded(len+(uint64,uint64)[])(value: Encoded(len+(uint64,uint64)[])) -> void:
+    block@0: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%0#0
+        let mul%0#0: uint64 = (* length%0#0 16u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for Encoded(len+(uint64,uint64)[])
+        return 
+
+subroutine __internal_validate_Encoded((uint64,uint64)[3])(value: Encoded((uint64,uint64)[3])) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 48u)
+        (assert eq%0#0) // invalid number of bytes for Encoded((uint64,uint64)[3])
         return 

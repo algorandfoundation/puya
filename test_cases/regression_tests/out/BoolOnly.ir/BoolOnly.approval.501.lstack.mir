@@ -72,18 +72,7 @@ subroutine set_0_convert:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                    tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                  tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                      tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                    tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                        tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                    tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                      tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                         tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                         tmp%0#0,len%0#0,add%0#0
-        ==                                                                       tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>     tmp%0#0
+        callsub __internal_validate_Encoded(len+uint8[])                         tmp%0#0
         l-load tmp%0#0 0                                                         tmp%0#0
         extract 2 0                                                              inp#0
         // regression_tests/bool_only.py:7
@@ -123,18 +112,7 @@ subroutine set_0_compare:
         // @arc4.abimethod()
         txna ApplicationArgs 1                                                   tmp%0#0
         l-load-copy tmp%0#0 0                                                    tmp%0#0,tmp%0#0 (copy)
-        int 0                                                                    tmp%0#0,tmp%0#0 (copy),0
-        extract_uint16 // on error: invalid array length header                  tmp%0#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                      tmp%0#0,aggregate%array_length%0#0
-        int 2                                                                    tmp%0#0,aggregate%array_length%0#0,2
-        +                                                                        tmp%0#0,add%0#0
-        l-load-copy tmp%0#0 1                                                    tmp%0#0,add%0#0,tmp%0#0 (copy)
-        len                                                                      tmp%0#0,add%0#0,len%0#0
-        l-load len%0#0 0                                                         tmp%0#0,add%0#0,len%0#0
-        l-load add%0#0 1                                                         tmp%0#0,len%0#0,add%0#0
-        ==                                                                       tmp%0#0,eq%0#0
-        l-load eq%0#0 0                                                          tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>     tmp%0#0
+        callsub __internal_validate_Encoded(len+uint8[])                         tmp%0#0
         l-load tmp%0#0 0                                                         tmp%0#0
         extract 2 0                                                              inp#0
         // regression_tests/bool_only.py:11
@@ -212,5 +190,24 @@ subroutine bool_only_properties:
         // @arc4.abimethod()
         int 1                                                                    1
         return
+
+
+// __internal_validate_Encoded(len+uint8[])(value: bytes) -> void:
+subroutine __internal_validate_Encoded(len+uint8[]):
+    __internal_validate_Encoded(len+uint8[])_block@0:                            (𝕡) value#0 |
+        p-load value#0                                                           (𝕡) value#0 | value#0 (copy)
+        int 0                                                                    (𝕡) value#0 | value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                  (𝕡) value#0 | aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                      (𝕡) value#0 | aggregate%array_length%0#0
+        int 2                                                                    (𝕡) value#0 | aggregate%array_length%0#0,2
+        +                                                                        (𝕡) value#0 | add%0#0
+        p-load value#0                                                           (𝕡) value#0 | add%0#0,value#0 (copy)
+        len                                                                      (𝕡) value#0 | add%0#0,len%0#0
+        l-load len%0#0 0                                                         (𝕡) value#0 | add%0#0,len%0#0
+        l-load add%0#0 1                                                         (𝕡) value#0 | len%0#0,add%0#0
+        ==                                                                       (𝕡) value#0 | eq%0#0
+        l-load eq%0#0 0                                                          (𝕡) value#0 | eq%0#0
+        assert // invalid number of bytes for Encoded(len+uint8[])               (𝕡) value#0 |
+        retsub
 
 

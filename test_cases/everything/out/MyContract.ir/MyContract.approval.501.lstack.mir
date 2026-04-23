@@ -135,22 +135,22 @@ subroutine register:
     register_block@0:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        txna ApplicationArgs 1                                                          name#0
-        l-store-copy name#0 0                                                           name#0,name#0 (copy)
-        v-store name#0                                                                  name#0
-        l-load-copy name#0 0                                                            name#0,name#0 (copy)
-        int 0                                                                           name#0,name#0 (copy),0
-        extract_uint16 // on error: invalid array length header                         name#0,aggregate%array_length%0#0
-        l-load aggregate%array_length%0#0 0                                             name#0,aggregate%array_length%0#0
-        int 2                                                                           name#0,aggregate%array_length%0#0,2
-        +                                                                               name#0,add%0#0
-        l-load name#0 1                                                                 add%0#0,name#0
+        txna ApplicationArgs 1                                                          value#0
+        l-store-copy value#0 0                                                          value#0,value#0 (copy)
+        v-store value#0                                                                 value#0
+        l-load-copy value#0 0                                                           value#0,value#0 (copy)
+        int 0                                                                           value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header                         value#0,aggregate%array_length%0#0
+        l-load aggregate%array_length%0#0 0                                             value#0,aggregate%array_length%0#0
+        int 2                                                                           value#0,aggregate%array_length%0#0,2
+        +                                                                               value#0,add%0#0
+        l-load value#0 1                                                                add%0#0,value#0
         len                                                                             add%0#0,len%0#0
         l-load len%0#0 0                                                                add%0#0,len%0#0
         l-load add%0#0 1                                                                len%0#0,add%0#0
         ==                                                                              eq%0#0
         l-load eq%0#0 0                                                                 eq%0#0
-        assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        assert // invalid number of bytes for Encoded(len+utf8[])
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
         txn Sender                                                                      tmp%0#2
@@ -170,9 +170,9 @@ subroutine register:
         int OptIn                                                                       tmp%0#1,OptIn
         ==                                                                              tmp%1#0
         l-load tmp%1#0 0                                                                tmp%1#0
-        bz register_after_if_else@5 ; b register_if_body@2
+        bz register_after_if_else@7 ; b register_if_body@4
 
-    register_if_body@2:
+    register_if_body@4:
         // everything/contract.py:51
         // sender_name, sender_name_existed = self.name.maybe(account=0)
         int 0                                                                           0
@@ -184,9 +184,9 @@ subroutine register:
         // everything/contract.py:52
         // if not sender_name_existed:
         l-load sender_name_existed#0 0                                                  sender_name_existed#0
-        bz register_if_body@3 ; b register_after_if_else@5
+        bz register_if_body@5 ; b register_after_if_else@7
 
-    register_if_body@3:
+    register_if_body@5:
         // everything/contract.py:53
         // self.counter += multiplicative_identity()  # has full FuncDef
         int 0                                                                           0
@@ -204,14 +204,14 @@ subroutine register:
         byte "counter"                                                                  tmp%3#0,"counter"
         l-load tmp%3#0 1                                                                "counter",tmp%3#0
         app_global_put
-        b register_after_if_else@5
+        b register_after_if_else@7
 
-    register_after_if_else@5:
+    register_after_if_else@7:
         // everything/contract.py:54
         // self.name[0] = name
         int 0                                                                           0
         byte "name"                                                                     0,"name"
-        v-load name#0                                                                   0,"name",name#0
+        v-load value#0                                                                  0,"name",value#0
         app_local_put
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
@@ -332,15 +332,17 @@ subroutine calculate:
         int 8                                                                           a#0,len%0#0,8
         ==                                                                              a#0,eq%0#0
         l-load eq%0#0 0                                                                 a#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64                               a#0
+        assert // invalid number of bytes for Encoded(uint64)                           a#0
+        // everything/contract.py:64
+        // @abimethod
         txna ApplicationArgs 2                                                          a#0,b#0
         l-load-copy b#0 0                                                               a#0,b#0,b#0 (copy)
-        len                                                                             a#0,b#0,len%1#0
-        l-load len%1#0 0                                                                a#0,b#0,len%1#0
-        int 8                                                                           a#0,b#0,len%1#0,8
-        ==                                                                              a#0,b#0,eq%1#0
-        l-load eq%1#0 0                                                                 a#0,b#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64                               a#0,b#0
+        len                                                                             a#0,b#0,len%0#0
+        l-load len%0#0 0                                                                a#0,b#0,len%0#0
+        int 8                                                                           a#0,b#0,len%0#0,8
+        ==                                                                              a#0,b#0,eq%0#0
+        l-load eq%0#0 0                                                                 a#0,b#0,eq%0#0
+        assert // invalid number of bytes for Encoded(uint64)                           a#0,b#0
         // everything/my_base.py:15
         // return arc4.UInt64(a.as_uint64() + b.as_uint64())
         l-load a#0 1                                                                    b#0,a#0
