@@ -172,24 +172,12 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         return builder_for_instance(self._mapping.result, intrinsic_expr)
 
 
-def _best_op_mapping(
-    op_mappings: OpMappingWithOverloads, args: Sequence[NodeBuilder]
-) -> FunctionOpMapping:
-    """Find op mapping that matches as many arguments to immediate args as possible"""
-    literal_arg_positions = {
-        arg_idx
-        for arg_idx, arg in enumerate(args)
-        # we can't handle any form of dynamism for immediates, such as `1 if foo else 2`,
-        # so we must check for LiteralBuilder only
-        if isinstance(arg, LiteralBuilder)
-    }
-    for op_mapping in sorted(
-        op_mappings.overloads, key=lambda om: len(om.literal_arg_positions), reverse=True
-    ):
-        if literal_arg_positions.issuperset(op_mapping.literal_arg_positions):
-            return op_mapping
-    # fall back to first, let argument mapping handle logging errors
-    return op_mappings.overloads[0]
+def _fewest_immediates_op_mapping(op_mappings: OpMappingWithOverloads) -> FunctionOpMapping:
+    """
+    Pick the overload with fewest immediate args.
+    The optimiser handles promotion of stack args to immediates if possible.
+    """
+    return min(op_mappings.overloads, key=lambda om: len(om.literal_arg_positions))
 
 
 def _map_call(
@@ -200,7 +188,7 @@ def _map_call(
     if len(ast_mapper.overloads) == 1:
         (op_mapping,) = ast_mapper.overloads
     else:
-        op_mapping = _best_op_mapping(ast_mapper, args)
+        op_mapping = _fewest_immediates_op_mapping(ast_mapper)
 
     immediates = list(op_mapping.immediates)
     stack_args = list[InstanceBuilder]()
@@ -212,7 +200,7 @@ def _map_call(
             immediates_index = arg_data
             literal_type = typing.cast(type[str | int], immediates[immediates_index])
             if not (
-                isinstance(arg_in, LiteralBuilder)  # see note in _best_op_mapping
+                isinstance(arg_in, LiteralBuilder)
                 and isinstance(arg_value := arg_in.value, literal_type)
             ):
                 logger.error(
