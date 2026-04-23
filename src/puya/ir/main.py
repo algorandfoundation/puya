@@ -456,7 +456,7 @@ def _make_program(
     program = Program(
         kind=kind,
         main=main_sub,
-        subroutines=tuple(ctx.subroutines.values()),
+        subroutines=(*ctx.subroutines.values(), *ctx.validators.values()),
         avm_version=avm_version,
         slot_allocation=SlotAllocation(
             reserved=reserved_scratch_space,

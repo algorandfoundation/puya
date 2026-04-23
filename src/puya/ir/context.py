@@ -11,6 +11,7 @@ import puya.awst.nodes as awst_nodes
 from puya.context import CompileContext
 from puya.errors import CodeError, log_exceptions
 from puya.ir._puya_lib import PuyaLibIR
+from puya.ir._utils import multi_value_to_values
 from puya.ir.builder._utils import (
     assign,
     get_implicit_return_is_original,
@@ -22,14 +23,18 @@ from puya.ir.models import (
     Assignment,
     ConditionalBranch,
     Op,
+    Parameter,
     Register,
     Subroutine,
+    SubroutineReturn,
     Value,
     ValueProvider,
+    ValueTuple,
 )
+from puya.ir.op_utils import assign_targets
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.ssa import BraunSSA
-from puya.ir.types_ import IRType, PrimitiveIRType
+from puya.ir.types_ import EncodedType, IRType, PrimitiveIRType
 from puya.parse import SourceLocation
 from puya.program_refs import ContractReference
 from puya.utils import attrs_extend
@@ -45,6 +50,7 @@ class IRBuildContext(CompileContext):
     embedded_funcs_lookup: Mapping[str, Subroutine]
     root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
     routers: dict[ContractReference, Subroutine] = attrs.field(factory=dict)
+    validators: dict[EncodedType, Subroutine] = attrs.field(factory=dict)
 
     @cached_property
     def _awst_lookup(self) -> Mapping[str, awst_nodes.RootNode]:
@@ -62,7 +68,12 @@ class IRBuildContext(CompileContext):
         self, function: awst_nodes.Function, subroutine: Subroutine, visitor: "FunctionIRBuilder"
     ) -> "IRFunctionBuildContext":
         return attrs_extend(
-            IRFunctionBuildContext, self, visitor=visitor, function=function, subroutine=subroutine
+            IRFunctionBuildContext,
+            self,
+            visitor=visitor,
+            function=function,
+            subroutine=subroutine,
+            source_location=function.source_location,
         )
 
     def resolve_function_reference(
@@ -116,14 +127,59 @@ class IRBuildContext(CompileContext):
         with log_exceptions(fallback_location or self.default_fallback):
             yield
 
+    def get_type_validator(self, ir_type: EncodedType) -> Subroutine:
+        from puya.ir.builder.encoding_validation import create_validator
+
+        validator = self.validators.get(ir_type, None)
+        if validator is not None:
+            return validator
+
+        parameter = Parameter(
+            name="value",
+            ir_type=ir_type,
+            version=0,
+            implicit_return=False,
+            source_location=None,
+        )
+        subroutine = Subroutine(
+            id=f"__internal_validate_{ir_type}",
+            short_name=f"__internal_validate_{ir_type}",
+            source_location=None,
+            parameters=[parameter],
+            returns=[],
+            body=[],
+            inline=None,
+        )
+        synthetic_location = SourceLocation(file=None, line=1)
+        context = IRSubroutineBuildContext(
+            options=self.options,
+            compilation_set=self.compilation_set,
+            sources_by_path=self.sources_by_path,
+            awst=self.awst,
+            subroutines=self.subroutines,
+            embedded_funcs_lookup=self.embedded_funcs_lookup,
+            root=self.root,
+            routers=self.routers,
+            validators=self.validators,
+            subroutine=subroutine,
+            source_location=synthetic_location,
+        )
+        var_read = context.ssa.read_variable("value", ir_type, context.block_builder.active_block)
+        create_validator(context, var_read, ir_type, f"invalid number of bytes for {ir_type}", synthetic_location)
+        context.block_builder.terminate(SubroutineReturn(result=[], source_location=None))
+        subroutine.body = context.block_builder.finalise()
+        subroutine.validate_with_ssa()
+        self.validators[ir_type] = subroutine
+
+        return subroutine
+
 
 @attrs.frozen(kw_only=True)
-class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
-    """Context when building from an awst Function node"""
+class IRSubroutineBuildContext(IRBuildContext, IRRegisterContext):
+    """Context when building from a new Subroutine node"""
 
-    function: awst_nodes.Function
     subroutine: Subroutine
-    visitor: "FunctionIRBuilder"
+    source_location: SourceLocation
     block_builder: BlocksBuilder = attrs.field()
     _tmp_counters: defaultdict[str, Iterator[int]] = attrs.field(
         factory=lambda: defaultdict(itertools.count)
@@ -135,15 +191,10 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
 
     @block_builder.default
     def _block_builder_factory(self) -> BlocksBuilder:
-        return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
+        return BlocksBuilder(self.subroutine.parameters, self.source_location)
 
     def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
         return self.embedded_funcs_lookup[full_name]
-
-    def materialise_value_provider(
-        self, provider: ValueProvider, description: str | Sequence[str]
-    ) -> list[Value]:
-        return self.visitor.materialise_value_provider(provider, description)
 
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])
@@ -171,17 +222,17 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
 
     @property
     def default_fallback(self) -> SourceLocation | None:
-        return self.function.source_location
+        return self.source_location
 
     def resolve_subroutine(
         self,
         target: awst_nodes.SubroutineTarget,
         source_location: SourceLocation,
         *,
-        caller: awst_nodes.Function | None = None,
+        caller: awst_nodes.Function,
     ) -> Subroutine:
         func = self.resolve_function_reference(
-            target=target, source_location=source_location, caller=caller or self.function
+            target=target, source_location=source_location, caller=caller
         )
         return self.subroutines[func]
 
@@ -218,3 +269,47 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
         )
         self.block_builder.goto(next_block)
         self.block_builder.try_activate_block(next_block)
+
+    def materialise_value_provider(
+        self, value_provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        if isinstance(value_provider, Value | ValueTuple):
+            return multi_value_to_values(value_provider)
+        descriptions = (
+            [description] * len(value_provider.types)
+            if isinstance(description, str)
+            else description
+        )
+        targets = [
+            self.new_register(self.next_tmp_name(desc), ir_type, value_provider.source_location)
+            for ir_type, desc in zip(value_provider.types, descriptions, strict=True)
+        ]
+        assign_targets(
+            self,
+            source=value_provider,
+            targets=targets,
+            assignment_location=value_provider.source_location,
+        )
+        return list(targets)
+
+
+@attrs.frozen(kw_only=True)
+class IRFunctionBuildContext(IRSubroutineBuildContext, IRRegisterContext):
+    """Context when building from an awst Function node"""
+
+    function: awst_nodes.Function
+    visitor: "FunctionIRBuilder"
+
+    def resolve_subroutine(
+        self,
+        target: awst_nodes.SubroutineTarget,
+        source_location: SourceLocation,
+        *,
+        caller: awst_nodes.Function | None = None,
+    ) -> Subroutine:
+        return super().resolve_subroutine(target, source_location, caller=caller or self.function)
+
+    def materialise_value_provider(
+        self, provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        return self.visitor.materialise_value_provider(provider, description)

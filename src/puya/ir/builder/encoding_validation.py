@@ -7,14 +7,30 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import iteration
 from puya.ir.builder._utils import assign
-from puya.ir.context import IRFunctionBuildContext
+from puya.ir.context import IRSubroutineBuildContext
+from puya.ir.models import InvokeSubroutine
 from puya.ir.op_utils import OpFactory
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
 
 
 def validate_encoding(
-    context: IRFunctionBuildContext,
+    context: IRSubroutineBuildContext,
+    value: ir.Value,
+    ir_type: types.EncodedType,
+    loc: SourceLocation,
+) -> None:
+    context.add_op(
+        InvokeSubroutine(
+            target=context.get_type_validator(ir_type),
+            args=[value],
+            source_location=loc,
+        )
+    )
+
+
+def create_validator(
+    context: IRSubroutineBuildContext,
     value: ir.Value,
     ir_type: types.EncodedType,
     error_message: str,
@@ -28,7 +44,7 @@ def validate_encoding(
 
 
 def _get_expected_size(
-    context: IRFunctionBuildContext,
+    context: IRSubroutineBuildContext,
     value: ir.Value,
     ir_type: types.EncodedType,
     loc: SourceLocation,
@@ -122,12 +138,12 @@ def _get_expected_size(
             raise InternalError(f"unexpected encoding: {encoding}", loc)
 
 
-def _refresh_mutated_value(context: IRFunctionBuildContext, value: ir.Register) -> ir.Register:
+def _refresh_mutated_value(context: IRSubroutineBuildContext, value: ir.Register) -> ir.Register:
     return context.ssa.read_variable(value.name, value.ir_type, context.block_builder.active_block)
 
 
 def _increment_and_reassign(
-    context: IRFunctionBuildContext, lhs: ir.Register, value: ir.Value, loc: SourceLocation
+    context: IRSubroutineBuildContext, lhs: ir.Register, value: ir.Value, loc: SourceLocation
 ) -> ir.Register:
     """increments the variable associated with lhs by value"""
     intrinsic = ir.Intrinsic(

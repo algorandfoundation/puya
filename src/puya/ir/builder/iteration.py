@@ -11,7 +11,7 @@ from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence
 from puya.ir.builder._utils import assign, assign_temp
-from puya.ir.context import IRFunctionBuildContext
+from puya.ir.context import IRFunctionBuildContext, IRSubroutineBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import (
     ConditionalBranch,
@@ -453,7 +453,7 @@ def _iterate_urange_with_reversal(
 
 @contextlib.contextmanager
 def iterate_and_yield_range(
-    context: IRFunctionBuildContext,
+    context: IRSubroutineBuildContext,
     end: Value,
     loc: SourceLocation,
 ) -> Iterator[Value]:
@@ -678,7 +678,7 @@ def _iterate_tuple(
     context.block_builder.activate_block(next_block)
 
 
-def _refresh_mutated_variable(context: IRFunctionBuildContext, reg: Register) -> Register:
+def _refresh_mutated_variable(context: IRSubroutineBuildContext, reg: Register) -> Register:
     """
     Given a register pointing to an underlying root operand (ie name) that is mutated,
     do an SSA read in the current block.
@@ -692,7 +692,7 @@ def _refresh_mutated_variable(context: IRFunctionBuildContext, reg: Register) ->
 
 
 def _reassign_with_intrinsic_op(
-    context: IRFunctionBuildContext,
+    context: IRSubroutineBuildContext,
     *,
     target: Register,
     op: AVMOp,
