@@ -482,7 +482,7 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
                 op=AVMOp.load if op == AVMOp.loads else AVMOp.store,
             )
         case Intrinsic(
-            op=(AVMOp.extract3),
+            op=AVMOp.extract3,
             args=[
                 models.Value(atype=AVMType.bytes),
                 models.UInt64Constant(value=S),

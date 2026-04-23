@@ -180,6 +180,31 @@ def _fewest_immediates_op_mapping(op_mappings: OpMappingWithOverloads) -> Functi
     return min(op_mappings.overloads, key=lambda om: len(om.literal_arg_positions))
 
 
+def _extract_op_mapping(
+    op_mappings: OpMappingWithOverloads, args: Sequence[NodeBuilder]
+) -> FunctionOpMapping:
+    """
+    Pick the overload matching as many literal uint8-ranged args to immediates as possible.
+
+    Used only for `op.extract`: the immediate form and `extract3` have different semantics
+    when length=0, so we can't rely on the optimiser to promote stack args later.
+    """
+    literal_arg_positions = {
+        arg_idx
+        for arg_idx, arg in enumerate(args)
+        # we can't handle any form of dynamism for immediates, such as `1 if foo else 2`,
+        # so we must check for LiteralBuilder only with literal int value within uint8 bounds.
+        if isinstance(arg, LiteralBuilder) and type(arg.value) is int and 0 <= arg.value <= 255
+    }
+    for op_mapping in sorted(
+        op_mappings.overloads, key=lambda om: len(om.literal_arg_positions), reverse=True
+    ):
+        if literal_arg_positions.issuperset(op_mapping.literal_arg_positions):
+            return op_mapping
+    # fall back to first, let argument mapping handle logging errors
+    return op_mappings.overloads[0]
+
+
 def _map_call(
     ast_mapper: OpMappingWithOverloads,
     args: Sequence[NodeBuilder],
@@ -187,6 +212,8 @@ def _map_call(
 ) -> IntrinsicCall:
     if len(ast_mapper.overloads) == 1:
         (op_mapping,) = ast_mapper.overloads
+    elif any(o.op_code == "extract3" for o in ast_mapper.overloads):
+        op_mapping = _extract_op_mapping(ast_mapper, args)
     else:
         op_mapping = _fewest_immediates_op_mapping(ast_mapper)
 
