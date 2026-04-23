@@ -1,3 +1,5 @@
+import attrs
+
 from puya.errors import InternalError
 from puya.ir import (
     encodings,
@@ -7,28 +9,42 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import iteration
 from puya.ir.builder._utils import assign
-from puya.ir.context import IRFunctionBuildContext
+from puya.ir.context import IRSubroutineBuildContext
 from puya.ir.op_utils import OpFactory
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
 
 
 def validate_encoding(
-    context: IRFunctionBuildContext,
+    context: IRSubroutineBuildContext,
     value: ir.Value,
     ir_type: types.EncodedType,
-    error_message: str,
     loc: SourceLocation,
 ) -> None:
-    factory = OpFactory(context, loc)
-    expected_size = _get_expected_size(context, value, ir_type, loc)
-    value_len = factory.len(value)
-    size_is_correct = factory.eq(value_len, expected_size)
-    factory.assert_value(size_is_correct, error_message=error_message)
+    context.add_macro_op(ValidateMacro(ir_type), loc, value)
+
+
+@attrs.frozen
+class ValidateMacro:
+    ir_type: types.EncodedType
+
+    def name_for(self) -> str:
+        return f"%Validate__{self.ir_type.encoding.name}"
+
+    def execute_on(self, context: IRSubroutineBuildContext, value: ir.Value) -> None:
+        internal_location = SourceLocation(file=None, line=1)
+        error_message = f"invalid number of bytes for {self.ir_type.encoding.name}"
+        factory = OpFactory(context, internal_location)
+        expected_size = _get_expected_size(context, value, self.ir_type, internal_location)
+        value_len = factory.len(value)
+        size_is_correct = factory.eq(value_len, expected_size)
+        factory.assert_value(size_is_correct, error_message=error_message)
+
+    returns = ()
 
 
 def _get_expected_size(
-    context: IRFunctionBuildContext,
+    context: IRSubroutineBuildContext,
     value: ir.Value,
     ir_type: types.EncodedType,
     loc: SourceLocation,
@@ -122,12 +138,12 @@ def _get_expected_size(
             raise InternalError(f"unexpected encoding: {encoding}", loc)
 
 
-def _refresh_mutated_value(context: IRFunctionBuildContext, value: ir.Register) -> ir.Register:
+def _refresh_mutated_value(context: IRSubroutineBuildContext, value: ir.Register) -> ir.Register:
     return context.ssa.read_variable(value.name, value.ir_type, context.block_builder.active_block)
 
 
 def _increment_and_reassign(
-    context: IRFunctionBuildContext, lhs: ir.Register, value: ir.Value, loc: SourceLocation
+    context: IRSubroutineBuildContext, lhs: ir.Register, value: ir.Value, loc: SourceLocation
 ) -> ir.Register:
     """increments the variable associated with lhs by value"""
     intrinsic = ir.Intrinsic(

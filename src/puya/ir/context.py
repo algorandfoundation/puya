@@ -1,16 +1,20 @@
 import contextlib
+import inspect
 import itertools
 import typing
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from collections.abc import Iterator, Mapping, Sequence
-from functools import cached_property
+from functools import cached_property, partial
+from typing import Protocol
 
 import attrs
 
 import puya.awst.nodes as awst_nodes
+import puya.ir.models as ir
 from puya.context import CompileContext
-from puya.errors import CodeError, log_exceptions
+from puya.errors import CodeError, InternalError, log_exceptions
 from puya.ir._puya_lib import PuyaLibIR
+from puya.ir._utils import multi_value_to_values
 from puya.ir.builder._utils import (
     assign,
     get_implicit_return_is_original,
@@ -22,11 +26,14 @@ from puya.ir.models import (
     Assignment,
     ConditionalBranch,
     Op,
+    Parameter,
     Register,
     Subroutine,
     Value,
     ValueProvider,
+    ValueTuple,
 )
+from puya.ir.op_utils import assign_targets
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.ssa import BraunSSA
 from puya.ir.types_ import IRType, PrimitiveIRType
@@ -38,6 +45,17 @@ if typing.TYPE_CHECKING:
     from puya.ir.builder.main import FunctionIRBuilder
 
 
+class MacroOp[**C](Protocol):
+    def name_for(self) -> str: ...
+
+    def execute_on(
+        self, ctx: "IRSubroutineBuildContext", *args: C.args, **kwargs: C.kwargs
+    ) -> None: ...
+
+    @property
+    def returns(self) -> Sequence[IRType]: ...
+
+
 @attrs.frozen(kw_only=True)
 class IRBuildContext(CompileContext):
     awst: awst_nodes.AWST
@@ -45,6 +63,7 @@ class IRBuildContext(CompileContext):
     embedded_funcs_lookup: Mapping[str, Subroutine]
     root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
     routers: dict[ContractReference, Subroutine] = attrs.field(factory=dict)
+    macro_ops: dict[str, Subroutine] = attrs.field(factory=dict)
 
     @cached_property
     def _awst_lookup(self) -> Mapping[str, awst_nodes.RootNode]:
@@ -62,7 +81,12 @@ class IRBuildContext(CompileContext):
         self, function: awst_nodes.Function, subroutine: Subroutine, visitor: "FunctionIRBuilder"
     ) -> "IRFunctionBuildContext":
         return attrs_extend(
-            IRFunctionBuildContext, self, visitor=visitor, function=function, subroutine=subroutine
+            IRFunctionBuildContext,
+            self,
+            visitor=visitor,
+            function=function,
+            subroutine=subroutine,
+            source_location=function.source_location,
         )
 
     def resolve_function_reference(
@@ -118,12 +142,11 @@ class IRBuildContext(CompileContext):
 
 
 @attrs.frozen(kw_only=True)
-class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
-    """Context when building from an awst Function node"""
+class IRSubroutineBuildContext(IRBuildContext, IRRegisterContext):
+    """Context when building from a new Subroutine node"""
 
-    function: awst_nodes.Function
     subroutine: Subroutine
-    visitor: "FunctionIRBuilder"
+    source_location: SourceLocation
     block_builder: BlocksBuilder = attrs.field()
     _tmp_counters: defaultdict[str, Iterator[int]] = attrs.field(
         factory=lambda: defaultdict(itertools.count)
@@ -135,15 +158,10 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
 
     @block_builder.default
     def _block_builder_factory(self) -> BlocksBuilder:
-        return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
+        return BlocksBuilder(self.subroutine.parameters, self.source_location)
 
     def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
         return self.embedded_funcs_lookup[full_name]
-
-    def materialise_value_provider(
-        self, provider: ValueProvider, description: str | Sequence[str]
-    ) -> list[Value]:
-        return self.visitor.materialise_value_provider(provider, description)
 
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])
@@ -171,17 +189,17 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
 
     @property
     def default_fallback(self) -> SourceLocation | None:
-        return self.function.source_location
+        return self.source_location
 
     def resolve_subroutine(
         self,
         target: awst_nodes.SubroutineTarget,
         source_location: SourceLocation,
         *,
-        caller: awst_nodes.Function | None = None,
+        caller: awst_nodes.Function,
     ) -> Subroutine:
         func = self.resolve_function_reference(
-            target=target, source_location=source_location, caller=caller or self.function
+            target=target, source_location=source_location, caller=caller
         )
         return self.subroutines[func]
 
@@ -218,3 +236,141 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
         )
         self.block_builder.goto(next_block)
         self.block_builder.try_activate_block(next_block)
+
+    def materialise_value_provider(
+        self, value_provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        if isinstance(value_provider, Value | ValueTuple):
+            return multi_value_to_values(value_provider)
+        descriptions = (
+            [description] * len(value_provider.types)
+            if isinstance(description, str)
+            else description
+        )
+        targets = [
+            self.new_register(self.next_tmp_name(desc), ir_type, value_provider.source_location)
+            for ir_type, desc in zip(value_provider.types, descriptions, strict=True)
+        ]
+        assign_targets(
+            self,
+            source=value_provider,
+            targets=targets,
+            assignment_location=value_provider.source_location,
+        )
+        return list(targets)
+
+    def _resolve_macro_op[**P](
+        self,
+        operation: MacroOp[P],
+        sig: inspect.Signature,
+        bound_args: inspect.BoundArguments,
+    ) -> Subroutine:
+        internal_loc = SourceLocation(file=None, line=1)
+
+        macro_name = operation.name_for()
+
+        subroutine = self.macro_ops.get(macro_name, None)
+        if subroutine is not None:
+            return subroutine
+
+        parameters = [
+            Parameter(
+                name=name,
+                ir_type=value.ir_type,
+                version=0,
+                implicit_return=False,
+                source_location=None,
+            )
+            for name, value in bound_args.arguments.items()
+        ]
+        subroutine = Subroutine(
+            id=macro_name,
+            short_name=macro_name,
+            source_location=None,
+            parameters=parameters,
+            returns=operation.returns,
+            body=[],
+            inline=True if self.options.optimization_level < 2 else None,
+        )
+        context = IRSubroutineBuildContext(
+            options=self.options,
+            compilation_set=self.compilation_set,
+            sources_by_path=self.sources_by_path,
+            awst=self.awst,
+            subroutines=self.subroutines,
+            embedded_funcs_lookup=self.embedded_funcs_lookup,
+            root=self.root,
+            routers=self.routers,
+            macro_ops=self.macro_ops,
+            subroutine=subroutine,
+            source_location=internal_loc,
+        )
+
+        block_builder = context.block_builder
+        execute_on_arguments = OrderedDict(
+            (name, context.ssa.read_variable(name, value.ir_type, block_builder.active_block))
+            for name, value in bound_args.arguments.items()
+        )
+        execute_on_bound_arguments = inspect.BoundArguments(sig, execute_on_arguments)
+
+        operation.execute_on(
+            context, *execute_on_bound_arguments.args, **execute_on_bound_arguments.kwargs
+        )
+        final_block = block_builder.active_block
+        if not final_block.terminated:
+            if operation.returns:
+                raise InternalError(f"not all paths return a value for {macro_name}")
+            block_builder.terminate(ir.SubroutineReturn(result=[], source_location=None))
+        subroutine.body = block_builder.finalise()
+        subroutine.validate_with_ssa()
+
+        self.macro_ops[macro_name] = subroutine
+
+        return subroutine
+
+    def add_macro_op[**P](
+        self,
+        operation: MacroOp[P],
+        source_location: SourceLocation,
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> ir.ValueProvider:
+        sig = inspect.signature(partial(operation.execute_on, self))
+        bound_args = sig.bind(*args, **kwargs)
+        bound_args.apply_defaults()
+
+        assert all(
+            issubclass(param.annotation, ir.Value) for param in sig.parameters.values()
+        ), "All runtime parameters to a macro operation should be IR values."
+
+        macro_op_sub = self._resolve_macro_op(operation, sig, bound_args)
+
+        invocation = ir.InvokeSubroutine(
+            target=macro_op_sub,
+            args=list(bound_args.arguments.values()),
+            source_location=source_location,
+        )
+        self.add_op(invocation)
+        return invocation
+
+
+@attrs.frozen(kw_only=True)
+class IRFunctionBuildContext(IRSubroutineBuildContext, IRRegisterContext):
+    """Context when building from an awst Function node"""
+
+    function: awst_nodes.Function
+    visitor: "FunctionIRBuilder"
+
+    def resolve_subroutine(
+        self,
+        target: awst_nodes.SubroutineTarget,
+        source_location: SourceLocation,
+        *,
+        caller: awst_nodes.Function | None = None,
+    ) -> Subroutine:
+        return super().resolve_subroutine(target, source_location, caller=caller or self.function)
+
+    def materialise_value_provider(
+        self, provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        return self.visitor.materialise_value_provider(provider, description)
