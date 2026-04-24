@@ -97,15 +97,15 @@ def _check_bzero(intrinsic: models.Intrinsic) -> str | None:
 
 def _check_extract(intrinsic: models.Intrinsic) -> str | None:
     # extract with immediates: S, L — L==0 extracts to end (valid iff S <= len)
-    match intrinsic.args:
-        case [arg]:
-            match intrinsic.immediates:
-                case [int(start), int(length)]:
-                    max_len = _bytes_length_or_max(arg)
-                    if start > max_len:
-                        return "start index for extract is out of bounds"
-                    if length != 0 and start + length > max_len:
-                        return "end index for extract is out of bounds"
+    (arg,) = intrinsic.args
+    start, length = intrinsic.immediates
+    assert isinstance(start, int)
+    assert isinstance(length, int)
+    max_len = _bytes_length_or_max(arg)
+    if start > max_len:
+        return "start index for extract is out of bounds"
+    if length != 0 and start + length > max_len:
+        return "end index for extract is out of bounds"
     return None
 
 
@@ -122,44 +122,40 @@ def _check_extract3(intrinsic: models.Intrinsic) -> str | None:
 
 
 def _check_substring(intrinsic: models.Intrinsic) -> str | None:
-    match intrinsic.args:
-        case [arg]:
-            match intrinsic.immediates:
-                case [_, int(end)]:
-                    # note: we don't check if end is before start, TEAL model does this,
-                    #       to match algod behaviour
-                    if end > _bytes_length_or_max(arg):
-                        return "substring buffer overflow"
+    # note: we don't check if end is before start, TEAL model does this, to match algod behaviour
+    (arg,) = intrinsic.args
+    _, end = intrinsic.immediates
+    assert isinstance(end, int)
+    if end > _bytes_length_or_max(arg):
+        return "substring buffer overflow"
     return None
 
 
 def _check_substring3(intrinsic: models.Intrinsic) -> str | None:
-    match intrinsic.args:
-        case [
-            arg,
-            models.UInt64Constant(value=start),
-            models.UInt64Constant(value=end),
-        ]:
-            if end < start:
-                return "substring3 has end preceding start"
-            if end > _bytes_length_or_max(arg):
-                return "substring3 buffer overflow"
-        case [
-            arg,
-            _,
-            models.UInt64Constant(value=end),
-        ]:
-            if end > _bytes_length_or_max(arg):
-                return "substring3 buffer overflow"
+    arg, start_val, end_val = intrinsic.args
+    max_arg_len = _bytes_length_or_max(arg)
+    start = None
+    if isinstance(start_val, models.UInt64Constant):
+        start = start_val.value
+        if start > max_arg_len:
+            return "substring3 buffer over-read"
+    end = None
+    if isinstance(end_val, models.UInt64Constant):
+        end = end_val.value
+        if end > max_arg_len:
+            return "substring3 buffer over-read"
+    if start is not None and end is not None and end < start:
+        return "substring3 has end preceding start"
     return None
 
 
 def _check_replace2(intrinsic: models.Intrinsic) -> str | None:
     match intrinsic.args:
-        case [arg, models.BytesConstant(value=b_bytes)]:
-            match intrinsic.immediates:
-                case [int(start)] if start + len(b_bytes) > _bytes_length_or_max(arg):
-                    return "replace2 buffer overflow"
+        case [arg, models.BytesConstant(value=replacement)]:
+            (start,) = intrinsic.immediates
+            assert isinstance(start, int)
+            if start + len(replacement) > _bytes_length_or_max(arg):
+                return "replace2 buffer overflow"
     return None
 
 
@@ -168,9 +164,9 @@ def _check_replace3(intrinsic: models.Intrinsic) -> str | None:
         case [
             arg,
             models.UInt64Constant(value=start),
-            models.BytesConstant(value=b_bytes),
+            models.BytesConstant(value=replacement),
         ]:
-            if start + len(b_bytes) > _bytes_length_or_max(arg):
+            if start + len(replacement) > _bytes_length_or_max(arg):
                 return "replace3 buffer overflow"
     return None
 
@@ -178,7 +174,7 @@ def _check_replace3(intrinsic: models.Intrinsic) -> str | None:
 def _check_extract_uint(intrinsic: models.Intrinsic) -> str | None:
     match intrinsic.args:
         case [
-            models.BytesConstant(value=a_bytes),
+            bytes_arg,
             models.UInt64Constant(value=offset),
         ]:
             byte_size = {
@@ -186,7 +182,7 @@ def _check_extract_uint(intrinsic: models.Intrinsic) -> str | None:
                 AVMOp.extract_uint32: 4,
                 AVMOp.extract_uint64: 8,
             }[intrinsic.op]
-            if offset + byte_size > len(a_bytes):
+            if offset + byte_size > _bytes_length_or_max(bytes_arg):
                 return f"bytes constant is too small for {intrinsic.op.code}"
     return None
 
