@@ -1,0 +1,12 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.op_variant_selection.GTxnOpSelection.approval_program() -> uint64:
+main:
+    // regression_tests/op_variant_selection.py:82-84
+    // # T > 255 forces gtxns (uint64 stack arg) over gtxn (uint8 immediate).
+    // # Compile-only: runtime would fail since 256 is beyond the txn group.
+    // return op.GTxn.fee(256)
+    pushint 256
+    gtxns Fee
+    return

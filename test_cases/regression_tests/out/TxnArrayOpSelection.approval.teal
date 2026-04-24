@@ -1,0 +1,18 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.op_variant_selection.TxnArrayOpSelection.approval_program() -> uint64:
+main:
+    // regression_tests/op_variant_selection.py:71-73
+    // # I > 255 forces txnas (uint64 stack arg) over txna (uint8 immediate).
+    // # Compile-only: runtime would fail since 256 is beyond the txn's ApplicationArgs array.
+    // assert op.Txn.application_args(256) != b""
+    pushint 256
+    txnas ApplicationArgs
+    pushbytes 0x
+    !=
+    assert
+    // regression_tests/op_variant_selection.py:74
+    // return True
+    pushint 1
+    return

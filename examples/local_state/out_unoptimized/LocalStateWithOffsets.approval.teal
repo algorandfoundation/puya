@@ -3,7 +3,7 @@
 
 // examples.local_state.local_state_with_offsets.LocalStateContract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 2
     bytecblock "local" ""
     intc_0 // 0
     bytec_1 // ""
@@ -76,17 +76,19 @@ main_if_body@8:
 main_after_if_else@9:
     // local_state/local_state_with_offsets.py:26
     // offset = op.btoi(Txn.application_args(0))
-    txna ApplicationArgs 0
+    intc_0 // 0
+    txnas ApplicationArgs
     btoi
     bury 1
     // local_state/local_state_with_offsets.py:27
     // method = Txn.application_args(1)
-    txna ApplicationArgs 1
+    intc_1 // 1
+    txnas ApplicationArgs
     bury 3
     // local_state/local_state_with_offsets.py:28
     // if Txn.num_app_args == 2:
     txn NumAppArgs
-    pushint 2
+    intc_2 // 2
     ==
     bz main_else_body@20
     b main_if_body@10
@@ -183,7 +185,8 @@ main_if_body@21:
 main_if_body@22:
     // local_state/local_state_with_offsets.py:41
     // self.set_data(offset, Txn.application_args(2))
-    txna ApplicationArgs 2
+    intc_2 // 2
+    txnas ApplicationArgs
     dig 1
     uncover 1
     callsub set_data
@@ -207,7 +210,8 @@ main_else_body@23:
 main_if_body@24:
     // local_state/local_state_with_offsets.py:43
     // log(self.get_data_with_default(offset, Txn.application_args(2)))
-    txna ApplicationArgs 2
+    intc_2 // 2
+    txnas ApplicationArgs
     dig 1
     uncover 1
     callsub get_data_with_default

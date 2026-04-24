@@ -161,7 +161,7 @@ subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_
         let tmp%2#0: uint64 = (- array_length#0 1u)
         let length_minus_1#0: uint64 = tmp%2#0
         let tmp%3#0: bytes = _puya_lib.arc4._itob16(length_minus_1#0)
-        let tmp%4#0: bytes = ((replace2 0) result#0 tmp%3#0)
+        let tmp%4#0: bytes = (replace3 result#0 0u tmp%3#0)
         return tmp%4#0
 
 subroutine _puya_lib.arc4.dynamic_array_pop_byte_length_head(array: bytes) -> bytes:
@@ -284,7 +284,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_fixed(array: bytes, new_items_byt
         let new_array_length#0: uint64 = tmp%1#0
         let tmp%2#0: bytes = _puya_lib.arc4._itob16(new_array_length#0)
         let new_len_u16#0: bytes = tmp%2#0
-        let tmp%3#0: bytes = ((replace2 0) array#0 new_len_u16#0)
+        let tmp%3#0: bytes = (replace3 array#0 0u new_len_u16#0)
         let result#0: bytes = tmp%3#0
         let tmp%4#0: bytes = (concat result#0 new_items_bytes#0)
         return tmp%4#0
@@ -297,7 +297,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let new_array_length#0: uint64 = tmp%1#0
         let tmp%2#0: bytes = _puya_lib.arc4._itob16(new_array_length#0)
         let new_array_length_b#0: bytes = tmp%2#0
-        let tmp%3#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let tmp%3#0: bytes = (replace3 array#0 0u new_array_length_b#0)
         let result#0: bytes = tmp%3#0
         let tmp%4#0: uint64 = (+ array_length#0 7u)
         let tmp%5#0: uint64 = (/ tmp%4#0 8u)
@@ -431,7 +431,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new
 
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
     block@0: // L294
-        let tmp%0#0: bytes = ((substring 0 2) array#0)
+        let tmp%0#0: bytes = (substring3 array#0 0u 2u)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
         let array_length#0: uint64 = tmp%1#0
@@ -442,7 +442,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
     block@0: // L318
-        let tmp%0#0: bytes = ((substring 0 2) source#0)
+        let tmp%0#0: bytes = (substring3 source#0 0u 2u)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
         let array_length#0: uint64 = tmp%1#0
@@ -1785,7 +1785,7 @@ subroutine examples.box_storage.contract.BoxContract.set_nested_struct(struct: E
         let tmp%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
         (assert tmp%1#0) // struct.a is truthy
-        let tmp%2#0: bytes = (txna ApplicationArgs 1)
+        let tmp%2#0: bytes = ((txnas ApplicationArgs) 1u)
         let struct_bytes#0: bytes = tmp%2#0
         let tmp%3#0: uint64 = (len struct_bytes#0)
         let struct_size#0: uint64 = tmp%3#0

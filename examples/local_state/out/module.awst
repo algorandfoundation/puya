@@ -21,8 +21,8 @@ contract LocalStateWithOffsets
     if (txn<NumAppArgs>() < 1u) {
       return false
     }
-    offset: uint64 = btoi(txna<ApplicationArgs, 0>())
-    method: bytes = txna<ApplicationArgs, 1>()
+    offset: uint64 = btoi(txnas<ApplicationArgs>(0u))
+    method: bytes = txnas<ApplicationArgs>(1u)
     if (txn<NumAppArgs>() == 2u) {
       if (method == hex<"6765745F67756172616E746565645F64617461">) {
         log(this::get_guaranteed_data(offset))
@@ -42,10 +42,10 @@ contract LocalStateWithOffsets
     } else {
       if (txn<NumAppArgs>() == 3u) {
         if (method == hex<"7365745F64617461">) {
-          this::set_data(offset, txna<ApplicationArgs, 2>())
+          this::set_data(offset, txnas<ApplicationArgs>(2u))
         } else {
           if (method == hex<"6765745F646174615F776974685F64656661756C74">) {
-            log(this::get_data_with_default(offset, txna<ApplicationArgs, 2>()))
+            log(this::get_data_with_default(offset, txnas<ApplicationArgs>(2u)))
           } else {
             return false
           }
@@ -122,7 +122,7 @@ contract LocalStateContract
     if (txn<NumAppArgs>() == 0u) {
       return false
     }
-    method: bytes = txna<ApplicationArgs, 0>()
+    method: bytes = txnas<ApplicationArgs>(0u)
     if (txn<NumAppArgs>() == 1u) {
       if (method == hex<"6765745F67756172616E746565645F64617461">) {
         log(this::get_guaranteed_data(txn<Sender>()))
@@ -142,10 +142,10 @@ contract LocalStateContract
     } else {
       if (txn<NumAppArgs>() == 2u) {
         if (method == hex<"7365745F64617461">) {
-          this::set_data(txn<Sender>(), txna<ApplicationArgs, 1>())
+          this::set_data(txn<Sender>(), txnas<ApplicationArgs>(1u))
         } else {
           if (method == hex<"6765745F646174615F776974685F64656661756C74">) {
-            log(this::get_data_with_default(txn<Sender>(), txna<ApplicationArgs, 1>()))
+            log(this::get_data_with_default(txn<Sender>(), txnas<ApplicationArgs>(1u)))
           } else {
             return false
           }

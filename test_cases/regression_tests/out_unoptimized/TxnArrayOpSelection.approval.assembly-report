@@ -1,0 +1,15 @@
+| PC | TEAL Bytes     | TEAL                      | Source                                     | Location                                                                                           |
+|--: | :--------------| :-------------------------| :------------------------------------------| :--------------------------------------------------------------------------------------------------|
+|  0 | 0b             | #pragma version 11        |                                            |                                                                                                    |
+|    | # main         | main:                     |                                            | test_cases.regression_tests.op_variant_selection.TxnArrayOpSelection.approval_program() -> uint64: |
+|  1 | 42 00 00       |     b main_block@0        |                                            |                                                                                                    |
+|    | # main_block@0 | main_block@0:             |                                            |                                                                                                    |
+|    |                |                           | assert op.Txn.application_args(256) != b"" | regression_tests/op_variant_selection.py:73                                                        |
+|  4 | 81 80 02       |     pushint 256           |                                ---         | regression_tests/op_variant_selection.py:73:39-42                                                  |
+|  7 | c0 1a          |     txnas ApplicationArgs |        ----------------------------        | regression_tests/op_variant_selection.py:73:15-43                                                  |
+|  9 | 80 00          |     pushbytes 0x          |                                        --- | regression_tests/op_variant_selection.py:73:47-50                                                  |
+| 11 | 13             |     !=                    |        ----------------------------------- | regression_tests/op_variant_selection.py:73:15-50                                                  |
+| 12 | 44             |     assert                | ------------------------------------------ | regression_tests/op_variant_selection.py:73:8-50                                                   |
+|    |                |                           | return True                                | regression_tests/op_variant_selection.py:74                                                        |
+| 13 | 81 01          |     pushint 1             |        ----                                | regression_tests/op_variant_selection.py:74:15-19                                                  |
+| 15 | 43             |     return                | -----------                                | regression_tests/op_variant_selection.py:74:8-19                                                   |

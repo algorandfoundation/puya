@@ -1,0 +1,15 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.op_variant_selection.GaidOpSelection.approval_program() -> uint64:
+main:
+    b main_block@0
+
+main_block@0:
+    // regression_tests/op_variant_selection.py:39-41
+    // # T > 255 forces gaids (uint64 stack arg) over gaid (uint8 immediate).
+    // # Compile-only: runtime would fail since group indices are bounded by GroupIndex.
+    // return op.gaid(256)
+    pushint 256
+    gaids
+    return

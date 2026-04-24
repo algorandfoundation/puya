@@ -453,7 +453,7 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
             op=AVMOp.gitxnas,
             args=[models.UInt64Constant(value=array_index)],
             immediates=[group_index, field],
-        ):
+        ) if array_index <= 255:
             return attrs.evolve(
                 intrinsic,
                 op=AVMOp.gitxna,
@@ -464,7 +464,7 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
             op=AVMOp.itxnas,
             args=[models.UInt64Constant(value=array_index)],
             immediates=[field],
-        ):
+        ) if array_index <= 255:
             return attrs.evolve(
                 intrinsic,
                 op=AVMOp.itxna,
@@ -474,7 +474,7 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
         case Intrinsic(
             op=(AVMOp.loads | AVMOp.stores as op),
             args=[models.UInt64Constant(value=slot), *rest],
-        ):
+        ) if slot <= 255:
             return attrs.evolve(
                 intrinsic,
                 immediates=[slot],
@@ -482,7 +482,7 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
                 op=AVMOp.load if op == AVMOp.loads else AVMOp.store,
             )
         case Intrinsic(
-            op=(AVMOp.extract3 | AVMOp.extract),
+            op=AVMOp.extract3,
             args=[
                 models.Value(atype=AVMType.bytes),
                 models.UInt64Constant(value=S),
@@ -515,6 +515,102 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
             args=[models.UInt64Constant(value=idx)],
         ) if idx <= 255:
             return attrs.evolve(intrinsic, op=AVMOp.arg, immediates=[idx], args=[])
+        case Intrinsic(
+            op=AVMOp.gaids,
+            args=[models.UInt64Constant(value=group_index)],
+        ) if group_index <= 255:
+            return attrs.evolve(intrinsic, op=AVMOp.gaid, immediates=[group_index], args=[])
+        case Intrinsic(
+            op=AVMOp.gloads,
+            args=[models.UInt64Constant(value=group_index)],
+            immediates=[slot],
+        ) if group_index <= 255:
+            return attrs.evolve(intrinsic, op=AVMOp.gload, immediates=[group_index, slot], args=[])
+        case Intrinsic(
+            op=AVMOp.gloadss,
+            args=[
+                models.UInt64Constant(value=group_index),
+                models.UInt64Constant(value=slot),
+            ],
+        ) if group_index <= 255 and slot <= 255:
+            return attrs.evolve(intrinsic, op=AVMOp.gload, immediates=[group_index, slot], args=[])
+        case Intrinsic(
+            op=AVMOp.gloadss,
+            args=[group_index_arg, models.UInt64Constant(value=slot)],
+        ) if slot <= 255:
+            return attrs.evolve(
+                intrinsic, op=AVMOp.gloads, immediates=[slot], args=[group_index_arg]
+            )
+        case Intrinsic(
+            op=AVMOp.txnas,
+            args=[models.UInt64Constant(value=array_index)],
+            immediates=[field],
+        ) if array_index <= 255:
+            return attrs.evolve(intrinsic, op=AVMOp.txna, immediates=[field, array_index], args=[])
+        case Intrinsic(
+            op=AVMOp.gtxns,
+            args=[models.UInt64Constant(value=group_index)],
+            immediates=[field],
+        ) if group_index <= 255:
+            return attrs.evolve(intrinsic, op=AVMOp.gtxn, immediates=[group_index, field], args=[])
+        case Intrinsic(
+            op=AVMOp.gtxnas,
+            args=[models.UInt64Constant(value=array_index)],
+            immediates=[group_index, field],
+        ) if array_index <= 255:
+            return attrs.evolve(
+                intrinsic,
+                op=AVMOp.gtxna,
+                immediates=[group_index, field, array_index],
+                args=[],
+            )
+        case Intrinsic(
+            op=AVMOp.gtxnsa,
+            args=[models.UInt64Constant(value=group_index)],
+            immediates=[field, array_index],
+        ) if group_index <= 255:
+            return attrs.evolve(
+                intrinsic,
+                op=AVMOp.gtxna,
+                immediates=[group_index, field, array_index],
+                args=[],
+            )
+        case Intrinsic(
+            op=AVMOp.gtxnsas,
+            args=[
+                models.UInt64Constant(value=group_index),
+                models.UInt64Constant(value=array_index),
+            ],
+            immediates=[field],
+        ) if group_index <= 255 and array_index <= 255:
+            return attrs.evolve(
+                intrinsic,
+                op=AVMOp.gtxna,
+                immediates=[group_index, field, array_index],
+                args=[],
+            )
+        case Intrinsic(
+            op=AVMOp.gtxnsas,
+            args=[models.UInt64Constant(value=group_index), array_index_arg],
+            immediates=[field],
+        ) if group_index <= 255:
+            return attrs.evolve(
+                intrinsic,
+                op=AVMOp.gtxnas,
+                immediates=[group_index, field],
+                args=[array_index_arg],
+            )
+        case Intrinsic(
+            op=AVMOp.gtxnsas,
+            args=[group_index_arg, models.UInt64Constant(value=array_index)],
+            immediates=[field],
+        ) if array_index <= 255:
+            return attrs.evolve(
+                intrinsic,
+                op=AVMOp.gtxnsa,
+                immediates=[field, array_index],
+                args=[group_index_arg],
+            )
     return None
 
 

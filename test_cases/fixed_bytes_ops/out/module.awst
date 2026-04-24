@@ -16,7 +16,7 @@ contract FixedBytesOps
       this::__init__()
     }
     if (txn<NumAppArgs>() > 0u) {
-      method: bytes = txna<ApplicationArgs, 0>()
+      method: bytes = txnas<ApplicationArgs>(0u)
       if (txn<NumAppArgs>() == 1u) {
         if (method == hex<"6765745F73746174655F646174615F6F725F617373657274">) {
           log(reinterpret_cast<bytes>(this::get_state_data_or_assert(txn<Sender>())))
@@ -28,26 +28,26 @@ contract FixedBytesOps
       } else {
         if (txn<NumAppArgs>() == 2u) {
           if (method == hex<"7365745F73746174655F64617461">) {
-            this::set_state_data(txn<Sender>(), reinterpret_cast<bytes[4]>(txna<ApplicationArgs, 1>()))
+            this::set_state_data(txn<Sender>(), reinterpret_cast<bytes[4]>(txnas<ApplicationArgs>(1u)))
           } else {
             if (method == hex<"7365745F626F785F64617461">) {
-              Box['box']: bytes[5] = checked_maybe((reinterpret_cast<bytes[5]>(SINGLE_EVAL(id=0, source=txna<ApplicationArgs, 1>())), len(SINGLE_EVAL(id=0)) == 5u))
+              Box['box']: bytes[5] = checked_maybe((reinterpret_cast<bytes[5]>(SINGLE_EVAL(id=0, source=txnas<ApplicationArgs>(1u))), len(SINGLE_EVAL(id=0)) == 5u))
             } else {
               if (method == hex<"76616C69646174655F66697865645F62797465735F33">) {
-                this::validate_fixed_bytes_3(reinterpret_cast<bytes[3]>(txna<ApplicationArgs, 1>()))
+                this::validate_fixed_bytes_3(reinterpret_cast<bytes[3]>(txnas<ApplicationArgs>(1u)))
               }
             }
           }
         } else {
           if (txn<NumAppArgs>() == 3u) {
             if (method == hex<"746573745F6175676D656E7465645F6F725F61737369676E6D656E745F776974685F6279746573">) {
-              this::test_augmented_or_assignment_with_bytes(reinterpret_cast<bytes[1]>(txna<ApplicationArgs, 1>()), txna<ApplicationArgs, 2>())
+              this::test_augmented_or_assignment_with_bytes(reinterpret_cast<bytes[1]>(txnas<ApplicationArgs>(1u)), txnas<ApplicationArgs>(2u))
             } else {
               if (method == hex<"746573745F6175676D656E7465645F616E645F61737369676E6D656E745F776974685F6279746573">) {
-                this::test_augmented_and_assignment_with_bytes(reinterpret_cast<bytes[1]>(txna<ApplicationArgs, 1>()), txna<ApplicationArgs, 2>())
+                this::test_augmented_and_assignment_with_bytes(reinterpret_cast<bytes[1]>(txnas<ApplicationArgs>(1u)), txnas<ApplicationArgs>(2u))
               } else {
                 if (method == hex<"746573745F6175676D656E7465645F786F725F61737369676E6D656E745F776974685F6279746573">) {
-                  this::test_augmented_xor_assignment_with_bytes(reinterpret_cast<bytes[1]>(txna<ApplicationArgs, 1>()), txna<ApplicationArgs, 2>())
+                  this::test_augmented_xor_assignment_with_bytes(reinterpret_cast<bytes[1]>(txnas<ApplicationArgs>(1u)), txnas<ApplicationArgs>(2u))
                 }
               }
             }
