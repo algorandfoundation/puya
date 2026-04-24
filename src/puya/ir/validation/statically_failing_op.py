@@ -101,7 +101,7 @@ def _check_extract(intrinsic: models.Intrinsic) -> str | None:
         case [arg]:
             match intrinsic.immediates:
                 case [int(start), int(length)]:
-                    max_len = _bytes_length_lower_bound(arg)
+                    max_len = _bytes_length_or_max(arg)
                     if start > max_len:
                         return "start index for extract is out of bounds"
                     if length != 0 and start + length > max_len:
@@ -116,7 +116,7 @@ def _check_extract3(intrinsic: models.Intrinsic) -> str | None:
             models.UInt64Constant(value=start),
             models.UInt64Constant(value=length),
         ]:
-            if start + length > _bytes_length_lower_bound(arg):
+            if start + length > _bytes_length_or_max(arg):
                 return "extract3 buffer overflow"
     return None
 
@@ -128,7 +128,7 @@ def _check_substring(intrinsic: models.Intrinsic) -> str | None:
                 case [_, int(end)]:
                     # note: we don't check if end is before start, TEAL model does this,
                     #       to match algod behaviour
-                    if end > _bytes_length_lower_bound(arg):
+                    if end > _bytes_length_or_max(arg):
                         return "substring buffer overflow"
     return None
 
@@ -142,14 +142,14 @@ def _check_substring3(intrinsic: models.Intrinsic) -> str | None:
         ]:
             if end < start:
                 return "substring3 has end preceding start"
-            if end > _bytes_length_lower_bound(arg):
+            if end > _bytes_length_or_max(arg):
                 return "substring3 buffer overflow"
         case [
             arg,
             _,
             models.UInt64Constant(value=end),
         ]:
-            if end > _bytes_length_lower_bound(arg):
+            if end > _bytes_length_or_max(arg):
                 return "substring3 buffer overflow"
     return None
 
@@ -158,7 +158,7 @@ def _check_replace2(intrinsic: models.Intrinsic) -> str | None:
     match intrinsic.args:
         case [arg, models.BytesConstant(value=b_bytes)]:
             match intrinsic.immediates:
-                case [int(start)] if start + len(b_bytes) > _bytes_length_lower_bound(arg):
+                case [int(start)] if start + len(b_bytes) > _bytes_length_or_max(arg):
                     return "replace2 buffer overflow"
     return None
 
@@ -170,7 +170,7 @@ def _check_replace3(intrinsic: models.Intrinsic) -> str | None:
             models.UInt64Constant(value=start),
             models.BytesConstant(value=b_bytes),
         ]:
-            if start + len(b_bytes) > _bytes_length_lower_bound(arg):
+            if start + len(b_bytes) > _bytes_length_or_max(arg):
                 return "replace3 buffer overflow"
     return None
 
@@ -199,7 +199,7 @@ def _check_getbit(intrinsic: models.Intrinsic) -> str | None:
                     if index >= 64:
                         return "index for getbit of uint64 is out of bounds"
                 case AVMType.bytes | AVMType.any:
-                    if index >= (8 * _bytes_length_lower_bound(arg)):
+                    if index >= (8 * _bytes_length_or_max(arg)):
                         return "index for getbit of bytes is out of bounds"
     return None
 
@@ -212,7 +212,7 @@ def _check_setbit(intrinsic: models.Intrinsic) -> str | None:
                     if index >= 64:
                         return "index for setbit of uint64 is out of bounds"
                 case AVMType.bytes | AVMType.any:
-                    if index >= (8 * _bytes_length_lower_bound(arg)):
+                    if index >= (8 * _bytes_length_or_max(arg)):
                         return "index for setbit of bytes is out of bounds"
     return None
 
@@ -220,7 +220,7 @@ def _check_setbit(intrinsic: models.Intrinsic) -> str | None:
 def _check_getbyte(intrinsic: models.Intrinsic) -> str | None:
     match intrinsic.args:
         case [bytes_arg, models.UInt64Constant(value=index)]:
-            if index >= _bytes_length_lower_bound(bytes_arg):
+            if index >= _bytes_length_or_max(bytes_arg):
                 return "index for getbyte is out of bounds"
     return None
 
@@ -228,7 +228,7 @@ def _check_getbyte(intrinsic: models.Intrinsic) -> str | None:
 def _check_setbyte(intrinsic: models.Intrinsic) -> str | None:
     match intrinsic.args:
         case [bytes_arg, models.UInt64Constant(value=index), _]:
-            if index >= _bytes_length_lower_bound(bytes_arg):
+            if index >= _bytes_length_or_max(bytes_arg):
                 return "index for setbyte is out of bounds"
     return None
 
@@ -269,7 +269,7 @@ _CHECKERS: dict[AVMOp, Callable[[models.Intrinsic], str | None]] = {
 }
 
 
-def _bytes_length_lower_bound(arg: models.Value) -> int:
+def _bytes_length_or_max(arg: models.Value) -> int:
     match arg:
         case models.BytesConstant(value=value):
             return len(value)
