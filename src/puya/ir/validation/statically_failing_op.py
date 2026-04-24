@@ -183,7 +183,7 @@ def _check_extract_uint(intrinsic: models.Intrinsic) -> str | None:
                 AVMOp.extract_uint64: 8,
             }[intrinsic.op]
             if offset + byte_size > _bytes_length_or_max(bytes_arg):
-                return f"bytes constant is too small for {intrinsic.op.code}"
+                return f"{intrinsic.op.code} buffer over-read"
     return None
 
 

@@ -4,72 +4,72 @@ from algopy import Bytes, Contract, Global, Txn, UInt64, log, op
 class StaticallyFailingOps(Contract):
     def approval_program(self) -> bool:
         # arithmetic overflow / underflow / div-zero / 0**0 / exp-overflow
-        log(op.itob(UInt64(2**64 - 1) + 1))
-        log(op.itob(UInt64(2**32) * UInt64(2**32)))
-        log(op.itob(UInt64(1) - UInt64(2)))
-        log(op.itob(UInt64(5) // UInt64(0)))
-        log(op.itob(UInt64(5) % UInt64(0)))
-        log(op.itob(UInt64(0) ** UInt64(0)))
-        log(op.itob(UInt64(2) ** UInt64(64)))
+        log(UInt64(2**64 - 1) + 1)
+        log(UInt64(2**32) * UInt64(2**32))
+        log(UInt64(1) - 2)
+        log(UInt64(5) // 0)
+        log(UInt64(5) % 0)
+        log(UInt64(0) ** 0)
+        log(UInt64(2) ** 64)
 
         # shl / shr
-        log(op.itob(op.shl(UInt64(1), 64)))
-        log(op.itob(op.shr(UInt64(1), 64)))
+        log(op.shl(1, 64))
+        log(op.shr(1, 64))
 
         # btoi (len > 8) / bzero (len > 4096)
-        log(op.itob(op.btoi(Bytes(b"123456789"))))
+        log(op.btoi(b"123456789"))
         log(op.bzero(5000))
 
         # extract — immediates form (S<256, L<256): L>0 OOB and L==0 with S>len
-        log(op.extract(Bytes(b"ab"), 0, 5))
-        log(op.extract(Bytes(b"ab"), 5, 0))
+        log(op.extract(b"ab", 0, 5))
+        log(op.extract(b"ab", 5, 0))
         # extract3 — stack-args form (UInt64(...) forces stack arg; S>255 prevents stack→imm)
         start = UInt64(300)
-        log(op.extract(Bytes(b"ab"), start, UInt64(5)))
+        log(op.extract(b"ab", start, 5))
 
         # substring — immediates form: E>len
         # note: don't test E<S, this will cause compilation failure
         log(op.substring(Bytes(b"ab"), 0, 5))
         # substring3 — stack form (E>len, and E<S)
         sub_start = UInt64(300)
-        log(op.substring(Bytes(b"ab"), sub_start, UInt64(500)))
+        log(op.substring(b"ab", sub_start, 500))
         sub_start2 = UInt64(500)
-        log(op.substring(Bytes(b"ab"), sub_start2, UInt64(0)))
+        log(op.substring(b"ab", sub_start2, 0))
         # substring3 — runtime bytes with constant end > MAX_BYTES_LENGTH
-        log(op.substring(Txn.application_args(0), UInt64(0), UInt64(5000)))
+        log(op.substring(Txn.application_args(0), 0, UInt64(5000)))
         # substring3 — runtime start, constant end > MAX_BYTES_LENGTH (hits fallback)
         log(op.substring(Txn.application_args(0), Global.round, UInt64(5000)))
 
         # replace2 — imm form, and replace3 — stack form
-        log(op.replace(Bytes(b""), 0, Bytes(b"abc")))
+        log(op.replace(b"", 0, b"abc"))
         rep_start = UInt64(300)
-        log(op.replace(Bytes(b""), rep_start, Bytes(b"abc")))
+        log(op.replace(b"", rep_start, b"abc"))
 
         # extract_uint{16,32,64} OOB
-        log(op.itob(op.extract_uint16(Bytes(b"a"), 0)))
-        log(op.itob(op.extract_uint32(Bytes(b"abc"), 0)))
-        log(op.itob(op.extract_uint64(Bytes(b"abcdefg"), 0)))
+        log(op.extract_uint16(b"a", 0))
+        log(op.extract_uint32(b"abc", 0))
+        log(op.extract_uint64(b"abcdefg", 0))
 
         # getbit / setbit — constant-bytes, uint64, and runtime-bytes variants
         runtime_bytes = Txn.application_args(0)
-        log(op.itob(UInt64(op.getbit(UInt64(0), 64))))
-        log(op.itob(UInt64(op.getbit(Bytes(b"a"), 8))))
-        log(op.itob(UInt64(op.getbit(runtime_bytes, UInt64(8 * 4096)))))
-        log(op.itob(op.setbit_uint64(UInt64(0), 64, True)))
-        log(op.setbit_bytes(Bytes(b"a"), 8, True))
-        log(op.setbit_bytes(runtime_bytes, UInt64(8 * 4096), True))
+        log(op.getbit(0, 64))
+        log(op.getbit(b"a", 8))
+        log(op.getbit(runtime_bytes, 8 * 4096))
+        log(op.setbit_uint64(0, 64, True))
+        log(op.setbit_bytes(b"a", 8, True))
+        log(op.setbit_bytes(runtime_bytes, 8 * 4096, True))
 
         # getbyte / setbyte — constant-bytes and runtime-bytes variants
-        log(op.itob(op.getbyte(Bytes(b"a"), 1)))
-        log(op.itob(op.getbyte(runtime_bytes, UInt64(4096))))
-        log(op.setbyte(Bytes(b"a"), 1, 0))
-        log(op.setbyte(runtime_bytes, UInt64(4096), 0))
+        log(op.getbyte(b"a", 1))
+        log(op.getbyte(runtime_bytes, 4096))
+        log(op.setbyte(b"a", 1, 0))
+        log(op.setbyte(runtime_bytes, 4096, 0))
 
         # helper-None coverage: runtime-variable indices so start/length aren't const
         r = Global.round
-        log(op.extract(Bytes(b"ab"), r, UInt64(0)))
-        log(op.substring(Bytes(b"ab"), r, r))
-        log(op.replace(Bytes(b""), r, Bytes(b"abc")))
+        log(op.extract(b"ab", r, 0))
+        log(op.substring(b"ab", r, r))
+        log(op.replace(b"", r, b"abc"))
 
         # concat
         log(Bytes(b" " * 4096) + b"toobig")
