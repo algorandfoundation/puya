@@ -3,8 +3,7 @@ Used to map algopy/_gen.pyi stubs to AWST.
 Referenced by both scripts/generate_stubs.py and src/puya/awst_build/eb/intrinsics.py
 """
 
-from collections.abc import Sequence, Set
-from functools import cached_property
+from collections.abc import Sequence
 
 import attrs
 
@@ -27,7 +26,7 @@ class PropertyOpMapping:
         return self.typ.checked_wtype(location=None)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class FunctionOpMapping:
     op_code: str
     immediates: Sequence[str | int | type[str | int]] = attrs.field(
@@ -38,10 +37,27 @@ class FunctionOpMapping:
         default=(), converter=tuple[Sequence[pytypes.PyType] | int, ...]
     )
     """A list of allowed argument types, or an index into the immediates sequence"""
+    result: Sequence[pytypes.RuntimeType] | None = attrs.field(
+        default=(),
+        converter=attrs.converters.optional(tuple[pytypes.RuntimeType, ...]),
+    )
+    """Types output by TEAL op; None indicates the op never returns (halts)"""
+    result_pytype: pytypes.PyType = attrs.field(init=False)
+    result_wtype: wtypes.WType = attrs.field(init=False)
 
-    @cached_property
-    def literal_arg_positions(self) -> Set[int]:
-        return {idx for idx, arg in enumerate(self.args) if isinstance(arg, int)}
+    @result_pytype.default
+    def _result_pytype(self) -> pytypes.PyType:
+        if self.result is None:
+            return pytypes.NeverType
+        if not self.result:
+            return pytypes.NoneType
+        if len(self.result) == 1:
+            return self.result[0]
+        return pytypes.GenericTupleType.parameterise(self.result, source_location=None)
+
+    @result_wtype.default
+    def _result_wtype(self) -> wtypes.WType:
+        return self.result_pytype.checked_wtype(location=None)
 
     def __attrs_post_init__(self) -> None:
         for idx, imm in enumerate(self.immediates):
@@ -72,23 +88,3 @@ class FunctionOpMapping:
                     raise InternalError(
                         f"intrinsic {self.op_code!r} argument {idx}: overlap in integer types"
                     )
-
-
-@attrs.frozen(kw_only=True)
-class OpMappingWithOverloads:
-    arity: int = attrs.field(validator=attrs.validators.ge(0))
-    result: pytypes.PyType = pytypes.NoneType
-    """Types output by TEAL op"""
-    result_wtype: wtypes.WType = attrs.field(init=False)
-    overloads: Sequence[FunctionOpMapping] = attrs.field(
-        validator=attrs.validators.min_len(1), converter=tuple[FunctionOpMapping, ...]
-    )
-
-    @result_wtype.default
-    def _result_wtype(self) -> wtypes.WType:
-        return self.result.checked_wtype(location=None)
-
-    @arity.validator
-    def _arity_matches(self, _attribute: object, arity: int) -> None:
-        if any(len(o.args) != arity for o in self.overloads):
-            raise InternalError("arity does not match all overloads")

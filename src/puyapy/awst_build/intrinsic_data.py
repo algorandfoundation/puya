@@ -3,11 +3,7 @@ import typing
 from collections.abc import Mapping
 
 from puyapy.awst_build import pytypes
-from puyapy.awst_build.intrinsic_models import (
-    FunctionOpMapping,
-    OpMappingWithOverloads,
-    PropertyOpMapping,
-)
+from puyapy.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 
 ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict(
     EC=dict(
@@ -33,3615 +29,1686 @@ ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict(
     ),
 )
 
-FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, OpMappingWithOverloads]] = dict(
-    addw=OpMappingWithOverloads(
-        result=pytypes.GenericTupleType.parameterise(
-            (pytypes.UInt64Type, pytypes.UInt64Type), source_location=None
-        ),
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "addw",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
+FUNC_TO_AST_MAPPER: typing.Final[Mapping[str, FunctionOpMapping]] = dict(
+    addw=FunctionOpMapping(
+        op_code="addw",
+        result=[pytypes.UInt64Type, pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    app_opted_in=FunctionOpMapping(
+        op_code="app_opted_in",
+        result=[pytypes.BoolType],
+        args=[
+            (pytypes.AccountType, pytypes.UInt64Type),
+            (pytypes.ApplicationType, pytypes.UInt64Type),
         ],
     ),
-    app_opted_in=OpMappingWithOverloads(
-        result=pytypes.BoolType,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "app_opted_in",
-                args=[
-                    (pytypes.AccountType, pytypes.UInt64Type),
-                    (pytypes.ApplicationType, pytypes.UInt64Type),
-                ],
-            ),
+    arg=FunctionOpMapping(
+        op_code="args",
+        result=[pytypes.BytesType],
+        args=[(pytypes.UInt64Type,)],
+    ),
+    balance=FunctionOpMapping(
+        op_code="balance",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.AccountType, pytypes.UInt64Type)],
+    ),
+    base64_decode=FunctionOpMapping(
+        op_code="base64_decode",
+        result=[pytypes.BytesType],
+        immediates=[str],
+        args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    bitlen=FunctionOpMapping(
+        op_code="bitlen",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType)],
+    ),
+    bsqrt=FunctionOpMapping(
+        op_code="bsqrt",
+        result=[pytypes.BigUIntType],
+        args=[(pytypes.BigUIntType,)],
+    ),
+    btoi=FunctionOpMapping(
+        op_code="btoi",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    bzero=FunctionOpMapping(
+        op_code="bzero",
+        result=[pytypes.BytesType],
+        args=[(pytypes.UInt64Type,)],
+    ),
+    concat=FunctionOpMapping(
+        op_code="concat",
+        result=[pytypes.BytesType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
-    arg=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "args",
-                args=[(pytypes.UInt64Type,)],
-            ),
-            FunctionOpMapping(
-                "arg",
-                immediates=[int],
-                args=[0],
-            ),
+    divmodw=FunctionOpMapping(
+        op_code="divmodw",
+        result=[pytypes.UInt64Type, pytypes.UInt64Type, pytypes.UInt64Type, pytypes.UInt64Type],
+        args=[
+            (pytypes.UInt64Type,),
+            (pytypes.UInt64Type,),
+            (pytypes.UInt64Type,),
+            (pytypes.UInt64Type,),
         ],
     ),
-    balance=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "balance",
-                args=[(pytypes.AccountType, pytypes.UInt64Type)],
-            ),
+    divw=FunctionOpMapping(
+        op_code="divw",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    ecdsa_pk_decompress=FunctionOpMapping(
+        op_code="ecdsa_pk_decompress",
+        result=[pytypes.BytesType, pytypes.BytesType],
+        immediates=[str],
+        args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    ecdsa_pk_recover=FunctionOpMapping(
+        op_code="ecdsa_pk_recover",
+        result=[pytypes.BytesType, pytypes.BytesType],
+        immediates=[str],
+        args=[
+            0,
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.UInt64Type,),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
-    base64_decode=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "base64_decode",
-                immediates=[str],
-                args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
+    ecdsa_verify=FunctionOpMapping(
+        op_code="ecdsa_verify",
+        result=[pytypes.BoolType],
+        immediates=[str],
+        args=[
+            0,
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
-    bitlen=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "bitlen",
-                args=[(pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType)],
-            ),
+    ed25519verify=FunctionOpMapping(
+        op_code="ed25519verify",
+        result=[pytypes.BoolType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
-    bsqrt=OpMappingWithOverloads(
-        result=pytypes.BigUIntType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "bsqrt",
-                args=[(pytypes.BigUIntType,)],
-            ),
+    ed25519verify_bare=FunctionOpMapping(
+        op_code="ed25519verify_bare",
+        result=[pytypes.BoolType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
-    btoi=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "btoi",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
+    exit=FunctionOpMapping(
+        op_code="return",
+        result=None,
+        args=[(pytypes.UInt64Type,)],
+    ),
+    exp=FunctionOpMapping(
+        op_code="exp",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    expw=FunctionOpMapping(
+        op_code="expw",
+        result=[pytypes.UInt64Type, pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    extract=FunctionOpMapping(
+        op_code="extract3",
+        result=[pytypes.BytesType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.UInt64Type,),
+            (pytypes.UInt64Type,),
         ],
     ),
-    bzero=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "bzero",
-                args=[(pytypes.UInt64Type,)],
-            ),
+    extract_uint16=FunctionOpMapping(
+        op_code="extract_uint16",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
+    ),
+    extract_uint32=FunctionOpMapping(
+        op_code="extract_uint32",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
+    ),
+    extract_uint64=FunctionOpMapping(
+        op_code="extract_uint64",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
+    ),
+    falcon_verify=FunctionOpMapping(
+        op_code="falcon_verify",
+        result=[pytypes.BoolType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
-    concat=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "concat",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
+    gaid=FunctionOpMapping(
+        op_code="gaids",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,)],
+    ),
+    getbit=FunctionOpMapping(
+        op_code="getbit",
+        result=[pytypes.BoolType],
+        args=[
+            (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
+            (pytypes.UInt64Type,),
         ],
     ),
-    divmodw=OpMappingWithOverloads(
-        result=pytypes.GenericTupleType.parameterise(
-            (pytypes.UInt64Type, pytypes.UInt64Type, pytypes.UInt64Type, pytypes.UInt64Type),
-            source_location=None,
-        ),
-        arity=4,
-        overloads=[
-            FunctionOpMapping(
-                "divmodw",
-                args=[
-                    (pytypes.UInt64Type,),
-                    (pytypes.UInt64Type,),
-                    (pytypes.UInt64Type,),
-                    (pytypes.UInt64Type,),
-                ],
-            ),
+    getbyte=FunctionOpMapping(
+        op_code="getbyte",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
+    ),
+    gload_bytes=FunctionOpMapping(
+        op_code="gloadss",
+        result=[pytypes.BytesType],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    gload_uint64=FunctionOpMapping(
+        op_code="gloadss",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    itob=FunctionOpMapping(
+        op_code="itob",
+        result=[pytypes.BytesType],
+        args=[(pytypes.UInt64Type,)],
+    ),
+    keccak256=FunctionOpMapping(
+        op_code="keccak256",
+        result=[pytypes.BytesType],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    mimc=FunctionOpMapping(
+        op_code="mimc",
+        result=[pytypes.BytesType],
+        immediates=[str],
+        args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    min_balance=FunctionOpMapping(
+        op_code="min_balance",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.AccountType, pytypes.UInt64Type)],
+    ),
+    mulw=FunctionOpMapping(
+        op_code="mulw",
+        result=[pytypes.UInt64Type, pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    online_stake=FunctionOpMapping(
+        op_code="online_stake",
+        result=[pytypes.UInt64Type],
+    ),
+    replace=FunctionOpMapping(
+        op_code="replace3",
+        result=[pytypes.BytesType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.UInt64Type,),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
-    divw=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "divw",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
+    select_bytes=FunctionOpMapping(
+        op_code="select",
+        result=[pytypes.BytesType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BoolType, pytypes.UInt64Type),
         ],
     ),
-    ecdsa_pk_decompress=OpMappingWithOverloads(
-        result=pytypes.GenericTupleType.parameterise(
-            (pytypes.BytesType, pytypes.BytesType), source_location=None
-        ),
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "ecdsa_pk_decompress",
-                immediates=[str],
-                args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
+    select_uint64=FunctionOpMapping(
+        op_code="select",
+        result=[pytypes.UInt64Type],
+        args=[
+            (pytypes.UInt64Type,),
+            (pytypes.UInt64Type,),
+            (pytypes.BoolType, pytypes.UInt64Type),
         ],
     ),
-    ecdsa_pk_recover=OpMappingWithOverloads(
-        result=pytypes.GenericTupleType.parameterise(
-            (pytypes.BytesType, pytypes.BytesType), source_location=None
-        ),
-        arity=5,
-        overloads=[
-            FunctionOpMapping(
-                "ecdsa_pk_recover",
-                immediates=[str],
-                args=[
-                    0,
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.UInt64Type,),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
+    setbit_bytes=FunctionOpMapping(
+        op_code="setbit",
+        result=[pytypes.BytesType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.UInt64Type,),
+            (pytypes.BoolType,),
         ],
     ),
-    ecdsa_verify=OpMappingWithOverloads(
-        result=pytypes.BoolType,
-        arity=6,
-        overloads=[
-            FunctionOpMapping(
-                "ecdsa_verify",
-                immediates=[str],
-                args=[
-                    0,
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
+    setbit_uint64=FunctionOpMapping(
+        op_code="setbit",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,), (pytypes.BoolType,)],
+    ),
+    setbyte=FunctionOpMapping(
+        op_code="setbyte",
+        result=[pytypes.BytesType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.UInt64Type,),
+            (pytypes.UInt64Type,),
         ],
     ),
-    ed25519verify=OpMappingWithOverloads(
-        result=pytypes.BoolType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "ed25519verify",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
+    sha256=FunctionOpMapping(
+        op_code="sha256",
+        result=[pytypes.BytesType],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    sha3_256=FunctionOpMapping(
+        op_code="sha3_256",
+        result=[pytypes.BytesType],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    sha512_256=FunctionOpMapping(
+        op_code="sha512_256",
+        result=[pytypes.BytesType],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+    ),
+    shl=FunctionOpMapping(
+        op_code="shl",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    shr=FunctionOpMapping(
+        op_code="shr",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+    ),
+    sqrt=FunctionOpMapping(
+        op_code="sqrt",
+        result=[pytypes.UInt64Type],
+        args=[(pytypes.UInt64Type,)],
+    ),
+    substring=FunctionOpMapping(
+        op_code="substring3",
+        result=[pytypes.BytesType],
+        args=[
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.UInt64Type,),
+            (pytypes.UInt64Type,),
         ],
     ),
-    ed25519verify_bare=OpMappingWithOverloads(
-        result=pytypes.BoolType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "ed25519verify_bare",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
-        ],
+    sumhash512=FunctionOpMapping(
+        op_code="sumhash512",
+        result=[pytypes.BytesType],
+        args=[(pytypes.BytesType, pytypes.BytesBackedType)],
     ),
-    exit=OpMappingWithOverloads(
-        result=pytypes.NeverType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "return",
-                args=[(pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    exp=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "exp",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    expw=OpMappingWithOverloads(
-        result=pytypes.GenericTupleType.parameterise(
-            (pytypes.UInt64Type, pytypes.UInt64Type), source_location=None
-        ),
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "expw",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    extract=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "extract3",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.UInt64Type,),
-                    (pytypes.UInt64Type,),
-                ],
-            ),
-            FunctionOpMapping(
-                "extract",
-                immediates=[int, int],
-                args=[(pytypes.BytesType, pytypes.BytesBackedType), 0, 1],
-            ),
-        ],
-    ),
-    extract_uint16=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "extract_uint16",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    extract_uint32=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "extract_uint32",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    extract_uint64=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "extract_uint64",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    falcon_verify=OpMappingWithOverloads(
-        result=pytypes.BoolType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "falcon_verify",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
-        ],
-    ),
-    gaid=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "gaids",
-                args=[(pytypes.UInt64Type,)],
-            ),
-            FunctionOpMapping(
-                "gaid",
-                immediates=[int],
-                args=[0],
-            ),
-        ],
-    ),
-    getbit=OpMappingWithOverloads(
-        result=pytypes.BoolType,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "getbit",
-                args=[
-                    (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
-                    (pytypes.UInt64Type,),
-                ],
-            ),
-        ],
-    ),
-    getbyte=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "getbyte",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    gload_bytes=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "gloadss",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
-            FunctionOpMapping(
-                "gload",
-                immediates=[int, int],
-                args=[0, 1],
-            ),
-            FunctionOpMapping(
-                "gloads",
-                immediates=[int],
-                args=[(pytypes.UInt64Type,), 0],
-            ),
-        ],
-    ),
-    gload_uint64=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "gloadss",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
-            FunctionOpMapping(
-                "gload",
-                immediates=[int, int],
-                args=[0, 1],
-            ),
-            FunctionOpMapping(
-                "gloads",
-                immediates=[int],
-                args=[(pytypes.UInt64Type,), 0],
-            ),
-        ],
-    ),
-    itob=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "itob",
-                args=[(pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    keccak256=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "keccak256",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
-        ],
-    ),
-    mimc=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "mimc",
-                immediates=[str],
-                args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
-        ],
-    ),
-    min_balance=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "min_balance",
-                args=[(pytypes.AccountType, pytypes.UInt64Type)],
-            ),
-        ],
-    ),
-    mulw=OpMappingWithOverloads(
-        result=pytypes.GenericTupleType.parameterise(
-            (pytypes.UInt64Type, pytypes.UInt64Type), source_location=None
-        ),
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "mulw",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    online_stake=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=0,
-        overloads=[
-            FunctionOpMapping(
-                "online_stake",
-            ),
-        ],
-    ),
-    replace=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "replace3",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.UInt64Type,),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
-            FunctionOpMapping(
-                "replace2",
-                immediates=[int],
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    0,
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
-        ],
-    ),
-    select_bytes=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "select",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BoolType, pytypes.UInt64Type),
-                ],
-            ),
-        ],
-    ),
-    select_uint64=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "select",
-                args=[
-                    (pytypes.UInt64Type,),
-                    (pytypes.UInt64Type,),
-                    (pytypes.BoolType, pytypes.UInt64Type),
-                ],
-            ),
-        ],
-    ),
-    setbit_bytes=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "setbit",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.UInt64Type,),
-                    (pytypes.BoolType,),
-                ],
-            ),
-        ],
-    ),
-    setbit_uint64=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "setbit",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,), (pytypes.BoolType,)],
-            ),
-        ],
-    ),
-    setbyte=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "setbyte",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.UInt64Type,),
-                    (pytypes.UInt64Type,),
-                ],
-            ),
-        ],
-    ),
-    sha256=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "sha256",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
-        ],
-    ),
-    sha3_256=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "sha3_256",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
-        ],
-    ),
-    sha512_256=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "sha512_256",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
-        ],
-    ),
-    shl=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "shl",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    shr=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=2,
-        overloads=[
-            FunctionOpMapping(
-                "shr",
-                args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    sqrt=OpMappingWithOverloads(
-        result=pytypes.UInt64Type,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "sqrt",
-                args=[(pytypes.UInt64Type,)],
-            ),
-        ],
-    ),
-    substring=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=3,
-        overloads=[
-            FunctionOpMapping(
-                "substring3",
-                args=[
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.UInt64Type,),
-                    (pytypes.UInt64Type,),
-                ],
-            ),
-            FunctionOpMapping(
-                "substring",
-                immediates=[int, int],
-                args=[(pytypes.BytesType, pytypes.BytesBackedType), 0, 1],
-            ),
-        ],
-    ),
-    sumhash512=OpMappingWithOverloads(
-        result=pytypes.BytesType,
-        arity=1,
-        overloads=[
-            FunctionOpMapping(
-                "sumhash512",
-                args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-            ),
-        ],
-    ),
-    vrf_verify=OpMappingWithOverloads(
-        result=pytypes.GenericTupleType.parameterise(
-            (pytypes.BytesType, pytypes.BoolType), source_location=None
-        ),
-        arity=4,
-        overloads=[
-            FunctionOpMapping(
-                "vrf_verify",
-                immediates=[str],
-                args=[
-                    0,
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                    (pytypes.BytesType, pytypes.BytesBackedType),
-                ],
-            ),
+    vrf_verify=FunctionOpMapping(
+        op_code="vrf_verify",
+        result=[pytypes.BytesType, pytypes.BoolType],
+        immediates=[str],
+        args=[
+            0,
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
+            (pytypes.BytesType, pytypes.BytesBackedType),
         ],
     ),
 )
 NAMESPACE_CLASSES: typing.Final[
-    Mapping[str, Mapping[str, PropertyOpMapping | OpMappingWithOverloads]]
+    Mapping[str, Mapping[str, PropertyOpMapping | FunctionOpMapping]]
 ] = dict(
     AcctParamsGet=dict(
-        acct_balance=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctBalance"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_balance=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctBalance"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_min_balance=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctMinBalance"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_min_balance=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctMinBalance"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_auth_addr=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctAuthAddr"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_auth_addr=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AcctAuthAddr"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_num_uint=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalNumUint"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_num_uint=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalNumUint"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalNumByteSlice"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_num_byte_slice=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalNumByteSlice"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_extra_app_pages=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalExtraAppPages"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_extra_app_pages=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalExtraAppPages"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_apps_created=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalAppsCreated"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_apps_created=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalAppsCreated"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_apps_opted_in=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalAppsOptedIn"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_apps_opted_in=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalAppsOptedIn"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_assets_created=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalAssetsCreated"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_assets_created=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalAssetsCreated"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_assets=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalAssets"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_assets=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalAssets"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_boxes=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalBoxes"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_boxes=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalBoxes"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_total_box_bytes=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctTotalBoxBytes"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_total_box_bytes=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctTotalBoxBytes"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_incentive_eligible=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BoolType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctIncentiveEligible"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_incentive_eligible=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.BoolType, pytypes.BoolType],
+            immediates=["AcctIncentiveEligible"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_last_proposed=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctLastProposed"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_last_proposed=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctLastProposed"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        acct_last_heartbeat=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "acct_params_get",
-                    immediates=["AcctLastHeartbeat"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        acct_last_heartbeat=FunctionOpMapping(
+            op_code="acct_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AcctLastHeartbeat"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
     ),
     AppGlobal=dict(
-        get_bytes=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_global_get",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
+        get_bytes=FunctionOpMapping(
+            op_code="app_global_get",
+            result=[pytypes.BytesType],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+        ),
+        get_uint64=FunctionOpMapping(
+            op_code="app_global_get",
+            result=[pytypes.UInt64Type],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+        ),
+        get_ex_bytes=FunctionOpMapping(
+            op_code="app_global_get_ex",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        get_uint64=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_global_get",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
+        get_ex_uint64=FunctionOpMapping(
+            op_code="app_global_get_ex",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            args=[
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        get_ex_bytes=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "app_global_get_ex",
-                    args=[
-                        (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
-            ],
+        delete=FunctionOpMapping(
+            op_code="app_global_del",
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        get_ex_uint64=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "app_global_get_ex",
-                    args=[
-                        (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
-            ],
-        ),
-        delete=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_global_del",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
-        ),
-        put=OpMappingWithOverloads(
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "app_global_put",
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
-                    ],
-                ),
+        put=FunctionOpMapping(
+            op_code="app_global_put",
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
             ],
         ),
     ),
     AppLocal=dict(
-        get_bytes=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "app_local_get",
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        get_bytes=FunctionOpMapping(
+            op_code="app_local_get",
+            result=[pytypes.BytesType],
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        get_uint64=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "app_local_get",
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        get_uint64=FunctionOpMapping(
+            op_code="app_local_get",
+            result=[pytypes.UInt64Type],
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        get_ex_bytes=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "app_local_get_ex",
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        get_ex_bytes=FunctionOpMapping(
+            op_code="app_local_get_ex",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        get_ex_uint64=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "app_local_get_ex",
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.ApplicationType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        get_ex_uint64=FunctionOpMapping(
+            op_code="app_local_get_ex",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.ApplicationType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        delete=OpMappingWithOverloads(
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "app_local_del",
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        delete=FunctionOpMapping(
+            op_code="app_local_del",
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        put=OpMappingWithOverloads(
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "app_local_put",
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
-                    ],
-                ),
+        put=FunctionOpMapping(
+            op_code="app_local_put",
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
             ],
         ),
     ),
     AppParamsGet=dict(
-        app_approval_program=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppApprovalProgram"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_approval_program=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            immediates=["AppApprovalProgram"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_clear_state_program=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppClearStateProgram"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_clear_state_program=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            immediates=["AppClearStateProgram"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_global_num_uint=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppGlobalNumUint"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_global_num_uint=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AppGlobalNumUint"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_global_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppGlobalNumByteSlice"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_global_num_byte_slice=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AppGlobalNumByteSlice"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_local_num_uint=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppLocalNumUint"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_local_num_uint=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AppLocalNumUint"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_local_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppLocalNumByteSlice"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_local_num_byte_slice=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AppLocalNumByteSlice"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_extra_program_pages=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppExtraProgramPages"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_extra_program_pages=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AppExtraProgramPages"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_creator=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppCreator"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_creator=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AppCreator"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_address=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppAddress"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_address=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AppAddress"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        app_version=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "app_params_get",
-                    immediates=["AppVersion"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        app_version=FunctionOpMapping(
+            op_code="app_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AppVersion"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
     ),
     AssetHoldingGet=dict(
-        asset_balance=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_holding_get",
-                    immediates=["AssetBalance"],
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.AssetType, pytypes.UInt64Type),
-                    ],
-                ),
+        asset_balance=FunctionOpMapping(
+            op_code="asset_holding_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AssetBalance"],
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.AssetType, pytypes.UInt64Type),
             ],
         ),
-        asset_frozen=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BoolType, pytypes.BoolType), source_location=None
-            ),
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_holding_get",
-                    immediates=["AssetFrozen"],
-                    args=[
-                        (pytypes.AccountType, pytypes.UInt64Type),
-                        (pytypes.AssetType, pytypes.UInt64Type),
-                    ],
-                ),
+        asset_frozen=FunctionOpMapping(
+            op_code="asset_holding_get",
+            result=[pytypes.BoolType, pytypes.BoolType],
+            immediates=["AssetFrozen"],
+            args=[
+                (pytypes.AccountType, pytypes.UInt64Type),
+                (pytypes.AssetType, pytypes.UInt64Type),
             ],
         ),
     ),
     AssetParamsGet=dict(
-        asset_total=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetTotal"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_total=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AssetTotal"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_decimals=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetDecimals"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_decimals=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["AssetDecimals"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_default_frozen=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BoolType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetDefaultFrozen"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_default_frozen=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.BoolType, pytypes.BoolType],
+            immediates=["AssetDefaultFrozen"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_unit_name=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetUnitName"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_unit_name=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            immediates=["AssetUnitName"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_name=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetName"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_name=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            immediates=["AssetName"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_url=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetURL"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_url=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            immediates=["AssetURL"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_metadata_hash=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetMetadataHash"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_metadata_hash=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            immediates=["AssetMetadataHash"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_manager=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetManager"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_manager=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AssetManager"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_reserve=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetReserve"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_reserve=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AssetReserve"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_freeze=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetFreeze"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_freeze=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AssetFreeze"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_clawback=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetClawback"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_clawback=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AssetClawback"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        asset_creator=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.AccountType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "asset_params_get",
-                    immediates=["AssetCreator"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        asset_creator=FunctionOpMapping(
+            op_code="asset_params_get",
+            result=[pytypes.AccountType, pytypes.BoolType],
+            immediates=["AssetCreator"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
     ),
     Block=dict(
-        blk_seed=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkSeed"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_seed=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.BytesType],
+            immediates=["BlkSeed"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_timestamp=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkTimestamp"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_timestamp=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.UInt64Type],
+            immediates=["BlkTimestamp"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_proposer=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkProposer"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_proposer=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.AccountType],
+            immediates=["BlkProposer"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_fees_collected=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkFeesCollected"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_fees_collected=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.UInt64Type],
+            immediates=["BlkFeesCollected"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_bonus=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkBonus"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_bonus=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.UInt64Type],
+            immediates=["BlkBonus"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_branch=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkBranch"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_branch=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.BytesType],
+            immediates=["BlkBranch"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_fee_sink=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkFeeSink"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_fee_sink=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.AccountType],
+            immediates=["BlkFeeSink"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_protocol=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkProtocol"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_protocol=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.BytesType],
+            immediates=["BlkProtocol"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_txn_counter=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkTxnCounter"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_txn_counter=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.UInt64Type],
+            immediates=["BlkTxnCounter"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        blk_proposer_payout=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "block",
-                    immediates=["BlkProposerPayout"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        blk_proposer_payout=FunctionOpMapping(
+            op_code="block",
+            result=[pytypes.UInt64Type],
+            immediates=["BlkProposerPayout"],
+            args=[(pytypes.UInt64Type,)],
         ),
     ),
     Box=dict(
-        create=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "box_create",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
-                ),
+        create=FunctionOpMapping(
+            op_code="box_create",
+            result=[pytypes.BoolType],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
+        ),
+        delete=FunctionOpMapping(
+            op_code="box_del",
+            result=[pytypes.BoolType],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+        ),
+        extract=FunctionOpMapping(
+            op_code="box_extract",
+            result=[pytypes.BytesType],
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+                (pytypes.UInt64Type,),
             ],
         ),
-        delete=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "box_del",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
+        get=FunctionOpMapping(
+            op_code="box_get",
+            result=[pytypes.BytesType, pytypes.BoolType],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+        ),
+        length=FunctionOpMapping(
+            op_code="box_len",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
+        ),
+        put=FunctionOpMapping(
+            op_code="box_put",
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        extract=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "box_extract",
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.UInt64Type,),
-                        (pytypes.UInt64Type,),
-                    ],
-                ),
+        replace=FunctionOpMapping(
+            op_code="box_replace",
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        get=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BytesType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "box_get",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        resize=FunctionOpMapping(
+            op_code="box_resize",
+            args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
         ),
-        length=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "box_len",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
-        ),
-        put=OpMappingWithOverloads(
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "box_put",
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
-            ],
-        ),
-        replace=OpMappingWithOverloads(
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "box_replace",
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.UInt64Type,),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
-            ],
-        ),
-        resize=OpMappingWithOverloads(
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "box_resize",
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType), (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        splice=OpMappingWithOverloads(
-            arity=4,
-            overloads=[
-                FunctionOpMapping(
-                    "box_splice",
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.UInt64Type,),
-                        (pytypes.UInt64Type,),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        splice=FunctionOpMapping(
+            op_code="box_splice",
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.UInt64Type,),
+                (pytypes.UInt64Type,),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
     ),
     EllipticCurve=dict(
-        add=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "ec_add",
-                    immediates=[str],
-                    args=[
-                        0,
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        add=FunctionOpMapping(
+            op_code="ec_add",
+            result=[pytypes.BytesType],
+            immediates=[str],
+            args=[
+                0,
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        map_to=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "ec_map_to",
-                    immediates=[str],
-                    args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
+        map_to=FunctionOpMapping(
+            op_code="ec_map_to",
+            result=[pytypes.BytesType],
+            immediates=[str],
+            args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
+        ),
+        scalar_mul_multi=FunctionOpMapping(
+            op_code="ec_multi_scalar_mul",
+            result=[pytypes.BytesType],
+            immediates=[str],
+            args=[
+                0,
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        scalar_mul_multi=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "ec_multi_scalar_mul",
-                    immediates=[str],
-                    args=[
-                        0,
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        pairing_check=FunctionOpMapping(
+            op_code="ec_pairing_check",
+            result=[pytypes.BoolType],
+            immediates=[str],
+            args=[
+                0,
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        pairing_check=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "ec_pairing_check",
-                    immediates=[str],
-                    args=[
-                        0,
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        scalar_mul=FunctionOpMapping(
+            op_code="ec_scalar_mul",
+            result=[pytypes.BytesType],
+            immediates=[str],
+            args=[
+                0,
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        scalar_mul=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=3,
-            overloads=[
-                FunctionOpMapping(
-                    "ec_scalar_mul",
-                    immediates=[str],
-                    args=[
-                        0,
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
-            ],
-        ),
-        subgroup_check=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "ec_subgroup_check",
-                    immediates=[str],
-                    args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        subgroup_check=FunctionOpMapping(
+            op_code="ec_subgroup_check",
+            result=[pytypes.BoolType],
+            immediates=[str],
+            args=[0, (pytypes.BytesType, pytypes.BytesBackedType)],
         ),
     ),
     GITxn=dict(
-        sender=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Sender"],
-                    args=[0],
-                ),
-            ],
-        ),
-        fee=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Fee"],
-                    args=[0],
-                ),
-            ],
-        ),
-        first_valid=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "FirstValid"],
-                    args=[0],
-                ),
-            ],
-        ),
-        first_valid_time=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "FirstValidTime"],
-                    args=[0],
-                ),
-            ],
-        ),
-        last_valid=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "LastValid"],
-                    args=[0],
-                ),
-            ],
-        ),
-        note=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Note"],
-                    args=[0],
-                ),
-            ],
-        ),
-        lease=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Lease"],
-                    args=[0],
-                ),
-            ],
-        ),
-        receiver=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Receiver"],
-                    args=[0],
-                ),
-            ],
-        ),
-        amount=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Amount"],
-                    args=[0],
-                ),
-            ],
-        ),
-        close_remainder_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "CloseRemainderTo"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "VotePK"],
-                    args=[0],
-                ),
-            ],
-        ),
-        selection_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "SelectionPK"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_first=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "VoteFirst"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_last=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "VoteLast"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_key_dilution=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "VoteKeyDilution"],
-                    args=[0],
-                ),
-            ],
-        ),
-        type=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Type"],
-                    args=[0],
-                ),
-            ],
-        ),
-        type_enum=OpMappingWithOverloads(
-            result=pytypes.TransactionTypeType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "TypeEnum"],
-                    args=[0],
-                ),
-            ],
-        ),
-        xfer_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "XferAsset"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_amount=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "AssetAmount"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_sender=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "AssetSender"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_receiver=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "AssetReceiver"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_close_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "AssetCloseTo"],
-                    args=[0],
-                ),
-            ],
-        ),
-        group_index=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "GroupIndex"],
-                    args=[0],
-                ),
-            ],
-        ),
-        tx_id=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "TxID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        application_id=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ApplicationID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        on_completion=OpMappingWithOverloads(
-            result=pytypes.OnCompleteActionType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "OnCompletion"],
-                    args=[0],
-                ),
-            ],
-        ),
-        application_args=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxnas",
-                    immediates=[int, "ApplicationArgs"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gitxna",
-                    immediates=[int, "ApplicationArgs", int],
-                    args=[0, 2],
-                ),
-            ],
-        ),
-        num_app_args=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "NumAppArgs"],
-                    args=[0],
-                ),
-            ],
-        ),
-        accounts=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxnas",
-                    immediates=[int, "Accounts"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gitxna",
-                    immediates=[int, "Accounts", int],
-                    args=[0, 2],
-                ),
-            ],
-        ),
-        num_accounts=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "NumAccounts"],
-                    args=[0],
-                ),
-            ],
-        ),
-        approval_program=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ApprovalProgram"],
-                    args=[0],
-                ),
-            ],
-        ),
-        clear_state_program=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ClearStateProgram"],
-                    args=[0],
-                ),
-            ],
-        ),
-        rekey_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "RekeyTo"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAsset"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_total=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetTotal"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_decimals=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetDecimals"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_default_frozen=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetDefaultFrozen"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_unit_name=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetUnitName"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_name=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetName"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_url=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetURL"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_metadata_hash=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetMetadataHash"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_manager=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetManager"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_reserve=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetReserve"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_freeze=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetFreeze"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_clawback=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ConfigAssetClawback"],
-                    args=[0],
-                ),
-            ],
-        ),
-        freeze_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "FreezeAsset"],
-                    args=[0],
-                ),
-            ],
-        ),
-        freeze_asset_account=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "FreezeAssetAccount"],
-                    args=[0],
-                ),
-            ],
-        ),
-        freeze_asset_frozen=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "FreezeAssetFrozen"],
-                    args=[0],
-                ),
-            ],
-        ),
-        assets=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxnas",
-                    immediates=[int, "Assets"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gitxna",
-                    immediates=[int, "Assets", int],
-                    args=[0, 2],
-                ),
-            ],
-        ),
-        num_assets=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "NumAssets"],
-                    args=[0],
-                ),
-            ],
-        ),
-        applications=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxnas",
-                    immediates=[int, "Applications"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gitxna",
-                    immediates=[int, "Applications", int],
-                    args=[0, 2],
-                ),
-            ],
-        ),
-        num_applications=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "NumApplications"],
-                    args=[0],
-                ),
-            ],
-        ),
-        global_num_uint=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "GlobalNumUint"],
-                    args=[0],
-                ),
-            ],
-        ),
-        global_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "GlobalNumByteSlice"],
-                    args=[0],
-                ),
-            ],
-        ),
-        local_num_uint=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "LocalNumUint"],
-                    args=[0],
-                ),
-            ],
-        ),
-        local_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "LocalNumByteSlice"],
-                    args=[0],
-                ),
-            ],
-        ),
-        extra_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "ExtraProgramPages"],
-                    args=[0],
-                ),
-            ],
-        ),
-        nonparticipation=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "Nonparticipation"],
-                    args=[0],
-                ),
-            ],
-        ),
-        logs=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxnas",
-                    immediates=[int, "Logs"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gitxna",
-                    immediates=[int, "Logs", int],
-                    args=[0, 2],
-                ),
-            ],
-        ),
-        num_logs=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "NumLogs"],
-                    args=[0],
-                ),
-            ],
-        ),
-        created_asset_id=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "CreatedAssetID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        created_application_id=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "CreatedApplicationID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        last_log=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "LastLog"],
-                    args=[0],
-                ),
-            ],
-        ),
-        state_proof_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "StateProofPK"],
-                    args=[0],
-                ),
-            ],
-        ),
-        approval_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxnas",
-                    immediates=[int, "ApprovalProgramPages"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gitxna",
-                    immediates=[int, "ApprovalProgramPages", int],
-                    args=[0, 2],
-                ),
-            ],
-        ),
-        num_approval_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "NumApprovalProgramPages"],
-                    args=[0],
-                ),
-            ],
-        ),
-        clear_state_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxnas",
-                    immediates=[int, "ClearStateProgramPages"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gitxna",
-                    immediates=[int, "ClearStateProgramPages", int],
-                    args=[0, 2],
-                ),
-            ],
-        ),
-        num_clear_state_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "NumClearStateProgramPages"],
-                    args=[0],
-                ),
-            ],
-        ),
-        reject_version=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gitxn",
-                    immediates=[int, "RejectVersion"],
-                    args=[0],
-                ),
-            ],
+        sender=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "Sender"],
+            args=[0],
+        ),
+        fee=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "Fee"],
+            args=[0],
+        ),
+        first_valid=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "FirstValid"],
+            args=[0],
+        ),
+        first_valid_time=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "FirstValidTime"],
+            args=[0],
+        ),
+        last_valid=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "LastValid"],
+            args=[0],
+        ),
+        note=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "Note"],
+            args=[0],
+        ),
+        lease=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "Lease"],
+            args=[0],
+        ),
+        receiver=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "Receiver"],
+            args=[0],
+        ),
+        amount=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "Amount"],
+            args=[0],
+        ),
+        close_remainder_to=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "CloseRemainderTo"],
+            args=[0],
+        ),
+        vote_pk=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "VotePK"],
+            args=[0],
+        ),
+        selection_pk=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "SelectionPK"],
+            args=[0],
+        ),
+        vote_first=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "VoteFirst"],
+            args=[0],
+        ),
+        vote_last=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "VoteLast"],
+            args=[0],
+        ),
+        vote_key_dilution=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "VoteKeyDilution"],
+            args=[0],
+        ),
+        type=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "Type"],
+            args=[0],
+        ),
+        type_enum=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.TransactionTypeType],
+            immediates=[int, "TypeEnum"],
+            args=[0],
+        ),
+        xfer_asset=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AssetType],
+            immediates=[int, "XferAsset"],
+            args=[0],
+        ),
+        asset_amount=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "AssetAmount"],
+            args=[0],
+        ),
+        asset_sender=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "AssetSender"],
+            args=[0],
+        ),
+        asset_receiver=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "AssetReceiver"],
+            args=[0],
+        ),
+        asset_close_to=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "AssetCloseTo"],
+            args=[0],
+        ),
+        group_index=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "GroupIndex"],
+            args=[0],
+        ),
+        tx_id=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "TxID"],
+            args=[0],
+        ),
+        application_id=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.ApplicationType],
+            immediates=[int, "ApplicationID"],
+            args=[0],
+        ),
+        on_completion=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.OnCompleteActionType],
+            immediates=[int, "OnCompletion"],
+            args=[0],
+        ),
+        application_args=FunctionOpMapping(
+            op_code="gitxnas",
+            result=[pytypes.BytesType],
+            immediates=[int, "ApplicationArgs"],
+            args=[0, (pytypes.UInt64Type,)],
+        ),
+        num_app_args=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "NumAppArgs"],
+            args=[0],
+        ),
+        accounts=FunctionOpMapping(
+            op_code="gitxnas",
+            result=[pytypes.AccountType],
+            immediates=[int, "Accounts"],
+            args=[0, (pytypes.UInt64Type,)],
+        ),
+        num_accounts=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "NumAccounts"],
+            args=[0],
+        ),
+        approval_program=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "ApprovalProgram"],
+            args=[0],
+        ),
+        clear_state_program=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "ClearStateProgram"],
+            args=[0],
+        ),
+        rekey_to=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "RekeyTo"],
+            args=[0],
+        ),
+        config_asset=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AssetType],
+            immediates=[int, "ConfigAsset"],
+            args=[0],
+        ),
+        config_asset_total=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "ConfigAssetTotal"],
+            args=[0],
+        ),
+        config_asset_decimals=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "ConfigAssetDecimals"],
+            args=[0],
+        ),
+        config_asset_default_frozen=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BoolType],
+            immediates=[int, "ConfigAssetDefaultFrozen"],
+            args=[0],
+        ),
+        config_asset_unit_name=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "ConfigAssetUnitName"],
+            args=[0],
+        ),
+        config_asset_name=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "ConfigAssetName"],
+            args=[0],
+        ),
+        config_asset_url=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "ConfigAssetURL"],
+            args=[0],
+        ),
+        config_asset_metadata_hash=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "ConfigAssetMetadataHash"],
+            args=[0],
+        ),
+        config_asset_manager=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "ConfigAssetManager"],
+            args=[0],
+        ),
+        config_asset_reserve=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "ConfigAssetReserve"],
+            args=[0],
+        ),
+        config_asset_freeze=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "ConfigAssetFreeze"],
+            args=[0],
+        ),
+        config_asset_clawback=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "ConfigAssetClawback"],
+            args=[0],
+        ),
+        freeze_asset=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AssetType],
+            immediates=[int, "FreezeAsset"],
+            args=[0],
+        ),
+        freeze_asset_account=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AccountType],
+            immediates=[int, "FreezeAssetAccount"],
+            args=[0],
+        ),
+        freeze_asset_frozen=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BoolType],
+            immediates=[int, "FreezeAssetFrozen"],
+            args=[0],
+        ),
+        assets=FunctionOpMapping(
+            op_code="gitxnas",
+            result=[pytypes.AssetType],
+            immediates=[int, "Assets"],
+            args=[0, (pytypes.UInt64Type,)],
+        ),
+        num_assets=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "NumAssets"],
+            args=[0],
+        ),
+        applications=FunctionOpMapping(
+            op_code="gitxnas",
+            result=[pytypes.ApplicationType],
+            immediates=[int, "Applications"],
+            args=[0, (pytypes.UInt64Type,)],
+        ),
+        num_applications=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "NumApplications"],
+            args=[0],
+        ),
+        global_num_uint=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "GlobalNumUint"],
+            args=[0],
+        ),
+        global_num_byte_slice=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "GlobalNumByteSlice"],
+            args=[0],
+        ),
+        local_num_uint=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "LocalNumUint"],
+            args=[0],
+        ),
+        local_num_byte_slice=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "LocalNumByteSlice"],
+            args=[0],
+        ),
+        extra_program_pages=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "ExtraProgramPages"],
+            args=[0],
+        ),
+        nonparticipation=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BoolType],
+            immediates=[int, "Nonparticipation"],
+            args=[0],
+        ),
+        logs=FunctionOpMapping(
+            op_code="gitxnas",
+            result=[pytypes.BytesType],
+            immediates=[int, "Logs"],
+            args=[0, (pytypes.UInt64Type,)],
+        ),
+        num_logs=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "NumLogs"],
+            args=[0],
+        ),
+        created_asset_id=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.AssetType],
+            immediates=[int, "CreatedAssetID"],
+            args=[0],
+        ),
+        created_application_id=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.ApplicationType],
+            immediates=[int, "CreatedApplicationID"],
+            args=[0],
+        ),
+        last_log=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "LastLog"],
+            args=[0],
+        ),
+        state_proof_pk=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.BytesType],
+            immediates=[int, "StateProofPK"],
+            args=[0],
+        ),
+        approval_program_pages=FunctionOpMapping(
+            op_code="gitxnas",
+            result=[pytypes.BytesType],
+            immediates=[int, "ApprovalProgramPages"],
+            args=[0, (pytypes.UInt64Type,)],
+        ),
+        num_approval_program_pages=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "NumApprovalProgramPages"],
+            args=[0],
+        ),
+        clear_state_program_pages=FunctionOpMapping(
+            op_code="gitxnas",
+            result=[pytypes.BytesType],
+            immediates=[int, "ClearStateProgramPages"],
+            args=[0, (pytypes.UInt64Type,)],
+        ),
+        num_clear_state_program_pages=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "NumClearStateProgramPages"],
+            args=[0],
+        ),
+        reject_version=FunctionOpMapping(
+            op_code="gitxn",
+            result=[pytypes.UInt64Type],
+            immediates=[int, "RejectVersion"],
+            args=[0],
         ),
     ),
     GTxn=dict(
-        sender=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Sender"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Sender"],
-                    args=[0],
-                ),
-            ],
-        ),
-        fee=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Fee"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Fee"],
-                    args=[0],
-                ),
-            ],
-        ),
-        first_valid=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["FirstValid"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "FirstValid"],
-                    args=[0],
-                ),
-            ],
-        ),
-        first_valid_time=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["FirstValidTime"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "FirstValidTime"],
-                    args=[0],
-                ),
-            ],
-        ),
-        last_valid=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["LastValid"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "LastValid"],
-                    args=[0],
-                ),
-            ],
-        ),
-        note=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Note"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Note"],
-                    args=[0],
-                ),
-            ],
-        ),
-        lease=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Lease"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Lease"],
-                    args=[0],
-                ),
-            ],
-        ),
-        receiver=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Receiver"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Receiver"],
-                    args=[0],
-                ),
-            ],
-        ),
-        amount=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Amount"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Amount"],
-                    args=[0],
-                ),
-            ],
-        ),
-        close_remainder_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["CloseRemainderTo"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "CloseRemainderTo"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["VotePK"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "VotePK"],
-                    args=[0],
-                ),
-            ],
-        ),
-        selection_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["SelectionPK"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "SelectionPK"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_first=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["VoteFirst"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "VoteFirst"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_last=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["VoteLast"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "VoteLast"],
-                    args=[0],
-                ),
-            ],
-        ),
-        vote_key_dilution=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["VoteKeyDilution"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "VoteKeyDilution"],
-                    args=[0],
-                ),
-            ],
-        ),
-        type=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Type"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Type"],
-                    args=[0],
-                ),
-            ],
-        ),
-        type_enum=OpMappingWithOverloads(
-            result=pytypes.TransactionTypeType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["TypeEnum"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "TypeEnum"],
-                    args=[0],
-                ),
-            ],
-        ),
-        xfer_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["XferAsset"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "XferAsset"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_amount=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["AssetAmount"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "AssetAmount"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_sender=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["AssetSender"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "AssetSender"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_receiver=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["AssetReceiver"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "AssetReceiver"],
-                    args=[0],
-                ),
-            ],
-        ),
-        asset_close_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["AssetCloseTo"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "AssetCloseTo"],
-                    args=[0],
-                ),
-            ],
-        ),
-        group_index=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["GroupIndex"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "GroupIndex"],
-                    args=[0],
-                ),
-            ],
-        ),
-        tx_id=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["TxID"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "TxID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        application_id=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ApplicationID"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ApplicationID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        on_completion=OpMappingWithOverloads(
-            result=pytypes.OnCompleteActionType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["OnCompletion"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "OnCompletion"],
-                    args=[0],
-                ),
-            ],
-        ),
-        application_args=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxnsas",
-                    immediates=["ApplicationArgs"],
-                    args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxnsa",
-                    immediates=["ApplicationArgs", int],
-                    args=[(pytypes.UInt64Type,), 1],
-                ),
-                FunctionOpMapping(
-                    "gtxna",
-                    immediates=[int, "ApplicationArgs", int],
-                    args=[0, 2],
-                ),
-                FunctionOpMapping(
-                    "gtxnas",
-                    immediates=[int, "ApplicationArgs"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        num_app_args=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["NumAppArgs"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "NumAppArgs"],
-                    args=[0],
-                ),
-            ],
-        ),
-        accounts=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxnsas",
-                    immediates=["Accounts"],
-                    args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxnsa",
-                    immediates=["Accounts", int],
-                    args=[(pytypes.UInt64Type,), 1],
-                ),
-                FunctionOpMapping(
-                    "gtxna",
-                    immediates=[int, "Accounts", int],
-                    args=[0, 2],
-                ),
-                FunctionOpMapping(
-                    "gtxnas",
-                    immediates=[int, "Accounts"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        num_accounts=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["NumAccounts"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "NumAccounts"],
-                    args=[0],
-                ),
-            ],
-        ),
-        approval_program=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ApprovalProgram"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ApprovalProgram"],
-                    args=[0],
-                ),
-            ],
-        ),
-        clear_state_program=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ClearStateProgram"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ClearStateProgram"],
-                    args=[0],
-                ),
-            ],
-        ),
-        rekey_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["RekeyTo"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "RekeyTo"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAsset"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAsset"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_total=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetTotal"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetTotal"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_decimals=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetDecimals"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetDecimals"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_default_frozen=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetDefaultFrozen"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetDefaultFrozen"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_unit_name=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetUnitName"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetUnitName"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_name=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetName"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetName"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_url=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetURL"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetURL"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_metadata_hash=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetMetadataHash"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetMetadataHash"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_manager=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetManager"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetManager"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_reserve=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetReserve"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetReserve"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_freeze=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetFreeze"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetFreeze"],
-                    args=[0],
-                ),
-            ],
-        ),
-        config_asset_clawback=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ConfigAssetClawback"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ConfigAssetClawback"],
-                    args=[0],
-                ),
-            ],
-        ),
-        freeze_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["FreezeAsset"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "FreezeAsset"],
-                    args=[0],
-                ),
-            ],
-        ),
-        freeze_asset_account=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["FreezeAssetAccount"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "FreezeAssetAccount"],
-                    args=[0],
-                ),
-            ],
-        ),
-        freeze_asset_frozen=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["FreezeAssetFrozen"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "FreezeAssetFrozen"],
-                    args=[0],
-                ),
-            ],
-        ),
-        assets=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxnsas",
-                    immediates=["Assets"],
-                    args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxnsa",
-                    immediates=["Assets", int],
-                    args=[(pytypes.UInt64Type,), 1],
-                ),
-                FunctionOpMapping(
-                    "gtxna",
-                    immediates=[int, "Assets", int],
-                    args=[0, 2],
-                ),
-                FunctionOpMapping(
-                    "gtxnas",
-                    immediates=[int, "Assets"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        num_assets=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["NumAssets"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "NumAssets"],
-                    args=[0],
-                ),
-            ],
-        ),
-        applications=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxnsas",
-                    immediates=["Applications"],
-                    args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxnsa",
-                    immediates=["Applications", int],
-                    args=[(pytypes.UInt64Type,), 1],
-                ),
-                FunctionOpMapping(
-                    "gtxna",
-                    immediates=[int, "Applications", int],
-                    args=[0, 2],
-                ),
-                FunctionOpMapping(
-                    "gtxnas",
-                    immediates=[int, "Applications"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        num_applications=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["NumApplications"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "NumApplications"],
-                    args=[0],
-                ),
-            ],
-        ),
-        global_num_uint=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["GlobalNumUint"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "GlobalNumUint"],
-                    args=[0],
-                ),
-            ],
-        ),
-        global_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["GlobalNumByteSlice"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "GlobalNumByteSlice"],
-                    args=[0],
-                ),
-            ],
-        ),
-        local_num_uint=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["LocalNumUint"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "LocalNumUint"],
-                    args=[0],
-                ),
-            ],
-        ),
-        local_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["LocalNumByteSlice"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "LocalNumByteSlice"],
-                    args=[0],
-                ),
-            ],
-        ),
-        extra_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["ExtraProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "ExtraProgramPages"],
-                    args=[0],
-                ),
-            ],
-        ),
-        nonparticipation=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["Nonparticipation"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "Nonparticipation"],
-                    args=[0],
-                ),
-            ],
-        ),
-        logs=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxnsas",
-                    immediates=["Logs"],
-                    args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxnsa",
-                    immediates=["Logs", int],
-                    args=[(pytypes.UInt64Type,), 1],
-                ),
-                FunctionOpMapping(
-                    "gtxna",
-                    immediates=[int, "Logs", int],
-                    args=[0, 2],
-                ),
-                FunctionOpMapping(
-                    "gtxnas",
-                    immediates=[int, "Logs"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        num_logs=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["NumLogs"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "NumLogs"],
-                    args=[0],
-                ),
-            ],
-        ),
-        created_asset_id=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["CreatedAssetID"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "CreatedAssetID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        created_application_id=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["CreatedApplicationID"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "CreatedApplicationID"],
-                    args=[0],
-                ),
-            ],
-        ),
-        last_log=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["LastLog"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "LastLog"],
-                    args=[0],
-                ),
-            ],
-        ),
-        state_proof_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["StateProofPK"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "StateProofPK"],
-                    args=[0],
-                ),
-            ],
-        ),
-        approval_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxnsas",
-                    immediates=["ApprovalProgramPages"],
-                    args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxnsa",
-                    immediates=["ApprovalProgramPages", int],
-                    args=[(pytypes.UInt64Type,), 1],
-                ),
-                FunctionOpMapping(
-                    "gtxna",
-                    immediates=[int, "ApprovalProgramPages", int],
-                    args=[0, 2],
-                ),
-                FunctionOpMapping(
-                    "gtxnas",
-                    immediates=[int, "ApprovalProgramPages"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        num_approval_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["NumApprovalProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "NumApprovalProgramPages"],
-                    args=[0],
-                ),
-            ],
-        ),
-        clear_state_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxnsas",
-                    immediates=["ClearStateProgramPages"],
-                    args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxnsa",
-                    immediates=["ClearStateProgramPages", int],
-                    args=[(pytypes.UInt64Type,), 1],
-                ),
-                FunctionOpMapping(
-                    "gtxna",
-                    immediates=[int, "ClearStateProgramPages", int],
-                    args=[0, 2],
-                ),
-                FunctionOpMapping(
-                    "gtxnas",
-                    immediates=[int, "ClearStateProgramPages"],
-                    args=[0, (pytypes.UInt64Type,)],
-                ),
-            ],
-        ),
-        num_clear_state_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["NumClearStateProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "NumClearStateProgramPages"],
-                    args=[0],
-                ),
-            ],
-        ),
-        reject_version=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "gtxns",
-                    immediates=["RejectVersion"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "gtxn",
-                    immediates=[int, "RejectVersion"],
-                    args=[0],
-                ),
-            ],
+        sender=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["Sender"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        fee=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["Fee"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        first_valid=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["FirstValid"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        first_valid_time=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["FirstValidTime"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        last_valid=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["LastValid"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        note=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["Note"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        lease=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["Lease"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        receiver=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["Receiver"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        amount=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["Amount"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        close_remainder_to=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["CloseRemainderTo"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        vote_pk=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["VotePK"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        selection_pk=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["SelectionPK"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        vote_first=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["VoteFirst"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        vote_last=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["VoteLast"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        vote_key_dilution=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["VoteKeyDilution"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        type=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["Type"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        type_enum=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.TransactionTypeType],
+            immediates=["TypeEnum"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        xfer_asset=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AssetType],
+            immediates=["XferAsset"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        asset_amount=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["AssetAmount"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        asset_sender=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["AssetSender"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        asset_receiver=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["AssetReceiver"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        asset_close_to=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["AssetCloseTo"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        group_index=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["GroupIndex"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        tx_id=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["TxID"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        application_id=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.ApplicationType],
+            immediates=["ApplicationID"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        on_completion=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.OnCompleteActionType],
+            immediates=["OnCompletion"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        application_args=FunctionOpMapping(
+            op_code="gtxnsas",
+            result=[pytypes.BytesType],
+            immediates=["ApplicationArgs"],
+            args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+        ),
+        num_app_args=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["NumAppArgs"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        accounts=FunctionOpMapping(
+            op_code="gtxnsas",
+            result=[pytypes.AccountType],
+            immediates=["Accounts"],
+            args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+        ),
+        num_accounts=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["NumAccounts"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        approval_program=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["ApprovalProgram"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        clear_state_program=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["ClearStateProgram"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        rekey_to=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["RekeyTo"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AssetType],
+            immediates=["ConfigAsset"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_total=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["ConfigAssetTotal"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_decimals=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["ConfigAssetDecimals"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_default_frozen=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BoolType],
+            immediates=["ConfigAssetDefaultFrozen"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_unit_name=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetUnitName"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_name=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetName"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_url=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetURL"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_metadata_hash=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetMetadataHash"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_manager=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetManager"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_reserve=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetReserve"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_freeze=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetFreeze"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        config_asset_clawback=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetClawback"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        freeze_asset=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AssetType],
+            immediates=["FreezeAsset"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        freeze_asset_account=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AccountType],
+            immediates=["FreezeAssetAccount"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        freeze_asset_frozen=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BoolType],
+            immediates=["FreezeAssetFrozen"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        assets=FunctionOpMapping(
+            op_code="gtxnsas",
+            result=[pytypes.AssetType],
+            immediates=["Assets"],
+            args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+        ),
+        num_assets=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["NumAssets"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        applications=FunctionOpMapping(
+            op_code="gtxnsas",
+            result=[pytypes.ApplicationType],
+            immediates=["Applications"],
+            args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+        ),
+        num_applications=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["NumApplications"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        global_num_uint=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["GlobalNumUint"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        global_num_byte_slice=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["GlobalNumByteSlice"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        local_num_uint=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["LocalNumUint"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        local_num_byte_slice=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["LocalNumByteSlice"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        extra_program_pages=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["ExtraProgramPages"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        nonparticipation=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BoolType],
+            immediates=["Nonparticipation"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        logs=FunctionOpMapping(
+            op_code="gtxnsas",
+            result=[pytypes.BytesType],
+            immediates=["Logs"],
+            args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+        ),
+        num_logs=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["NumLogs"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        created_asset_id=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.AssetType],
+            immediates=["CreatedAssetID"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        created_application_id=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.ApplicationType],
+            immediates=["CreatedApplicationID"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        last_log=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["LastLog"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        state_proof_pk=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.BytesType],
+            immediates=["StateProofPK"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        approval_program_pages=FunctionOpMapping(
+            op_code="gtxnsas",
+            result=[pytypes.BytesType],
+            immediates=["ApprovalProgramPages"],
+            args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+        ),
+        num_approval_program_pages=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["NumApprovalProgramPages"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        clear_state_program_pages=FunctionOpMapping(
+            op_code="gtxnsas",
+            result=[pytypes.BytesType],
+            immediates=["ClearStateProgramPages"],
+            args=[(pytypes.UInt64Type,), (pytypes.UInt64Type,)],
+        ),
+        num_clear_state_program_pages=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["NumClearStateProgramPages"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        reject_version=FunctionOpMapping(
+            op_code="gtxns",
+            result=[pytypes.UInt64Type],
+            immediates=["RejectVersion"],
+            args=[(pytypes.UInt64Type,)],
         ),
     ),
     Global=dict(
@@ -3705,15 +1772,10 @@ NAMESPACE_CLASSES: typing.Final[
             "GroupID",
             pytypes.BytesType,
         ),
-        opcode_budget=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "global",
-                    immediates=["OpcodeBudget"],
-                ),
-            ],
+        opcode_budget=FunctionOpMapping(
+            op_code="global",
+            result=[pytypes.UInt64Type],
+            immediates=["OpcodeBudget"],
         ),
         caller_application_id=PropertyOpMapping(
             "global",
@@ -3767,1360 +1829,675 @@ NAMESPACE_CLASSES: typing.Final[
         ),
     ),
     ITxn=dict(
-        sender=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Sender"],
-                ),
-            ],
-        ),
-        fee=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Fee"],
-                ),
-            ],
-        ),
-        first_valid=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["FirstValid"],
-                ),
-            ],
-        ),
-        first_valid_time=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["FirstValidTime"],
-                ),
-            ],
-        ),
-        last_valid=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["LastValid"],
-                ),
-            ],
-        ),
-        note=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Note"],
-                ),
-            ],
-        ),
-        lease=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Lease"],
-                ),
-            ],
-        ),
-        receiver=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Receiver"],
-                ),
-            ],
-        ),
-        amount=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Amount"],
-                ),
-            ],
-        ),
-        close_remainder_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["CloseRemainderTo"],
-                ),
-            ],
-        ),
-        vote_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["VotePK"],
-                ),
-            ],
-        ),
-        selection_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["SelectionPK"],
-                ),
-            ],
-        ),
-        vote_first=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["VoteFirst"],
-                ),
-            ],
-        ),
-        vote_last=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["VoteLast"],
-                ),
-            ],
-        ),
-        vote_key_dilution=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["VoteKeyDilution"],
-                ),
-            ],
-        ),
-        type=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Type"],
-                ),
-            ],
-        ),
-        type_enum=OpMappingWithOverloads(
-            result=pytypes.TransactionTypeType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["TypeEnum"],
-                ),
-            ],
-        ),
-        xfer_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["XferAsset"],
-                ),
-            ],
-        ),
-        asset_amount=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["AssetAmount"],
-                ),
-            ],
-        ),
-        asset_sender=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["AssetSender"],
-                ),
-            ],
-        ),
-        asset_receiver=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["AssetReceiver"],
-                ),
-            ],
-        ),
-        asset_close_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["AssetCloseTo"],
-                ),
-            ],
-        ),
-        group_index=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["GroupIndex"],
-                ),
-            ],
-        ),
-        tx_id=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["TxID"],
-                ),
-            ],
-        ),
-        application_id=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ApplicationID"],
-                ),
-            ],
-        ),
-        on_completion=OpMappingWithOverloads(
-            result=pytypes.OnCompleteActionType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["OnCompletion"],
-                ),
-            ],
-        ),
-        application_args=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxnas",
-                    immediates=["ApplicationArgs"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "itxna",
-                    immediates=["ApplicationArgs", int],
-                    args=[1],
-                ),
-            ],
-        ),
-        num_app_args=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["NumAppArgs"],
-                ),
-            ],
-        ),
-        accounts=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxnas",
-                    immediates=["Accounts"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "itxna",
-                    immediates=["Accounts", int],
-                    args=[1],
-                ),
-            ],
-        ),
-        num_accounts=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["NumAccounts"],
-                ),
-            ],
-        ),
-        approval_program=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ApprovalProgram"],
-                ),
-            ],
-        ),
-        clear_state_program=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ClearStateProgram"],
-                ),
-            ],
-        ),
-        rekey_to=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["RekeyTo"],
-                ),
-            ],
-        ),
-        config_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAsset"],
-                ),
-            ],
-        ),
-        config_asset_total=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetTotal"],
-                ),
-            ],
-        ),
-        config_asset_decimals=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetDecimals"],
-                ),
-            ],
-        ),
-        config_asset_default_frozen=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetDefaultFrozen"],
-                ),
-            ],
-        ),
-        config_asset_unit_name=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetUnitName"],
-                ),
-            ],
-        ),
-        config_asset_name=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetName"],
-                ),
-            ],
-        ),
-        config_asset_url=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetURL"],
-                ),
-            ],
-        ),
-        config_asset_metadata_hash=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetMetadataHash"],
-                ),
-            ],
-        ),
-        config_asset_manager=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetManager"],
-                ),
-            ],
-        ),
-        config_asset_reserve=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetReserve"],
-                ),
-            ],
-        ),
-        config_asset_freeze=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetFreeze"],
-                ),
-            ],
-        ),
-        config_asset_clawback=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ConfigAssetClawback"],
-                ),
-            ],
-        ),
-        freeze_asset=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["FreezeAsset"],
-                ),
-            ],
-        ),
-        freeze_asset_account=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["FreezeAssetAccount"],
-                ),
-            ],
-        ),
-        freeze_asset_frozen=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["FreezeAssetFrozen"],
-                ),
-            ],
-        ),
-        assets=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxnas",
-                    immediates=["Assets"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "itxna",
-                    immediates=["Assets", int],
-                    args=[1],
-                ),
-            ],
-        ),
-        num_assets=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["NumAssets"],
-                ),
-            ],
-        ),
-        applications=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxnas",
-                    immediates=["Applications"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "itxna",
-                    immediates=["Applications", int],
-                    args=[1],
-                ),
-            ],
-        ),
-        num_applications=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["NumApplications"],
-                ),
-            ],
-        ),
-        global_num_uint=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["GlobalNumUint"],
-                ),
-            ],
-        ),
-        global_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["GlobalNumByteSlice"],
-                ),
-            ],
-        ),
-        local_num_uint=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["LocalNumUint"],
-                ),
-            ],
-        ),
-        local_num_byte_slice=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["LocalNumByteSlice"],
-                ),
-            ],
-        ),
-        extra_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["ExtraProgramPages"],
-                ),
-            ],
-        ),
-        nonparticipation=OpMappingWithOverloads(
-            result=pytypes.BoolType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["Nonparticipation"],
-                ),
-            ],
-        ),
-        logs=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxnas",
-                    immediates=["Logs"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "itxna",
-                    immediates=["Logs", int],
-                    args=[1],
-                ),
-            ],
-        ),
-        num_logs=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["NumLogs"],
-                ),
-            ],
-        ),
-        created_asset_id=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["CreatedAssetID"],
-                ),
-            ],
-        ),
-        created_application_id=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["CreatedApplicationID"],
-                ),
-            ],
-        ),
-        last_log=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["LastLog"],
-                ),
-            ],
-        ),
-        state_proof_pk=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["StateProofPK"],
-                ),
-            ],
-        ),
-        approval_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxnas",
-                    immediates=["ApprovalProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "itxna",
-                    immediates=["ApprovalProgramPages", int],
-                    args=[1],
-                ),
-            ],
-        ),
-        num_approval_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["NumApprovalProgramPages"],
-                ),
-            ],
-        ),
-        clear_state_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxnas",
-                    immediates=["ClearStateProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "itxna",
-                    immediates=["ClearStateProgramPages", int],
-                    args=[1],
-                ),
-            ],
-        ),
-        num_clear_state_program_pages=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["NumClearStateProgramPages"],
-                ),
-            ],
-        ),
-        reject_version=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn",
-                    immediates=["RejectVersion"],
-                ),
-            ],
+        sender=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["Sender"],
+        ),
+        fee=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["Fee"],
+        ),
+        first_valid=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["FirstValid"],
+        ),
+        first_valid_time=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["FirstValidTime"],
+        ),
+        last_valid=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["LastValid"],
+        ),
+        note=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["Note"],
+        ),
+        lease=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["Lease"],
+        ),
+        receiver=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["Receiver"],
+        ),
+        amount=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["Amount"],
+        ),
+        close_remainder_to=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["CloseRemainderTo"],
+        ),
+        vote_pk=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["VotePK"],
+        ),
+        selection_pk=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["SelectionPK"],
+        ),
+        vote_first=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["VoteFirst"],
+        ),
+        vote_last=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["VoteLast"],
+        ),
+        vote_key_dilution=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["VoteKeyDilution"],
+        ),
+        type=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["Type"],
+        ),
+        type_enum=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.TransactionTypeType],
+            immediates=["TypeEnum"],
+        ),
+        xfer_asset=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AssetType],
+            immediates=["XferAsset"],
+        ),
+        asset_amount=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["AssetAmount"],
+        ),
+        asset_sender=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["AssetSender"],
+        ),
+        asset_receiver=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["AssetReceiver"],
+        ),
+        asset_close_to=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["AssetCloseTo"],
+        ),
+        group_index=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["GroupIndex"],
+        ),
+        tx_id=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["TxID"],
+        ),
+        application_id=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.ApplicationType],
+            immediates=["ApplicationID"],
+        ),
+        on_completion=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.OnCompleteActionType],
+            immediates=["OnCompletion"],
+        ),
+        application_args=FunctionOpMapping(
+            op_code="itxnas",
+            result=[pytypes.BytesType],
+            immediates=["ApplicationArgs"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        num_app_args=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["NumAppArgs"],
+        ),
+        accounts=FunctionOpMapping(
+            op_code="itxnas",
+            result=[pytypes.AccountType],
+            immediates=["Accounts"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        num_accounts=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["NumAccounts"],
+        ),
+        approval_program=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["ApprovalProgram"],
+        ),
+        clear_state_program=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["ClearStateProgram"],
+        ),
+        rekey_to=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["RekeyTo"],
+        ),
+        config_asset=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AssetType],
+            immediates=["ConfigAsset"],
+        ),
+        config_asset_total=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["ConfigAssetTotal"],
+        ),
+        config_asset_decimals=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["ConfigAssetDecimals"],
+        ),
+        config_asset_default_frozen=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BoolType],
+            immediates=["ConfigAssetDefaultFrozen"],
+        ),
+        config_asset_unit_name=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetUnitName"],
+        ),
+        config_asset_name=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetName"],
+        ),
+        config_asset_url=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetURL"],
+        ),
+        config_asset_metadata_hash=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["ConfigAssetMetadataHash"],
+        ),
+        config_asset_manager=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetManager"],
+        ),
+        config_asset_reserve=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetReserve"],
+        ),
+        config_asset_freeze=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetFreeze"],
+        ),
+        config_asset_clawback=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["ConfigAssetClawback"],
+        ),
+        freeze_asset=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AssetType],
+            immediates=["FreezeAsset"],
+        ),
+        freeze_asset_account=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AccountType],
+            immediates=["FreezeAssetAccount"],
+        ),
+        freeze_asset_frozen=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BoolType],
+            immediates=["FreezeAssetFrozen"],
+        ),
+        assets=FunctionOpMapping(
+            op_code="itxnas",
+            result=[pytypes.AssetType],
+            immediates=["Assets"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        num_assets=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["NumAssets"],
+        ),
+        applications=FunctionOpMapping(
+            op_code="itxnas",
+            result=[pytypes.ApplicationType],
+            immediates=["Applications"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        num_applications=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["NumApplications"],
+        ),
+        global_num_uint=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["GlobalNumUint"],
+        ),
+        global_num_byte_slice=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["GlobalNumByteSlice"],
+        ),
+        local_num_uint=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["LocalNumUint"],
+        ),
+        local_num_byte_slice=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["LocalNumByteSlice"],
+        ),
+        extra_program_pages=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["ExtraProgramPages"],
+        ),
+        nonparticipation=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BoolType],
+            immediates=["Nonparticipation"],
+        ),
+        logs=FunctionOpMapping(
+            op_code="itxnas",
+            result=[pytypes.BytesType],
+            immediates=["Logs"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        num_logs=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["NumLogs"],
+        ),
+        created_asset_id=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.AssetType],
+            immediates=["CreatedAssetID"],
+        ),
+        created_application_id=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.ApplicationType],
+            immediates=["CreatedApplicationID"],
+        ),
+        last_log=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["LastLog"],
+        ),
+        state_proof_pk=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.BytesType],
+            immediates=["StateProofPK"],
+        ),
+        approval_program_pages=FunctionOpMapping(
+            op_code="itxnas",
+            result=[pytypes.BytesType],
+            immediates=["ApprovalProgramPages"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        num_approval_program_pages=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["NumApprovalProgramPages"],
+        ),
+        clear_state_program_pages=FunctionOpMapping(
+            op_code="itxnas",
+            result=[pytypes.BytesType],
+            immediates=["ClearStateProgramPages"],
+            args=[(pytypes.UInt64Type,)],
+        ),
+        num_clear_state_program_pages=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["NumClearStateProgramPages"],
+        ),
+        reject_version=FunctionOpMapping(
+            op_code="itxn",
+            result=[pytypes.UInt64Type],
+            immediates=["RejectVersion"],
         ),
     ),
     ITxnCreate=dict(
-        begin=OpMappingWithOverloads(
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_begin",
-                ),
-            ],
+        begin=FunctionOpMapping(
+            op_code="itxn_begin",
         ),
-        next=OpMappingWithOverloads(
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_next",
-                ),
-            ],
+        next=FunctionOpMapping(
+            op_code="itxn_next",
         ),
-        submit=OpMappingWithOverloads(
-            arity=0,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_submit",
-                ),
-            ],
+        submit=FunctionOpMapping(
+            op_code="itxn_submit",
         ),
-        set_sender=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Sender"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_sender=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Sender"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_fee=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Fee"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_fee=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Fee"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_note=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Note"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_note=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Note"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_receiver=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Receiver"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_receiver=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Receiver"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_amount=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Amount"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_amount=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Amount"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_close_remainder_to=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["CloseRemainderTo"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_close_remainder_to=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["CloseRemainderTo"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_vote_pk=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["VotePK"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_vote_pk=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["VotePK"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_selection_pk=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["SelectionPK"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_selection_pk=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["SelectionPK"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_vote_first=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["VoteFirst"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_vote_first=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["VoteFirst"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_vote_last=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["VoteLast"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_vote_last=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["VoteLast"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_vote_key_dilution=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["VoteKeyDilution"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_vote_key_dilution=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["VoteKeyDilution"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_type=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Type"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_type=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Type"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_type_enum=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["TypeEnum"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_type_enum=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["TypeEnum"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_xfer_asset=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["XferAsset"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        set_xfer_asset=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["XferAsset"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        set_asset_amount=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["AssetAmount"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_asset_amount=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["AssetAmount"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_asset_sender=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["AssetSender"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_asset_sender=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["AssetSender"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_asset_receiver=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["AssetReceiver"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_asset_receiver=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["AssetReceiver"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_asset_close_to=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["AssetCloseTo"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_asset_close_to=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["AssetCloseTo"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_application_id=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ApplicationID"],
-                    args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
-                ),
-            ],
+        set_application_id=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ApplicationID"],
+            args=[(pytypes.ApplicationType, pytypes.UInt64Type)],
         ),
-        set_on_completion=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["OnCompletion"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_on_completion=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["OnCompletion"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_application_args=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ApplicationArgs"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_application_args=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ApplicationArgs"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_accounts=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Accounts"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_accounts=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Accounts"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_approval_program=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ApprovalProgram"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_approval_program=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ApprovalProgram"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_clear_state_program=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ClearStateProgram"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_clear_state_program=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ClearStateProgram"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_rekey_to=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["RekeyTo"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_rekey_to=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["RekeyTo"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_config_asset=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAsset"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        set_config_asset=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAsset"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        set_config_asset_total=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetTotal"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_config_asset_total=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetTotal"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_config_asset_decimals=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetDecimals"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_config_asset_decimals=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetDecimals"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_config_asset_default_frozen=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetDefaultFrozen"],
-                    args=[(pytypes.BoolType,)],
-                ),
-            ],
+        set_config_asset_default_frozen=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetDefaultFrozen"],
+            args=[(pytypes.BoolType,)],
         ),
-        set_config_asset_unit_name=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetUnitName"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_config_asset_unit_name=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetUnitName"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_config_asset_name=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetName"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_config_asset_name=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetName"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_config_asset_url=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetURL"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_config_asset_url=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetURL"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_config_asset_metadata_hash=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetMetadataHash"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_config_asset_metadata_hash=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetMetadataHash"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_config_asset_manager=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetManager"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_config_asset_manager=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetManager"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_config_asset_reserve=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetReserve"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_config_asset_reserve=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetReserve"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_config_asset_freeze=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetFreeze"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_config_asset_freeze=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetFreeze"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_config_asset_clawback=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ConfigAssetClawback"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_config_asset_clawback=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ConfigAssetClawback"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_freeze_asset=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["FreezeAsset"],
-                    args=[(pytypes.AssetType, pytypes.UInt64Type)],
-                ),
-            ],
+        set_freeze_asset=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["FreezeAsset"],
+            args=[(pytypes.AssetType, pytypes.UInt64Type)],
         ),
-        set_freeze_asset_account=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["FreezeAssetAccount"],
-                    args=[(pytypes.AccountType,)],
-                ),
-            ],
+        set_freeze_asset_account=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["FreezeAssetAccount"],
+            args=[(pytypes.AccountType,)],
         ),
-        set_freeze_asset_frozen=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["FreezeAssetFrozen"],
-                    args=[(pytypes.BoolType,)],
-                ),
-            ],
+        set_freeze_asset_frozen=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["FreezeAssetFrozen"],
+            args=[(pytypes.BoolType,)],
         ),
-        set_assets=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Assets"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_assets=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Assets"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_applications=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Applications"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_applications=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Applications"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_global_num_uint=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["GlobalNumUint"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_global_num_uint=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["GlobalNumUint"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_global_num_byte_slice=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["GlobalNumByteSlice"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_global_num_byte_slice=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["GlobalNumByteSlice"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_local_num_uint=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["LocalNumUint"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_local_num_uint=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["LocalNumUint"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_local_num_byte_slice=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["LocalNumByteSlice"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_local_num_byte_slice=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["LocalNumByteSlice"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_extra_program_pages=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ExtraProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_extra_program_pages=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ExtraProgramPages"],
+            args=[(pytypes.UInt64Type,)],
         ),
-        set_nonparticipation=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["Nonparticipation"],
-                    args=[(pytypes.BoolType,)],
-                ),
-            ],
+        set_nonparticipation=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["Nonparticipation"],
+            args=[(pytypes.BoolType,)],
         ),
-        set_state_proof_pk=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["StateProofPK"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_state_proof_pk=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["StateProofPK"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_approval_program_pages=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ApprovalProgramPages"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_approval_program_pages=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ApprovalProgramPages"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_clear_state_program_pages=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["ClearStateProgramPages"],
-                    args=[(pytypes.BytesType, pytypes.BytesBackedType)],
-                ),
-            ],
+        set_clear_state_program_pages=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["ClearStateProgramPages"],
+            args=[(pytypes.BytesType, pytypes.BytesBackedType)],
         ),
-        set_reject_version=OpMappingWithOverloads(
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "itxn_field",
-                    immediates=["RejectVersion"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        set_reject_version=FunctionOpMapping(
+            op_code="itxn_field",
+            immediates=["RejectVersion"],
+            args=[(pytypes.UInt64Type,)],
         ),
     ),
     JsonRef=dict(
-        json_string=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "json_ref",
-                    immediates=["JSONString"],
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        json_string=FunctionOpMapping(
+            op_code="json_ref",
+            result=[pytypes.BytesType],
+            immediates=["JSONString"],
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        json_uint64=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "json_ref",
-                    immediates=["JSONUint64"],
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        json_uint64=FunctionOpMapping(
+            op_code="json_ref",
+            result=[pytypes.UInt64Type],
+            immediates=["JSONUint64"],
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
-        json_object=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "json_ref",
-                    immediates=["JSONObject"],
-                    args=[
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                        (pytypes.BytesType, pytypes.BytesBackedType),
-                    ],
-                ),
+        json_object=FunctionOpMapping(
+            op_code="json_ref",
+            result=[pytypes.BytesType],
+            immediates=["JSONObject"],
+            args=[
+                (pytypes.BytesType, pytypes.BytesBackedType),
+                (pytypes.BytesType, pytypes.BytesBackedType),
             ],
         ),
     ),
     Scratch=dict(
-        load_bytes=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "loads",
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        load_bytes=FunctionOpMapping(
+            op_code="loads",
+            result=[pytypes.BytesType],
+            args=[(pytypes.UInt64Type,)],
         ),
-        load_uint64=OpMappingWithOverloads(
-            result=pytypes.UInt64Type,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "loads",
-                    args=[(pytypes.UInt64Type,)],
-                ),
-            ],
+        load_uint64=FunctionOpMapping(
+            op_code="loads",
+            result=[pytypes.UInt64Type],
+            args=[(pytypes.UInt64Type,)],
         ),
-        store=OpMappingWithOverloads(
-            arity=2,
-            overloads=[
-                FunctionOpMapping(
-                    "stores",
-                    args=[
-                        (pytypes.UInt64Type,),
-                        (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
-                    ],
-                ),
+        store=FunctionOpMapping(
+            op_code="stores",
+            args=[
+                (pytypes.UInt64Type,),
+                (pytypes.BytesType, pytypes.UInt64Type, pytypes.BytesBackedType),
             ],
         ),
     ),
@@ -5255,42 +2632,22 @@ NAMESPACE_CLASSES: typing.Final[
             "OnCompletion",
             pytypes.OnCompleteActionType,
         ),
-        application_args=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "txnas",
-                    immediates=["ApplicationArgs"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "txna",
-                    immediates=["ApplicationArgs", int],
-                    args=[1],
-                ),
-            ],
+        application_args=FunctionOpMapping(
+            op_code="txnas",
+            result=[pytypes.BytesType],
+            immediates=["ApplicationArgs"],
+            args=[(pytypes.UInt64Type,)],
         ),
         num_app_args=PropertyOpMapping(
             "txn",
             "NumAppArgs",
             pytypes.UInt64Type,
         ),
-        accounts=OpMappingWithOverloads(
-            result=pytypes.AccountType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "txnas",
-                    immediates=["Accounts"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "txna",
-                    immediates=["Accounts", int],
-                    args=[1],
-                ),
-            ],
+        accounts=FunctionOpMapping(
+            op_code="txnas",
+            result=[pytypes.AccountType],
+            immediates=["Accounts"],
+            args=[(pytypes.UInt64Type,)],
         ),
         num_accounts=PropertyOpMapping(
             "txn",
@@ -5387,42 +2744,22 @@ NAMESPACE_CLASSES: typing.Final[
             "FreezeAssetFrozen",
             pytypes.BoolType,
         ),
-        assets=OpMappingWithOverloads(
-            result=pytypes.AssetType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "txnas",
-                    immediates=["Assets"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "txna",
-                    immediates=["Assets", int],
-                    args=[1],
-                ),
-            ],
+        assets=FunctionOpMapping(
+            op_code="txnas",
+            result=[pytypes.AssetType],
+            immediates=["Assets"],
+            args=[(pytypes.UInt64Type,)],
         ),
         num_assets=PropertyOpMapping(
             "txn",
             "NumAssets",
             pytypes.UInt64Type,
         ),
-        applications=OpMappingWithOverloads(
-            result=pytypes.ApplicationType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "txnas",
-                    immediates=["Applications"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "txna",
-                    immediates=["Applications", int],
-                    args=[1],
-                ),
-            ],
+        applications=FunctionOpMapping(
+            op_code="txnas",
+            result=[pytypes.ApplicationType],
+            immediates=["Applications"],
+            args=[(pytypes.UInt64Type,)],
         ),
         num_applications=PropertyOpMapping(
             "txn",
@@ -5459,21 +2796,11 @@ NAMESPACE_CLASSES: typing.Final[
             "Nonparticipation",
             pytypes.BoolType,
         ),
-        logs=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "txnas",
-                    immediates=["Logs"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "txna",
-                    immediates=["Logs", int],
-                    args=[1],
-                ),
-            ],
+        logs=FunctionOpMapping(
+            op_code="txnas",
+            result=[pytypes.BytesType],
+            immediates=["Logs"],
+            args=[(pytypes.UInt64Type,)],
         ),
         num_logs=PropertyOpMapping(
             "txn",
@@ -5500,42 +2827,22 @@ NAMESPACE_CLASSES: typing.Final[
             "StateProofPK",
             pytypes.BytesType,
         ),
-        approval_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "txnas",
-                    immediates=["ApprovalProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "txna",
-                    immediates=["ApprovalProgramPages", int],
-                    args=[1],
-                ),
-            ],
+        approval_program_pages=FunctionOpMapping(
+            op_code="txnas",
+            result=[pytypes.BytesType],
+            immediates=["ApprovalProgramPages"],
+            args=[(pytypes.UInt64Type,)],
         ),
         num_approval_program_pages=PropertyOpMapping(
             "txn",
             "NumApprovalProgramPages",
             pytypes.UInt64Type,
         ),
-        clear_state_program_pages=OpMappingWithOverloads(
-            result=pytypes.BytesType,
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "txnas",
-                    immediates=["ClearStateProgramPages"],
-                    args=[(pytypes.UInt64Type,)],
-                ),
-                FunctionOpMapping(
-                    "txna",
-                    immediates=["ClearStateProgramPages", int],
-                    args=[1],
-                ),
-            ],
+        clear_state_program_pages=FunctionOpMapping(
+            op_code="txnas",
+            result=[pytypes.BytesType],
+            immediates=["ClearStateProgramPages"],
+            args=[(pytypes.UInt64Type,)],
         ),
         num_clear_state_program_pages=PropertyOpMapping(
             "txn",
@@ -5549,31 +2856,17 @@ NAMESPACE_CLASSES: typing.Final[
         ),
     ),
     VoterParamsGet=dict(
-        voter_balance=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.UInt64Type, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "voter_params_get",
-                    immediates=["VoterBalance"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        voter_balance=FunctionOpMapping(
+            op_code="voter_params_get",
+            result=[pytypes.UInt64Type, pytypes.BoolType],
+            immediates=["VoterBalance"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
-        voter_incentive_eligible=OpMappingWithOverloads(
-            result=pytypes.GenericTupleType.parameterise(
-                (pytypes.BoolType, pytypes.BoolType), source_location=None
-            ),
-            arity=1,
-            overloads=[
-                FunctionOpMapping(
-                    "voter_params_get",
-                    immediates=["VoterIncentiveEligible"],
-                    args=[(pytypes.AccountType, pytypes.UInt64Type)],
-                ),
-            ],
+        voter_incentive_eligible=FunctionOpMapping(
+            op_code="voter_params_get",
+            result=[pytypes.BoolType, pytypes.BoolType],
+            immediates=["VoterIncentiveEligible"],
+            args=[(pytypes.AccountType, pytypes.UInt64Type)],
         ),
     ),
 )

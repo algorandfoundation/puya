@@ -21,10 +21,7 @@ from puya.utils import unique
 from puyapy.awst_build import constants
 
 if typing.TYPE_CHECKING:
-    from puyapy.awst_build.intrinsic_models import (
-        OpMappingWithOverloads,
-        PropertyOpMapping,
-    )
+    from puyapy.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
     from puyapy.models import ArgKind
 
 logger = log.get_logger(__name__)
@@ -1374,7 +1371,7 @@ def _make_intrinsic_enum_types() -> Sequence[IntrinsicEnumType]:
 class IntrinsicNamespaceType(PyType):
     generic: None = attrs.field(default=None, init=False)
     mro: tuple[PyType, ...] = attrs.field(default=(), init=False)
-    members: immutabledict[str, PropertyOpMapping | OpMappingWithOverloads] = attrs.field(
+    members: immutabledict[str, PropertyOpMapping | FunctionOpMapping] = attrs.field(
         converter=immutabledict
     )
 

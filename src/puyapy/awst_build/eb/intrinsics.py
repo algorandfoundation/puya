@@ -1,6 +1,8 @@
 import typing
 from collections.abc import Sequence
 
+import attrs
+
 from puya import log
 from puya.awst.nodes import (
     AssertExpression,
@@ -27,11 +29,7 @@ from puyapy.awst_build.eb.interface import (
     TypeBuilder,
 )
 from puyapy.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
-from puyapy.awst_build.intrinsic_models import (
-    FunctionOpMapping,
-    OpMappingWithOverloads,
-    PropertyOpMapping,
-)
+from puyapy.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puyapy.models import ARC4ABIMethodData
 
 logger = log.get_logger(__name__)
@@ -152,7 +150,7 @@ class ErrFunctionBuilder(FunctionBuilder):
 
 class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
     def __init__(
-        self, fullname: str, mapping: OpMappingWithOverloads, location: SourceLocation
+        self, fullname: str, mapping: FunctionOpMapping, location: SourceLocation
     ) -> None:
         self._fullname = fullname
         self._mapping = mapping
@@ -166,60 +164,38 @@ class IntrinsicFunctionExpressionBuilder(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        if not expect.exactly_n_args(args, location, self._mapping.arity):
-            return dummy_value(self._mapping.result, location)
+        if not expect.exactly_n_args(args, location, len(self._mapping.args)):
+            return dummy_value(self._mapping.result_pytype, location)
         intrinsic_expr = _map_call(self._mapping, args=args, location=location)
-        return builder_for_instance(self._mapping.result, intrinsic_expr)
+        return builder_for_instance(self._mapping.result_pytype, intrinsic_expr)
 
 
-def _fewest_immediates_op_mapping(op_mappings: OpMappingWithOverloads) -> FunctionOpMapping:
-    """
-    Pick the overload with fewest immediate args.
-    The optimiser handles promotion of stack args to immediates if possible.
-    """
-    return min(op_mappings.overloads, key=lambda om: len(om.literal_arg_positions))
-
-
-def _extract_op_mapping(
-    op_mappings: OpMappingWithOverloads, args: Sequence[NodeBuilder]
-) -> FunctionOpMapping:
-    """
-    Pick the overload matching as many literal uint8-ranged args to immediates as possible.
-
-    Used only for `op.extract`: the immediate form and `extract3` have different semantics
-    when length=0, so we can't rely on the optimiser to promote stack args later.
-    """
-    literal_arg_positions = {
-        arg_idx
-        for arg_idx, arg in enumerate(args)
-        # we can't handle any form of dynamism for immediates, such as `1 if foo else 2`,
-        # so we must check for LiteralBuilder only with literal int value within uint8 bounds.
-        if isinstance(arg, LiteralBuilder) and type(arg.value) is int and 0 <= arg.value <= 255
-    }
-    for op_mapping in sorted(
-        op_mappings.overloads, key=lambda om: len(om.literal_arg_positions), reverse=True
-    ):
-        if literal_arg_positions.issuperset(op_mapping.literal_arg_positions):
-            return op_mapping
-    # fall back to first, let argument mapping handle logging errors
-    return op_mappings.overloads[0]
+def _handle_extract(mapping: FunctionOpMapping, args: Sequence[NodeBuilder]) -> FunctionOpMapping:
+    positions_are_literals = all(
+        isinstance(arg, LiteralBuilder) and type(arg.value) is int and 0 <= arg.value <= 255
+        for arg in args[1:]
+    )
+    if positions_are_literals:
+        return attrs.evolve(
+            mapping,
+            op_code="extract",
+            immediates=(int, int),
+            args=((pytypes.BytesType, pytypes.BytesBackedType), 0, 1),
+        )
+    return mapping
 
 
 def _map_call(
-    ast_mapper: OpMappingWithOverloads,
+    mapping: FunctionOpMapping,
     args: Sequence[NodeBuilder],
     location: SourceLocation,
 ) -> IntrinsicCall:
-    if len(ast_mapper.overloads) == 1:
-        (op_mapping,) = ast_mapper.overloads
-    elif any(o.op_code == "extract3" for o in ast_mapper.overloads):
-        op_mapping = _extract_op_mapping(ast_mapper, args)
-    else:
-        op_mapping = _fewest_immediates_op_mapping(ast_mapper)
+    if mapping.op_code == "extract3":
+        mapping = _handle_extract(mapping, args)
 
-    immediates = list(op_mapping.immediates)
+    immediates = list(mapping.immediates)
     stack_args = list[InstanceBuilder]()
-    for arg, arg_data in zip(args, op_mapping.args, strict=True):
+    for arg, arg_data in zip(args, mapping.args, strict=True):
         arg_in = expect.instance_builder(arg, default=expect.default_none)
         if arg_in is None:
             pass
@@ -253,8 +229,8 @@ def _map_call(
                             break
             stack_args.append(expect.argument_of_type_else_dummy(arg_in, *allowed_pytypes))
     return IntrinsicCall(
-        op_code=op_mapping.op_code,
-        wtype=ast_mapper.result_wtype,
+        op_code=mapping.op_code,
+        wtype=mapping.result_wtype,
         immediates=typing.cast(list[str | int], immediates),
         stack_args=[a.resolve() for a in stack_args],
         source_location=location,

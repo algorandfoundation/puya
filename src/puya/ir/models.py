@@ -834,15 +834,15 @@ class Intrinsic(Op, ValueProvider):
         for imm_type, imm in zip(self.op.immediate_types, immediates, strict=True):
             match imm_type:
                 case ImmediateKind.uint8:
-                    if not isinstance(imm, int) or not (0 <= imm <= 255):
+                    if not (isinstance(imm, int) and (0 <= imm <= 255)):
                         logger.critical(
-                            "Invalid immediate, expected value between 0 and 255",
+                            "invalid immediate, expected value between 0 and 255",
                             location=self.source_location,
                         )
                 case ImmediateKind.arg_enum:
                     if not isinstance(imm, str):
                         logger.critical(
-                            "Invalid immediate, expected enum value",
+                            "invalid immediate, expected enum value",
                             location=self.source_location,
                         )
                 case _:
