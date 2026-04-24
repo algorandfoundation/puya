@@ -3,7 +3,7 @@
 subroutine main:
     main_block@0:
         // statically_failing_ops/contract.py:7
-        // log(op.itob(UInt64(2**64 - 1) + 1))
+        // log(UInt64(2**64 - 1) + 1)
         int 18446744073709551615                                                  18446744073709551615
         int 1                                                                     18446744073709551615,1
         +                                                                         tmp%0#0
@@ -14,7 +14,7 @@ subroutine main:
         v-load tmp%1#0                                                            tmp%1#0
         log
         // statically_failing_ops/contract.py:8
-        // log(op.itob(UInt64(2**32) * UInt64(2**32)))
+        // log(UInt64(2**32) * UInt64(2**32))
         int 4294967296                                                            4294967296
         int 4294967296                                                            4294967296,4294967296
         *                                                                         tmp%2#0
@@ -25,7 +25,7 @@ subroutine main:
         v-load tmp%3#0                                                            tmp%3#0
         log
         // statically_failing_ops/contract.py:9
-        // log(op.itob(UInt64(1) - UInt64(2)))
+        // log(UInt64(1) - 2)
         int 1                                                                     1
         int 2                                                                     1,2
         -                                                                         tmp%4#0
@@ -36,7 +36,7 @@ subroutine main:
         v-load tmp%5#0                                                            tmp%5#0
         log
         // statically_failing_ops/contract.py:10
-        // log(op.itob(UInt64(5) // UInt64(0)))
+        // log(UInt64(5) // 0)
         int 5                                                                     5
         int 0                                                                     5,0
         /                                                                         tmp%6#0
@@ -47,7 +47,7 @@ subroutine main:
         v-load tmp%7#0                                                            tmp%7#0
         log
         // statically_failing_ops/contract.py:11
-        // log(op.itob(UInt64(5) % UInt64(0)))
+        // log(UInt64(5) % 0)
         int 5                                                                     5
         int 0                                                                     5,0
         %                                                                         tmp%8#0
@@ -58,7 +58,7 @@ subroutine main:
         v-load tmp%9#0                                                            tmp%9#0
         log
         // statically_failing_ops/contract.py:12
-        // log(op.itob(UInt64(0) ** UInt64(0)))
+        // log(UInt64(0) ** 0)
         int 0                                                                     0
         int 0                                                                     0,0
         exp                                                                       tmp%10#0
@@ -69,7 +69,7 @@ subroutine main:
         v-load tmp%11#0                                                           tmp%11#0
         log
         // statically_failing_ops/contract.py:13
-        // log(op.itob(UInt64(2) ** UInt64(64)))
+        // log(UInt64(2) ** 64)
         int 2                                                                     2
         int 64                                                                    2,64
         exp                                                                       tmp%12#0
@@ -80,7 +80,7 @@ subroutine main:
         v-load tmp%13#0                                                           tmp%13#0
         log
         // statically_failing_ops/contract.py:16
-        // log(op.itob(op.shl(UInt64(1), 64)))
+        // log(op.shl(1, 64))
         int 1                                                                     1
         int 64                                                                    1,64
         shl                                                                       tmp%14#0
@@ -91,7 +91,7 @@ subroutine main:
         v-load tmp%15#0                                                           tmp%15#0
         log
         // statically_failing_ops/contract.py:17
-        // log(op.itob(op.shr(UInt64(1), 64)))
+        // log(op.shr(1, 64))
         int 1                                                                     1
         int 64                                                                    1,64
         shr                                                                       tmp%16#0
@@ -102,7 +102,7 @@ subroutine main:
         v-load tmp%17#0                                                           tmp%17#0
         log
         // statically_failing_ops/contract.py:20
-        // log(op.itob(op.btoi(Bytes(b"123456789"))))
+        // log(op.btoi(b"123456789"))
         byte 0x313233343536373839                                                 0x313233343536373839
         btoi                                                                      tmp%18#0
         v-store tmp%18#0
@@ -119,27 +119,27 @@ subroutine main:
         v-load tmp%20#0                                                           tmp%20#0
         log
         // statically_failing_ops/contract.py:24
-        // log(op.extract(Bytes(b"ab"), 0, 5))
+        // log(op.extract(b"ab", 0, 5))
         byte 0x6162                                                               0x6162
         extract 0 5                                                               tmp%21#0
         v-store tmp%21#0
         v-load tmp%21#0                                                           tmp%21#0
         log
         // statically_failing_ops/contract.py:25
-        // log(op.extract(Bytes(b"ab"), 5, 0))
+        // log(op.extract(b"ab", 5, 0))
         byte 0x6162                                                               0x6162
         extract 5 0                                                               tmp%22#0
         v-store tmp%22#0
         v-load tmp%22#0                                                           tmp%22#0
         log
         // statically_failing_ops/contract.py:28
-        // log(op.extract(Bytes(b"ab"), start, UInt64(5)))
+        // log(op.extract(b"ab", start, 5))
         byte 0x6162                                                               0x6162
         // statically_failing_ops/contract.py:27
         // start = UInt64(300)
         int 300                                                                   0x6162,300
         // statically_failing_ops/contract.py:28
-        // log(op.extract(Bytes(b"ab"), start, UInt64(5)))
+        // log(op.extract(b"ab", start, 5))
         int 5                                                                     0x6162,300,5
         extract3                                                                  tmp%23#0
         v-store tmp%23#0
@@ -153,33 +153,33 @@ subroutine main:
         v-load tmp%24#0                                                           tmp%24#0
         log
         // statically_failing_ops/contract.py:35
-        // log(op.substring(Bytes(b"ab"), sub_start, UInt64(500)))
+        // log(op.substring(b"ab", sub_start, 500))
         byte 0x6162                                                               0x6162
         // statically_failing_ops/contract.py:34
         // sub_start = UInt64(300)
         int 300                                                                   0x6162,300
         // statically_failing_ops/contract.py:35
-        // log(op.substring(Bytes(b"ab"), sub_start, UInt64(500)))
+        // log(op.substring(b"ab", sub_start, 500))
         int 500                                                                   0x6162,300,500
         substring3                                                                tmp%25#0
         v-store tmp%25#0
         v-load tmp%25#0                                                           tmp%25#0
         log
         // statically_failing_ops/contract.py:37
-        // log(op.substring(Bytes(b"ab"), sub_start2, UInt64(0)))
+        // log(op.substring(b"ab", sub_start2, 0))
         byte 0x6162                                                               0x6162
         // statically_failing_ops/contract.py:36
         // sub_start2 = UInt64(500)
         int 500                                                                   0x6162,500
         // statically_failing_ops/contract.py:37
-        // log(op.substring(Bytes(b"ab"), sub_start2, UInt64(0)))
+        // log(op.substring(b"ab", sub_start2, 0))
         int 0                                                                     0x6162,500,0
         substring3                                                                tmp%26#0
         v-store tmp%26#0
         v-load tmp%26#0                                                           tmp%26#0
         log
         // statically_failing_ops/contract.py:39
-        // log(op.substring(Txn.application_args(0), UInt64(0), UInt64(5000)))
+        // log(op.substring(Txn.application_args(0), 0, UInt64(5000)))
         txna ApplicationArgs 0                                                    tmp%27#0
         v-store tmp%27#0
         v-load tmp%27#0                                                           tmp%27#0
@@ -203,7 +203,7 @@ subroutine main:
         v-load tmp%31#0                                                           tmp%31#0
         log
         // statically_failing_ops/contract.py:44
-        // log(op.replace(Bytes(b""), 0, Bytes(b"abc")))
+        // log(op.replace(b"", 0, b"abc"))
         byte 0x                                                                   0x
         byte 0x616263                                                             0x,0x616263
         replace2 0                                                                tmp%32#0
@@ -211,20 +211,20 @@ subroutine main:
         v-load tmp%32#0                                                           tmp%32#0
         log
         // statically_failing_ops/contract.py:46
-        // log(op.replace(Bytes(b""), rep_start, Bytes(b"abc")))
+        // log(op.replace(b"", rep_start, b"abc"))
         byte 0x                                                                   0x
         // statically_failing_ops/contract.py:45
         // rep_start = UInt64(300)
         int 300                                                                   0x,300
         // statically_failing_ops/contract.py:46
-        // log(op.replace(Bytes(b""), rep_start, Bytes(b"abc")))
+        // log(op.replace(b"", rep_start, b"abc"))
         byte 0x616263                                                             0x,300,0x616263
         replace3                                                                  tmp%33#0
         v-store tmp%33#0
         v-load tmp%33#0                                                           tmp%33#0
         log
         // statically_failing_ops/contract.py:49
-        // log(op.itob(op.extract_uint16(Bytes(b"a"), 0)))
+        // log(op.extract_uint16(b"a", 0))
         byte 0x61                                                                 0x61
         int 0                                                                     0x61,0
         extract_uint16                                                            tmp%34#0
@@ -235,7 +235,7 @@ subroutine main:
         v-load tmp%35#0                                                           tmp%35#0
         log
         // statically_failing_ops/contract.py:50
-        // log(op.itob(op.extract_uint32(Bytes(b"abc"), 0)))
+        // log(op.extract_uint32(b"abc", 0))
         byte 0x616263                                                             0x616263
         int 0                                                                     0x616263,0
         extract_uint32                                                            tmp%36#0
@@ -246,7 +246,7 @@ subroutine main:
         v-load tmp%37#0                                                           tmp%37#0
         log
         // statically_failing_ops/contract.py:51
-        // log(op.itob(op.extract_uint64(Bytes(b"abcdefg"), 0)))
+        // log(op.extract_uint64(b"abcdefg", 0))
         byte 0x61626364656667                                                     0x61626364656667
         extract 0 8                                                               tmp%39#0
         v-store tmp%39#0
@@ -257,7 +257,7 @@ subroutine main:
         txna ApplicationArgs 0                                                    runtime_bytes#0
         v-store runtime_bytes#0
         // statically_failing_ops/contract.py:55
-        // log(op.itob(UInt64(op.getbit(UInt64(0), 64))))
+        // log(op.getbit(0, 64))
         int 0                                                                     0
         int 64                                                                    0,64
         getbit                                                                    tmp%41#0
@@ -268,7 +268,7 @@ subroutine main:
         v-load tmp%42#0                                                           tmp%42#0
         log
         // statically_failing_ops/contract.py:56
-        // log(op.itob(UInt64(op.getbit(Bytes(b"a"), 8))))
+        // log(op.getbit(b"a", 8))
         byte 0x61                                                                 0x61
         int 8                                                                     0x61,8
         getbit                                                                    tmp%43#0
@@ -279,7 +279,7 @@ subroutine main:
         v-load tmp%44#0                                                           tmp%44#0
         log
         // statically_failing_ops/contract.py:57
-        // log(op.itob(UInt64(op.getbit(runtime_bytes, UInt64(8 * 4096)))))
+        // log(op.getbit(runtime_bytes, 8 * 4096))
         v-load runtime_bytes#0                                                    runtime_bytes#0
         int 32768                                                                 runtime_bytes#0,32768
         getbit                                                                    tmp%45#0
@@ -290,7 +290,7 @@ subroutine main:
         v-load tmp%46#0                                                           tmp%46#0
         log
         // statically_failing_ops/contract.py:58
-        // log(op.itob(op.setbit_uint64(UInt64(0), 64, True)))
+        // log(op.setbit_uint64(0, 64, True))
         int 0                                                                     0
         int 64                                                                    0,64
         int 1                                                                     0,64,1
@@ -302,7 +302,7 @@ subroutine main:
         v-load tmp%48#0                                                           tmp%48#0
         log
         // statically_failing_ops/contract.py:59
-        // log(op.setbit_bytes(Bytes(b"a"), 8, True))
+        // log(op.setbit_bytes(b"a", 8, True))
         byte 0x61                                                                 0x61
         int 8                                                                     0x61,8
         int 1                                                                     0x61,8,1
@@ -311,7 +311,7 @@ subroutine main:
         v-load tmp%49#0                                                           tmp%49#0
         log
         // statically_failing_ops/contract.py:60
-        // log(op.setbit_bytes(runtime_bytes, UInt64(8 * 4096), True))
+        // log(op.setbit_bytes(runtime_bytes, 8 * 4096, True))
         v-load runtime_bytes#0                                                    runtime_bytes#0
         int 32768                                                                 runtime_bytes#0,32768
         int 1                                                                     runtime_bytes#0,32768,1
@@ -320,7 +320,7 @@ subroutine main:
         v-load tmp%50#0                                                           tmp%50#0
         log
         // statically_failing_ops/contract.py:63
-        // log(op.itob(op.getbyte(Bytes(b"a"), 1)))
+        // log(op.getbyte(b"a", 1))
         byte 0x61                                                                 0x61
         int 1                                                                     0x61,1
         getbyte                                                                   tmp%51#0
@@ -331,7 +331,7 @@ subroutine main:
         v-load tmp%52#0                                                           tmp%52#0
         log
         // statically_failing_ops/contract.py:64
-        // log(op.itob(op.getbyte(runtime_bytes, UInt64(4096))))
+        // log(op.getbyte(runtime_bytes, 4096))
         v-load runtime_bytes#0                                                    runtime_bytes#0
         int 4096                                                                  runtime_bytes#0,4096
         getbyte                                                                   tmp%53#0
@@ -342,7 +342,7 @@ subroutine main:
         v-load tmp%54#0                                                           tmp%54#0
         log
         // statically_failing_ops/contract.py:65
-        // log(op.setbyte(Bytes(b"a"), 1, 0))
+        // log(op.setbyte(b"a", 1, 0))
         byte 0x61                                                                 0x61
         int 1                                                                     0x61,1
         int 0                                                                     0x61,1,0
@@ -351,7 +351,7 @@ subroutine main:
         v-load tmp%55#0                                                           tmp%55#0
         log
         // statically_failing_ops/contract.py:66
-        // log(op.setbyte(runtime_bytes, UInt64(4096), 0))
+        // log(op.setbyte(runtime_bytes, 4096, 0))
         v-load runtime_bytes#0                                                    runtime_bytes#0
         int 4096                                                                  runtime_bytes#0,4096
         int 0                                                                     runtime_bytes#0,4096,0
@@ -364,7 +364,7 @@ subroutine main:
         global Round                                                              r#0
         v-store r#0
         // statically_failing_ops/contract.py:70
-        // log(op.extract(Bytes(b"ab"), r, UInt64(0)))
+        // log(op.extract(b"ab", r, 0))
         byte 0x6162                                                               0x6162
         v-load r#0                                                                0x6162,r#0
         int 0                                                                     0x6162,r#0,0
@@ -373,7 +373,7 @@ subroutine main:
         v-load tmp%58#0                                                           tmp%58#0
         log
         // statically_failing_ops/contract.py:71
-        // log(op.substring(Bytes(b"ab"), r, r))
+        // log(op.substring(b"ab", r, r))
         byte 0x6162                                                               0x6162
         v-load r#0                                                                0x6162,r#0
         v-load r#0                                                                0x6162,r#0,r#0
@@ -382,7 +382,7 @@ subroutine main:
         v-load tmp%59#0                                                           tmp%59#0
         log
         // statically_failing_ops/contract.py:72
-        // log(op.replace(Bytes(b""), r, Bytes(b"abc")))
+        // log(op.replace(b"", r, b"abc"))
         byte 0x                                                                   0x
         v-load r#0                                                                0x,r#0
         byte 0x616263                                                             0x,r#0,0x616263
