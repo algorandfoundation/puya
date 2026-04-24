@@ -26,6 +26,18 @@ class PropertyOpMapping:
         return self.typ.checked_wtype(location=None)
 
 
+def result_types_to_pytype(
+    result: Sequence[pytypes.RuntimeType] | None,
+) -> pytypes.PyType:
+    if result is None:
+        return pytypes.NeverType
+    if not result:
+        return pytypes.NoneType
+    if len(result) == 1:
+        return result[0]
+    return pytypes.GenericTupleType.parameterise(result, source_location=None)
+
+
 @attrs.frozen(kw_only=True)
 class FunctionOpMapping:
     op_code: str
@@ -47,13 +59,7 @@ class FunctionOpMapping:
 
     @result_pytype.default
     def _result_pytype(self) -> pytypes.PyType:
-        if self.result is None:
-            return pytypes.NeverType
-        if not self.result:
-            return pytypes.NoneType
-        if len(self.result) == 1:
-            return self.result[0]
-        return pytypes.GenericTupleType.parameterise(self.result, source_location=None)
+        return result_types_to_pytype(self.result)
 
     @result_wtype.default
     def _result_wtype(self) -> wtypes.WType:
