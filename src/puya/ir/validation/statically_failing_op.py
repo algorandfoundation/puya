@@ -233,6 +233,14 @@ def _check_setbyte(intrinsic: models.Intrinsic) -> str | None:
     return None
 
 
+def _check_concat(intrinsic: models.Intrinsic) -> str | None:
+    match intrinsic.args:
+        case [models.BytesConstant(value=a), models.BytesConstant(value=b)]:
+            if len(a) + len(b) > algo_constants.MAX_BYTES_LENGTH:
+                return "concat buffer overflow"
+    return None
+
+
 _CHECKERS: dict[AVMOp, Callable[[models.Intrinsic], str | None]] = {
     AVMOp.add: _check_add,
     AVMOp.mul: _check_mul,
@@ -257,6 +265,7 @@ _CHECKERS: dict[AVMOp, Callable[[models.Intrinsic], str | None]] = {
     AVMOp.setbit: _check_setbit,
     AVMOp.getbyte: _check_getbyte,
     AVMOp.setbyte: _check_setbyte,
+    AVMOp.concat: _check_concat,
 }
 
 

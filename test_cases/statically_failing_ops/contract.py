@@ -71,6 +71,9 @@ class StaticallyFailingOps(Contract):
         log(op.substring(Bytes(b"ab"), r, r))
         log(op.replace(Bytes(b""), r, Bytes(b"abc")))
 
+        # concat
+        log(Bytes(b" " * 4096) + b"toobig")
+
         return True
 
     def clear_state_program(self) -> bool:
