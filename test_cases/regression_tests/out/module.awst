@@ -28,6 +28,33 @@ subroutine self_xor(x: biguint): biguint
   return x b^ x
 }
 
+contract WronglySizedBoxes
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.regression_tests.wrongly_sized_boxes.WronglySizedBoxes.approval_program(): bool
+  {
+    bytes_box: box_key = hex<"6279746573">
+    assert(box_create(bytes_box, 0u))
+    Box[bytes_box]: bytes = hex<"7465737421">
+    uint_box: box_key = hex<"75696E74">
+    assert(box_create(uint_box, 0u))
+    Box[uint_box]: uint64 = 35u
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.wrongly_sized_boxes.WronglySizedBoxes.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 subroutine get_return_value(): uint64
 {
   return 0u

@@ -1,0 +1,51 @@
+// Op                                                 Stack (out)
+// test_cases.regression_tests.wrongly_sized_boxes.WronglySizedBoxes.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // regression_tests/wrongly_sized_boxes.py:10
+        // bytes_box = Box(Bytes, key=b'bytes')
+        byte 0x6279746573                             0x6279746573
+        // regression_tests/wrongly_sized_boxes.py:11
+        // assert bytes_box.create(size=UInt64(0))
+        int 0                                         0x6279746573,0
+        box_create                                    tmp%0#0
+        assert
+        // regression_tests/wrongly_sized_boxes.py:10
+        // bytes_box = Box(Bytes, key=b'bytes')
+        byte 0x6279746573                             0x6279746573
+        // regression_tests/wrongly_sized_boxes.py:12
+        // bytes_box.value = Bytes(b"test!")
+        box_del                                       {box_del}
+        pop 1
+        // regression_tests/wrongly_sized_boxes.py:10
+        // bytes_box = Box(Bytes, key=b'bytes')
+        byte 0x6279746573                             0x6279746573
+        // regression_tests/wrongly_sized_boxes.py:12
+        // bytes_box.value = Bytes(b"test!")
+        byte 0x7465737421                             0x6279746573,0x7465737421
+        box_put
+        // regression_tests/wrongly_sized_boxes.py:14
+        // uint_box = Box(UInt64, key=b'uint')
+        byte 0x75696e74                               0x75696e74
+        // regression_tests/wrongly_sized_boxes.py:15
+        // assert uint_box.create(size=UInt64(0))
+        int 0                                         0x75696e74,0
+        box_create                                    tmp%1#0
+        assert
+        // regression_tests/wrongly_sized_boxes.py:16
+        // uint_box.value = UInt64(35)
+        int 35                                        35
+        itob                                          encoded_value%0#0
+        // regression_tests/wrongly_sized_boxes.py:14
+        // uint_box = Box(UInt64, key=b'uint')
+        byte 0x75696e74                               encoded_value%0#0,0x75696e74
+        // regression_tests/wrongly_sized_boxes.py:16
+        // uint_box.value = UInt64(35)
+        l-load encoded_value%0#0 1                    0x75696e74,encoded_value%0#0
+        box_put
+        // regression_tests/wrongly_sized_boxes.py:17
+        // return True
+        int 1                                         1
+        return
+
+

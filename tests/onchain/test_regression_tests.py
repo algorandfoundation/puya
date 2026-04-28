@@ -107,6 +107,12 @@ def test_uint64_triple_mul_overflow_fold(deployer_o: Deployer) -> None:
         )
 
 
+def test_wrongly_sized_boxes(deployer_o: Deployer) -> None:
+    deployer_o.create_bare(
+        (TEST_CASES_DIR / "regression_tests" / "wrongly_sized_boxes.py", "WronglySizedBoxes")
+    )
+
+
 _EXTRACT_PATH = TEST_CASES_DIR / "regression_tests" / "extract_fold_oob.py"
 
 

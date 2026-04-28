@@ -1,0 +1,54 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.wrongly_sized_boxes.WronglySizedBoxes.approval_program() -> uint64:
+main:
+    bytecblock 0x6279746573 0x75696e74
+    b main_block@0
+
+main_block@0:
+    // regression_tests/wrongly_sized_boxes.py:10
+    // bytes_box = Box(Bytes, key=b'bytes')
+    bytec_0 // 0x6279746573
+    // regression_tests/wrongly_sized_boxes.py:11
+    // assert bytes_box.create(size=UInt64(0))
+    pushint 0
+    box_create
+    assert
+    // regression_tests/wrongly_sized_boxes.py:10
+    // bytes_box = Box(Bytes, key=b'bytes')
+    bytec_0 // 0x6279746573
+    // regression_tests/wrongly_sized_boxes.py:12
+    // bytes_box.value = Bytes(b"test!")
+    box_del
+    pop
+    // regression_tests/wrongly_sized_boxes.py:10
+    // bytes_box = Box(Bytes, key=b'bytes')
+    bytec_0 // 0x6279746573
+    // regression_tests/wrongly_sized_boxes.py:12
+    // bytes_box.value = Bytes(b"test!")
+    pushbytes 0x7465737421
+    box_put
+    // regression_tests/wrongly_sized_boxes.py:14
+    // uint_box = Box(UInt64, key=b'uint')
+    bytec_1 // 0x75696e74
+    // regression_tests/wrongly_sized_boxes.py:15
+    // assert uint_box.create(size=UInt64(0))
+    pushint 0
+    box_create
+    assert
+    // regression_tests/wrongly_sized_boxes.py:16
+    // uint_box.value = UInt64(35)
+    pushint 35
+    itob
+    // regression_tests/wrongly_sized_boxes.py:14
+    // uint_box = Box(UInt64, key=b'uint')
+    bytec_1 // 0x75696e74
+    // regression_tests/wrongly_sized_boxes.py:16
+    // uint_box.value = UInt64(35)
+    uncover 1
+    box_put
+    // regression_tests/wrongly_sized_boxes.py:17
+    // return True
+    pushint 1
+    return
