@@ -16,6 +16,10 @@ def test_key_types() -> None:
 def wrong_arg() -> None:
     Box("oops", key=b"box")  # type: ignore[arg-type] ## E: first argument must be a type reference
 
+@subroutine
+def create_literal_arg() -> None:
+    box = Box(Bytes, key=b"box")
+    box.create(size=8)  ## W: expression result is ignored
 
 @subroutine
 def wrong_get_arg() -> None:
@@ -97,7 +101,9 @@ class BoxRefContract(ARC4Contract):
     def bad_create_arg(self) -> None:
         self.ok.create(size=32, too_many=42)  # type: ignore[call-arg] ## W: expression result is ignored \
                                                                        ## E: expected 1 argument, got 2
-
+    @arc4.abimethod()
+    def test_literal_create_arg(self) -> None:
+        self.ok.create(size=32)  ## W: expression result is ignored
 
     @arc4.abimethod()
     def bad_resize_arg(self) -> None:
