@@ -41,7 +41,7 @@ from puyapy.awst_build.eb.storage._storage import (
 )
 from puyapy.awst_build.eb.storage._util import box_length_checked
 from puyapy.awst_build.eb.storage.box_ref import BoxRefProxyExpressionBuilder, _IntrinsicMethod
-from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder, UInt64TypeBuilder
 from puyapy.awst_build.utils import get_arg_mapping
 
 logger = log.get_logger(__name__)
@@ -249,14 +249,19 @@ class _Create(FunctionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        arg = expect.at_most_one_arg_of_type(args, [pytypes.UInt64Type], location)
-        if arg is not None:
-            size = arg.resolve()
-        else:
-            size = SizeOf(
-                size_wtype=self.content_type.checked_wtype(location),
-                source_location=location,
-            )
+        arg = expect.at_most_one_arg_of_type(
+            args, [pytypes.IntLiteralType, pytypes.UInt64Type], location
+        )
+        match arg:
+            case InstanceBuilder(pytype=pytypes.IntLiteralType):
+                size = arg.resolve_literal(converter=UInt64TypeBuilder(location)).resolve()
+            case InstanceBuilder(pytype=pytypes.UInt64Type):
+                size = arg.resolve()
+            case _:
+                size = SizeOf(
+                    size_wtype=self.content_type.checked_wtype(location),
+                    source_location=location,
+                )
         return BoolExpressionBuilder(
             IntrinsicCall(
                 op_code="box_create",
