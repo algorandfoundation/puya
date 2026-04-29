@@ -257,11 +257,15 @@ class _Create(FunctionBuilder):
                 size = arg.resolve_literal(converter=UInt64TypeBuilder(location)).resolve()
             case InstanceBuilder(pytype=pytypes.UInt64Type):
                 size = arg.resolve()
-            case _:
+            case None:
                 size = SizeOf(
                     size_wtype=self.content_type.checked_wtype(location),
                     source_location=location,
                 )
+            case _:
+                size = expect.not_this_type(
+                    arg, default=expect.default_dummy_value(pytypes.UInt64Type)
+                ).resolve()
         return BoolExpressionBuilder(
             IntrinsicCall(
                 op_code="box_create",

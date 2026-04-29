@@ -32,7 +32,7 @@ For top level release notes, leave all the headers commented out.
 
 ### Fixed
 
-- Allowed supporting integer literals for the `size` argument in `Box.create`
+- Allowed integer literals as `size` arguments in `Box.create`
 
 
 <!--
