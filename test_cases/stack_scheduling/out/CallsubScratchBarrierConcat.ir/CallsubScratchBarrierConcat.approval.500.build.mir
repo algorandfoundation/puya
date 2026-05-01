@@ -1,0 +1,53 @@
+// Op                                                        Stack (out)
+// test_cases.stack_scheduling.contract.CallsubScratchBarrierConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:148
+        // op.Scratch.store(0, Txn.application_args(0))
+        txna ApplicationArgs 0                               tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                       tmp%0#0
+        store 0
+        // stack_scheduling/contract.py:149
+        // b = _store_slot_and_itob(Txn.application_args(1))
+        txna ApplicationArgs 1                               tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                       tmp%1#0
+        callsub _store_slot_and_itob                         b#0
+        v-store b#0
+        // stack_scheduling/contract.py:150
+        // a = op.Scratch.load_bytes(0)
+        load 0                                               a#0
+        v-store a#0
+        // stack_scheduling/contract.py:151
+        // log(a + b)
+        v-load a#0                                           a#0
+        v-load b#0                                           a#0,b#0
+        concat                                               tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                       tmp%4#0
+        log
+        // stack_scheduling/contract.py:152
+        // return True
+        int 1                                                1
+        return
+
+
+// test_cases.stack_scheduling.contract._store_slot_and_itob(value: bytes) -> bytes:
+subroutine _store_slot_and_itob:
+    _store_slot_and_itob_block@0:                            (𝕡) value#0 |
+        // stack_scheduling/contract.py:174
+        // op.Scratch.store(0, value)
+        p-load value#0                                       (𝕡) value#0 | value#0 (copy)
+        store 0                                              (𝕡) value#0 |
+        // stack_scheduling/contract.py:175
+        // return op.itob(Txn.num_app_args)
+        txn NumAppArgs                                       (𝕡) value#0 | tmp%0#0
+        v-store tmp%0#0                                      (𝕡) value#0 |
+        v-load tmp%0#0                                       (𝕡) value#0 | tmp%0#0
+        itob                                                 (𝕡) value#0 | tmp%1#0
+        v-store tmp%1#0                                      (𝕡) value#0 |
+        v-load tmp%1#0                                       (𝕡) value#0 | tmp%1#0
+        retsub                                               tmp%1#0
+
+
