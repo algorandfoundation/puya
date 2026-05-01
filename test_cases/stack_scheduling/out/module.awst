@@ -304,6 +304,34 @@ contract SubroutineParamSwapConcat
   }
 }
 
+contract CallsubScratchBarrierConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  reserved_scratch_space {
+    0
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.CallsubScratchBarrierConcat.approval_program(): bool
+  {
+    stores(0u, txnas<ApplicationArgs>(0u))
+    b: bytes = test_cases.stack_scheduling.contract._store_slot_and_itob(txnas<ApplicationArgs>(1u))
+    a: bytes = loads(0u)
+    log(a + b)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.CallsubScratchBarrierConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 subroutine _chain(a: bytes, b: bytes): bytes
 {
   a: bytes = a + b
@@ -317,4 +345,10 @@ subroutine _swap_and_concat(a: bytes, b: bytes): bytes
     b: bytes = txnas<ApplicationArgs>(2u)
   }
   return a + b + a
+}
+
+subroutine _store_slot_and_itob(value: bytes): bytes
+{
+  stores(0u, value)
+  return itob(txn<NumAppArgs>())
 }
