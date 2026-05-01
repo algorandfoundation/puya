@@ -508,14 +508,13 @@ main_bootstrap_route@7:
     dig 1
     app_global_put
     itxn_begin
+    pushbytes 0x4450542d
     intc_0 // 0
     bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_params_get AssetUnitName
     assert // asset exists
-    pushbytes 0x4450542d
-    swap
     concat
     pushbytes 0x2d
     concat
@@ -542,35 +541,33 @@ main_bootstrap_route@7:
     bytec_2 // "pool_token"
     itxn CreatedAssetID
     app_global_put
+    global CurrentApplicationAddress
     intc_0 // 0
     bytec_0 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
-    global CurrentApplicationAddress
-    swap
     intc_0 // 0
     callsub do_asset_transfer
+    global CurrentApplicationAddress
     intc_0 // 0
     bytec_1 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
-    global CurrentApplicationAddress
-    swap
     intc_0 // 0
     callsub do_asset_transfer
+    pushbytes 0x151f7c75
     intc_0 // 0
     bytec_2 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     itob
-    pushbytes 0x151f7c75
-    swap
     concat
     log
     intc_1 // 1
     return
 
 main_set_governor_route@6:
+    bytec_3 // "governor"
     txna ApplicationArgs 1
     dup
     len
@@ -578,8 +575,6 @@ main_set_governor_route@6:
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     callsub _check_is_governor
-    bytec_3 // "governor"
-    swap
     app_global_put
     intc_1 // 1
     return
@@ -613,6 +608,7 @@ do_asset_transfer:
 
 // examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
 _update_ratio:
+    bytec 4 // "ratio"
     callsub _current_a_balance
     callsub _current_b_balance
     swap
@@ -620,8 +616,6 @@ _update_ratio:
     *
     swap
     /
-    bytec 4 // "ratio"
-    swap
     app_global_put
     retsub
 
