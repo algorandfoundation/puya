@@ -243,7 +243,7 @@ class Phi(IRVisitable, _Freezable):
 
 @attrs.frozen(kw_only=True)
 class UInt64Constant(Constant):
-    value: int
+    value: int = attrs.field(validator=[attrs.validators.ge(0), attrs.validators.lt(2**64)])
     # uses a factory here so attrs.NOTHING can be used to signal default values
     ir_type: IRType = attrs.field(factory=lambda: PrimitiveIRType.uint64)
     teal_alias: str | None = None
@@ -307,7 +307,7 @@ class SlotConstant(Constant):
 
 @attrs.frozen
 class BigUIntConstant(Constant):
-    value: int
+    value: int = attrs.field(validator=attrs.validators.ge(0))
     ir_type: IRType = attrs.field(default=PrimitiveIRType.biguint, init=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
