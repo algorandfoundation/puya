@@ -18,6 +18,7 @@ main:
     err
 
 main_get_route@8:
+    pushbytes 0x151f7c75
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -46,14 +47,13 @@ main_get_route@8:
     dig 1
     ==
     assert // expected map == global
-    pushbytes 0x151f7c75
-    swap
     concat
     log
     intc_1 // 1
     return
 
 main_modify_route@7:
+    bytec_1 // "glob"
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -71,11 +71,10 @@ main_modify_route@7:
     concat
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    bytec_1 // "glob"
-    swap
     app_global_put
     txn Sender
-    dup
+    bytec_2 // "loc"
+    txn Sender
     intc_0 // 0
     bytec_2 // "loc"
     app_local_get_ex
@@ -93,10 +92,9 @@ main_modify_route@7:
     concat
     intc_0 // 0
     callsub dynamic_array_replace_dynamic_element
-    bytec_2 // "loc"
-    swap
     app_local_put
     bytec_0 // "box"
+    dup
     box_get
     assert // check self.box exists
     dup
@@ -115,8 +113,6 @@ main_modify_route@7:
     bytec_0 // "box"
     box_del
     pop
-    bytec_0 // "box"
-    swap
     box_put
     bytec_3 // "map"
     txn Sender
@@ -145,6 +141,7 @@ main_modify_route@7:
     return
 
 main_append_route@6:
+    bytec_1 // "glob"
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -152,11 +149,10 @@ main_append_route@6:
     bytec 5 // 0x00020000000000000001000a000362617a
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bytec_1 // "glob"
-    swap
     app_global_put
     txn Sender
-    dup
+    bytec_2 // "loc"
+    txn Sender
     intc_0 // 0
     bytec_2 // "loc"
     app_local_get_ex
@@ -164,10 +160,9 @@ main_append_route@6:
     bytec 5 // 0x00020000000000000001000a000362617a
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bytec_2 // "loc"
-    swap
     app_local_put
     bytec_0 // "box"
+    dup
     box_get
     assert // check self.box exists
     bytec 5 // 0x00020000000000000001000a000362617a
@@ -176,8 +171,6 @@ main_append_route@6:
     bytec_0 // "box"
     box_del
     pop
-    bytec_0 // "box"
-    swap
     box_put
     bytec_3 // "map"
     txn Sender
@@ -343,18 +336,16 @@ dynamic_array_concat_dynamic_element_for_header@5:
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_after_for@8:
+    frame_dig 1
     frame_dig 2
     frame_dig 3
     frame_dig 0
     substring3
-    frame_dig 1
-    swap
     concat
     frame_dig -2
-    len
-    frame_dig -2
     frame_dig 4
-    uncover 2
+    frame_dig -2
+    len
     substring3
     concat
     frame_bury 0
