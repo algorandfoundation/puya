@@ -13,6 +13,7 @@ from puya.teal.optimize.constant_stack_shuffling import (
     constant_dupn_insertion,
     perform_constant_stack_shuffling,
 )
+from puya.teal.optimize.move_shuffled_ops import move_shuffled_ops
 from puya.teal.optimize.peephole import peephole
 from puya.teal.optimize.repeated_rotations import simplify_repeated_rotation_ops, simplify_swap_ops
 from puya.teal.optimize.repeated_rotations_search import repeated_rotation_ops_search
@@ -119,6 +120,9 @@ def _optimize_block(block: models.TealBlock, *, level: int) -> None:
         modified = peephole(block, level) or modified
     if level == 0:
         return
+    # do shuffling before dup insertion
+    if level > 1:
+        move_shuffled_ops(block)
     # we don't do dup/dupn collapse in the above loop, but after it.
     # it's easier to deal with expanded dup/dupn instructions above when looking at
     # stack shuffling etc, but once it's done we save ops / program size by collapsing them
