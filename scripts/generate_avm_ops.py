@@ -3,7 +3,7 @@ import json
 import keyword
 import subprocess
 import textwrap
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 
 from puya import log
@@ -104,14 +104,6 @@ EXCLUDED_OPCODES = {
     "return",
     "assert",
 }
-
-
-def as_list_str(values: Iterable[str]) -> str | None:
-    inner = ", ".join(values)
-    if not inner:
-        return None
-    else:
-        return f"[{inner}]"
 
 
 BUILTIN_NAMES = frozenset(dir(builtins))
