@@ -208,6 +208,7 @@ class MemoryIRBuilder(IRVisitor[None]):
             models.TemplateVar(
                 name=deploy_var.name,
                 atype=deploy_var.atype,
+                num_bytes=deploy_var.ir_type.num_bytes,
                 source_location=deploy_var.source_location,
             )
         )

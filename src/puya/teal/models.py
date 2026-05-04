@@ -295,7 +295,7 @@ class PushInts(TealOp):
 @attrs.frozen
 class BytesBlock(TealOp):
     op_code: str = attrs.field(default="bytecblock", init=False)
-    constants: Mapping[bytes | str, tuple[AVMBytesEncoding, SourceLocation | None]]
+    constants: Mapping[bytes | str, tuple[AVMBytesEncoding, SourceLocation | None, int | None]]
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=0, init=False)
 
@@ -453,6 +453,7 @@ class Byte(TealOp):
 class TemplateVar(TealOp):
     name: str
     op_code: typing.Literal["int", "byte"]
+    num_bytes: int | None
     consumes: int = attrs.field(default=0, init=False)
     produces: int = attrs.field(default=1, init=False)
 

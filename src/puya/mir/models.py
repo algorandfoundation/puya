@@ -102,6 +102,7 @@ class Undefined(Op):
 class TemplateVar(Op):
     name: str
     atype: AVMType
+    num_bytes: int | None
     op_code: typing.Literal["int", "byte"] = attrs.field(init=False)
     consumes: int = attrs.field(default=0, init=False)
     produces: tuple[str, ...] = attrs.field(validator=_is_single_item)

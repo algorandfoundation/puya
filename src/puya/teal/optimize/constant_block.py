@@ -16,6 +16,7 @@ def gather_program_constants(program: models.TealProgram) -> None:
     all_ints = list[int | str]()
     all_bytes = list[bytes | str]()
     bytes_encodings = dict[bytes | str, AVMBytesEncoding]()
+    bytes_lengths = dict[bytes | str, int | None]()
     tmpl_locs = dict[bytes | int | str, SourceLocation | None]()
 
     # collect constants
@@ -30,6 +31,7 @@ def gather_program_constants(program: models.TealProgram) -> None:
                     # preserve bytes encoding if it matches
                     if bytes_encodings.setdefault(bytes_value, op.encoding) != op.encoding:
                         bytes_encodings[bytes_value] = AVMBytesEncoding.base16
+                    bytes_lengths[bytes_value] = len(bytes_value)
                 # put template vars in constant blocks regardless of optimization level
                 case models.TemplateVar(name=name, op_code=op_code):
                     # capture first defined tmpl location
@@ -37,9 +39,11 @@ def gather_program_constants(program: models.TealProgram) -> None:
                     match op_code:
                         case "int":
                             all_ints.append(name)
+                            assert op.num_bytes == 8, "Expected UInt64 constant to be 8 bytes wide"
                         case "byte":
                             all_bytes.append(name)
                             bytes_encodings[name] = AVMBytesEncoding.base16
+                            bytes_lengths[name] = op.num_bytes
                         case _:
                             typing.assert_never(op_code)
 
@@ -56,7 +60,10 @@ def gather_program_constants(program: models.TealProgram) -> None:
         entry_block.ops.insert(
             0,
             models.BytesBlock(
-                constants={b: (bytes_encodings[b], tmpl_locs.get(b)) for b in byte_block},
+                constants={
+                    b: (bytes_encodings[b], tmpl_locs.get(b), bytes_lengths.get(b))
+                    for b in byte_block
+                },
                 source_location=None,
             ),
         )

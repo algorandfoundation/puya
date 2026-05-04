@@ -200,14 +200,20 @@ def _lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
         case teal.IntBlock(constants=constants):
             return models.AVMOp(
                 op_code=op.op_code,
-                immediates=[_resolve_template_vars(ctx, int, constants.items())],
+                immediates=[
+                    _resolve_template_vars(ctx, int, ((b, v, 0xFFFFFFFFFFFFFFFF) for b, v in constants.items()))
+                ],
                 source_location=loc,
             )
         case teal.BytesBlock(constants=constants):
             return models.AVMOp(
                 op_code=op.op_code,
                 immediates=[
-                    _resolve_template_vars(ctx, bytes, [(b, es[1]) for b, es in constants.items()])
+                    _resolve_template_vars(
+                        ctx,
+                        bytes,
+                        ((b, es[1], _bytes_fallback_for(es[2])) for b, es in constants.items()),
+                    )
                 ],
                 source_location=loc,
             )
@@ -255,11 +261,17 @@ def _lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
             raise InternalError(f"invalid teal op: {op}", loc)
 
 
+def _bytes_fallback_for(size: int | None) -> bytes:
+    return b"\xFF" * size if size is not None else b""
+
+
 def _resolve_template_vars[T: (int, bytes)](
-    ctx: AssembleContext, typ: type[T], values: Iterable[tuple[T | str, SourceLocation | None]]
+    ctx: AssembleContext,
+    typ: type[T],
+    values: Iterable[tuple[T | str, SourceLocation | None, T]],
 ) -> Sequence[T]:
     result = []
-    for value_or_template, var_loc in values:
+    for value_or_template, var_loc, var_fallback in values:
         if not isinstance(value_or_template, str):
             value = value_or_template
         else:
@@ -274,7 +286,7 @@ def _resolve_template_vars[T: (int, bytes)](
                     logger.error(  # noqa: TRY400
                         f"template variable not defined: {value_or_template}", location=var_loc
                     )
-                value = typ()
+                value = var_fallback
             else:
                 if isinstance(maybe_value, typ):
                     value = maybe_value
@@ -284,7 +296,7 @@ def _resolve_template_vars[T: (int, bytes)](
                         f" expected {typ.__name__}",
                         location=val_loc or var_loc,
                     )
-                    value = typ()
+                    value = var_fallback
         result.append(value)
     return result
 

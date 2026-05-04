@@ -119,6 +119,7 @@ class TealBuilder(MIRVisitor[None]):
             teal.TemplateVar(
                 name=const.name,
                 op_code=const.op_code,
+                num_bytes=const.num_bytes,
                 stack_manipulations=_lstack_manipulations(const),
                 source_location=const.source_location,
             )
