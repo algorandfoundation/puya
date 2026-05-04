@@ -1384,23 +1384,14 @@ class SingleEvaluation(Expression):
 
 @attrs.frozen
 class ReinterpretCast(Expression):
-    """Convert an expression to an AVM equivalent type.
-
-    Note: the validation of this isn't done until IR construction"""
+    """Convert an expression to an AVM equivalent type."""
 
     expr: Expression
 
     def __attrs_post_init__(self) -> None:
         source_wtype = self.expr.wtype
         target_wtype = self.wtype
-        if (
-            # can't cast from aggregate to aggregate
-            (source_wtype.is_aggregate and target_wtype.is_aggregate)
-            # can't cast if not backed by a scalar value
-            or None in (source_wtype.scalar_type, target_wtype.scalar_type)
-            # can't cast between differing scalar values
-            or source_wtype.scalar_type != target_wtype.scalar_type
-        ):
+        if not can_reinterpret_cast(source_wtype=source_wtype, target_wtype=target_wtype):
             logger.error(
                 f"unsupported type cast (from: {source_wtype}, to: {target_wtype} ",
                 location=self.source_location,
@@ -1408,6 +1399,16 @@ class ReinterpretCast(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_reinterpret_cast(self)
+
+
+def can_reinterpret_cast(*, source_wtype: wtypes.WType, target_wtype: wtypes.WType) -> bool:
+    return (
+        # types must be backed by the same (non-None) scalar type
+        source_wtype.scalar_type == target_wtype.scalar_type
+        and source_wtype.scalar_type is not None
+        # can't cast directly from aggregate to aggregate - at least one type must be non-aggregate
+        and False in (source_wtype.is_aggregate, target_wtype.is_aggregate)
+    )
 
 
 StorageExpression = AppStateExpression | AppAccountStateExpression | BoxValueExpression

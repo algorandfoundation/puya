@@ -3,11 +3,12 @@ from collections.abc import Sequence
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, ReinterpretCast, UInt64Constant
+from puya.awst.nodes import Expression, UInt64Constant
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
+from puyapy.awst_build.eb._utils import reinterpret_cast
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
     LiteralBuilder,
@@ -32,7 +33,7 @@ class ApplicationTypeBuilder(TypeBuilder):
                 if int_value < 0 or int_value.bit_length() > 64:  # TODO: should this be 256?
                     logger.error("invalid application ID", location=literal.source_location)
                 const = UInt64Constant(value=int_value, source_location=location)
-                expr = ReinterpretCast(
+                expr = reinterpret_cast(
                     expr=const, wtype=wtypes.application_wtype, source_location=location
                 )
                 return ApplicationExpressionBuilder(expr)
@@ -55,7 +56,7 @@ class ApplicationTypeBuilder(TypeBuilder):
             case _:
                 arg = expect.argument_of_type_else_dummy(arg, pytypes.UInt64Type)
                 uint64_expr = arg.resolve()
-        app_expr = ReinterpretCast(
+        app_expr = reinterpret_cast(
             source_location=location, wtype=wtypes.application_wtype, expr=uint64_expr
         )
         return ApplicationExpressionBuilder(app_expr)

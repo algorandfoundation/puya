@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     Expression,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
 )
 from puya.parse import SourceLocation
 from puyapy import models
@@ -18,7 +17,7 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puyapy.awst_build.eb._utils import compare_bytes
+from puyapy.awst_build.eb._utils import compare_bytes, reinterpret_cast
 from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -132,7 +131,7 @@ class UFixedNxMExpressionBuilder(
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        as_biguint = ReinterpretCast(
+        as_biguint = reinterpret_cast(
             expr=self.resolve(),
             wtype=wtypes.biguint_wtype,
             source_location=self.source_location,

@@ -13,7 +13,6 @@ from puya.awst.nodes import (
     Expression,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
     Statement,
 )
 from puya.parse import SourceLocation
@@ -25,7 +24,7 @@ from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesConvertibleTypeBuilder,
 )
-from puyapy.awst_build.eb._utils import dummy_statement
+from puyapy.awst_build.eb._utils import dummy_statement, reinterpret_cast
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -197,7 +196,7 @@ def _uint64_to_biguint(arg_in: InstanceBuilder, location: SourceLocation) -> Exp
 
 def _bool_to_biguint(arg_in: InstanceBuilder, location: SourceLocation) -> Expression:
     return intrinsic_factory.itob_as(
-        ReinterpretCast(
+        reinterpret_cast(
             expr=arg_in.resolve(),
             wtype=wtypes.uint64_wtype,
             source_location=location,

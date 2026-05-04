@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     Expression,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
     UInt64Constant,
 )
 from puya.parse import SourceLocation
@@ -18,7 +17,7 @@ from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._bytes_backed import BytesConvertibleTypeBuilder
-from puyapy.awst_build.eb._utils import compare_expr_bytes
+from puyapy.awst_build.eb._utils import compare_expr_bytes, reinterpret_cast
 from puyapy.awst_build.eb.arc4.static_array import StaticArrayExpressionBuilder
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -130,7 +129,7 @@ def _zero_address(location: SourceLocation) -> Expression:
 
 def _address_to_native(builder: InstanceBuilder) -> Expression:
     assert pytypes.ARC4AddressType <= builder.pytype
-    return ReinterpretCast(
+    return reinterpret_cast(
         expr=builder.resolve(),
         wtype=wtypes.account_wtype,
         source_location=builder.source_location,
@@ -139,7 +138,7 @@ def _address_to_native(builder: InstanceBuilder) -> Expression:
 
 def _address_from_native(builder: InstanceBuilder) -> Expression:
     assert builder.pytype.is_type_or_subtype(pytypes.AccountType, pytypes.BytesType)
-    return ReinterpretCast(
+    return reinterpret_cast(
         expr=builder.resolve(),
         wtype=wtypes.arc4_address_alias,
         source_location=builder.source_location,

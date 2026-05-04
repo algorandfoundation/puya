@@ -11,11 +11,11 @@ from puya.awst.nodes import (
     IntrinsicCall,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
 )
 from puya.parse import SourceLocation
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._utils import reinterpret_cast
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
@@ -65,7 +65,7 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
         return super().member_access(name, location)
 
     def to_native(self, location: SourceLocation) -> InstanceBuilder:
-        native_cast = ReinterpretCast(
+        native_cast = reinterpret_cast(
             expr=self.resolve(),
             wtype=self.native_type.wtype,
             source_location=location,

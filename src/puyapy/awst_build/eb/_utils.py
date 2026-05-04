@@ -1,17 +1,24 @@
 import typing
 from collections.abc import Sequence
 
+import attrs
+
 from puya import log
+from puya.avm import AVMType
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesComparisonExpression,
+    BytesConstant,
+    BytesEncoding,
     Copy,
     EqualityComparison,
     Expression,
     ExpressionStatement,
     ReinterpretCast,
     Statement,
+    StringConstant,
     VarExpression,
+    can_reinterpret_cast,
 )
 from puya.parse import SourceLocation
 from puyapy import models
@@ -130,8 +137,8 @@ def _compare_expr_bytes_unchecked(
     return BoolExpressionBuilder(cmp_expr)
 
 
-def cast_to_bytes(expr: Expression, location: SourceLocation | None = None) -> ReinterpretCast:
-    return ReinterpretCast(
+def cast_to_bytes(expr: Expression, location: SourceLocation | None = None) -> Expression:
+    return reinterpret_cast(
         expr=expr, wtype=wtypes.bytes_wtype, source_location=location or expr.source_location
     )
 
@@ -142,7 +149,7 @@ def upcast_bool_to_uint64(
     from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
     assert builder.pytype == pytypes.BoolType
-    expr = ReinterpretCast(
+    expr = reinterpret_cast(
         expr=builder.resolve(),
         wtype=wtypes.uint64_wtype,
         source_location=location or builder.source_location,
@@ -167,3 +174,55 @@ class CopyBuilder(FunctionBuilder):
         expect.no_args(args, location)
         expr_result = Copy(value=self.expr, source_location=location)
         return builder_for_instance(self._typ, expr_result)
+
+
+def reinterpret_cast(
+    expr: Expression,
+    wtype: wtypes.WType,
+    *,
+    source_location: SourceLocation | None = None,
+) -> Expression:
+    loc = source_location or expr.source_location
+    if expr.wtype == wtype:
+        return expr
+    if isinstance(expr, ReinterpretCast):
+        # if the cast is a round-trip, we can eliminate it - unless it's
+        # an aggregate type, which might have copy semantics to worry about
+        if expr.expr.wtype == wtype and not wtype.is_aggregate:
+            return expr.expr
+        # otherwise, see if we can reduce from two casts to just one
+        # without triggering a validation error
+        if can_reinterpret_cast(source_wtype=expr.expr.wtype, target_wtype=wtype):
+            return attrs.evolve(expr, wtype=wtype, source_location=loc)
+    elif wtype.scalar_type == AVMType.bytes:
+        # if the source is a bytes-like constant, re-emit it directly as a
+        # BytesConstant of the target wtype rather than wrapping in a
+        # ReinterpretCast - except when the target imposes a fixed length that
+        # the constant doesn't satisfy, since that'd produce an invalid constant
+        match _extract_bytes_constant(expr):
+            case bytes(encoded), BytesEncoding() as encoding if (
+                not _invalid_constant_length(encoded, wtype)
+            ):
+                return BytesConstant(
+                    value=encoded, wtype=wtype, encoding=encoding, source_location=loc
+                )
+    return ReinterpretCast(expr=expr, wtype=wtype, source_location=loc)
+
+
+def _extract_bytes_constant(expr: Expression) -> tuple[bytes, BytesEncoding] | None:
+    match expr:
+        case BytesConstant(value=encoded, encoding=encoding):
+            return encoded, encoding
+        case StringConstant(wtype=wtypes.string_wtype):
+            encoded = expr.value.encode("utf8")
+            return encoded, BytesEncoding.utf8
+        case _:
+            return None
+
+
+def _invalid_constant_length(value: bytes, wtype: wtypes.WType) -> bool:
+    return (
+        isinstance(wtype, wtypes.BytesWType)
+        and wtype.length is not None
+        and wtype.length != len(value)
+    )

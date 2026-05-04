@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     IntegerConstant,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
 )
 from puya.parse import SourceLocation
 from puyapy import models
@@ -19,6 +18,7 @@ from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, NotIterableInstanceExpressionBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
+from puyapy.awst_build.eb._utils import reinterpret_cast
 from puyapy.awst_build.eb._validatable import ValidatableInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -131,7 +131,7 @@ class UIntNExpressionBuilder(
         elif other.pytype.is_type_or_subtype(pytypes.BoolType, pytypes.UInt64Type):
             other_expr = intrinsic_factory.itob_as(other.resolve(), wtypes.biguint_wtype, location)
         elif isinstance(other.pytype, pytypes.ARC4UIntNType):
-            other_expr = ReinterpretCast(
+            other_expr = reinterpret_cast(
                 expr=other.resolve(),
                 wtype=wtypes.biguint_wtype,
                 source_location=other.source_location,
@@ -147,7 +147,7 @@ class UIntNExpressionBuilder(
         return BoolExpressionBuilder(cmp_expr)
 
     def _as_biguint(self) -> Expression:
-        return ReinterpretCast(
+        return reinterpret_cast(
             expr=self.resolve(),
             wtype=wtypes.biguint_wtype,
             source_location=self.source_location,

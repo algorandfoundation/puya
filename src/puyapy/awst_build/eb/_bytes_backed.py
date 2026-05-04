@@ -4,13 +4,13 @@ from collections.abc import Sequence
 
 import typing_extensions
 
-from puya.awst.nodes import Expression, ReinterpretCast
+from puya.awst.nodes import Expression
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, InstanceExpressionBuilder
-from puyapy.awst_build.eb._utils import cast_to_bytes
+from puyapy.awst_build.eb._utils import cast_to_bytes, reinterpret_cast
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
@@ -47,7 +47,7 @@ class _FromBytes(FunctionBuilder):
         arg = expect.exactly_one_arg_of_type_else_dummy(
             args, pytypes.BytesType, location, resolve_literal=True
         )
-        result_expr = ReinterpretCast(
+        result_expr = reinterpret_cast(
             expr=arg.resolve(),
             wtype=self.result_type.checked_wtype(location),
             source_location=location,

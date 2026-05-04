@@ -24,7 +24,6 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
     PuyaLibCall,
     PuyaLibFunction,
-    ReinterpretCast,
     Statement,
     UInt64Constant,
 )
@@ -43,6 +42,7 @@ from puyapy.awst_build.eb._utils import (
     constant_bool_and_error,
     dummy_statement,
     dummy_value,
+    reinterpret_cast,
     resolve_negative_literal_index,
 )
 from puyapy.awst_build.eb._validatable import ValidateEncoding
@@ -196,7 +196,7 @@ def _checked_size(
     assert arg.pytype == pytypes.BytesType, "unexpected arg type"
     arg_expr = arg.single_eval().resolve()
     length_const = UInt64Constant(value=pytype.length, source_location=location)
-    fixed_bytes_expr = ReinterpretCast(
+    fixed_bytes_expr = reinterpret_cast(
         expr=arg_expr,
         wtype=pytype.wtype,
         source_location=location,

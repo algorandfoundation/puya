@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     IntrinsicCall,
     NumericComparison,
     NumericComparisonExpression,
-    ReinterpretCast,
     TupleItemExpression,
     UInt64Constant,
 )
@@ -26,6 +25,7 @@ from puyapy.awst_build.eb._utils import (
     compare_bytes,
     compare_expr_bytes,
     dummy_value,
+    reinterpret_cast,
 )
 from puyapy.awst_build.eb._validatable import (
     ValidateEncoding,
@@ -90,7 +90,7 @@ class AccountTypeBuilder(BytesConvertibleTypeBuilder):
                     rhs=intrinsic_factory.bytes_len(address_bytes_temp, location),
                 )
                 value = CheckedMaybe.from_tuple_items(
-                    expr=ReinterpretCast(
+                    expr=reinterpret_cast(
                         expr=address_bytes_temp,
                         wtype=wtypes.account_wtype,
                         source_location=location,

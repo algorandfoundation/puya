@@ -10,13 +10,13 @@ from puya.awst.nodes import (
     BytesEncoding,
     Expression,
     Lvalue,
-    ReinterpretCast,
     Statement,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
+from puyapy.awst_build.eb._utils import reinterpret_cast
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -178,7 +178,7 @@ def extract_key_override(
         if isinstance(key_override, BytesConstant):
             return attrs.evolve(key_override, wtype=typ)
         else:
-            return ReinterpretCast(expr=key_override, wtype=typ, source_location=location)
+            return reinterpret_cast(expr=key_override, wtype=typ, source_location=location)
     else:
         expect.not_this_type(key_arg, default=expect.default_none)
         return BytesConstant(
