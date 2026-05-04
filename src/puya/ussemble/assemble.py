@@ -43,6 +43,11 @@ _STACK_OPS = {
 assert _STACK_OPS <= OP_SPECS.keys(), "invalid stack op"  # noqa: SIM300
 
 
+class _TemplateInt(int):
+    """ Marker class for int that should be fixsize-encoded """
+    pass
+
+
 def assemble_bytecode_and_debug_info(
     ctx: AssembleContext, program: teal.TealProgram
 ) -> models.AssembledProgram:
@@ -201,7 +206,7 @@ def _lower_op(ctx: AssembleContext, op: teal.TealOp) -> models.AVMOp:
             return models.AVMOp(
                 op_code=op.op_code,
                 immediates=[
-                    _resolve_template_vars(ctx, int, ((b, v, 0xFFFFFFFFFFFFFFFF) for b, v in constants.items()))
+                    _resolve_template_vars(ctx, int, ((b, v, 0) for b, v in constants.items()))
                 ],
                 source_location=loc,
             )
@@ -297,6 +302,9 @@ def _resolve_template_vars[T: (int, bytes)](
                         location=val_loc or var_loc,
                     )
                     value = var_fallback
+
+            if isinstance(value, int) and ctx.options.optimization_level < 2:
+                value = _TemplateInt(value)
         result.append(value)
     return result
 
@@ -338,10 +346,16 @@ _encode_label = struct.Struct(">h").pack
 
 
 def _encode_varuint(value: int) -> bytes:
+    assert value < (1 << 64), "Value does not fit an uint64!"
+
+    is_template = isinstance(value, _TemplateInt)
     bits = value & 0x7F
     value >>= 7
     result = b""
-    while value:
+    for i in range(0, 9):
+        # Template int are encoded in a fixed-size manner
+        if not is_template and value == 0:
+            break
         result += _encode_uint8(0x80 | bits)
         bits = value & 0x7F
         value >>= 7
