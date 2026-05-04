@@ -58,7 +58,7 @@ contract Arc4TuplesTypeContract
   subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program(): bool
   {
     my_tuple: arc4.tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8> = arc4_encode((1_arc4u8, 2_arc4u8, 'hello', 'world', 255_arc4u8), arc4.tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8>)
-    assert(my_tuple == reinterpret_cast<arc4.tuple<arc4.uint8,arc4.uint8,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint8>>(hex<"01020007000EFF000568656C6C6F0005776F726C64">))
+    assert(my_tuple == hex<"01020007000EFF000568656C6C6F0005776F726C64">)
     boolean_packing: arc4.tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8> = arc4_encode((4_arc4u8, arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(false, arc4.bool), arc4_encode(true, arc4.bool), arc4_encode(true, arc4.bool), 16_arc4u8), arc4.tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>)
     assert(reinterpret_cast<bytes>(boolean_packing) == hex<"04BD8010">)
     (a, b, c, d, e, f, g, h, i, j, k): tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8> = arc4_decode(boolean_packing, tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>)
@@ -123,7 +123,7 @@ contract Arc4StructsTypeContract
     flags: test_cases.arc4_types.structs.Flags = new test_cases.arc4_types.structs.Flags(a=arc4_encode(true, arc4.bool), b=arc4_encode(false, arc4.bool), c=arc4_encode(true, arc4.bool), d=arc4_encode(false, arc4.bool))
     test_cases.arc4_types.structs.check(flags.copy())
     log(reinterpret_cast<bytes>(flags))
-    assert(reinterpret_cast<bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<bytes>(coord_1))) == reinterpret_cast<bytes>(coord_1))
+    assert(reinterpret_cast<bytes>(coord_1) == reinterpret_cast<bytes>(coord_1))
     test_cases.arc4_types.structs.nested_decode(new test_cases.arc4_types.structs.VectorFlags(vector=coord_1.copy(), flags=flags.copy()))
     mutable: test_cases.arc4_types.structs.FrozenButMutable = new test_cases.arc4_types.structs.FrozenButMutable(mutable=arc4_encode(hex<"">, arc4.dynamic_array<arc4.uint8>))
     copy: test_cases.arc4_types.structs.FrozenButMutable = mutable.copy()
@@ -183,7 +183,7 @@ contract Arc4StringTypesContract
   
   subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program(): bool
   {
-    some_bytes_as_string: arc4.dynamic_array<arc4.uint8> = arc4_encode(reinterpret_cast<string>(hex<"48656C6C6F20576F726C6421">), arc4.dynamic_array<arc4.uint8>)
+    some_bytes_as_string: arc4.dynamic_array<arc4.uint8> = arc4_encode(hex<"48656C6C6F20576F726C6421">, arc4.dynamic_array<arc4.uint8>)
     some_bytes_as_bytes_again: bytes = reinterpret_cast<bytes>(arc4_decode(some_bytes_as_string, string))
     assert(reinterpret_cast<bytes>(some_bytes_as_string) != hex<"48656C6C6F20576F726C6421">, comment="Original bytes should not match encoded bytes")
     assert(reinterpret_cast<bytes>(some_bytes_as_string)[2:] == hex<"48656C6C6F20576F726C6421">, comment="Original bytes should match encoded if we strip the length header")
@@ -227,7 +227,7 @@ contract Arc4RefTypesContract
     sender_address: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>())
     assert(sender_address == reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>()))
     checked_address: arc4.static_array<arc4.uint8, 32> = checked_maybe((reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(SINGLE_EVAL(id=0, source=reinterpret_cast<bytes>(txn<Sender>()))), 32u == len(SINGLE_EVAL(id=0))))
-    unchecked_address: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(reinterpret_cast<bytes>(txn<Sender>()))
+    unchecked_address: arc4.static_array<arc4.uint8, 32> = reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>())
     assert(sender_address == checked_address and checked_address == unchecked_address)
     assert(global<ZeroAddress>() == Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"))
     return true
@@ -284,8 +284,8 @@ contract Arc4NumericTypesContract
     sixty_four_decimal: arc4.ufixed64x10 = 1844674407.3709551615arc4u64x10
     assert(reinterpret_cast<bytes>(sixty_four_decimal) == itob(18446744073709551615u))
     really_big_int: arc4.uint512 = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095_arc4u512
-    assert(reinterpret_cast<biguint>(really_big_int) == reinterpret_cast<biguint>(reinterpret_cast<arc4.uint512>(reinterpret_cast<bytes>(really_big_int))))
-    really_big_decimal: arc4.ufixed512x2 = reinterpret_cast<arc4.ufixed512x2>(reinterpret_cast<bytes>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n))
+    assert(reinterpret_cast<biguint>(really_big_int) == reinterpret_cast<biguint>(really_big_int))
+    really_big_decimal: arc4.ufixed512x2 = reinterpret_cast<arc4.ufixed512x2>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n)
     assert((txn<NumAppArgs>() != 0u) ? (1844674407.3709551615arc4u64x10) : (0E-10arc4u64x10) == 0E-10arc4u64x10)
     biguint: biguint = 1n
     arc4_biguint_const: arc4.uint512 = 1_arc4u512
@@ -307,8 +307,8 @@ contract Arc4NumericTypesContract
   
   subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program(): bool
   {
-    assert(reinterpret_cast<biguint>(reinterpret_cast<bytes>(0E-10arc4u64x10)) == 0n)
-    assert(reinterpret_cast<biguint>(reinterpret_cast<bytes>(0.00000arc4n512x5)) == 0n)
+    assert(reinterpret_cast<biguint>(0E-10arc4u64x10) == 0n)
+    assert(reinterpret_cast<biguint>(0.00000arc4n512x5) == 0n)
     assert(reinterpret_cast<biguint>(0_arc4u8) == reinterpret_cast<biguint>(0_arc4u8))
     assert(reinterpret_cast<biguint>(0_arc4u64) == reinterpret_cast<biguint>(0_arc4u64))
     assert(reinterpret_cast<biguint>(0_arc4u512) == reinterpret_cast<biguint>(0_arc4u512))
@@ -853,7 +853,7 @@ contract Arc4ArraysContract
       total += arc4_decode(uint32_item, uint64)
     }
     assert(total == 398u)
-    static_uint8_array: arc4.static_array<arc4.uint8, 4> = reinterpret_cast<arc4.static_array<arc4.uint8, 4>>(hex<"010203040506">)
+    static_uint8_array: arc4.static_array<arc4.uint8, 4> = hex<"010203040506">
     uint8_total: uint64 = 0u
     count: uint64 = 0u
     for uint8_item in static_uint8_array {

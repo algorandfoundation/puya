@@ -345,7 +345,7 @@ subroutine test_construction(): void
   assert(reinterpret_cast<bytes>(direct_val) == hex<"ABCD">)
   bytes_val: bytes = reinterpret_cast<bytes>(hex_val)
   assert(bytes_val == hex<"ABCD">)
-  from_bytes_val: bytes[2] = reinterpret_cast<bytes[2]>(hex<"ABCD">)
+  from_bytes_val: bytes[2] = hex<"ABCD">
   assert(reinterpret_cast<bytes>(from_bytes_val) == hex<"ABCD">)
   from_txn_sender: bytes[32] = checked_maybe((reinterpret_cast<bytes[32]>(SINGLE_EVAL(id=1, source=reinterpret_cast<bytes>(txn<Sender>()))), len(SINGLE_EVAL(id=1)) == 32u))
   assert(32u == 32u)
@@ -402,10 +402,10 @@ subroutine test_size_of(): void
 
 subroutine test_passing_fixed_bytes(): void
 {
-  assert(test_cases.fixed_bytes_ops.contract.bytes_to_bool(checked_maybe((reinterpret_cast<bytes[3]>(hex<"796179">), len(hex<"796179">) == 3u))))
+  assert(test_cases.fixed_bytes_ops.contract.bytes_to_bool(checked_maybe((hex<"796179">, len(hex<"796179">) == 3u))))
   assert(!(test_cases.fixed_bytes_ops.contract.bytes_to_bool(hex<"6E6179">)))
   assert(test_cases.fixed_bytes_ops.contract.bool_to_bytes(true) == hex<"796179">)
-  assert(test_cases.fixed_bytes_ops.contract.bool_to_bytes(false) == checked_maybe((reinterpret_cast<bytes[3]>(hex<"6E6179">), len(hex<"6E6179">) == 3u)))
+  assert(test_cases.fixed_bytes_ops.contract.bool_to_bytes(false) == checked_maybe((hex<"6E6179">, len(hex<"6E6179">) == 3u)))
   assert(len(sha256(hex<"796179">)) != 0u)
 }
 

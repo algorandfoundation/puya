@@ -68,10 +68,10 @@ contract BoxContract
   
   abimethod examples.box_storage.contract.BoxContract.check_keys(): void
   {
-    assert(reinterpret_cast<bytes>('box_a') == hex<"626F785F61">, comment="box a key ok")
-    assert(reinterpret_cast<bytes>('b') == hex<"62">, comment="box b key ok")
-    assert(reinterpret_cast<bytes>(hex<"424F585F43">) == hex<"424F585F43">, comment="box c key ok")
-    assert(reinterpret_cast<bytes>('box_large') == hex<"626F785F6C61726765">, comment="box large key ok")
+    assert('box_a' == hex<"626F785F61">, comment="box a key ok")
+    assert('b' == hex<"62">, comment="box b key ok")
+    assert(hex<"424F585F43"> == hex<"424F585F43">, comment="box c key ok")
+    assert('box_large' == hex<"626F785F6C61726765">, comment="box large key ok")
   }
   
   abimethod examples.box_storage.contract.BoxContract.create_many_ints(): void
@@ -311,7 +311,7 @@ contract BoxContract
   
   abimethod examples.box_storage.contract.BoxContract.slice_box(): void
   {
-    box_0: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('0'))
+    box_0: box_key = '0'
     Box[box_0]: bytes = hex<"54657374696E672074657374696E6720313233">
     assert(Box[box_0][0:7] == hex<"54657374696E67">)
     Box[hex<"424F585F43">]: arc4.dynamic_array<arc4.uint8> = 'Hello'
@@ -336,7 +336,7 @@ contract BoxContract
     assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
     box_ref: box_key = hex<"626C6F62">
     assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
-    box_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('blob'))
+    box_ref: box_key = 'blob'
     assert(!(STATE_EXISTS(Box[box_ref])), comment="no data")
     assert(box_create(box_ref, 32u))
     assert(STATE_EXISTS(Box[box_ref]), comment="has data")
@@ -378,7 +378,7 @@ contract BoxContract
     (value, exists): tuple<string,bool> = STATE_GET_EX(Box[MapKey(prefix='', key=key_1)])
     assert(!(exists))
     assert(STATE_EXISTS(Box[MapKey(prefix='', key=key_0)]))
-    assert(reinterpret_cast<bytes>('') == hex<"">)
+    assert('' == hex<"">)
     tmp_box_map: box_key = hex<"">
     Box[MapKey(prefix=tmp_box_map, key=key_1)]: string = 'hello'
     assert(examples.box_storage.contract.get_box_map_value_from_key_plus_1(tmp_box_map, 0u) == 'hello')
