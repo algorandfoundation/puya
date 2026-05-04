@@ -32,8 +32,8 @@ STACK_TYPE_TO_IR_TYPE: Mapping[langspec.StackType, IRType] = {
     langspec.StackType.application: PrimitiveIRType.uint64,
     # NOTE: static sized bytes are mapped separately
     langspec.StackType.bytes: PrimitiveIRType.bytes,
-    langspec.StackType.box_name: PrimitiveIRType.bytes,
-    langspec.StackType.state_key: PrimitiveIRType.bytes,
+    langspec.StackType.box_name: PrimitiveIRType.box_key,
+    langspec.StackType.state_key: PrimitiveIRType.state_key,
     langspec.StackType.address: PrimitiveIRType.account,
     langspec.StackType.any: PrimitiveIRType.any,
     langspec.StackType.address_or_index: UnionType(

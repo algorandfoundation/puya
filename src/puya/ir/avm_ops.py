@@ -283,7 +283,7 @@ class AVMOp(enum.StrEnum):
     app_global_del = AVMOpData(
         op_code="app_global_del",
         variants=Variant(
-            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[]),
+            signature=OpSignature(args=[PrimitiveIRType.state_key], returns=[]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=2,
@@ -306,7 +306,7 @@ class AVMOp(enum.StrEnum):
     app_global_get = AVMOpData(
         op_code="app_global_get",
         variants=Variant(
-            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.any]),
+            signature=OpSignature(args=[PrimitiveIRType.state_key], returns=[PrimitiveIRType.any]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=2,
@@ -326,7 +326,7 @@ class AVMOp(enum.StrEnum):
         op_code="app_global_get_ex",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.uint64, PrimitiveIRType.bytes],
+                args=[PrimitiveIRType.uint64, PrimitiveIRType.state_key],
                 returns=[PrimitiveIRType.any, PrimitiveIRType.bool],
             ),
             enum=None,
@@ -349,7 +349,9 @@ class AVMOp(enum.StrEnum):
     app_global_put = AVMOpData(
         op_code="app_global_put",
         variants=Variant(
-            signature=OpSignature(args=[PrimitiveIRType.bytes, PrimitiveIRType.any], returns=[]),
+            signature=OpSignature(
+                args=[PrimitiveIRType.state_key, PrimitiveIRType.any], returns=[]
+            ),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=2,
@@ -369,7 +371,7 @@ class AVMOp(enum.StrEnum):
             signature=OpSignature(
                 args=[
                     UnionType(types=(PrimitiveIRType.account, PrimitiveIRType.uint64)),
-                    PrimitiveIRType.bytes,
+                    PrimitiveIRType.state_key,
                 ],
                 returns=[],
             ),
@@ -398,7 +400,7 @@ class AVMOp(enum.StrEnum):
             signature=OpSignature(
                 args=[
                     UnionType(types=(PrimitiveIRType.account, PrimitiveIRType.uint64)),
-                    PrimitiveIRType.bytes,
+                    PrimitiveIRType.state_key,
                 ],
                 returns=[PrimitiveIRType.any],
             ),
@@ -425,7 +427,7 @@ class AVMOp(enum.StrEnum):
                 args=[
                     UnionType(types=(PrimitiveIRType.account, PrimitiveIRType.uint64)),
                     PrimitiveIRType.uint64,
-                    PrimitiveIRType.bytes,
+                    PrimitiveIRType.state_key,
                 ],
                 returns=[PrimitiveIRType.any, PrimitiveIRType.bool],
             ),
@@ -453,7 +455,7 @@ class AVMOp(enum.StrEnum):
             signature=OpSignature(
                 args=[
                     UnionType(types=(PrimitiveIRType.account, PrimitiveIRType.uint64)),
-                    PrimitiveIRType.bytes,
+                    PrimitiveIRType.state_key,
                     PrimitiveIRType.any,
                 ],
                 returns=[],
@@ -1214,7 +1216,7 @@ class AVMOp(enum.StrEnum):
         op_code="box_create",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64],
+                args=[PrimitiveIRType.box_key, PrimitiveIRType.uint64],
                 returns=[PrimitiveIRType.bool],
             ),
             enum=None,
@@ -1237,7 +1239,7 @@ class AVMOp(enum.StrEnum):
     box_del = AVMOpData(
         op_code="box_del",
         variants=Variant(
-            signature=OpSignature(args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bool]),
+            signature=OpSignature(args=[PrimitiveIRType.box_key], returns=[PrimitiveIRType.bool]),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=8,
@@ -1255,7 +1257,7 @@ class AVMOp(enum.StrEnum):
         op_code="box_extract",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
+                args=[PrimitiveIRType.box_key, PrimitiveIRType.uint64, PrimitiveIRType.uint64],
                 returns=[PrimitiveIRType.bytes],
             ),
             enum=None,
@@ -1276,7 +1278,8 @@ class AVMOp(enum.StrEnum):
         op_code="box_get",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.bytes], returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool]
+                args=[PrimitiveIRType.box_key],
+                returns=[PrimitiveIRType.bytes, PrimitiveIRType.bool],
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -1297,7 +1300,7 @@ class AVMOp(enum.StrEnum):
         op_code="box_len",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.bytes],
+                args=[PrimitiveIRType.box_key],
                 returns=[PrimitiveIRType.uint64, PrimitiveIRType.bool],
             ),
             enum=None,
@@ -1316,7 +1319,9 @@ class AVMOp(enum.StrEnum):
     box_put = AVMOpData(
         op_code="box_put",
         variants=Variant(
-            signature=OpSignature(args=[PrimitiveIRType.bytes, PrimitiveIRType.bytes], returns=[]),
+            signature=OpSignature(
+                args=[PrimitiveIRType.box_key, PrimitiveIRType.bytes], returns=[]
+            ),
             enum=None,
             supported_modes=RunMode.app,
             min_avm_version=8,
@@ -1337,7 +1342,7 @@ class AVMOp(enum.StrEnum):
         op_code="box_replace",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64, PrimitiveIRType.bytes],
+                args=[PrimitiveIRType.box_key, PrimitiveIRType.uint64, PrimitiveIRType.bytes],
                 returns=[],
             ),
             enum=None,
@@ -1358,7 +1363,7 @@ class AVMOp(enum.StrEnum):
         op_code="box_resize",
         variants=Variant(
             signature=OpSignature(
-                args=[PrimitiveIRType.bytes, PrimitiveIRType.uint64], returns=[]
+                args=[PrimitiveIRType.box_key, PrimitiveIRType.uint64], returns=[]
             ),
             enum=None,
             supported_modes=RunMode.app,
@@ -1380,7 +1385,7 @@ class AVMOp(enum.StrEnum):
         variants=Variant(
             signature=OpSignature(
                 args=[
-                    PrimitiveIRType.bytes,
+                    PrimitiveIRType.box_key,
                     PrimitiveIRType.uint64,
                     PrimitiveIRType.uint64,
                     PrimitiveIRType.bytes,

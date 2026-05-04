@@ -104,6 +104,8 @@ class PrimitiveIRType(IRType, enum.StrEnum):
     biguint = enum.auto()
     itxn_group_idx = enum.auto()  # the group index of the result
     itxn_field_set = enum.auto()  # a collection of fields for a pending itxn submit
+    state_key = enum.auto()
+    box_key = enum.auto()
     any = enum.auto()
 
     @property
@@ -120,6 +122,8 @@ class PrimitiveIRType(IRType, enum.StrEnum):
                 | PrimitiveIRType.bytes
                 | PrimitiveIRType.biguint
                 | PrimitiveIRType.string
+                | PrimitiveIRType.state_key
+                | PrimitiveIRType.box_key
             ):
                 return AVMType.bytes
             case PrimitiveIRType.any:
@@ -374,6 +378,10 @@ def wtype_to_ir_type(
             return PrimitiveIRType.string
         case wtypes.account_wtype:
             return PrimitiveIRType.account
+        case wtypes.box_key:
+            return PrimitiveIRType.box_key
+        case wtypes.state_key:
+            return PrimitiveIRType.state_key
         case wtypes.ReferenceArray():
             array_type = wtype_to_encoded_ir_type(wtype, source_location)
             return SlotType(array_type)
