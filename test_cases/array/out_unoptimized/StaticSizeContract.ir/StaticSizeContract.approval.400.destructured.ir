@@ -168,9 +168,7 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let tmp%9#0: uint64 = aggregate%item1%2#0
         let point.x#0: Encoded(uint64) = tmp%8#0
         let point.y#0: uint64 = tmp%9#0
-        let reinterpret_biguint%0#0: biguint = point.x#0
-        let reinterpret_biguint%1#0: biguint = last_point.x#0
-        let tmp%15#0: bool = (b< reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        let tmp%15#0: bool = (b< point.x#0 last_point.x#0)
         goto tmp%15#0 ? block@3 : block@4
     block@3: // if_body_L174
         let tmp%16#0: uint64 = (btoi last_point.x#0)
@@ -440,10 +438,9 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let tmp%29#0: Encoded(uint64,uint64) = aggregate%extract%14#0
         let aggregate%extract%16#0: bytes = (extract3 tmp%29#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%16#0
-        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
         let tmp%31#0: uint64 = (+ i#0 2u)
         let tmp%32#0: biguint = (itob tmp%31#0)
-        let tmp%33#0: bool = (b== reinterpret_biguint%0#0 tmp%32#0)
+        let tmp%33#0: bool = (b== tuple_item%0#0 tmp%32#0)
         (assert tmp%33#0)
         let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let aggregate%bytes_offset%2#0: uint64 = (* i#0 144u)
@@ -454,12 +451,11 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let tmp%39#0: Encoded(uint64,uint64) = aggregate%extract%23#0
         let aggregate%extract%25#0: bytes = (extract3 tmp%39#0 8u 8u)
         let tuple_item%1#0: Encoded(uint64) = aggregate%extract%25#0
-        let reinterpret_biguint%1#0: biguint = tuple_item%1#0
         let tmp%41#0: uint64 = (+ i#0 1u)
         let tmp%42#0: uint64 = (+ i#0 1u)
         let tmp%43#0: uint64 = (* tmp%41#0 tmp%42#0)
         let tmp%44#0: biguint = (itob tmp%43#0)
-        let tmp%45#0: bool = (b== reinterpret_biguint%1#0 tmp%44#0)
+        let tmp%45#0: bool = (b== tuple_item%1#0 tmp%44#0)
         (assert tmp%45#0)
         goto block@3
     block@3: // for_footer_L51
@@ -690,8 +686,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let aggregate%encoded_element%0#0: bytes = (extract3 slot_contents%1#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = aggregate%encoded_element%0#0
         let val#0: Encoded(uint64) = array_item%0#0
-        let reinterpret_biguint%0#0: biguint = val#0
-        let tmp%8#0: bool = (b!= reinterpret_biguint%0#0 0b)
+        let tmp%8#0: bool = (b!= val#0 0b)
         let count#3: uint64 = count#0
         goto tmp%8#0 ? block@7 : block@8
     block@7: // if_body_L107

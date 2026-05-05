@@ -98,8 +98,8 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[ro
 
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:
     block@0: // L31
-        let reinterpret_bytes[32]%0#0: bytes[32] = (txn Sender)
-        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(reinterpret_bytes[32]%0#0)
+        let tmp%0#0: account = (txn Sender)
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(tmp%0#0)
         tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32("abcdefghabcdefghabcdefghabcdefgh")
         exit 1u
 
@@ -107,14 +107,14 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray[routi
     block@0: // L41
         let a.0#0: bytes[32] = (txn Sender)
         let a.1#0: bytes[32] = (txn Sender)
-        let reinterpret_bytes[32]%2#0: bytes[32] = (txn Sender)
+        let tmp%2#0: account = (txn Sender)
         let aggregate%head%2#0: bytes = (concat a.0#0 a.1#0)
-        let aggregate%concat%0#0: Encoded(uint8[32][]) = (concat reinterpret_bytes[32]%2#0 aggregate%head%2#0) // on error: max array length exceeded
+        let aggregate%concat%0#0: Encoded(uint8[32][]) = (concat tmp%2#0 aggregate%head%2#0) // on error: max array length exceeded
         let aggregate%encoded_element%0#0: bytes = ((extract 0 32) aggregate%concat%0#0) // on error: index access is out of bounds
         let bitAnd#0: bytes[32] = (b& a.0#0 aggregate%encoded_element%0#0)
-        let reinterpret_bytes[32]%3#0: bytes[32] = (txn Sender)
-        let tmp%4#0: bool = (== bitAnd#0 reinterpret_bytes[32]%3#0)
-        (assert tmp%4#0)
+        let tmp%7#0: account = (txn Sender)
+        let tmp%8#0: bool = (== bitAnd#0 tmp%7#0)
+        (assert tmp%8#0)
         exit 1u
 
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes[32]) -> bytes[32]:

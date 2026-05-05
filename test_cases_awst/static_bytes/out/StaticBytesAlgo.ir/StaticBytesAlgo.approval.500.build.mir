@@ -229,9 +229,9 @@ subroutine returnLength:
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:
 subroutine test:
     test_block@0:
-        txn Sender                                                               reinterpret_bytes[32]%0#0
-        v-store reinterpret_bytes[32]%0#0
-        v-load reinterpret_bytes[32]%0#0                                         reinterpret_bytes[32]%0#0
+        txn Sender                                                               tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                           tmp%0#0
         callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32 {tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32}
         pop 1
         byte "abcdefghabcdefghabcdefghabcdefgh"                                  "abcdefghabcdefghabcdefghabcdefgh"
@@ -248,14 +248,14 @@ subroutine testArray:
         v-store a.0#0
         txn Sender                                                               a.1#0
         v-store a.1#0
-        txn Sender                                                               reinterpret_bytes[32]%2#0
-        v-store reinterpret_bytes[32]%2#0
+        txn Sender                                                               tmp%2#0
+        v-store tmp%2#0
         v-load a.0#0                                                             a.0#0
         v-load a.1#0                                                             a.0#0,a.1#0
         concat                                                                   aggregate%head%2#0
         v-store aggregate%head%2#0
-        v-load reinterpret_bytes[32]%2#0                                         reinterpret_bytes[32]%2#0
-        v-load aggregate%head%2#0                                                reinterpret_bytes[32]%2#0,aggregate%head%2#0
+        v-load tmp%2#0                                                           tmp%2#0
+        v-load aggregate%head%2#0                                                tmp%2#0,aggregate%head%2#0
         concat // on error: max array length exceeded                            aggregate%concat%0#0
         v-store aggregate%concat%0#0
         v-load aggregate%concat%0#0                                              aggregate%concat%0#0
@@ -265,13 +265,13 @@ subroutine testArray:
         v-load aggregate%encoded_element%0#0                                     a.0#0,aggregate%encoded_element%0#0
         b&                                                                       bitAnd#0
         v-store bitAnd#0
-        txn Sender                                                               reinterpret_bytes[32]%3#0
-        v-store reinterpret_bytes[32]%3#0
+        txn Sender                                                               tmp%7#0
+        v-store tmp%7#0
         v-load bitAnd#0                                                          bitAnd#0
-        v-load reinterpret_bytes[32]%3#0                                         bitAnd#0,reinterpret_bytes[32]%3#0
-        ==                                                                       tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                                           tmp%4#0
+        v-load tmp%7#0                                                           bitAnd#0,tmp%7#0
+        ==                                                                       tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%8#0                                                           tmp%8#0
         assert
         int 1                                                                    1
         return

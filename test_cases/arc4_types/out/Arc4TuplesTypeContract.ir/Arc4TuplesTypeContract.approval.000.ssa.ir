@@ -4,8 +4,7 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("world")
         let tmp%2#0: Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8) = bytes_encode<(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8)>(0x01, 0x02, tmp%0#0, tmp%1#0, 0xff)
         let my_tuple#0: Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8) = tmp%2#0
-        let reinterpret_Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8)%0#0: Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8) = 0x01020007000eff000568656c6c6f0005776f726c64
-        let tmp%3#0: bool = (== my_tuple#0 reinterpret_Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8)%0#0)
+        let tmp%3#0: bool = (== my_tuple#0 0x01020007000eff000568656c6c6f0005776f726c64)
         (assert tmp%3#0)
         let tmp%4#0: Encoded(bool8) = bytes_encode<bool8>(1u)
         let tmp%5#0: Encoded(bool8) = bytes_encode<bool8>(0u)
@@ -33,9 +32,7 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let j#0: Encoded(bool8) = tmp%24#0
         let k#0: Encoded(uint8) = tmp%25#0
         let tuple_item%0#0: Encoded(uint8) = extract_value(boolean_packing#0, 10)
-        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
-        let reinterpret_biguint%1#0: biguint = k#0
-        let tmp%26#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        let tmp%26#0: bool = (b== tuple_item%0#0 k#0)
         (assert tmp%26#0)
         let tmp%27#0: uint64 = decode_bytes<uint64>(a#0)
         let tmp%28#0: bool = (== tmp%27#0 4u)
@@ -515,14 +512,10 @@ subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_t
         let d#0: Encoded(len+utf8[]) = tmp%3#0
         let e#0: Encoded(uint8) = tmp%4#0
         let tuple_item%0#0: Encoded(uint8) = extract_value(test_tuple#0, 0)
-        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
-        let reinterpret_biguint%1#0: biguint = a#0
-        let tmp%5#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        let tmp%5#0: bool = (b== tuple_item%0#0 a#0)
         (assert tmp%5#0)
         let tuple_item%1#0: Encoded(uint8) = extract_value(test_tuple#0, -1)
-        let reinterpret_biguint%2#0: biguint = tuple_item%1#0
-        let reinterpret_biguint%3#0: biguint = e#0
-        let tmp%6#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        let tmp%6#0: bool = (b== tuple_item%1#0 e#0)
         (assert tmp%6#0)
         let tuple_item%2#0: Encoded(len+utf8[]) = extract_value(test_tuple#0, -2)
         let tmp%7#0: bool = (== tuple_item%2#0 d#0)

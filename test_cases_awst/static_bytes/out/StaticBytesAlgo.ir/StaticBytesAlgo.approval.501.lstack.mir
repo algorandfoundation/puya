@@ -188,8 +188,8 @@ subroutine returnLength:
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:
 subroutine test:
     test_block@0:
-        txn Sender                                                               reinterpret_bytes[32]%0#0
-        l-load reinterpret_bytes[32]%0#0 0                                       reinterpret_bytes[32]%0#0
+        txn Sender                                                               tmp%0#0
+        l-load tmp%0#0 0                                                         tmp%0#0
         callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32 {tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32}
         pop 1
         byte "abcdefghabcdefghabcdefghabcdefgh"                                  "abcdefghabcdefghabcdefghabcdefgh"
@@ -204,23 +204,23 @@ subroutine testArray:
     testArray_block@0:
         txn Sender                                                               a.0#0
         txn Sender                                                               a.0#0,a.1#0
-        txn Sender                                                               a.0#0,a.1#0,reinterpret_bytes[32]%2#0
-        l-load-copy a.0#0 2                                                      a.0#0,a.1#0,reinterpret_bytes[32]%2#0,a.0#0 (copy)
-        l-load a.1#0 2                                                           a.0#0,reinterpret_bytes[32]%2#0,a.0#0 (copy),a.1#0
-        concat                                                                   a.0#0,reinterpret_bytes[32]%2#0,aggregate%head%2#0
-        l-load reinterpret_bytes[32]%2#0 1                                       a.0#0,aggregate%head%2#0,reinterpret_bytes[32]%2#0
-        l-load aggregate%head%2#0 1                                              a.0#0,reinterpret_bytes[32]%2#0,aggregate%head%2#0
+        txn Sender                                                               a.0#0,a.1#0,tmp%2#0
+        l-load-copy a.0#0 2                                                      a.0#0,a.1#0,tmp%2#0,a.0#0 (copy)
+        l-load a.1#0 2                                                           a.0#0,tmp%2#0,a.0#0 (copy),a.1#0
+        concat                                                                   a.0#0,tmp%2#0,aggregate%head%2#0
+        l-load tmp%2#0 1                                                         a.0#0,aggregate%head%2#0,tmp%2#0
+        l-load aggregate%head%2#0 1                                              a.0#0,tmp%2#0,aggregate%head%2#0
         concat // on error: max array length exceeded                            a.0#0,aggregate%concat%0#0
         l-load aggregate%concat%0#0 0                                            a.0#0,aggregate%concat%0#0
         extract 0 32 // on error: index access is out of bounds                  a.0#0,aggregate%encoded_element%0#0
         l-load a.0#0 1                                                           aggregate%encoded_element%0#0,a.0#0
         l-load aggregate%encoded_element%0#0 1                                   a.0#0,aggregate%encoded_element%0#0
         b&                                                                       bitAnd#0
-        txn Sender                                                               bitAnd#0,reinterpret_bytes[32]%3#0
-        l-load bitAnd#0 1                                                        reinterpret_bytes[32]%3#0,bitAnd#0
-        l-load reinterpret_bytes[32]%3#0 1                                       bitAnd#0,reinterpret_bytes[32]%3#0
-        ==                                                                       tmp%4#0
-        l-load tmp%4#0 0                                                         tmp%4#0
+        txn Sender                                                               bitAnd#0,tmp%7#0
+        l-load bitAnd#0 1                                                        tmp%7#0,bitAnd#0
+        l-load tmp%7#0 1                                                         bitAnd#0,tmp%7#0
+        ==                                                                       tmp%8#0
+        l-load tmp%8#0 0                                                         tmp%8#0
         assert
         int 1                                                                    1
         return

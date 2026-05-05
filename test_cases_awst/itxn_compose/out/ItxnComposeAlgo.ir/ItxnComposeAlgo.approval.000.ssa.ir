@@ -141,31 +141,30 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         let tmp%1#0: account = (global CurrentApplicationAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // assert target is match for conditions
-        let reinterpret_bool%0#0: bool = array_len(addresses#0)
-        (assert reinterpret_bool%0#0) // must provide some accounts
-        let tmp%3#0: uint64 = ((gtxns Amount) funds#0)
-        let tmp%4#0: uint64 = array_len(addresses#0)
-        let tmp%5#0: uint64 = (/ tmp%3#0 tmp%4#0)
-        let share#0: uint64 = tmp%5#0
+        let tmp%3#0: uint64 = array_len(addresses#0)
+        (assert tmp%3#0) // must provide some accounts
+        let tmp%4#0: uint64 = ((gtxns Amount) funds#0)
+        let tmp%5#0: uint64 = array_len(addresses#0)
+        let tmp%6#0: uint64 = (/ tmp%4#0 tmp%5#0)
+        let share#0: uint64 = tmp%6#0
         let array_item%0#0: Encoded(uint8[32]) = extract_value(addresses#0, 0u)
-        let tmp%6#0: Encoded(uint64,uint64,(len+uint8[])) = bytes_encode<(uint64,uint64,(len+uint8[]))>(1u, share#0, array_item%0#0)
-        let payFields#0: Encoded(uint64,uint64,(len+uint8[])) = tmp%6#0
+        let tmp%7#0: Encoded(uint64,uint64,(len+uint8[])) = bytes_encode<(uint64,uint64,(len+uint8[]))>(1u, share#0, array_item%0#0)
+        let payFields#0: Encoded(uint64,uint64,(len+uint8[])) = tmp%7#0
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
         let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let tuple_item%0#0: Encoded(uint64) = extract_value(payFields#0, 0)
-        let tmp%7#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = tmp%7#0
+        let tmp%8#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = tmp%8#0
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
         let tuple_item%1#0: Encoded(uint64) = extract_value(payFields#0, 1)
-        let tmp%8#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
-        let inner_txn_params%0%%param_Amount_idx_0#0: uint64 = tmp%8#0
+        let tmp%9#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
+        let inner_txn_params%0%%param_Amount_idx_0#0: uint64 = tmp%9#0
         let inner_txn_params%0%%Amount_length#0: uint64 = 1u
         let tuple_item%2#0: Encoded(len+uint8[]) = extract_value(payFields#0, 2)
-        let tmp%9#0: bytes = decode_bytes<bytes>(tuple_item%2#0)
-        let reinterpret_account%0#0: account = tmp%9#0
-        let inner_txn_params%0%%param_Receiver_idx_0#0: account = reinterpret_account%0#0
+        let tmp%10#0: bytes = decode_bytes<bytes>(tuple_item%2#0)
+        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes = tmp%10#0
         let inner_txn_params%0%%Receiver_length#0: uint64 = 1u
         let inner_txn_params%0%%Sender_length#0: uint64 = 0u
         let inner_txn_params%0%%Note_length#0: uint64 = 0u
@@ -219,13 +218,13 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         ((itxn_field Amount) inner_txn_params%0%%param_Amount_idx_0#0)
         ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
-        let tmp%10#0: uint64 = array_len(addresses#0)
+        let tmp%11#0: uint64 = array_len(addresses#0)
         (assert 1u) // Step cannot be zero
         let value_internal%0#0: uint64 = 1u
         goto block@1
     block@1: // for_header_L32
         let value_internal%0#1: uint64 = φ(value_internal%0#0 <- block@0, value_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%10#0)
+        let continue_looping%0#0: bool = (< value_internal%0#1 tmp%11#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L32
         let temp#0: uint64 = value_internal%0#1
@@ -237,15 +236,14 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         let inner_txn_params%1%%param_Fee_idx_0#0: uint64 = 0u
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let tuple_item%3#0: Encoded(uint64) = extract_value(payFields#0, 0)
-        let tmp%11#0: uint64 = decode_bytes<uint64>(tuple_item%3#0)
-        let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = tmp%11#0
+        let tmp%12#0: uint64 = decode_bytes<uint64>(tuple_item%3#0)
+        let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = tmp%12#0
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
         let tuple_item%4#0: Encoded(uint64) = extract_value(payFields#0, 1)
-        let tmp%12#0: uint64 = decode_bytes<uint64>(tuple_item%4#0)
-        let inner_txn_params%1%%param_Amount_idx_0#0: uint64 = tmp%12#0
+        let tmp%13#0: uint64 = decode_bytes<uint64>(tuple_item%4#0)
+        let inner_txn_params%1%%param_Amount_idx_0#0: uint64 = tmp%13#0
         let inner_txn_params%1%%Amount_length#0: uint64 = 1u
-        let reinterpret_account%1#0: account = addr#0
-        let inner_txn_params%1%%param_Receiver_idx_0#0: account = reinterpret_account%1#0
+        let inner_txn_params%1%%param_Receiver_idx_0#0: Encoded(uint8[32]) = addr#0
         let inner_txn_params%1%%Receiver_length#0: uint64 = 1u
         let inner_txn_params%1%%Sender_length#0: uint64 = 0u
         let inner_txn_params%1%%Note_length#0: uint64 = 0u

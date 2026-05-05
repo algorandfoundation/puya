@@ -93,17 +93,17 @@ subroutine my_dyn_struct_arc4:
         // arc4.UInt64(value), arc4.Address(Txn.sender), arc4.DynamicBytes(Txn.sender.bytes)
         p-load value#0                                                                               (𝕡) value#0 | value#0 (copy)
         itob                                                                                         (𝕡) value#0 | aggregate%val_as_bytes%0#0
-        txn Sender                                                                                   (𝕡) value#0 | aggregate%val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0
-        txn Sender                                                                                   (𝕡) value#0 | aggregate%val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,tmp%1#0
-        byte 0x0020                                                                                  (𝕡) value#0 | aggregate%val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,tmp%1#0,0x0020
-        l-load tmp%1#0 1                                                                             (𝕡) value#0 | aggregate%val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,0x0020,tmp%1#0
-        concat                                                                                       (𝕡) value#0 | aggregate%val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0,aggregate%encoded_value%0#0
+        txn Sender                                                                                   (𝕡) value#0 | aggregate%val_as_bytes%0#0,tmp%1#0
+        txn Sender                                                                                   (𝕡) value#0 | aggregate%val_as_bytes%0#0,tmp%1#0,tmp%2#0
+        byte 0x0020                                                                                  (𝕡) value#0 | aggregate%val_as_bytes%0#0,tmp%1#0,tmp%2#0,0x0020
+        l-load tmp%2#0 1                                                                             (𝕡) value#0 | aggregate%val_as_bytes%0#0,tmp%1#0,0x0020,tmp%2#0
+        concat                                                                                       (𝕡) value#0 | aggregate%val_as_bytes%0#0,tmp%1#0,aggregate%encoded_value%0#0
         // arc4_conversions/contract.py:225-227
         // return MyDynStructARC4(
         //     arc4.UInt64(value), arc4.Address(Txn.sender), arc4.DynamicBytes(Txn.sender.bytes)
         // )
-        l-load aggregate%val_as_bytes%0#0 2                                                          (𝕡) value#0 | reinterpret_Encoded(uint8[32])%0#0,aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0
-        l-load reinterpret_Encoded(uint8[32])%0#0 2                                                  (𝕡) value#0 | aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0,reinterpret_Encoded(uint8[32])%0#0
+        l-load aggregate%val_as_bytes%0#0 2                                                          (𝕡) value#0 | tmp%1#0,aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0
+        l-load tmp%1#0 2                                                                             (𝕡) value#0 | aggregate%encoded_value%0#0,aggregate%val_as_bytes%0#0,tmp%1#0
         concat                                                                                       (𝕡) value#0 | aggregate%encoded_value%0#0,aggregate%head%1#0
         byte 0x002a                                                                                  (𝕡) value#0 | aggregate%encoded_value%0#0,aggregate%head%1#0,0x002a
         concat                                                                                       (𝕡) value#0 | aggregate%encoded_value%0#0,aggregate%head%2#0

@@ -105,15 +105,13 @@ subroutine examples.voting.voting.itoa(i: uint64) -> string:
         goto tmp%1#0 ? block@1 : block@2
     block@1: // if_body_L254
         let extract%0#0: bytes = (extract3 digits#0 i#0 1u)
-        let reinterpret_string%0#0: string = extract%0#0
-        return reinterpret_string%0#0
+        return extract%0#0
     block@2: // after_if_else_L253
         let tmp%2#0: uint64 = (/ i#0 radix#0)
         let tmp%3#0: string = examples.voting.voting.itoa(tmp%2#0)
         let tmp%4#0: uint64 = (% i#0 radix#0)
         let extract%1#0: bytes = (extract3 digits#0 tmp%4#0 1u)
-        let reinterpret_string%1#0: string = extract%1#0
-        let tmp%5#0: bytes = (concat tmp%3#0 reinterpret_string%1#0)
+        let tmp%5#0: bytes = (concat tmp%3#0 extract%1#0)
         return tmp%5#0
 
 subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
@@ -383,9 +381,7 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         goto block@4
     block@4: // after_if_else_L133
         let note#3: string = φ(note#1 <- block@2, note#2 <- block@3)
-        let reinterpret_biguint%0#0: biguint = question_options#0
-        let reinterpret_biguint%1#0: biguint = 0x00
-        let tmp%16#0: bool = (b> reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        let tmp%16#0: bool = (b> question_options#0 0x00)
         goto tmp%16#0 ? block@5 : block@12
     block@5: // if_body_L136
         let tmp%17#0: bytes = (concat note#3 "[")

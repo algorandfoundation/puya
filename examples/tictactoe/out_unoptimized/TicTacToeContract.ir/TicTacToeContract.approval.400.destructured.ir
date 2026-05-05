@@ -120,15 +120,15 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
     block@4: // after_if_else_L22
         let tmp%2#0: account = (txn Sender)
         (app_global_put "host" tmp%2#0)
-        let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
-        (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
+        let tmp%3#0: bytes = (bzero 9u)
+        (app_global_put "game" tmp%3#0)
         let column#0: uint64 = move.0#0
         let row#0: uint64 = move.1#0
-        let tmp%3#0: bool = (< column#0 3u)
-        goto tmp%3#0 ? block@5 : block@7
+        let tmp%4#0: bool = (< column#0 3u)
+        goto tmp%4#0 ? block@5 : block@7
     block@5: // and_contd_L33
-        let tmp%4#0: bool = (< row#0 3u)
-        goto tmp%4#0 ? block@6 : block@7
+        let tmp%5#0: bool = (< row#0 3u)
+        goto tmp%5#0 ? block@6 : block@7
     block@6: // bool_true_L33
         let and_result%0#0: bool = 1u
         goto block@8
@@ -224,8 +224,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let aggregate%bytes_offset%1#0: uint64 = (* column#0 1u)
         let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%encoded_element%0#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint8) = aggregate%encoded_element%1#0
-        let reinterpret_biguint%0#0: biguint = array_item%1#0
-        let tmp%2#0: bool = (b== reinterpret_biguint%0#0 0x00)
+        let tmp%2#0: bool = (b== array_item%1#0 0x00)
         (assert tmp%2#0) // Square is already taken
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%1#0) // check self.game exists
@@ -269,24 +268,20 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: Encode
         let aggregate%bytes_offset%1#0: uint64 = (* 0u 1u)
         let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%encoded_element%0#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint8) = aggregate%encoded_element%1#0
-        let reinterpret_biguint%0#0: biguint = array_item%1#0
         let aggregate%bytes_offset%2#0: uint64 = (* row#0 3u)
         let aggregate%encoded_element%2#0: bytes = (extract3 g#0 aggregate%bytes_offset%2#0 3u) // on error: index access is out of bounds
         let aggregate%bytes_offset%3#0: uint64 = (* 1u 1u)
         let aggregate%encoded_element%3#0: bytes = (extract3 aggregate%encoded_element%2#0 aggregate%bytes_offset%3#0 1u) // on error: index access is out of bounds
         let array_item%3#0: Encoded(uint8) = aggregate%encoded_element%3#0
-        let reinterpret_biguint%1#0: biguint = array_item%3#0
-        let tmp%0#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        let tmp%0#0: bool = (b== array_item%1#0 array_item%3#0)
         goto tmp%0#0 ? block@1 : block@3
     block@1: // and_contd_L76
-        let reinterpret_biguint%2#0: biguint = array_item%3#0
         let aggregate%bytes_offset%4#0: uint64 = (* row#0 3u)
         let aggregate%encoded_element%4#0: bytes = (extract3 g#0 aggregate%bytes_offset%4#0 3u) // on error: index access is out of bounds
         let aggregate%bytes_offset%5#0: uint64 = (* 2u 1u)
         let aggregate%encoded_element%5#0: bytes = (extract3 aggregate%encoded_element%4#0 aggregate%bytes_offset%5#0 1u) // on error: index access is out of bounds
         let array_item%5#0: Encoded(uint8) = aggregate%encoded_element%5#0
-        let reinterpret_biguint%3#0: biguint = array_item%5#0
-        let tmp%1#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        let tmp%1#0: bool = (b== array_item%3#0 array_item%5#0)
         goto tmp%1#0 ? block@2 : block@3
     block@2: // if_body_L77
         return 1u
@@ -296,36 +291,30 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: Encode
         let aggregate%bytes_offset%7#0: uint64 = (* column#0 1u)
         let aggregate%encoded_element%7#0: bytes = (extract3 aggregate%encoded_element%6#0 aggregate%bytes_offset%7#0 1u) // on error: index access is out of bounds
         let array_item%7#0: Encoded(uint8) = aggregate%encoded_element%7#0
-        let reinterpret_biguint%4#0: biguint = array_item%7#0
         let aggregate%bytes_offset%8#0: uint64 = (* 1u 3u)
         let aggregate%encoded_element%8#0: bytes = (extract3 g#0 aggregate%bytes_offset%8#0 3u) // on error: index access is out of bounds
         let aggregate%bytes_offset%9#0: uint64 = (* column#0 1u)
         let aggregate%encoded_element%9#0: bytes = (extract3 aggregate%encoded_element%8#0 aggregate%bytes_offset%9#0 1u) // on error: index access is out of bounds
         let array_item%9#0: Encoded(uint8) = aggregate%encoded_element%9#0
-        let reinterpret_biguint%5#0: biguint = array_item%9#0
-        let tmp%2#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
+        let tmp%2#0: bool = (b== array_item%7#0 array_item%9#0)
         goto tmp%2#0 ? block@4 : block@6
     block@4: // and_contd_L79
-        let reinterpret_biguint%6#0: biguint = array_item%9#0
         let aggregate%bytes_offset%10#0: uint64 = (* 2u 3u)
         let aggregate%encoded_element%10#0: bytes = (extract3 g#0 aggregate%bytes_offset%10#0 3u) // on error: index access is out of bounds
         let aggregate%bytes_offset%11#0: uint64 = (* column#0 1u)
         let aggregate%encoded_element%11#0: bytes = (extract3 aggregate%encoded_element%10#0 aggregate%bytes_offset%11#0 1u) // on error: index access is out of bounds
         let array_item%11#0: Encoded(uint8) = aggregate%encoded_element%11#0
-        let reinterpret_biguint%7#0: biguint = array_item%11#0
-        let tmp%3#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
+        let tmp%3#0: bool = (b== array_item%9#0 array_item%11#0)
         goto tmp%3#0 ? block@5 : block@6
     block@5: // if_body_L80
         return 1u
     block@6: // after_if_else_L79
-        let reinterpret_biguint%8#0: biguint = player#0
         let aggregate%bytes_offset%12#0: uint64 = (* 1u 3u)
         let aggregate%encoded_element%12#0: bytes = (extract3 g#0 aggregate%bytes_offset%12#0 3u) // on error: index access is out of bounds
         let aggregate%bytes_offset%13#0: uint64 = (* 1u 1u)
         let aggregate%encoded_element%13#0: bytes = (extract3 aggregate%encoded_element%12#0 aggregate%bytes_offset%13#0 1u) // on error: index access is out of bounds
         let array_item%13#0: Encoded(uint8) = aggregate%encoded_element%13#0
-        let reinterpret_biguint%9#0: biguint = array_item%13#0
-        let tmp%4#0: bool = (b== reinterpret_biguint%8#0 reinterpret_biguint%9#0)
+        let tmp%4#0: bool = (b== player#0 array_item%13#0)
         goto tmp%4#0 ? block@7 : block@14
     block@7: // if_body_L84
         let aggregate%bytes_offset%14#0: uint64 = (* 0u 3u)
@@ -333,19 +322,15 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: Encode
         let aggregate%bytes_offset%15#0: uint64 = (* 0u 1u)
         let aggregate%encoded_element%15#0: bytes = (extract3 aggregate%encoded_element%14#0 aggregate%bytes_offset%15#0 1u) // on error: index access is out of bounds
         let array_item%15#0: Encoded(uint8) = aggregate%encoded_element%15#0
-        let reinterpret_biguint%10#0: biguint = array_item%15#0
-        let reinterpret_biguint%11#0: biguint = player#0
-        let tmp%5#0: bool = (b== reinterpret_biguint%10#0 reinterpret_biguint%11#0)
+        let tmp%5#0: bool = (b== array_item%15#0 player#0)
         goto tmp%5#0 ? block@8 : block@10
     block@8: // and_contd_L84
-        let reinterpret_biguint%12#0: biguint = player#0
         let aggregate%bytes_offset%16#0: uint64 = (* 2u 3u)
         let aggregate%encoded_element%16#0: bytes = (extract3 g#0 aggregate%bytes_offset%16#0 3u) // on error: index access is out of bounds
         let aggregate%bytes_offset%17#0: uint64 = (* 2u 1u)
         let aggregate%encoded_element%17#0: bytes = (extract3 aggregate%encoded_element%16#0 aggregate%bytes_offset%17#0 1u) // on error: index access is out of bounds
         let array_item%17#0: Encoded(uint8) = aggregate%encoded_element%17#0
-        let reinterpret_biguint%13#0: biguint = array_item%17#0
-        let tmp%6#0: bool = (b== reinterpret_biguint%12#0 reinterpret_biguint%13#0)
+        let tmp%6#0: bool = (b== player#0 array_item%17#0)
         goto tmp%6#0 ? block@9 : block@10
     block@9: // if_body_L85
         return 1u
@@ -355,19 +340,15 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: Encode
         let aggregate%bytes_offset%19#0: uint64 = (* 2u 1u)
         let aggregate%encoded_element%19#0: bytes = (extract3 aggregate%encoded_element%18#0 aggregate%bytes_offset%19#0 1u) // on error: index access is out of bounds
         let array_item%19#0: Encoded(uint8) = aggregate%encoded_element%19#0
-        let reinterpret_biguint%14#0: biguint = array_item%19#0
-        let reinterpret_biguint%15#0: biguint = player#0
-        let tmp%7#0: bool = (b== reinterpret_biguint%14#0 reinterpret_biguint%15#0)
+        let tmp%7#0: bool = (b== array_item%19#0 player#0)
         goto tmp%7#0 ? block@11 : block@13
     block@11: // and_contd_L86
-        let reinterpret_biguint%16#0: biguint = player#0
         let aggregate%bytes_offset%20#0: uint64 = (* 2u 3u)
         let aggregate%encoded_element%20#0: bytes = (extract3 g#0 aggregate%bytes_offset%20#0 3u) // on error: index access is out of bounds
         let aggregate%bytes_offset%21#0: uint64 = (* 0u 1u)
         let aggregate%encoded_element%21#0: bytes = (extract3 aggregate%encoded_element%20#0 aggregate%bytes_offset%21#0 1u) // on error: index access is out of bounds
         let array_item%21#0: Encoded(uint8) = aggregate%encoded_element%21#0
-        let reinterpret_biguint%17#0: biguint = array_item%21#0
-        let tmp%8#0: bool = (b== reinterpret_biguint%16#0 reinterpret_biguint%17#0)
+        let tmp%8#0: bool = (b== player#0 array_item%21#0)
         goto tmp%8#0 ? block@12 : block@13
     block@12: // if_body_L87
         return 1u
