@@ -1021,19 +1021,7 @@ class FunctionIRBuilder(
                 f" {inner_avm_type} and {outer_avm_type}, respectively",
                 expr.source_location,
             )
-        target = mktemp(
-            self.context,
-            outer_ir_type,
-            description=f"reinterpret_{outer_ir_type.name}",
-            source_location=expr.source_location,
-        )
-        assign_targets(
-            self.context,
-            source=source,
-            targets=[target],
-            assignment_location=expr.source_location,
-        )
-        return target
+        return source
 
     def visit_block(self, block: awst_nodes.Block) -> TStatement:
         # When traversing, blocks can appear nested arbitrarily, so start
