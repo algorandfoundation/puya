@@ -321,7 +321,10 @@ class FixedBytes(typing.Generic[_TBytesLength], _BytesConvertible, _BytesBase, _
     """A statically-sized byte sequence, where the length is known at compile time.
 
     Example:
-        FixedBytes[typing.Literal[32]]  # A 32-byte fixed-size bytes value
+
+    ```python
+    FixedBytes[typing.Literal[32]]  # A 32-byte fixed-size bytes value
+    ```
     """
 
     __match_value__: bytes

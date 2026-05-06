@@ -618,6 +618,7 @@ _ERR_FUNCTION_STUB = '''
 def err(message: typing.LiteralString | None = None, /) -> typing.Never:
     """
     Fail immediately.
+
     :returns typing.Never: Halts program
 
     Native TEAL opcode: [`err`](https://dev.algorand.co/reference/algorand-teal/opcodes/#err)
@@ -650,13 +651,20 @@ def _render_method_stub(method: Method, prefix: str = "") -> str:
         args.append("/")  # TODO: remove once we support kwargs
     signature = f"{prefix}def {method.name}({', '.join(args)}) -> {returns}:"
     doc = list(method.doc)
-    doc.extend(f":param {a.python_type} {a.name}: {a.doc}" for a in method.stub_args if a.doc)
+    fields: list[str] = []
+    fields.extend(f":param {a.python_type} {a.name}: {a.doc}" for a in method.stub_args if a.doc)
     if method.return_docs:
-        if doc:
-            doc.append(f":returns {returns}: {method.return_docs[0]}")
-            doc.extend(method.return_docs[1:])
+        if fields or doc:
+            fields.append(f":returns {returns}: {method.return_docs[0]}")
+            fields.extend(method.return_docs[1:])
         else:
             doc = list(method.return_docs)
+    if fields:
+        # Blank line separates prose from the reST field list so MyST/Sphinx
+        # recognises it (otherwise the markers render as raw ":param:" text).
+        if doc:
+            doc.append("")
+        doc.extend(fields)
     teal_refs = ", ".join(_algorand_doc(op) for op in _op_codes_for_doc_links(method.op_code))
     doc.extend(("", f"Native TEAL opcode: {teal_refs}"))
     body_lines = ['"""', *doc, '"""'] if doc else ["..."]

@@ -768,8 +768,7 @@ def emit(event: str | Struct | algopy.Struct, /, *args: object) -> None:
         * If event is a signature, then the following args will be typed checked to ensure they match.
         * If event is just a name, the event signature will be inferred from the name and following arguments
 
-    :param args: When event is a signature or name, args will be used as the event data.
-    They will all be encoded as single ARC-4 Tuple
+    :param args: When event is a signature or name, args will be used as the event data. They will all be encoded as single ARC-4 Tuple
 
     Example:
     ```

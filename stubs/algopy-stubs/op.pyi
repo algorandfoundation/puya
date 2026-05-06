@@ -106,6 +106,7 @@ def base64_decode(e: Base64, a: BytesBacked | bytes, /) -> Bytes:
     *Warning*: Usage should be restricted to very rare use cases. In almost all cases, smart contracts should directly handle non-encoded byte-strings.	This opcode should only be used in cases where base64 is the only available option, e.g. interoperability with a third-party that only signs base64 strings.
 
      Decodes A using the base64 encoding E. Specify the encoding with an immediate arg either as URL and Filename Safe (`URLEncoding`) or Standard (`StdEncoding`). See [RFC 4648 sections 4 and 5](https://rfc-editor.org/rfc/rfc4648.html#section-4). It is assumed that the encoding ends with the exact number of `=` padding characters as required by the RFC. When padding occurs, any unused pad bits in the encoding must be set to zero or the decoding will fail. The special cases of `\\n` and `\\r` are allowed but completely ignored. An error will result when attempting to decode a string with a character that is not in the encoding alphabet or not one of `=`, `\\r`, or `\\n`.
+
     :param Base64 e: encoding index
 
     Native TEAL opcode: [`base64_decode`](https://dev.algorand.co/reference/algorand-teal/opcodes/#base64_decode)
@@ -171,6 +172,7 @@ def ecdsa_pk_decompress(v: ECDSA, a: BytesBacked | bytes, /) -> tuple[Bytes, Byt
     """
     decompress pubkey A into components X, Y
     The 33 byte public key in a compressed form to be decompressed into X and Y (top) components. All values are big-endian encoded.
+
     :param ECDSA v: curve index
 
     Native TEAL opcode: [`ecdsa_pk_decompress`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ecdsa_pk_decompress)
@@ -187,6 +189,7 @@ def ecdsa_pk_recover(
     """
     for (data A, recovery id B, signature C, D) recover a public key
     S (top) and R elements of a signature, recovery id and data (bottom) are expected on the stack and used to deriver a public key. All values are big-endian encoded. The signed data must be 32 bytes long.
+
     :param ECDSA v: curve index
 
     Native TEAL opcode: [`ecdsa_pk_recover`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ecdsa_pk_recover)
@@ -204,6 +207,7 @@ def ecdsa_verify(
     """
     for (data A, signature B, C and pubkey D, E) verify the signature of the data against the pubkey => {0 or 1}
     The 32 byte Y-component of a public key is the last element on the stack, preceded by X-component of a pubkey, preceded by S and R components of a signature, preceded by the data that is fifth element on the stack. All values are big-endian encoded. The signed data must be 32 bytes long, and signatures in lower-S form are only accepted.
+
     :param ECDSA v: curve index
 
     Native TEAL opcode: [`ecdsa_verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ecdsa_verify)
@@ -231,6 +235,7 @@ def ed25519verify_bare(
 def err(message: typing.LiteralString | None = None, /) -> typing.Never:
     """
     Fail immediately.
+
     :returns typing.Never: Halts program
 
     Native TEAL opcode: [`err`](https://dev.algorand.co/reference/algorand-teal/opcodes/#err)
@@ -239,6 +244,7 @@ def err(message: typing.LiteralString | None = None, /) -> typing.Never:
 def exit(a: UInt64 | int, /) -> typing.Never:
     """
     use A as success value; end
+
     :returns typing.Never: Halts program
 
     Native TEAL opcode: [`return`](https://dev.algorand.co/reference/algorand-teal/opcodes/#return)
@@ -355,6 +361,7 @@ def mimc(c: MiMCConfigurations, a: BytesBacked | bytes, /) -> Bytes:
 
     The MiMC hash function has known collisions since any input which is a multiple of the elliptic curve modulus will hash to the same value. MiMC is thus not a general purpose hash function, but meant to be used in zero knowledge applications to match a zk-circuit implementation.
     Min AVM version: 11
+
     :param MiMCConfigurations c: configuration index
 
     Native TEAL opcode: [`mimc`](https://dev.algorand.co/reference/algorand-teal/opcodes/#mimc)
@@ -493,6 +500,7 @@ def vrf_verify(
     """
     Verify the proof B of message A against pubkey C. Returns vrf output and verification flag.
     `VrfAlgorand` is the VRF used in Algorand. It is ECVRF-ED25519-SHA512-Elligator2, specified in the IETF internet draft [draft-irtf-cfrg-vrf-03](https://datatracker.ietf.org/doc/draft-irtf-cfrg-vrf/03/).
+
     :param VrfVerify s:  parameters index
 
     Native TEAL opcode: [`vrf_verify`](https://dev.algorand.co/reference/algorand-teal/opcodes/#vrf_verify)
@@ -603,6 +611,7 @@ class AcctParamsGet:
     def acct_incentive_eligible(a: Account | UInt64 | int, /) -> tuple[bool, bool]:
         """
         Min AVM version: 11
+
         :returns tuple[bool, bool]: Has this account opted into block payouts
 
         Native TEAL opcode: [`acct_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#acct_params_get)
@@ -612,6 +621,7 @@ class AcctParamsGet:
     def acct_last_proposed(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Min AVM version: 11
+
         :returns tuple[UInt64, bool]: The round number of the last block this account proposed.
 
         Native TEAL opcode: [`acct_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#acct_params_get)
@@ -621,6 +631,7 @@ class AcctParamsGet:
     def acct_last_heartbeat(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Min AVM version: 11
+
         :returns tuple[UInt64, bool]: The round number of the last block this account sent a heartbeat.
 
         Native TEAL opcode: [`acct_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#acct_params_get)
@@ -838,6 +849,7 @@ class AppParamsGet:
     def app_version(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Min AVM version: 12
+
         :returns tuple[UInt64, bool]: Version of the app, incremented each time the approval or clear program changes
 
         Native TEAL opcode: [`app_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#app_params_get)
@@ -1152,6 +1164,7 @@ class EllipticCurve:
         Fails if A or B is not in G.
         A and/or B are allowed to be the point at infinity.
         Does _not_ check if A and B are in the main prime-order subgroup.
+
         :param EC g: curve index
 
         Native TEAL opcode: [`ec_add`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_add)
@@ -1163,6 +1176,7 @@ class EllipticCurve:
         maps field element A to group G
         BN254 points are mapped by the SVDW map. BLS12-381 points are mapped by the SSWU map.
         G1 element inputs are base field elements and G2 element inputs are quadratic field elements, with nearly the same encoding rules (for field elements) as defined in `ec_add`. There is one difference of encoding rule: G1 element inputs do not need to be 0-padded if they fit in less than 32 bytes for BN254 and less than 48 bytes for BLS12-381. (As usual, the empty byte array represents 0.) G2 elements inputs need to be always have the required size.
+
         :param EC g: curve index
 
         Native TEAL opcode: [`ec_map_to`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_map_to)
@@ -1174,6 +1188,7 @@ class EllipticCurve:
         for curve points A and scalars B, return curve point B0A0 + B1A1 + B2A2 + ... + BnAn
         A is a list of concatenated points, encoded and checked as described in `ec_add`. B is a list of concatenated scalars which, unlike ec_scalar_mul, must all be exactly 32 bytes long.
         The name `ec_multi_scalar_mul` was chosen to reflect common usage, but a more consistent name would be `ec_multi_scalar_mul`. AVM values are limited to 4096 bytes, so `ec_multi_scalar_mul` is limited by the size of the points in the group being operated upon.
+
         :param EC g: curve index
 
         Native TEAL opcode: [`ec_multi_scalar_mul`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_multi_scalar_mul)
@@ -1184,6 +1199,7 @@ class EllipticCurve:
         """
         1 if the product of the pairing of each point in A with its respective point in B is equal to the identity element of the target group Gt, else 0
         A and B are concatenated points, encoded and checked as described in `ec_add`. A contains points of the group G, B contains points of the associated group (G2 if G is G1, and vice versa). Fails if A and B have a different number of points, or if any point is not in its described group or outside the main prime-order subgroup - a stronger condition than other opcodes. AVM values are limited to 4096 bytes, so `ec_pairing_check` is limited by the size of the points in the groups being operated upon.
+
         :param EC g: curve index
 
         Native TEAL opcode: [`ec_pairing_check`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_pairing_check)
@@ -1194,6 +1210,7 @@ class EllipticCurve:
         """
         for curve point A and scalar B, return the curve point BA, the point A multiplied by the scalar B.
         A is a curve point encoded and checked as described in `ec_add`. Scalar B is interpreted as a big-endian unsigned integer. Fails if B exceeds 32 bytes.
+
         :param EC g: curve index
 
         Native TEAL opcode: [`ec_scalar_mul`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_scalar_mul)
@@ -1203,6 +1220,7 @@ class EllipticCurve:
     def subgroup_check(g: EC, a: BytesBacked | bytes, /) -> bool:
         """
         1 if A is in the main prime-order subgroup of G (including the point at infinity) else 0. Program fails if A is not in G at all.
+
         :param EC g: curve index
 
         Native TEAL opcode: [`ec_subgroup_check`](https://dev.algorand.co/reference/algorand-teal/opcodes/#ec_subgroup_check)
@@ -1829,6 +1847,7 @@ class GITxn:
     def reject_version(t: int, /) -> UInt64:
         """
         Min AVM version: 12
+
         :param int t: transaction group index
         :returns UInt64: Application version for which the txn must reject
 
@@ -2388,6 +2407,7 @@ class GTxn:
     def reject_version(a: UInt64 | int, /) -> UInt64:
         """
         Min AVM version: 12
+
         :returns UInt64: Application version for which the txn must reject
 
         Native TEAL opcode: [`gtxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxn), [`gtxns`](https://dev.algorand.co/reference/algorand-teal/opcodes/#gtxns)
@@ -3075,6 +3095,7 @@ class ITxn:
     def reject_version() -> UInt64:
         """
         Min AVM version: 12
+
         :returns UInt64: Application version for which the txn must reject
 
         Native TEAL opcode: [`itxn`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn)
@@ -3524,6 +3545,7 @@ class ITxnCreate:
     def set_reject_version(a: UInt64 | int, /) -> None:
         """
         Min AVM version: 12
+
         :param UInt64 | int a: Application version for which the txn must reject
 
         Native TEAL opcode: [`itxn_field`](https://dev.algorand.co/reference/algorand-teal/opcodes/#itxn_field)
@@ -3966,6 +3988,7 @@ class VoterParamsGet:
     def voter_balance(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Min AVM version: 11
+
         :returns tuple[UInt64, bool]: Online stake in microalgos
 
         Native TEAL opcode: [`voter_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#voter_params_get)
@@ -3975,6 +3998,7 @@ class VoterParamsGet:
     def voter_incentive_eligible(a: Account | UInt64 | int, /) -> tuple[bool, bool]:
         """
         Min AVM version: 11
+
         :returns tuple[bool, bool]: Had this account opted into block payouts
 
         Native TEAL opcode: [`voter_params_get`](https://dev.algorand.co/reference/algorand-teal/opcodes/#voter_params_get)

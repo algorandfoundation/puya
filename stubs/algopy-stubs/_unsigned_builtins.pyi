@@ -35,7 +35,10 @@ class uenumerate(Reversible[tuple[UInt64, _T]]):  # noqa: N801
     """Yields pairs containing a count (from zero) and a value yielded by the iterable argument.
 
     enumerate is useful for obtaining an indexed list:
-        (0, seq[0]), (1, seq[1]), (2, seq[2]), ...
+
+    ```
+    (0, seq[0]), (1, seq[1]), (2, seq[2]), ...
+    ```
 
     enumerate((a, b, c)) produces (0, a), (1, b), (2, c)
     """
