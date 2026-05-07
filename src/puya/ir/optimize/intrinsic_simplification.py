@@ -1486,6 +1486,64 @@ def _try_simplify_bytes_unary_op(
     return None
 
 
+def fold_uint64_const_op(op: AVMOp, a_const: int, b_const: int) -> int | None:
+    match op:
+        case AVMOp.add:
+            c = a_const + b_const
+        case AVMOp.sub:
+            c = a_const - b_const
+        case AVMOp.mul:
+            c = a_const * b_const
+        case AVMOp.div_floor:
+            if b_const == 0:
+                return None
+            c = a_const // b_const
+        case AVMOp.mod:
+            if b_const == 0:
+                return None
+            c = a_const % b_const
+        case AVMOp.lt:
+            c = 1 if a_const < b_const else 0
+        case AVMOp.lte:
+            c = 1 if a_const <= b_const else 0
+        case AVMOp.gt:
+            c = 1 if a_const > b_const else 0
+        case AVMOp.gte:
+            c = 1 if a_const >= b_const else 0
+        case AVMOp.eq:
+            c = 1 if a_const == b_const else 0
+        case AVMOp.neq:
+            c = 1 if a_const != b_const else 0
+        case AVMOp.and_:
+            c = 1 if (a_const and b_const) else 0
+        case AVMOp.or_:
+            c = 1 if (a_const or b_const) else 0
+        case AVMOp.shl:
+            if b_const >= 64:
+                return None
+            c = (a_const << b_const) % (2**64)
+        case AVMOp.shr:
+            if b_const >= 64:
+                return None
+            c = a_const >> b_const
+        case AVMOp.exp:
+            if a_const == 0 and b_const == 0:
+                return None
+            c = a_const**b_const
+        case AVMOp.bitwise_or:
+            c = a_const | b_const
+        case AVMOp.bitwise_and:
+            c = a_const & b_const
+        case AVMOp.bitwise_xor:
+            c = a_const ^ b_const
+        case _:
+            logger.debug(f"don't know how to simplify {a_const} {op.code} {b_const}")
+            return None
+    if not _valid_uint64(c):
+        return None
+    return c
+
+
 def _try_simplify_uint64_binary_op(
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
@@ -1495,12 +1553,13 @@ def _try_simplify_uint64_binary_op(
     bool_context: bool = False,
 ) -> models.Value | models.Intrinsic | None:
     op = intrinsic.op
+    a_const = _get_int_constant(a)
+    b_const = _get_int_constant(b)
     c: models.Value | int | None = None
+    if a_const is not None and b_const is not None:
+        c = fold_uint64_const_op(op, a_const, b_const)
 
-    if c is None:
-        a_const = _get_int_constant(a)
-        b_const = _get_int_constant(b)
-
+    else:  # noqa: PLR5501
         # a >= 0 <-> 1
         if b_const == 0 and op == AVMOp.gte:  # noqa: SIM114
             c = 1
@@ -1539,77 +1598,20 @@ def _try_simplify_uint64_binary_op(
             (b_const == 0 and op in (AVMOp.neq, AVMOp.gt)) or (b_const == 1 and op == AVMOp.gte)
         ):
             c = a
-        elif a_const is not None and b_const is not None:
-            match op:
-                case AVMOp.add:
-                    c = a_const + b_const
-                case AVMOp.sub:
-                    c = a_const - b_const
-                case AVMOp.mul:
-                    c = a_const * b_const
-                case AVMOp.div_floor:
-                    if b_const == 0:
-                        return None
-                    c = a_const // b_const
-                case AVMOp.mod:
-                    if b_const == 0:
-                        return None
-                    c = a_const % b_const
-                case AVMOp.lt:
-                    c = 1 if a_const < b_const else 0
-                case AVMOp.lte:
-                    c = 1 if a_const <= b_const else 0
-                case AVMOp.gt:
-                    c = 1 if a_const > b_const else 0
-                case AVMOp.gte:
-                    c = 1 if a_const >= b_const else 0
-                case AVMOp.eq:
-                    c = 1 if a_const == b_const else 0
-                case AVMOp.neq:
-                    c = 1 if a_const != b_const else 0
-                case AVMOp.and_:
-                    c = 1 if (a_const and b_const) else 0
-                case AVMOp.or_:
-                    c = 1 if (a_const or b_const) else 0
-                case AVMOp.shl:
-                    if b_const >= 64:
-                        return None
-                    c = (a_const << b_const) % (2**64)
-                case AVMOp.shr:
-                    if b_const >= 64:
-                        return None
-                    c = a_const >> b_const
-                case AVMOp.exp:
-                    if a_const == 0 and b_const == 0:
-                        return None  # would fail at runtime, lets hope this is unreachable 😬
-                    c = a_const**b_const
-                case AVMOp.bitwise_or:
-                    c = a_const | b_const
-                case AVMOp.bitwise_and:
-                    c = a_const & b_const
-                case AVMOp.bitwise_xor:
-                    c = a_const ^ b_const
-                case _:
-                    logger.debug(
-                        f"don't know how to simplify {a_const} {intrinsic.op.code} {b_const}"
-                    )
         # 0 == b <-> !b
         elif a_const == 0 and op == AVMOp.eq:
             return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
         # a == 0 <-> !a
         elif b_const == 0 and op == AVMOp.eq:
             return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
-    if c is None and op in (AVMOp.and_, AVMOp.or_):
-        new_a = _try_simplify_bool_condition(register_assignments, a) or a
-        new_b = _try_simplify_bool_condition(register_assignments, b) or b
-        if new_a is not a or new_b is not b:
-            return attrs.evolve(intrinsic, args=[new_a, new_b])
-    if not isinstance(c, int):
-        return c
-    if _valid_uint64(c):
-        # Only fold if it would result in a valid uint64
+        elif op in (AVMOp.and_, AVMOp.or_):
+            new_a = _try_simplify_bool_condition(register_assignments, a) or a
+            new_b = _try_simplify_bool_condition(register_assignments, b) or b
+            if new_a is not a or new_b is not b:
+                return attrs.evolve(intrinsic, args=[new_a, new_b])
+    if isinstance(c, int):
         return models.UInt64Constant(value=c, source_location=intrinsic.source_location)
-    return None
+    return c
 
 
 def _try_simplify_bytes_binary_op(
