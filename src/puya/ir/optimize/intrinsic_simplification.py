@@ -1497,19 +1497,6 @@ def _try_simplify_uint64_binary_op(
     op = intrinsic.op
     c: models.Value | int | None = None
 
-    if a == b:
-        match op:
-            case AVMOp.sub:
-                c = 0
-            case AVMOp.eq | AVMOp.lte | AVMOp.gte:
-                c = 1
-            case AVMOp.neq | AVMOp.lt | AVMOp.gt:
-                c = 0
-            case AVMOp.bitwise_xor:
-                c = 0
-            case AVMOp.bitwise_and | AVMOp.bitwise_or:
-                c = a
-            # AVMOp.div_floor: 1, but need to guard against division by zero
     if c is None:
         a_const = _get_int_constant(a)
         b_const = _get_int_constant(b)
@@ -1635,19 +1622,6 @@ def _try_simplify_bytes_binary_op(
     op_loc = intrinsic.source_location
     c: models.Value | int | None = None
 
-    if a == b:
-        match op:
-            case AVMOp.sub_bytes:
-                c = 0
-            case AVMOp.eq_bytes | AVMOp.eq | AVMOp.lte_bytes | AVMOp.gte_bytes:
-                c = 1
-            case AVMOp.neq_bytes | AVMOp.neq | AVMOp.lt_bytes | AVMOp.gt_bytes:
-                c = 0
-            case AVMOp.bitwise_and_bytes | AVMOp.bitwise_or_bytes:
-                c = a
-            # AVMOp.div_floor_bytes: "\x01", but need to guard against division by zero
-            # AVMOp.bitwise_xor_bytes: zero-filled array of same length, so can
-            # only do for constants, which is handled below
     if c is None:
         a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
         b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
