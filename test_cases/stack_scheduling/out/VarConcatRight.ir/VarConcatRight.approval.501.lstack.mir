@@ -1,0 +1,29 @@
+// Op                                      Stack (out)
+// test_cases.stack_scheduling.contract.VarConcatRight.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:41
+        // x = Txn.application_args(0)
+        txna ApplicationArgs 0             x#0
+        // stack_scheduling/contract.py:42
+        // a = Txn.application_args(1)
+        txna ApplicationArgs 1             x#0,a#0
+        // stack_scheduling/contract.py:43
+        // b = Txn.application_args(2)
+        txna ApplicationArgs 2             x#0,a#0,b#0
+        // stack_scheduling/contract.py:44
+        // log((a + b) + x)
+        l-load a#0 1                       x#0,b#0,a#0
+        l-load b#0 1                       x#0,a#0,b#0
+        concat                             x#0,tmp%3#0
+        l-load tmp%3#0 0                   x#0,tmp%3#0
+        l-load x#0 1                       tmp%3#0,x#0
+        concat                             tmp%4#0
+        l-load tmp%4#0 0                   tmp%4#0
+        log
+        // stack_scheduling/contract.py:45
+        // return True
+        int 1                              1
+        return
+
+

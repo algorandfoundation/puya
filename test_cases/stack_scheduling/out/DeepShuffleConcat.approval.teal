@@ -1,0 +1,35 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.DeepShuffleConcat.approval_program() -> uint64:
+main:
+    // stack_scheduling/contract.py:77
+    // c = Txn.application_args(2)
+    txna ApplicationArgs 2
+    // stack_scheduling/contract.py:78
+    // d = Txn.application_args(3)
+    txna ApplicationArgs 3
+    // stack_scheduling/contract.py:75
+    // a = Txn.application_args(0)
+    txna ApplicationArgs 0
+    // stack_scheduling/contract.py:76
+    // b = Txn.application_args(1)
+    txna ApplicationArgs 1
+    // stack_scheduling/contract.py:80
+    // log(prefix + (a + b) + (c + d))
+    concat
+    // stack_scheduling/contract.py:79
+    // prefix = Bytes(b"prefix:")
+    pushbytes 0x7072656669783a
+    // stack_scheduling/contract.py:80
+    // log(prefix + (a + b) + (c + d))
+    swap
+    concat
+    cover 2
+    concat
+    concat
+    log
+    // stack_scheduling/contract.py:81
+    // return True
+    pushint 1
+    return

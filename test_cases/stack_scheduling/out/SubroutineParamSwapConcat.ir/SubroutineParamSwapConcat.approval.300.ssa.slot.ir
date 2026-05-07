@@ -1,0 +1,17 @@
+main test_cases.stack_scheduling.contract.SubroutineParamSwapConcat.approval_program:
+    block@0: // L138
+        let a#0: bytes = (txna ApplicationArgs 0)
+        let b#0: bytes = (txna ApplicationArgs 1)
+        let tmp%0#1: uint64 = (txn NumAppArgs)
+        let tmp%1#1: bool = (> tmp%0#1 2u)
+        goto tmp%1#1 ? block@2 : block@3
+    block@2: // if_body_L155
+        let b#1: bytes = (txna ApplicationArgs 2)
+        goto block@3
+    block@3: // after_if_else_L154
+        let a#2: bytes = φ(a#0 <- block@0, b#0 <- block@2)
+        let b#2: bytes = φ(b#0 <- block@0, b#1 <- block@2)
+        let tmp%3#0: bytes = (concat a#2 b#2)
+        let tmp%4#0: bytes = (concat tmp%3#0 a#2)
+        (log tmp%4#0)
+        return 1u

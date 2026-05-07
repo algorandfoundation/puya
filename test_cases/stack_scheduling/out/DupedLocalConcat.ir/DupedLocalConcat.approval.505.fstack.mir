@@ -1,0 +1,26 @@
+// Op                                      Stack (out)
+// test_cases.stack_scheduling.contract.DupedLocalConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:89
+        // x = Txn.application_args(0)
+        txna ApplicationArgs 0             x#0
+        // stack_scheduling/contract.py:90
+        // y = Txn.application_args(1)
+        txna ApplicationArgs 1             x#0,y#0
+        // stack_scheduling/contract.py:91
+        // log(x + y + x + y)
+        l-load-copy x#0 1                  x#0,y#0,x#0 (copy)
+        l-load-copy y#0 1                  x#0,y#0,x#0 (copy),y#0 (copy)
+        concat                             x#0,y#0,tmp%2#0
+        l-load x#0 2                       y#0,tmp%2#0,x#0
+        concat                             y#0,tmp%3#0
+        l-load y#0 1                       tmp%3#0,y#0
+        concat                             tmp%4#0
+        log
+        // stack_scheduling/contract.py:92
+        // return True
+        int 1                              1
+        return
+
+

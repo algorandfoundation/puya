@@ -1,0 +1,43 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.FrameSlotMutationConcat.approval_program() -> uint64:
+main:
+    b main_block@0
+
+main_block@0:
+    // stack_scheduling/contract.py:53
+    // log(_chain(Txn.application_args(0), Txn.application_args(1)))
+    pushint 0
+    txnas ApplicationArgs
+    pushint 1
+    txnas ApplicationArgs
+    callsub _chain
+    log
+    // stack_scheduling/contract.py:54
+    // return True
+    pushint 1
+    return
+
+
+// test_cases.stack_scheduling.contract._chain(a: bytes, b: bytes) -> bytes:
+_chain:
+    // stack_scheduling/contract.py:146-147
+    // @subroutine
+    // def _chain(a: Bytes, b: Bytes) -> Bytes:
+    proto 2 1
+    b _chain_block@0
+
+_chain_block@0:
+    // stack_scheduling/contract.py:148
+    // a = a + b
+    frame_dig -2
+    frame_dig -1
+    concat
+    frame_bury -2
+    // stack_scheduling/contract.py:149
+    // return b + a
+    frame_dig -1
+    frame_dig -2
+    concat
+    retsub

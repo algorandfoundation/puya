@@ -1,0 +1,30 @@
+// Op                                                   Stack (out)
+// test_cases.stack_scheduling.contract.ScratchLoadShuffleConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:114
+        // op.Scratch.store(0, Txn.application_args(0))
+        txna ApplicationArgs 0                          tmp%0#0
+        l-load tmp%0#0 0                                tmp%0#0
+        store 0
+        // stack_scheduling/contract.py:115
+        // b = op.itob(Txn.num_app_args)
+        txn NumAppArgs                                  tmp%1#0
+        l-load tmp%1#0 0                                tmp%1#0
+        itob                                            b#0
+        // stack_scheduling/contract.py:116
+        // a = op.Scratch.load_bytes(0)
+        load 0                                          b#0,a#0
+        // stack_scheduling/contract.py:117
+        // log(a + b)
+        l-load a#0 0                                    b#0,a#0
+        l-load b#0 1                                    a#0,b#0
+        concat                                          tmp%4#0
+        l-load tmp%4#0 0                                tmp%4#0
+        log
+        // stack_scheduling/contract.py:118
+        // return True
+        int 1                                           1
+        return
+
+

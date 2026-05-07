@@ -1,0 +1,45 @@
+// Op                                                                              Stack (out)
+// test_cases.stack_scheduling.contract.SubroutineParamSwapConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:139
+        // log(_swap_and_concat(Txn.application_args(0), Txn.application_args(1)))
+        txna ApplicationArgs 0                                                     a#0
+        f-store a#0                                                                (𝕗) a#0 |
+        txna ApplicationArgs 1                                                     (𝕗) a#0 | b#0
+        x-store b#0                                                                (𝕗) a#0 | (𝕏) b#0 |
+        // stack_scheduling/contract.py:154
+        // if Txn.num_app_args > 2:
+        txn NumAppArgs                                                             (𝕗) a#0 | (𝕏) b#0 | tmp%0#1
+        int 2                                                                      (𝕗) a#0 | (𝕏) b#0 | tmp%0#1,2
+        >                                                                          (𝕗) a#0 | (𝕏) b#0 | tmp%1#1
+        bz main_after_if_else@3 ; b main_if_body@2                                 (𝕗) a#0 | (𝕏) b#0 |
+
+    main_if_body@2:                                                                (𝕗) a#0 | (𝕏) b#0 |
+        // stack_scheduling/contract.py:156
+        // b = Txn.application_args(2)
+        txna ApplicationArgs 2                                                     (𝕗) a#0 | (𝕏) b#0 | b#1
+        x-load b#0                                                                 (𝕗) a#0 | b#1,a#0
+        f-store a#0                                                                (𝕗) a#0 | b#1
+        l-load b#1 0                                                               (𝕗) a#0 | b#0
+        x-store b#0                                                                (𝕗) a#0 | (𝕏) b#0 |
+        b main_after_if_else@3                                                     (𝕗) a#0 | (𝕏) b#0 |
+
+    main_after_if_else@3:                                                          (𝕗) a#0 | (𝕏) b#0 |
+        // stack_scheduling/contract.py:157
+        // return a + b + a
+        f-load a#0                                                                 (𝕗) a#0 | (𝕏) b#0 | a#0
+        l-store-copy a#0 0                                                         (𝕗) a#0 | (𝕏) b#0 | a#0,a#0 (copy)
+        x-load b#0                                                                 (𝕗) a#0 | a#0,a#0 (copy),b#0
+        concat                                                                     (𝕗) a#0 | a#0,tmp%3#0
+        l-load a#0 1                                                               (𝕗) a#0 | tmp%3#0,a#0
+        concat                                                                     (𝕗) a#0 | tmp%4#0
+        // stack_scheduling/contract.py:139
+        // log(_swap_and_concat(Txn.application_args(0), Txn.application_args(1)))
+        log                                                                        (𝕗) a#0 |
+        // stack_scheduling/contract.py:140
+        // return True
+        int 1                                                                      (𝕗) a#0 | 1
+        return                                                                     (𝕗) a#0 |
+
+

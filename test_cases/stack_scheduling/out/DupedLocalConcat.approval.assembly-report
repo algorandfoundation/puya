@@ -1,0 +1,19 @@
+| PC | TEAL Bytes | TEAL                       | Source                      | Location                                                                            |
+|--: | :----------| :--------------------------| :---------------------------| :-----------------------------------------------------------------------------------|
+|  0 | 0b         | #pragma version 11         |                             |                                                                                     |
+|    | # main     | main:                      |                             | test_cases.stack_scheduling.contract.DupedLocalConcat.approval_program() -> uint64: |
+|    |            |                            | x = Txn.application_args(0) | stack_scheduling/contract.py:89                                                     |
+|  1 | 36 1a 00   |     txna ApplicationArgs 0 |     ----------------------- | stack_scheduling/contract.py:89:12-35                                               |
+|    |            |                            | y = Txn.application_args(1) | stack_scheduling/contract.py:90                                                     |
+|  4 | 36 1a 01   |     txna ApplicationArgs 1 |     ----------------------- | stack_scheduling/contract.py:90:12-35                                               |
+|    |            |                            | log(x + y + x + y)          | stack_scheduling/contract.py:91                                                     |
+|  7 | 4a         |     dup2                   |     -----                   | stack_scheduling/contract.py:91:12-17                                               |
+|  8 | 50         |     concat                 |     -----                   | stack_scheduling/contract.py:91:12-17                                               |
+|  9 | 4f 02      |     uncover 2              |     ---------               | stack_scheduling/contract.py:91:12-21                                               |
+| 11 | 50         |     concat                 |     ---------               | stack_scheduling/contract.py:91:12-21                                               |
+| 12 | 4c         |     swap                   |     -------------           | stack_scheduling/contract.py:91:12-25                                               |
+| 13 | 50         |     concat                 |     -------------           | stack_scheduling/contract.py:91:12-25                                               |
+| 14 | b0         |     log                    | ------------------          | stack_scheduling/contract.py:91:8-26                                                |
+|    |            |                            | return True                 | stack_scheduling/contract.py:92                                                     |
+| 15 | 81 01      |     pushint 1              |        ----                 | stack_scheduling/contract.py:92:15-19                                               |
+| 17 | 43         |     return                 | -----------                 | stack_scheduling/contract.py:92:8-19                                                |

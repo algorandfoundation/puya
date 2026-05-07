@@ -1,0 +1,40 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.ScratchLoadBarrierConcat.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    b main_block@0
+
+main_block@0:
+    // stack_scheduling/contract.py:126
+    // op.Scratch.store(0, Txn.application_args(0))
+    intc_0 // 0
+    txnas ApplicationArgs
+    intc_0 // 0
+    uncover 1
+    stores
+    // stack_scheduling/contract.py:127
+    // b = op.itob(Txn.num_app_args)
+    txn NumAppArgs
+    itob
+    // stack_scheduling/contract.py:128
+    // op.Scratch.store(0, Txn.application_args(1))
+    intc_1 // 1
+    txnas ApplicationArgs
+    intc_0 // 0
+    uncover 1
+    stores
+    // stack_scheduling/contract.py:129
+    // a = op.Scratch.load_bytes(0)
+    intc_0 // 0
+    loads
+    // stack_scheduling/contract.py:130
+    // log(a + b)
+    uncover 1
+    concat
+    log
+    // stack_scheduling/contract.py:131
+    // return True
+    intc_1 // 1
+    return

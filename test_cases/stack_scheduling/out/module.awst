@@ -1,0 +1,320 @@
+contract OpPrefixConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.OpPrefixConcat.approval_program(): bool
+  {
+    a: uint64 = txn<NumAppArgs>()
+    b: bytes = txnas<ApplicationArgs>(0u)
+    c: bytes = itob(a) + b
+    log(c)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.OpPrefixConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ConstPrefixConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.ConstPrefixConcat.approval_program(): bool
+  {
+    prefix: bytes = hex<"6C6F673A">
+    value: bytes = itob(txn<NumAppArgs>())
+    log(prefix + value)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.ConstPrefixConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract LocalVarConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.LocalVarConcat.approval_program(): bool
+  {
+    x: bytes = txnas<ApplicationArgs>(0u)
+    a: bytes = txnas<ApplicationArgs>(1u)
+    b: bytes = txnas<ApplicationArgs>(2u)
+    log(x + a + b)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.LocalVarConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract VarConcatRight
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.VarConcatRight.approval_program(): bool
+  {
+    x: bytes = txnas<ApplicationArgs>(0u)
+    a: bytes = txnas<ApplicationArgs>(1u)
+    b: bytes = txnas<ApplicationArgs>(2u)
+    log(a + b + x)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.VarConcatRight.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract FrameSlotMutationConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.FrameSlotMutationConcat.approval_program(): bool
+  {
+    log(test_cases.stack_scheduling.contract._chain(txnas<ApplicationArgs>(0u), txnas<ApplicationArgs>(1u)))
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.FrameSlotMutationConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract FrameMutateInLoopConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.FrameMutateInLoopConcat.approval_program(): bool
+  {
+    result: bytes = hex<"">
+    sep: bytes = hex<"2C">
+    for i in range(0u, txn<NumAppArgs>(), 1u) {
+      result: bytes = result + sep + txnas<ApplicationArgs>(i)
+    }
+    log(result)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.FrameMutateInLoopConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract DeepShuffleConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.DeepShuffleConcat.approval_program(): bool
+  {
+    a: bytes = txnas<ApplicationArgs>(0u)
+    b: bytes = txnas<ApplicationArgs>(1u)
+    c: bytes = txnas<ApplicationArgs>(2u)
+    d: bytes = txnas<ApplicationArgs>(3u)
+    prefix: bytes = hex<"7072656669783A">
+    log(prefix + a + b + c + d)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.DeepShuffleConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract DupedLocalConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.DupedLocalConcat.approval_program(): bool
+  {
+    x: bytes = txnas<ApplicationArgs>(0u)
+    y: bytes = txnas<ApplicationArgs>(1u)
+    log(x + y + x + y)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.DupedLocalConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract IntLocalShuffleConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.IntLocalShuffleConcat.approval_program(): bool
+  {
+    n: uint64 = txn<NumAppArgs>()
+    a: bytes = txnas<ApplicationArgs>(0u)
+    b: bytes = txnas<ApplicationArgs>(1u)
+    log(itob(n) + a + b)
+    if (n > 1u) {
+      log(itob(n + 1u) + b + a)
+    }
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.IntLocalShuffleConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ScratchLoadShuffleConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  reserved_scratch_space {
+    0
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.ScratchLoadShuffleConcat.approval_program(): bool
+  {
+    stores(0u, txnas<ApplicationArgs>(0u))
+    b: bytes = itob(txn<NumAppArgs>())
+    a: bytes = loads(0u)
+    log(a + b)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.ScratchLoadShuffleConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract ScratchLoadBarrierConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  reserved_scratch_space {
+    0
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.ScratchLoadBarrierConcat.approval_program(): bool
+  {
+    stores(0u, txnas<ApplicationArgs>(0u))
+    b: bytes = itob(txn<NumAppArgs>())
+    stores(0u, txnas<ApplicationArgs>(1u))
+    a: bytes = loads(0u)
+    log(a + b)
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.ScratchLoadBarrierConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract SubroutineParamSwapConcat
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.stack_scheduling.contract.SubroutineParamSwapConcat.approval_program(): bool
+  {
+    log(test_cases.stack_scheduling.contract._swap_and_concat(txnas<ApplicationArgs>(0u), txnas<ApplicationArgs>(1u)))
+    return true
+  }
+  
+  subroutine test_cases.stack_scheduling.contract.SubroutineParamSwapConcat.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine _chain(a: bytes, b: bytes): bytes
+{
+  a: bytes = a + b
+  return b + a
+}
+
+subroutine _swap_and_concat(a: bytes, b: bytes): bytes
+{
+  if (txn<NumAppArgs>() > 2u) {
+    a: bytes = b
+    b: bytes = txnas<ApplicationArgs>(2u)
+  }
+  return a + b + a
+}

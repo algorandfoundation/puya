@@ -1,0 +1,23 @@
+| PC | TEAL Bytes     | TEAL                      | Source                      | Location                                                                          |
+|--: | :--------------| :-------------------------| :---------------------------| :---------------------------------------------------------------------------------|
+|  0 | 0b             | #pragma version 11        |                             |                                                                                   |
+|    | # main         | main:                     |                             | test_cases.stack_scheduling.contract.VarConcatRight.approval_program() -> uint64: |
+|  1 | 42 00 00       |     b main_block@0        |                             |                                                                                   |
+|    | # main_block@0 | main_block@0:             |                             |                                                                                   |
+|    |                |                           | x = Txn.application_args(0) | stack_scheduling/contract.py:41                                                   |
+|  4 | 81 00          |     pushint 0             |                          -  | stack_scheduling/contract.py:41:33-34                                             |
+|  6 | c0 1a          |     txnas ApplicationArgs |     ----------------------- | stack_scheduling/contract.py:41:12-35                                             |
+|    |                |                           | a = Txn.application_args(1) | stack_scheduling/contract.py:42                                                   |
+|  8 | 81 01          |     pushint 1             |                          -  | stack_scheduling/contract.py:42:33-34                                             |
+| 10 | c0 1a          |     txnas ApplicationArgs |     ----------------------- | stack_scheduling/contract.py:42:12-35                                             |
+|    |                |                           | b = Txn.application_args(2) | stack_scheduling/contract.py:43                                                   |
+| 12 | 81 02          |     pushint 2             |                          -  | stack_scheduling/contract.py:43:33-34                                             |
+| 14 | c0 1a          |     txnas ApplicationArgs |     ----------------------- | stack_scheduling/contract.py:43:12-35                                             |
+|    |                |                           | log((a + b) + x)            | stack_scheduling/contract.py:44                                                   |
+| 16 | 50             |     concat                |      -----                  | stack_scheduling/contract.py:44:13-18                                             |
+| 17 | 4f 01          |     uncover 1             |     -----------             | stack_scheduling/contract.py:44:12-23                                             |
+| 19 | 50             |     concat                |     -----------             | stack_scheduling/contract.py:44:12-23                                             |
+| 20 | b0             |     log                   | ----------------            | stack_scheduling/contract.py:44:8-24                                              |
+|    |                |                           | return True                 | stack_scheduling/contract.py:45                                                   |
+| 21 | 81 01          |     pushint 1             |        ----                 | stack_scheduling/contract.py:45:15-19                                             |
+| 23 | 43             |     return                | -----------                 | stack_scheduling/contract.py:45:8-19                                              |

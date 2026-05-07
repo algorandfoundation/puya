@@ -1,0 +1,49 @@
+| PC | TEAL Bytes             | TEAL                        | Source                      | Location                                                                                 |
+|--: | :----------------------| :---------------------------| :---------------------------| :----------------------------------------------------------------------------------------|
+|  0 | 0b                     | #pragma version 11          |                             |                                                                                          |
+|    | # main                 | main:                       |                             | test_cases.stack_scheduling.contract.IntLocalShuffleConcat.approval_program() -> uint64: |
+|  1 | 20 01 01               |     intcblock 1             |                             |                                                                                          |
+|  4 | 42 00 00               |     b main_block@0          |                             |                                                                                          |
+|    | # main_block@0         | main_block@0:               |                             |                                                                                          |
+|    |                        |                             | n = Txn.num_app_args        | stack_scheduling/contract.py:100                                                         |
+|  7 | 31 1b                  |     txn NumAppArgs          |     ----------------        | stack_scheduling/contract.py:100:12-28                                                   |
+|  9 | 49                     |     dup                     | --------------------        | stack_scheduling/contract.py:100:8-28                                                    |
+|    |                        |                             | a = Txn.application_args(0) | stack_scheduling/contract.py:101                                                         |
+| 10 | 81 00                  |     pushint 0               |                          -  | stack_scheduling/contract.py:101:33-34                                                   |
+| 12 | c0 1a                  |     txnas ApplicationArgs   |     ----------------------- | stack_scheduling/contract.py:101:12-35                                                   |
+| 14 | 49                     |     dup                     | --------------------------- | stack_scheduling/contract.py:101:8-35                                                    |
+| 15 | 4e 02                  |     cover 2                 | --------------------------- | stack_scheduling/contract.py:101:8-35                                                    |
+|    |                        |                             | b = Txn.application_args(1) | stack_scheduling/contract.py:102                                                         |
+| 17 | 22                     |     intc_0 // 1             |                          -  | stack_scheduling/contract.py:102:33-34                                                   |
+| 18 | c0 1a                  |     txnas ApplicationArgs   |     ----------------------- | stack_scheduling/contract.py:102:12-35                                                   |
+| 20 | 49                     |     dup                     | --------------------------- | stack_scheduling/contract.py:102:8-35                                                    |
+| 21 | 4e 03                  |     cover 3                 | --------------------------- | stack_scheduling/contract.py:102:8-35                                                    |
+|    |                        |                             | log(op.itob(n) + a + b)     | stack_scheduling/contract.py:103                                                         |
+| 23 | 4b 02                  |     dig 2                   |     ----------              | stack_scheduling/contract.py:103:12-22                                                   |
+| 25 | 16                     |     itob                    |     ----------              | stack_scheduling/contract.py:103:12-22                                                   |
+| 26 | 4f 02                  |     uncover 2               |     --------------          | stack_scheduling/contract.py:103:12-26                                                   |
+| 28 | 50                     |     concat                  |     --------------          | stack_scheduling/contract.py:103:12-26                                                   |
+| 29 | 4f 01                  |     uncover 1               |     ------------------      | stack_scheduling/contract.py:103:12-30                                                   |
+| 31 | 50                     |     concat                  |     ------------------      | stack_scheduling/contract.py:103:12-30                                                   |
+| 32 | b0                     |     log                     | -----------------------     | stack_scheduling/contract.py:103:8-31                                                    |
+|    |                        |                             | if n > 1:                   | stack_scheduling/contract.py:104                                                         |
+| 33 | 22                     |     intc_0 // 1             |        -                    | stack_scheduling/contract.py:104:15-16                                                   |
+| 34 | 0d                     |     >                       |    -----                    | stack_scheduling/contract.py:104:11-16                                                   |
+| 35 | 41 00 12               |     bz main_after_if_else@2 |                             | stack_scheduling/contract.py:104                                                         |
+| 38 | 42 00 00               |     b main_if_body@1        |                             | stack_scheduling/contract.py:104                                                         |
+|    | # main_if_body@1       | main_if_body@1:             |                             |                                                                                          |
+|    |                        |                             | log(op.itob(n + 1) + b + a) | stack_scheduling/contract.py:105                                                         |
+| 41 | 4b 02                  |     dig 2                   |             -----           | stack_scheduling/contract.py:105:24-29                                                   |
+| 43 | 22                     |     intc_0 // 1             |                 -           | stack_scheduling/contract.py:105:28-29                                                   |
+| 44 | 08                     |     +                       |             -----           | stack_scheduling/contract.py:105:24-29                                                   |
+| 45 | 16                     |     itob                    |     --------------          | stack_scheduling/contract.py:105:16-30                                                   |
+| 46 | 4b 01                  |     dig 1                   |     ------------------      | stack_scheduling/contract.py:105:16-34                                                   |
+| 48 | 50                     |     concat                  |     ------------------      | stack_scheduling/contract.py:105:16-34                                                   |
+| 49 | 4b 02                  |     dig 2                   |     ----------------------  | stack_scheduling/contract.py:105:16-38                                                   |
+| 51 | 50                     |     concat                  |     ----------------------  | stack_scheduling/contract.py:105:16-38                                                   |
+| 52 | b0                     |     log                     | --------------------------- | stack_scheduling/contract.py:105:12-39                                                   |
+| 53 | 42 00 00               |     b main_after_if_else@2  |                             |                                                                                          |
+|    | # main_after_if_else@2 | main_after_if_else@2:       |                             |                                                                                          |
+|    |                        |                             | return True                 | stack_scheduling/contract.py:106                                                         |
+| 56 | 22                     |     intc_0 // 1             |        ----                 | stack_scheduling/contract.py:106:15-19                                                   |
+| 57 | 43                     |     return                  | -----------                 | stack_scheduling/contract.py:106:8-19                                                    |

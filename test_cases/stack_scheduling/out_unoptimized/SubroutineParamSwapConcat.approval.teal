@@ -1,0 +1,66 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.SubroutineParamSwapConcat.approval_program() -> uint64:
+main:
+    intcblock 1 2
+    b main_block@0
+
+main_block@0:
+    // stack_scheduling/contract.py:139
+    // log(_swap_and_concat(Txn.application_args(0), Txn.application_args(1)))
+    pushint 0
+    txnas ApplicationArgs
+    intc_0 // 1
+    txnas ApplicationArgs
+    callsub _swap_and_concat
+    log
+    // stack_scheduling/contract.py:140
+    // return True
+    intc_0 // 1
+    return
+
+
+// test_cases.stack_scheduling.contract._swap_and_concat(a: bytes, b: bytes) -> bytes:
+_swap_and_concat:
+    // stack_scheduling/contract.py:152-153
+    // @subroutine
+    // def _swap_and_concat(a: Bytes, b: Bytes) -> Bytes:
+    proto 2 1
+    b _swap_and_concat_block@0
+
+_swap_and_concat_block@0:
+    // stack_scheduling/contract.py:154
+    // if Txn.num_app_args > 2:
+    txn NumAppArgs
+    intc_1 // 2
+    >
+    frame_dig -1
+    cover 1
+    bz _swap_and_concat_after_if_else@2
+    b _swap_and_concat_if_body@1
+
+_swap_and_concat_if_body@1:
+    // stack_scheduling/contract.py:155
+    // a = b
+    frame_dig -1
+    frame_bury -2
+    // stack_scheduling/contract.py:156
+    // b = Txn.application_args(2)
+    intc_1 // 2
+    txnas ApplicationArgs
+    dup
+    frame_bury -1
+    frame_bury 0
+    b _swap_and_concat_after_if_else@2
+
+_swap_and_concat_after_if_else@2:
+    // stack_scheduling/contract.py:157
+    // return a + b + a
+    frame_dig -2
+    frame_dig 0
+    concat
+    frame_dig -2
+    concat
+    uncover 1
+    retsub

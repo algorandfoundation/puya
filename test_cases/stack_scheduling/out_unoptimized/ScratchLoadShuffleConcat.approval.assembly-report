@@ -1,0 +1,25 @@
+| PC | TEAL Bytes     | TEAL                      | Source                                       | Location                                                                                    |
+|--: | :--------------| :-------------------------| :--------------------------------------------| :-------------------------------------------------------------------------------------------|
+|  0 | 0b             | #pragma version 11        |                                              |                                                                                             |
+|    | # main         | main:                     |                                              | test_cases.stack_scheduling.contract.ScratchLoadShuffleConcat.approval_program() -> uint64: |
+|  1 | 42 00 00       |     b main_block@0        |                                              |                                                                                             |
+|    | # main_block@0 | main_block@0:             |                                              |                                                                                             |
+|    |                |                           | op.Scratch.store(0, Txn.application_args(0)) | stack_scheduling/contract.py:114                                                            |
+|  4 | 81 00          |     pushint 0             |                                          -   | stack_scheduling/contract.py:114:49-50                                                      |
+|  6 | c0 1a          |     txnas ApplicationArgs |                     -----------------------  | stack_scheduling/contract.py:114:28-51                                                      |
+|  8 | 81 00          |     pushint 0             |                  -                           | stack_scheduling/contract.py:114:25-26                                                      |
+| 10 | 4f 01          |     uncover 1             | -------------------------------------------- | stack_scheduling/contract.py:114:8-52                                                       |
+| 12 | 3f             |     stores                | -------------------------------------------- | stack_scheduling/contract.py:114:8-52                                                       |
+|    |                |                           | b = op.itob(Txn.num_app_args)                | stack_scheduling/contract.py:115                                                            |
+| 13 | 31 1b          |     txn NumAppArgs        |             ----------------                 | stack_scheduling/contract.py:115:20-36                                                      |
+| 15 | 16             |     itob                  |     -------------------------                | stack_scheduling/contract.py:115:12-37                                                      |
+|    |                |                           | a = op.Scratch.load_bytes(0)                 | stack_scheduling/contract.py:116                                                            |
+| 16 | 81 00          |     pushint 0             |                           -                  | stack_scheduling/contract.py:116:34-35                                                      |
+| 18 | 3e             |     loads                 |     ------------------------                 | stack_scheduling/contract.py:116:12-36                                                      |
+|    |                |                           | log(a + b)                                   | stack_scheduling/contract.py:117                                                            |
+| 19 | 4f 01          |     uncover 1             |     -----                                    | stack_scheduling/contract.py:117:12-17                                                      |
+| 21 | 50             |     concat                |     -----                                    | stack_scheduling/contract.py:117:12-17                                                      |
+| 22 | b0             |     log                   | ----------                                   | stack_scheduling/contract.py:117:8-18                                                       |
+|    |                |                           | return True                                  | stack_scheduling/contract.py:118                                                            |
+| 23 | 81 01          |     pushint 1             |        ----                                  | stack_scheduling/contract.py:118:15-19                                                      |
+| 25 | 43             |     return                | -----------                                  | stack_scheduling/contract.py:118:8-19                                                       |

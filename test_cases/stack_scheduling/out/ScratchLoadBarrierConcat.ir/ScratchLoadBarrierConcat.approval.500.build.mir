@@ -1,0 +1,41 @@
+// Op                                                   Stack (out)
+// test_cases.stack_scheduling.contract.ScratchLoadBarrierConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:126
+        // op.Scratch.store(0, Txn.application_args(0))
+        txna ApplicationArgs 0                          tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                  tmp%0#0
+        store 0
+        // stack_scheduling/contract.py:127
+        // b = op.itob(Txn.num_app_args)
+        txn NumAppArgs                                  tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                  tmp%1#0
+        itob                                            b#0
+        v-store b#0
+        // stack_scheduling/contract.py:128
+        // op.Scratch.store(0, Txn.application_args(1))
+        txna ApplicationArgs 1                          tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                  tmp%3#0
+        store 0
+        // stack_scheduling/contract.py:129
+        // a = op.Scratch.load_bytes(0)
+        load 0                                          a#0
+        v-store a#0
+        // stack_scheduling/contract.py:130
+        // log(a + b)
+        v-load a#0                                      a#0
+        v-load b#0                                      a#0,b#0
+        concat                                          tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                  tmp%5#0
+        log
+        // stack_scheduling/contract.py:131
+        // return True
+        int 1                                           1
+        return
+
+

@@ -1,0 +1,36 @@
+| PC | TEAL Bytes                 | TEAL                           | Source                          | Location                                                                             |
+|--: | :--------------------------| :------------------------------| :-------------------------------| :------------------------------------------------------------------------------------|
+|  0 | 0b                         | #pragma version 11             |                                 |                                                                                      |
+|    | # main                     | main:                          |                                 | test_cases.stack_scheduling.contract.DeepShuffleConcat.approval_program() -> uint64: |
+|  1 | 42 00 00                   |     b main_block@0             |                                 |                                                                                      |
+|    | # main_block@0             | main_block@0:                  |                                 |                                                                                      |
+|    |                            |                                | a = Txn.application_args(0)     | stack_scheduling/contract.py:75                                                      |
+|  4 | 81 00                      |     pushint 0                  |                          -      | stack_scheduling/contract.py:75:33-34                                                |
+|  6 | c0 1a                      |     txnas ApplicationArgs      |     -----------------------     | stack_scheduling/contract.py:75:12-35                                                |
+|    |                            |                                | b = Txn.application_args(1)     | stack_scheduling/contract.py:76                                                      |
+|  8 | 81 01                      |     pushint 1                  |                          -      | stack_scheduling/contract.py:76:33-34                                                |
+| 10 | c0 1a                      |     txnas ApplicationArgs      |     -----------------------     | stack_scheduling/contract.py:76:12-35                                                |
+|    |                            |                                | c = Txn.application_args(2)     | stack_scheduling/contract.py:77                                                      |
+| 12 | 81 02                      |     pushint 2                  |                          -      | stack_scheduling/contract.py:77:33-34                                                |
+| 14 | c0 1a                      |     txnas ApplicationArgs      |     -----------------------     | stack_scheduling/contract.py:77:12-35                                                |
+| 16 | 4e 01                      |     cover 1                    | ---------------------------     | stack_scheduling/contract.py:77:8-35                                                 |
+|    |                            |                                | d = Txn.application_args(3)     | stack_scheduling/contract.py:78                                                      |
+| 18 | 81 03                      |     pushint 3                  |                          -      | stack_scheduling/contract.py:78:33-34                                                |
+| 20 | c0 1a                      |     txnas ApplicationArgs      |     -----------------------     | stack_scheduling/contract.py:78:12-35                                                |
+|    |                            |                                | log(prefix + (a + b) + (c + d)) | stack_scheduling/contract.py:80                                                      |
+| 22 | 4f 03                      |     uncover 3                  |               -----             | stack_scheduling/contract.py:80:22-27                                                |
+| 24 | 4f 02                      |     uncover 2                  |               -----             | stack_scheduling/contract.py:80:22-27                                                |
+| 26 | 50                         |     concat                     |               -----             | stack_scheduling/contract.py:80:22-27                                                |
+|    |                            |                                | prefix = Bytes(b"prefix:")      | stack_scheduling/contract.py:79                                                      |
+| 27 | 80 07 70 72 65 66 69 78 3a |     pushbytes 0x7072656669783a |          -----------------      | stack_scheduling/contract.py:79:17-34                                                |
+|    |                            |                                | log(prefix + (a + b) + (c + d)) | stack_scheduling/contract.py:80                                                      |
+| 36 | 4f 01                      |     uncover 1                  |     ----------------            | stack_scheduling/contract.py:80:12-28                                                |
+| 38 | 50                         |     concat                     |     ----------------            | stack_scheduling/contract.py:80:12-28                                                |
+| 39 | 4f 02                      |     uncover 2                  |                         -----   | stack_scheduling/contract.py:80:32-37                                                |
+| 41 | 4f 02                      |     uncover 2                  |                         -----   | stack_scheduling/contract.py:80:32-37                                                |
+| 43 | 50                         |     concat                     |                         -----   | stack_scheduling/contract.py:80:32-37                                                |
+| 44 | 50                         |     concat                     |     --------------------------  | stack_scheduling/contract.py:80:12-38                                                |
+| 45 | b0                         |     log                        | ------------------------------- | stack_scheduling/contract.py:80:8-39                                                 |
+|    |                            |                                | return True                     | stack_scheduling/contract.py:81                                                      |
+| 46 | 81 01                      |     pushint 1                  |        ----                     | stack_scheduling/contract.py:81:15-19                                                |
+| 48 | 43                         |     return                     | -----------                     | stack_scheduling/contract.py:81:8-19                                                 |

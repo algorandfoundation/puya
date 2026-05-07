@@ -1,0 +1,27 @@
+// Op                                        Stack (out)
+// test_cases.stack_scheduling.contract.ConstPrefixConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:19
+        // value = op.itob(Txn.num_app_args)
+        txn NumAppArgs                       tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                       tmp%0#0
+        itob                                 value#0
+        v-store value#0
+        // stack_scheduling/contract.py:18
+        // prefix = Bytes(b"log:")
+        byte 0x6c6f673a                      0x6c6f673a
+        // stack_scheduling/contract.py:20
+        // log(prefix + value)
+        v-load value#0                       0x6c6f673a,value#0
+        concat                               tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                       tmp%2#0
+        log
+        // stack_scheduling/contract.py:21
+        // return True
+        int 1                                1
+        return
+
+

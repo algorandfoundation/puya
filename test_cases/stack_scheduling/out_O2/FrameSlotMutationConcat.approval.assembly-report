@@ -1,0 +1,17 @@
+| PC | TEAL Bytes | TEAL                       | Source                                                        | Location                                                                                   |
+|--: | :----------| :--------------------------| :-------------------------------------------------------------| :------------------------------------------------------------------------------------------|
+|  0 | 0b         | #pragma version 11         |                                                               |                                                                                            |
+|    | # main     | main:                      |                                                               | test_cases.stack_scheduling.contract.FrameSlotMutationConcat.approval_program() -> uint64: |
+|    |            |                            | log(_chain(Txn.application_args(0), Txn.application_args(1))) | stack_scheduling/contract.py:53                                                            |
+|  1 | 36 1a 01   |     txna ApplicationArgs 1 |                                     -----------------------   | stack_scheduling/contract.py:53:44-67                                                      |
+|  4 | 36 1a 00   |     txna ApplicationArgs 0 |            -----------------------                            | stack_scheduling/contract.py:53:19-42                                                      |
+|    |            |                            | a = a + b                                                     | stack_scheduling/contract.py:148                                                           |
+|  7 | 4b 01      |     dig 1                  |     -----                                                     | stack_scheduling/contract.py:148:8-13                                                      |
+|  9 | 50         |     concat                 |     -----                                                     | stack_scheduling/contract.py:148:8-13                                                      |
+|    |            |                            | return b + a                                                  | stack_scheduling/contract.py:149                                                           |
+| 10 | 50         |     concat                 |        -----                                                  | stack_scheduling/contract.py:149:11-16                                                     |
+|    |            |                            | log(_chain(Txn.application_args(0), Txn.application_args(1))) | stack_scheduling/contract.py:53                                                            |
+| 11 | b0         |     log                    | ------------------------------------------------------------- | stack_scheduling/contract.py:53:8-69                                                       |
+|    |            |                            | return True                                                   | stack_scheduling/contract.py:54                                                            |
+| 12 | 81 01      |     pushint 1              |        ----                                                   | stack_scheduling/contract.py:54:15-19                                                      |
+| 14 | 43         |     return                 | -----------                                                   | stack_scheduling/contract.py:54:8-19                                                       |

@@ -1,0 +1,51 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.FrameMutateInLoopConcat.approval_program() -> uint64:
+main:
+    // stack_scheduling/contract.py:62
+    // result = Bytes(b"")
+    pushbytes 0x
+    // stack_scheduling/contract.py:64
+    // for i in urange(Txn.num_app_args):
+    txn NumAppArgs
+    pushint 0
+
+main_for_header@1:
+    // stack_scheduling/contract.py:64
+    // for i in urange(Txn.num_app_args):
+    dup
+    dig 2
+    <
+    bz main_after_for@4
+    // stack_scheduling/contract.py:65
+    // result = result + sep + Txn.application_args(i)
+    dig 2
+    // stack_scheduling/contract.py:63
+    // sep = Bytes(b",")
+    pushbytes 0x2c
+    // stack_scheduling/contract.py:65
+    // result = result + sep + Txn.application_args(i)
+    concat
+    dig 1
+    dup
+    cover 2
+    txnas ApplicationArgs
+    concat
+    bury 4
+    // stack_scheduling/contract.py:64
+    // for i in urange(Txn.num_app_args):
+    pushint 1
+    +
+    bury 1
+    b main_for_header@1
+
+main_after_for@4:
+    // stack_scheduling/contract.py:66
+    // log(result)
+    dig 2
+    log
+    // stack_scheduling/contract.py:67
+    // return True
+    pushint 1
+    return

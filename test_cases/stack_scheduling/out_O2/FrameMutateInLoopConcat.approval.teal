@@ -1,0 +1,33 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.FrameMutateInLoopConcat.approval_program() -> uint64:
+main:
+    pushbytes 0x
+    txn NumAppArgs
+    pushint 0
+
+main_for_header@1:
+    dup
+    dig 2
+    <
+    bz main_after_for@4
+    dig 2
+    pushbytes 0x2c
+    concat
+    dig 1
+    dup
+    cover 2
+    txnas ApplicationArgs
+    concat
+    bury 4
+    pushint 1
+    +
+    bury 1
+    b main_for_header@1
+
+main_after_for@4:
+    dig 2
+    log
+    pushint 1
+    return

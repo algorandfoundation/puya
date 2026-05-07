@@ -1,0 +1,28 @@
+// Op                                                                    Stack (out)
+// test_cases.stack_scheduling.contract.FrameSlotMutationConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:53
+        // log(_chain(Txn.application_args(0), Txn.application_args(1)))
+        txna ApplicationArgs 0                                           a#0
+        txna ApplicationArgs 1                                           a#0,b#0
+        // stack_scheduling/contract.py:148
+        // a = a + b
+        l-load a#0 1                                                     b#0,a#0
+        l-load-copy b#0 1                                                b#0,a#0,b#0 (copy)
+        concat                                                           b#0,a#0
+        // stack_scheduling/contract.py:149
+        // return b + a
+        l-load b#0 1                                                     a#0,b#0
+        l-load a#0 1                                                     b#0,a#0
+        concat                                                           tmp%1#1
+        // stack_scheduling/contract.py:53
+        // log(_chain(Txn.application_args(0), Txn.application_args(1)))
+        l-load tmp%1#1 0                                                 tmp%1#1
+        log
+        // stack_scheduling/contract.py:54
+        // return True
+        int 1                                                            1
+        return
+
+

@@ -1,0 +1,22 @@
+| PC | TEAL Bytes | TEAL                       | Source                                       | Location                                                                                    |
+|--: | :----------| :--------------------------| :--------------------------------------------| :-------------------------------------------------------------------------------------------|
+|  0 | 0b         | #pragma version 11         |                                              |                                                                                             |
+|    | # main     | main:                      |                                              | test_cases.stack_scheduling.contract.ScratchLoadBarrierConcat.approval_program() -> uint64: |
+|    |            |                            | op.Scratch.store(0, Txn.application_args(0)) | stack_scheduling/contract.py:126                                                            |
+|  1 | 36 1a 00   |     txna ApplicationArgs 0 |                     -----------------------  | stack_scheduling/contract.py:126:28-51                                                      |
+|  4 | 35 00      |     store 0                | -------------------------------------------- | stack_scheduling/contract.py:126:8-52                                                       |
+|    |            |                            | b = op.itob(Txn.num_app_args)                | stack_scheduling/contract.py:127                                                            |
+|  6 | 31 1b      |     txn NumAppArgs         |             ----------------                 | stack_scheduling/contract.py:127:20-36                                                      |
+|  8 | 16         |     itob                   |     -------------------------                | stack_scheduling/contract.py:127:12-37                                                      |
+|    |            |                            | op.Scratch.store(0, Txn.application_args(1)) | stack_scheduling/contract.py:128                                                            |
+|  9 | 36 1a 01   |     txna ApplicationArgs 1 |                     -----------------------  | stack_scheduling/contract.py:128:28-51                                                      |
+| 12 | 35 00      |     store 0                | -------------------------------------------- | stack_scheduling/contract.py:128:8-52                                                       |
+|    |            |                            | a = op.Scratch.load_bytes(0)                 | stack_scheduling/contract.py:129                                                            |
+| 14 | 34 00      |     load 0                 |     ------------------------                 | stack_scheduling/contract.py:129:12-36                                                      |
+|    |            |                            | log(a + b)                                   | stack_scheduling/contract.py:130                                                            |
+| 16 | 4c         |     swap                   |     -----                                    | stack_scheduling/contract.py:130:12-17                                                      |
+| 17 | 50         |     concat                 |     -----                                    | stack_scheduling/contract.py:130:12-17                                                      |
+| 18 | b0         |     log                    | ----------                                   | stack_scheduling/contract.py:130:8-18                                                       |
+|    |            |                            | return True                                  | stack_scheduling/contract.py:131                                                            |
+| 19 | 81 01      |     pushint 1              |        ----                                  | stack_scheduling/contract.py:131:15-19                                                      |
+| 21 | 43         |     return                 | -----------                                  | stack_scheduling/contract.py:131:8-19                                                       |

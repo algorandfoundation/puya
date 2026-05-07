@@ -1,0 +1,37 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.SubroutineParamSwapConcat.approval_program() -> uint64:
+main:
+    // stack_scheduling/contract.py:139
+    // log(_swap_and_concat(Txn.application_args(0), Txn.application_args(1)))
+    txna ApplicationArgs 0
+    txna ApplicationArgs 1
+    // stack_scheduling/contract.py:154
+    // if Txn.num_app_args > 2:
+    txn NumAppArgs
+    pushint 2
+    >
+    bz main_after_if_else@3
+    // stack_scheduling/contract.py:156
+    // b = Txn.application_args(2)
+    txna ApplicationArgs 2
+    swap
+    bury 2
+
+main_after_if_else@3:
+    // stack_scheduling/contract.py:157
+    // return a + b + a
+    dig 1
+    dup
+    uncover 2
+    concat
+    swap
+    concat
+    // stack_scheduling/contract.py:139
+    // log(_swap_and_concat(Txn.application_args(0), Txn.application_args(1)))
+    log
+    // stack_scheduling/contract.py:140
+    // return True
+    pushint 1
+    return

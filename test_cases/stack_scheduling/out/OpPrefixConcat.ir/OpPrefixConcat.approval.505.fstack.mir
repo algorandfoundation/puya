@@ -1,0 +1,25 @@
+// Op                                      Stack (out)
+// test_cases.stack_scheduling.contract.OpPrefixConcat.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // stack_scheduling/contract.py:6
+        // a = Txn.num_app_args
+        txn NumAppArgs                     a#0
+        // stack_scheduling/contract.py:7
+        // b = Txn.application_args(0)
+        txna ApplicationArgs 0             a#0,b#0
+        // stack_scheduling/contract.py:8
+        // c = op.itob(a) + b
+        l-load a#0 1                       b#0,a#0
+        itob                               b#0,tmp%2#0
+        l-load b#0 1                       tmp%2#0,b#0
+        concat                             c#0
+        // stack_scheduling/contract.py:9
+        // log(c)
+        log
+        // stack_scheduling/contract.py:10
+        // return True
+        int 1                              1
+        return
+
+

@@ -1,0 +1,18 @@
+| PC | TEAL Bytes        | TEAL                     | Source                            | Location                                                                             |
+|--: | :-----------------| :------------------------| :---------------------------------| :------------------------------------------------------------------------------------|
+|  0 | 0b                | #pragma version 11       |                                   |                                                                                      |
+|    | # main            | main:                    |                                   | test_cases.stack_scheduling.contract.ConstPrefixConcat.approval_program() -> uint64: |
+|  1 | 42 00 00          |     b main_block@0       |                                   |                                                                                      |
+|    | # main_block@0    | main_block@0:            |                                   |                                                                                      |
+|    |                   |                          | value = op.itob(Txn.num_app_args) | stack_scheduling/contract.py:19                                                      |
+|  4 | 31 1b             |     txn NumAppArgs       |                 ----------------  | stack_scheduling/contract.py:19:24-40                                                |
+|  6 | 16                |     itob                 |         ------------------------- | stack_scheduling/contract.py:19:16-41                                                |
+|    |                   |                          | prefix = Bytes(b"log:")           | stack_scheduling/contract.py:18                                                      |
+|  7 | 80 04 6c 6f 67 3a |     pushbytes 0x6c6f673a |          --------------           | stack_scheduling/contract.py:18:17-31                                                |
+|    |                   |                          | log(prefix + value)               | stack_scheduling/contract.py:20                                                      |
+| 13 | 4f 01             |     uncover 1            |     --------------                | stack_scheduling/contract.py:20:12-26                                                |
+| 15 | 50                |     concat               |     --------------                | stack_scheduling/contract.py:20:12-26                                                |
+| 16 | b0                |     log                  | -------------------               | stack_scheduling/contract.py:20:8-27                                                 |
+|    |                   |                          | return True                       | stack_scheduling/contract.py:21                                                      |
+| 17 | 81 01             |     pushint 1            |        ----                       | stack_scheduling/contract.py:21:15-19                                                |
+| 19 | 43                |     return               | -----------                       | stack_scheduling/contract.py:21:8-19                                                 |

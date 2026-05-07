@@ -1,0 +1,20 @@
+main test_cases.stack_scheduling.contract.IntLocalShuffleConcat.approval_program:
+    block@0: // L99
+        let n#0: uint64 = (txn NumAppArgs)
+        let a#0: bytes = (txna ApplicationArgs 0)
+        let b#0: bytes = (txna ApplicationArgs 1)
+        let tmp%3#0: bytes = (itob n#0)
+        let tmp%4#0: bytes = (concat tmp%3#0 a#0)
+        let tmp%5#0: bytes = (concat tmp%4#0 b#0)
+        (log tmp%5#0)
+        let tmp%6#0: bool = (> n#0 1u)
+        goto tmp%6#0 ? block@1 : block@2
+    block@1: // if_body_L105
+        let tmp%7#0: uint64 = (+ n#0 1u)
+        let tmp%8#0: bytes = (itob tmp%7#0)
+        let tmp%9#0: bytes = (concat tmp%8#0 b#0)
+        let tmp%10#0: bytes = (concat tmp%9#0 a#0)
+        (log tmp%10#0)
+        goto block@2
+    block@2: // after_if_else_L104
+        return 1u

@@ -1,0 +1,52 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.stack_scheduling.contract.IntLocalShuffleConcat.approval_program() -> uint64:
+main:
+    // stack_scheduling/contract.py:100
+    // n = Txn.num_app_args
+    txn NumAppArgs
+    // stack_scheduling/contract.py:101
+    // a = Txn.application_args(0)
+    txna ApplicationArgs 0
+    // stack_scheduling/contract.py:102
+    // b = Txn.application_args(1)
+    txna ApplicationArgs 1
+    dup
+    // stack_scheduling/contract.py:101
+    // a = Txn.application_args(0)
+    txna ApplicationArgs 0
+    // stack_scheduling/contract.py:100
+    // n = Txn.num_app_args
+    txn NumAppArgs
+    // stack_scheduling/contract.py:103
+    // log(op.itob(n) + a + b)
+    dup
+    itob
+    uncover 2
+    concat
+    uncover 2
+    concat
+    log
+    // stack_scheduling/contract.py:104
+    // if n > 1:
+    pushint 1
+    >
+    bz main_after_if_else@2
+    // stack_scheduling/contract.py:105
+    // log(op.itob(n + 1) + b + a)
+    dig 2
+    pushint 1
+    +
+    itob
+    dig 1
+    concat
+    dig 2
+    concat
+    log
+
+main_after_if_else@2:
+    // stack_scheduling/contract.py:106
+    // return True
+    pushint 1
+    return
