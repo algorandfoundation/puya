@@ -228,7 +228,7 @@ contract Contract
     frozen2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr2)
     assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1) == 21u, comment="expected sum to be 21")
     assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2) == 14u, comment="expected sum to be 14")
-    frozen2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = frozen2 + frozen2
+    frozen2.extend(frozen2)
     assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2) == 28u, comment="and the sum shall be 41")
     GlobalState['arr']: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = arr2.copy()
     assert(GlobalState['arr'] == arr2, comment="expected array in storage to be the same")
@@ -243,13 +243,22 @@ contract Contract
   {
     switch (arg) {
       case new test_cases.mutable_native_types.contract.FixedStruct(a=1u, b=2u): {
-        match_case_L265:
+        match_case_L270:
         return true
       }
       case _: {
         return false
       }
     }
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.test_fixed_array_aug_assign_nested(arr: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>): arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
+  {
+    frozen: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr)
+    struct: test_cases.mutable_native_types.contract.NestedArrayWrapper = new test_cases.mutable_native_types.contract.NestedArrayWrapper(arr=new arc4.dynamic_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(frozen))
+    struct.arr[test_cases.mutable_native_types.contract.log_zero()].extend(frozen)
+    assert(struct.arr[0u].length == 2u * arr.length)
+    return struct.arr[0u]
   }
   
   baremethod test_cases.mutable_native_types.contract.Contract.__algopy_default_create(): void
@@ -291,6 +300,12 @@ subroutine argument_subtype(): void
 {
   arr3: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(NoOp, 2u, pay)
   assert(arr3[1u] == 2u)
+}
+
+subroutine log_zero(): uint64
+{
+  log('log_zero')
+  return 0u
 }
 
 contract Case3WithStruct
