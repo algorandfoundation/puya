@@ -47,6 +47,18 @@ def test_mutable_native_types_contract(deployer: Deployer) -> None:
     )
     assert response.abi_return is False
 
+    response = call(
+        au.AppClientMethodCallParams(
+            method="test_fixed_array_aug_assign_nested",
+            args=[
+                [(1, 2), (3, 4)],
+            ],
+        )
+    )
+    assert response.abi_return == [(1, 2), (3, 4), (1, 2), (3, 4)]
+    assert response.confirmation.logs is not None
+    assert response.confirmation.logs[:-1] == [b"log_zero"]
+
 
 @pytest.mark.parametrize(
     "contract_name",

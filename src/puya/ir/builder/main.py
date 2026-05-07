@@ -1326,6 +1326,9 @@ class FunctionIRBuilder(
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> None:
         loc = expr.source_location
 
+        # this pre-condition is enforced by puya/awst/validation/immutable.py.
+        assert expr.is_assignment or not expr.base.wtype.immutable, "pre-condition violated"
+
         array, result = self._array_concat(expr.base, expr.other, loc)
 
         # update array reference

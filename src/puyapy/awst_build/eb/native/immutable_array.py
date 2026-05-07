@@ -6,10 +6,11 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ArrayConcat,
+    ArrayExtend,
     ArrayLength,
     ArrayReplace,
-    AssignmentStatement,
     Expression,
+    ExpressionStatement,
     IntersectionSliceExpression,
     Statement,
     TupleExpression,
@@ -122,17 +123,11 @@ class ImmutableArrayExpressionBuilder(
         if op != BuilderBinaryOp.add:
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
-        lhs = self.single_eval().resolve_lvalue()
         rhs = _match_array_concat_arg(rhs, self.pytype)
-        return AssignmentStatement(
-            target=lhs,
-            value=ArrayConcat(
-                left=lhs,
-                right=rhs.resolve(),
-                source_location=location,
-            ),
-            source_location=location,
+        extend = ArrayExtend(
+            base=self.resolve(), other=rhs.resolve(), is_assignment=True, source_location=location
         )
+        return ExpressionStatement(expr=extend)
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:

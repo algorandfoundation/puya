@@ -20,6 +20,7 @@ from algopy import (
     Txn,
     UInt64,
     arc4,
+    log,
     subroutine,
     urange,
     zero_bytes,
@@ -66,6 +67,10 @@ class DynamicStruct(Struct):
     c: Bytes
     d: String
     e: Array[arc4.Byte]
+
+
+class NestedArrayWrapper(Struct):
+    arr: Array[ImmutableArray[FixedStruct]]
 
 
 class Contract(arc4.ARC4Contract):
@@ -266,6 +271,16 @@ class Contract(arc4.ARC4Contract):
             case _:
                 return False
 
+    @arc4.abimethod()
+    def test_fixed_array_aug_assign_nested(
+        self, arr: Array[FixedStruct]
+    ) -> ImmutableArray[FixedStruct]:
+        frozen = arr.freeze()
+        struct = NestedArrayWrapper(arr=Array((frozen,)))
+        struct.arr[log_zero()] += frozen
+        assert struct.arr[0].length == 2 * arr.length
+        return struct.arr[0]
+
 
 @subroutine()
 def sum_frozen_arr(arr: ImmutableArray[FixedStruct]) -> UInt64:
@@ -297,3 +312,9 @@ def tuple_conversion() -> None:
 def argument_subtype() -> None:
     arr3 = FixedUInt64Of3((OnCompleteAction.NoOp, UInt64(2), TransactionType.Payment))
     assert arr3[1] == 2
+
+
+@subroutine
+def log_zero() -> UInt64:
+    log("log_zero")
+    return UInt64(0)
