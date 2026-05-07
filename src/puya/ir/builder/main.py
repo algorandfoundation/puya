@@ -1579,8 +1579,14 @@ class FunctionIRBuilder(
     def _visit_and_check_for_double_eval(
         self, expr: awst_nodes.Expression, *, materialise_as: str | Sequence[str] | None = None
     ) -> ir.ValueProvider | None:
-        # explicit SingleEvaluation nodes already handle this
-        if isinstance(expr, awst_nodes.SingleEvaluation):
+        # - explicit SingleEvaluation nodes already handle multi-eval (as the name implies)
+        # -constants and var expresions have no side effects and cannot contain nested expressions
+        if isinstance(
+            expr,
+            awst_nodes.SingleEvaluation
+            | awst_nodes.CompileTimeConstantExpression
+            | awst_nodes.VarExpression,
+        ):
             return expr.accept(self)
         # include the expression in the key to ensure the lifetime of the
         # expression is as long as the cache.
