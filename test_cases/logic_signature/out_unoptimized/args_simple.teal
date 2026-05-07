@@ -4,6 +4,11 @@
 // test_cases.logic_signature.lsig_args_simple.args_simple() -> uint64:
 main:
     intcblock 0 1 10 2
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    pushbytes ""
+    pushbytes ""
     pushbytes ""
     b main_block@0
 
@@ -12,45 +17,85 @@ main_block@0:
     // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
     arg_0
     dup
+    b main_block@5
+
+main_block@5:
+    dup
     len
     pushint 8
     ==
     assert // invalid number of bytes for uint64
+    // logic_signature/lsig_args_simple.py:5
+    // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
+    b main_after_inlined_%Validate__uint64@6
+
+main_after_inlined_%Validate__uint64@6:
+    // logic_signature/lsig_args_simple.py:5
+    // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
+    dig 1
     btoi
-    dup
+    bury 5
     arg_1
     dup
+    bury 8
+    bury 1
+    b main_block@7
+
+main_block@7:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for bytes
+    // logic_signature/lsig_args_simple.py:5
+    // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
+    b main_after_inlined_%Validate__bytes@8
+
+main_after_inlined_%Validate__bytes@8:
+    // logic_signature/lsig_args_simple.py:5
+    // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
+    dig 6
     extract 2 0
-    dup
-    cover 2
+    bury 8
     arg_2
+    dup
+    bury 7
+    bury 1
+    b main_block@9
+
+main_block@9:
     dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for bool
+    // logic_signature/lsig_args_simple.py:5
+    // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
+    b main_after_inlined_%Validate__bool@10
+
+main_after_inlined_%Validate__bool@10:
+    // logic_signature/lsig_args_simple.py:5
+    // def args_simple(arg0: UInt64, arg1: Bytes, arg2: bool) -> UInt64:
+    dig 5
     intc_0 // 0
     getbit
     dup
-    cover 2
-    cover 3
+    bury 4
     // logic_signature/lsig_args_simple.py:6-7
     // # verify args match raw op.arg values
     // assert arg0 == arc4.UInt64.from_bytes(op.arg(0)).native
     intc_0 // 0
     args
     btoi
-    dig 3
+    dig 6
+    dup
+    cover 2
     ==
     assert
     // logic_signature/lsig_args_simple.py:8
@@ -58,6 +103,7 @@ main_block@0:
     intc_1 // 1
     args
     extract 2 0
+    dig 10
     ==
     assert
     // logic_signature/lsig_args_simple.py:9
@@ -73,6 +119,7 @@ main_block@0:
     setbit
     intc_0 // 0
     getbit
+    uncover 2
     ==
     assert
     // logic_signature/lsig_args_simple.py:11-12
@@ -87,26 +134,26 @@ main_if_body@1:
     // logic_signature/lsig_args_simple.py:13
     // arg0 = UInt64(10)
     intc_2 // 10
-    bury 3
+    bury 5
     b main_after_if_else@2
 
 main_after_if_else@2:
     // logic_signature/lsig_args_simple.py:14
     // arg1 = arg1 + b"suffix"
-    dig 1
+    dig 7
     pushbytes 0x737566666978
     concat
     dup
-    bury 3
+    bury 9
     // logic_signature/lsig_args_simple.py:15
     // arg2 = not arg2
-    dig 1
+    dig 3
     !
     cover 1
     // logic_signature/lsig_args_simple.py:17-18
     // # assert all
     // assert arg0 >= 10
-    dig 4
+    dig 6
     dup
     cover 2
     intc_2 // 10
@@ -128,9 +175,9 @@ main_after_if_else@2:
 main_if_body@3:
     // logic_signature/lsig_args_simple.py:23
     // arg0 += arg1.length
-    dig 1
+    dig 7
     len
-    dig 3
+    dig 5
     +
     bury 4
     b main_after_if_else@4

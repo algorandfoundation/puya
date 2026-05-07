@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 32 0 1 12
+    intcblock 0 32 1 12
     bytecblock "map" 0x151f7c75 0x00 0x
     b main_block@0
 
@@ -42,11 +42,11 @@ main_switch_case_next@5:
     //     ),
     // ):
     txn OnCompletion
-    intc_1 // NoOp
+    intc_0 // NoOp
     ==
     assert
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     !=
     bz main_create_NoOp@16
     b main_call_NoOp@6
@@ -143,7 +143,7 @@ main_create_route@4:
     intc_2 // OptIn
     ==
     txn ApplicationID
-    intc_1 // 0
+    intc_0 // 0
     ==
     &&
     assert
@@ -165,6 +165,8 @@ create_block@0:
 
 // test_cases.local_map.account_struct.LocalMapAccountStruct.get[routing]() -> void:
 get:
+    intc_0 // 0
+    intc_0 // 0
     b get_block@0
 
 get_block@0:
@@ -172,16 +174,45 @@ get_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b get_block@1
+
+get_block@1:
     dup
     len
-    intc_0 // 32
+    intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:36
+    // @public
+    b get_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+get_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // local_map/account_struct.py:36
+    // @public
+    dig 1
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b get_block@3
+
+get_block@3:
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:36
+    // @public
+    b get_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+get_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // local_map/account_struct.py:36
+    // @public
+    dig 2
+    dig 4
+    uncover 1
     callsub test_cases.local_map.account_struct.LocalMapAccountStruct.get
     bytec_1 // 0x151f7c75
     uncover 1
@@ -193,6 +224,10 @@ get_block@0:
 
 // test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_default[routing]() -> void:
 get_with_default:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
     b get_with_default_block@0
 
 get_with_default_block@0:
@@ -200,24 +235,66 @@ get_with_default_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b get_with_default_block@1
+
+get_with_default_block@1:
     dup
     len
-    intc_0 // 32
+    intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:40
+    // @public
+    b get_with_default_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+get_with_default_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // local_map/account_struct.py:40
+    // @public
+    dig 1
+    bury 6
+    txna ApplicationArgs 2
+    dup
+    bury 6
+    bury 1
+    b get_with_default_block@3
+
+get_with_default_block@3:
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:40
+    // @public
+    b get_with_default_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+get_with_default_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // local_map/account_struct.py:40
+    // @public
+    dig 4
+    bury 4
     txna ApplicationArgs 3
+    dup
+    bury 4
+    bury 1
+    b get_with_default_block@5
+
+get_with_default_block@5:
     dup
     len
     intc_3 // 12
     ==
     assert // invalid number of bytes for test_cases.local_map.account_struct.Data
-    uncover 2
-    uncover 2
+    // local_map/account_struct.py:40
+    // @public
+    b get_with_default_after_inlined_%Validate__test_cases.local_map.account_struct.Data@6
+
+get_with_default_after_inlined_%Validate__test_cases.local_map.account_struct.Data@6:
+    // local_map/account_struct.py:40
+    // @public
+    dig 2
+    dig 6
+    dig 5
     uncover 2
     callsub test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_default
     bytec_1 // 0x151f7c75
@@ -230,6 +307,10 @@ get_with_default_block@0:
 
 // test_cases.local_map.account_struct.LocalMapAccountStruct.set[routing]() -> void:
 set:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
     b set_block@0
 
 set_block@0:
@@ -237,24 +318,66 @@ set_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b set_block@1
+
+set_block@1:
     dup
     len
-    intc_0 // 32
+    intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:44
+    // @public
+    b set_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+set_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // local_map/account_struct.py:44
+    // @public
+    dig 1
+    bury 6
+    txna ApplicationArgs 2
+    dup
+    bury 6
+    bury 1
+    b set_block@3
+
+set_block@3:
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:44
+    // @public
+    b set_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+set_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // local_map/account_struct.py:44
+    // @public
+    dig 4
+    bury 4
     txna ApplicationArgs 3
+    dup
+    bury 4
+    bury 1
+    b set_block@5
+
+set_block@5:
     dup
     len
     intc_3 // 12
     ==
     assert // invalid number of bytes for test_cases.local_map.account_struct.Data
-    uncover 2
-    uncover 2
+    // local_map/account_struct.py:44
+    // @public
+    b set_after_inlined_%Validate__test_cases.local_map.account_struct.Data@6
+
+set_after_inlined_%Validate__test_cases.local_map.account_struct.Data@6:
+    // local_map/account_struct.py:44
+    // @public
+    dig 2
+    dig 6
+    dig 5
     uncover 2
     callsub test_cases.local_map.account_struct.LocalMapAccountStruct.set
     intc_2 // 1
@@ -263,6 +386,8 @@ set_block@0:
 
 // test_cases.local_map.account_struct.LocalMapAccountStruct.delete[routing]() -> void:
 delete:
+    intc_0 // 0
+    intc_0 // 0
     b delete_block@0
 
 delete_block@0:
@@ -270,16 +395,45 @@ delete_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b delete_block@1
+
+delete_block@1:
     dup
     len
-    intc_0 // 32
+    intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:48
+    // @public
+    b delete_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+delete_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // local_map/account_struct.py:48
+    // @public
+    dig 1
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b delete_block@3
+
+delete_block@3:
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:48
+    // @public
+    b delete_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+delete_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // local_map/account_struct.py:48
+    // @public
+    dig 2
+    dig 4
+    uncover 1
     callsub test_cases.local_map.account_struct.LocalMapAccountStruct.delete
     intc_2 // 1
     return
@@ -287,6 +441,8 @@ delete_block@0:
 
 // test_cases.local_map.account_struct.LocalMapAccountStruct.in_[routing]() -> void:
 in_:
+    intc_0 // 0
+    intc_0 // 0
     b in__block@0
 
 in__block@0:
@@ -294,19 +450,48 @@ in__block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b in__block@1
+
+in__block@1:
     dup
     len
-    intc_0 // 32
+    intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:52
+    // @public
+    b in__after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+in__after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // local_map/account_struct.py:52
+    // @public
+    dig 1
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b in__block@3
+
+in__block@3:
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:52
+    // @public
+    b in__after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+in__after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // local_map/account_struct.py:52
+    // @public
+    dig 2
+    dig 4
+    uncover 1
     callsub test_cases.local_map.account_struct.LocalMapAccountStruct.in_
     bytec_2 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     setbit
     bytec_1 // 0x151f7c75
@@ -341,6 +526,8 @@ prefix_block@0:
 
 // test_cases.local_map.account_struct.LocalMapAccountStruct.maybe[routing]() -> void:
 maybe:
+    intc_0 // 0
+    intc_0 // 0
     b maybe_block@0
 
 maybe_block@0:
@@ -348,23 +535,52 @@ maybe_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b maybe_block@1
+
+maybe_block@1:
     dup
     len
-    intc_0 // 32
+    intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:60
+    // @public
+    b maybe_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+maybe_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // local_map/account_struct.py:60
+    // @public
+    dig 1
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b maybe_block@3
+
+maybe_block@3:
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:60
+    // @public
+    b maybe_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+maybe_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // local_map/account_struct.py:60
+    // @public
+    dig 2
+    dig 4
+    uncover 1
     callsub test_cases.local_map.account_struct.LocalMapAccountStruct.maybe
     cover 1
     bytec_3 // 0x
     uncover 1
     concat
     bytec_2 // 0x00
-    intc_1 // 0
+    intc_0 // 0
     uncover 3
     setbit
     concat
@@ -378,6 +594,8 @@ maybe_block@0:
 
 // test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_state[routing]() -> void:
 get_via_state:
+    intc_0 // 0
+    intc_0 // 0
     b get_via_state_block@0
 
 get_via_state_block@0:
@@ -385,16 +603,45 @@ get_via_state_block@0:
     // @public
     txna ApplicationArgs 1
     dup
-    len
-    intc_0 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b get_via_state_block@1
+
+get_via_state_block@1:
     dup
     len
-    intc_0 // 32
+    intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:68
+    // @public
+    b get_via_state_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+get_via_state_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // local_map/account_struct.py:68
+    // @public
+    dig 1
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b get_via_state_block@3
+
+get_via_state_block@3:
+    dup
+    len
+    intc_1 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // local_map/account_struct.py:68
+    // @public
+    b get_via_state_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+get_via_state_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // local_map/account_struct.py:68
+    // @public
+    dig 2
+    dig 4
+    uncover 1
     callsub test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_state
     bytec_1 // 0x151f7c75
     uncover 1
@@ -435,7 +682,7 @@ test_cases.local_map.account_struct.LocalMapAccountStruct.get_block@0:
     frame_dig -1
     concat
     frame_dig -2
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     app_local_get_ex
     assert // check self.map entry exists for account
@@ -457,7 +704,7 @@ test_cases.local_map.account_struct.LocalMapAccountStruct.get_with_default_block
     frame_dig -2
     concat
     frame_dig -3
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     app_local_get_ex
     cover 1
@@ -524,7 +771,7 @@ test_cases.local_map.account_struct.LocalMapAccountStruct.in__block@0:
     frame_dig -1
     concat
     frame_dig -2
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     app_local_get_ex
     uncover 1
@@ -557,7 +804,7 @@ test_cases.local_map.account_struct.LocalMapAccountStruct.maybe_block@0:
     frame_dig -1
     concat
     frame_dig -2
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     app_local_get_ex
     dup
@@ -572,7 +819,7 @@ test_cases.local_map.account_struct.LocalMapAccountStruct.maybe_if_body@1:
     // value = Data(foo=UInt64(), bar=Bytes4())
     pushint 4
     bzero
-    intc_1 // 0
+    intc_0 // 0
     itob
     bytec_3 // 0x
     uncover 1
@@ -609,7 +856,7 @@ test_cases.local_map.account_struct.LocalMapAccountStruct.get_via_state_block@0:
     // local_map/account_struct.py:71
     // return local_state[account]
     frame_dig -2
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     app_local_get_ex
     assert // check LocalState exists for account

@@ -62,16 +62,24 @@ setPlugin:
 setPlugin_block@0:
     txna ApplicationArgs 1
     dup
+    b setPlugin_block@1
+
+setPlugin_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     pushint 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    b setPlugin_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+setPlugin_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    dig 1
     extract 2 0
     callsub tests/approvals/mutable-object.algo.ts::MutableObjectDemo.setPlugin
     intc_1 // 1

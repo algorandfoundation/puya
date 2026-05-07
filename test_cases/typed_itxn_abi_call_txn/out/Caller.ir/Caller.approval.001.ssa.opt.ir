@@ -39,29 +39,29 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[routing]() -> void:
     block@0: // L15
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let a#0: bytes = decode_bytes<bytes>(tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
-        let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let b#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = decode_bytes<uint64>(tmp%4#0)
-        let tmp%0#1: Encoded(len+uint8[]) = tmp%0#0
-        let tmp%1#1: Encoded(len+uint8[]) = tmp%2#0
+        let a#0: bytes = decode_bytes<bytes>(value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let length%0#1: uint64 = array_len(value#1)
+        let mul%0#1: uint64 = length%0#1
+        let add%0#1: uint64 = (+ length%0#1 2u)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 add%0#1)
+        (assert eq%0#1) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let b#0: bytes = decode_bytes<bytes>(value#1)
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#2: uint64 = (len value#2)
+        let eq%0#2: bool = (== len%0#2 8u)
+        (assert eq%0#2) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = decode_bytes<uint64>(value#2)
+        let tmp%0#1: Encoded(len+uint8[]) = value#0
+        let tmp%1#1: Encoded(len+uint8[]) = value#1
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -81,9 +81,7 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[r
         let tmp%3#1: bool = (== tmp%2#1 0x151f7c75)
         (assert tmp%3#1) // application log value is not the result of an ABI return
         let tmp%4#1: bytes = ((extract 4 0) app_call_txn.LastLog#0)
-        let len%0#1: uint64 = (len tmp%4#1)
-        let eq%0#1: bool = (== len%0#1 8u)
-        (assert eq%0#1) // invalid number of bytes for uint64
+        %Validate__uint64(tmp%4#1)
         let asset_id#0: uint64 = decode_bytes<uint64>(tmp%4#1)
         let tmp%6#0: bool = (!= asset_id#0 0u)
         (assert asset_id#0) // expected asset id
@@ -91,29 +89,29 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[r
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[routing]() -> void:
     block@0: // L33
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let a#0: bytes = decode_bytes<bytes>(tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
-        let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let b#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = decode_bytes<uint64>(tmp%4#0)
-        let tmp%0#1: Encoded(len+uint8[]) = tmp%0#0
-        let tmp%1#1: Encoded(len+uint8[]) = tmp%2#0
+        let a#0: bytes = decode_bytes<bytes>(value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let length%0#1: uint64 = array_len(value#1)
+        let mul%0#1: uint64 = length%0#1
+        let add%0#1: uint64 = (+ length%0#1 2u)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 add%0#1)
+        (assert eq%0#1) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let b#0: bytes = decode_bytes<bytes>(value#1)
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#2: uint64 = (len value#2)
+        let eq%0#2: bool = (== len%0#2 8u)
+        (assert eq%0#2) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = decode_bytes<uint64>(value#2)
+        let tmp%0#1: Encoded(len+uint8[]) = value#0
+        let tmp%1#1: Encoded(len+uint8[]) = value#1
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -132,29 +130,29 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer[routing]() -> void:
     block@0: // L49
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let a#0: bytes = decode_bytes<bytes>(tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
-        let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let b#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = decode_bytes<uint64>(tmp%4#0)
-        let tmp%0#1: Encoded(len+uint8[]) = tmp%0#0
-        let tmp%1#1: Encoded(len+uint8[]) = tmp%2#0
+        let a#0: bytes = decode_bytes<bytes>(value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let length%0#1: uint64 = array_len(value#1)
+        let mul%0#1: uint64 = length%0#1
+        let add%0#1: uint64 = (+ length%0#1 2u)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 add%0#1)
+        (assert eq%0#1) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let b#0: bytes = decode_bytes<bytes>(value#1)
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#2: uint64 = (len value#2)
+        let eq%0#2: bool = (== len%0#2 8u)
+        (assert eq%0#2) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = decode_bytes<uint64>(value#2)
+        let tmp%0#1: Encoded(len+uint8[]) = value#0
+        let tmp%1#1: Encoded(len+uint8[]) = value#1
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -173,29 +171,29 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]() -> void:
     block@0: // L65
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let a#0: bytes = decode_bytes<bytes>(tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
-        let add%1#0: uint64 = (+ length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let b#0: bytes = decode_bytes<bytes>(tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = decode_bytes<uint64>(tmp%4#0)
-        let tmp%0#1: Encoded(len+uint8[]) = tmp%0#0
-        let tmp%1#1: Encoded(len+uint8[]) = tmp%2#0
+        let a#0: bytes = decode_bytes<bytes>(value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let length%0#1: uint64 = array_len(value#1)
+        let mul%0#1: uint64 = length%0#1
+        let add%0#1: uint64 = (+ length%0#1 2u)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 add%0#1)
+        (assert eq%0#1) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let b#0: bytes = decode_bytes<bytes>(value#1)
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#2: uint64 = (len value#2)
+        let eq%0#2: bool = (== len%0#2 8u)
+        (assert eq%0#2) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = decode_bytes<uint64>(value#2)
+        let tmp%0#1: Encoded(len+uint8[]) = value#0
+        let tmp%1#1: Encoded(len+uint8[]) = value#1
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -222,4 +220,11 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.__algopy_default_create() -> void:
     block@0: // L1
+        return 
+
+subroutine %Validate__uint64(value: bytes) -> void:
+    block@0: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for uint64
         return 

@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 1000 4 10000000000
-    bytecblock "asset_a" "asset_b" "pool_token" "" "governor" "ratio"
+    bytecblock "" "asset_a" "asset_b" "pool_token" "governor" "ratio"
     b main_block@0
 
 main_block@0:
@@ -150,10 +150,10 @@ tokens_to_mint:
     //     b_amount: UInt64,
     // ) -> UInt64:
     proto 5 1
-    bytec_3 // ""
-    bytec_3 // ""
-    bytec_3 // ""
-    bytec_3 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b tokens_to_mint_block@0
 
 tokens_to_mint_block@0:
@@ -379,10 +379,22 @@ set_governor_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b set_governor_block@1
+
+set_governor_block@1:
+    dup
     len
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // amm/contract.py:43
+    // @arc4.abimethod()
+    b set_governor_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+set_governor_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // amm/contract.py:43
+    // @arc4.abimethod()
+    dig 1
     callsub examples.amm.contract.ConstantProductAMM.set_governor
     intc_1 // 1
     return
@@ -390,6 +402,8 @@ set_governor_block@0:
 
 // examples.amm.contract.ConstantProductAMM.bootstrap[routing]() -> void:
 bootstrap:
+    intc_0 // 0
+    bytec_0 // ""
     b bootstrap_block@0
 
 bootstrap_block@0:
@@ -405,22 +419,49 @@ bootstrap_block@0:
     assert // transaction type is pay
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
-    btoi
-    txnas Assets
-    txna ApplicationArgs 2
+    b bootstrap_block@1
+
+bootstrap_block@1:
     dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:49
+    // @arc4.abimethod(resource_encoding="index")
+    b bootstrap_after_inlined_%Validate__arc4.uint8@2
+
+bootstrap_after_inlined_%Validate__arc4.uint8@2:
+    // amm/contract.py:49
+    // @arc4.abimethod(resource_encoding="index")
+    dig 1
     btoi
     txnas Assets
-    uncover 2
-    uncover 2
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 6
+    bury 1
+    b bootstrap_block@3
+
+bootstrap_block@3:
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:49
+    // @arc4.abimethod(resource_encoding="index")
+    b bootstrap_after_inlined_%Validate__arc4.uint8@4
+
+bootstrap_after_inlined_%Validate__arc4.uint8@4:
+    // amm/contract.py:49
+    // @arc4.abimethod(resource_encoding="index")
+    dig 4
+    btoi
+    txnas Assets
+    dig 3
+    dig 5
     uncover 2
     callsub examples.amm.contract.ConstantProductAMM.bootstrap
     itob
@@ -434,6 +475,10 @@ bootstrap_block@0:
 
 // examples.amm.contract.ConstantProductAMM.mint[routing]() -> void:
 mint:
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
     b mint_block@0
 
 mint_block@0:
@@ -464,32 +509,116 @@ mint_block@0:
     assert // transaction type is axfer
     txna ApplicationArgs 1
     dup
+    b mint_block@1
+
+mint_block@1:
+    dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:81-88
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b mint_after_inlined_%Validate__arc4.uint8@2
+
+mint_after_inlined_%Validate__arc4.uint8@2:
+    // amm/contract.py:81-88
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 1
     btoi
     txnas Assets
+    bury 6
     txna ApplicationArgs 2
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
-    btoi
-    txnas Assets
-    txna ApplicationArgs 3
+    bury 9
+    bury 1
+    b mint_block@3
+
+mint_block@3:
     dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:81-88
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b mint_after_inlined_%Validate__arc4.uint8@4
+
+mint_after_inlined_%Validate__arc4.uint8@4:
+    // amm/contract.py:81-88
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 7
     btoi
     txnas Assets
-    uncover 4
-    uncover 4
-    uncover 4
-    uncover 4
+    bury 5
+    txna ApplicationArgs 3
+    dup
+    bury 8
+    bury 1
+    b mint_block@5
+
+mint_block@5:
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:81-88
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b mint_after_inlined_%Validate__arc4.uint8@6
+
+mint_after_inlined_%Validate__arc4.uint8@6:
+    // amm/contract.py:81-88
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 6
+    btoi
+    txnas Assets
+    dig 4
+    dig 4
+    dig 8
+    dig 8
     uncover 4
     callsub examples.amm.contract.ConstantProductAMM.mint
     intc_1 // 1
@@ -498,6 +627,10 @@ mint_block@0:
 
 // examples.amm.contract.ConstantProductAMM.burn[routing]() -> void:
 burn:
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
     b burn_block@0
 
 burn_block@0:
@@ -520,31 +653,115 @@ burn_block@0:
     assert // transaction type is axfer
     txna ApplicationArgs 1
     dup
+    b burn_block@1
+
+burn_block@1:
+    dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:148-155
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b burn_after_inlined_%Validate__arc4.uint8@2
+
+burn_after_inlined_%Validate__arc4.uint8@2:
+    // amm/contract.py:148-155
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 1
     btoi
     txnas Assets
+    bury 5
     txna ApplicationArgs 2
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
-    btoi
-    txnas Assets
-    txna ApplicationArgs 3
+    bury 8
+    bury 1
+    b burn_block@3
+
+burn_block@3:
     dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:148-155
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b burn_after_inlined_%Validate__arc4.uint8@4
+
+burn_after_inlined_%Validate__arc4.uint8@4:
+    // amm/contract.py:148-155
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 6
     btoi
     txnas Assets
-    uncover 3
-    uncover 3
-    uncover 3
+    bury 4
+    txna ApplicationArgs 3
+    dup
+    bury 7
+    bury 1
+    b burn_block@5
+
+burn_block@5:
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:148-155
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b burn_after_inlined_%Validate__arc4.uint8@6
+
+burn_after_inlined_%Validate__arc4.uint8@6:
+    // amm/contract.py:148-155
+    // @arc4.abimethod(
+    //     default_args={
+    //         "pool_asset": "pool_token",
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 5
+    btoi
+    txnas Assets
+    dig 3
+    dig 6
+    dig 6
     uncover 3
     callsub examples.amm.contract.ConstantProductAMM.burn
     intc_1 // 1
@@ -553,6 +770,8 @@ burn_block@0:
 
 // examples.amm.contract.ConstantProductAMM.swap[routing]() -> void:
 swap:
+    intc_0 // 0
+    bytec_0 // ""
     b swap_block@0
 
 swap_block@0:
@@ -574,22 +793,73 @@ swap_block@0:
     assert // transaction type is axfer
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 1
-    ==
-    assert // invalid number of bytes for arc4.uint8
-    btoi
-    txnas Assets
-    txna ApplicationArgs 2
+    b swap_block@1
+
+swap_block@1:
     dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:206-212
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b swap_after_inlined_%Validate__arc4.uint8@2
+
+swap_after_inlined_%Validate__arc4.uint8@2:
+    // amm/contract.py:206-212
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 1
     btoi
     txnas Assets
-    uncover 2
-    uncover 2
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 6
+    bury 1
+    b swap_block@3
+
+swap_block@3:
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    // amm/contract.py:206-212
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    b swap_after_inlined_%Validate__arc4.uint8@4
+
+swap_after_inlined_%Validate__arc4.uint8@4:
+    // amm/contract.py:206-212
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a_asset": "asset_a",
+    //         "b_asset": "asset_b",
+    //     },
+    //     resource_encoding="index",
+    // )
+    dig 4
+    btoi
+    txnas Assets
+    dig 3
+    dig 5
     uncover 2
     callsub examples.amm.contract.ConstantProductAMM.swap
     intc_1 // 1
@@ -604,13 +874,13 @@ __init___block@0:
     // amm/contract.py:32-33
     // # The asset id of asset A
     // self.asset_a = Asset()
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     intc_0 // 0
     app_global_put
     // amm/contract.py:34-35
     // # The asset id of asset B
     // self.asset_b = Asset()
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     intc_0 // 0
     app_global_put
     // amm/contract.py:36-37
@@ -623,7 +893,7 @@ __init___block@0:
     // amm/contract.py:38-39
     // # The asset id of the Pool Token, used to track share of pool the holder may recover
     // self.pool_token = Asset()
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     intc_0 // 0
     app_global_put
     // amm/contract.py:40-41
@@ -667,7 +937,7 @@ examples.amm.contract.ConstantProductAMM.bootstrap_block@0:
     // amm/contract.py:66
     // assert not self.pool_token, "application has already been bootstrapped"
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     intc_0 // 0
@@ -704,38 +974,38 @@ examples.amm.contract.ConstantProductAMM.bootstrap_block@0:
     assert // asset a must be less than asset b
     // amm/contract.py:73
     // self.asset_a = a_asset
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     frame_dig -2
     app_global_put
     // amm/contract.py:74
     // self.asset_b = b_asset
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     frame_dig -1
     app_global_put
     // amm/contract.py:75
     // self.pool_token = self._create_pool_token()
     callsub _create_pool_token
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     uncover 1
     app_global_put
     // amm/contract.py:77
     // self._do_opt_in(self.asset_a)
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     callsub _do_opt_in
     // amm/contract.py:78
     // self._do_opt_in(self.asset_b)
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     callsub _do_opt_in
     // amm/contract.py:79
     // return self.pool_token.id
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     retsub
@@ -771,7 +1041,7 @@ examples.amm.contract.ConstantProductAMM.mint_block@0:
     // # well-formed mint
     // assert pool_asset == self.pool_token, "asset pool incorrect"
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     frame_dig -3
@@ -780,7 +1050,7 @@ examples.amm.contract.ConstantProductAMM.mint_block@0:
     // amm/contract.py:116
     // assert a_asset == self.asset_a, "asset a incorrect"
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
@@ -789,7 +1059,7 @@ examples.amm.contract.ConstantProductAMM.mint_block@0:
     // amm/contract.py:117
     // assert b_asset == self.asset_b, "asset b incorrect"
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -826,7 +1096,7 @@ examples.amm.contract.ConstantProductAMM.mint_block@0:
     frame_dig -5
     gtxns XferAsset
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     ==
@@ -855,7 +1125,7 @@ examples.amm.contract.ConstantProductAMM.mint_block@0:
     frame_dig -4
     gtxns XferAsset
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     ==
@@ -909,7 +1179,7 @@ examples.amm.contract.ConstantProductAMM.mint_block@0:
     // do_asset_transfer(receiver=Txn.sender, asset=self.pool_token, amount=to_mint)
     txn Sender
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     uncover 2
@@ -948,7 +1218,7 @@ examples.amm.contract.ConstantProductAMM.burn_block@0:
     // amm/contract.py:174
     // assert pool_asset == self.pool_token, "asset pool incorrect"
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     frame_dig -3
@@ -957,7 +1227,7 @@ examples.amm.contract.ConstantProductAMM.burn_block@0:
     // amm/contract.py:175
     // assert a_asset == self.asset_a, "asset a incorrect"
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
@@ -966,7 +1236,7 @@ examples.amm.contract.ConstantProductAMM.burn_block@0:
     // amm/contract.py:176
     // assert b_asset == self.asset_b, "asset b incorrect"
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -995,7 +1265,7 @@ examples.amm.contract.ConstantProductAMM.burn_block@0:
     frame_dig -4
     gtxns XferAsset
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     ==
@@ -1053,7 +1323,7 @@ examples.amm.contract.ConstantProductAMM.burn_block@0:
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
     txn Sender
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     uncover 2
@@ -1063,7 +1333,7 @@ examples.amm.contract.ConstantProductAMM.burn_block@0:
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_b, amount=b_amt)
     txn Sender
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     uncover 2
@@ -1091,9 +1361,9 @@ examples.amm.contract.ConstantProductAMM.swap:
     //     b_asset: Asset,
     // ) -> None:
     proto 3 0
-    bytec_3 // ""
-    bytec_3 // ""
-    bytec_3 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b examples.amm.contract.ConstantProductAMM.swap_block@0
 
 examples.amm.contract.ConstantProductAMM.swap_block@0:
@@ -1103,7 +1373,7 @@ examples.amm.contract.ConstantProductAMM.swap_block@0:
     // amm/contract.py:228
     // assert a_asset == self.asset_a, "asset a incorrect"
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_dig -2
@@ -1112,7 +1382,7 @@ examples.amm.contract.ConstantProductAMM.swap_block@0:
     // amm/contract.py:229
     // assert b_asset == self.asset_b, "asset b incorrect"
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_dig -1
@@ -1139,13 +1409,13 @@ examples.amm.contract.ConstantProductAMM.swap_block@0:
     // amm/contract.py:235
     // case self.asset_a:
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     // amm/contract.py:239
     // case self.asset_b:
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     // amm/contract.py:234-244
@@ -1181,7 +1451,7 @@ examples.amm.contract.ConstantProductAMM.swap_switch_case_1@2:
     // amm/contract.py:242
     // out_asset = self.asset_b
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     frame_bury 1
@@ -1228,7 +1498,7 @@ examples.amm.contract.ConstantProductAMM.swap_switch_case_0@1:
     // amm/contract.py:238
     // out_asset = self.asset_a
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     frame_bury 1
@@ -1243,7 +1513,7 @@ _check_bootstrapped_block@0:
     // amm/contract.py:256
     // assert self.pool_token, "bootstrap method needs to be called first"
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     intc_0 // 0
@@ -1316,7 +1586,7 @@ _create_pool_token_block@0:
     // amm/contract.py:275
     // asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_params_get AssetUnitName
@@ -1327,7 +1597,7 @@ _create_pool_token_block@0:
     pushbytes 0x2d
     concat
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     asset_params_get AssetUnitName
@@ -1443,7 +1713,7 @@ _current_pool_balance_block@0:
     // return self.pool_token.balance(Global.current_application_address)
     global CurrentApplicationAddress
     intc_0 // 0
-    bytec_2 // "pool_token"
+    bytec_3 // "pool_token"
     app_global_get_ex
     assert // check self.pool_token exists
     asset_holding_get AssetBalance
@@ -1460,7 +1730,7 @@ _current_a_balance_block@0:
     // return self.asset_a.balance(Global.current_application_address)
     global CurrentApplicationAddress
     intc_0 // 0
-    bytec_0 // "asset_a"
+    bytec_1 // "asset_a"
     app_global_get_ex
     assert // check self.asset_a exists
     asset_holding_get AssetBalance
@@ -1477,7 +1747,7 @@ _current_b_balance_block@0:
     // return self.asset_b.balance(Global.current_application_address)
     global CurrentApplicationAddress
     intc_0 // 0
-    bytec_1 // "asset_b"
+    bytec_2 // "asset_b"
     app_global_get_ex
     assert // check self.asset_b exists
     asset_holding_get AssetBalance

@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 8 0 2
-    bytecblock 0x151f7c75 "asa" 0x01040023 0x07 "local_uint" "local_bytes" 0x00000000000001c8 "abc"
+    intcblock 0 1 8 2
+    bytecblock 0x 0x151f7c75 "asa" 0x01040023 "local_uint" "local_bytes" 0x00000000000001c8 "abc"
     b main_block@0
 
 main_block@0:
@@ -23,7 +23,7 @@ main_block@3:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txn NumAppArgs
-    intc_2 // 0
+    intc_0 // 0
     !=
     bz main_bare_abi_config@25
     b main_abi_routing@4
@@ -32,7 +32,7 @@ main_abi_routing@4:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txna ApplicationArgs 0
-    bytec_2 // method "opt_in(uint64,byte[])void"
+    bytec_3 // method "opt_in(uint64,byte[])void"
     pushbytes 0x3a5353fc // method "all_the_things(uint64)uint8"
     pushbytes 0xd2f2f53c // method "mixed_oca(uint64)uint8"
     uncover 3
@@ -43,11 +43,11 @@ main_switch_case_next@8:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txn OnCompletion
-    intc_2 // NoOp
+    intc_0 // NoOp
     ==
     assert
     txn ApplicationID
-    intc_2 // 0
+    intc_0 // 0
     !=
     bz main_create_NoOp@23
     b main_call_NoOp@9
@@ -186,15 +186,15 @@ main_mixed_oca_route@7:
     //     readonly=True,
     // )
     txn OnCompletion
-    intc_0 // 1
+    intc_1 // 1
     uncover 1
     shl
     pushint 37
     &
-    intc_2 // 0
+    intc_0 // 0
     !=
     txn ApplicationID
-    intc_2 // 0
+    intc_0 // 0
     !=
     &&
     assert
@@ -222,10 +222,10 @@ main_opt_in_route@5:
     // abi_routing/contract.py:45
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     txn OnCompletion
-    intc_0 // OptIn
+    intc_1 // OptIn
     ==
     txn ApplicationID
-    intc_2 // 0
+    intc_0 // 0
     !=
     &&
     assert
@@ -245,11 +245,11 @@ main_bare_abi_config@25:
     //     create="require",
     // )
     txn ApplicationID
-    intc_2 // 0
+    intc_0 // 0
     ==
     assert
     callsub bare_abi_config
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -262,21 +262,35 @@ noop_with_uint64_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b noop_with_uint64_block@1
+
+noop_with_uint64_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:40
+    // @arc4.abimethod
+    b noop_with_uint64_after_inlined_%Validate__arc4.uint64@2
+
+noop_with_uint64_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:40
+    // @arc4.abimethod
+    dig 1
     callsub test_cases.abi_routing.contract.Reference.noop_with_uint64
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // test_cases.abi_routing.contract.Reference.opt_in[routing]() -> void:
 opt_in:
+    intc_0 // 0
+    bytec_0 // ""
     b opt_in_block@0
 
 opt_in_block@0:
@@ -284,26 +298,55 @@ opt_in_block@0:
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     txna ApplicationArgs 1
     dup
+    b opt_in_block@1
+
+opt_in_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:45
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
+    b opt_in_after_inlined_%Validate__arc4.uint64@2
+
+opt_in_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:45
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
+    dig 1
     btoi
+    bury 3
     txna ApplicationArgs 2
     dup
-    intc_2 // 0
+    bury 5
+    bury 1
+    b opt_in_block@3
+
+opt_in_block@3:
+    dupn 2
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // abi_routing/contract.py:45
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
+    b opt_in_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@4
+
+opt_in_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@4:
+    // abi_routing/contract.py:45
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
+    dig 3
     extract 2 0
+    dig 3
+    uncover 1
     callsub test_cases.abi_routing.contract.Reference.opt_in
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -327,16 +370,50 @@ full_abi_config_block@0:
     // )
     txna ApplicationArgs 1
     dup
+    b full_abi_config_block@1
+
+full_abi_config_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:50-61
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         OnCompleteAction.OptIn,
+    //         "CloseOut",
+    //         OnCompleteAction.UpdateApplication,
+    //         OnCompleteAction.DeleteApplication,
+    //     ],
+    //     name="all_the_things",
+    //     create="allow",
+    //     readonly=True,
+    // )
+    b full_abi_config_after_inlined_%Validate__arc4.uint64@2
+
+full_abi_config_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:50-61
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         OnCompleteAction.OptIn,
+    //         "CloseOut",
+    //         OnCompleteAction.UpdateApplication,
+    //         OnCompleteAction.DeleteApplication,
+    //     ],
+    //     name="all_the_things",
+    //     create="allow",
+    //     readonly=True,
+    // )
+    dig 1
     callsub test_cases.abi_routing.contract.Reference.full_abi_config
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -357,16 +434,44 @@ mixed_oca_block@0:
     // )
     txna ApplicationArgs 1
     dup
+    b mixed_oca_block@1
+
+mixed_oca_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:66-74
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "CloseOut",
+    //         "DeleteApplication",
+    //     ],
+    //     create="disallow",
+    //     readonly=True,
+    // )
+    b mixed_oca_after_inlined_%Validate__arc4.uint64@2
+
+mixed_oca_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:66-74
+    // @arc4.abimethod(
+    //     allow_actions=[
+    //         "NoOp",
+    //         "CloseOut",
+    //         "DeleteApplication",
+    //     ],
+    //     create="disallow",
+    //     readonly=True,
+    // )
+    dig 1
     callsub test_cases.abi_routing.contract.Reference.mixed_oca
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -379,18 +484,35 @@ opt_into_asset_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b opt_into_asset_block@1
+
+opt_into_asset_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:92
+    // @arc4.abimethod
+    b opt_into_asset_after_inlined_%Validate__arc4.uint64@2
+
+opt_into_asset_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:92
+    // @arc4.abimethod
+    dig 1
     btoi
     callsub test_cases.abi_routing.contract.Reference.opt_into_asset
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // test_cases.abi_routing.contract.Reference.with_transactions[routing]() -> void:
 with_transactions:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
     b with_transactions_block@0
 
 with_transactions_block@0:
@@ -398,42 +520,87 @@ with_transactions_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b with_transactions_block@1
+
+with_transactions_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    b with_transactions_after_inlined_%Validate__arc4.uint64@2
+
+with_transactions_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    dig 1
     btoi
+    bury 3
     txna ApplicationArgs 2
     dup
+    bury 7
+    bury 1
+    b with_transactions_block@3
+
+with_transactions_block@3:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    b with_transactions_after_inlined_%Validate__arc4.uint64@4
+
+with_transactions_after_inlined_%Validate__arc4.uint64@4:
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    dig 5
+    bury 7
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
+    bury 5
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 3
     dup
+    bury 6
+    bury 1
+    b with_transactions_block@5
+
+with_transactions_block@5:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    uncover 3
-    uncover 3
-    uncover 3
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    b with_transactions_after_inlined_%Validate__arc4.uint64@6
+
+with_transactions_after_inlined_%Validate__arc4.uint64@6:
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    dig 4
+    dig 3
+    dig 8
+    dig 6
     uncover 3
     callsub test_cases.abi_routing.contract.Reference.with_transactions
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // test_cases.abi_routing.contract.Reference.compare_assets[routing]() -> void:
 compare_assets:
+    intc_0 // 0
+    bytec_0 // ""
     b compare_assets_block@0
 
 compare_assets_block@0:
@@ -441,20 +608,49 @@ compare_assets_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 2
+    b compare_assets_block@1
+
+compare_assets_block@1:
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:122
+    // @arc4.abimethod
+    b compare_assets_after_inlined_%Validate__arc4.uint64@2
+
+compare_assets_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:122
+    // @arc4.abimethod
+    dig 1
     btoi
+    bury 3
+    txna ApplicationArgs 2
+    dup
+    bury 5
+    bury 1
+    b compare_assets_block@3
+
+compare_assets_block@3:
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:122
+    // @arc4.abimethod
+    b compare_assets_after_inlined_%Validate__arc4.uint64@4
+
+compare_assets_after_inlined_%Validate__arc4.uint64@4:
+    // abi_routing/contract.py:122
+    // @arc4.abimethod
+    dig 3
+    btoi
+    dig 3
+    uncover 1
     callsub test_cases.abi_routing.contract.Reference.compare_assets
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -466,11 +662,11 @@ get_address_block@0:
     // abi_routing/contract.py:126
     // @arc4.abimethod(readonly=True)
     callsub test_cases.abi_routing.contract.Reference.get_address
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -482,11 +678,11 @@ get_asset_block@0:
     // abi_routing/contract.py:130
     // @arc4.abimethod(readonly=True)
     callsub test_cases.abi_routing.contract.Reference.get_asset
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -498,11 +694,11 @@ get_app_block@0:
     // abi_routing/contract.py:134
     // @arc4.abimethod(readonly=True, name="get_application")
     callsub test_cases.abi_routing.contract.Reference.get_app
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -514,16 +710,40 @@ get_a_int_block@0:
     // abi_routing/contract.py:138
     // @arc4.abimethod(readonly=True, name="get_an_int")
     callsub test_cases.abi_routing.contract.Reference.get_a_int
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // test_cases.abi_routing.contract.Reference.method_with_default_args[routing]() -> void:
 method_with_default_args:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b method_with_default_args_block@0
 
 method_with_default_args_block@0:
@@ -547,120 +767,756 @@ method_with_default_args_block@0:
     // )
     txna ApplicationArgs 1
     dup
+    b method_with_default_args_block@1
+
+method_with_default_args_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint64@2
+
+method_with_default_args_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 1
     btoi
+    bury 7
     txna ApplicationArgs 2
     dup
+    bury 14
+    bury 1
+    b method_with_default_args_block@3
+
+method_with_default_args_block@3:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint64@4
+
+method_with_default_args_after_inlined_%Validate__arc4.uint64@4:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 12
     btoi
+    bury 4
     txna ApplicationArgs 3
     dup
+    bury 13
+    bury 1
+    b method_with_default_args_block@5
+
+method_with_default_args_block@5:
+    dup
     len
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@6
+
+method_with_default_args_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@6:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 11
+    bury 11
     txna ApplicationArgs 4
     dup
+    bury 11
+    bury 1
+    b method_with_default_args_block@7
+
+method_with_default_args_block@7:
+    dup
     len
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@8
+
+method_with_default_args_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@8:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 9
+    bury 9
     txna ApplicationArgs 5
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 6
+    bury 9
+    bury 1
+    b method_with_default_args_block@9
+
+method_with_default_args_block@9:
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint64@10
+
+method_with_default_args_after_inlined_%Validate__arc4.uint64@10:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 7
     btoi
+    bury 3
+    txna ApplicationArgs 6
+    dup
+    bury 22
+    bury 1
+    b method_with_default_args_block@11
+
+method_with_default_args_block@11:
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint64@12
+
+method_with_default_args_after_inlined_%Validate__arc4.uint64@12:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 20
+    btoi
+    bury 6
     txna ApplicationArgs 7
+    dup
+    bury 21
+    bury 1
+    b method_with_default_args_block@13
+
+method_with_default_args_block@13:
     dup
     len
     pushint 3
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 3>
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.static_array<arc4.uint8,3>@14
+
+method_with_default_args_after_inlined_%Validate__arc4.static_array<arc4.uint8,3>@14:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 19
+    bury 22
     txna ApplicationArgs 8
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    txna ApplicationArgs 9
+    bury 20
+    bury 1
+    b method_with_default_args_block@15
+
+method_with_default_args_block@15:
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint64@16
+
+method_with_default_args_after_inlined_%Validate__arc4.uint64@16:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 18
+    bury 24
+    txna ApplicationArgs 9
+    dup
+    bury 19
+    bury 1
+    b method_with_default_args_block@17
+
+method_with_default_args_block@17:
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint64@18
+
+method_with_default_args_after_inlined_%Validate__arc4.uint64@18:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 17
+    bury 23
     txna ApplicationArgs 10
+    dup
+    bury 18
+    bury 1
+    b method_with_default_args_block@19
+
+method_with_default_args_block@19:
     dup
     len
     pushint 4
     ==
     assert // invalid number of bytes for arc4.uint32
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint32@20
+
+method_with_default_args_after_inlined_%Validate__arc4.uint32@20:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 16
+    bury 25
     txna ApplicationArgs 11
     dup
-    intc_2 // 0
+    bury 17
+    bury 1
+    b method_with_default_args_block@21
+
+method_with_default_args_block@21:
+    dupn 2
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@22
+
+method_with_default_args_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@22:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 15
+    bury 26
     txna ApplicationArgs 12
     dup
+    bury 16
+    bury 1
+    b method_with_default_args_block@23
+
+method_with_default_args_block@23:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.uint64@24
+
+method_with_default_args_after_inlined_%Validate__arc4.uint64@24:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 14
     btoi
+    bury 5
     txna ApplicationArgs 13
     dup
-    intc_2 // 0
+    bury 15
+    bury 1
+    b method_with_default_args_block@25
+
+method_with_default_args_block@25:
+    dupn 2
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    b method_with_default_args_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@26
+
+method_with_default_args_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@26:
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    dig 13
     extract 2 0
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
-    uncover 12
+    dig 7
+    dig 5
+    dig 13
+    dig 12
+    dig 7
+    dig 11
+    dig 28
+    dig 31
+    dig 31
+    dig 34
+    dig 36
+    dig 16
     uncover 12
     callsub test_cases.abi_routing.contract.Reference.method_with_default_args
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // test_cases.abi_routing.contract.Reference.method_with_15_args[routing]() -> void:
 method_with_15_args:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b method_with_15_args_block@0
 
 method_with_15_args_block@0:
@@ -668,129 +1524,351 @@ method_with_15_args_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b method_with_15_args_block@1
+
+method_with_15_args_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@2
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 1
     btoi
+    bury 16
     txna ApplicationArgs 2
     dup
+    bury 26
+    bury 1
+    b method_with_15_args_block@3
+
+method_with_15_args_block@3:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@4
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@4:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 24
     btoi
+    bury 6
     txna ApplicationArgs 3
     dup
+    bury 20
+    bury 1
+    b method_with_15_args_block@5
+
+method_with_15_args_block@5:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@6
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@6:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 18
     btoi
+    bury 5
     txna ApplicationArgs 4
     dup
+    bury 19
+    bury 1
+    b method_with_15_args_block@7
+
+method_with_15_args_block@7:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@8
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@8:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 17
     btoi
+    bury 4
     txna ApplicationArgs 5
     dup
+    bury 18
+    bury 1
+    b method_with_15_args_block@9
+
+method_with_15_args_block@9:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@10
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@10:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 16
     btoi
+    bury 3
     txna ApplicationArgs 6
     dup
+    bury 31
+    bury 1
+    b method_with_15_args_block@11
+
+method_with_15_args_block@11:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@12
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@12:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 29
     btoi
+    bury 15
     txna ApplicationArgs 7
     dup
+    bury 30
+    bury 1
+    b method_with_15_args_block@13
+
+method_with_15_args_block@13:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@14
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@14:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 28
     btoi
+    bury 14
     txna ApplicationArgs 8
     dup
+    bury 29
+    bury 1
+    b method_with_15_args_block@15
+
+method_with_15_args_block@15:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@16
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@16:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 27
     btoi
+    bury 13
     txna ApplicationArgs 9
     dup
+    bury 28
+    bury 1
+    b method_with_15_args_block@17
+
+method_with_15_args_block@17:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@18
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@18:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 26
     btoi
+    bury 12
     txna ApplicationArgs 10
     dup
+    bury 27
+    bury 1
+    b method_with_15_args_block@19
+
+method_with_15_args_block@19:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@20
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@20:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 25
     btoi
+    bury 11
     txna ApplicationArgs 11
     dup
+    bury 25
+    bury 1
+    b method_with_15_args_block@21
+
+method_with_15_args_block@21:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@22
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@22:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 23
     btoi
+    bury 10
     txna ApplicationArgs 12
     dup
+    bury 24
+    bury 1
+    b method_with_15_args_block@23
+
+method_with_15_args_block@23:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@24
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@24:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 22
     btoi
+    bury 9
     txna ApplicationArgs 13
     dup
+    bury 23
+    bury 1
+    b method_with_15_args_block@25
+
+method_with_15_args_block@25:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@26
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@26:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 21
     btoi
+    bury 8
     txna ApplicationArgs 14
     dup
+    bury 22
+    bury 1
+    b method_with_15_args_block@27
+
+method_with_15_args_block@27:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.uint64@28
+
+method_with_15_args_after_inlined_%Validate__arc4.uint64@28:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 20
     btoi
+    bury 7
     txna ApplicationArgs 15
     dup
-    intc_2 // 0
+    bury 21
+    bury 1
+    b method_with_15_args_block@29
+
+method_with_15_args_block@29:
+    dupn 2
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    b method_with_15_args_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@30
+
+method_with_15_args_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@30:
+    // abi_routing/contract.py:191
+    // @arc4.abimethod
+    dig 19
     extract 2 0
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
-    uncover 14
+    dig 16
+    dig 7
+    dig 7
+    dig 7
+    dig 7
+    dig 20
+    dig 20
+    dig 20
+    dig 20
+    dig 20
+    dig 20
+    dig 20
+    dig 20
+    dig 20
     uncover 14
     callsub test_cases.abi_routing.contract.Reference.method_with_15_args
     dup
@@ -799,16 +1877,64 @@ method_with_15_args_block@0:
     extract 6 2
     uncover 1
     concat
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
 // test_cases.abi_routing.contract.Reference.method_with_more_than_15_args[routing]() -> void:
 method_with_more_than_15_args:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b method_with_more_than_15_args_block@0
 
 method_with_more_than_15_args_block@0:
@@ -816,100 +1942,315 @@ method_with_more_than_15_args_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b method_with_more_than_15_args_block@1
+
+method_with_more_than_15_args_block@1:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@2
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@2:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 1
+    bury 50
     txna ApplicationArgs 2
     dup
+    bury 39
+    bury 1
+    b method_with_more_than_15_args_block@3
+
+method_with_more_than_15_args_block@3:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@4
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@4:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 37
+    bury 49
     txna ApplicationArgs 3
     dup
+    bury 28
+    bury 1
+    b method_with_more_than_15_args_block@5
+
+method_with_more_than_15_args_block@5:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@6
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@6:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 26
+    bury 44
     txna ApplicationArgs 4
     dup
+    bury 20
+    bury 1
+    b method_with_more_than_15_args_block@7
+
+method_with_more_than_15_args_block@7:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@8
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@8:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 18
     btoi
+    bury 4
     txna ApplicationArgs 5
     dup
+    bury 17
+    bury 1
+    b method_with_more_than_15_args_block@9
+
+method_with_more_than_15_args_block@9:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@10
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@10:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 15
     btoi
+    bury 3
     txna ApplicationArgs 6
     dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    txna ApplicationArgs 7
+    bury 16
+    bury 1
+    b method_with_more_than_15_args_block@11
+
+method_with_more_than_15_args_block@11:
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@12
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@12:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 14
+    bury 43
+    txna ApplicationArgs 7
+    dup
+    bury 15
+    bury 1
+    b method_with_more_than_15_args_block@13
+
+method_with_more_than_15_args_block@13:
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@14
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@14:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 13
+    bury 42
     txn GroupIndex
     intc_3 // 2
     -
     dup
+    bury 9
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 8
     dup
+    bury 38
+    bury 1
+    b method_with_more_than_15_args_block@15
+
+method_with_more_than_15_args_block@15:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@16
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@16:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 36
+    bury 41
     txna ApplicationArgs 9
     dup
+    bury 37
+    bury 1
+    b method_with_more_than_15_args_block@17
+
+method_with_more_than_15_args_block@17:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@18
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@18:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 35
+    bury 40
     txna ApplicationArgs 10
     dup
+    bury 36
+    bury 1
+    b method_with_more_than_15_args_block@19
+
+method_with_more_than_15_args_block@19:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@20
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@20:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 34
+    bury 39
     txna ApplicationArgs 11
     dup
+    bury 35
+    bury 1
+    b method_with_more_than_15_args_block@21
+
+method_with_more_than_15_args_block@21:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@22
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@22:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 33
+    bury 48
     txna ApplicationArgs 12
     dup
+    bury 34
+    bury 1
+    b method_with_more_than_15_args_block@23
+
+method_with_more_than_15_args_block@23:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@24
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@24:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 32
+    bury 47
     txna ApplicationArgs 13
     dup
+    bury 33
+    bury 1
+    b method_with_more_than_15_args_block@25
+
+method_with_more_than_15_args_block@25:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@26
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@26:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 31
+    bury 46
     txna ApplicationArgs 14
     dup
+    bury 32
+    bury 1
+    b method_with_more_than_15_args_block@27
+
+method_with_more_than_15_args_block@27:
+    dup
     len
-    intc_1 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@28
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.uint64@28:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 30
+    bury 45
     txna ApplicationArgs 15
     dup
+    bury 31
+    bury 1
+    b method_with_more_than_15_args_block@29
+
+method_with_more_than_15_args_block@29:
+    dupn 2
     len
     cover 1
     dup
@@ -923,9 +2264,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -942,22 +2283,37 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    intc_2 // 0
-    intc_1 // 8
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@30
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@30:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 29
+    intc_0 // 0
+    intc_2 // 8
     extract3
+    bury 13
     txna ApplicationArgs 15
     dup
+    bury 30
+    bury 1
+    b method_with_more_than_15_args_block@31
+
+method_with_more_than_15_args_block@31:
+    dupn 2
     len
     cover 1
     dup
@@ -971,9 +2327,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -990,22 +2346,37 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    intc_1 // 8
-    intc_1 // 8
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@32
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@32:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 28
+    intc_2 // 8
+    intc_2 // 8
     extract3
+    bury 12
     txna ApplicationArgs 15
     dup
+    bury 29
+    bury 1
+    b method_with_more_than_15_args_block@33
+
+method_with_more_than_15_args_block@33:
+    dupn 2
     len
     cover 1
     dup
@@ -1019,9 +2390,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1038,23 +2409,38 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@34
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@34:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 27
     pushint 16
-    intc_1 // 8
+    intc_2 // 8
     extract3
     btoi
+    bury 6
     txna ApplicationArgs 15
     dup
+    bury 27
+    bury 1
+    b method_with_more_than_15_args_block@35
+
+method_with_more_than_15_args_block@35:
+    dupn 2
     len
     cover 1
     dup
@@ -1068,9 +2454,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1087,22 +2473,37 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@36
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@36:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 25
     pushint 24
-    intc_1 // 8
+    intc_2 // 8
     extract3
+    bury 11
     txna ApplicationArgs 15
     dup
+    bury 26
+    bury 1
+    b method_with_more_than_15_args_block@37
+
+method_with_more_than_15_args_block@37:
+    dupn 2
     len
     cover 1
     dup
@@ -1116,9 +2517,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1135,22 +2536,37 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@38
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@38:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 24
     pushint 32
-    intc_1 // 8
+    intc_2 // 8
     extract3
+    bury 10
     txna ApplicationArgs 15
     dup
+    bury 25
+    bury 1
+    b method_with_more_than_15_args_block@39
+
+method_with_more_than_15_args_block@39:
+    dupn 2
     len
     cover 1
     dup
@@ -1164,9 +2580,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1183,17 +2599,25 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@40
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@40:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 23
     dup
     pushint 40
     extract_uint16
@@ -1206,8 +2630,15 @@ method_with_more_than_15_args_block@0:
     uncover 2
     substring3
     extract 2 0
+    bury 23
     txna ApplicationArgs 15
     dup
+    bury 23
+    bury 1
+    b method_with_more_than_15_args_block@41
+
+method_with_more_than_15_args_block@41:
+    dupn 2
     len
     cover 1
     dup
@@ -1221,9 +2652,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1240,17 +2671,25 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@42
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@42:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 21
     dup
     pushint 42
     extract_uint16
@@ -1262,8 +2701,15 @@ method_with_more_than_15_args_block@0:
     uncover 2
     substring3
     extract 2 0
+    bury 21
     txna ApplicationArgs 15
     dup
+    bury 21
+    bury 1
+    b method_with_more_than_15_args_block@43
+
+method_with_more_than_15_args_block@43:
+    dupn 2
     len
     cover 1
     dup
@@ -1277,9 +2723,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1296,31 +2742,47 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@44
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@44:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 19
     pushint 44
-    intc_1 // 8
+    intc_2 // 8
     extract3
     btoi
+    bury 5
     txn GroupIndex
-    intc_0 // 1
+    intc_1 // 1
     -
     dup
+    bury 8
     gtxns TypeEnum
-    intc_0 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 15
     dup
+    bury 19
+    bury 1
+    b method_with_more_than_15_args_block@45
+
+method_with_more_than_15_args_block@45:
+    dupn 2
     len
     cover 1
     dup
@@ -1334,9 +2796,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1353,22 +2815,37 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@46
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@46:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 17
     pushint 52
-    intc_1 // 8
+    intc_2 // 8
     extract3
+    bury 9
     txna ApplicationArgs 15
     dup
+    bury 18
+    bury 1
+    b method_with_more_than_15_args_block@47
+
+method_with_more_than_15_args_block@47:
+    dupn 2
     len
     cover 1
     dup
@@ -1382,9 +2859,9 @@ method_with_more_than_15_args_block@0:
     uncover 1
     dig 3
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
@@ -1401,52 +2878,60 @@ method_with_more_than_15_args_block@0:
     uncover 1
     uncover 4
     substring3
-    intc_2 // 0
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    b method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@48
+
+method_with_more_than_15_args_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>@48:
+    // abi_routing/contract.py:229
+    // @arc4.abimethod
+    dig 16
     pushint 60
-    intc_1 // 8
+    intc_2 // 8
     extract3
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
-    uncover 25
+    dig 50
+    dig 50
+    dig 46
+    dig 7
+    dig 7
+    dig 48
+    dig 48
+    dig 15
+    dig 49
+    dig 49
+    dig 49
+    dig 59
+    dig 59
+    dig 59
+    dig 59
+    dig 28
+    dig 28
+    dig 23
+    dig 29
+    dig 29
+    dig 43
+    dig 42
+    dig 27
+    dig 30
+    dig 33
     uncover 25
     callsub test_cases.abi_routing.contract.Reference.method_with_more_than_15_args
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -1459,16 +2944,28 @@ hello_with_algopy_string_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    intc_2 // 0
+    b hello_with_algopy_string_block@1
+
+hello_with_algopy_string_block@1:
+    dupn 2
+    intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_0 // 1
+    intc_1 // 1
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // abi_routing/contract.py:295
+    // @arc4.abimethod
+    b hello_with_algopy_string_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+hello_with_algopy_string_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    // abi_routing/contract.py:295
+    // @arc4.abimethod
+    dig 1
     extract 2 0
     callsub test_cases.abi_routing.contract.Reference.hello_with_algopy_string
     dup
@@ -1477,11 +2974,11 @@ hello_with_algopy_string_block@0:
     extract 6 2
     uncover 1
     concat
-    bytec_0 // 0x151f7c75
+    bytec_1 // 0x151f7c75
     uncover 1
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -1492,7 +2989,7 @@ __init__:
 __init___block@0:
     // abi_routing/contract.py:26
     // self.asa = Asset(123)
-    bytec_1 // "asa"
+    bytec_2 // "asa"
     pushint 123
     app_global_put
     // abi_routing/contract.py:27
@@ -1502,8 +2999,8 @@ __init___block@0:
     app_global_put
     // abi_routing/contract.py:28
     // self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
-    pushbytes 0x
-    bytec_3 // 0x07
+    bytec_0 // 0x
+    pushbytes 0x07
     concat
     pushbytes 0x08
     concat
@@ -1527,17 +3024,17 @@ __init___block@0:
     // assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
     pushbytes 0x189392c5 // method "get(uint64,byte[])byte[]"
     len
-    intc_2 // 0
+    intc_0 // 0
     !=
     assert // has method selector
     // abi_routing/contract.py:36
     // assert arc4.arc4_signature(Reference.opt_in) == arc4.arc4_signature(
-    bytec_2 // method "opt_in(uint64,byte[])void"
+    bytec_3 // method "opt_in(uint64,byte[])void"
     // abi_routing/contract.py:36-38
     // assert arc4.arc4_signature(Reference.opt_in) == arc4.arc4_signature(
     //     "opt_in(uint64,byte[])void"
     // ), "has method selector for method reference"
-    bytec_2 // method "opt_in(uint64,byte[])void"
+    bytec_3 // method "opt_in(uint64,byte[])void"
     ==
     assert // has method selector for method reference
     retsub
@@ -1556,18 +3053,18 @@ test_cases.abi_routing.contract.Reference.noop_with_uint64_block@0:
     // result = 1 + a.as_uint64()
     frame_dig -1
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
     // abi_routing/contract.py:43
     // return arc4.UInt8(result)
     itob
     dup
     bitlen
-    intc_1 // 8
+    intc_2 // 8
     <=
     assert // overflow
     pushint 7
-    intc_0 // 1
+    intc_1 // 1
     extract3
     retsub
 
@@ -1620,18 +3117,18 @@ test_cases.abi_routing.contract.Reference.full_abi_config_block@0:
     // result = UInt64(1) + a.as_uint64()
     frame_dig -1
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
     // abi_routing/contract.py:64
     // return arc4.UInt8(result)
     itob
     dup
     bitlen
-    intc_1 // 8
+    intc_2 // 8
     <=
     assert // overflow
     pushint 7
-    intc_0 // 1
+    intc_1 // 1
     extract3
     retsub
 
@@ -1657,18 +3154,18 @@ test_cases.abi_routing.contract.Reference.mixed_oca_block@0:
     // result = UInt64(1) + a.as_uint64()
     frame_dig -1
     btoi
-    intc_0 // 1
+    intc_1 // 1
     +
     // abi_routing/contract.py:77
     // return arc4.UInt8(result)
     itob
     dup
     bitlen
-    intc_1 // 8
+    intc_2 // 8
     <=
     assert // overflow
     pushint 7
-    intc_0 // 1
+    intc_1 // 1
     extract3
     retsub
 
@@ -1704,17 +3201,17 @@ test_cases.abi_routing.contract.Reference.opt_into_asset_block@0:
     // abi_routing/contract.py:96-97
     // # Verify a ASA hasn't already been opted into
     // assert not self.asa, "ASA already opted in"
-    intc_2 // 0
-    bytec_1 // "asa"
+    intc_0 // 0
+    bytec_2 // "asa"
     app_global_get_ex
     assert // check self.asa exists
-    intc_2 // 0
+    intc_0 // 0
     ==
     assert // ASA already opted in
     // abi_routing/contract.py:98-99
     // # Save ASA ID in global state
     // self.asa = asset
-    bytec_1 // "asa"
+    bytec_2 // "asa"
     frame_dig -1
     app_global_put
     // abi_routing/contract.py:101-102
@@ -1727,7 +3224,7 @@ test_cases.abi_routing.contract.Reference.opt_into_asset_block@0:
     itxn_field TypeEnum
     // abi_routing/contract.py:104
     // op.ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
-    intc_2 // 0
+    intc_0 // 0
     itxn_field Fee
     // abi_routing/contract.py:105
     // op.ITxnCreate.set_asset_receiver(op.Global.current_application_address)
@@ -1760,8 +3257,8 @@ test_cases.abi_routing.contract.Reference.with_transactions:
 test_cases.abi_routing.contract.Reference.with_transactions_block@0:
     // abi_routing/contract.py:117
     // assert self.asa == asset, "is correct asset"
-    intc_2 // 0
-    bytec_1 // "asa"
+    intc_0 // 0
+    bytec_2 // "asa"
     app_global_get_ex
     assert // check self.asa exists
     frame_dig -4
@@ -1771,7 +3268,7 @@ test_cases.abi_routing.contract.Reference.with_transactions_block@0:
     // assert an_int.as_uint64() == 1, "is correct int"
     frame_dig -3
     btoi
-    intc_0 // 1
+    intc_1 // 1
     ==
     assert // is correct int
     // abi_routing/contract.py:119
@@ -1931,24 +3428,24 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     assert // wrong application from function
     // abi_routing/contract.py:181
     // assert bytes_from_storage[0] == arc4.Byte(7), "wrong 0th byte from storage"
-    intc_2 // 0
-    intc_0 // 1
+    intc_0 // 0
+    intc_1 // 1
     *
     frame_dig -7
     uncover 1
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bytec_3 // 0x07
+    pushbytes 0x07
     b==
     assert // wrong 0th byte from storage
     // abi_routing/contract.py:182
     // assert bytes_from_storage[1] == arc4.Byte(8), "wrong 1st byte from storage"
-    intc_0 // 1
-    intc_0 // 1
+    intc_1 // 1
+    intc_1 // 1
     *
     frame_dig -7
     uncover 1
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: index access is out of bounds
     pushbytes 0x08
     b==
@@ -1956,11 +3453,11 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     // abi_routing/contract.py:183
     // assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
     intc_3 // 2
-    intc_0 // 1
+    intc_1 // 1
     *
     frame_dig -7
     uncover 1
-    intc_0 // 1
+    intc_1 // 1
     extract3 // on error: index access is out of bounds
     pushbytes 0x09
     b==
@@ -1999,7 +3496,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     // abi_routing/contract.py:188
     // assert int_from_local == self.local_uint[Txn.sender]
     txn Sender
-    intc_2 // 0
+    intc_0 // 0
     bytec 4 // "local_uint"
     app_local_get_ex
     assert // check self.local_uint exists for account
@@ -2009,7 +3506,7 @@ test_cases.abi_routing.contract.Reference.method_with_default_args_block@0:
     // abi_routing/contract.py:189
     // assert bytes_from_local == self.local_bytes[Txn.sender]
     txn Sender
-    intc_2 // 0
+    intc_0 // 0
     bytec 5 // "local_bytes"
     app_local_get_ex
     assert // check self.local_bytes exists for account
@@ -2189,7 +3686,7 @@ test_cases.abi_routing.contract.Reference.method_with_15_args_block@0:
     // + fourteen
     frame_dig -2
     +
-    intc_2 // 0
+    intc_0 // 0
     !=
     // abi_routing/contract.py:211-226
     // assert (
@@ -2276,13 +3773,13 @@ test_cases.abi_routing.contract.Reference.method_with_more_than_15_args_block@0:
     // abi_routing/contract.py:267
     // assert asset.id
     frame_dig -22
-    intc_2 // 0
+    intc_0 // 0
     !=
     assert
     // abi_routing/contract.py:268
     // assert asset2.id
     frame_dig -4
-    intc_2 // 0
+    intc_0 // 0
     !=
     assert
     // abi_routing/contract.py:270

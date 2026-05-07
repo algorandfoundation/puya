@@ -157,31 +157,37 @@ subroutine test:
     test_block@0:
         // debug/contract.py:5
         // @arc4.abimethod
-        txna ApplicationArgs 1                                   tmp%0#0
-        l-load-copy tmp%0#0 0                                    tmp%0#0,tmp%0#0 (copy)
-        len                                                      tmp%0#0,len%0#0
-        int 8                                                    tmp%0#0,len%0#0,8
-        ==                                                       tmp%0#0,eq%0#0
-        assert // invalid number of bytes for arc4.uint64        tmp%0#0
-        l-load tmp%0#0 0                                         tmp%0#0
+        txna ApplicationArgs 1                                   value#0
+        l-load-copy value#0 0                                    value#0,value#0 (copy)
+        len                                                      value#0,len%0#0
+        int 8                                                    value#0,len%0#0,8
+        ==                                                       value#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64        value#0
+        // debug/contract.py:5
+        // @arc4.abimethod
+        l-load value#0 0                                         value#0
         btoi                                                     x#0
-        txna ApplicationArgs 2                                   x#0,tmp%2#0
-        l-load-copy tmp%2#0 0                                    x#0,tmp%2#0,tmp%2#0 (copy)
-        len                                                      x#0,tmp%2#0,len%1#0
-        int 8                                                    x#0,tmp%2#0,len%1#0,8
-        ==                                                       x#0,tmp%2#0,eq%1#0
-        assert // invalid number of bytes for arc4.uint64        x#0,tmp%2#0
-        l-load tmp%2#0 0                                         x#0,tmp%2#0
+        txna ApplicationArgs 2                                   x#0,value#0
+        l-load-copy value#0 0                                    x#0,value#0,value#0 (copy)
+        len                                                      x#0,value#0,len%0#0
+        int 8                                                    x#0,value#0,len%0#0,8
+        ==                                                       x#0,value#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64        x#0,value#0
+        // debug/contract.py:5
+        // @arc4.abimethod
+        l-load value#0 0                                         x#0,value#0
         btoi                                                     x#0,y#0
         l-store-copy y#0 0                                       x#0,y#0,y#0 (copy)
         v-store y#0                                              x#0,y#0
-        txna ApplicationArgs 3                                   x#0,y#0,tmp%4#0
-        l-load-copy tmp%4#0 0                                    x#0,y#0,tmp%4#0,tmp%4#0 (copy)
-        len                                                      x#0,y#0,tmp%4#0,len%2#0
-        int 8                                                    x#0,y#0,tmp%4#0,len%2#0,8
-        ==                                                       x#0,y#0,tmp%4#0,eq%2#0
-        assert // invalid number of bytes for arc4.uint64        x#0,y#0,tmp%4#0
-        l-load tmp%4#0 0                                         x#0,y#0,tmp%4#0
+        txna ApplicationArgs 3                                   x#0,y#0,value#0
+        l-load-copy value#0 0                                    x#0,y#0,value#0,value#0 (copy)
+        len                                                      x#0,y#0,value#0,len%0#0
+        int 8                                                    x#0,y#0,value#0,len%0#0,8
+        ==                                                       x#0,y#0,value#0,eq%0#0
+        assert // invalid number of bytes for arc4.uint64        x#0,y#0,value#0
+        // debug/contract.py:5
+        // @arc4.abimethod
+        l-load value#0 0                                         x#0,y#0,value#0
         btoi                                                     x#0,y#0,z#0
         l-store-copy z#0 0                                       x#0,y#0,z#0,z#0 (copy)
         v-store z#0                                              x#0,y#0,z#0
@@ -210,69 +216,69 @@ subroutine test:
         l-load b#0 1                                             c#0,b#0
         l-load c#0 1                                             b#0,c#0
         <                                                        tmp%3#1
-        bz test_else_body@3 ; b test_if_body@2
+        bz test_else_body@9 ; b test_if_body@8
 
-    test_if_body@2:
+    test_if_body@8:
         // debug/contract.py:11
         // a = a + y
         v-load a#0                                               a#0
         v-load y#0                                               a#0,y#0
         +                                                        a#0
         v-store a#0
-        b test_after_if_else@12
+        b test_after_if_else@18
 
-    test_else_body@3:
+    test_else_body@9:
         // debug/contract.py:12
         // elif a < c:
         v-load a#0                                               a#0
         v-load c#0                                               a#0,c#0
         <                                                        tmp%5#1
-        bz test_else_body@5 ; b test_if_body@4
+        bz test_else_body@11 ; b test_if_body@10
 
-    test_if_body@4:
+    test_if_body@10:
         // debug/contract.py:13
         // a = a + z
         v-load a#0                                               a#0
         v-load z#0                                               a#0,z#0
         +                                                        a#0
         v-store a#0
-        b test_after_if_else@12
+        b test_after_if_else@18
 
-    test_else_body@5:
+    test_else_body@11:
         // debug/contract.py:14
         // elif b < a:
         v-load b#0                                               b#0
         v-load a#0                                               b#0,a#0
         <                                                        tmp%7#1
-        bz test_else_body@7 ; b test_if_body@6
+        bz test_else_body@13 ; b test_if_body@12
 
-    test_if_body@6:
+    test_if_body@12:
         // debug/contract.py:15
         // a = a * 3
         v-load a#0                                               a#0
         int 3                                                    a#0,3
         *                                                        a#0
         v-store a#0
-        b test_after_if_else@12
+        b test_after_if_else@18
 
-    test_else_body@7:
+    test_else_body@13:
         // debug/contract.py:16
         // elif b > a:
         v-load b#0                                               b#0
         v-load a#0                                               b#0,a#0
         >                                                        tmp%9#0
-        bz test_after_if_else@12 ; b test_if_body@8
+        bz test_after_if_else@18 ; b test_if_body@14
 
-    test_if_body@8:
+    test_if_body@14:
         // debug/contract.py:17
         // b = b + a
         v-load b#0                                               b#0
         v-load a#0                                               b#0,a#0
         +                                                        b#0
         v-store b#0
-        b test_after_if_else@12
+        b test_after_if_else@18
 
-    test_after_if_else@12:
+    test_after_if_else@18:
         // debug/contract.py:19
         // if a + b < c:
         v-load a#0                                               a#0
@@ -280,9 +286,9 @@ subroutine test:
         +                                                        tmp%11#0
         v-load c#0                                               tmp%11#0,c#0
         <                                                        tmp%12#0
-        bz test_else_body@14 ; b test_if_body@13
+        bz test_else_body@20 ; b test_if_body@19
 
-    test_if_body@13:
+    test_if_body@19:
         // debug/contract.py:20
         // a *= some_func(a, y)
         v-load a#0                                               a#0
@@ -293,9 +299,9 @@ subroutine test:
         l-load tmp%13#0 1                                        a#0,tmp%13#0
         *                                                        a#0
         v-store a#0
-        b test_after_if_else@15
+        b test_after_if_else@21
 
-    test_else_body@14:
+    test_else_body@20:
         // debug/contract.py:22
         // b *= some_func(b, z)
         v-load b#0                                               b#0
@@ -306,9 +312,9 @@ subroutine test:
         l-load tmp%15#0 1                                        b#0,tmp%15#0
         *                                                        b#0
         v-store b#0
-        b test_after_if_else@15
+        b test_after_if_else@21
 
-    test_after_if_else@15:
+    test_after_if_else@21:
         // debug/contract.py:24
         // bee = itoa(b)
         v-load b#0                                               b#0
@@ -333,35 +339,35 @@ subroutine test:
         l-load a#0 1                                             c#0,a#0
         l-load c#0 1                                             a#0,c#0
         <                                                        tmp%20#0
-        bz test_after_if_else@17 ; b test_if_body@16
+        bz test_after_if_else@23 ; b test_if_body@22
 
-    test_if_body@16:
+    test_if_body@22:
         // debug/contract.py:29
         // a += c
         v-load a#0                                               a#0
         v-load c#0                                               a#0,c#0
         +                                                        a#0
         v-store a#0
-        b test_after_if_else@17
+        b test_after_if_else@23
 
-    test_after_if_else@17:
+    test_after_if_else@23:
         // debug/contract.py:30
         // if a < b:
         v-load a#0                                               a#0
         v-load b#0                                               a#0,b#0
         <                                                        tmp%22#0
-        bz test_after_if_else@19 ; b test_if_body@18
+        bz test_after_if_else@25 ; b test_if_body@24
 
-    test_if_body@18:
+    test_if_body@24:
         // debug/contract.py:31
         // a += b
         v-load a#0                                               a#0
         v-load b#0                                               a#0,b#0
         +                                                        a#0
         v-store a#0
-        b test_after_if_else@19
+        b test_after_if_else@25
 
-    test_after_if_else@19:
+    test_after_if_else@25:
         // debug/contract.py:32
         // if a < b + c:
         v-load b#0                                               b#0
@@ -370,18 +376,18 @@ subroutine test:
         v-load a#0                                               tmp%24#0,a#0
         l-load tmp%24#0 1                                        a#0,tmp%24#0
         <                                                        tmp%25#0
-        bz test_after_if_else@21 ; b test_if_body@20
+        bz test_after_if_else@27 ; b test_if_body@26
 
-    test_if_body@20:
+    test_if_body@26:
         // debug/contract.py:33
         // a = a * z
         v-load a#0                                               a#0
         v-load z#0                                               a#0,z#0
         *                                                        a#0
         v-store a#0
-        b test_after_if_else@21
+        b test_after_if_else@27
 
-    test_after_if_else@21:
+    test_after_if_else@27:
         // debug/contract.py:35
         // aye = itoa(a)
         v-load a#0                                               a#0

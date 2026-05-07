@@ -240,20 +240,20 @@ subroutine _puya_lib.arc4.dynamic_assert_index(array: bytes, index: uint64) -> v
 
 subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.write_at_index[routing]() -> void:
     block@0: // L16
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let index#0: uint64 = decode_bytes<uint64>(tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let length%0#0: uint64 = array_len(tmp%2#0)
+        let index#0: uint64 = decode_bytes<uint64>(value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let length%0#0: uint64 = array_len(value#1)
         let add%0#0: uint64 = (+ length%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let value#0: string = decode_bytes<string>(tmp%2#0)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 add%0#0)
+        (assert eq%0#1) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#2: string = decode_bytes<string>(value#1)
         let tmp%0#1: uint64 = (global LatestTimestamp)
-        let tmp%1#1: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(tmp%0#1, value#0)
+        let tmp%1#1: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(tmp%0#1, value#2)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "data")
         (assert maybe_exists%0#0) // check self.data exists
         let updated_array%0#0: Encoded((uint64,(len+utf8[]))[3]) = replace_value(maybe_value%0#0, index#0, tmp%1#1)
@@ -262,11 +262,11 @@ subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArr
 
 subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.read_at_index[routing]() -> void:
     block@0: // L20
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let index#0: uint64 = decode_bytes<uint64>(tmp%0#0)
+        let index#0: uint64 = decode_bytes<uint64>(value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "data")
         (assert maybe_exists%0#0) // check self.data exists
         let array_item%0#0: Encoded(uint64,(len+utf8[])) = extract_value(maybe_value%0#0, index#0)

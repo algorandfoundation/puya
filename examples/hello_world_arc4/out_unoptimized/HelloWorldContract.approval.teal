@@ -77,16 +77,28 @@ hello_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b hello_block@1
+
+hello_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     pushint 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // hello_world_arc4/contract.py:10
+    // @arc4.abimethod
+    b hello_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+hello_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    // hello_world_arc4/contract.py:10
+    // @arc4.abimethod
+    dig 1
     extract 2 0
     callsub examples.hello_world_arc4.contract.HelloWorldContract.hello
     dup

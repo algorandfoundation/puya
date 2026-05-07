@@ -35,23 +35,23 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[routing]() -> void:
     block@0: // L15
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = (btoi tmp%4#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#1 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%0#0: uint64 = (len value#1)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#0: uint64 = (len value#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi value#2)
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -61,42 +61,42 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_txn[r
         itxn_next
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_txn(byte[],txn,byte[])uint64")
-        ((itxn_field ApplicationArgs) tmp%0#0)
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) value#0)
+        ((itxn_field ApplicationArgs) value#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let app_call_txn.LastLog#0: bytes = (itxn LastLog)
-        let tmp%2#0: bytes = ((extract 0 4) app_call_txn.LastLog#0)
-        let tmp%3#1: bool = (== tmp%2#0 0x151f7c75)
+        let tmp%2#1: bytes = ((extract 0 4) app_call_txn.LastLog#0)
+        let tmp%3#1: bool = (== tmp%2#1 0x151f7c75)
         (assert tmp%3#1) // application log value is not the result of an ABI return
-        let tmp%4#0: bytes = ((extract 4 0) app_call_txn.LastLog#0)
-        let len%0#0: uint64 = (len tmp%4#0)
+        let value#0: bytes = ((extract 4 0) app_call_txn.LastLog#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for uint64
-        let asset_id#0: uint64 = (btoi tmp%4#0)
+        let asset_id#0: uint64 = (btoi value#0)
         (assert asset_id#0) // expected asset id
         exit 1u
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[routing]() -> void:
     block@0: // L33
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = (btoi tmp%4#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#1 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%0#0: uint64 = (len value#1)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#0: uint64 = (len value#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi value#2)
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -106,8 +106,8 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[
         itxn_next
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg(byte[],acfg,byte[])uint64")
-        ((itxn_field ApplicationArgs) tmp%0#0)
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) value#0)
+        ((itxn_field ApplicationArgs) value#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -115,23 +115,23 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg[
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer[routing]() -> void:
     block@0: // L49
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = (btoi tmp%4#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#1 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%0#0: uint64 = (len value#1)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#0: uint64 = (len value#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi value#2)
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -141,8 +141,8 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer
         itxn_next
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg(byte[],acfg,byte[])uint64")
-        ((itxn_field ApplicationArgs) tmp%0#0)
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) value#0)
+        ((itxn_field ApplicationArgs) value#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -150,23 +150,23 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_infer
 
 subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]() -> void:
     block@0: // L65
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let app#0: uint64 = (btoi tmp%4#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#1 0u) // on error: invalid array length header
+        let add%0#0: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%0#0: uint64 = (len value#1)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#0: uint64 = (len value#2)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        let app#0: uint64 = (btoi value#2)
         itxn_begin
         ((itxn_field ConfigAssetTotal) 1u)
         ((itxn_field ConfigAssetName) "TEST")
@@ -177,8 +177,8 @@ subroutine test_cases.typed_itxn_abi_call_txn.caller.Caller.test_call_with_acfg_
         ((itxn_field Note) 0x31)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg_no_return(byte[],acfg,byte[])void")
-        ((itxn_field ApplicationArgs) tmp%0#0)
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) value#0)
+        ((itxn_field ApplicationArgs) value#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

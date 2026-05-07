@@ -180,16 +180,28 @@ register_block@0:
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txna ApplicationArgs 1
     dup
+    b register_block@1
+
+register_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // everything/contract.py:47
+    // @abimethod(allow_actions=["NoOp", "OptIn"])
+    b register_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+register_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    // everything/contract.py:47
+    // @abimethod(allow_actions=["NoOp", "OptIn"])
+    dig 1
     callsub test_cases.everything.contract.Everything.register
     intc_1 // 1
     return
@@ -213,6 +225,8 @@ say_hello_block@0:
 
 // test_cases.everything.contract.Everything.calculate[routing]() -> void:
 calculate:
+    intc_0 // 0
+    intc_0 // 0
     b calculate_block@0
 
 calculate_block@0:
@@ -220,16 +234,45 @@ calculate_block@0:
     // @abimethod
     txna ApplicationArgs 1
     dup
-    len
-    intc_3 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    txna ApplicationArgs 2
+    b calculate_block@1
+
+calculate_block@1:
     dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // everything/contract.py:64
+    // @abimethod
+    b calculate_after_inlined_%Validate__arc4.uint64@2
+
+calculate_after_inlined_%Validate__arc4.uint64@2:
+    // everything/contract.py:64
+    // @abimethod
+    dig 1
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b calculate_block@3
+
+calculate_block@3:
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // everything/contract.py:64
+    // @abimethod
+    b calculate_after_inlined_%Validate__arc4.uint64@4
+
+calculate_after_inlined_%Validate__arc4.uint64@4:
+    // everything/contract.py:64
+    // @abimethod
+    dig 2
+    dig 4
+    uncover 1
     callsub test_cases.everything.contract.Everything.calculate
     bytec_2 // 0x151f7c75
     uncover 1

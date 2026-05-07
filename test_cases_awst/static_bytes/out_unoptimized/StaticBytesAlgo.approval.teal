@@ -94,21 +94,44 @@ main___algots__.defaultCreate@13:
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]() -> void:
 hashAddresses:
+    intc_0 // 0
+    intc_0 // 0
     b hashAddresses_block@0
 
 hashAddresses_block@0:
     txna ApplicationArgs 1
     dup
-    len
-    intc_2 // 32
-    ==
-    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    txna ApplicationArgs 2
+    b hashAddresses_block@1
+
+hashAddresses_block@1:
     dup
     len
     intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    b hashAddresses_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+hashAddresses_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    dig 1
+    bury 4
+    txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b hashAddresses_block@3
+
+hashAddresses_block@3:
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    b hashAddresses_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+hashAddresses_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    dig 2
+    dig 4
+    uncover 1
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses
     bytec_0 // 0x151f7c75
     uncover 1
@@ -125,10 +148,18 @@ receiveB32:
 receiveB32_block@0:
     txna ApplicationArgs 1
     dup
+    b receiveB32_block@1
+
+receiveB32_block@1:
+    dup
     len
     intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    b receiveB32_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+receiveB32_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    dig 1
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     bytec_0 // 0x151f7c75
     uncover 1
@@ -140,29 +171,52 @@ receiveB32_block@0:
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
 receiveBytes:
+    intc_0 // 0
+    intc_0 // 0
     b receiveBytes_block@0
 
 receiveBytes_block@0:
     txna ApplicationArgs 1
     dup
+    b receiveBytes_block@1
+
+receiveBytes_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     pushint 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    b receiveBytes_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+receiveBytes_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    dig 1
     extract 2 0
+    bury 4
     txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b receiveBytes_block@3
+
+receiveBytes_block@3:
     dup
     len
     pushint 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    b receiveBytes_after_inlined_%Validate__arc4.uint64@4
+
+receiveBytes_after_inlined_%Validate__arc4.uint64@4:
+    dig 2
     btoi
+    dig 4
+    uncover 1
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes
     intc_1 // 1
     return
@@ -175,10 +229,18 @@ returnLength:
 returnLength_block@0:
     txna ApplicationArgs 1
     dup
+    b returnLength_block@1
+
+returnLength_block@1:
+    dup
     len
     intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    b returnLength_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+returnLength_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    dig 1
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength
     itob
     bytec_0 // 0x151f7c75

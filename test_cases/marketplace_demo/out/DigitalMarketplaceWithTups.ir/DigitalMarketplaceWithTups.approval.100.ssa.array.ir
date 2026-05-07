@@ -70,11 +70,11 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) mbr_pay#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let tmp%1#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%1#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%1#0)
+        let asset#0: uint64 = (btoi value#0)
         let tmp%0#1: account = (global CurrentApplicationAddress)
         let (tmp%1#1: uint64, tmp%2#1: bool) = ((asset_holding_get AssetBalance) tmp%0#1 asset#0)
         let tmp%3#0: bool = (! tmp%2#1)
@@ -109,16 +109,16 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) xfer#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
         (assert gtxn_type_matches%1#0) // transaction type is axfer
-        let tmp%2#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%2#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let unitary_price#0: uint64 = (btoi tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%4#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let nonce#0: uint64 = (btoi tmp%4#0)
+        let unitary_price#0: uint64 = (btoi value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint64
+        let nonce#0: uint64 = (btoi value#1)
         let tmp%0#1: account = ((gtxns Sender) mbr_pay#0)
         let tmp%1#1: account = (txn Sender)
         let tmp%2#1: bool = (== tmp%0#1 tmp%1#1)
@@ -183,11 +183,11 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) xfer#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
-        let tmp%1#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%1#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let nonce#0: uint64 = (btoi tmp%1#0)
+        let nonce#0: uint64 = (btoi value#0)
         let key.owner#0: account = (txn Sender)
         let key.asset#0: uint64 = ((gtxns XferAsset) xfer#0)
         let tmp%2#1: account = ((gtxns Sender) xfer#0)
@@ -246,21 +246,21 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price[routing]() -> void:
     block@0: // L138
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let nonce#0: uint64 = (btoi tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let unitary_price#0: uint64 = (btoi tmp%4#0)
+        let asset#0: uint64 = (btoi value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint64
+        let nonce#0: uint64 = (btoi value#1)
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#2: uint64 = (len value#2)
+        let eq%0#2: bool = (== len%0#2 8u)
+        (assert eq%0#2) // invalid number of bytes for arc4.uint64
+        let unitary_price#0: uint64 = (btoi value#2)
         let key.owner#0: account = (txn Sender)
         let aggregate%as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = key.owner#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint8[32])%0#0)
@@ -307,31 +307,31 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy[routing]() -> void:
     block@0: // L151
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let owner#0: account = tmp%0#0
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let nonce#0: uint64 = (btoi tmp%4#0)
+        let owner#0: account = value#0
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint64
+        let asset#0: uint64 = (btoi value#1)
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#2: uint64 = (len value#2)
+        let eq%0#2: bool = (== len%0#2 8u)
+        (assert eq%0#2) // invalid number of bytes for arc4.uint64
+        let nonce#0: uint64 = (btoi value#2)
         let tmp%6#0: uint64 = (txn GroupIndex)
         let buy_pay#0: uint64 = (- tmp%6#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) buy_pay#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let tmp%7#0: bytes = (txna ApplicationArgs 4)
-        let len%3#0: uint64 = (len tmp%7#0)
-        let eq%3#0: bool = (== len%3#0 8u)
-        (assert eq%3#0) // invalid number of bytes for arc4.uint64
-        let quantity#0: uint64 = (btoi tmp%7#0)
+        let value#3: bytes = (txna ApplicationArgs 4)
+        let len%0#3: uint64 = (len value#3)
+        let eq%0#3: bool = (== len%0#3 8u)
+        (assert eq%0#3) // invalid number of bytes for arc4.uint64
+        let quantity#0: uint64 = (btoi value#3)
         let aggregate%as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = owner#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint8[32])%0#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
@@ -403,16 +403,16 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw[routing]() -> void:
     block@0: // L182
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let nonce#0: uint64 = (btoi tmp%2#0)
+        let asset#0: uint64 = (btoi value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint64
+        let nonce#0: uint64 = (btoi value#1)
         let key.owner#0: account = (txn Sender)
         let aggregate%as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = key.owner#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint8[32])%0#0)
@@ -440,8 +440,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let (listing.deposited#0: uint64, listing.unitaryPrice#0: uint64, listing.bidder#0: account, listing.bid#0: uint64, listing.bidUnitaryPrice#0: uint64) = (aggregate%item0%0#0, aggregate%item1%0#0, aggregate%extract%2#0, aggregate%item3%0#0, aggregate%item4%0#0)
         let tmp%6#0: account = (global ZeroAddress)
         let tmp%7#0: bool = (!= listing.bidder#0 tmp%6#0)
-        goto tmp%7#0 ? block@2 : block@4
-    block@2: // if_body_L188
+        goto tmp%7#0 ? block@6 : block@8
+    block@6: // if_body_L188
         let (asset_decimals#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 listing.bid#0)
@@ -455,8 +455,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
-        goto block@4
-    block@4: // after_if_else_L187
+        goto block@8
+    block@8: // after_if_else_L187
         (box_del map_prefixed_key%0#0)
         itxn_begin
         let inner_txn_params%1%%param_Receiver_idx_0#0: account = (txn Sender)
@@ -477,36 +477,36 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid[routing]() -> void:
     block@0: // L201
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-        let owner#0: account = tmp%0#0
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%2#0)
-        let tmp%4#0: bytes = (txna ApplicationArgs 3)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 8u)
-        (assert eq%2#0) // invalid number of bytes for arc4.uint64
-        let nonce#0: uint64 = (btoi tmp%4#0)
+        let owner#0: account = value#0
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint64
+        let asset#0: uint64 = (btoi value#1)
+        let value#2: bytes = (txna ApplicationArgs 3)
+        let len%0#2: uint64 = (len value#2)
+        let eq%0#2: bool = (== len%0#2 8u)
+        (assert eq%0#2) // invalid number of bytes for arc4.uint64
+        let nonce#0: uint64 = (btoi value#2)
         let tmp%6#0: uint64 = (txn GroupIndex)
         let bid_pay#0: uint64 = (- tmp%6#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) bid_pay#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let tmp%7#0: bytes = (txna ApplicationArgs 4)
-        let len%3#0: uint64 = (len tmp%7#0)
-        let eq%3#0: bool = (== len%3#0 8u)
-        (assert eq%3#0) // invalid number of bytes for arc4.uint64
-        let quantity#0: uint64 = (btoi tmp%7#0)
-        let tmp%9#0: bytes = (txna ApplicationArgs 5)
-        let len%4#0: uint64 = (len tmp%9#0)
-        let eq%4#0: bool = (== len%4#0 8u)
-        (assert eq%4#0) // invalid number of bytes for arc4.uint64
-        let unitary_price#0: uint64 = (btoi tmp%9#0)
+        let value#3: bytes = (txna ApplicationArgs 4)
+        let len%0#3: uint64 = (len value#3)
+        let eq%0#3: bool = (== len%0#3 8u)
+        (assert eq%0#3) // invalid number of bytes for arc4.uint64
+        let quantity#0: uint64 = (btoi value#3)
+        let value#4: bytes = (txna ApplicationArgs 5)
+        let len%0#4: uint64 = (len value#4)
+        let eq%0#4: bool = (== len%0#4 8u)
+        (assert eq%0#4) // invalid number of bytes for arc4.uint64
+        let unitary_price#0: uint64 = (btoi value#4)
         let aggregate%as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = owner#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint8[32])%0#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
@@ -533,8 +533,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let (listing.deposited#0: uint64, listing.unitaryPrice#0: uint64, listing.bidder#0: account, listing.bid#0: uint64, listing.bidUnitaryPrice#0: uint64) = (aggregate%item0%0#0, aggregate%item1%0#0, aggregate%extract%2#0, aggregate%item3%0#0, aggregate%item4%0#0)
         let tmp%5#1: account = (global ZeroAddress)
         let tmp%6#1: bool = (!= listing.bidder#0 tmp%5#1)
-        goto tmp%6#1 ? block@2 : block@4
-    block@2: // if_body_L215
+        goto tmp%6#1 ? block@12 : block@14
+    block@12: // if_body_L215
         let tmp%7#1: bool = (> unitary_price#0 listing.bidUnitaryPrice#0)
         (assert tmp%7#1)
         let (asset_decimals#1: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
@@ -550,8 +550,8 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
-        goto block@4
-    block@4: // after_if_else_L214
+        goto block@14
+    block@14: // after_if_else_L214
         let (asset_decimals#0: uint64, check%1#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%1#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw unitary_price#0 quantity#0)
@@ -592,16 +592,16 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid[routing]() -> void:
     block@0: // L237
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let asset#0: uint64 = (btoi tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let nonce#0: uint64 = (btoi tmp%2#0)
+        let asset#0: uint64 = (btoi value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint64
+        let nonce#0: uint64 = (btoi value#1)
         let key.owner#0: account = (txn Sender)
         let aggregate%as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = key.owner#0
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint8[32])%0#0)
@@ -631,13 +631,13 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%7#0: bool = (!= listing.bidder#0 tmp%6#0)
         (assert tmp%7#0)
         let tmp%8#0: bool = (< listing.deposited#0 listing.bid#0)
-        goto tmp%8#0 ? block@2 : block@3
-    block@2: // ternary_true_L244
-        goto block@4
-    block@3: // ternary_false_L244
-        goto block@4
-    block@4: // ternary_merge_L244
-        let min_quantity#0: uint64 = φ(listing.deposited#0 <- block@2, listing.bid#0 <- block@3)
+        goto tmp%8#0 ? block@6 : block@7
+    block@6: // ternary_true_L244
+        goto block@8
+    block@7: // ternary_false_L244
+        goto block@8
+    block@8: // ternary_merge_L244
+        let min_quantity#0: uint64 = φ(listing.deposited#0 <- block@6, listing.bid#0 <- block@7)
         let (asset_decimals#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
         let (amount_not_scaled_high#0: uint64, amount_not_scaled_low#0: uint64) = (mulw listing.bidUnitaryPrice#0 min_quantity#0)

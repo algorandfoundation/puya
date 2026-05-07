@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 6 1 2
-    bytecblock base64(C4EBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAfYAEJDeNPDYaAI4BAGcxGRREMRhBADuABNCiggA2GgCOAQABADYaAUkiWSMISwEVEkRXAgAiKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAkQ4AEIN86VDYaAI4BAAEANhoBSSJZIwhLARUSRFcCAChMZyRDMRmBBRIxGBBDMRmBBBIxGBBD) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CyACAAEmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAa4AEJDeNPDYaAI4BAFUxGRREMRhBADyABNCiggA2GgCOAQABADYaAUkiWYECCEsBFRJEVwIAIihlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwI0OABExcYbo2GgCOAQABACNDMRmBBRIxGBBDMRmBBBIxGBBD) 0x0003686579 "hey there" "hi there" base64(CzEbQQA4ggIEJDeNPAT15P1NNhoAjgIAGgABADEZFDEYEESADBUffHUAAAAAAAAQALCBAUMxGYEFEjEYEEMxGRQxGBQQQw==) 0xf5e4fd4d 0x000568656c6c6f
+    intcblock 0 6 1 5
+    bytecblock base64(C4EBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CyACAAEmAQhncmVldGluZzEYQAAEKIAAZzEbQQBxgAQkN408NhoAjgEAWzEZFEQxGEEANYAE0KKCADYaAI4BAAEANhoBSYgAT1cCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCNDgAQg3zpUNhoAjgEAAQA2GgFJiAAaVwIAKExnI0MxGYEFEjEYEEMxGYEEEjEYEEOKAQCL/yJZgQIIi/8VEkSJ) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CyACAAEmAghncmVldGluZwR0bXBsMRhAAAMoKWcxG0EAa4AEJDeNPDYaAI4BAFUxGRREMRhBADyABNCiggA2GgCOAQABADYaAUkiWYECCEsBFRJEVwIAIihlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwI0OABExcYbo2GgCOAQABACNDMRmBBRIxGBBDMRmBBBIxGBBD) 0x0003686579 "hey there" "hi there" base64(CzEbQQA4ggIEJDeNPAT15P1NNhoAjgIAGgABADEZFDEYEESADBUffHUAAAAAAAAQALCBAUMxGYEFEjEYEEMxGRQxGBQQQw==) 0xf5e4fd4d 0x000568656c6c6f
     txn NumAppArgs
     bz main___algopy_default_create@20
     txn OnCompletion
@@ -23,7 +23,7 @@ main_test_abi_call_create_params_route@16:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAfYAEJDeNPDYaAI4BAGcxGRREMRhBADuABNCiggA2GgCOAQABADYaAUkiWSMISwEVEkRXAgAiKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAkQ4AEIN86VDYaAI4BAAEANhoBSSJZIwhLARUSRFcCAChMZyRDMRmBBRIxGBBDMRmBBBIxGBBD)
+    bytec 5 // base64(CyACAAEmAQhncmVldGluZzEYQAAEKIAAZzEbQQBxgAQkN408NhoAjgEAWzEZFEQxGEEANYAE0KKCADYaAI4BAAEANhoBSYgAT1cCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCNDgAQg3zpUNhoAjgEAAQA2GgFJiAAaVwIAKExnI0MxGYEFEjEYEEMxGYEEEjEYEEOKAQCL/yJZgQIIi/8VEkSJ)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -55,21 +55,13 @@ main_test_abi_call_create_params_route@16:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub %Validate__string
     extract 6 0
     bytec 11 // "hey there"
     ==
     assert
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -121,7 +113,7 @@ main_test_other_constants_route@15:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    intc_3 // 2
+    pushint 2
     +
     swap
     len
@@ -132,7 +124,7 @@ main_test_other_constants_route@15:
     ==
     assert
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -147,13 +139,13 @@ main_test_other_constants_route@15:
 
 main_test_arc4_update_route@14:
     itxn_begin
-    intc_3 // 2
+    pushint 2
     itxn_field LocalNumUint
-    intc_3 // 2
+    pushint 2
     itxn_field LocalNumByteSlice
-    intc_3 // 2
+    pushint 2
     itxn_field GlobalNumUint
-    intc_3 // 2
+    pushint 2
     itxn_field GlobalNumByteSlice
     intc_2 // 1
     itxn_field ExtraProgramPages
@@ -189,15 +181,7 @@ main_test_arc4_update_route@14:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub %Validate__string
     extract 6 0
     bytec 12 // "hi there"
     ==
@@ -205,7 +189,7 @@ main_test_arc4_update_route@14:
     itxn_begin
     bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAfYAEJDeNPDYaAI4BAGcxGRREMRhBADuABNCiggA2GgCOAQABADYaAUkiWSMISwEVEkRXAgAiKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAkQ4AEIN86VDYaAI4BAAEANhoBSSJZIwhLARUSRFcCAChMZyRDMRmBBRIxGBBDMRmBBBIxGBBD)
+    bytec 5 // base64(CyACAAEmAQhncmVldGluZzEYQAAEKIAAZzEbQQBxgAQkN408NhoAjgEAWzEZFEQxGEEANYAE0KKCADYaAI4BAAEANhoBSYgAT1cCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCNDgAQg3zpUNhoAjgEAAQA2GgFJiAAaVwIAKExnI0MxGYEFEjEYEEMxGYEEEjEYEEOKAQCL/yJZgQIIi/8VEkSJ)
     itxn_field ApprovalProgramPages
     pushint 4 // UpdateApplication
     itxn_field OnCompletion
@@ -236,21 +220,13 @@ main_test_arc4_update_route@14:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub %Validate__string
     extract 6 0
     bytec 12 // "hi there"
     ==
     assert
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -267,7 +243,7 @@ main_test_arc4_create_modified_compiled_route@13:
     itxn_begin
     pushint 3
     itxn_field LocalNumUint
-    pushint 5
+    intc_3 // 5
     itxn_field LocalNumByteSlice
     pushint 4
     itxn_field GlobalNumUint
@@ -275,7 +251,7 @@ main_test_arc4_create_modified_compiled_route@13:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAfYAEJDeNPDYaAI4BAGcxGRREMRhBADuABNCiggA2GgCOAQABADYaAUkiWSMISwEVEkRXAgAiKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAkQ4AEIN86VDYaAI4BAAEANhoBSSJZIwhLARUSRFcCAChMZyRDMRmBBRIxGBBDMRmBBBIxGBBD)
+    bytec 5 // base64(CyACAAEmAQhncmVldGluZzEYQAAEKIAAZzEbQQBxgAQkN408NhoAjgEAWzEZFEQxGEEANYAE0KKCADYaAI4BAAEANhoBSYgAT1cCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCNDgAQg3zpUNhoAjgEAAQA2GgFJiAAaVwIAKExnI0MxGYEFEjEYEEMxGYEEEjEYEEOKAQCL/yJZgQIIi/8VEkSJ)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -302,7 +278,7 @@ main_test_arc4_create_modified_compiled_route@13:
     dup
     app_params_get AppLocalNumByteSlice
     assert // application exists
-    pushint 5
+    intc_3 // 5
     ==
     assert
     dup
@@ -331,21 +307,13 @@ main_test_arc4_create_modified_compiled_route@13:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub %Validate__string
     extract 6 0
     bytec 11 // "hey there"
     ==
     assert
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -397,7 +365,7 @@ main_test_arc4_create_large_route@12:
     ==
     assert
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -446,18 +414,10 @@ main_test_arc4_create_prfx_route@11:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub %Validate__string
     extract 6 0
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
@@ -510,18 +470,10 @@ main_test_arc4_create_tmpl_route@10:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub %Validate__string
     extract 6 0
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
@@ -544,7 +496,7 @@ main_test_arc4_create_route@9:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAfYAEJDeNPDYaAI4BAGcxGRREMRhBADuABNCiggA2GgCOAQABADYaAUkiWSMISwEVEkRXAgAiKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAkQ4AEIN86VDYaAI4BAAEANhoBSSJZIwhLARUSRFcCAChMZyRDMRmBBRIxGBBDMRmBBBIxGBBD)
+    bytec 5 // base64(CyACAAEmAQhncmVldGluZzEYQAAEKIAAZzEbQQBxgAQkN408NhoAjgEAWzEZFEQxGEEANYAE0KKCADYaAI4BAAEANhoBSYgAT1cCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCNDgAQg3zpUNhoAjgEAAQA2GgFJiAAaVwIAKExnI0MxGYEFEjEYEEMxGYEEEjEYEEOKAQCL/yJZgQIIi/8VEkSJ)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -576,18 +528,10 @@ main_test_arc4_create_route@9:
     assert // application log value is not the result of an ABI return
     dup
     extract 4 0
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for string
+    callsub %Validate__string
     extract 6 0
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
@@ -639,7 +583,7 @@ main_test_compile_contract_large_route@8:
     ==
     assert // invalid number of bytes for arc4.uint64
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -692,16 +636,9 @@ main_test_compile_contract_prfx_route@7:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub %Validate__arc4.dynamic_array<arc4.uint8>
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -754,16 +691,9 @@ main_test_compile_contract_tmpl_route@6:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub %Validate__arc4.dynamic_array<arc4.uint8>
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -786,7 +716,7 @@ main_test_compile_contract_route@5:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CyADAAIBJgEIZ3JlZXRpbmcxGEAABCiAAGcxG0EAfYAEJDeNPDYaAI4BAGcxGRREMRhBADuABNCiggA2GgCOAQABADYaAUkiWSMISwEVEkRXAgAiKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAkQ4AEIN86VDYaAI4BAAEANhoBSSJZIwhLARUSRFcCAChMZyRDMRmBBRIxGBBDMRmBBBIxGBBD)
+    bytec 5 // base64(CyACAAEmAQhncmVldGluZzEYQAAEKIAAZzEbQQBxgAQkN408NhoAjgEAWzEZFEQxGEEANYAE0KKCADYaAI4BAAEANhoBSYgAT1cCACIoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCNDgAQg3zpUNhoAjgEAAQA2GgFJiAAaVwIAKExnI0MxGYEFEjEYEEMxGYEEEjEYEEOKAQCL/yJZgQIIi/8VEkSJ)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -818,16 +748,9 @@ main_test_compile_contract_route@5:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub %Validate__arc4.dynamic_array<arc4.uint8>
     itxn_begin
-    pushint 5 // DeleteApplication
+    intc_3 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -857,3 +780,33 @@ main___algopy_default_create@20:
     !
     &&
     return
+
+
+// %Validate__arc4.dynamic_array<arc4.uint8>(value: bytes) -> void:
+%Validate__arc4.dynamic_array<arc4.uint8>:
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    retsub
+
+
+// %Validate__string(value: bytes) -> void:
+%Validate__string:
+    proto 1 0
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for string
+    retsub

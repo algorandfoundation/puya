@@ -32,15 +32,15 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
 
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routing]() -> void:
     block@0: // L14
-        let a#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len a#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint8
-        let b#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len b#0)
-        let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint8
-        let x#0: Encoded(uint8,uint8) = (concat b#0 a#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 1u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint8
+        let x#0: Encoded(uint8,uint8) = (concat value#1 value#0)
         let event%0#0: bytes = (concat method "Swapped(uint8,uint8)" x#0)
         (log event%0#0)
         (log event%0#0)
@@ -50,14 +50,14 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routi
         (log event%3#0)
         let event%4#0: bytes = (concat method "Swapped5(uint8,uint8)" x#0)
         (log event%4#0)
-        let aggregate%head%3#0: bytes = (concat b#0 b#0)
-        let aggregate%head%5#0: bytes = (concat aggregate%head%3#0 a#0)
+        let aggregate%head%3#0: bytes = (concat value#1 value#1)
+        let aggregate%head%5#0: bytes = (concat aggregate%head%3#0 value#0)
         let event%5#0: bytes = (concat method "Swapped6((uint8,uint8),uint8)" aggregate%head%5#0)
         (log event%5#0)
         (log event%5#0)
-        let aggregate%head%6#0: bytes = (concat 0x0002 b#0)
-        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 b#0)
-        let aggregate%head%9#0: bytes = (concat 0x0003 a#0)
+        let aggregate%head%6#0: bytes = (concat 0x0002 value#1)
+        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 value#1)
+        let aggregate%head%9#0: bytes = (concat 0x0003 value#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%9#0 aggregate%head%7#0)
         let event%7#0: bytes = (concat method "Swapped7(uint8[],uint8)" aggregate%concat%0#0)
         (log event%7#0)
@@ -75,8 +75,8 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routi
         let aggregate%concat%5#0: bytes = (concat aggregate%head%9#0 aggregate%concat%4#0)
         let event%11#0: bytes = (concat method "Swapped11((uint8[]),uint8)" aggregate%concat%5#0)
         (log event%11#0)
-        let aUint64#0: uint64 = (btoi a#0)
-        let bUint64#0: uint64 = (btoi b#0)
+        let aUint64#0: uint64 = (btoi value#0)
+        let bUint64#0: uint64 = (btoi value#1)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob bUint64#0)
         let aggregate%head%30#0: bytes = (concat 0x0002 aggregate%val_as_bytes%0#0)
         let aggregate%head%31#0: bytes = (concat aggregate%head%30#0 aggregate%val_as_bytes%0#0)
@@ -89,18 +89,18 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitSwapped[routi
 
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom[routing]() -> void:
     block@0: // L46
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 1u)
-        (assert eq%1#0) // invalid number of bytes for arc4.bool
-        let aggregate%head%1#0: bytes = (concat 0x0003 tmp%2#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 tmp%0#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 1u)
+        (assert eq%0#1) // invalid number of bytes for arc4.bool
+        let aggregate%head%1#0: bytes = (concat 0x0003 value#1)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 value#0)
         let event%0#0: bytes = (concat method "Custom(string,bool)" aggregate%concat%0#0)
         (log event%0#0)
         (log event%0#0)
@@ -108,24 +108,24 @@ subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitCustom[routin
 
 subroutine tests/approvals/arc-28-events.algo.ts::EventEmitter.emitDynamicBytes[routing]() -> void:
     block@0: // L51
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let add%0#0: uint64 = (+ aggregate%array_length%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-        let y#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 y#0 0u) // on error: invalid array length header
-        let add%1#0: uint64 = (+ aggregate%array_length%1#0 2u)
-        let len%1#0: uint64 = (len y#0)
-        let eq%1#0: bool = (== len%1#0 add%1#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#1 0u) // on error: invalid array length header
+        let add%0#1: uint64 = (+ aggregate%array_length%1#0 2u)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 add%0#1)
+        (assert eq%0#1) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
         let aggregate%current_tail_offset%0#0: uint64 = (+ 4u len%0#0)
         let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
         let aggregate%head%1#0: bytes = (concat 0x0004 aggregate%offset_as_uint16%1#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 tmp%0#0)
-        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 y#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 value#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 value#1)
         let event%0#0: bytes = (concat method "DB(byte[],byte[])" aggregate%concat%1#0)
         (log event%0#0)
         exit 1u

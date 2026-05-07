@@ -78,10 +78,22 @@ test_branching_array_call_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b test_branching_array_call_block@1
+
+test_branching_array_call_block@1:
+    dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.bool
+    // inner_transactions/array_access.py:21
+    // @arc4.abimethod
+    b test_branching_array_call_after_inlined_%Validate__arc4.bool@2
+
+test_branching_array_call_after_inlined_%Validate__arc4.bool@2:
+    // inner_transactions/array_access.py:21
+    // @arc4.abimethod
+    dig 1
     callsub test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call
     intc_1 // 1
     return

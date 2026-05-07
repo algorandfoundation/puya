@@ -64,6 +64,10 @@ main_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_native_struct() -> void:
 test_native_struct:
+    // arc4_encode_decode/contract.py:57-58
+    // @subroutine()
+    // def test_native_struct() -> None:
+    proto 0 0
     b test_native_struct_block@0
 
 test_native_struct_block@0:
@@ -79,9 +83,7 @@ test_native_struct_block@0:
     intc_1 // 1
     setbit
     concat
-    // arc4_encode_decode/contract.py:60
-    // encoded = arc4.encode(original)
-    dupn 2
+    dupn 3
     // arc4_encode_decode/contract.py:61
     // assert encoded == Bytes.from_hex("000000000000000180")
     pushbytes 0x000000000000000180
@@ -89,13 +91,25 @@ test_native_struct_block@0:
     assert
     // arc4_encode_decode/contract.py:62
     // decoded = arc4.decode(NativeStruct, encoded)
-    dup
+    b test_native_struct_block@1
+
+test_native_struct_block@1:
+    frame_dig 2
     len
     pushint 9
     ==
     assert // invalid number of bytes for test_cases.arc4_encode_decode.contract.NativeStruct
+    // arc4_encode_decode/contract.py:62
+    // decoded = arc4.decode(NativeStruct, encoded)
+    b test_native_struct_after_inlined_%Validate__test_cases.arc4_encode_decode.contract.NativeStruct@2
+
+test_native_struct_after_inlined_%Validate__test_cases.arc4_encode_decode.contract.NativeStruct@2:
+    // arc4_encode_decode/contract.py:62
+    // decoded = arc4.decode(NativeStruct, encoded)
+    frame_dig 1
     // arc4_encode_decode/contract.py:63
     // assert decoded == original
+    frame_dig 0
     ==
     assert
     retsub
@@ -103,6 +117,10 @@ test_native_struct_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_arc4_struct() -> void:
 test_arc4_struct:
+    // arc4_encode_decode/contract.py:66-67
+    // @subroutine()
+    // def test_arc4_struct() -> None:
+    proto 0 0
     b test_arc4_struct_block@0
 
 test_arc4_struct_block@0:
@@ -123,11 +141,14 @@ test_arc4_struct_block@0:
     concat
     uncover 1
     concat
-    // arc4_encode_decode/contract.py:69
-    // encoded = arc4.encode(original)
     dupn 2
     // arc4_encode_decode/contract.py:70
     // decoded = arc4.decode(Arc4Struct, encoded)
+    b test_arc4_struct_block@1
+
+test_arc4_struct_block@1:
+    frame_dig 2
+    dup
     len
     cover 1
     dup
@@ -149,12 +170,21 @@ test_arc4_struct_block@0:
     +
     pushint 10
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for test_cases.arc4_encode_decode.contract.Arc4Struct
+    // arc4_encode_decode/contract.py:70
+    // decoded = arc4.decode(Arc4Struct, encoded)
+    b test_arc4_struct_after_inlined_%Validate__test_cases.arc4_encode_decode.contract.Arc4Struct@2
+
+test_arc4_struct_after_inlined_%Validate__test_cases.arc4_encode_decode.contract.Arc4Struct@2:
+    // arc4_encode_decode/contract.py:70
+    // decoded = arc4.decode(Arc4Struct, encoded)
+    frame_dig 1
     // arc4_encode_decode/contract.py:71
     // assert decoded == original
+    frame_dig 0
     ==
     assert
     retsub
@@ -162,6 +192,10 @@ test_arc4_struct_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_uint64() -> void:
 test_uint64:
+    // arc4_encode_decode/contract.py:74-75
+    // @subroutine()
+    // def test_uint64() -> None:
+    proto 0 0
     b test_uint64_block@0
 
 test_uint64_block@0:
@@ -171,20 +205,31 @@ test_uint64_block@0:
     // arc4_encode_decode/contract.py:77
     // encoded = arc4.encode(value)
     itob
+    dupn 2
     // arc4_encode_decode/contract.py:78-79
     // # UInt64 encodes as 8-byte big-endian
     // assert encoded == Bytes.from_hex("000000000000002A")
-    dup
     bytec_0 // 0x000000000000002a
     ==
     assert
     // arc4_encode_decode/contract.py:80
     // decoded = arc4.decode(UInt64, encoded)
-    dup
+    b test_uint64_block@1
+
+test_uint64_block@1:
+    frame_dig 1
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
+    // arc4_encode_decode/contract.py:80
+    // decoded = arc4.decode(UInt64, encoded)
+    b test_uint64_after_inlined_%Validate__uint64@2
+
+test_uint64_after_inlined_%Validate__uint64@2:
+    // arc4_encode_decode/contract.py:80
+    // decoded = arc4.decode(UInt64, encoded)
+    frame_dig 0
     btoi
     // arc4_encode_decode/contract.py:76
     // value = UInt64(42)
@@ -198,6 +243,10 @@ test_uint64_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_biguint() -> void:
 test_biguint:
+    // arc4_encode_decode/contract.py:84-85
+    // @subroutine()
+    // def test_biguint() -> None:
+    proto 0 0
     b test_biguint_block@0
 
 test_biguint_block@0:
@@ -218,13 +267,25 @@ test_biguint_block@0:
     // arc4_encode_decode/contract.py:87
     // encoded = arc4.encode(value)
     b|
+    dup
     // arc4_encode_decode/contract.py:88
     // decoded = arc4.decode(BigUInt, encoded)
-    dup
+    b test_biguint_block@1
+
+test_biguint_block@1:
+    frame_dig 1
     len
     pushint 64
     ==
     assert // invalid number of bytes for biguint
+    // arc4_encode_decode/contract.py:88
+    // decoded = arc4.decode(BigUInt, encoded)
+    b test_biguint_after_inlined_%Validate__biguint@2
+
+test_biguint_after_inlined_%Validate__biguint@2:
+    // arc4_encode_decode/contract.py:88
+    // decoded = arc4.decode(BigUInt, encoded)
+    frame_dig 0
     // arc4_encode_decode/contract.py:86
     // value = BigUInt(42)
     bytec 4 // 0x2a
@@ -237,6 +298,10 @@ test_biguint_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_string() -> void:
 test_string:
+    // arc4_encode_decode/contract.py:92-93
+    // @subroutine()
+    // def test_string() -> None:
+    proto 0 0
     b test_string_block@0
 
 test_string_block@0:
@@ -254,15 +319,19 @@ test_string_block@0:
     // arc4_encode_decode/contract.py:95
     // encoded = arc4.encode(value)
     concat
+    dupn 2
     // arc4_encode_decode/contract.py:96-97
     // # 16 bit len + UTF-8 string
     // assert encoded == Bytes.from_hex("000568656C6C6F")
-    dup
     bytec 8 // 0x000568656c6c6f
     ==
     assert
     // arc4_encode_decode/contract.py:98
     // decoded = arc4.decode(String, encoded)
+    b test_string_block@1
+
+test_string_block@1:
+    frame_dig 1
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -270,10 +339,18 @@ test_string_block@0:
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for string
+    // arc4_encode_decode/contract.py:98
+    // decoded = arc4.decode(String, encoded)
+    b test_string_after_inlined_%Validate__string@2
+
+test_string_after_inlined_%Validate__string@2:
+    // arc4_encode_decode/contract.py:98
+    // decoded = arc4.decode(String, encoded)
+    frame_dig 0
     extract 2 0
     // arc4_encode_decode/contract.py:94
     // value = String("hello")
@@ -287,6 +364,10 @@ test_string_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_bytes() -> void:
 test_bytes:
+    // arc4_encode_decode/contract.py:102-103
+    // @subroutine()
+    // def test_bytes() -> None:
+    proto 0 0
     b test_bytes_block@0
 
 test_bytes_block@0:
@@ -304,15 +385,19 @@ test_bytes_block@0:
     // arc4_encode_decode/contract.py:105
     // encoded = arc4.encode(value)
     concat
+    dupn 2
     // arc4_encode_decode/contract.py:106-107
     // # 16 bit len + bytes
     // assert encoded == Bytes.from_hex("0003010203")
-    dup
     pushbytes 0x0003010203
     ==
     assert
     // arc4_encode_decode/contract.py:108
     // decoded = arc4.decode(Bytes, encoded)
+    b test_bytes_block@1
+
+test_bytes_block@1:
+    frame_dig 1
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -320,10 +405,18 @@ test_bytes_block@0:
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for bytes
+    // arc4_encode_decode/contract.py:108
+    // decoded = arc4.decode(Bytes, encoded)
+    b test_bytes_after_inlined_%Validate__bytes@2
+
+test_bytes_after_inlined_%Validate__bytes@2:
+    // arc4_encode_decode/contract.py:108
+    // decoded = arc4.decode(Bytes, encoded)
+    frame_dig 0
     extract 2 0
     // arc4_encode_decode/contract.py:104
     // value = Bytes(b"\x01\x02\x03")
@@ -337,6 +430,11 @@ test_bytes_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_bool() -> void:
 test_bool:
+    // arc4_encode_decode/contract.py:112-113
+    // @subroutine()
+    // def test_bool() -> None:
+    proto 0 0
+    intc_0 // 0
     b test_bool_block@0
 
 test_bool_block@0:
@@ -346,19 +444,30 @@ test_bool_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
+    dupn 2
     // arc4_encode_decode/contract.py:115
     // assert encoded_true == Bytes.from_hex("80")
-    dup
     pushbytes 0x80
     ==
     assert
     // arc4_encode_decode/contract.py:116
     // decoded_true = arc4.decode(bool, encoded_true)
-    dup
+    b test_bool_block@1
+
+test_bool_block@1:
+    frame_dig 2
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for bool
+    // arc4_encode_decode/contract.py:116
+    // decoded_true = arc4.decode(bool, encoded_true)
+    b test_bool_after_inlined_%Validate__bool@2
+
+test_bool_after_inlined_%Validate__bool@2:
+    // arc4_encode_decode/contract.py:116
+    // decoded_true = arc4.decode(bool, encoded_true)
+    frame_dig 1
     intc_0 // 0
     getbit
     // arc4_encode_decode/contract.py:117
@@ -370,6 +479,8 @@ test_bool_block@0:
     intc_0 // 0
     intc_0 // 0
     setbit
+    dup
+    frame_bury 0
     // arc4_encode_decode/contract.py:120
     // assert encoded_false == Bytes.from_hex("00")
     dup
@@ -378,11 +489,23 @@ test_bool_block@0:
     assert
     // arc4_encode_decode/contract.py:121
     // decoded_false = arc4.decode(bool, encoded_false)
-    dup
+    frame_bury 2
+    b test_bool_block@3
+
+test_bool_block@3:
+    frame_dig 2
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for bool
+    // arc4_encode_decode/contract.py:121
+    // decoded_false = arc4.decode(bool, encoded_false)
+    b test_bool_after_inlined_%Validate__bool@4
+
+test_bool_after_inlined_%Validate__bool@4:
+    // arc4_encode_decode/contract.py:121
+    // decoded_false = arc4.decode(bool, encoded_false)
+    frame_dig 0
     intc_0 // 0
     getbit
     // arc4_encode_decode/contract.py:122
@@ -397,15 +520,23 @@ test_account:
     b test_account_block@0
 
 test_account_block@0:
+    // arc4_encode_decode/contract.py:129
+    // decoded = arc4.decode(Account, encoded)
+    b test_account_block@1
+
+test_account_block@1:
     // arc4_encode_decode/contract.py:127
     // value = Account("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ")
     bytec 6 // addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
-    // arc4_encode_decode/contract.py:129
-    // decoded = arc4.decode(Account, encoded)
     len
     pushint 32
     ==
     assert // invalid number of bytes for account
+    // arc4_encode_decode/contract.py:129
+    // decoded = arc4.decode(Account, encoded)
+    b test_account_after_inlined_%Validate__account@2
+
+test_account_after_inlined_%Validate__account@2:
     // arc4_encode_decode/contract.py:127
     // value = Account("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ")
     bytec 6 // addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ
@@ -419,6 +550,10 @@ test_account_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_asset() -> void:
 test_asset:
+    // arc4_encode_decode/contract.py:133-134
+    // @subroutine()
+    // def test_asset() -> None:
+    proto 0 0
     b test_asset_block@0
 
 test_asset_block@0:
@@ -428,19 +563,30 @@ test_asset_block@0:
     // arc4_encode_decode/contract.py:136
     // encoded = arc4.encode(value)
     itob
+    dupn 2
     // arc4_encode_decode/contract.py:137
     // assert encoded == Bytes.from_hex("000000000000002A")
-    dup
     bytec_0 // 0x000000000000002a
     ==
     assert
     // arc4_encode_decode/contract.py:138
     // decoded = arc4.decode(Asset, encoded)
-    dup
+    b test_asset_block@1
+
+test_asset_block@1:
+    frame_dig 1
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for asset
+    // arc4_encode_decode/contract.py:138
+    // decoded = arc4.decode(Asset, encoded)
+    b test_asset_after_inlined_%Validate__asset@2
+
+test_asset_after_inlined_%Validate__asset@2:
+    // arc4_encode_decode/contract.py:138
+    // decoded = arc4.decode(Asset, encoded)
+    frame_dig 0
     btoi
     // arc4_encode_decode/contract.py:135
     // value = Asset(42)
@@ -454,6 +600,10 @@ test_asset_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_application() -> void:
 test_application:
+    // arc4_encode_decode/contract.py:142-143
+    // @subroutine()
+    // def test_application() -> None:
+    proto 0 0
     b test_application_block@0
 
 test_application_block@0:
@@ -463,19 +613,30 @@ test_application_block@0:
     // arc4_encode_decode/contract.py:145
     // encoded = arc4.encode(value)
     itob
+    dupn 2
     // arc4_encode_decode/contract.py:146
     // assert encoded == Bytes.from_hex("000000000000007B")
-    dup
     pushbytes 0x000000000000007b
     ==
     assert
     // arc4_encode_decode/contract.py:147
     // decoded = arc4.decode(Application, encoded)
-    dup
+    b test_application_block@1
+
+test_application_block@1:
+    frame_dig 1
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for application
+    // arc4_encode_decode/contract.py:147
+    // decoded = arc4.decode(Application, encoded)
+    b test_application_after_inlined_%Validate__application@2
+
+test_application_after_inlined_%Validate__application@2:
+    // arc4_encode_decode/contract.py:147
+    // decoded = arc4.decode(Application, encoded)
+    frame_dig 0
     btoi
     // arc4_encode_decode/contract.py:144
     // value = Application(123)
@@ -500,15 +661,23 @@ test_arc4_uint64_block@0:
     bytec_0 // 0x000000000000002a
     ==
     assert
+    // arc4_encode_decode/contract.py:156
+    // decoded = arc4.decode(arc4.UInt64, encoded)
+    b test_arc4_uint64_block@1
+
+test_arc4_uint64_block@1:
     // arc4_encode_decode/contract.py:153
     // value = arc4.UInt64(42)
     bytec_0 // 0x000000000000002a
-    // arc4_encode_decode/contract.py:156
-    // decoded = arc4.decode(arc4.UInt64, encoded)
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // arc4_encode_decode/contract.py:156
+    // decoded = arc4.decode(arc4.UInt64, encoded)
+    b test_arc4_uint64_after_inlined_%Validate__arc4.uint64@2
+
+test_arc4_uint64_after_inlined_%Validate__arc4.uint64@2:
     // arc4_encode_decode/contract.py:153
     // value = arc4.UInt64(42)
     bytec_0 // 0x000000000000002a
@@ -522,6 +691,10 @@ test_arc4_uint64_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_arc4_string() -> void:
 test_arc4_string:
+    // arc4_encode_decode/contract.py:160-161
+    // @subroutine()
+    // def test_arc4_string() -> None:
+    proto 0 0
     b test_arc4_string_block@0
 
 test_arc4_string_block@0:
@@ -533,9 +706,7 @@ test_arc4_string_block@0:
     extract 6 2
     bytec_1 // "hello"
     concat
-    // arc4_encode_decode/contract.py:163
-    // encoded = arc4.encode(value)
-    dupn 2
+    dupn 3
     // arc4_encode_decode/contract.py:164
     // assert encoded == Bytes.from_hex("000568656C6C6F")
     bytec 8 // 0x000568656c6c6f
@@ -543,6 +714,10 @@ test_arc4_string_block@0:
     assert
     // arc4_encode_decode/contract.py:165
     // decoded = arc4.decode(arc4.String, encoded)
+    b test_arc4_string_block@1
+
+test_arc4_string_block@1:
+    frame_dig 2
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -550,12 +725,21 @@ test_arc4_string_block@0:
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // arc4_encode_decode/contract.py:165
+    // decoded = arc4.decode(arc4.String, encoded)
+    b test_arc4_string_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+test_arc4_string_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    // arc4_encode_decode/contract.py:165
+    // decoded = arc4.decode(arc4.String, encoded)
+    frame_dig 1
     // arc4_encode_decode/contract.py:166
     // assert decoded == value
+    frame_dig 0
     ==
     assert
     retsub
@@ -563,6 +747,10 @@ test_arc4_string_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_tuple() -> void:
 test_tuple:
+    // arc4_encode_decode/contract.py:169-170
+    // @subroutine()
+    // def test_tuple() -> None:
+    proto 0 0
     b test_tuple_block@0
 
 test_tuple_block@0:
@@ -582,19 +770,30 @@ test_tuple_block@0:
     // encoded = arc4.encode(value)
     itob
     concat
+    dupn 2
     // arc4_encode_decode/contract.py:173
     // assert encoded == Bytes.from_hex("00000000000000010000000000000002")
-    dup
     pushbytes 0x00000000000000010000000000000002
     ==
     assert
     // arc4_encode_decode/contract.py:174
     // decoded = arc4.decode(tuple[UInt64, UInt64], encoded)
-    dup
+    b test_tuple_block@1
+
+test_tuple_block@1:
+    frame_dig 1
     len
     pushint 16
     ==
     assert // invalid number of bytes for tuple<uint64,uint64>
+    // arc4_encode_decode/contract.py:174
+    // decoded = arc4.decode(tuple[UInt64, UInt64], encoded)
+    b test_tuple_after_inlined_%Validate__tuple<uint64,uint64>@2
+
+test_tuple_after_inlined_%Validate__tuple<uint64,uint64>@2:
+    // arc4_encode_decode/contract.py:174
+    // decoded = arc4.decode(tuple[UInt64, UInt64], encoded)
+    frame_dig 0
     dup
     intc_0 // 0
     intc_2 // 8
@@ -626,6 +825,10 @@ test_tuple_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_named_tuple() -> void:
 test_named_tuple:
+    // arc4_encode_decode/contract.py:178-179
+    // @subroutine()
+    // def test_named_tuple() -> None:
+    proto 0 0
     b test_named_tuple_block@0
 
 test_named_tuple_block@0:
@@ -660,8 +863,13 @@ test_named_tuple_block@0:
     concat
     uncover 1
     concat
+    dup
     // arc4_encode_decode/contract.py:182
     // decoded = arc4.decode(MyNamedTuple, encoded)
+    b test_named_tuple_block@1
+
+test_named_tuple_block@1:
+    frame_dig 1
     dup
     len
     cover 1
@@ -684,10 +892,18 @@ test_named_tuple_block@0:
     +
     pushint 10
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for test_cases.arc4_encode_decode.contract.MyNamedTuple
+    // arc4_encode_decode/contract.py:182
+    // decoded = arc4.decode(MyNamedTuple, encoded)
+    b test_named_tuple_after_inlined_%Validate__test_cases.arc4_encode_decode.contract.MyNamedTuple@2
+
+test_named_tuple_after_inlined_%Validate__test_cases.arc4_encode_decode.contract.MyNamedTuple@2:
+    // arc4_encode_decode/contract.py:182
+    // decoded = arc4.decode(MyNamedTuple, encoded)
+    frame_dig 0
     dup
     intc_0 // 0
     intc_2 // 8
@@ -726,6 +942,10 @@ test_named_tuple_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_arc4_dynamic_array() -> void:
 test_arc4_dynamic_array:
+    // arc4_encode_decode/contract.py:186-187
+    // @subroutine()
+    // def test_arc4_dynamic_array() -> None:
+    proto 0 0
     b test_arc4_dynamic_array_block@0
 
 test_arc4_dynamic_array_block@0:
@@ -740,23 +960,35 @@ test_arc4_dynamic_array_block@0:
     concat
     pushbytes 0x0000000000000003
     concat
-    // arc4_encode_decode/contract.py:189
-    // encoded = arc4.encode(value)
     dupn 2
     // arc4_encode_decode/contract.py:190
     // decoded = arc4.decode(arc4.DynamicArray[arc4.UInt64], encoded)
+    b test_arc4_dynamic_array_block@1
+
+test_arc4_dynamic_array_block@1:
+    frame_dig 2
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 8
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint64>
+    // arc4_encode_decode/contract.py:190
+    // decoded = arc4.decode(arc4.DynamicArray[arc4.UInt64], encoded)
+    b test_arc4_dynamic_array_after_inlined_%Validate__arc4.dynamic_array<arc4.uint64>@2
+
+test_arc4_dynamic_array_after_inlined_%Validate__arc4.dynamic_array<arc4.uint64>@2:
+    // arc4_encode_decode/contract.py:190
+    // decoded = arc4.decode(arc4.DynamicArray[arc4.UInt64], encoded)
+    frame_dig 1
     // arc4_encode_decode/contract.py:191
     // assert decoded == value
+    frame_dig 0
     ==
     assert
     retsub
@@ -764,6 +996,10 @@ test_arc4_dynamic_array_block@0:
 
 // test_cases.arc4_encode_decode.contract.test_arc4_static_array() -> void:
 test_arc4_static_array:
+    // arc4_encode_decode/contract.py:194-195
+    // @subroutine()
+    // def test_arc4_static_array() -> None:
+    proto 0 0
     b test_arc4_static_array_block@0
 
 test_arc4_static_array_block@0:
@@ -774,17 +1010,28 @@ test_arc4_static_array_block@0:
     concat
     pushbytes 0x0000000000000014
     concat
-    // arc4_encode_decode/contract.py:197
-    // encoded = arc4.encode(value)
     dupn 2
     // arc4_encode_decode/contract.py:198
     // decoded = arc4.decode(arc4.StaticArray[arc4.UInt64, typing.Literal[2]], encoded)
+    b test_arc4_static_array_block@1
+
+test_arc4_static_array_block@1:
+    frame_dig 2
     len
     pushint 16
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint64, 2>
+    // arc4_encode_decode/contract.py:198
+    // decoded = arc4.decode(arc4.StaticArray[arc4.UInt64, typing.Literal[2]], encoded)
+    b test_arc4_static_array_after_inlined_%Validate__arc4.static_array<arc4.uint64,2>@2
+
+test_arc4_static_array_after_inlined_%Validate__arc4.static_array<arc4.uint64,2>@2:
+    // arc4_encode_decode/contract.py:198
+    // decoded = arc4.decode(arc4.StaticArray[arc4.UInt64, typing.Literal[2]], encoded)
+    frame_dig 1
     // arc4_encode_decode/contract.py:199
     // assert decoded == value
+    frame_dig 0
     ==
     assert
     retsub

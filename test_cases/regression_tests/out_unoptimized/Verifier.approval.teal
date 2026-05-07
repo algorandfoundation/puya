@@ -77,16 +77,28 @@ verify_block@0:
     // @abimethod
     txna ApplicationArgs 1
     dup
+    b verify_block@1
+
+verify_block@1:
+    dupn 2
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_0 // 32
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    b verify_after_inlined_%Validate__arc4.dynamic_array<arc4.static_array<arc4.uint8,32>>@2
+
+verify_after_inlined_%Validate__arc4.dynamic_array<arc4.static_array<arc4.uint8,32>>@2:
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    dig 1
     callsub test_cases.regression_tests.jira_ak_752.Verifier.verify
     dup
     len

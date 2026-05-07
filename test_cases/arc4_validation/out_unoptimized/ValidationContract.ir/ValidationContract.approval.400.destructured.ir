@@ -341,13 +341,18 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
 subroutine test_cases.arc4_validation.contract.ValidationContract.decode_uint64_with_validate[routing]() -> void:
     block@0: // L165
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L165
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
         let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
         test_cases.arc4_validation.contract.ValidationContract.decode_uint64_with_validate(tmp%1#0)
@@ -356,13 +361,18 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.decode_uint64_
 subroutine test_cases.arc4_validation.contract.ValidationContract.decode_uint64_without_validate[routing]() -> void:
     block@0: // L169
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L169
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%0#0
         let tmp%1#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
         test_cases.arc4_validation.contract.ValidationContract.decode_uint64_without_validate(tmp%1#0)
@@ -418,34 +428,52 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_uint64(value: bytes) -> void:
     block@0: // L59
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.uint64_L59
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_uint8(value: bytes) -> void:
     block@0: // L63
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.uint8_L63
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_uint512(value: bytes) -> void:
     block@0: // L67
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 64u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint512
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.uint512_L67
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_ufixed64(value: bytes) -> void:
     block@0: // L71
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.ufixed64x2
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.ufixed64x2_L71
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_uint8_arr(value: bytes) -> void:
     block@0: // L75
+        goto block@1
+    block@1: // L1
         let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
@@ -453,31 +481,47 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_uint8
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L75
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_uint8_arr3(value: bytes) -> void:
     block@0: // L79
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 3u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 3>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.static_array<arc4.uint8,3>_L79
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_bool(value: bytes) -> void:
     block@0: // L83
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
         (assert eq%0#0) // invalid number of bytes for arc4.bool
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.bool_L83
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_byte(value: bytes) -> void:
     block@0: // L87
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.uint8_L87
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_string(value: bytes) -> void:
     block@0: // L91
+        goto block@1
+    block@1: // L1
         let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
@@ -485,10 +529,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_strin
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L91
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_bytes(value: bytes) -> void:
     block@0: // L95
+        goto block@1
+    block@1: // L1
         let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
@@ -496,24 +544,36 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_bytes
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L95
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_address(value: bytes) -> void:
     block@0: // L99
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.static_array<arc4.uint8,32>_L99
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_account(value: bytes) -> void:
     block@0: // L103
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
         (assert eq%0#0) // invalid number of bytes for account
+        goto block@2
+    block@2: // after_inlined_%Validate__account_L103
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_bool_arr(value: bytes) -> void:
     block@0: // L107
+        goto block@1
+    block@1: // L1
         let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
@@ -523,24 +583,36 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_bool_
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%1#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.bool>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.bool>_L107
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_bool_arr3(value: bytes) -> void:
     block@0: // L111
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.bool, 3>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.static_array<arc4.bool,3>_L111
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_static_tuple(value: bytes) -> void:
     block@0: // L115
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 9u)
         (assert eq%0#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint8>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint8>_L115
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynamic_tuple(value: bytes) -> void:
     block@0: // L119
+        goto block@1
+    block@1: // L1
         let tuple_len%0#0: uint64 = (len value#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 value#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
@@ -554,17 +626,25 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint8,arc4.dynamic_array<arc4.uint8>>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint8,arc4.dynamic_array<arc4.uint8>>_L119
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_static_struct(value: bytes) -> void:
     block@0: // L123
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 9u)
         (assert eq%0#0) // invalid number of bytes for test_cases.arc4_validation.contract.ARC4StaticStruct
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.arc4_validation.contract.ARC4StaticStruct_L123
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynamic_struct(value: bytes) -> void:
     block@0: // L127
+        goto block@1
+    block@1: // L1
         let tuple_len%0#0: uint64 = (len value#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 value#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
@@ -578,10 +658,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_validation.contract.ARC4DynamicStruct
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.arc4_validation.contract.ARC4DynamicStruct_L127
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_static_struct_arr(value: bytes) -> void:
     block@0: // L131
+        goto block@1
+    block@1: // L1
         let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 9u)
@@ -589,28 +673,36 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_stati
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4StaticStruct>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4StaticStruct>_L131
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_static_struct_arr3(value: bytes) -> void:
     block@0: // L135
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 27u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.ARC4StaticStruct, 3>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.static_array<test_cases.arc4_validation.contract.ARC4StaticStruct,3>_L135
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynamic_struct_arr(value: bytes) -> void:
     block@0: // L139
+        goto block@1
+    block@1: // L1
         let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let num_bytes%0#0: uint64 = (* length%0#0 2u)
         let total_length%0#0: uint64 = (len value#0)
         let array_data%0#0: bytes = (substring3 value#0 2u total_length%0#0)
         let index%0#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L141
+        goto block@2
+    block@2: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 length%0#0)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L141
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -628,26 +720,30 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 11u add%0#0)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        goto block@3
-    block@3: // for_footer_L141
+        goto block@4
+    block@4: // for_footer_L1
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@1
-    block@4: // after_for_L141
+        goto block@2
+    block@5: // after_for_L1
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4DynamicStruct>
+        goto block@6
+    block@6: // after_inlined_%Validate__arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4DynamicStruct>_L139
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynamic_struct_arr3(value: bytes) -> void:
     block@0: // L143
+        goto block@1
+    block@1: // L1
         let num_bytes%0#0: uint64 = (* 3u 2u)
         let index%0#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L145
+        goto block@2
+    block@2: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 3u)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L145
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -665,18 +761,22 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 11u add%0#0)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        goto block@3
-    block@3: // for_footer_L145
+        goto block@4
+    block@4: // for_footer_L1
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@1
-    block@4: // after_for_L145
+        goto block@2
+    block@5: // after_for_L1
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.ARC4DynamicStruct, 3>
+        goto block@6
+    block@6: // after_inlined_%Validate__arc4.static_array<test_cases.arc4_validation.contract.ARC4DynamicStruct,3>_L143
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynamic_struct_with_a_bool(value: bytes) -> void:
     block@0: // L147
+        goto block@1
+    block@1: // L1
         let tuple_len%0#0: uint64 = (len value#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 value#0 1u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 4u)
@@ -690,6 +790,8 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_dynam
         let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_validation.contract.WithABool
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.arc4_validation.contract.WithABool_L147
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_native_dynamic_struct_imm_arr(value: bytes) -> void:
@@ -697,17 +799,20 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let num_bytes%0#0: uint64 = (* length%0#0 2u)
-        let total_length%0#0: uint64 = (len maybe_value%0#0)
-        let array_data%0#0: bytes = (substring3 maybe_value%0#0 2u total_length%0#0)
+        let total_length%0#0: uint64 = (len value#0)
+        let array_data%0#0: bytes = (substring3 value#0 2u total_length%0#0)
         let index%0#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L156
+        goto block@2
+    block@2: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 length%0#0)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L156
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -725,15 +830,17 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 11u add%0#0)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        goto block@3
-    block@3: // for_footer_L156
+        goto block@4
+    block@4: // for_footer_L1
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@1
-    block@4: // after_for_L156
+        goto block@2
+    block@5: // after_for_L1
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct>
+        goto block@6
+    block@6: // after_inlined_%Validate__arc4.dynamic_array<test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct>_L151
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_native_dynamic_struct_imm_arr3(value: bytes) -> void:
@@ -741,19 +848,22 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
         let num_bytes%0#0: uint64 = (* 3u 2u)
         let index%0#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L163
+        goto block@2
+    block@2: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 3u)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L163
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
-        let item_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for (uint64,uint8,(len+utf8[]))[3]
-        let total_length%0#0: uint64 = (len maybe_value%0#0)
-        let extract_to_end%0#0: bytes = (substring3 maybe_value%0#0 item_offset%0#0 total_length%0#0)
+        let total_length%0#0: uint64 = (len value#0)
+        let extract_to_end%0#0: bytes = (substring3 value#0 item_offset%0#0 total_length%0#0)
         let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
@@ -765,21 +875,27 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 11u add%0#0)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        goto block@3
-    block@3: // for_footer_L163
+        goto block@4
+    block@4: // for_footer_L1
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@1
-    block@4: // after_for_L163
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        goto block@2
+    block@5: // after_for_L1
+        let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct, 3>
+        goto block@6
+    block@6: // after_inlined_%Validate__arc4.static_array<test_cases.arc4_validation.contract.ARC4FrozenDynamicStruct,3>_L158
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.decode_uint64_with_validate(value: bytes) -> void:
     block@0: // L165
+        goto block@1
+    block@1: // L1
         let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for uint64
+        goto block@2
+    block@2: // after_inlined_%Validate__uint64_L165
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.decode_uint64_without_validate(value: bytes) -> void:
@@ -791,9 +907,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 9u)
         (assert eq%0#0) // invalid number of bytes for test_cases.arc4_validation.contract.NativeStaticStruct
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.arc4_validation.contract.NativeStaticStruct_L173
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_native_dynamic_struct(value: bytes) -> void:
@@ -801,19 +922,24 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
-        let tuple_len%0#0: uint64 = (len maybe_value%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 9u) // on error: invalid tuple encoding
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint8,(len+utf8[]))
-        let substring3%0#0: bytes = (substring3 maybe_value%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 11u add%0#0)
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 add%1#0)
         (assert eq%1#0) // invalid number of bytes for test_cases.arc4_validation.contract.NativeDynamicStruct
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.arc4_validation.contract.NativeDynamicStruct_L180
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_native_static_struct_arr(value: bytes) -> void:
@@ -821,13 +947,18 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 9u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.NativeStaticStruct>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<test_cases.arc4_validation.contract.NativeStaticStruct>_L187
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_native_static_struct_arr3(value: bytes) -> void:
@@ -835,9 +966,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 27u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.NativeStaticStruct, 3>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.static_array<test_cases.arc4_validation.contract.NativeStaticStruct,3>_L194
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_native_dynamic_struct_arr(value: bytes) -> void:
@@ -845,17 +981,20 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let num_bytes%0#0: uint64 = (* length%0#0 2u)
-        let total_length%0#0: uint64 = (len maybe_value%0#0)
-        let array_data%0#0: bytes = (substring3 maybe_value%0#0 2u total_length%0#0)
+        let total_length%0#0: uint64 = (len value#0)
+        let array_data%0#0: bytes = (substring3 value#0 2u total_length%0#0)
         let index%0#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L206
+        goto block@2
+    block@2: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 length%0#0)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L206
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -873,15 +1012,17 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 11u add%0#0)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        goto block@3
-    block@3: // for_footer_L206
+        goto block@4
+    block@4: // for_footer_L1
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@1
-    block@4: // after_for_L206
+        goto block@2
+    block@5: // after_for_L1
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%1#0)
         (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<test_cases.arc4_validation.contract.NativeDynamicStruct>
+        goto block@6
+    block@6: // after_inlined_%Validate__arc4.dynamic_array<test_cases.arc4_validation.contract.NativeDynamicStruct>_L201
         return 
 
 subroutine test_cases.arc4_validation.contract.ValidationContract.validate_native_dynamic_struct_arr3(value: bytes) -> void:
@@ -889,19 +1030,22 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         (app_global_put "v" value#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "v")
         (assert maybe_exists%0#0) // check GlobalState exists
+        let value#0: bytes = maybe_value%0#0
+        goto block@1
+    block@1: // L1
         let num_bytes%0#0: uint64 = (* 3u 2u)
         let index%0#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L213
+        goto block@2
+    block@2: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 3u)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L213
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
-        let item_offset%0#0: uint64 = (extract_uint16 maybe_value%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
+        let item_offset%0#0: uint64 = (extract_uint16 value#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
         (assert offset_is_correct%0#0) // invalid tail pointer for (uint64,uint8,(len+utf8[]))[3]
-        let total_length%0#0: uint64 = (len maybe_value%0#0)
-        let extract_to_end%0#0: bytes = (substring3 maybe_value%0#0 item_offset%0#0 total_length%0#0)
+        let total_length%0#0: uint64 = (len value#0)
+        let extract_to_end%0#0: bytes = (substring3 value#0 item_offset%0#0 total_length%0#0)
         let tuple_len%0#0: uint64 = (len extract_to_end%0#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 extract_to_end%0#0 9u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 11u)
@@ -913,12 +1057,14 @@ subroutine test_cases.arc4_validation.contract.ValidationContract.validate_nativ
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 11u add%0#0)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%1#0)
-        goto block@3
-    block@3: // for_footer_L213
+        goto block@4
+    block@4: // for_footer_L1
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@1
-    block@4: // after_for_L213
-        let len%0#0: uint64 = (len maybe_value%0#0)
+        goto block@2
+    block@5: // after_for_L1
+        let len%0#0: uint64 = (len value#0)
         let eq%1#0: bool = (== len%0#0 num_bytes%0#0)
         (assert eq%1#0) // invalid number of bytes for arc4.static_array<test_cases.arc4_validation.contract.NativeDynamicStruct, 3>
+        goto block@6
+    block@6: // after_inlined_%Validate__arc4.static_array<test_cases.arc4_validation.contract.NativeDynamicStruct,3>_L208
         return 

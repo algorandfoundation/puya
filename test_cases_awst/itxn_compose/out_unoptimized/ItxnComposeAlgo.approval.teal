@@ -72,38 +72,61 @@ main___algots__.defaultCreate@9:
 
 // tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]() -> void:
 distribute:
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
     b distribute_block@0
 
 distribute_block@0:
     txna ApplicationArgs 1
     dup
+    b distribute_block@1
+
+distribute_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
     pushint 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    b distribute_after_inlined_%Validate__arc4.dynamic_array<arc4.static_array<arc4.uint8,32>>@2
+
+distribute_after_inlined_%Validate__arc4.dynamic_array<arc4.static_array<arc4.uint8,32>>@2:
+    dig 1
+    bury 5
     txn GroupIndex
     intc_1 // 1
     -
     dup
+    bury 4
     gtxns TypeEnum
     intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 2
     dup
+    bury 5
+    bury 1
+    b distribute_block@3
+
+distribute_block@3:
+    dup
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    b distribute_after_inlined_%Validate__arc4.uint64@4
+
+distribute_after_inlined_%Validate__arc4.uint64@4:
+    dig 3
     btoi
-    uncover 2
-    uncover 2
+    dig 5
+    dig 4
     uncover 2
     callsub tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute
     intc_1 // 1
@@ -117,10 +140,18 @@ conditionalBegin:
 conditionalBegin_block@0:
     txna ApplicationArgs 1
     dup
+    b conditionalBegin_block@1
+
+conditionalBegin_block@1:
+    dup
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    b conditionalBegin_after_inlined_%Validate__arc4.uint64@2
+
+conditionalBegin_after_inlined_%Validate__arc4.uint64@2:
+    dig 1
     btoi
     callsub tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin
     intc_1 // 1
@@ -320,7 +351,7 @@ tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin_block@0:
     itxn_field ClearStateProgramPages
     bytec_0 // 0x
     itxn_field ClearStateProgramPages
-    pushbytes base64(CyAEAAECBCYECGdyZWV0aW5nAAQVH3x1ASBCAAAxGEAACUIAAIgBk0IAAEIAADYaAIAEJDeNPIAEoOgYck8CjgIAZwBXQgAAMRkiEkQxGCITQQAtQgAANhoAgATQooIAgARRgLogTwKOAgANAAdCAABCAAAAiACXQv/2iABpQv/wNhoAgAQAkiWuTwGOAQAGQgAAQv/eiAAkQv/3MRklEjEYIhMQRIgANkL/nDEZgQUSMRgiExBEiAAdQv+LQgAANhoBSSJZIwskCEsBFRJEVwIAiACJI0NCAACIAIwjQ0IAAIgAiCNDQgAANhoBSSJZIwskCEsBFRJEVwIAiABySRUWVwYCTwFQKk8BULAjQ0IAADYaAUkVTgFJIllJJRJESwFPAUsDUiJZIwskCCUISwEkWUlLAhJESwJPAU8EUiJZIwskCAhLARUSRIgAN0kVFlcGAk8BUCpPAVCwI0OKAQBCAAAoi/9niUIAAIlCAACJigEBQgAAIihlRClPAVArUIv/UImKAQFCAAAiKGVEKU8BUCtQi/8iWYv/JFmL/08CTwJSVwIAUIv/JFmL/xWL/08CTwJSVwIAUIlCAABCAABCAAAoKWeJ)
+    pushbytes base64(CyAEAAECBCYECGdyZWV0aW5nAAQVH3x1ASBCAAAxGEAACUIAAIgBsUIAAEIAADYaAIAEJDeNPIAEoOgYck8CjgIAZwBXQgAAMRkiEkQxGCITQQAtQgAANhoAgATQooIAgARRgLogTwKOAgANAAdCAABCAAAAiACrQv/2iABzQv/wNhoAgAQAkiWuTwGOAQAGQgAAQv/eiAAkQv/3MRklEjEYIhMQRIgAQEL/nDEZgQUSMRgiExBEiAAnQv+LQgAANhoBSUIAAEcCIlkjCyQITwEVEkRCAABLAVcCAIgAnSNDQgAAiACgI0NCAACIAJwjQ0IAADYaAUlCAABHAiJZIwskCE8BFRJEQgAASwFXAgCIAHxJFRZXBgJPAVAqTwFQsCNDQgAANhoBSUIAAEcCFU4BSSJZSSUSREsBTwFLA1IiWSMLJAglCEsBJFlJSwISREsCTwFPBFIiWSMLJAgITwEVEkRCAABLAYgAN0kVFlcGAk8BUCpPAVCwI0OKAQBCAAAoi/9niUIAAIlCAACJigEBQgAAIihlRClPAVArUIv/UImKAQFCAAAiKGVEKU8BUCtQi/8iWYv/JFmL/08CTwJSVwIAUIv/JFmL/xWL/08CTwJSVwIAUIlCAABCAABCAAAoKWeJ)
     itxn_field ApprovalProgramPages
     bytec_0 // 0x
     itxn_field ApprovalProgramPages

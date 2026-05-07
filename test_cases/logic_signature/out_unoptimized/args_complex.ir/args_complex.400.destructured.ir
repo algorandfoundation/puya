@@ -1,127 +1,212 @@
 main test_cases.logic_signature.lsig_args_complex.args_complex:
     block@0: // L26
         let tmp%0#0: bytes = (arg 0)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@3
+    block@3: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for uint64
+        goto block@4
+    block@4: // after_inlined_%Validate__uint64_L26
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let arg0#0: uint64 = tmp%1#0
         let tmp%2#0: bytes = (arg 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let value#0: bytes = tmp%2#0
+        goto block@5
+    block@5: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for bytes
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for bytes
+        goto block@6
+    block@6: // after_inlined_%Validate__bytes_L26
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = tmp%2#0
         let tmp%3#0: bytes = ((extract 2 0) as_Encoded(len+uint8[])%0#0)
         let arg1#0: bytes = tmp%3#0
         let tmp%4#0: bytes = (arg 2)
-        let len%2#0: uint64 = (len tmp%4#0)
-        let eq%2#0: bool = (== len%2#0 64u)
-        (assert eq%2#0) // invalid number of bytes for biguint
+        let value#0: bytes = tmp%4#0
+        goto block@7
+    block@7: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 64u)
+        (assert eq%0#0) // invalid number of bytes for biguint
+        goto block@8
+    block@8: // after_inlined_%Validate__biguint_L26
         let as_Encoded(uint512)%0#0: Encoded(uint512) = tmp%4#0
         let tmp%5#0: biguint = as_Encoded(uint512)%0#0
         let arg2#0: biguint = tmp%5#0
         let tmp%6#0: bytes = (arg 3)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%6#0 0u) // on error: invalid array length header
-        let length%1#0: uint64 = aggregate%array_length%1#0
-        let mul%1#0: uint64 = (* length%1#0 1u)
-        let add%1#0: uint64 = (+ mul%1#0 2u)
-        let len%3#0: uint64 = (len tmp%6#0)
-        let eq%3#0: bool = (== len%3#0 add%1#0)
-        (assert eq%3#0) // invalid number of bytes for string
+        let value#0: bytes = tmp%6#0
+        goto block@9
+    block@9: // L1
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%1#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for string
+        goto block@10
+    block@10: // after_inlined_%Validate__string_L26
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%6#0
         let tmp%7#0: string = ((extract 2 0) as_Encoded(len+utf8[])%0#0)
         let arg3#0: string = tmp%7#0
         let tmp%8#0: bytes = (arg 4)
-        let len%4#0: uint64 = (len tmp%8#0)
-        let eq%4#0: bool = (== len%4#0 1u)
-        (assert eq%4#0) // invalid number of bytes for bool
+        let value#0: bytes = tmp%8#0
+        goto block@11
+    block@11: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for bool
+        goto block@12
+    block@12: // after_inlined_%Validate__bool_L26
         let as_Encoded(bool8)%0#0: Encoded(bool8) = tmp%8#0
         let aggregate%get_bit%0#0: bool = (getbit as_Encoded(bool8)%0#0 0u)
         let tmp%9#0: bool = aggregate%get_bit%0#0
         let arg4#0: bool = tmp%9#0
         let tmp%10#0: bytes = (arg 5)
-        let len%5#0: uint64 = (len tmp%10#0)
-        let eq%5#0: bool = (== len%5#0 1u)
-        (assert eq%5#0) // invalid number of bytes for arc4.uint8
+        let value#0: bytes = tmp%10#0
+        goto block@13
+    block@13: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint8
+        goto block@14
+    block@14: // after_inlined_%Validate__arc4.uint8_L26
         let as_Encoded(uint8)%0#0: Encoded(uint8) = tmp%10#0
         let arg5#0: Encoded(uint8) = as_Encoded(uint8)%0#0
         let tmp%11#0: bytes = (arg 6)
-        let len%6#0: uint64 = (len tmp%11#0)
-        let eq%6#0: bool = (== len%6#0 8u)
-        (assert eq%6#0) // invalid number of bytes for arc4.uint64
+        let value#0: bytes = tmp%11#0
+        goto block@15
+    block@15: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 8u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        goto block@16
+    block@16: // after_inlined_%Validate__arc4.uint64_L26
         let as_Encoded(uint64)%1#0: Encoded(uint64) = tmp%11#0
         let arg6#0: Encoded(uint64) = as_Encoded(uint64)%1#0
         let tmp%12#0: bytes = (arg 7)
-        let len%7#0: uint64 = (len tmp%12#0)
-        let eq%7#0: bool = (== len%7#0 16u)
-        (assert eq%7#0) // invalid number of bytes for arc4.uint128
+        let value#0: bytes = tmp%12#0
+        goto block@17
+    block@17: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for arc4.uint128
+        goto block@18
+    block@18: // after_inlined_%Validate__arc4.uint128_L26
         let as_Encoded(uint128)%0#0: Encoded(uint128) = tmp%12#0
         let arg7#0: Encoded(uint128) = as_Encoded(uint128)%0#0
         let tmp%13#0: bytes = (arg 8)
-        let len%8#0: uint64 = (len tmp%13#0)
-        let eq%8#0: bool = (== len%8#0 32u)
-        (assert eq%8#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        let value#0: bytes = tmp%13#0
+        goto block@19
+    block@19: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        goto block@20
+    block@20: // after_inlined_%Validate__arc4.static_array<arc4.uint8,32>_L26
         let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%13#0
         let arg8#0: Encoded(uint8[32]) = as_Encoded(uint8[32])%0#0
         let tmp%14#0: bytes = (arg 9)
-        let len%9#0: uint64 = (len tmp%14#0)
-        let eq%9#0: bool = (== len%9#0 1u)
-        (assert eq%9#0) // invalid number of bytes for arc4.bool
+        let value#0: bytes = tmp%14#0
+        goto block@21
+    block@21: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 1u)
+        (assert eq%0#0) // invalid number of bytes for arc4.bool
+        goto block@22
+    block@22: // after_inlined_%Validate__arc4.bool_L26
         let as_Encoded(bool8)%1#0: Encoded(bool8) = tmp%14#0
         let arg9#0: Encoded(bool8) = as_Encoded(bool8)%1#0
         let tmp%15#0: bytes = (arg 10)
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 tmp%15#0 0u) // on error: invalid array length header
-        let length%2#0: uint64 = aggregate%array_length%2#0
-        let mul%2#0: uint64 = (* length%2#0 1u)
-        let add%2#0: uint64 = (+ mul%2#0 2u)
-        let len%10#0: uint64 = (len tmp%15#0)
-        let eq%10#0: bool = (== len%10#0 add%2#0)
-        (assert eq%10#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#0: bytes = tmp%15#0
+        goto block@23
+    block@23: // L1
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%2#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@24
+    block@24: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L26
         let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = tmp%15#0
         let arg10#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%1#0
         let tmp%16#0: bytes = (arg 11)
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%16#0 0u) // on error: invalid array length header
-        let length%3#0: uint64 = aggregate%array_length%3#0
-        let mul%3#0: uint64 = (* length%3#0 1u)
-        let add%3#0: uint64 = (+ mul%3#0 2u)
-        let len%11#0: uint64 = (len tmp%16#0)
-        let eq%11#0: bool = (== len%11#0 add%3#0)
-        (assert eq%11#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#0: bytes = tmp%16#0
+        goto block@25
+    block@25: // L1
+        let aggregate%array_length%3#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%3#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@26
+    block@26: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L26
         let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = tmp%16#0
         let arg11#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
         let tmp%17#0: bytes = (arg 12)
-        let len%12#0: uint64 = (len tmp%17#0)
-        let eq%12#0: bool = (== len%12#0 4u)
-        (assert eq%12#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 4>
+        let value#0: bytes = tmp%17#0
+        goto block@27
+    block@27: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 4u)
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 4>
+        goto block@28
+    block@28: // after_inlined_%Validate__arc4.static_array<arc4.uint8,4>_L26
         let as_Encoded(uint8[4])%0#0: Encoded(uint8[4]) = tmp%17#0
         let arg12#0: Encoded(uint8[4]) = as_Encoded(uint8[4])%0#0
         let tmp%18#0: bytes = (arg 13)
-        let len%13#0: uint64 = (len tmp%18#0)
-        let eq%13#0: bool = (== len%13#0 16u)
-        (assert eq%13#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleStruct
+        let value#0: bytes = tmp%18#0
+        goto block@29
+    block@29: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 16u)
+        (assert eq%0#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleStruct
+        goto block@30
+    block@30: // after_inlined_%Validate__test_cases.logic_signature.lsig_args_complex.SimpleStruct_L26
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%18#0
         let arg13#0: Encoded(uint64,uint64) = as_Encoded(uint64,uint64)%0#0
         let tmp%19#0: bytes = (arg 14)
-        let len%14#0: uint64 = (len tmp%19#0)
-        let eq%14#0: bool = (== len%14#0 17u)
-        (assert eq%14#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.NestedStruct
+        let value#0: bytes = tmp%19#0
+        goto block@31
+    block@31: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 17u)
+        (assert eq%0#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.NestedStruct
+        goto block@32
+    block@32: // after_inlined_%Validate__test_cases.logic_signature.lsig_args_complex.NestedStruct_L26
         let as_Encoded(uint8,(uint64,uint64))%0#0: Encoded(uint8,(uint64,uint64)) = tmp%19#0
         let arg14#0: Encoded(uint8,(uint64,uint64)) = as_Encoded(uint8,(uint64,uint64))%0#0
         let tmp%20#0: bytes = (arg 15)
-        let len%15#0: uint64 = (len tmp%20#0)
-        let eq%15#0: bool = (== len%15#0 9u)
-        (assert eq%15#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint64>
+        let value#0: bytes = tmp%20#0
+        goto block@33
+    block@33: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 9u)
+        (assert eq%0#0) // invalid number of bytes for arc4.tuple<arc4.uint8,arc4.uint64>
+        goto block@34
+    block@34: // after_inlined_%Validate__arc4.tuple<arc4.uint8,arc4.uint64>_L26
         let as_Encoded(uint8,uint64)%0#0: Encoded(uint8,uint64) = tmp%20#0
         let arg15#0: Encoded(uint8,uint64) = as_Encoded(uint8,uint64)%0#0
         let tmp%21#0: bytes = (arg 16)
-        let len%16#0: uint64 = (len tmp%21#0)
-        let eq%16#0: bool = (== len%16#0 9u)
-        (assert eq%16#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleNamedTuple
+        let value#0: bytes = tmp%21#0
+        goto block@35
+    block@35: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 9u)
+        (assert eq%0#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.SimpleNamedTuple
+        goto block@36
+    block@36: // after_inlined_%Validate__test_cases.logic_signature.lsig_args_complex.SimpleNamedTuple_L26
         let as_Encoded(uint8,uint64)%1#0: Encoded(uint8,uint64) = tmp%21#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint8,uint64)%1#0 0u 1u)
         let aggregate%extract%1#0: bytes = (extract3 as_Encoded(uint8,uint64)%1#0 1u 8u)
@@ -130,19 +215,24 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let arg16.a#0: Encoded(uint8) = tmp%22#0
         let arg16.b#0: Encoded(uint64) = tmp%23#0
         let tmp%24#0: bytes = (arg 17)
-        let tuple_len%0#0: uint64 = (len tmp%24#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%24#0 8u) // on error: invalid tuple encoding
-        let eq%17#0: bool = (== extract_uint16%0#0 10u)
-        (assert eq%17#0) // invalid tail pointer at index 1 of (uint64,(len+uint8[]))
-        let substring3%0#0: bytes = (substring3 tmp%24#0 extract_uint16%0#0 tuple_len%0#0)
+        let value#0: bytes = tmp%24#0
+        goto block@37
+    block@37: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 10u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+uint8[]))
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let aggregate%array_length%4#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
-        let length%4#0: uint64 = aggregate%array_length%4#0
-        let mul%4#0: uint64 = (* length%4#0 1u)
-        let add%4#0: uint64 = (+ mul%4#0 2u)
-        let add%5#0: uint64 = (+ 10u add%4#0)
-        let len%17#0: uint64 = (len tmp%24#0)
-        let eq%18#0: bool = (== len%17#0 add%5#0)
-        (assert eq%18#0) // invalid number of bytes for tuple<uint64,bytes>
+        let length%0#0: uint64 = aggregate%array_length%4#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let add%1#0: uint64 = (+ 10u add%0#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%1#0: bool = (== len%0#0 add%1#0)
+        (assert eq%1#0) // invalid number of bytes for tuple<uint64,bytes>
+        goto block@38
+    block@38: // after_inlined_%Validate__tuple<uint64,bytes>_L26
         let as_Encoded(uint64,(len+uint8[]))%0#0: Encoded(uint64,(len+uint8[])) = tmp%24#0
         let aggregate%extract%2#0: bytes = (extract3 as_Encoded(uint64,(len+uint8[]))%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%2#0)
@@ -155,25 +245,30 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let arg17.0#0: uint64 = tmp%25#0
         let arg17.1#0: bytes = tmp%26#0
         let tmp%27#0: bytes = (arg 18)
-        let tuple_len%1#0: uint64 = (len tmp%27#0)
-        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%27#0 8u) // on error: invalid tuple encoding
-        let eq%19#0: bool = (== extract_uint16%1#0 10u)
-        (assert eq%19#0) // invalid tail pointer at index 1 of (uint64,((len+uint8[]),uint64))
-        let substring3%1#0: bytes = (substring3 tmp%27#0 extract_uint16%1#0 tuple_len%1#0)
-        let tuple_len%2#0: uint64 = (len substring3%1#0)
-        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid tuple encoding
-        let eq%20#0: bool = (== extract_uint16%2#0 10u)
-        (assert eq%20#0) // invalid tail pointer at index 0 of ((len+uint8[]),uint64)
-        let substring3%2#0: bytes = (substring3 substring3%1#0 extract_uint16%2#0 tuple_len%2#0)
-        let aggregate%array_length%5#0: uint64 = (extract_uint16 substring3%2#0 0u) // on error: invalid array length header
-        let length%5#0: uint64 = aggregate%array_length%5#0
-        let mul%5#0: uint64 = (* length%5#0 1u)
-        let add%6#0: uint64 = (+ mul%5#0 2u)
-        let add%7#0: uint64 = (+ 10u add%6#0)
-        let add%8#0: uint64 = (+ 10u add%7#0)
-        let len%18#0: uint64 = (len tmp%27#0)
-        let eq%21#0: bool = (== len%18#0 add%8#0)
-        (assert eq%21#0) // invalid number of bytes for tuple<uint64,tuple<bytes,uint64>>
+        let value#0: bytes = tmp%27#0
+        goto block@39
+    block@39: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 8u) // on error: invalid tuple encoding
+        let eq%0#0: bool = (== extract_uint16%0#0 10u)
+        (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,((len+uint8[]),uint64))
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
+        let tuple_len%1#0: uint64 = (len substring3%0#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid tuple encoding
+        let eq%1#0: bool = (== extract_uint16%1#0 10u)
+        (assert eq%1#0) // invalid tail pointer at index 0 of ((len+uint8[]),uint64)
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%1#0 tuple_len%1#0)
+        let aggregate%array_length%5#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%5#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let add%1#0: uint64 = (+ 10u add%0#0)
+        let add%2#0: uint64 = (+ 10u add%1#0)
+        let len%0#0: uint64 = (len value#0)
+        let eq%2#0: bool = (== len%0#0 add%2#0)
+        (assert eq%2#0) // invalid number of bytes for tuple<uint64,tuple<bytes,uint64>>
+        goto block@40
+    block@40: // after_inlined_%Validate__tuple<uint64,tuple<bytes,uint64>>_L26
         let as_Encoded(uint64,((len+uint8[]),uint64))%0#0: Encoded(uint64,((len+uint8[]),uint64)) = tmp%27#0
         let aggregate%extract%3#0: bytes = (extract3 as_Encoded(uint64,((len+uint8[]),uint64))%0#0 0u 8u)
         let aggregate%item0%1#0: uint64 = (btoi aggregate%extract%3#0)
@@ -193,19 +288,29 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let arg18.1.0#0: bytes = tmp%29#0
         let arg18.1.1#0: uint64 = tmp%30#0
         let tmp%31#0: bytes = (arg 19)
-        let len%19#0: uint64 = (len tmp%31#0)
-        let eq%22#0: bool = (== len%19#0 2u)
-        (assert eq%22#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.OverwriteStruct
+        let value#0: bytes = tmp%31#0
+        goto block@41
+    block@41: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 2u)
+        (assert eq%0#0) // invalid number of bytes for test_cases.logic_signature.lsig_args_complex.OverwriteStruct
+        goto block@42
+    block@42: // after_inlined_%Validate__test_cases.logic_signature.lsig_args_complex.OverwriteStruct_L26
         let as_Encoded(uint8,bool1)%0#0: Encoded(uint8,bool1) = tmp%31#0
         let arg19#0: Encoded(uint8,bool1) = as_Encoded(uint8,bool1)%0#0
         let tmp%32#0: bytes = (arg 20)
-        let aggregate%array_length%6#0: uint64 = (extract_uint16 tmp%32#0 0u) // on error: invalid array length header
-        let length%6#0: uint64 = aggregate%array_length%6#0
-        let mul%6#0: uint64 = (* length%6#0 1u)
-        let add%9#0: uint64 = (+ mul%6#0 2u)
-        let len%20#0: uint64 = (len tmp%32#0)
-        let eq%23#0: bool = (== len%20#0 add%9#0)
-        (assert eq%23#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let value#0: bytes = tmp%32#0
+        goto block@43
+    block@43: // L1
+        let aggregate%array_length%6#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
+        let length%0#0: uint64 = aggregate%array_length%6#0
+        let mul%0#0: uint64 = (* length%0#0 1u)
+        let add%0#0: uint64 = (+ mul%0#0 2u)
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@44
+    block@44: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L26
         let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = tmp%32#0
         let arg20#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let tmp%33#0: bytes = (args 0u)
@@ -495,27 +600,27 @@ main test_cases.logic_signature.lsig_args_complex.args_complex:
         let tmp%147#0: Encoded(uint8[]) = aggregate%as_Encoded(uint8[])%0#0
         let array#0: bytes = arg20#0
         let new_items_bytes#0: bytes = tmp%147#0
-        goto block@3
-    block@3: // L175
+        goto block@45
+    block@45: // L175
         let tmp%0#1: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#1
         let tmp%1#0: uint64 = (+ array_length#0 1u)
         let new_array_length#0: uint64 = tmp%1#0
         let i#0: uint64 = new_array_length#0
-        goto block@4
-    block@4: // L26
+        goto block@46
+    block@46: // L26
         let tmp%0#0: bytes = (itob i#0)
         let tmp%1#2: bytes = ((extract 6 0) tmp%0#0)
         let tmp%2#0: bytes = tmp%1#2
-        goto block@5
-    block@5: // after_inlined__puya_lib.arc4._itob16_L175
+        goto block@47
+    block@47: // after_inlined__puya_lib.arc4._itob16_L175
         let new_len_u16#0: bytes = tmp%2#0
         let tmp%3#0: bytes = (replace3 array#0 0u new_len_u16#0)
         let result#0: bytes = tmp%3#0
         let tmp%4#0: bytes = (concat result#0 new_items_bytes#0)
         let tmp%148#0: Encoded(len+uint8[]) = tmp%4#0
-        goto block@6
-    block@6: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L26
+        goto block@48
+    block@48: // after_inlined__puya_lib.arc4.dynamic_array_concat_fixed_L26
         let arg20#0: Encoded(len+uint8[]) = tmp%148#0
         let tmp%149#0: bool = (> arg0#0 0u)
         (assert tmp%149#0)

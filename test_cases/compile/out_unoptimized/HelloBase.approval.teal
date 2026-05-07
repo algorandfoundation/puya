@@ -134,16 +134,28 @@ greet_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b greet_block@1
+
+greet_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     pushint 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // compile/apps.py:32
+    // @arc4.abimethod()
+    b greet_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+greet_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    // compile/apps.py:32
+    // @arc4.abimethod()
+    dig 1
     extract 2 0
     callsub test_cases.compile.apps.HelloBase.greet
     dup

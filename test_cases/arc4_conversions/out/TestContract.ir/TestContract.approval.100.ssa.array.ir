@@ -875,11 +875,11 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed[routing]() -> void:
     block@0: // L178
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 1u)
         (assert eq%0#0) // invalid number of bytes for arc4.bool
-        let aggregate%get_bit%0#0: bool = (getbit tmp%0#0 0u)
+        let aggregate%get_bit%0#0: bool = (getbit value#0 0u)
         let wrong_size#0: bool = aggregate%get_bit%0#0
         itxn_begin
         ((itxn_field ClearStateProgramPages) C4EBQw==)
@@ -889,12 +889,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         let sender#0: bytes = (global CurrentApplicationAddress)
-        goto wrong_size#0 ? block@3 : block@4
-    block@3: // if_body_L184
+        goto wrong_size#0 ? block@5 : block@6
+    block@5: // if_body_L184
         let sender#1: bytes = (concat sender#0 sender#0)
-        goto block@4
-    block@4: // after_if_else_L183
-        let sender#2: bytes = φ(sender#0 <- block@0, sender#1 <- block@3)
+        goto block@6
+    block@6: // after_if_else_L183
+        let sender#2: bytes = φ(sender#0 <- block@0, sender#1 <- block@5)
         itxn_begin
         let aggregate%length%0#0: uint64 = (len sender#2)
         let aggregate%lengths_equal%0#0: bool = (== aggregate%length%0#0 32u)

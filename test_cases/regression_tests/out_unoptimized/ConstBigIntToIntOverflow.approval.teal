@@ -96,10 +96,22 @@ get_abs_bound1_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b get_abs_bound1_block@1
+
+get_abs_bound1_block@1:
+    dup
     len
     pushint 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // regression_tests/biguint_opt.py:5
+    // @arc4.abimethod()
+    b get_abs_bound1_after_inlined_%Validate__arc4.uint64@2
+
+get_abs_bound1_after_inlined_%Validate__arc4.uint64@2:
+    // regression_tests/biguint_opt.py:5
+    // @arc4.abimethod()
+    dig 1
     btoi
     callsub test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1
     itob
