@@ -303,14 +303,17 @@ def _build_equivalence_sets(
                         logger.debug(f"removing redundant assert of {op.condition}")
                         ops.pop()
             elif isinstance(op, models.Assignment):
-                if len(op.targets) == 1 and not isinstance(op.source, models.Constant):
+                if len(op.targets) == 1 and not isinstance(op.source, models.Value):
                     (target,) = op.targets
                     target_vn = tables.register_vn[target]
                     maybe_uint64_const = vn_to_uint64_const.get(target_vn)
                     if maybe_uint64_const is not None:
                         modified = True
+                        (source_type,) = op.source.types
                         op.source = models.UInt64Constant(
-                            value=maybe_uint64_const, source_location=op.source.source_location
+                            value=maybe_uint64_const,
+                            ir_type=source_type,
+                            source_location=op.source.source_location,
                         )
                         continue
 
