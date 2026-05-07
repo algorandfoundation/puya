@@ -1,23 +1,17 @@
 #!/usr/bin/env python3
 import subprocess
-import sys
 import typing
 from collections.abc import Callable
 from pathlib import Path
 
 import attrs
 import mypy.build
-import mypy.find_sources
 import mypy.nodes
-from sphinx.cmd.build import main as sphinx_build
 
-from puya.log import configure_stdio
-from puyapy.parse import _get_mypy_options
 from scripts.script_utils import VCS_ROOT
 
 SRC_DIR = VCS_ROOT / "src"
 DOCS_DIR = VCS_ROOT / "docs"
-STUBS_DIR = VCS_ROOT / "stubs" / "algopy-stubs"
 STUBS_DOC_DIR = DOCS_DIR / "algopy-stubs"
 
 
@@ -26,18 +20,6 @@ class ModuleImports:
     from_imports: dict[str, str | None] = attrs.field(factory=dict)
     import_all: bool = False
     import_module: bool = False
-
-
-def main() -> int:
-    configure_stdio()
-    mypy_opts = _get_mypy_options()
-    mypy_opts.python_executable = sys.executable
-    source_list = mypy.find_sources.create_source_list([str(STUBS_DIR)], mypy_opts)
-    result = mypy.build.build(source_list, options=mypy_opts)
-    output_doc_stubs(result.manager)
-    return sphinx_build(
-        [str(DOCS_DIR), str(DOCS_DIR / "_build"), "-W", "--keep-going", "-n", "-E"]
-    )
 
 
 def output_doc_stubs(manager: mypy.build.BuildManager) -> None:
@@ -403,7 +385,3 @@ def _name_as(name: str, name_as: str | None) -> str:
 
 def _should_inline_module(module_id: str) -> bool:
     return module_id.startswith("algopy._")
-
-
-if __name__ == "__main__":
-    sys.exit(main())

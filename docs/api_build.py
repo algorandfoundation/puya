@@ -87,6 +87,10 @@ _FENCE_RE = re.compile(
 # Triple-quoted docstring; non-greedy so each docstring is captured separately.
 _DOCSTRING_RE = re.compile(r'(""")(.*?)(""")', re.DOTALL)
 
+# Bare `TMPL_` references in docstrings render as plain text in Sphinx; wrap
+# them in rST inline-code so they appear as code in the rendered API docs.
+_TMPL_PREFIX_RE = re.compile(r"\bTMPL_\b")
+
 
 # Step 1: stub generation -------------------------------------------------------
 
@@ -145,7 +149,9 @@ def _fence_to_directive(m: re.Match[str]) -> str:
 
 def _rewrite_fences_in_docstring(m: re.Match[str]) -> str:
     open_q, body, close_q = m.group(1), m.group(2), m.group(3)
-    return f"{open_q}{_FENCE_RE.sub(_fence_to_directive, body)}{close_q}"
+    body = _FENCE_RE.sub(_fence_to_directive, body)
+    body = _TMPL_PREFIX_RE.sub("``TMPL_``", body)
+    return f"{open_q}{body}{close_q}"
 
 
 def _preprocess_docstrings() -> None:

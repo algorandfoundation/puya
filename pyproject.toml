@@ -47,7 +47,6 @@ testing = [
 ]
 doc = [
     "sphinx>=7.2.6,<8",
-    "furo>=2024.1.29,<2025",
     "myst-parser>=2.0.0,<3",
     "sphinx-autodoc2>=0.5.0,<0.6",
     "sphinx-copybutton>=0.5.2,<0.6",
@@ -333,12 +332,11 @@ upload_to_vcs_release = true
 env = "GITHUB_TOKEN"
 
 [tool.poe.tasks]
-docs.script = "scripts.generate_docs:main()"
-docs-install = "npm install --prefix docs"
+docs-install = "pnpm install --frozen-lockfile --dir docs"
 docs-api.script = "docs.api_build:main()"
-docs-dev.shell = "python docs/api_build.py && npm run --prefix docs dev"
-docs-build.shell = "python docs/api_build.py && npm run --prefix docs build"
-docs-preview = "npm run --prefix docs preview"
+docs-dev.shell = "python docs/api_build.py && pnpm --dir docs dev"
+docs-build.shell = "python docs/api_build.py && pnpm --dir docs build"
+docs-preview = "pnpm --dir docs preview"
 gen_lang_spec.script = "scripts.transform_lang_spec:main()"
 gen_stubs.script = "scripts.generate_stubs:main()"
 gen_avm_ops.script = "scripts.generate_avm_ops:main()"
