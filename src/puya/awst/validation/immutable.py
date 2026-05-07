@@ -33,7 +33,7 @@ class ImmutableValidator(AWSTTraverser):
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> None:
         super().visit_array_extend(expr)
-        if expr.base.wtype.immutable:
+        if expr.base.wtype.immutable and not expr.is_assignment:
             logger.error(
                 "cannot modify - object is immutable",
                 location=expr.source_location,

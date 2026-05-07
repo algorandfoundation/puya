@@ -739,6 +739,7 @@ class ArrayExtend(Expression):
         )
     )
     wtype: WType = attrs.field(default=wtypes.void_wtype)
+    is_assignment: bool = False
 
     @wtype.validator
     def _wtype_validator(self, _attr: object, value: WType) -> None:
