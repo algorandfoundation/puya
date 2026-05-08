@@ -539,7 +539,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     immediates=comp.immediates,
                     arg_vns=comp.arg_vns,
                 )
-                return self._lookup_or_assign(inverse_key, intrinsic)
+                (result_vn,) = self._lookup_or_assign(inverse_key, intrinsic)
+                # The result is itself a comparison — recording it lets
+                # !(!comparison) fold back to the original.
+                self._tables.comparison_exprs[result_vn] = inverse_key
+                return (result_vn,)
 
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
