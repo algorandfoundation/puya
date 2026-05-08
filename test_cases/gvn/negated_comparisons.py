@@ -13,6 +13,8 @@ class NegatedComparisonContract(Contract):
         b = a + 1  # a < b always holds
         test_uint64_negated(a, b)
         test_biguint_negated(BigUInt(a), BigUInt(b))
+        test_uint64_double_negated(a, b)
+        test_biguint_double_negated(BigUInt(a), BigUInt(b))
         return True
 
     def clear_state_program(self) -> bool:
@@ -49,3 +51,25 @@ def test_biguint_negated(a: BigUInt, b: BigUInt) -> None:
     assert a != b
     eq_result = a == b
     assert not eq_result  # !(b==) should get same VN as b!=
+
+
+@subroutine(inline=False)
+def test_uint64_double_negated(a: UInt64, b: UInt64) -> None:
+    """Test that !!(comparison) is recognised as equivalent to (comparison).
+
+    Exercises the case where the negation is encountered before the un-negated
+    equivalent: GVN sees `!(a < b)` (mapped to the inverse `a >= b` VN), then
+    `!!(a < b)` should fold back to the original `a < b` so the second assert
+    is recognised as redundant with the first.
+    """
+    assert a < b
+    neg = not (a < b)
+    assert not neg
+
+
+@subroutine(inline=False)
+def test_biguint_double_negated(a: BigUInt, b: BigUInt) -> None:
+    """Same as test_uint64_double_negated but for bytes comparisons."""
+    assert a < b
+    neg = not (a < b)
+    assert not neg

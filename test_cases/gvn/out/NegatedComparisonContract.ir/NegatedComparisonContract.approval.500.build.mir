@@ -1,96 +1,158 @@
-// Op                                                   Stack (out)
+// Op                                                          Stack (out)
 // test_cases.gvn.negated_comparisons.NegatedComparisonContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // gvn/negated_comparisons.py:12
         // a = Txn.num_app_args
-        txn NumAppArgs                                  a#0
+        txn NumAppArgs                                         a#0
         v-store a#0
         // gvn/negated_comparisons.py:13
         // b = a + 1  # a < b always holds
-        v-load a#0                                      a#0
-        int 1                                           a#0,1
-        +                                               b#0
+        v-load a#0                                             a#0
+        int 1                                                  a#0,1
+        +                                                      b#0
         v-store b#0
         // gvn/negated_comparisons.py:14
         // test_uint64_negated(a, b)
-        v-load a#0                                      a#0
-        v-load b#0                                      a#0,b#0
+        v-load a#0                                             a#0
+        v-load b#0                                             a#0,b#0
         callsub test_uint64_negated
         // gvn/negated_comparisons.py:15
         // test_biguint_negated(BigUInt(a), BigUInt(b))
-        v-load a#0                                      a#0
-        itob                                            tmp%2#0
+        v-load a#0                                             a#0
+        itob                                                   tmp%2#0
         v-store tmp%2#0
-        v-load b#0                                      b#0
-        itob                                            tmp%3#0
+        v-load b#0                                             b#0
+        itob                                                   tmp%3#0
         v-store tmp%3#0
-        v-load tmp%2#0                                  tmp%2#0
-        v-load tmp%3#0                                  tmp%2#0,tmp%3#0
+        v-load tmp%2#0                                         tmp%2#0
+        v-load tmp%3#0                                         tmp%2#0,tmp%3#0
         callsub test_biguint_negated
         // gvn/negated_comparisons.py:16
+        // test_uint64_double_negated(a, b)
+        v-load a#0                                             a#0
+        v-load b#0                                             a#0,b#0
+        callsub test_uint64_double_negated
+        // gvn/negated_comparisons.py:17
+        // test_biguint_double_negated(BigUInt(a), BigUInt(b))
+        v-load tmp%2#0                                         tmp%2#0
+        v-load tmp%3#0                                         tmp%2#0,tmp%3#0
+        callsub test_biguint_double_negated
+        // gvn/negated_comparisons.py:18
         // return True
-        int 1                                           1
+        int 1                                                  1
         return
 
 
 // test_cases.gvn.negated_comparisons.test_uint64_negated(a: uint64, b: uint64) -> void:
 subroutine test_uint64_negated:
-    test_uint64_negated_block@0:                        (𝕡) a#0,b#0 |
-        // gvn/negated_comparisons.py:29
+    test_uint64_negated_block@0:                               (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:31
         // assert a < b
-        p-load a#0                                      (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        <                                               (𝕡) a#0,b#0 | tmp%0#0
-        v-store tmp%0#0                                 (𝕡) a#0,b#0 |
-        v-load tmp%0#0                                  (𝕡) a#0,b#0 | tmp%0#0
-        assert                                          (𝕡) a#0,b#0 |
-        // gvn/negated_comparisons.py:32
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <                                                      (𝕡) a#0,b#0 | tmp%0#0
+        v-store tmp%0#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%0#0                                         (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:34
         // assert a <= b
-        p-load a#0                                      (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        <=                                              (𝕡) a#0,b#0 | tmp%3#0
-        v-store tmp%3#0                                 (𝕡) a#0,b#0 |
-        v-load tmp%3#0                                  (𝕡) a#0,b#0 | tmp%3#0
-        assert                                          (𝕡) a#0,b#0 |
-        // gvn/negated_comparisons.py:35
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <=                                                     (𝕡) a#0,b#0 | tmp%3#0
+        v-store tmp%3#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%3#0                                         (𝕡) a#0,b#0 | tmp%3#0
+        assert                                                 (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:37
         // assert a != b
-        p-load a#0                                      (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        !=                                              (𝕡) a#0,b#0 | tmp%6#0
-        v-store tmp%6#0                                 (𝕡) a#0,b#0 |
-        v-load tmp%6#0                                  (𝕡) a#0,b#0 | tmp%6#0
-        assert                                          (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        !=                                                     (𝕡) a#0,b#0 | tmp%6#0
+        v-store tmp%6#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%6#0                                         (𝕡) a#0,b#0 | tmp%6#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 
 // test_cases.gvn.negated_comparisons.test_biguint_negated(a: bytes, b: bytes) -> void:
 subroutine test_biguint_negated:
-    test_biguint_negated_block@0:                       (𝕡) a#0,b#0 |
-        // gvn/negated_comparisons.py:43
+    test_biguint_negated_block@0:                              (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:45
         // assert a < b
-        p-load a#0                                      (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b<                                              (𝕡) a#0,b#0 | tmp%0#0
-        v-store tmp%0#0                                 (𝕡) a#0,b#0 |
-        v-load tmp%0#0                                  (𝕡) a#0,b#0 | tmp%0#0
-        assert                                          (𝕡) a#0,b#0 |
-        // gvn/negated_comparisons.py:46
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<                                                     (𝕡) a#0,b#0 | tmp%0#0
+        v-store tmp%0#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%0#0                                         (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:48
         // assert a <= b
-        p-load a#0                                      (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b<=                                             (𝕡) a#0,b#0 | tmp%3#0
-        v-store tmp%3#0                                 (𝕡) a#0,b#0 |
-        v-load tmp%3#0                                  (𝕡) a#0,b#0 | tmp%3#0
-        assert                                          (𝕡) a#0,b#0 |
-        // gvn/negated_comparisons.py:49
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<=                                                    (𝕡) a#0,b#0 | tmp%3#0
+        v-store tmp%3#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%3#0                                         (𝕡) a#0,b#0 | tmp%3#0
+        assert                                                 (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:51
         // assert a != b
-        p-load a#0                                      (𝕡) a#0,b#0 | a#0 (copy)
-        p-load b#0                                      (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        b!=                                             (𝕡) a#0,b#0 | tmp%6#0
-        v-store tmp%6#0                                 (𝕡) a#0,b#0 |
-        v-load tmp%6#0                                  (𝕡) a#0,b#0 | tmp%6#0
-        assert                                          (𝕡) a#0,b#0 |
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b!=                                                    (𝕡) a#0,b#0 | tmp%6#0
+        v-store tmp%6#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%6#0                                         (𝕡) a#0,b#0 | tmp%6#0
+        assert                                                 (𝕡) a#0,b#0 |
+        retsub
+
+
+// test_cases.gvn.negated_comparisons.test_uint64_double_negated(a: uint64, b: uint64) -> void:
+subroutine test_uint64_double_negated:
+    test_uint64_double_negated_block@0:                        (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:65
+        // assert a < b
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        <                                                      (𝕡) a#0,b#0 | tmp%0#0
+        v-store tmp%0#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%0#0                                         (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:66
+        // neg = not (a < b)
+        v-load tmp%0#0                                         (𝕡) a#0,b#0 | tmp%0#0
+        !                                                      (𝕡) a#0,b#0 | neg#0
+        v-store neg#0                                          (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:67
+        // assert not neg
+        v-load neg#0                                           (𝕡) a#0,b#0 | neg#0
+        !                                                      (𝕡) a#0,b#0 | tmp%3#0
+        v-store tmp%3#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%3#0                                         (𝕡) a#0,b#0 | tmp%3#0
+        assert                                                 (𝕡) a#0,b#0 |
+        retsub
+
+
+// test_cases.gvn.negated_comparisons.test_biguint_double_negated(a: bytes, b: bytes) -> void:
+subroutine test_biguint_double_negated:
+    test_biguint_double_negated_block@0:                       (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:73
+        // assert a < b
+        p-load a#0                                             (𝕡) a#0,b#0 | a#0 (copy)
+        p-load b#0                                             (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
+        b<                                                     (𝕡) a#0,b#0 | tmp%0#0
+        v-store tmp%0#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%0#0                                         (𝕡) a#0,b#0 | tmp%0#0
+        assert                                                 (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:74
+        // neg = not (a < b)
+        v-load tmp%0#0                                         (𝕡) a#0,b#0 | tmp%0#0
+        !                                                      (𝕡) a#0,b#0 | neg#0
+        v-store neg#0                                          (𝕡) a#0,b#0 |
+        // gvn/negated_comparisons.py:75
+        // assert not neg
+        v-load neg#0                                           (𝕡) a#0,b#0 | neg#0
+        !                                                      (𝕡) a#0,b#0 | tmp%3#0
+        v-store tmp%3#0                                        (𝕡) a#0,b#0 |
+        v-load tmp%3#0                                         (𝕡) a#0,b#0 | tmp%3#0
+        assert                                                 (𝕡) a#0,b#0 |
         retsub
 
 

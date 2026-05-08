@@ -17,12 +17,21 @@ main:
     callsub test_uint64_negated
     // gvn/negated_comparisons.py:15
     // test_biguint_negated(BigUInt(a), BigUInt(b))
-    swap
+    dig 1
     itob
-    swap
+    dig 1
     itob
+    dup2
     callsub test_biguint_negated
     // gvn/negated_comparisons.py:16
+    // test_uint64_double_negated(a, b)
+    uncover 3
+    uncover 3
+    callsub test_uint64_double_negated
+    // gvn/negated_comparisons.py:17
+    // test_biguint_double_negated(BigUInt(a), BigUInt(b))
+    callsub test_biguint_double_negated
+    // gvn/negated_comparisons.py:18
     // return True
     pushint 1
     return
@@ -30,23 +39,23 @@ main:
 
 // test_cases.gvn.negated_comparisons.test_uint64_negated(a: uint64, b: uint64) -> void:
 test_uint64_negated:
-    // gvn/negated_comparisons.py:22-23
+    // gvn/negated_comparisons.py:24-25
     // @subroutine(inline=False)
     // def test_uint64_negated(a: UInt64, b: UInt64) -> None:
     proto 2 0
-    // gvn/negated_comparisons.py:29
+    // gvn/negated_comparisons.py:31
     // assert a < b
     frame_dig -2
     frame_dig -1
     <
     assert
-    // gvn/negated_comparisons.py:32
+    // gvn/negated_comparisons.py:34
     // assert a <= b
     frame_dig -2
     frame_dig -1
     <=
     assert
-    // gvn/negated_comparisons.py:35
+    // gvn/negated_comparisons.py:37
     // assert a != b
     frame_dig -2
     frame_dig -1
@@ -57,26 +66,72 @@ test_uint64_negated:
 
 // test_cases.gvn.negated_comparisons.test_biguint_negated(a: bytes, b: bytes) -> void:
 test_biguint_negated:
-    // gvn/negated_comparisons.py:40-41
+    // gvn/negated_comparisons.py:42-43
     // @subroutine(inline=False)
     // def test_biguint_negated(a: BigUInt, b: BigUInt) -> None:
     proto 2 0
-    // gvn/negated_comparisons.py:43
+    // gvn/negated_comparisons.py:45
     // assert a < b
     frame_dig -2
     frame_dig -1
     b<
     assert
-    // gvn/negated_comparisons.py:46
+    // gvn/negated_comparisons.py:48
     // assert a <= b
     frame_dig -2
     frame_dig -1
     b<=
     assert
-    // gvn/negated_comparisons.py:49
+    // gvn/negated_comparisons.py:51
     // assert a != b
     frame_dig -2
     frame_dig -1
     b!=
+    assert
+    retsub
+
+
+// test_cases.gvn.negated_comparisons.test_uint64_double_negated(a: uint64, b: uint64) -> void:
+test_uint64_double_negated:
+    // gvn/negated_comparisons.py:56-57
+    // @subroutine(inline=False)
+    // def test_uint64_double_negated(a: UInt64, b: UInt64) -> None:
+    proto 2 0
+    // gvn/negated_comparisons.py:65
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    <
+    dup
+    assert
+    // gvn/negated_comparisons.py:66
+    // neg = not (a < b)
+    !
+    // gvn/negated_comparisons.py:67
+    // assert not neg
+    !
+    assert
+    retsub
+
+
+// test_cases.gvn.negated_comparisons.test_biguint_double_negated(a: bytes, b: bytes) -> void:
+test_biguint_double_negated:
+    // gvn/negated_comparisons.py:70-71
+    // @subroutine(inline=False)
+    // def test_biguint_double_negated(a: BigUInt, b: BigUInt) -> None:
+    proto 2 0
+    // gvn/negated_comparisons.py:73
+    // assert a < b
+    frame_dig -2
+    frame_dig -1
+    b<
+    dup
+    assert
+    // gvn/negated_comparisons.py:74
+    // neg = not (a < b)
+    !
+    // gvn/negated_comparisons.py:75
+    // assert not neg
+    !
     assert
     retsub
