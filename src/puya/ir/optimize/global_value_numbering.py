@@ -524,28 +524,25 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             return self._fresh_vns(intrinsic)
         args = intrinsic.args
         arg_vns = tuple(self._visit_value(a) for a in args)
-        # Negation-aware numbering: !(comparison) -> inverse comparison.
-        # e.g. !(a < b) gets the same key as (a >= b).
-        if op == AVMOp.not_:
-            (vn,) = arg_vns
-            try:
-                comp = self._tables.comparison_exprs[vn]
-            except KeyError:
-                pass
-            else:
-                inverse_op = _INVERSE_COMPARISONS[comp.op]
-                inverse_key = _IntrinsicKey(
-                    op=inverse_op,
-                    immediates=comp.immediates,
-                    arg_vns=comp.arg_vns,
-                )
-                (result_vn,) = self._lookup_or_assign(inverse_key, intrinsic)
-                # The result is itself a comparison — recording it lets
-                # !(!comparison) fold back to the original.
-                self._tables.comparison_exprs[result_vn] = inverse_key
-                return (result_vn,)
 
         match arg_vns:
+            case [vn]:
+                match op:
+                    case AVMOp.not_:
+                        # Negation-aware numbering: !(comparison) -> inverse comparison.
+                        # e.g. !(a < b) gets the same key as (a >= b).
+                        if comp := self._tables.comparison_exprs.get(vn):
+                            inverse_op = _INVERSE_COMPARISONS[comp.op]
+                            inverse_key = _IntrinsicKey(
+                                op=inverse_op,
+                                immediates=comp.immediates,
+                                arg_vns=comp.arg_vns,
+                            )
+                            (result_vn,) = self._lookup_or_assign(inverse_key, intrinsic)
+                            # The result is itself a comparison — recording it lets
+                            # !(!comparison) fold back to the original.
+                            self._tables.comparison_exprs[result_vn] = inverse_key
+                            return (result_vn,)
             case [vn1, vn2] if vn1 == vn2:
                 match op:
                     case (
