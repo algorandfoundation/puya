@@ -30,7 +30,7 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
-from puya.ir.optimize.intrinsic_simplification import valid_uint64
+from puya.ir.optimize.intrinsic_simplification import choose_encoding, valid_uint64
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
@@ -101,6 +101,11 @@ _INVERSE_COMPARISONS: typing.Final = symmetric_mapping(
     (AVMOp.gt_bytes, AVMOp.lte_bytes),
     (AVMOp.eq_bytes, AVMOp.neq_bytes),
 )
+
+
+def _chop_encoding(enc: AVMBytesEncoding) -> AVMBytesEncoding:
+    """Encoding for a slice/extract result: utf8 doesn't survive chopping."""
+    return AVMBytesEncoding.unknown if enc == AVMBytesEncoding.utf8 else enc
 
 
 @attrs.frozen(kw_only=True)
@@ -193,6 +198,8 @@ class _UInt64ConstKey(_ConstKey):
 @attrs.frozen(kw_only=True)
 class _BytesConstKey(_ConstKey):
     value: bytes
+    # encoding is metadata only — same bytes with different encodings get the same VN.
+    encoding: AVMBytesEncoding = attrs.field(default=AVMBytesEncoding.unknown, eq=False)
 
 
 @attrs.frozen(kw_only=True)
@@ -341,7 +348,9 @@ def _build_equivalence_sets(
                                 source_location=op.source.source_location,
                             )
                             continue
-                        case _BytesConstKey(value=bytes_const) if len(bytes_const) <= 8 and (
+                        case _BytesConstKey(value=bytes_const, encoding=bytes_encoding) if len(
+                            bytes_const
+                        ) <= 8 and (
                             isinstance(op.source, models.Intrinsic)
                             and any(
                                 isinstance(op_arg, models.Register) for op_arg in op.source.args
@@ -351,7 +360,7 @@ def _build_equivalence_sets(
                             (source_type,) = op.source.types
                             op.source = models.BytesConstant(
                                 value=bytes_const,
-                                encoding=AVMBytesEncoding.unknown,
+                                encoding=bytes_encoding,
                                 ir_type=source_type,
                                 source_location=op.source.source_location,
                             )
@@ -536,7 +545,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             # special case - `global` is not a pure op necessarily, but there is one constant case
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 bytes_const_evald = Address.parse(algo_constants.ZERO_ADDRESS).public_key
-                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                bytes_const_key = _BytesConstKey(
+                    value=bytes_const_evald, encoding=AVMBytesEncoding.base32
+                )
                 return self._tables.lookup_or_assign_const(bytes_const_key)
 
         op = intrinsic.op
@@ -559,14 +570,18 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     case [_UInt64ConstKey(value=itob_arg)]:
                         if valid_uint64(itob_arg):
                             bytes_const_evald = itob_arg.to_bytes(8, byteorder="big", signed=False)
-                            bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                            bytes_const_key = _BytesConstKey(
+                                value=bytes_const_evald, encoding=AVMBytesEncoding.base16
+                            )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
             case AVMOp.bzero:
                 match arg_defns:
                     case [_UInt64ConstKey(value=bzero_arg)]:
                         if bzero_arg <= algo_constants.MAX_BYTES_LENGTH:
                             bytes_const_evald = b"\x00" * bzero_arg
-                            bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                            bytes_const_key = _BytesConstKey(
+                                value=bytes_const_evald, encoding=AVMBytesEncoding.base16
+                            )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
             case AVMOp.not_:
                 match arg_defns:
@@ -588,17 +603,20 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             case AVMOp.concat:
                 match arg_defns:
                     case [
-                        _BytesConstKey(value=first_byte_const),
-                        _BytesConstKey(value=second_byte_const),
+                        _BytesConstKey(value=first_byte_const, encoding=first_enc),
+                        _BytesConstKey(value=second_byte_const, encoding=second_enc),
                     ]:
                         concat_result = first_byte_const + second_byte_const
                         if len(concat_result) <= algo_constants.MAX_BYTES_LENGTH:
-                            const_concat_key = _BytesConstKey(value=concat_result)
+                            const_concat_key = _BytesConstKey(
+                                value=concat_result,
+                                encoding=choose_encoding(first_enc, second_enc, is_concat=True),
+                            )
                             return self._tables.lookup_or_assign_const(const_concat_key)
             case AVMOp.substring3:
                 match arg_defns:
                     case [
-                        _BytesConstKey(value=byte_arg),
+                        _BytesConstKey(value=byte_arg, encoding=byte_enc),
                         _UInt64ConstKey(value=start_arg),
                         _UInt64ConstKey(value=end_arg),
                     ]:
@@ -609,12 +627,14 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             <= algo_constants.MAX_BYTES_LENGTH
                         ):
                             substring_result = byte_arg[start_arg:end_arg]
-                            bytes_const_key = _BytesConstKey(value=substring_result)
+                            bytes_const_key = _BytesConstKey(
+                                value=substring_result, encoding=_chop_encoding(byte_enc)
+                            )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
             case AVMOp.substring:
                 match arg_defns, intrinsic.immediates:
                     case [
-                        [_BytesConstKey(value=byte_arg)],
+                        [_BytesConstKey(value=byte_arg, encoding=byte_enc)],
                         [
                             int(start_arg),
                             int(end_arg),
@@ -627,24 +647,28 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             <= algo_constants.MAX_BYTES_LENGTH
                         ):
                             substring_result = byte_arg[start_arg:end_arg]
-                            bytes_const_key = _BytesConstKey(value=substring_result)
+                            bytes_const_key = _BytesConstKey(
+                                value=substring_result, encoding=_chop_encoding(byte_enc)
+                            )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
             case AVMOp.extract3:
                 match arg_defns:
                     case [
-                        _BytesConstKey(value=byte_arg),
+                        _BytesConstKey(value=byte_arg, encoding=byte_enc),
                         _UInt64ConstKey(value=start_arg),
                         _UInt64ConstKey(value=length_arg),
                     ]:
                         end_arg = start_arg + length_arg
                         if end_arg <= len(byte_arg) <= algo_constants.MAX_BYTES_LENGTH:
                             extract_result = byte_arg[start_arg:end_arg]
-                            bytes_const_key = _BytesConstKey(value=extract_result)
+                            bytes_const_key = _BytesConstKey(
+                                value=extract_result, encoding=_chop_encoding(byte_enc)
+                            )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
             case AVMOp.extract:
                 match arg_defns, intrinsic.immediates:
                     case [
-                        [_BytesConstKey(value=byte_arg)],
+                        [_BytesConstKey(value=byte_arg, encoding=byte_enc)],
                         [
                             int(start_arg),
                             int(length_arg),
@@ -655,7 +679,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         end_arg = byte_len if length_arg == 0 else start_arg + length_arg
                         if start_arg <= end_arg <= byte_len <= algo_constants.MAX_BYTES_LENGTH:
                             extract_result = byte_arg[start_arg:end_arg]
-                            bytes_const_key = _BytesConstKey(value=extract_result)
+                            bytes_const_key = _BytesConstKey(
+                                value=extract_result, encoding=_chop_encoding(byte_enc)
+                            )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
 
         match arg_vns:
@@ -766,24 +792,24 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     @typing.override
     def visit_biguint_constant(self, const: models.BigUIntConstant) -> tuple[VN, ...]:
         evald = biguint_bytes_eval(const.value)
-        key = _BytesConstKey(value=evald)
+        key = _BytesConstKey(value=evald, encoding=AVMBytesEncoding.base16)
         return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_bytes_constant(self, const: models.BytesConstant) -> tuple[VN, ...]:
-        key = _BytesConstKey(value=const.value)
+        key = _BytesConstKey(value=const.value, encoding=const.encoding)
         return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_address_constant(self, const: models.AddressConstant) -> tuple[VN, ...]:
         evald = Address.parse(const.value).public_key
-        key = _BytesConstKey(value=evald)
+        key = _BytesConstKey(value=evald, encoding=AVMBytesEncoding.base32)
         return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_method_constant(self, const: models.MethodConstant) -> tuple[VN, ...]:
         evald = method_selector_hash(const.value)
-        key = _BytesConstKey(value=evald)
+        key = _BytesConstKey(value=evald, encoding=AVMBytesEncoding.base16)
         return self._tables.lookup_or_assign_const(key)
 
     @typing.override
