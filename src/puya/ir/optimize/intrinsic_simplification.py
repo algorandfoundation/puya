@@ -1,4 +1,5 @@
 import contextlib
+import enum
 import functools
 import hashlib
 import math
@@ -1550,87 +1551,93 @@ def fold_uint64_const_binary_op(op: AVMOp, a_const: int, b_const: int) -> int | 
     return c
 
 
-def _try_simplify_uint64_one_const(
-    intrinsic: models.Intrinsic,
+class BinarySimplification(enum.Enum):
+    """Symbolic outcome for value-level binary-op simplifications.
+
+    Callers map LEFT/RIGHT to their identity space (Value for the rewriter,
+    VN for GVN).
+    """
+
+    LEFT = enum.auto()
+    RIGHT = enum.auto()
+
+
+def simplify_uint64_binary_op_one_const(
+    op: AVMOp,
     a: models.Value,
     b: models.Value,
     a_const: int | None,
     b_const: int | None,
     *,
-    bool_context: bool,
-) -> models.Value | models.Intrinsic | int | None:
-    """Simplify a uint64 binary op when at least one operand is a constant.
+    bool_context: bool = False,
+) -> int | BinarySimplification | None:
+    """Algebraic simplification of `op(a, b)` when at least one operand is constant.
 
-    Returns an int for a folded literal, a Value for a pass-through,
-    a rewritten Intrinsic (e.g. `0 == b` -> `!b`), or None if no rule fires.
+    Returns an int for a folded literal, LEFT/RIGHT for a pass-through to
+    operand a/b, or None if no rule fires. Does NOT handle `op == AVMOp.eq` —
+    each caller emits its own `!operand` rewrite (the rewrite shape is
+    caller-specific).
     """
 
     def bool_safe(arg: models.Value) -> bool:
         return bool_context or arg.ir_type == PrimitiveIRType.bool
 
-    match intrinsic.op:
+    match op:
         case AVMOp.gte:
             # a >= 0 <-> 1
             if b_const == 0:
                 return 1
             # a >= 1 <-> a (in bool context)
             if b_const == 1 and bool_safe(a):
-                return a
+                return BinarySimplification.LEFT
         case AVMOp.lte:
             # 0 <= b <-> 1
             if a_const == 0:
                 return 1
             # 1 <= b <-> b (in bool context)
             if a_const == 1 and bool_safe(b):
-                return b
+                return BinarySimplification.RIGHT
         case AVMOp.mul:
             if a_const == 1:
-                return b
+                return BinarySimplification.RIGHT
             if b_const == 1:
-                return a
+                return BinarySimplification.LEFT
             if 0 in (a_const, b_const):
                 return 0
         case AVMOp.div_floor:
             if b_const == 1:
-                return a
+                return BinarySimplification.LEFT
         case AVMOp.add:
             if a_const == 0:
-                return b
+                return BinarySimplification.RIGHT
             if b_const == 0:
-                return a
+                return BinarySimplification.LEFT
         case AVMOp.sub:
             if b_const == 0:
-                return a
+                return BinarySimplification.LEFT
         case AVMOp.and_:
             if 0 in (a_const, b_const):
                 return 0
         case AVMOp.or_:
             if bool_context:
                 if a_const == 0:
-                    return b
+                    return BinarySimplification.RIGHT
                 if b_const == 0:
-                    return a
+                    return BinarySimplification.LEFT
         case AVMOp.neq:
             # 0 != b <-> b  /  a != 0 <-> a (in bool context)
             if a_const == 0 and bool_safe(b):
-                return b
+                return BinarySimplification.RIGHT
             if b_const == 0 and bool_safe(a):
-                return a
+                return BinarySimplification.LEFT
         case AVMOp.lt:
             # 0 < b <-> b (in bool context)
             if a_const == 0 and bool_safe(b):
-                return b
+                return BinarySimplification.RIGHT
         case AVMOp.gt:
             # a > 0 <-> a (in bool context)
             if b_const == 0 and bool_safe(a):
-                return a
-        case AVMOp.eq:
-            # 0 == b <-> !b
-            if a_const == 0:
-                return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
-            # a == 0 <-> !a
-            if b_const == 0:
-                return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
+                return BinarySimplification.LEFT
     return None
 
 
@@ -1645,13 +1652,28 @@ def _try_simplify_uint64_binary_op(
     op = intrinsic.op
     a_const = _get_int_constant(a)
     b_const = _get_int_constant(b)
-    c: models.Intrinsic | models.Value | int | None = None
+    c: models.Value | int | None = None
     if a_const is not None and b_const is not None:
         c = fold_uint64_const_binary_op(op, a_const, b_const)
     elif a_const is not None or b_const is not None:
-        c = _try_simplify_uint64_one_const(
-            intrinsic, a, b, a_const, b_const, bool_context=bool_context
-        )
+        # eq → !operand is shaped differently to other one-const folds, so
+        # the shared simplifier doesn't cover it.
+        if op == AVMOp.eq:
+            if a_const == 0:
+                return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
+            if b_const == 0:
+                return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
+        match simplify_uint64_binary_op_one_const(
+            op, a, b, a_const, b_const, bool_context=bool_context
+        ):
+            case int() as v:
+                c = v
+            case BinarySimplification.LEFT:
+                c = a
+            case BinarySimplification.RIGHT:
+                c = b
+            case None:
+                pass
     if c is None and op in (AVMOp.and_, AVMOp.or_):
         new_a = _try_simplify_bool_condition(register_assignments, a) or a
         new_b = _try_simplify_bool_condition(register_assignments, b) or b

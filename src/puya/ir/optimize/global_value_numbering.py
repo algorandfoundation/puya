@@ -32,8 +32,10 @@ from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.optimize.intrinsic_simplification import (
     COMPILE_TIME_CONSTANT_OPS,
+    BinarySimplification,
     choose_encoding,
     fold_uint64_const_binary_op,
+    simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
 from puya.ir.types_ import AVMBytesEncoding
@@ -760,6 +762,35 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         | AVMOp.bitwise_or_bytes
                     ):
                         return (vn1,)
+
+        # One-const algebraic simplifications (uint64 binary ops).
+        if len(arg_vns) == 2:
+            a_def, b_def = arg_defns
+            a_const = a_def.value if isinstance(a_def, _UInt64ConstKey) else None
+            b_const = b_def.value if isinstance(b_def, _UInt64ConstKey) else None
+            if a_const is not None or b_const is not None:
+                a, b = intrinsic.args
+                # eq → !operand is shaped differently to other one-const folds.
+                if op == AVMOp.eq:
+                    if a_const == 0:
+                        return self._tables.lookup_or_assign_vp(
+                            _IntrinsicKey(op=AVMOp.not_, immediates=(), arg_vns=(arg_vns[1],)),
+                            intrinsic,
+                        )
+                    if b_const == 0:
+                        return self._tables.lookup_or_assign_vp(
+                            _IntrinsicKey(op=AVMOp.not_, immediates=(), arg_vns=(arg_vns[0],)),
+                            intrinsic,
+                        )
+                match simplify_uint64_binary_op_one_const(op, a, b, a_const, b_const):
+                    case int() as v:
+                        return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=v))
+                    case BinarySimplification.LEFT:
+                        return (arg_vns[0],)
+                    case BinarySimplification.RIGHT:
+                        return (arg_vns[1],)
+                    case None:
+                        pass
 
         if op in _COMMUTATIVE_OPS:
             arg_vns = tuple(sorted(arg_vns))
