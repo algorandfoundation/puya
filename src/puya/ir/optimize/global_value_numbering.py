@@ -531,6 +531,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
         match arg_vns:
             case [vn]:
                 match op:
+                    case AVMOp.len_:
+                        match self._tables.vn_definition.get(vn):
+                            case _BytesConstKey(value=len_arg):
+                                len_const_key = _UInt64ConstKey(value=len(len_arg))
+                                return self._tables.lookup_or_assign_const(len_const_key)
                     case AVMOp.itob:
                         match self._tables.vn_definition.get(vn):
                             case _UInt64ConstKey(value=itob_arg):
