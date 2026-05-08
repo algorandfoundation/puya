@@ -30,7 +30,12 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
-from puya.ir.optimize.intrinsic_simplification import choose_encoding, valid_uint64
+from puya.ir.optimize.intrinsic_simplification import (
+    COMPILE_TIME_CONSTANT_OPS,
+    choose_encoding,
+    fold_uint64_const_binary_op,
+    valid_uint64,
+)
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
@@ -285,6 +290,11 @@ class _GVNTables:
         self.vn_definition[vn] = key
         return (vn,)
 
+    # def is_register_constant(self, reg: models.Register) -> bool:
+    #     reg_vn = self.register_vn[reg]
+    #     defn = self.vn_definition.get(reg_vn)
+    #     return isinstance(defn, _ConstKey)
+
 
 _MaybeAVMType: typing.TypeAlias = AVMType | str
 
@@ -367,8 +377,9 @@ def _build_equivalence_sets(
                             bytes_const
                         ) <= 8 and (
                             isinstance(op.source, models.Intrinsic)
+                            and op.source.op not in (AVMOp.bzero, AVMOp.itob)
                             and any(
-                                isinstance(op_arg, models.Register) for op_arg in op.source.args
+                                (isinstance(op_arg, models.Register)) for op_arg in op.source.args
                             )
                         ):
                             modified = True
@@ -571,6 +582,18 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
         args = intrinsic.args
         arg_vns = tuple(self._visit_value(a) for a in args)
         arg_defns = [self._tables.vn_definition.get(arg_vn) for arg_vn in arg_vns]
+
+        if (
+            not intrinsic.immediates
+            and len(intrinsic.types) == 1
+            and op in COMPILE_TIME_CONSTANT_OPS
+        ):
+            match arg_defns:
+                case [_UInt64ConstKey(value=x), _UInt64ConstKey(value=y)]:
+                    z = fold_uint64_const_binary_op(op, x, y)
+                    if z is not None:
+                        binary_uint64_result = _UInt64ConstKey(value=z)
+                        return self._tables.lookup_or_assign_const(binary_uint64_result)
 
         match op:
             case AVMOp.len_:
