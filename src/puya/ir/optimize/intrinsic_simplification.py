@@ -1564,20 +1564,24 @@ def _try_simplify_uint64_one_const(
     Returns an int for a folded literal, a Value for a pass-through,
     a rewritten Intrinsic (e.g. `0 == b` -> `!b`), or None if no rule fires.
     """
+
+    def bool_safe(arg: models.Value) -> bool:
+        return bool_context or arg.ir_type == PrimitiveIRType.bool
+
     match intrinsic.op:
         case AVMOp.gte:
             # a >= 0 <-> 1
             if b_const == 0:
                 return 1
             # a >= 1 <-> a (in bool context)
-            if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 1:
+            if b_const == 1 and bool_safe(a):
                 return a
         case AVMOp.lte:
             # 0 <= b <-> 1
             if a_const == 0:
                 return 1
             # 1 <= b <-> b (in bool context)
-            if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 1:
+            if a_const == 1 and bool_safe(b):
                 return b
         case AVMOp.mul:
             if a_const == 1:
@@ -1601,23 +1605,24 @@ def _try_simplify_uint64_one_const(
             if 0 in (a_const, b_const):
                 return 0
         case AVMOp.or_:
-            if bool_context and a_const == 0:
-                return b
-            if bool_context and b_const == 0:
-                return a
+            if bool_context:
+                if a_const == 0:
+                    return b
+                if b_const == 0:
+                    return a
         case AVMOp.neq:
             # 0 != b <-> b  /  a != 0 <-> a (in bool context)
-            if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
+            if a_const == 0 and bool_safe(b):
                 return b
-            if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
+            if b_const == 0 and bool_safe(a):
                 return a
         case AVMOp.lt:
             # 0 < b <-> b (in bool context)
-            if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
+            if a_const == 0 and bool_safe(b):
                 return b
         case AVMOp.gt:
             # a > 0 <-> a (in bool context)
-            if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
+            if b_const == 0 and bool_safe(a):
                 return a
         case AVMOp.eq:
             # 0 == b <-> !b
@@ -1653,7 +1658,10 @@ def _try_simplify_uint64_binary_op(
         if new_a is not a or new_b is not b:
             return attrs.evolve(intrinsic, args=[new_a, new_b])
     if isinstance(c, int):
-        return models.UInt64Constant(value=c, source_location=intrinsic.source_location)
+        (ir_type,) = intrinsic.types
+        return models.UInt64Constant(
+            value=c, ir_type=ir_type, source_location=intrinsic.source_location
+        )
     return c
 
 
