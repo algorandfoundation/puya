@@ -30,6 +30,7 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
+from puya.ir.optimize.intrinsic_simplification import valid_uint64
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.utils import (
@@ -527,48 +528,59 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             return self._tables.fresh_vns(intrinsic)
         args = intrinsic.args
         arg_vns = tuple(self._visit_value(a) for a in args)
+        arg_defns = [self._tables.vn_definition.get(arg_vn) for arg_vn in arg_vns]
+
+        match op:
+            case AVMOp.len_:
+                match arg_defns:
+                    case [_BytesConstKey(value=len_arg)]:
+                        len_result = len(len_arg)
+                        if len_result <= algo_constants.MAX_BYTES_LENGTH:
+                            len_const_key = _UInt64ConstKey(value=len(len_arg))
+                            return self._tables.lookup_or_assign_const(len_const_key)
+            case AVMOp.itob:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=itob_arg)]:
+                        if valid_uint64(itob_arg):
+                            bytes_const_evald = itob_arg.to_bytes(8, byteorder="big", signed=False)
+                            bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                            return self._tables.lookup_or_assign_const(bytes_const_key)
+            case AVMOp.bzero:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=bzero_arg)]:
+                        if bzero_arg <= algo_constants.MAX_BYTES_LENGTH:
+                            bytes_const_evald = b"\x00" * bzero_arg
+                            bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                            return self._tables.lookup_or_assign_const(bytes_const_key)
+            case AVMOp.not_:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=not_arg)]:
+                        not_folded = 0 if not_arg else 1
+                        return self._tables.lookup_or_assign_const(
+                            _UInt64ConstKey(value=not_folded)
+                        )
+                    case [_IntrinsicKey(op=source_op) as comp]:
+                        # Negation-aware numbering: !(comparison) -> inverse comparison.
+                        # e.g. !(a < b) gets the same key as (a >= b).
+                        if inverse_op := _INVERSE_COMPARISONS.get(source_op):
+                            inverse_key = _IntrinsicKey(
+                                op=inverse_op,
+                                immediates=comp.immediates,
+                                arg_vns=comp.arg_vns,
+                            )
+                            return self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
+            case AVMOp.concat:
+                match arg_defns:
+                    case [
+                        _BytesConstKey(value=first_byte_const),
+                        _BytesConstKey(value=second_byte_const),
+                    ]:
+                        concat_result = first_byte_const + second_byte_const
+                        if len(concat_result) <= algo_constants.MAX_BYTES_LENGTH:
+                            const_concat_key = _BytesConstKey(value=concat_result)
+                            return self._tables.lookup_or_assign_const(const_concat_key)
 
         match arg_vns:
-            case [vn]:
-                match op:
-                    case AVMOp.len_:
-                        match self._tables.vn_definition.get(vn):
-                            case _BytesConstKey(value=len_arg):
-                                len_const_key = _UInt64ConstKey(value=len(len_arg))
-                                return self._tables.lookup_or_assign_const(len_const_key)
-                    case AVMOp.itob:
-                        match self._tables.vn_definition.get(vn):
-                            case _UInt64ConstKey(value=itob_arg):
-                                bytes_const_evald = itob_arg.to_bytes(
-                                    8, byteorder="big", signed=False
-                                )
-                                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                                return self._tables.lookup_or_assign_const(bytes_const_key)
-                    case AVMOp.bzero:
-                        match self._tables.vn_definition.get(vn):
-                            case _UInt64ConstKey(value=bzero_arg):
-                                bytes_const_evald = b"\x00" * bzero_arg
-                                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                                return self._tables.lookup_or_assign_const(bytes_const_key)
-                    case AVMOp.not_:
-                        match self._tables.vn_definition.get(vn):
-                            case None:
-                                pass
-                            case _UInt64ConstKey(value=not_arg):
-                                not_folded = 0 if not_arg else 1
-                                return self._tables.lookup_or_assign_const(
-                                    _UInt64ConstKey(value=not_folded)
-                                )
-                            case _IntrinsicKey(op=source_op) as comp:
-                                # Negation-aware numbering: !(comparison) -> inverse comparison.
-                                # e.g. !(a < b) gets the same key as (a >= b).
-                                if inverse_op := _INVERSE_COMPARISONS.get(source_op):
-                                    inverse_key = _IntrinsicKey(
-                                        op=inverse_op,
-                                        immediates=comp.immediates,
-                                        arg_vns=comp.arg_vns,
-                                    )
-                                    return self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
             case [vn1, vn2] if vn1 == vn2:
                 match op:
                     case (
