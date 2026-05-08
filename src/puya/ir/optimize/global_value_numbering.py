@@ -34,6 +34,8 @@ from puya.ir.optimize.intrinsic_simplification import (
     COMPILE_TIME_CONSTANT_OPS,
     BinarySimplification,
     choose_encoding,
+    fold_biguint_const_binary_op,
+    fold_bytes_const_binary_op,
     fold_uint64_const_binary_op,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
@@ -596,6 +598,41 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     if z is not None:
                         binary_uint64_result = _UInt64ConstKey(value=z)
                         return self._tables.lookup_or_assign_const(binary_uint64_result)
+                case [
+                    _BytesConstKey(value=xb, encoding=ea),
+                    _BytesConstKey(value=yb, encoding=eb),
+                ]:
+                    if len(xb) <= 64 and len(yb) <= 64:
+                        zi = fold_biguint_const_binary_op(
+                            op, int.from_bytes(xb, "big"), int.from_bytes(yb, "big")
+                        )
+                        if zi is not None:
+                            if op in (
+                                AVMOp.lt_bytes,
+                                AVMOp.lte_bytes,
+                                AVMOp.gt_bytes,
+                                AVMOp.gte_bytes,
+                                AVMOp.eq_bytes,
+                                AVMOp.neq_bytes,
+                            ):
+                                return self._tables.lookup_or_assign_const(
+                                    _UInt64ConstKey(value=zi)
+                                )
+                            return self._tables.lookup_or_assign_const(
+                                _BytesConstKey(
+                                    value=biguint_bytes_eval(zi),
+                                    encoding=AVMBytesEncoding.base16,
+                                )
+                            )
+                    match fold_bytes_const_binary_op(op, xb, yb):
+                        case int() as zi:
+                            return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=zi))
+                        case bytes() as zb:
+                            return self._tables.lookup_or_assign_const(
+                                _BytesConstKey(value=zb, encoding=choose_encoding(ea, eb))
+                            )
+                        case None:
+                            pass
 
         match op:
             case AVMOp.len_:
