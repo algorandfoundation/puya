@@ -180,6 +180,7 @@ class FunctionIRBuilder(
             validate_encoding(
                 self.context,
                 value,
+                str(expr.wtype),
                 encoded_ir_type,
                 loc=loc,
             )

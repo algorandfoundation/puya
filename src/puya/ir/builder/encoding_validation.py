@@ -18,22 +18,27 @@ from puya.utils import bits_to_bytes
 def validate_encoding(
     context: IRSubroutineBuildContext,
     value: ir.Value,
+    type_name: str,
     ir_type: types.EncodedType,
     loc: SourceLocation,
 ) -> None:
-    context.add_macro_op(ValidateMacro(ir_type), loc, value)
+    context.add_macro_op(ValidateMacro(ir_type, type_name), loc, value)
 
 
 @attrs.frozen
 class ValidateMacro:
     ir_type: types.EncodedType
+    type_name: str
 
     def name_for(self) -> str:
-        return f"%Validate__{self.ir_type.encoding.name}"
+        # The name should be a valid label, remove any spaces
+        # NOTE: This assumes no two types are differentiated by the amount of spaces on their names
+        type_name = self.type_name.replace(" ", "")
+        return f"%Validate__{type_name}"
 
     def execute_on(self, context: IRSubroutineBuildContext, value: ir.Value) -> None:
         internal_location = SourceLocation(file=None, line=1)
-        error_message = f"invalid number of bytes for {self.ir_type.encoding.name}"
+        error_message = f"invalid number of bytes for {self.type_name}"
         factory = OpFactory(context, internal_location)
         expected_size = _get_expected_size(context, value, self.ir_type, internal_location)
         value_len = factory.len(value)
