@@ -629,6 +629,34 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             substring_result = byte_arg[start_arg:end_arg]
                             bytes_const_key = _BytesConstKey(value=substring_result)
                             return self._tables.lookup_or_assign_const(bytes_const_key)
+            case AVMOp.extract3:
+                match arg_defns:
+                    case [
+                        _BytesConstKey(value=byte_arg),
+                        _UInt64ConstKey(value=start_arg),
+                        _UInt64ConstKey(value=length_arg),
+                    ]:
+                        end_arg = start_arg + length_arg
+                        if end_arg <= len(byte_arg) <= algo_constants.MAX_BYTES_LENGTH:
+                            extract_result = byte_arg[start_arg:end_arg]
+                            bytes_const_key = _BytesConstKey(value=extract_result)
+                            return self._tables.lookup_or_assign_const(bytes_const_key)
+            case AVMOp.extract:
+                match arg_defns, intrinsic.immediates:
+                    case [
+                        [_BytesConstKey(value=byte_arg)],
+                        [
+                            int(start_arg),
+                            int(length_arg),
+                        ],
+                    ]:
+                        # immediate variant: L=0 means "extract to end".
+                        byte_len = len(byte_arg)
+                        end_arg = byte_len if length_arg == 0 else start_arg + length_arg
+                        if start_arg <= end_arg <= byte_len <= algo_constants.MAX_BYTES_LENGTH:
+                            extract_result = byte_arg[start_arg:end_arg]
+                            bytes_const_key = _BytesConstKey(value=extract_result)
+                            return self._tables.lookup_or_assign_const(bytes_const_key)
 
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
