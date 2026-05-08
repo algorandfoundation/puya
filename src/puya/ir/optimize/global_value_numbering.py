@@ -208,8 +208,8 @@ class _GVNTables:
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     _provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
-    const_vn: dict[_ConstKey, VN] = attrs.field(factory=dict)
-    comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
+    _const_vn: dict[_ConstKey, VN] = attrs.field(factory=dict)
+    vn_definition: dict[VN, _ConstKey | _ProviderKey] = attrs.field(factory=dict)
 
     def next_vn(self) -> VN:
         return next(self._vn_counter)
@@ -245,10 +245,14 @@ class _GVNTables:
             pass
         vns = self.fresh_vns(source)
         self._provider_key_to_vns[key] = vns
+        if len(vns) == 1:
+            (vn,) = vns
+            self.vn_definition[vn] = key
         return vns
 
     def lookup_or_assign_const(self, key: _ConstKey) -> tuple[VN, ...]:
-        vn = lazy_setdefault(self.const_vn, key, lambda _: self.next_vn())
+        vn = lazy_setdefault(self._const_vn, key, lambda _: self.next_vn())
+        self.vn_definition[vn] = key
         return (vn,)
 
 
@@ -289,9 +293,9 @@ def _build_equivalence_sets(
         assert keep_param
 
     vn_to_uint64_const = {
-        vn: const.value
-        for const, vn in tables.const_vn.items()
-        if isinstance(const, _UInt64ConstKey)
+        vn: defn.value
+        for vn, defn in tables.vn_definition.items()
+        if isinstance(defn, _UInt64ConstKey)
     }
 
     def _walk(
@@ -536,20 +540,24 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             case [vn]:
                 match op:
                     case AVMOp.not_:
-                        # Negation-aware numbering: !(comparison) -> inverse comparison.
-                        # e.g. !(a < b) gets the same key as (a >= b).
-                        if comp := self._tables.comparison_exprs.get(vn):
-                            inverse_op = _INVERSE_COMPARISONS[comp.op]
-                            inverse_key = _IntrinsicKey(
-                                op=inverse_op,
-                                immediates=comp.immediates,
-                                arg_vns=comp.arg_vns,
-                            )
-                            (result_vn,) = self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
-                            # The result is itself a comparison — recording it lets
-                            # !(!comparison) fold back to the original.
-                            self._tables.comparison_exprs[result_vn] = inverse_key
-                            return (result_vn,)
+                        match self._tables.vn_definition.get(vn):
+                            case None:
+                                pass
+                            case _UInt64ConstKey(value=not_arg):
+                                not_folded = 0 if not_arg else 1
+                                return self._tables.lookup_or_assign_const(
+                                    _UInt64ConstKey(value=not_folded)
+                                )
+                            case _IntrinsicKey(op=source_op) as comp:
+                                # Negation-aware numbering: !(comparison) -> inverse comparison.
+                                # e.g. !(a < b) gets the same key as (a >= b).
+                                if inverse_op := _INVERSE_COMPARISONS.get(source_op):
+                                    inverse_key = _IntrinsicKey(
+                                        op=inverse_op,
+                                        immediates=comp.immediates,
+                                        arg_vns=comp.arg_vns,
+                                    )
+                                    return self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
             case [vn1, vn2] if vn1 == vn2:
                 match op:
                     case (
@@ -595,10 +603,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             op = _MIRROR_OPS[op]
         key = _IntrinsicKey(op=op, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
         vns = self._tables.lookup_or_assign_vp(key, intrinsic)
-        # Track comparison expressions for negation-aware numbering
-        if key.op in _INVERSE_COMPARISONS:
-            (result_vn,) = vns
-            self._tables.comparison_exprs[result_vn] = key
         return vns
 
     @typing.override
