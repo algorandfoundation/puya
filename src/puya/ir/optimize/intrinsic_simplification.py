@@ -1687,6 +1687,56 @@ def _try_simplify_uint64_binary_op(
     return c
 
 
+def fold_biguint_const_binary_op(op: AVMOp, a_const: int, b_const: int) -> int | None:
+    match op:
+        case AVMOp.add_bytes:
+            c = a_const + b_const
+        case AVMOp.sub_bytes:
+            c = a_const - b_const
+        case AVMOp.mul_bytes:
+            c = a_const * b_const
+        case AVMOp.div_floor_bytes:
+            if b_const == 0:
+                return None
+            c = a_const // b_const
+        case AVMOp.mod_bytes:
+            if b_const == 0:
+                return None
+            c = a_const % b_const
+        case AVMOp.lt_bytes:
+            c = 1 if a_const < b_const else 0
+        case AVMOp.lte_bytes:
+            c = 1 if a_const <= b_const else 0
+        case AVMOp.gt_bytes:
+            c = 1 if a_const > b_const else 0
+        case AVMOp.gte_bytes:
+            c = 1 if a_const >= b_const else 0
+        case AVMOp.eq_bytes:
+            c = 1 if a_const == b_const else 0
+        case AVMOp.neq_bytes:
+            c = 1 if a_const != b_const else 0
+        case _:
+            return None
+    if c < 0:
+        return None
+    return c
+
+
+def fold_bytes_const_binary_op(op: AVMOp, a: bytes, b: bytes) -> int | bytes | None:
+    match op:
+        case AVMOp.eq:
+            return 1 if a == b else 0
+        case AVMOp.neq:
+            return 1 if a != b else 0
+        case AVMOp.bitwise_or_bytes:
+            return _byte_wise(operator.or_, a, b)
+        case AVMOp.bitwise_and_bytes:
+            return _byte_wise(operator.and_, a, b)
+        case AVMOp.bitwise_xor_bytes:
+            return _byte_wise(operator.xor, a, b)
+    return None
+
+
 def _try_simplify_bytes_binary_op(
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
@@ -1697,92 +1747,41 @@ def _try_simplify_bytes_binary_op(
     op_loc = intrinsic.source_location
     c: models.Value | int | None = None
 
-    if c is None:
-        a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
-        b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
-        if a_const == 1 and op == AVMOp.mul_bytes:
-            c = b
-        elif b_const == 1 and op in (AVMOp.mul_bytes, AVMOp.div_floor_bytes):
-            c = a
-        elif a_const == 0 and op == AVMOp.add_bytes:
-            c = b
-        elif b_const == 0 and op in (AVMOp.add_bytes, AVMOp.sub_bytes):
-            c = a
-        elif 0 in (a_const, b_const) and op == AVMOp.mul_bytes:
-            c = 0
-        else:
-            if a_const is not None and b_const is not None:
-                match op:
-                    case AVMOp.add_bytes:
-                        c = a_const + b_const
-                    case AVMOp.sub_bytes:
-                        c = a_const - b_const
-                    case AVMOp.mul_bytes:
-                        c = a_const * b_const
-                    case AVMOp.div_floor_bytes:
-                        if b_const == 0:
-                            return None
-                        c = a_const // b_const
-                    case AVMOp.mod_bytes:
-                        if b_const == 0:
-                            return None
-                        c = a_const % b_const
-                    case AVMOp.lt_bytes:
-                        c = 1 if a_const < b_const else 0
-                    case AVMOp.lte_bytes:
-                        c = 1 if a_const <= b_const else 0
-                    case AVMOp.gt_bytes:
-                        c = 1 if a_const > b_const else 0
-                    case AVMOp.gte_bytes:
-                        c = 1 if a_const >= b_const else 0
-                    case AVMOp.eq_bytes:
-                        c = 1 if a_const == b_const else 0
-                    case AVMOp.neq_bytes:
-                        c = 1 if a_const != b_const else 0
-            if c is None and (a_const_bytes is not None and b_const_bytes is not None):
-                match op:
-                    case AVMOp.eq:
-                        c = 1 if a_const_bytes.value == b_const_bytes.value else 0
-                    case AVMOp.neq:
-                        c = 1 if a_const_bytes.value != b_const_bytes.value else 0
-                    case AVMOp.bitwise_or_bytes:
-                        return models.BytesConstant(
-                            value=_byte_wise(
-                                operator.or_, a_const_bytes.value, b_const_bytes.value
-                            ),
-                            encoding=choose_encoding(
-                                a_const_bytes.encoding, b_const_bytes.encoding
-                            ),
-                            source_location=op_loc,
-                        )
-                    case AVMOp.bitwise_and_bytes:
-                        return models.BytesConstant(
-                            value=_byte_wise(
-                                operator.and_, a_const_bytes.value, b_const_bytes.value
-                            ),
-                            encoding=choose_encoding(
-                                a_const_bytes.encoding, b_const_bytes.encoding
-                            ),
-                            source_location=op_loc,
-                        )
-                    case AVMOp.bitwise_xor_bytes:
-                        return models.BytesConstant(
-                            value=_byte_wise(
-                                operator.xor, a_const_bytes.value, b_const_bytes.value
-                            ),
-                            encoding=choose_encoding(
-                                a_const_bytes.encoding, b_const_bytes.encoding
-                            ),
-                            source_location=op_loc,
-                        )
-            if c is None:
-                a_size = _get_bytes_length_safe(register_assignments, a)
-                b_size = _get_bytes_length_safe(register_assignments, b)
-                if a_size is not None and b_size is not None and a_size != b_size:
-                    if op is AVMOp.eq:
-                        c = 0
-                    elif op is AVMOp.neq:
-                        c = 1
+    a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
+    b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
+    if a_const == 1 and op == AVMOp.mul_bytes:
+        c = b
+    elif b_const == 1 and op in (AVMOp.mul_bytes, AVMOp.div_floor_bytes):
+        c = a
+    elif a_const == 0 and op == AVMOp.add_bytes:
+        c = b
+    elif b_const == 0 and op in (AVMOp.add_bytes, AVMOp.sub_bytes):
+        c = a
+    elif 0 in (a_const, b_const) and op == AVMOp.mul_bytes:
+        c = 0
+    else:
+        if a_const is not None and b_const is not None:
+            c = fold_biguint_const_binary_op(op, a_const, b_const)
+        if c is None and a_const_bytes is not None and b_const_bytes is not None:
+            match fold_bytes_const_binary_op(op, a_const_bytes.value, b_const_bytes.value):
+                case int() as v:
+                    c = v
+                case bytes() as result_bytes:
+                    return models.BytesConstant(
+                        value=result_bytes,
+                        encoding=choose_encoding(a_const_bytes.encoding, b_const_bytes.encoding),
+                        source_location=op_loc,
+                    )
+                case None:
+                    pass
+        if c is None:
+            a_size = _get_bytes_length_safe(register_assignments, a)
+            b_size = _get_bytes_length_safe(register_assignments, b)
+            if a_size is not None and b_size is not None and a_size != b_size:
+                if op is AVMOp.eq:
+                    c = 0
+                elif op is AVMOp.neq:
+                    c = 1
     if not isinstance(c, int):
         return c
     if c < 0:
