@@ -667,7 +667,7 @@ def _try_fold_intrinsic(
             replaced[start : start + len(byte_const_b.value)] = byte_const_b.value
             return models.BytesConstant(
                 value=bytes(replaced),
-                encoding=_choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
+                encoding=choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
                 source_location=op_loc,
             )
     # replace3 with a constant start arg will be converted to replace2 by
@@ -762,7 +762,7 @@ def _try_fold_intrinsic(
                 if len(result_value) > algo_constants.MAX_BYTES_LENGTH:
                     return None  # would fail at runtime
                 # two constants, just fold
-                target_encoding = _choose_encoding(
+                target_encoding = choose_encoding(
                     left_const.encoding, right_const.encoding, is_concat=True
                 )
                 result = models.BytesConstant(
@@ -1048,7 +1048,7 @@ def _try_simplify_triple_concat(
             new_const_value = bytes_const1.value + bytes_const2.value
             if len(new_const_value) > algo_constants.MAX_BYTES_LENGTH:
                 return None  # would fail at runtime
-            target_encoding = _choose_encoding(
+            target_encoding = choose_encoding(
                 bytes_const1.encoding, bytes_const2.encoding, is_concat=True
             )
             new_byte_const = models.BytesConstant(
@@ -1070,7 +1070,7 @@ def _try_simplify_triple_concat(
             new_const_value = bytes_const1.value + bytes_const2.value
             if len(new_const_value) > algo_constants.MAX_BYTES_LENGTH:
                 return None  # would fail at runtime
-            target_encoding = _choose_encoding(
+            target_encoding = choose_encoding(
                 bytes_const1.encoding, bytes_const2.encoding, is_concat=True
             )
             new_byte_const = models.BytesConstant(
@@ -1192,7 +1192,7 @@ def _byte_wise(op: Callable[[int, int], int], lhs: bytes, rhs: bytes) -> bytes:
     return bytes([op(a, b) for a, b in zip_longest(lhs[::-1], rhs[::-1], fillvalue=0)][::-1])
 
 
-def _choose_encoding(
+def choose_encoding(
     a: AVMBytesEncoding, b: AVMBytesEncoding, *, is_concat: bool = False
 ) -> AVMBytesEncoding:
     if a == b:
@@ -1677,7 +1677,7 @@ def _try_simplify_bytes_binary_op(
                             value=_byte_wise(
                                 operator.or_, a_const_bytes.value, b_const_bytes.value
                             ),
-                            encoding=_choose_encoding(
+                            encoding=choose_encoding(
                                 a_const_bytes.encoding, b_const_bytes.encoding
                             ),
                             source_location=op_loc,
@@ -1687,7 +1687,7 @@ def _try_simplify_bytes_binary_op(
                             value=_byte_wise(
                                 operator.and_, a_const_bytes.value, b_const_bytes.value
                             ),
-                            encoding=_choose_encoding(
+                            encoding=choose_encoding(
                                 a_const_bytes.encoding, b_const_bytes.encoding
                             ),
                             source_location=op_loc,
@@ -1697,7 +1697,7 @@ def _try_simplify_bytes_binary_op(
                             value=_byte_wise(
                                 operator.xor, a_const_bytes.value, b_const_bytes.value
                             ),
-                            encoding=_choose_encoding(
+                            encoding=choose_encoding(
                                 a_const_bytes.encoding, b_const_bytes.encoding
                             ),
                             source_location=op_loc,
