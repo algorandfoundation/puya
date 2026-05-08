@@ -611,6 +611,24 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             substring_result = byte_arg[start_arg:end_arg]
                             bytes_const_key = _BytesConstKey(value=substring_result)
                             return self._tables.lookup_or_assign_const(bytes_const_key)
+            case AVMOp.substring:
+                match arg_defns, intrinsic.immediates:
+                    case [
+                        [_BytesConstKey(value=byte_arg)],
+                        [
+                            int(start_arg),
+                            int(end_arg),
+                        ],
+                    ]:
+                        if (
+                            start_arg
+                            <= end_arg
+                            <= len(byte_arg)
+                            <= algo_constants.MAX_BYTES_LENGTH
+                        ):
+                            substring_result = byte_arg[start_arg:end_arg]
+                            bytes_const_key = _BytesConstKey(value=substring_result)
+                            return self._tables.lookup_or_assign_const(bytes_const_key)
 
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
