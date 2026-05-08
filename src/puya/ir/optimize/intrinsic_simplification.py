@@ -1768,55 +1768,7 @@ def simplify_bytes_binary_op_one_const(
     return None
 
 
-def _try_simplify_bytes_binary_op(
-    register_assignments: _RegisterAssignments,
-    intrinsic: models.Intrinsic,
-    a: models.Value,
-    b: models.Value,
-) -> models.Value | None:
-    op = intrinsic.op
-    op_loc = intrinsic.source_location
-    c: models.Value | int | None = None
-
-    a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
-    b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
-    match simplify_bytes_binary_op_one_const(op, a_const, b_const):
-        case int(v):
-            c = v
-        case BinarySimplification.LEFT:
-            c = a
-        case BinarySimplification.RIGHT:
-            c = b
-        case other:
-            typing.assert_type(other, None)
-    if c is None:
-        if a_const is not None and b_const is not None:
-            c = fold_biguint_const_binary_op(op, a_const, b_const)
-        if c is None and a_const_bytes is not None and b_const_bytes is not None:
-            match fold_bytes_const_binary_op(op, a_const_bytes.value, b_const_bytes.value):
-                case int(v):
-                    c = v
-                case bytes(result_bytes):
-                    return models.BytesConstant(
-                        value=result_bytes,
-                        encoding=choose_encoding(a_const_bytes.encoding, b_const_bytes.encoding),
-                        source_location=op_loc,
-                    )
-                case other2:
-                    typing.assert_type(other2, None)
-        if c is None:
-            a_size = _get_bytes_length_safe(register_assignments, a)
-            b_size = _get_bytes_length_safe(register_assignments, b)
-            if a_size is not None and b_size is not None and a_size != b_size:
-                if op is AVMOp.eq:
-                    c = 0
-                elif op is AVMOp.neq:
-                    c = 1
-    if not isinstance(c, int):
-        return c
-    if c < 0:
-        # don't fold to a negative
-        return None
+def _wrap_biguint_or_uint64(c: int, intrinsic: models.Intrinsic) -> models.Value:
     (ir_type,) = intrinsic.types
     if ir_type == PrimitiveIRType.biguint:
         return models.BigUIntConstant(value=c, source_location=intrinsic.source_location)
@@ -1824,3 +1776,53 @@ def _try_simplify_bytes_binary_op(
     return models.UInt64Constant(
         value=c, ir_type=ir_type, source_location=intrinsic.source_location
     )
+
+
+def _try_simplify_bytes_binary_op(
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    a: models.Value,
+    b: models.Value,
+) -> models.Value | None:
+    op = intrinsic.op
+    a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
+    b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
+    if (
+        a_const is not None
+        and b_const is not None
+        and (folded := fold_biguint_const_binary_op(op, a_const, b_const)) is not None
+    ):
+        return _wrap_biguint_or_uint64(folded, intrinsic)
+    if a_const_bytes is not None and b_const_bytes is not None:
+        match fold_bytes_const_binary_op(op, a_const_bytes.value, b_const_bytes.value):
+            case int(v):
+                return _wrap_biguint_or_uint64(v, intrinsic)
+            case bytes(result_bytes):
+                return models.BytesConstant(
+                    value=result_bytes,
+                    encoding=choose_encoding(a_const_bytes.encoding, b_const_bytes.encoding),
+                    source_location=intrinsic.source_location,
+                )
+            case None:
+                pass
+            case unexpected:
+                typing.assert_never(unexpected)
+
+    match simplify_bytes_binary_op_one_const(op, a_const, b_const):
+        case int(v):
+            return _wrap_biguint_or_uint64(v, intrinsic)
+        case BinarySimplification.LEFT:
+            return a
+        case BinarySimplification.RIGHT:
+            return b
+        case other:
+            typing.assert_type(other, None)
+
+    a_size = _get_bytes_length_safe(register_assignments, a)
+    b_size = _get_bytes_length_safe(register_assignments, b)
+    if a_size is not None and b_size is not None and a_size != b_size:
+        if op is AVMOp.eq:
+            return _wrap_biguint_or_uint64(0, intrinsic)
+        if op is AVMOp.neq:
+            return _wrap_biguint_or_uint64(1, intrinsic)
+    return None
