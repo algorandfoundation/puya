@@ -1550,6 +1550,85 @@ def fold_uint64_const_binary_op(op: AVMOp, a_const: int, b_const: int) -> int | 
     return c
 
 
+def _try_simplify_uint64_one_const(
+    intrinsic: models.Intrinsic,
+    a: models.Value,
+    b: models.Value,
+    a_const: int | None,
+    b_const: int | None,
+    *,
+    bool_context: bool,
+) -> models.Value | models.Intrinsic | int | None:
+    """Simplify a uint64 binary op when at least one operand is a constant.
+
+    Returns an int for a folded literal, a Value for a pass-through,
+    a rewritten Intrinsic (e.g. `0 == b` -> `!b`), or None if no rule fires.
+    """
+    match intrinsic.op:
+        case AVMOp.gte:
+            # a >= 0 <-> 1
+            if b_const == 0:
+                return 1
+            # a >= 1 <-> a (in bool context)
+            if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 1:
+                return a
+        case AVMOp.lte:
+            # 0 <= b <-> 1
+            if a_const == 0:
+                return 1
+            # 1 <= b <-> b (in bool context)
+            if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 1:
+                return b
+        case AVMOp.mul:
+            if a_const == 1:
+                return b
+            if b_const == 1:
+                return a
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.div_floor:
+            if b_const == 1:
+                return a
+        case AVMOp.add:
+            if a_const == 0:
+                return b
+            if b_const == 0:
+                return a
+        case AVMOp.sub:
+            if b_const == 0:
+                return a
+        case AVMOp.and_:
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.or_:
+            if bool_context and a_const == 0:
+                return b
+            if bool_context and b_const == 0:
+                return a
+        case AVMOp.neq:
+            # 0 != b <-> b  /  a != 0 <-> a (in bool context)
+            if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
+                return b
+            if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
+                return a
+        case AVMOp.lt:
+            # 0 < b <-> b (in bool context)
+            if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
+                return b
+        case AVMOp.gt:
+            # a > 0 <-> a (in bool context)
+            if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
+                return a
+        case AVMOp.eq:
+            # 0 == b <-> !b
+            if a_const == 0:
+                return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
+            # a == 0 <-> !a
+            if b_const == 0:
+                return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
+    return None
+
+
 def _try_simplify_uint64_binary_op(
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
@@ -1561,72 +1640,13 @@ def _try_simplify_uint64_binary_op(
     op = intrinsic.op
     a_const = _get_int_constant(a)
     b_const = _get_int_constant(b)
-    c: models.Value | int | None = None
+    c: models.Intrinsic | models.Value | int | None = None
     if a_const is not None and b_const is not None:
         c = fold_uint64_const_binary_op(op, a_const, b_const)
     elif a_const is not None or b_const is not None:
-        match op:
-            case AVMOp.gte:
-                # a >= 0 <-> 1
-                if b_const == 0:
-                    c = 1
-                # a >= 1 <-> a (in bool context)
-                elif (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 1:
-                    c = a
-            case AVMOp.lte:
-                # 0 <= b <-> 1
-                if a_const == 0:
-                    c = 1
-                # 1 <= b <-> b (in bool context)
-                elif (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 1:
-                    c = b
-            case AVMOp.mul:
-                if a_const == 1:
-                    c = b
-                elif b_const == 1:
-                    c = a
-                elif 0 in (a_const, b_const):
-                    c = 0
-            case AVMOp.div_floor:
-                if b_const == 1:
-                    c = a
-            case AVMOp.add:
-                if a_const == 0:
-                    c = b
-                elif b_const == 0:
-                    c = a
-            case AVMOp.sub:
-                if b_const == 0:
-                    c = a
-            case AVMOp.and_:
-                if 0 in (a_const, b_const):
-                    c = 0
-            case AVMOp.or_:
-                if bool_context and a_const == 0:
-                    c = b
-                elif bool_context and b_const == 0:
-                    c = a
-            case AVMOp.neq:
-                # 0 != b <-> b  /  a != 0 <-> a (in bool context)
-                if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
-                    c = b
-                elif (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
-                    c = a
-            case AVMOp.lt:
-                # 0 < b <-> b (in bool context)
-                if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
-                    c = b
-            case AVMOp.gt:
-                # a > 0 <-> a (in bool context)
-                if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
-                    c = a
-            case AVMOp.eq:
-                # 0 == b <-> !b
-                if a_const == 0:
-                    return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
-                # a == 0 <-> !a
-                if b_const == 0:
-                    return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
+        c = _try_simplify_uint64_one_const(
+            intrinsic, a, b, a_const, b_const, bool_context=bool_context
+        )
     if c is None and op in (AVMOp.and_, AVMOp.or_):
         new_a = _try_simplify_bool_condition(register_assignments, a) or a
         new_b = _try_simplify_bool_condition(register_assignments, b) or b
