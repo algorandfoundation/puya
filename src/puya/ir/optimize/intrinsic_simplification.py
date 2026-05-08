@@ -948,7 +948,7 @@ def _make_try_simplify_triple_uint64_math_commutative(
         match other:
             case []:
                 reduced = functools.reduce(reducer, constants)
-                if not _valid_uint64(reduced):
+                if not valid_uint64(reduced):
                     return None
                 return models.UInt64Constant(
                     value=reduced,
@@ -957,7 +957,7 @@ def _make_try_simplify_triple_uint64_math_commutative(
                 )
             case [reg]:
                 reduced = functools.reduce(reducer, constants)
-                if not _valid_uint64(reduced):
+                if not valid_uint64(reduced):
                     return None
                 new_const = models.UInt64Constant(
                     value=reduced,
@@ -975,7 +975,7 @@ def _make_try_simplify_triple_uint64_math_commutative(
     return simplifier
 
 
-def _valid_uint64(x: int) -> bool:
+def valid_uint64(x: int) -> bool:
     return 0 <= x <= algo_constants.MAX_UINT64
 
 
@@ -1540,7 +1540,7 @@ def fold_uint64_const_op(op: AVMOp, a_const: int, b_const: int) -> int | None:
         case _:
             logger.debug(f"don't know how to simplify {a_const} {op.code} {b_const}")
             return None
-    if not _valid_uint64(c):
+    if not valid_uint64(c):
         return None
     return c
 
