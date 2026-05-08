@@ -200,6 +200,12 @@ class _TemplateVarKey(_ConstKey):
     name: str
 
 
+if typing.TYPE_CHECKING:
+    _IntCounter = itertools.count[int]
+else:
+    _IntCounter = itertools.count
+
+
 @attrs.define
 class _GVNTables:
     """
@@ -207,7 +213,7 @@ class _GVNTables:
     makes use of the "Unified has table" approach from Briggs et al.
     """
 
-    _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
+    _vn_counter: _IntCounter = attrs.field(factory=itertools.count)
     register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
     _provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
     _const_vn: dict[_ConstKey, VN] = attrs.field(factory=dict)
