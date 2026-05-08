@@ -1487,7 +1487,7 @@ def _try_simplify_bytes_unary_op(
     return None
 
 
-def fold_uint64_const_op(op: AVMOp, a_const: int, b_const: int) -> int | None:
+def fold_uint64_const_binary_op(op: AVMOp, a_const: int, b_const: int) -> int | None:
     match op:
         case AVMOp.add:
             c = a_const + b_const
@@ -1537,6 +1537,11 @@ def fold_uint64_const_op(op: AVMOp, a_const: int, b_const: int) -> int | None:
             c = a_const & b_const
         case AVMOp.bitwise_xor:
             c = a_const ^ b_const
+        case AVMOp.getbit:
+            source, index = a_const, b_const
+            if index >= 64:
+                return None
+            c = 1 if (source & (1 << index)) else 0
         case _:
             logger.debug(f"don't know how to simplify {a_const} {op.code} {b_const}")
             return None
@@ -1558,7 +1563,7 @@ def _try_simplify_uint64_binary_op(
     b_const = _get_int_constant(b)
     c: models.Value | int | None = None
     if a_const is not None and b_const is not None:
-        c = fold_uint64_const_op(op, a_const, b_const)
+        c = fold_uint64_const_binary_op(op, a_const, b_const)
     else:  # noqa: PLR5501
         # a >= 0 <-> 1
         if b_const == 0 and op == AVMOp.gte:  # noqa: SIM114
