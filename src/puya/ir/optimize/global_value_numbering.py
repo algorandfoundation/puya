@@ -37,6 +37,7 @@ from puya.ir.optimize.intrinsic_simplification import (
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
     fold_uint64_const_binary_op,
+    simplify_bytes_binary_op_one_const,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
@@ -822,6 +823,31 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 match simplify_uint64_binary_op_one_const(op, a, b, a_const, b_const):
                     case int() as v:
                         return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=v))
+                    case BinarySimplification.LEFT:
+                        return (arg_vns[0],)
+                    case BinarySimplification.RIGHT:
+                        return (arg_vns[1],)
+                    case None:
+                        pass
+            a_bg = (
+                int.from_bytes(a_def.value, "big")
+                if isinstance(a_def, _BytesConstKey) and len(a_def.value) <= 64
+                else None
+            )
+            b_bg = (
+                int.from_bytes(b_def.value, "big")
+                if isinstance(b_def, _BytesConstKey) and len(b_def.value) <= 64
+                else None
+            )
+            if a_bg is not None or b_bg is not None:
+                match simplify_bytes_binary_op_one_const(op, a_bg, b_bg):
+                    case int() as v:
+                        return self._tables.lookup_or_assign_const(
+                            _BytesConstKey(
+                                value=biguint_bytes_eval(v),
+                                encoding=AVMBytesEncoding.base16,
+                            )
+                        )
                     case BinarySimplification.LEFT:
                         return (arg_vns[0],)
                     case BinarySimplification.RIGHT:
