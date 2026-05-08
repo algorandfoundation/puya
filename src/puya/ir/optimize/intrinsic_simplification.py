@@ -1564,56 +1564,79 @@ def _try_simplify_uint64_binary_op(
     c: models.Value | int | None = None
     if a_const is not None and b_const is not None:
         c = fold_uint64_const_binary_op(op, a_const, b_const)
-    else:  # noqa: PLR5501
-        # a >= 0 <-> 1
-        if b_const == 0 and op == AVMOp.gte:  # noqa: SIM114
-            c = 1
-        # 0 <= b <-> 1
-        elif a_const == 0 and op == AVMOp.lte:
-            c = 1
-        elif a_const == 1 and op == AVMOp.mul:
-            c = b
-        elif b_const == 1 and op in (AVMOp.mul, AVMOp.div_floor):
-            c = a
-        elif a_const == 0 and op == AVMOp.add:
-            c = b
-        elif b_const == 0 and op in (AVMOp.add, AVMOp.sub):
-            c = a
-        elif 0 in (a_const, b_const) and op in (AVMOp.mul, AVMOp.and_):
-            c = 0
-        elif bool_context and a_const == 0 and op == AVMOp.or_:
-            c = b
-        elif bool_context and b_const == 0 and op == AVMOp.or_:
-            c = a
-        # 0 != b <-> b
-        #   OR
-        # 0 < b <-> b
-        #   OR
-        # 1 <= b <-> b
-        elif (bool_context or b.ir_type == PrimitiveIRType.bool) and (
-            (a_const == 0 and op in (AVMOp.neq, AVMOp.lt)) or (a_const == 1 and op == AVMOp.lte)
-        ):
-            c = b
-        # a != 0 <-> a
-        #   OR
-        # a > 0 <-> a
-        #   OR
-        # a >= 1 <-> a
-        elif (bool_context or a.ir_type == PrimitiveIRType.bool) and (
-            (b_const == 0 and op in (AVMOp.neq, AVMOp.gt)) or (b_const == 1 and op == AVMOp.gte)
-        ):
-            c = a
-        # 0 == b <-> !b
-        elif a_const == 0 and op == AVMOp.eq:
-            return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
-        # a == 0 <-> !a
-        elif b_const == 0 and op == AVMOp.eq:
-            return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
-        elif op in (AVMOp.and_, AVMOp.or_):
-            new_a = _try_simplify_bool_condition(register_assignments, a) or a
-            new_b = _try_simplify_bool_condition(register_assignments, b) or b
-            if new_a is not a or new_b is not b:
-                return attrs.evolve(intrinsic, args=[new_a, new_b])
+    else:
+        match op:
+            case AVMOp.gte:
+                # a >= 0 <-> 1
+                if b_const == 0:
+                    c = 1
+                # a >= 1 <-> a (in bool context)
+                elif (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 1:
+                    c = a
+            case AVMOp.lte:
+                # 0 <= b <-> 1
+                if a_const == 0:
+                    c = 1
+                # 1 <= b <-> b (in bool context)
+                elif (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 1:
+                    c = b
+            case AVMOp.mul:
+                if a_const == 1:
+                    c = b
+                elif b_const == 1:
+                    c = a
+                elif 0 in (a_const, b_const):
+                    c = 0
+            case AVMOp.div_floor:
+                if b_const == 1:
+                    c = a
+            case AVMOp.add:
+                if a_const == 0:
+                    c = b
+                elif b_const == 0:
+                    c = a
+            case AVMOp.sub:
+                if b_const == 0:
+                    c = a
+            case AVMOp.and_:
+                if 0 in (a_const, b_const):
+                    c = 0
+                else:
+                    new_a = _try_simplify_bool_condition(register_assignments, a) or a
+                    new_b = _try_simplify_bool_condition(register_assignments, b) or b
+                    if new_a is not a or new_b is not b:
+                        return attrs.evolve(intrinsic, args=[new_a, new_b])
+            case AVMOp.or_:
+                if bool_context and a_const == 0:
+                    c = b
+                elif bool_context and b_const == 0:
+                    c = a
+                else:
+                    new_a = _try_simplify_bool_condition(register_assignments, a) or a
+                    new_b = _try_simplify_bool_condition(register_assignments, b) or b
+                    if new_a is not a or new_b is not b:
+                        return attrs.evolve(intrinsic, args=[new_a, new_b])
+            case AVMOp.neq:
+                # 0 != b <-> b  /  a != 0 <-> a (in bool context)
+                if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
+                    c = b
+                elif (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
+                    c = a
+            case AVMOp.lt:
+                # 0 < b <-> b (in bool context)
+                if (bool_context or b.ir_type == PrimitiveIRType.bool) and a_const == 0:
+                    c = b
+            case AVMOp.gt:
+                # a > 0 <-> a (in bool context)
+                if (bool_context or a.ir_type == PrimitiveIRType.bool) and b_const == 0:
+                    c = a
+            case AVMOp.eq:
+                # 0 == b <-> !b
+                if a_const == 0:
+                    return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
+                # a == 0 <-> !a
+                if b_const == 0:
+                    return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
     if isinstance(c, int):
         return models.UInt64Constant(value=c, source_location=intrinsic.source_location)
     return c
