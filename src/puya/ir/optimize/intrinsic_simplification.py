@@ -1737,6 +1737,37 @@ def fold_bytes_const_binary_op(op: AVMOp, a: bytes, b: bytes) -> int | bytes | N
     return None
 
 
+def simplify_bytes_binary_op_one_const(
+    op: AVMOp,
+    a_const: int | None,
+    b_const: int | None,
+) -> int | BinarySimplification | None:
+    """BigUInt-valued one-const algebra on bytes binary ops.
+
+    Simpler than uint64's: no bool_context, no Value args, no eq carve-out.
+    """
+    match op:
+        case AVMOp.mul_bytes:
+            if a_const == 1:
+                return BinarySimplification.RIGHT
+            if b_const == 1:
+                return BinarySimplification.LEFT
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.add_bytes:
+            if a_const == 0:
+                return BinarySimplification.RIGHT
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.sub_bytes:
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.div_floor_bytes:
+            if b_const == 1:
+                return BinarySimplification.LEFT
+    return None
+
+
 def _try_simplify_bytes_binary_op(
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
@@ -1749,17 +1780,16 @@ def _try_simplify_bytes_binary_op(
 
     a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
     b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
-    if a_const == 1 and op == AVMOp.mul_bytes:
-        c = b
-    elif b_const == 1 and op in (AVMOp.mul_bytes, AVMOp.div_floor_bytes):
-        c = a
-    elif a_const == 0 and op == AVMOp.add_bytes:
-        c = b
-    elif b_const == 0 and op in (AVMOp.add_bytes, AVMOp.sub_bytes):
-        c = a
-    elif 0 in (a_const, b_const) and op == AVMOp.mul_bytes:
-        c = 0
-    else:
+    match simplify_bytes_binary_op_one_const(op, a_const, b_const):
+        case int() as v:
+            c = v
+        case BinarySimplification.LEFT:
+            c = a
+        case BinarySimplification.RIGHT:
+            c = b
+        case None:
+            pass
+    if c is None:
         if a_const is not None and b_const is not None:
             c = fold_biguint_const_binary_op(op, a_const, b_const)
         if c is None and a_const_bytes is not None and b_const_bytes is not None:
