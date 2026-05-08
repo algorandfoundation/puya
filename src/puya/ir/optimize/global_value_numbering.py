@@ -516,14 +516,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...]:
         match intrinsic:
-            case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
-                bytes_const_evald = itob_arg.to_bytes(8, byteorder="big", signed=False)
-                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                return self._tables.lookup_or_assign_const(bytes_const_key)
-            case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
-                bytes_const_evald = b"\x00" * bzero_arg
-                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                return self._tables.lookup_or_assign_const(bytes_const_key)
             # special case - `global` is not a pure op necessarily, but there is one constant case
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 bytes_const_evald = Address.parse(algo_constants.ZERO_ADDRESS).public_key
@@ -539,6 +531,20 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
         match arg_vns:
             case [vn]:
                 match op:
+                    case AVMOp.itob:
+                        match self._tables.vn_definition.get(vn):
+                            case _UInt64ConstKey(value=itob_arg):
+                                bytes_const_evald = itob_arg.to_bytes(
+                                    8, byteorder="big", signed=False
+                                )
+                                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                                return self._tables.lookup_or_assign_const(bytes_const_key)
+                    case AVMOp.bzero:
+                        match self._tables.vn_definition.get(vn):
+                            case _UInt64ConstKey(value=bzero_arg):
+                                bytes_const_evald = b"\x00" * bzero_arg
+                                bytes_const_key = _BytesConstKey(value=bytes_const_evald)
+                                return self._tables.lookup_or_assign_const(bytes_const_key)
                     case AVMOp.not_:
                         match self._tables.vn_definition.get(vn):
                             case None:
