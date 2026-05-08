@@ -46,14 +46,28 @@ if typing.TYPE_CHECKING:
 
 
 class MacroOp[**C](Protocol):
+    """
+    A MacroOp is a class definition for a common piece of templated codegen.
+    It allows the compiler to decide whether to inline or outline it at-will
+    """
+
     def name_for(self) -> str: ...
+
+    """The unique name for this macro invocation. Used for deduplication."""
 
     def execute_on(
         self, ctx: "IRSubroutineBuildContext", *args: C.args, **kwargs: C.kwargs
     ) -> None: ...
 
+    """
+    Generate the corresponding code for this macro invocation.
+    All parameters MUST be of ir.Value type.
+    """
+
     @property
     def returns(self) -> Sequence[IRType]: ...
+
+    """Amount and type of returned values"""
 
 
 @attrs.frozen(kw_only=True)
