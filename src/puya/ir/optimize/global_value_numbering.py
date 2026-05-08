@@ -232,6 +232,10 @@ class _GVNTables:
         self.set_register_vn(reg, vn)
         return vn
 
+    def fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
+        vns = tuple(self.next_vn() for _ in vp.types)
+        return vns
+
     def lookup_or_assign_vp(
         self, key: _ProviderKey, source: models.ValueProvider
     ) -> tuple[VN, ...]:
@@ -243,9 +247,9 @@ class _GVNTables:
         self._provider_key_to_vns[key] = vns
         return vns
 
-    def fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
-        vns = tuple(self.next_vn() for _ in vp.types)
-        return vns
+    def lookup_or_assign_const(self, key: _ConstKey) -> tuple[VN, ...]:
+        vn = lazy_setdefault(self.const_vn, key, lambda _: self.next_vn())
+        return (vn,)
 
 
 _MaybeAVMType: typing.TypeAlias = AVMType | str
@@ -511,16 +515,16 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
                 bytes_const_evald = itob_arg.to_bytes(8, byteorder="big", signed=False)
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                return self._const_vn(bytes_const_key)
+                return self._tables.lookup_or_assign_const(bytes_const_key)
             case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
                 bytes_const_evald = b"\x00" * bzero_arg
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                return self._const_vn(bytes_const_key)
+                return self._tables.lookup_or_assign_const(bytes_const_key)
             # special case - `global` is not a pure op necessarily, but there is one constant case
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 bytes_const_evald = Address.parse(algo_constants.ZERO_ADDRESS).public_key
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
-                return self._const_vn(bytes_const_key)
+                return self._tables.lookup_or_assign_const(bytes_const_key)
 
         op = intrinsic.op
         if op.code not in PURE_AVM_OPS:
@@ -559,9 +563,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         # | AVMOp.bitwise_xor_bytes - need length
                         | AVMOp.sub
                     ):
-                        return self._const_vn(_UInt64ConstKey(value=0))
+                        const = _UInt64ConstKey(value=0)
+                        return self._tables.lookup_or_assign_const(const)
                     case AVMOp.sub_bytes:
-                        return self._const_vn(_BytesConstKey(value=b""))
+                        const1 = _BytesConstKey(value=b"")
+                        return self._tables.lookup_or_assign_const(const1)
                     case (
                         AVMOp.eq
                         | AVMOp.eq_bytes
@@ -572,7 +578,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         # | AVMOp.div_floor - div by zero
                         # | AVMOp.div_floor_bytes - div by zero
                     ):
-                        return self._const_vn(_UInt64ConstKey(value=1))
+                        const2 = _UInt64ConstKey(value=1)
+                        return self._tables.lookup_or_assign_const(const2)
                     case (
                         AVMOp.bitwise_and
                         | AVMOp.bitwise_and_bytes
@@ -646,37 +653,33 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 f"SSA invariant violated: no dominating definition for {reg}"
             ) from None
 
-    def _const_vn(self, const: _ConstKey) -> tuple[VN, ...]:
-        vn = lazy_setdefault(self._tables.const_vn, const, lambda _: self._tables.next_vn())
-        return (vn,)
-
     @typing.override
     def visit_uint64_constant(self, const: models.UInt64Constant) -> tuple[VN, ...]:
         key = _UInt64ConstKey(value=const.value)
-        return self._const_vn(key)
+        return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_biguint_constant(self, const: models.BigUIntConstant) -> tuple[VN, ...]:
         evald = biguint_bytes_eval(const.value)
         key = _BytesConstKey(value=evald)
-        return self._const_vn(key)
+        return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_bytes_constant(self, const: models.BytesConstant) -> tuple[VN, ...]:
         key = _BytesConstKey(value=const.value)
-        return self._const_vn(key)
+        return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_address_constant(self, const: models.AddressConstant) -> tuple[VN, ...]:
         evald = Address.parse(const.value).public_key
         key = _BytesConstKey(value=evald)
-        return self._const_vn(key)
+        return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_method_constant(self, const: models.MethodConstant) -> tuple[VN, ...]:
         evald = method_selector_hash(const.value)
         key = _BytesConstKey(value=evald)
-        return self._const_vn(key)
+        return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_itxn_constant(self, const: models.ITxnConstant) -> tuple[VN, ...]:
@@ -686,12 +689,12 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     @typing.override
     def visit_slot_constant(self, const: models.SlotConstant) -> tuple[VN, ...]:
         key = _UInt64ConstKey(value=const.value)
-        return self._const_vn(key)
+        return self._tables.lookup_or_assign_const(key)
 
     @typing.override
     def visit_template_var(self, deploy_var: models.TemplateVar) -> tuple[VN, ...]:
         key = _TemplateVarKey(name=deploy_var.name)
-        return self._const_vn(key)
+        return self._tables.lookup_or_assign_const(key)
 
 
 class GVNBlockVisitor(NoOpIRVisitor[None]):
