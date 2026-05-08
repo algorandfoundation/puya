@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 import multiprocessing
 import platform
+import shutil
+import subprocess
 import sys
 import typing
 from collections.abc import Sequence
+from pathlib import Path
 
 import attrs
 import cyclopts
 
 from puya import log
 from puya.errors import PuyaError
+from tests import VCS_ROOT
 from tests.test_compile import compile_test_case
 from tests.utils import PuyaTestCase, get_test_cases
 from tests.utils.compile import get_awst_cache
@@ -19,6 +23,7 @@ from tests.utils.compile import get_awst_cache
 class CompilationResult:
     id: str
     diff: str | None
+    log_only: bool
     errors: Sequence[Exception] | None
 
 
@@ -59,22 +64,30 @@ def main(
     except ValueError:
         # fork not available on Windows, so fall back to spawn
         ctx = multiprocessing.get_context()
+    statuses = []
     with ctx.Pool() as pool:
         for result in pool.imap_unordered(_compile_test_case, to_compile):
             if result.errors:
                 failures.append(result)
-                display = "💥"
+                status = "💥"
                 diffs += 1
             elif result.diff:
-                display = "M"
+                if result.log_only:
+                    status = "L"
+                else:
+                    status = "M"
                 diffs += 1
             else:
-                display = "."
-            print(display, end="", flush=True)
+                status = "."
+            statuses.append(status)
+            print(status, end="", flush=True)
 
     total = len(to_compile)
     success = total - len(failures)
-    print(f" [{success}/{total}] {diffs} changed")
+    summary = f" [{success}/{total}] {diffs} changed"
+    if diffs and all(status in ("L", ".") for status in statuses):
+        summary += " (logs only)"
+    print(summary)
     if failures:
         # reconfigure log to output errors
         _configure_logging(log.LogLevel.error)
@@ -96,11 +109,30 @@ def _compile_test_case(test_case: PuyaTestCase) -> CompilationResult:
 
     diff = None
     errors = None
+    log_only = False
     try:
         diff = compile_test_case(test_case)
     except* Exception as exs:
         errors = exs.exceptions
-    return CompilationResult(id=test_case.id, diff=diff, errors=errors)
+    else:
+        log_only = _log_only_changes(test_case.test_case, VCS_ROOT)
+    return CompilationResult(id=test_case.id, diff=diff, errors=errors, log_only=log_only)
+
+
+def _log_only_changes(path: Path, cwd: Path) -> bool:
+    git = shutil.which("git")
+    assert git, "could not find git"
+    assert path.is_dir()
+    result = subprocess.run(
+        [git, "status", "-s", str(path)],
+        check=True,
+        capture_output=True,
+        cwd=cwd,
+    )
+    return all(
+        Path(path.strip().split(" ", maxsplit=1)[1]).suffix == ".log"
+        for path in result.stdout.decode("utf8").splitlines()
+    )
 
 
 def _configure_logging(level: log.LogLevel = log.LogLevel.critical) -> None:
