@@ -31,6 +31,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.optimize.intrinsic_simplification import valid_uint64
+from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.utils import (
@@ -293,12 +294,6 @@ def _build_equivalence_sets(
         keep_param = _keep_defn(param, initial_scope)
         assert keep_param
 
-    vn_to_uint64_const = {
-        vn: defn.value
-        for vn, defn in tables.vn_definition.items()
-        if isinstance(defn, _UInt64ConstKey)
-    }
-
     def _walk(
         block: models.BasicBlock,
         vn_to_rep: Mapping[tuple[VN, _MaybeAVMType], models.Register],
@@ -330,16 +325,31 @@ def _build_equivalence_sets(
                 if len(op.targets) == 1 and not isinstance(op.source, models.Value):
                     (target,) = op.targets
                     target_vn = tables.register_vn[target]
-                    maybe_uint64_const = vn_to_uint64_const.get(target_vn)
-                    if maybe_uint64_const is not None:
-                        modified = True
-                        (source_type,) = op.source.types
-                        op.source = models.UInt64Constant(
-                            value=maybe_uint64_const,
-                            ir_type=source_type,
-                            source_location=op.source.source_location,
-                        )
-                        continue
+                    match tables.vn_definition.get(target_vn):
+                        case _UInt64ConstKey(value=uint64_const):
+                            modified = True
+                            (source_type,) = op.source.types
+                            op.source = models.UInt64Constant(
+                                value=uint64_const,
+                                ir_type=source_type,
+                                source_location=op.source.source_location,
+                            )
+                            continue
+                        case _BytesConstKey(value=bytes_const) if len(bytes_const) <= 8 and (
+                            isinstance(op.source, models.Intrinsic)
+                            and any(
+                                isinstance(op_arg, models.Register) for op_arg in op.source.args
+                            )
+                        ):
+                            modified = True
+                            (source_type,) = op.source.types
+                            op.source = models.BytesConstant(
+                                value=bytes_const,
+                                encoding=AVMBytesEncoding.unknown,
+                                ir_type=source_type,
+                                source_location=op.source.source_location,
+                            )
+                            continue
 
                 match op.source:
                     case models.Register():
@@ -579,6 +589,22 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if len(concat_result) <= algo_constants.MAX_BYTES_LENGTH:
                             const_concat_key = _BytesConstKey(value=concat_result)
                             return self._tables.lookup_or_assign_const(const_concat_key)
+            case AVMOp.substring3:
+                match arg_defns:
+                    case [
+                        _BytesConstKey(value=byte_arg),
+                        _UInt64ConstKey(value=start_arg),
+                        _UInt64ConstKey(value=end_arg),
+                    ]:
+                        if (
+                            start_arg
+                            <= end_arg
+                            <= len(byte_arg)
+                            <= algo_constants.MAX_BYTES_LENGTH
+                        ):
+                            substring_result = byte_arg[start_arg:end_arg]
+                            bytes_const_key = _BytesConstKey(value=substring_result)
+                            return self._tables.lookup_or_assign_const(bytes_const_key)
 
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
