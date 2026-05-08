@@ -207,7 +207,7 @@ class _GVNTables:
 
     _vn_counter: itertools.count[int] = attrs.field(factory=itertools.count)
     register_vn: dict[models.Register, VN] = attrs.field(factory=dict)
-    provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
+    _provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
     const_vn: dict[_ConstKey, VN] = attrs.field(factory=dict)
     comparison_exprs: dict[VN, _IntrinsicKey] = attrs.field(factory=dict)
 
@@ -231,6 +231,21 @@ class _GVNTables:
         vn = self.next_vn()
         self.set_register_vn(reg, vn)
         return vn
+
+    def lookup_or_assign_vp(
+        self, key: _ProviderKey, source: models.ValueProvider
+    ) -> tuple[VN, ...]:
+        try:
+            return self._provider_key_to_vns[key]
+        except KeyError:
+            pass
+        vns = self.fresh_vns(source)
+        self._provider_key_to_vns[key] = vns
+        return vns
+
+    def fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
+        vns = tuple(self.next_vn() for _ in vp.types)
+        return vns
 
 
 _MaybeAVMType: typing.TypeAlias = AVMType | str
@@ -394,19 +409,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     _tables: _GVNTables
 
-    def _lookup_or_assign(self, key: _ProviderKey, source: models.ValueProvider) -> tuple[VN, ...]:
-        try:
-            return self._tables.provider_key_to_vns[key]
-        except KeyError:
-            pass
-        vns = self._fresh_vns(source)
-        self._tables.provider_key_to_vns[key] = vns
-        return vns
-
-    def _fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
-        vns = tuple(self._tables.next_vn() for _ in vp.types)
-        return vns
-
     def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
         return tuple(
             (
@@ -425,7 +427,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             index_vns=self._index_vns(read.indexes),
             check_bounds=read.check_bounds,
         )
-        return self._lookup_or_assign(key, read)
+        return self._tables.lookup_or_assign_vp(key, read)
 
     @typing.override
     def visit_replace_value(self, write: models.ReplaceValue) -> tuple[VN, ...]:
@@ -438,7 +440,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             index_vns=index_vns,
             value_vn=value_vn,
         )
-        return self._lookup_or_assign(key, write)
+        return self._tables.lookup_or_assign_vp(key, write)
 
     @typing.override
     def visit_array_concat(self, concat: models.ArrayConcat) -> tuple[VN, ...]:
@@ -450,18 +452,18 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             items_vn=items_vn,
             item_encoding=concat.item_encoding,
         )
-        return self._lookup_or_assign(key, concat)
+        return self._tables.lookup_or_assign_vp(key, concat)
 
     @typing.override
     def visit_array_length(self, length: models.ArrayLength) -> tuple[VN, ...]:
         if isinstance(length.base_type, types.SlotType):
-            return self._fresh_vns(length)
+            return self._tables.fresh_vns(length)
         base_vn = self._visit_value(length.base)
         key = _ArrayLengthKey(
             base_vn=base_vn,
             base_type=length.base_type,
         )
-        return self._lookup_or_assign(key, length)
+        return self._tables.lookup_or_assign_vp(key, length)
 
     @typing.override
     def visit_array_pop(self, pop: models.ArrayPop) -> tuple[VN, ...]:
@@ -470,11 +472,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             base_vn=base_vn,
             base_type=pop.base_type,
         )
-        return self._lookup_or_assign(key, pop)
+        return self._tables.lookup_or_assign_vp(key, pop)
 
     @typing.override
     def visit_box_read(self, read: models.BoxRead) -> tuple[VN, ...]:
-        return self._fresh_vns(read)  # stateful, leave this up to repeated-reads
+        return self._tables.fresh_vns(read)  # stateful, leave this up to repeated-reads
 
     @typing.override
     def visit_bytes_encode(self, encode: models.BytesEncode) -> tuple[VN, ...]:
@@ -484,7 +486,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             value_vns=value_vns,
             values_type=encode.values_type,
         )
-        return self._lookup_or_assign(key, encode)
+        return self._tables.lookup_or_assign_vp(key, encode)
 
     @typing.override
     def visit_decode_bytes(self, decode: models.DecodeBytes) -> tuple[VN, ...]:
@@ -494,14 +496,14 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             value_vn=value_vn,
             ir_type=decode.ir_type,
         )
-        return self._lookup_or_assign(key, decode)
+        return self._tables.lookup_or_assign_vp(key, decode)
 
     @typing.override
     def visit_inner_transaction_field(
         self, intrinsic: models.InnerTransactionField
     ) -> tuple[VN, ...]:
         # stateful - implicitly depends on the most recent itxn_submit
-        return self._fresh_vns(intrinsic)
+        return self._tables.fresh_vns(intrinsic)
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> tuple[VN, ...]:
@@ -514,6 +516,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 bytes_const_evald = b"\x00" * bzero_arg
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
                 return self._const_vn(bytes_const_key)
+            # special case - `global` is not a pure op necessarily, but there is one constant case
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 bytes_const_evald = Address.parse(algo_constants.ZERO_ADDRESS).public_key
                 bytes_const_key = _BytesConstKey(value=bytes_const_evald)
@@ -521,7 +524,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
         op = intrinsic.op
         if op.code not in PURE_AVM_OPS:
-            return self._fresh_vns(intrinsic)
+            return self._tables.fresh_vns(intrinsic)
         args = intrinsic.args
         arg_vns = tuple(self._visit_value(a) for a in args)
 
@@ -538,7 +541,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                 immediates=comp.immediates,
                                 arg_vns=comp.arg_vns,
                             )
-                            (result_vn,) = self._lookup_or_assign(inverse_key, intrinsic)
+                            (result_vn,) = self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
                             # The result is itself a comparison — recording it lets
                             # !(!comparison) fold back to the original.
                             self._tables.comparison_exprs[result_vn] = inverse_key
@@ -584,7 +587,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             arg_vns = (arg_vns[1], arg_vns[0])
             op = _MIRROR_OPS[op]
         key = _IntrinsicKey(op=op, immediates=tuple(intrinsic.immediates), arg_vns=arg_vns)
-        vns = self._lookup_or_assign(key, intrinsic)
+        vns = self._tables.lookup_or_assign_vp(key, intrinsic)
         # Track comparison expressions for negation-aware numbering
         if key.op in _INVERSE_COMPARISONS:
             (result_vn,) = vns
@@ -594,22 +597,22 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     @typing.override
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> tuple[VN, ...]:
         if not callsub.target.pure:
-            return self._fresh_vns(callsub)
+            return self._tables.fresh_vns(callsub)
         arg_vns = tuple(self._visit_value(a) for a in callsub.args)
         key = _CallSubKey(target_id=callsub.target.id, arg_vns=arg_vns)
-        return self._lookup_or_assign(key, callsub)
+        return self._tables.lookup_or_assign_vp(key, callsub)
 
     @typing.override
     def visit_new_slot(self, new_slot: models.NewSlot) -> tuple[VN, ...]:
-        return self._fresh_vns(new_slot)  # side-effecting
+        return self._tables.fresh_vns(new_slot)  # side-effecting
 
     @typing.override
     def visit_read_slot(self, read_slot: models.ReadSlot) -> tuple[VN, ...]:
-        return self._fresh_vns(read_slot)  # stateful, leave this up to repeated-reads
+        return self._tables.fresh_vns(read_slot)  # stateful, leave this up to repeated-reads
 
     @typing.override
     def visit_value_tuple(self, tup: models.ValueTuple) -> tuple[VN, ...]:
-        return self._fresh_vns(tup)  # catch these on the next pass
+        return self._tables.fresh_vns(tup)  # catch these on the next pass
 
     # -- Value subtypes --
 
@@ -620,19 +623,19 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_undefined(self, val: models.Undefined) -> tuple[VN, ...]:
-        return self._fresh_vns(val)
+        return self._tables.fresh_vns(val)
 
     @typing.override
     def visit_compiled_contract_reference(
         self, const: models.CompiledContractReference
     ) -> tuple[VN, ...]:
-        return self._fresh_vns(const)
+        return self._tables.fresh_vns(const)
 
     @typing.override
     def visit_compiled_logicsig_reference(
         self, const: models.CompiledLogicSigReference
     ) -> tuple[VN, ...]:
-        return self._fresh_vns(const)
+        return self._tables.fresh_vns(const)
 
     @typing.override
     def visit_register(self, reg: models.Register) -> tuple[VN, ...]:
@@ -678,7 +681,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     @typing.override
     def visit_itxn_constant(self, const: models.ITxnConstant) -> tuple[VN, ...]:
         # not sure we should be messing with these, give it a fresh VN
-        return self._fresh_vns(const)
+        return self._tables.fresh_vns(const)
 
     @typing.override
     def visit_slot_constant(self, const: models.SlotConstant) -> tuple[VN, ...]:
