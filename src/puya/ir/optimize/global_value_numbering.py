@@ -108,6 +108,15 @@ def _chop_encoding(enc: AVMBytesEncoding) -> AVMBytesEncoding:
     return AVMBytesEncoding.unknown if enc == AVMBytesEncoding.utf8 else enc
 
 
+# Encoding preference for `lookup_or_assign_const` collisions: when two
+# `_BytesConstKey`s with the same value but different encodings unify to one VN,
+# the more-informative encoding wins. Order follows the enum definition:
+# unknown < base16 < base32 < base64 < utf8.
+_ENCODING_PREF: typing.Final[Mapping[AVMBytesEncoding, int]] = {
+    enc: i for i, enc in enumerate(AVMBytesEncoding)
+}
+
+
 @attrs.frozen(kw_only=True)
 class _ProviderKey:
     """Base class for canonical ValueProvider keys used in the GVN expression table."""
@@ -267,6 +276,12 @@ class _GVNTables:
 
     def lookup_or_assign_const(self, key: _ConstKey) -> tuple[VN, ...]:
         vn = lazy_setdefault(self._const_vn, key, lambda _: self.next_vn())
+        if isinstance(key, _BytesConstKey):
+            prior = self.vn_definition.get(vn)
+            if prior is not None:
+                assert isinstance(prior, _BytesConstKey)
+                if _ENCODING_PREF[prior.encoding] > _ENCODING_PREF[key.encoding]:
+                    key = prior
         self.vn_definition[vn] = key
         return (vn,)
 
