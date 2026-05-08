@@ -1781,29 +1781,29 @@ def _try_simplify_bytes_binary_op(
     a_const, a_const_bytes = _get_biguint_constant(register_assignments, a)
     b_const, b_const_bytes = _get_biguint_constant(register_assignments, b)
     match simplify_bytes_binary_op_one_const(op, a_const, b_const):
-        case int() as v:
+        case int(v):
             c = v
         case BinarySimplification.LEFT:
             c = a
         case BinarySimplification.RIGHT:
             c = b
-        case None:
-            pass
+        case other:
+            typing.assert_type(other, None)
     if c is None:
         if a_const is not None and b_const is not None:
             c = fold_biguint_const_binary_op(op, a_const, b_const)
         if c is None and a_const_bytes is not None and b_const_bytes is not None:
             match fold_bytes_const_binary_op(op, a_const_bytes.value, b_const_bytes.value):
-                case int() as v:
+                case int(v):
                     c = v
-                case bytes() as result_bytes:
+                case bytes(result_bytes):
                     return models.BytesConstant(
                         value=result_bytes,
                         encoding=choose_encoding(a_const_bytes.encoding, b_const_bytes.encoding),
                         source_location=op_loc,
                     )
-                case None:
-                    pass
+                case other2:
+                    typing.assert_type(other2, None)
         if c is None:
             a_size = _get_bytes_length_safe(register_assignments, a)
             b_size = _get_bytes_length_safe(register_assignments, b)
@@ -1817,17 +1817,10 @@ def _try_simplify_bytes_binary_op(
     if c < 0:
         # don't fold to a negative
         return None
-    # could look at StackType of op_signature.returns, but some are StackType.any
-    if op in (
-        AVMOp.eq_bytes,
-        AVMOp.eq,
-        AVMOp.neq_bytes,
-        AVMOp.neq,
-        AVMOp.lt_bytes,
-        AVMOp.lte_bytes,
-        AVMOp.gt_bytes,
-        AVMOp.gte_bytes,
-    ):
-        return models.UInt64Constant(value=c, source_location=intrinsic.source_location)
-    else:
+    (ir_type,) = intrinsic.types
+    if ir_type == PrimitiveIRType.biguint:
         return models.BigUIntConstant(value=c, source_location=intrinsic.source_location)
+    assert ir_type.avm_type is AVMType.uint64
+    return models.UInt64Constant(
+        value=c, ir_type=ir_type, source_location=intrinsic.source_location
+    )

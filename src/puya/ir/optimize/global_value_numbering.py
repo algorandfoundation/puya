@@ -41,7 +41,7 @@ from puya.ir.optimize.intrinsic_simplification import (
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
-from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.utils import (
@@ -608,32 +608,25 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             op, int.from_bytes(xb, "big"), int.from_bytes(yb, "big")
                         )
                         if zi is not None:
-                            if op in (
-                                AVMOp.lt_bytes,
-                                AVMOp.lte_bytes,
-                                AVMOp.gt_bytes,
-                                AVMOp.gte_bytes,
-                                AVMOp.eq_bytes,
-                                AVMOp.neq_bytes,
-                            ):
+                            (ir_type,) = intrinsic.types
+                            if ir_type == PrimitiveIRType.biguint:
                                 return self._tables.lookup_or_assign_const(
-                                    _UInt64ConstKey(value=zi)
+                                    _BytesConstKey(
+                                        value=biguint_bytes_eval(zi),
+                                        encoding=AVMBytesEncoding.base16,
+                                    )
                                 )
-                            return self._tables.lookup_or_assign_const(
-                                _BytesConstKey(
-                                    value=biguint_bytes_eval(zi),
-                                    encoding=AVMBytesEncoding.base16,
-                                )
-                            )
-                    match fold_bytes_const_binary_op(op, xb, yb):
-                        case int() as zi:
+                            assert ir_type.avm_type is AVMType.uint64
                             return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=zi))
-                        case bytes() as zb:
+                    match fold_bytes_const_binary_op(op, xb, yb):
+                        case int(zi):
+                            return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=zi))
+                        case bytes(zb):
                             return self._tables.lookup_or_assign_const(
                                 _BytesConstKey(value=zb, encoding=choose_encoding(ea, eb))
                             )
-                        case None:
-                            pass
+                        case other:
+                            typing.assert_type(other, None)
 
         match op:
             case AVMOp.len_:
