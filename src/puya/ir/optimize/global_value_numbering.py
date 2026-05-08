@@ -220,6 +220,12 @@ class _BytesConstKey(_ConstKey):
     # encoding is metadata only — same bytes with different encodings get the same VN.
     encoding: AVMBytesEncoding = attrs.field(default=AVMBytesEncoding.unknown, eq=False)
 
+    @property
+    def as_biguint(self) -> int | None:
+        if len(self.value) > 64:
+            return None
+        return int.from_bytes(self.value, "big", signed=False)
+
 
 @attrs.frozen(kw_only=True)
 class _TemplateVarKey(_ConstKey):
@@ -600,13 +606,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         binary_uint64_result = _UInt64ConstKey(value=z)
                         return self._tables.lookup_or_assign_const(binary_uint64_result)
                 case [
-                    _BytesConstKey(value=xb, encoding=ea),
-                    _BytesConstKey(value=yb, encoding=eb),
+                    _BytesConstKey(value=xb, encoding=ea, as_biguint=xb_int),
+                    _BytesConstKey(value=yb, encoding=eb, as_biguint=yb_int),
                 ]:
-                    if len(xb) <= 64 and len(yb) <= 64:
-                        zi = fold_biguint_const_binary_op(
-                            op, int.from_bytes(xb, "big"), int.from_bytes(yb, "big")
-                        )
+                    if xb_int is not None and yb_int is not None:
+                        zi = fold_biguint_const_binary_op(op, xb_int, yb_int)
                         if zi is not None:
                             (ir_type,) = intrinsic.types
                             if ir_type == PrimitiveIRType.biguint:
