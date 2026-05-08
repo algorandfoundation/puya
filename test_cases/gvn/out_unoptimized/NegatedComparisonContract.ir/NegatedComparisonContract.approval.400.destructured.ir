@@ -8,10 +8,14 @@ main test_cases.gvn.negated_comparisons.NegatedComparisonContract.approval_progr
         let tmp%2#0: biguint = (itob a#0)
         let tmp%3#0: biguint = (itob b#0)
         test_cases.gvn.negated_comparisons.test_biguint_negated(tmp%2#0, tmp%3#0)
+        test_cases.gvn.negated_comparisons.test_uint64_double_negated(a#0, b#0)
+        let tmp%4#0: biguint = (itob a#0)
+        let tmp%5#0: biguint = (itob b#0)
+        test_cases.gvn.negated_comparisons.test_biguint_double_negated(tmp%4#0, tmp%5#0)
         return 1u
 
 subroutine test_cases.gvn.negated_comparisons.test_uint64_negated(a: uint64, b: uint64) -> void:
-    block@0: // L22
+    block@0: // L24
         let tmp%0#0: bool = (< a#0 b#0)
         (assert tmp%0#0)
         let tmp%1#0: bool = (>= a#0 b#0)
@@ -31,7 +35,7 @@ subroutine test_cases.gvn.negated_comparisons.test_uint64_negated(a: uint64, b: 
         return 
 
 subroutine test_cases.gvn.negated_comparisons.test_biguint_negated(a: biguint, b: biguint) -> void:
-    block@0: // L40
+    block@0: // L42
         let tmp%0#0: bool = (b< a#0 b#0)
         (assert tmp%0#0)
         let tmp%1#0: bool = (b>= a#0 b#0)
@@ -48,4 +52,26 @@ subroutine test_cases.gvn.negated_comparisons.test_biguint_negated(a: biguint, b
         let eq_result#0: bool = tmp%7#0
         let tmp%8#0: bool = (! eq_result#0)
         (assert tmp%8#0)
+        return 
+
+subroutine test_cases.gvn.negated_comparisons.test_uint64_double_negated(a: uint64, b: uint64) -> void:
+    block@0: // L56
+        let tmp%0#0: bool = (< a#0 b#0)
+        (assert tmp%0#0)
+        let tmp%1#0: bool = (< a#0 b#0)
+        let tmp%2#0: bool = (! tmp%1#0)
+        let neg#0: bool = tmp%2#0
+        let tmp%3#0: bool = (! neg#0)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.negated_comparisons.test_biguint_double_negated(a: biguint, b: biguint) -> void:
+    block@0: // L70
+        let tmp%0#0: bool = (b< a#0 b#0)
+        (assert tmp%0#0)
+        let tmp%1#0: bool = (b< a#0 b#0)
+        let tmp%2#0: bool = (! tmp%1#0)
+        let neg#0: bool = tmp%2#0
+        let tmp%3#0: bool = (! neg#0)
+        (assert tmp%3#0)
         return 

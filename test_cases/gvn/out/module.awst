@@ -115,6 +115,8 @@ contract NegatedComparisonContract
     b: uint64 = a + 1u
     test_cases.gvn.negated_comparisons.test_uint64_negated(a, b)
     test_cases.gvn.negated_comparisons.test_biguint_negated(itob(a), itob(b))
+    test_cases.gvn.negated_comparisons.test_uint64_double_negated(a, b)
+    test_cases.gvn.negated_comparisons.test_biguint_double_negated(itob(a), itob(b))
     return true
   }
   
@@ -148,6 +150,20 @@ subroutine test_biguint_negated(a: biguint, b: biguint): void
   assert(a != b)
   eq_result: bool = a == b
   assert(!(eq_result))
+}
+
+subroutine test_uint64_double_negated(a: uint64, b: uint64): void
+{
+  assert(a < b)
+  neg: bool = !(a < b)
+  assert(!(neg))
+}
+
+subroutine test_biguint_double_negated(a: biguint, b: biguint): void
+{
+  assert(a < b)
+  neg: bool = !(a < b)
+  assert(!(neg))
 }
 
 contract ComparisonSwapsContract
