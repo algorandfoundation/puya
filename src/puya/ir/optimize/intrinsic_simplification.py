@@ -1379,25 +1379,26 @@ def _try_simplify_uint64_unary_op(
 
     x = _get_int_constant(arg)
     if x is not None:
-        if intrinsic.op is AVMOp.not_:
-            not_x = 0 if x else 1
-            return models.UInt64Constant(value=not_x, source_location=op_loc)
-        elif intrinsic.op is AVMOp.bitwise_not:
-            inverted = x ^ 0xFFFFFFFFFFFFFFFF
-            return models.UInt64Constant(value=inverted, source_location=op_loc)
-        elif intrinsic.op is AVMOp.sqrt:
-            value = math.isqrt(x)
-            return models.UInt64Constant(value=value, source_location=op_loc)
-        elif intrinsic.op is AVMOp.bitlen:
-            return UInt64Constant(value=x.bit_length(), source_location=op_loc)
-        elif intrinsic.op is AVMOp.itob:
-            if context.expand_all_bytes:
-                return _eval_itob(x, op_loc)
-        elif intrinsic.op is AVMOp.bzero:
-            if context.expand_all_bytes:
-                return _eval_bzero(x, op_loc)
-        else:
-            logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
+        match intrinsic.op:
+            case AVMOp.not_:
+                not_x = 0 if x else 1
+                return models.UInt64Constant(value=not_x, source_location=op_loc)
+            case AVMOp.bitwise_not:
+                inverted = x ^ 0xFFFFFFFFFFFFFFFF
+                return models.UInt64Constant(value=inverted, source_location=op_loc)
+            case AVMOp.sqrt:
+                value = math.isqrt(x)
+                return models.UInt64Constant(value=value, source_location=op_loc)
+            case AVMOp.bitlen:
+                return UInt64Constant(value=x.bit_length(), source_location=op_loc)
+            case AVMOp.itob:
+                if context.expand_all_bytes:
+                    return _eval_itob(x, op_loc)
+            case AVMOp.bzero:
+                if context.expand_all_bytes:
+                    return _eval_bzero(x, op_loc)
+            case _:
+                logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
 
     return None
 
@@ -1558,7 +1559,6 @@ def _try_simplify_uint64_binary_op(
     c: models.Value | int | None = None
     if a_const is not None and b_const is not None:
         c = fold_uint64_const_op(op, a_const, b_const)
-
     else:  # noqa: PLR5501
         # a >= 0 <-> 1
         if b_const == 0 and op == AVMOp.gte:  # noqa: SIM114
