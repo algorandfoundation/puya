@@ -315,6 +315,8 @@ def _build_equivalence_sets(
     tables: _GVNTables,
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     start: models.BasicBlock,
+    *,
+    expand_all_bytes: bool,
 ) -> tuple[bool, Collection[Sequence[models.Register]]]:
     """Walk the dominator tree to build equivalence sets respecting dominance.
 
@@ -384,15 +386,13 @@ def _build_equivalence_sets(
                                 source_location=op.source.source_location,
                             )
                             continue
-                        case _BytesConstKey(value=bytes_const, encoding=bytes_encoding) if len(
-                            bytes_const
-                        ) <= 8 and (
-                            isinstance(op.source, models.Intrinsic)
-                            and op.source.op not in (AVMOp.bzero, AVMOp.itob)
-                            and any(
-                                (isinstance(op_arg, models.Register)) for op_arg in op.source.args
-                            )
-                        ):
+                        # The below can produce some good wins if we disable the expand_all_bytes
+                        # guard, e.g. in inner_transactions/contracy.py, but it needs to be handled
+                        # carefully to avoid punching through multiple layers # to a bzero or itob
+                        # that is otherwise being reused.
+                        case _BytesConstKey(
+                            value=bytes_const, encoding=bytes_encoding
+                        ) if expand_all_bytes:
                             modified = True
                             (source_type,) = op.source.types
                             op.source = models.BytesConstant(
@@ -1112,14 +1112,16 @@ def _number_values(
     return tables
 
 
-def global_value_numbering(_context: CompileContext, subroutine: models.Subroutine) -> bool:
+def global_value_numbering(context: CompileContext, subroutine: models.Subroutine) -> bool:
     """Run GVN on a subroutine.
 
     Flow: hash-based numbering -> SCC phi congruence -> eliminate.
     """
     start, dom_tree = compute_dominator_tree(subroutine)
     tables = _number_values(subroutine, dom_tree, start)
-    modified, equivalence_sets = _build_equivalence_sets(subroutine, tables, dom_tree, start)
+    modified, equivalence_sets = _build_equivalence_sets(
+        subroutine, tables, dom_tree, start, expand_all_bytes=context.options.expand_all_bytes
+    )
     register_map = build_replacements(subroutine, equivalence_sets)
 
     if _refine_phi_congruence(subroutine, register_map):
