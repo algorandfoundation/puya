@@ -36,7 +36,15 @@ from puya.ir.optimize.intrinsic_simplification import (
     choose_encoding,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
+    fold_bytes_const_unary_op,
+    fold_extract_uint_n,
+    fold_getbit_bytes,
+    fold_replace2,
+    fold_setbit_bytes,
+    fold_setbit_uint64,
     fold_uint64_const_binary_op,
+    fold_uint64_const_unary_op,
+    hash_eval_funcs,
     simplify_bytes_binary_op_one_const,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
@@ -656,14 +664,21 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                 value=bytes_const_evald, encoding=AVMBytesEncoding.base16
                             )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
-            case AVMOp.not_:
+            case AVMOp.not_ | AVMOp.bitwise_not | AVMOp.sqrt | AVMOp.bitlen:
                 match arg_defns:
-                    case [_UInt64ConstKey(value=not_arg)]:
-                        not_folded = 0 if not_arg else 1
-                        return self._tables.lookup_or_assign_const(
-                            _UInt64ConstKey(value=not_folded)
-                        )
-                    case [_IntrinsicKey(op=source_op) as comp]:
+                    case [_UInt64ConstKey(value=x)]:
+                        folded = fold_uint64_const_unary_op(op, x)
+                        if folded is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=folded)
+                            )
+                    case [_BytesConstKey(value=bv)] if op is AVMOp.bitlen:
+                        bitlen_folded = fold_bytes_const_unary_op(op, bv)
+                        if isinstance(bitlen_folded, int):
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=bitlen_folded)
+                            )
+                    case [_IntrinsicKey(op=source_op) as comp] if op is AVMOp.not_:
                         # Negation-aware numbering: !(comparison) -> inverse comparison.
                         # e.g. !(a < b) gets the same key as (a >= b).
                         if inverse_op := _INVERSE_COMPARISONS.get(source_op):
@@ -673,6 +688,116 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                 arg_vns=comp.arg_vns,
                             )
                             return self._tables.lookup_or_assign_vp(inverse_key, intrinsic)
+            case AVMOp.bitwise_not_bytes | AVMOp.btoi | AVMOp.bsqrt:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv, encoding=enc)]:
+                        match fold_bytes_const_unary_op(op, bv):
+                            case int(v):
+                                if intrinsic.types[0] == PrimitiveIRType.biguint:
+                                    return self._tables.lookup_or_assign_const(
+                                        _BytesConstKey(
+                                            value=biguint_bytes_eval(v),
+                                            encoding=AVMBytesEncoding.base16,
+                                        )
+                                    )
+                                return self._tables.lookup_or_assign_const(
+                                    _UInt64ConstKey(value=v)
+                                )
+                            case bytes(result_bytes):
+                                return self._tables.lookup_or_assign_const(
+                                    _BytesConstKey(
+                                        value=result_bytes,
+                                        encoding=(
+                                            enc
+                                            if enc != AVMBytesEncoding.utf8
+                                            else AVMBytesEncoding.unknown
+                                        ),
+                                    )
+                                )
+                            case other:
+                                typing.assert_type(other, None)
+                    case [
+                        _IntrinsicKey(op=AVMOp.itob, immediates=(), arg_vns=(source_vn,))
+                    ] if op is AVMOp.btoi:
+                        # btoi(itob(x)) = x
+                        return (source_vn,)
+            case AVMOp.sha256 | AVMOp.sha3_256 | AVMOp.sha512_256 | AVMOp.keccak256:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv)]:
+                        digest = hash_eval_funcs[op](bv, None).value
+                        return self._tables.lookup_or_assign_const(
+                            _BytesConstKey(value=digest, encoding=AVMBytesEncoding.base16)
+                        )
+            case AVMOp.setbit:
+                match arg_defns:
+                    case [
+                        _UInt64ConstKey(value=source),
+                        _UInt64ConstKey(value=index),
+                        _UInt64ConstKey(value=value),
+                    ]:
+                        folded = fold_setbit_uint64(source, index, value)
+                        if folded is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=folded)
+                            )
+                    case [
+                        _BytesConstKey(value=bv, encoding=enc),
+                        _UInt64ConstKey(value=index),
+                        _UInt64ConstKey(value=value),
+                    ]:
+                        folded_bytes = fold_setbit_bytes(bv, index, value)
+                        if folded_bytes is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _BytesConstKey(
+                                    value=folded_bytes,
+                                    encoding=(
+                                        enc
+                                        if enc != AVMBytesEncoding.utf8
+                                        else AVMBytesEncoding.unknown
+                                    ),
+                                )
+                            )
+            case AVMOp.getbit:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
+                        folded = fold_getbit_bytes(bv, index)
+                        if folded is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=folded)
+                            )
+            case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv), _UInt64ConstKey(value=offset)]:
+                        folded = fold_extract_uint_n(op, bv, offset)
+                        if folded is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=folded)
+                            )
+            case AVMOp.select:
+                # arg layout: [false_branch, true_branch, selector]
+                if arg_vns[0] == arg_vns[1]:
+                    # select(x, x, _) → x
+                    return (arg_vns[0],)
+                if isinstance(arg_defns[2], _UInt64ConstKey):
+                    # const selector → pick branch directly
+                    return (arg_vns[1] if arg_defns[2].value else arg_vns[0],)
+            case AVMOp.replace2:
+                match arg_defns, intrinsic.immediates:
+                    case [
+                        [
+                            _BytesConstKey(value=src_bytes, encoding=src_enc),
+                            _BytesConstKey(value=repl_bytes, encoding=repl_enc),
+                        ],
+                        [int(start)],
+                    ]:
+                        folded_bytes = fold_replace2(src_bytes, start, repl_bytes)
+                        if folded_bytes is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _BytesConstKey(
+                                    value=folded_bytes,
+                                    encoding=choose_encoding(src_enc, repl_enc),
+                                )
+                            )
             case AVMOp.concat:
                 match arg_defns:
                     case [
@@ -756,7 +881,14 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                 value=extract_result, encoding=_chop_encoding(byte_enc)
                             )
                             return self._tables.lookup_or_assign_const(bytes_const_key)
-
+            case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv), _UInt64ConstKey(value=offset)]:
+                        folded = fold_extract_uint_n(op, bv, offset)
+                        if folded is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=folded)
+                            )
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
                 match op:
