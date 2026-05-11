@@ -308,6 +308,7 @@ class _GVNTables:
 
 
 _MaybeAVMType: typing.TypeAlias = AVMType | str
+_VNRepresentativeMap: typing.TypeAlias = dict[tuple[VN, _MaybeAVMType], models.Register]
 
 
 def _build_equivalence_sets(
@@ -329,25 +330,27 @@ def _build_equivalence_sets(
     all_sets = defaultdict[models.Register, list[models.Register]](list)
 
     def _keep_defn(
-        reg: models.Register,
-        vn_to_rep: dict[tuple[VN, _MaybeAVMType], models.Register],
+        reg: models.Register, vn_to_rep: _VNRepresentativeMap, *, force_new_rep: bool = False
     ) -> bool:
         """Process a register definition, returning if it's the dominant (and should be kept)"""
         vn = tables.register_vn[reg]
         key = (vn, reg.ir_type.maybe_avm_type)
-        rep = vn_to_rep.setdefault(key, reg)
+        if force_new_rep:
+            rep = vn_to_rep[key] = reg
+        else:
+            rep = vn_to_rep.setdefault(key, reg)
         all_sets[rep].append(reg)
         return rep == reg
 
     # Seed with parameters — they dominate all blocks
-    initial_scope = dict[tuple[VN, _MaybeAVMType], models.Register]()
+    initial_scope = _VNRepresentativeMap()
     for param in subroutine.parameters:
         keep_param = _keep_defn(param, initial_scope)
         assert keep_param
 
     def _walk(
         block: models.BasicBlock,
-        vn_to_rep: Mapping[tuple[VN, _MaybeAVMType], models.Register],
+        vn_to_rep: _VNRepresentativeMap,
         asserted_: Set[VN | models.Value],
     ) -> None:
         nonlocal modified
@@ -372,7 +375,7 @@ def _build_equivalence_sets(
                         modified = True
                         logger.debug(f"removing redundant assert of {op.condition}")
                         ops.pop()
-            elif isinstance(op, models.Assignment):
+            elif isinstance(op, models.Assignment) and not isinstance(op.source, models.Constant):
                 if len(op.targets) == 1 and not isinstance(op.source, models.Value):
                     (target,) = op.targets
                     target_vn = tables.register_vn[target]
@@ -404,21 +407,16 @@ def _build_equivalence_sets(
                             continue
 
                 match op.source:
-                    case models.Register():
-                        replaceable = True
-                    case models.Value():
-                        replaceable = False
                     case models.Intrinsic(args=[]):
-                        replaceable = False
+                        force_new_rep = True
                     case _:
-                        replaceable = True
-                if replaceable:
-                    keep = False
-                    for target in op.targets:
-                        keep |= _keep_defn(target, scope)
-                    if not keep:
-                        ops.pop()
-                        modified = True
+                        force_new_rep = False
+                keep = False
+                for target in op.targets:
+                    keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
+                if not keep:
+                    ops.pop()
+                    modified = True
         block.ops[:] = ops
         for child in dom_tree.get(block, []):
             _walk(child, scope, asserted)
