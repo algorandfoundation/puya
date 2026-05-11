@@ -10,6 +10,7 @@ References:
 """
 
 import itertools
+import struct
 import typing
 from collections import defaultdict
 from collections.abc import Collection, Mapping, Sequence, Set
@@ -27,6 +28,7 @@ from puya.ir import (
     models,
     types_ as types,
 )
+from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
@@ -49,6 +51,7 @@ from puya.ir.optimize.intrinsic_simplification import (
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
+from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
@@ -365,6 +368,11 @@ def _build_equivalence_sets(
 
         scope = dict(vn_to_rep)
         asserted = set(asserted_)
+        # Block-local: savings[r] = bytes saved if r's sole in-block user disappears
+        # (cost of r's defining op plus transitively-dead upstream defs). Registers
+        # with 0 or >1 in-block users (or defined outside this block) get no entry.
+        local_use_count = _count_local_uses(block)
+        savings: dict[models.Register, int] = {}
         phis = []
         for phi in block.phis:
             if _keep_defn(phi.register, scope):
@@ -384,6 +392,7 @@ def _build_equivalence_sets(
                         logger.debug(f"removing redundant assert of {op.condition}")
                         ops.pop()
             elif isinstance(op, models.Assignment) and not isinstance(op.source, models.Constant):
+                replaced = False
                 if len(op.targets) == 1 and not isinstance(op.source, models.Value):
                     (target,) = op.targets
                     target_vn = tables.register_vn[target]
@@ -396,14 +405,20 @@ def _build_equivalence_sets(
                                 ir_type=source_type,
                                 source_location=op.source.source_location,
                             )
-                            continue
+                            replaced = True
                         # The below can produce some good wins if we disable the expand_all_bytes
                         # guard, e.g. in inner_transactions/contracy.py, but it needs to be handled
                         # carefully to avoid punching through multiple layers # to a bzero or itob
                         # that is otherwise being reused.
                         case _BytesConstKey(
                             value=bytes_const, encoding=bytes_encoding
-                        ) if expand_all_bytes:
+                        ) if expand_all_bytes or (
+                            isinstance(op.source, models.Intrinsic)
+                            and (
+                                len(_encode_bytes(bytes_const))
+                                <= _intrinsic_local_dead_cost(op.source, savings)
+                            )
+                        ):
                             modified = True
                             (source_type,) = op.source.types
                             op.source = models.BytesConstant(
@@ -412,25 +427,105 @@ def _build_equivalence_sets(
                                 ir_type=source_type,
                                 source_location=op.source.source_location,
                             )
-                            continue
+                            replaced = True
 
-                match op.source:
-                    case models.Intrinsic(args=[]):
-                        force_new_rep = True
-                    case _:
-                        force_new_rep = False
-                keep = False
-                for target in op.targets:
-                    keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
-                if not keep:
-                    ops.pop()
-                    modified = True
+                if len(op.targets) == 1:
+                    (saved_target,) = op.targets
+                    if local_use_count.get(saved_target, 0) == 1:
+                        match op.source:
+                            case models.Intrinsic() as intrinsic:
+                                savings[saved_target] = _intrinsic_local_dead_cost(
+                                    intrinsic, savings
+                                )
+                            case models.BytesConstant(value=bytes_value):
+                                savings[saved_target] = len(bytes_value)
+                            case models.UInt64Constant():
+                                savings[saved_target] = _get_const_size(op.source)
+
+                if not replaced:
+                    match op.source:
+                        case models.Intrinsic(args=[]):
+                            force_new_rep = True
+                        case _:
+                            force_new_rep = False
+                    keep = False
+                    for target in op.targets:
+                        keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
+                    if not keep:
+                        ops.pop()
+                        modified = True
         block.ops[:] = ops
         for child in dom_tree.get(block, []):
             _walk(child, scope, asserted)
 
     _walk(start, initial_scope, set())
     return modified, [s for s in all_sets.values() if len(s) > 1]
+
+
+def _count_local_uses(block: models.BasicBlock) -> dict[models.Register, int]:
+    """How many ops/phis/terminator entries in `block` reference each register.
+
+    An op that reads the same register multiple times still counts as 1 — eliminating
+    that single op removes all of its uses. Uses of block-defined registers by phis
+    in *successor* blocks are not counted (out of scope for block-local analysis).
+    """
+    counts: dict[models.Register, int] = {}
+    for thing in block.all_ops:
+        collector = RegisterReadCollector()
+        thing.accept(collector)
+        for reg in collector.used_registers:
+            counts[reg] = counts.get(reg, 0) + 1
+    return counts
+
+
+def _intrinsic_local_dead_cost(
+    source: models.Intrinsic, savings: dict[models.Register, int]
+) -> int:
+    """Bytes saved if `source` and its transitively-block-local-dead upstream go away."""
+    upstream = sum(savings.get(arg, 0) for arg in source.args if isinstance(arg, models.Register))
+    return _cost(source) + upstream
+
+
+def _cost(intrinsic: models.Intrinsic) -> int:
+    instr_size = intrinsic.op.size
+    const_arg_sizes = sum(_get_const_size(arg) for arg in intrinsic.args)
+    return instr_size + const_arg_sizes
+
+
+_encode_uint8 = struct.Struct(">B").pack
+_encode_int8 = struct.Struct(">b").pack
+_encode_label = struct.Struct(">h").pack
+
+
+def _get_const_size(arg: models.Value) -> int:
+    if not isinstance(arg, models.Constant):
+        return 0
+    bytes_const = get_bytes_constant(arg)
+    if bytes_const is not None:
+        return len(_encode_bytes(bytes_const))
+    match arg:
+        case (
+            models.UInt64Constant(value=int_value)
+            | models.ITxnConstant(value=int_value)
+            | models.SlotConstant(value=int_value)
+        ):
+            return len(_encode_varuint(int_value))
+    return 0
+
+
+def _encode_varuint(value: int) -> bytes:
+    bits = value & 0x7F
+    value >>= 7
+    result = b""
+    while value:
+        result += _encode_uint8(0x80 | bits)
+        bits = value & 0x7F
+        value >>= 7
+    return result + _encode_uint8(bits)
+
+
+def _encode_bytes(value: bytes) -> bytes:
+    return _encode_varuint(len(value)) + value
 
 
 def build_replacements(
