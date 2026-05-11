@@ -662,12 +662,11 @@ def _try_fold_intrinsic(
         if (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None and (
             byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)
         ) is not None:
-            if start + len(byte_const_b.value) > len(byte_const_a.value):
-                return None  # would fail at runtime
-            replaced = bytearray(byte_const_a.value)
-            replaced[start : start + len(byte_const_b.value)] = byte_const_b.value
+            folded_bytes = fold_replace2(byte_const_a.value, start, byte_const_b.value)
+            if folded_bytes is None:
+                return None
             return models.BytesConstant(
-                value=bytes(replaced),
+                value=folded_bytes,
                 encoding=choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
                 source_location=op_loc,
             )
@@ -687,14 +686,10 @@ def _try_fold_intrinsic(
                 models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
-                binary_array = [
-                    x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
-                ]
-                try:
-                    the_bit = binary_array[index]
-                except IndexError:
+                folded = fold_getbit_bytes(byte_const.value, index)
+                if folded is None:
                     return None
-                return models.UInt64Constant(source_location=op_loc, value=int(the_bit))
+                return models.UInt64Constant(source_location=op_loc, value=folded)
     elif intrinsic.op is AVMOp.setbit:
         match intrinsic.args:
             case [
@@ -702,29 +697,18 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
             ]:
-                if index >= 64:
+                folded = fold_setbit_uint64(source, index, value)
+                if folded is None:
                     return None
-                if value:
-                    setbit_result = source | (1 << index)
-                else:
-                    setbit_result = source & ~(1 << index)
-                return models.UInt64Constant(value=setbit_result, source_location=op_loc)
+                return models.UInt64Constant(value=folded, source_location=op_loc)
             case [
                 models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
-                binary_array = [
-                    x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
-                ]
-                try:
-                    binary_array[index] = "1" if value else "0"
-                except IndexError:
-                    return None  # would fail at runtime
-                binary_string = "".join(binary_array)
-                adjusted_const_value = int(binary_string, 2).to_bytes(
-                    len(byte_const.value), byteorder="big"
-                )
+                folded_bytes = fold_setbit_bytes(byte_const.value, index, value)
+                if folded_bytes is None:
+                    return None
                 return models.BytesConstant(
                     source_location=op_loc,
                     encoding=(
@@ -732,25 +716,18 @@ def _try_fold_intrinsic(
                         if byte_const.encoding != AVMBytesEncoding.utf8
                         else AVMBytesEncoding.unknown
                     ),
-                    value=adjusted_const_value,
+                    value=folded_bytes,
                 )
-    elif intrinsic.op.code.startswith("extract_uint"):
+    elif intrinsic.op in _EXTRACT_UINTN_BYTE_SIZE:
         match intrinsic.args:
             case [
                 models.Value() as bytes_arg,
                 models.UInt64Constant(value=offset),
             ] if (bytes_const := _get_byte_constant(register_assignments, bytes_arg)) is not None:
-                bytes_value = bytes_const.value
-                bit_size = int(intrinsic.op.code.removeprefix("extract_uint"))
-                byte_size = bit_size // 8
-                extracted = bytes_value[offset : offset + byte_size]
-                if len(extracted) != byte_size:
-                    return None  # would fail at runtime, lets hope this is unreachable 😬
-                uint64_result = int.from_bytes(extracted, byteorder="big", signed=False)
-                return models.UInt64Constant(
-                    value=uint64_result,
-                    source_location=op_loc,
-                )
+                folded = fold_extract_uint_n(intrinsic.op, bytes_const.value, offset)
+                if folded is None:
+                    return None
+                return models.UInt64Constant(value=folded, source_location=op_loc)
     elif intrinsic.op is AVMOp.concat:
         left_arg, right_arg = intrinsic.args
         left_const = _get_byte_constant(register_assignments, left_arg)
@@ -1348,6 +1325,16 @@ def _eval_keccak256(arg: bytes, loc: SourceLocation | None) -> models.BytesConst
     )
 
 
+hash_eval_funcs: typing.Final[
+    Mapping[AVMOp, Callable[[bytes, SourceLocation | None], models.BytesConstant]]
+] = {
+    AVMOp.sha256: _eval_sha256,
+    AVMOp.sha3_256: _eval_sha3_256,
+    AVMOp.sha512_256: _eval_sha512_256,
+    AVMOp.keccak256: _eval_keccak256,
+}
+
+
 def _try_simplify_uint64_unary_op(
     context: IROptimizationContext,
     ssa_reads: _SSAReadTracker,
@@ -1380,18 +1367,10 @@ def _try_simplify_uint64_unary_op(
 
     x = _get_int_constant(arg)
     if x is not None:
+        folded = fold_uint64_const_unary_op(intrinsic.op, x)
+        if folded is not None:
+            return models.UInt64Constant(value=folded, source_location=op_loc)
         match intrinsic.op:
-            case AVMOp.not_:
-                not_x = 0 if x else 1
-                return models.UInt64Constant(value=not_x, source_location=op_loc)
-            case AVMOp.bitwise_not:
-                inverted = x ^ 0xFFFFFFFFFFFFFFFF
-                return models.UInt64Constant(value=inverted, source_location=op_loc)
-            case AVMOp.sqrt:
-                value = math.isqrt(x)
-                return models.UInt64Constant(value=value, source_location=op_loc)
-            case AVMOp.bitlen:
-                return UInt64Constant(value=x.bit_length(), source_location=op_loc)
             case AVMOp.itob:
                 if context.expand_all_bytes:
                     return _eval_itob(x, op_loc)
@@ -1404,35 +1383,43 @@ def _try_simplify_uint64_unary_op(
     return None
 
 
+_EXTRACT_UINTN_BYTE_SIZE: typing.Final[Mapping[AVMOp, int]] = {
+    AVMOp.extract_uint16: 2,
+    AVMOp.extract_uint32: 4,
+    AVMOp.extract_uint64: 8,
+}
 _EXTRACT_UINT_OPS_BY_LENGTH = {
     1: AVMOp.getbyte,
-    2: AVMOp.extract_uint16,
-    4: AVMOp.extract_uint32,
-    8: AVMOp.extract_uint64,
+    **{v: k for k, v in _EXTRACT_UINTN_BYTE_SIZE.items()},
 }
+
+
+def fold_extract_uint_n(op: AVMOp, b: bytes, offset: int) -> int | None:
+    byte_size = _EXTRACT_UINTN_BYTE_SIZE.get(op)
+    if byte_size is None:
+        return None
+    extracted = b[offset : offset + byte_size]
+    if len(extracted) != byte_size:
+        return None
+    return int.from_bytes(extracted, byteorder="big", signed=False)
 
 
 def _try_simplify_bytes_unary_op(
     register_assignments: _RegisterAssignments, intrinsic: models.Intrinsic, arg: models.Value
 ) -> models.Value | models.Intrinsic | None:
     op_loc = intrinsic.source_location
-    if intrinsic.op is AVMOp.bsqrt:
-        biguint_const, _ = _get_biguint_constant(register_assignments, arg)
-        if biguint_const is not None:
-            value = math.isqrt(biguint_const)
-            return models.BigUIntConstant(value=value, source_location=op_loc)
+    op = intrinsic.op
     if (
-        intrinsic.op is AVMOp.len_
+        op is AVMOp.len_
         and (safe_num_bytes := _get_bytes_length_safe(register_assignments, arg)) is not None
     ):
         return models.UInt64Constant(value=safe_num_bytes, source_location=op_loc)
-    else:
-        byte_const = _get_byte_constant(register_assignments, arg)
-        if byte_const is not None:
-            if intrinsic.op is AVMOp.bitwise_not_bytes:
-                inverted = bytes([x ^ 0xFF for x in byte_const.value])
+    byte_const = _get_byte_constant(register_assignments, arg)
+    if byte_const is not None:
+        match fold_bytes_const_unary_op(op, byte_const.value):
+            case bytes(result_bytes):
                 return models.BytesConstant(
-                    value=inverted,
+                    value=result_bytes,
                     encoding=(
                         byte_const.encoding
                         if byte_const.encoding != AVMBytesEncoding.utf8
@@ -1440,51 +1427,103 @@ def _try_simplify_bytes_unary_op(
                     ),
                     source_location=op_loc,
                 )
-            elif (
-                intrinsic.op is AVMOp.btoi
-                and len(byte_const.value) <= 8  # don't produce invalid values when optimizing
-            ):
-                converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
-                return models.UInt64Constant(value=converted, source_location=op_loc)
-            elif intrinsic.op is AVMOp.sha256:
-                return _eval_sha256(byte_const.value, op_loc)
-            elif intrinsic.op is AVMOp.sha3_256:
-                return _eval_sha3_256(byte_const.value, op_loc)
-            elif intrinsic.op is AVMOp.sha512_256:
-                return _eval_sha512_256(byte_const.value, op_loc)
-            elif intrinsic.op is AVMOp.keccak256:
-                return _eval_keccak256(byte_const.value, op_loc)
-            elif intrinsic.op is AVMOp.len_:
-                length = len(byte_const.value)
-                return models.UInt64Constant(value=length, source_location=op_loc)
-            elif intrinsic.op is AVMOp.bitlen:
-                converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
-                return UInt64Constant(value=converted.bit_length(), source_location=op_loc)
-            else:
-                logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
-        elif intrinsic.op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
-            match arg_defn.source:
-                # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
-                case models.Intrinsic(
-                    op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
-                ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
-                    return attrs.evolve(
-                        intrinsic,
-                        op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
-                        args=[bites, UInt64Constant(value=start, source_location=None)],
-                    )
-                case models.Intrinsic(
-                    op=AVMOp.extract3,
-                    args=[bites, start_arg, models.UInt64Constant(value=length)],
-                ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
-                    return attrs.evolve(
-                        intrinsic,
-                        op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
-                        args=[bites, start_arg],
-                    )
-                # btoi(itob(x)) = x
-                case models.Intrinsic(op=AVMOp.itob, args=[source_uint64], immediates=[]):
-                    return source_uint64
+            case int(v):
+                return _wrap_biguint_or_uint64(v, intrinsic)
+            case other:
+                typing.assert_type(other, None)
+        if hash_eval := hash_eval_funcs.get(op):
+            return hash_eval(byte_const.value, op_loc)
+        if op is AVMOp.len_:
+            return models.UInt64Constant(value=len(byte_const.value), source_location=op_loc)
+        logger.debug(f"Don't know how to simplify {op.code} of {byte_const}")
+    elif op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
+        match arg_defn.source:
+            # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
+            case models.Intrinsic(
+                op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
+            ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
+                return attrs.evolve(
+                    intrinsic,
+                    op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
+                    args=[bites, UInt64Constant(value=start, source_location=None)],
+                )
+            case models.Intrinsic(
+                op=AVMOp.extract3,
+                args=[bites, start_arg, models.UInt64Constant(value=length)],
+            ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
+                return attrs.evolve(
+                    intrinsic,
+                    op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
+                    args=[bites, start_arg],
+                )
+            # btoi(itob(x)) = x
+            case models.Intrinsic(op=AVMOp.itob, args=[source_uint64], immediates=[]):
+                return source_uint64
+    return None
+
+
+def fold_setbit_uint64(source: int, index: int, value: int) -> int | None:
+    if index >= 64:
+        return None
+    if value:
+        return source | (1 << index)
+    return source & ~(1 << index)
+
+
+def fold_replace2(source: bytes, start: int, replacement: bytes) -> bytes | None:
+    if start + len(replacement) > len(source):
+        return None
+    out = bytearray(source)
+    out[start : start + len(replacement)] = replacement
+    return bytes(out)
+
+
+def fold_getbit_bytes(b: bytes, index: int) -> int | None:
+    if index >= len(b) * 8:
+        return None
+    byte_index, bit_offset = divmod(index, 8)
+    return (b[byte_index] >> (7 - bit_offset)) & 1
+
+
+def fold_setbit_bytes(b: bytes, index: int, value: int) -> bytes | None:
+    if index >= len(b) * 8:
+        return None
+    byte_index, bit_offset = divmod(index, 8)
+    mask = 1 << (7 - bit_offset)
+    byte = b[byte_index]
+    new_byte = byte | mask if value else byte & ~mask
+    return b[:byte_index] + bytes([new_byte]) + b[byte_index + 1 :]
+
+
+def fold_uint64_const_unary_op(op: AVMOp, x: int) -> int | None:
+    match op:
+        case AVMOp.not_:
+            return 0 if x else 1
+        case AVMOp.bitwise_not:
+            return x ^ 0xFFFFFFFFFFFFFFFF
+        case AVMOp.sqrt:
+            return math.isqrt(x)
+        case AVMOp.bitlen:
+            return x.bit_length()
+    return None
+
+
+def fold_bytes_const_unary_op(op: AVMOp, b: bytes) -> int | bytes | None:
+    """Bytes-arg unary const folds. `bsqrt`/`btoi`/`bitlen` return int, `bitwise_not_bytes`
+    returns bytes. Returns None on out-of-range inputs (`btoi` >8, `bsqrt` >64)."""
+    match op:
+        case AVMOp.bitwise_not_bytes:
+            return bytes(x ^ 0xFF for x in b)
+        case AVMOp.btoi:
+            if len(b) > 8:
+                return None
+            return int.from_bytes(b, byteorder="big", signed=False)
+        case AVMOp.bitlen:
+            return int.from_bytes(b, byteorder="big", signed=False).bit_length()
+        case AVMOp.bsqrt:
+            if len(b) > 64:
+                return None
+            return math.isqrt(int.from_bytes(b, byteorder="big", signed=False))
     return None
 
 
