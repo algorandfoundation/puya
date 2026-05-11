@@ -188,6 +188,7 @@ def generate_op_node(
         cost=cost,
         min_avm_version=op.min_avm_version,
         supported_modes=_map_run_mode(op.mode),
+        size=op.size,
     )
     yield f"{op_name} = {data!r}"
     if op.doc:
@@ -252,6 +253,7 @@ class AVMOp(enum.StrEnum):
     _variants: Variant | DynamicVariants
     cost: int | None
     min_avm_version: int
+    size: int
 
     def __new__(cls, data: AVMOpData | str) -> "AVMOp":
         # the weird union type on data && then assert,
@@ -266,6 +268,7 @@ class AVMOp(enum.StrEnum):
         obj._variants = data.variants  # noqa: SLF001
         obj.cost = data.cost
         obj.min_avm_version = data.min_avm_version
+        obj.size = data.size
         return obj
 
     def get_variant(self, immediates: Sequence[str | int]) -> Variant:
