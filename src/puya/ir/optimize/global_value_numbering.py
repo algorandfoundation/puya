@@ -35,6 +35,7 @@ from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.optimize.intrinsic_simplification import (
     COMPILE_TIME_CONSTANT_OPS,
     BinarySimplification,
+    SSAReadTracker,
     choose_encoding,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
@@ -51,7 +52,6 @@ from puya.ir.optimize.intrinsic_simplification import (
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
-from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
@@ -327,6 +327,7 @@ def _build_equivalence_sets(
     tables: _GVNTables,
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     start: models.BasicBlock,
+    ssa_reads: SSAReadTracker,
     *,
     expand_all_bytes: bool,
 ) -> tuple[bool, Collection[Sequence[models.Register]]]:
@@ -339,6 +340,11 @@ def _build_equivalence_sets(
     modified = False
 
     all_sets = defaultdict[models.Register, list[models.Register]](list)
+    # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
+    # defs whose sole use is also r's defining op). Subroutine-wide: only populated
+    # for registers with exactly one read across the whole subroutine, so eliminating
+    # that one read truly kills r and DCE will remove its defining op.
+    savings: dict[models.Register, int] = {}
 
     def _keep_defn(
         reg: models.Register, vn_to_rep: _VNRepresentativeMap, *, force_new_rep: bool = False
@@ -368,17 +374,13 @@ def _build_equivalence_sets(
 
         scope = dict(vn_to_rep)
         asserted = set(asserted_)
-        # Block-local: savings[r] = bytes saved if r's sole in-block user disappears
-        # (cost of r's defining op plus transitively-dead upstream defs). Registers
-        # with 0 or >1 in-block users (or defined outside this block) get no entry.
-        local_use_count = _count_local_uses(block)
-        savings: dict[models.Register, int] = {}
         phis = []
         for phi in block.phis:
             if _keep_defn(phi.register, scope):
                 phis.append(phi)
             else:
                 modified = True
+                ssa_reads.remove(phi)
         block.phis[:] = phis
 
         ops = []
@@ -391,6 +393,7 @@ def _build_equivalence_sets(
                         modified = True
                         logger.debug(f"removing redundant assert of {op.condition}")
                         ops.pop()
+                        ssa_reads.remove(op)
             elif isinstance(op, models.Assignment) and not isinstance(op.source, models.Constant):
                 replaced = False
                 if len(op.targets) == 1 and not isinstance(op.source, models.Value):
@@ -400,11 +403,12 @@ def _build_equivalence_sets(
                         case _UInt64ConstKey(value=uint64_const):
                             modified = True
                             (source_type,) = op.source.types
-                            op.source = models.UInt64Constant(
-                                value=uint64_const,
-                                ir_type=source_type,
-                                source_location=op.source.source_location,
-                            )
+                            with ssa_reads.update(op):
+                                op.source = models.UInt64Constant(
+                                    value=uint64_const,
+                                    ir_type=source_type,
+                                    source_location=op.source.source_location,
+                                )
                             replaced = True
                         # The below can produce some good wins if we disable the expand_all_bytes
                         # guard, e.g. in inner_transactions/contracy.py, but it needs to be handled
@@ -416,27 +420,26 @@ def _build_equivalence_sets(
                             isinstance(op.source, models.Intrinsic)
                             and (
                                 len(_encode_bytes(bytes_const))
-                                <= _intrinsic_local_dead_cost(op.source, savings)
+                                <= _intrinsic_dead_cost(op.source, savings)
                             )
                         ):
                             modified = True
                             (source_type,) = op.source.types
-                            op.source = models.BytesConstant(
-                                value=bytes_const,
-                                encoding=bytes_encoding,
-                                ir_type=source_type,
-                                source_location=op.source.source_location,
-                            )
+                            with ssa_reads.update(op):
+                                op.source = models.BytesConstant(
+                                    value=bytes_const,
+                                    encoding=bytes_encoding,
+                                    ir_type=source_type,
+                                    source_location=op.source.source_location,
+                                )
                             replaced = True
 
                 if len(op.targets) == 1:
                     (saved_target,) = op.targets
-                    if local_use_count.get(saved_target, 0) == 1:
+                    if ssa_reads.count(saved_target) == 1:
                         match op.source:
                             case models.Intrinsic() as intrinsic:
-                                savings[saved_target] = _intrinsic_local_dead_cost(
-                                    intrinsic, savings
-                                )
+                                savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
                             case models.Constant():
                                 savings[saved_target] = _get_const_size(op.source)
 
@@ -452,6 +455,7 @@ def _build_equivalence_sets(
                     if not keep:
                         ops.pop()
                         modified = True
+                        ssa_reads.remove(op)
         block.ops[:] = ops
         for child in dom_tree.get(block, []):
             _walk(child, scope, asserted)
@@ -460,26 +464,8 @@ def _build_equivalence_sets(
     return modified, [s for s in all_sets.values() if len(s) > 1]
 
 
-def _count_local_uses(block: models.BasicBlock) -> dict[models.Register, int]:
-    """How many ops/phis/terminator entries in `block` reference each register.
-
-    An op that reads the same register multiple times still counts as 1 — eliminating
-    that single op removes all of its uses. Uses of block-defined registers by phis
-    in *successor* blocks are not counted (out of scope for block-local analysis).
-    """
-    counts: dict[models.Register, int] = {}
-    for thing in block.all_ops:
-        collector = RegisterReadCollector()
-        thing.accept(collector)
-        for reg in collector.used_registers:
-            counts[reg] = counts.get(reg, 0) + 1
-    return counts
-
-
-def _intrinsic_local_dead_cost(
-    source: models.Intrinsic, savings: dict[models.Register, int]
-) -> int:
-    """Bytes saved if `source` and its transitively-block-local-dead upstream go away."""
+def _intrinsic_dead_cost(source: models.Intrinsic, savings: dict[models.Register, int]) -> int:
+    """Bytes saved if `source` and its transitively-dead upstream defs go away."""
     # dedupe args: a register used N times in this op is still one upstream def
     arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
     upstream = sum(savings.get(arg, 0) for arg in arg_regs)
@@ -1343,8 +1329,17 @@ def global_value_numbering(context: CompileContext, subroutine: models.Subroutin
     """
     start, dom_tree = compute_dominator_tree(subroutine)
     tables = _number_values(subroutine, dom_tree, start)
+    ssa_reads = SSAReadTracker()
+    for block in subroutine.body:
+        for op in block.all_ops:
+            ssa_reads.add(op)
     modified, equivalence_sets = _build_equivalence_sets(
-        subroutine, tables, dom_tree, start, expand_all_bytes=context.options.expand_all_bytes
+        subroutine,
+        tables,
+        dom_tree,
+        start,
+        ssa_reads,
+        expand_all_bytes=context.options.expand_all_bytes,
     )
     register_map = build_replacements(subroutine, equivalence_sets)
 
