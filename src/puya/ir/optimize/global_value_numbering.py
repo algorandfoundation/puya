@@ -437,9 +437,7 @@ def _build_equivalence_sets(
                                 savings[saved_target] = _intrinsic_local_dead_cost(
                                     intrinsic, savings
                                 )
-                            case models.BytesConstant(value=bytes_value):
-                                savings[saved_target] = len(bytes_value)
-                            case models.UInt64Constant():
+                            case models.Constant():
                                 savings[saved_target] = _get_const_size(op.source)
 
                 if not replaced:
@@ -482,34 +480,35 @@ def _intrinsic_local_dead_cost(
     source: models.Intrinsic, savings: dict[models.Register, int]
 ) -> int:
     """Bytes saved if `source` and its transitively-block-local-dead upstream go away."""
-    upstream = sum(savings.get(arg, 0) for arg in source.args if isinstance(arg, models.Register))
+    # dedupe args: a register used N times in this op is still one upstream def
+    arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
+    upstream = sum(savings.get(arg, 0) for arg in arg_regs)
     return _cost(source) + upstream
 
 
 def _cost(intrinsic: models.Intrinsic) -> int:
     instr_size = intrinsic.op.size
-    const_arg_sizes = sum(_get_const_size(arg) for arg in intrinsic.args)
+    const_arg_sizes = sum(
+        _get_const_size(arg) for arg in intrinsic.args if isinstance(arg, models.Constant)
+    )
     return instr_size + const_arg_sizes
 
 
 _encode_uint8 = struct.Struct(">B").pack
-_encode_int8 = struct.Struct(">b").pack
-_encode_label = struct.Struct(">h").pack
 
 
-def _get_const_size(arg: models.Value) -> int:
-    if not isinstance(arg, models.Constant):
-        return 0
+def _get_const_size(arg: models.Constant) -> int:
     bytes_const = get_bytes_constant(arg)
     if bytes_const is not None:
         return len(_encode_bytes(bytes_const))
     match arg:
-        case (
-            models.UInt64Constant(value=int_value)
-            | models.ITxnConstant(value=int_value)
-            | models.SlotConstant(value=int_value)
-        ):
+        case models.ITxnConstant():
+            return 0  # immediates get counted as part of op
+        case models.SlotConstant():
+            raise InternalError("slot constant should not appear in IR during optimisation")
+        case models.UInt64Constant(value=int_value):
             return len(_encode_varuint(int_value))
+    logger.debug(f"GVN: unhandled constant type {type(arg).__name__}")
     return 0
 
 
