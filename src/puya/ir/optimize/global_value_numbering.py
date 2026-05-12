@@ -907,6 +907,21 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                     encoding=choose_encoding(src_enc, repl_enc),
                                 )
                             )
+            case AVMOp.replace3:
+                match arg_defns:
+                    case [
+                        _BytesConstKey(value=src_bytes, encoding=src_enc),
+                        _UInt64ConstKey(value=start),
+                        _BytesConstKey(value=repl_bytes, encoding=repl_enc),
+                    ]:
+                        folded_bytes = fold_replace2(src_bytes, start, repl_bytes)
+                        if folded_bytes is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _BytesConstKey(
+                                    value=folded_bytes,
+                                    encoding=choose_encoding(src_enc, repl_enc),
+                                )
+                            )
             case AVMOp.concat:
                 match arg_defns:
                     case [
