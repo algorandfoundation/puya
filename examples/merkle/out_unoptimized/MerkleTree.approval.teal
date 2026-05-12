@@ -192,10 +192,22 @@ create_block@0:
     // @arc4.abimethod(create="require")
     txna ApplicationArgs 1
     dup
+    b create_block@1
+
+create_block@1:
+    dup
     len
     intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    b create_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2
+
+create_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@2:
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    dig 1
     callsub examples.merkle.contract.MerkleTree.create
     intc_2 // 1
     return
@@ -203,6 +215,8 @@ create_block@0:
 
 // examples.merkle.contract.MerkleTree.verify[routing]() -> void:
 verify:
+    intc_0 // 0
+    intc_0 // 0
     b verify_block@0
 
 verify_block@0:
@@ -210,22 +224,51 @@ verify_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b verify_block@1
+
+verify_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 32
     *
     intc_3 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+    // merkle/contract.py:14
+    // @arc4.abimethod
+    b verify_after_inlined_%Validate__arc4.dynamic_array<arc4.static_array<arc4.uint8,32>>@2
+
+verify_after_inlined_%Validate__arc4.dynamic_array<arc4.static_array<arc4.uint8,32>>@2:
+    // merkle/contract.py:14
+    // @arc4.abimethod
+    dig 1
+    bury 4
     txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b verify_block@3
+
+verify_block@3:
     dup
     len
     intc_1 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // merkle/contract.py:14
+    // @arc4.abimethod
+    b verify_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4
+
+verify_after_inlined_%Validate__arc4.static_array<arc4.uint8,32>@4:
+    // merkle/contract.py:14
+    // @arc4.abimethod
+    dig 2
+    dig 4
+    uncover 1
     callsub examples.merkle.contract.MerkleTree.verify
     pushbytes 0x00
     intc_0 // 0

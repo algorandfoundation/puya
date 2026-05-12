@@ -180,8 +180,8 @@ class FunctionIRBuilder(
             validate_encoding(
                 self.context,
                 value,
+                str(expr.wtype),
                 encoded_ir_type,
-                error_message=f"invalid number of bytes for {expr.wtype}",
                 loc=loc,
             )
         encoded_value = factory.as_ir_type(value, encoded_ir_type)

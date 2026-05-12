@@ -133,19 +133,29 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
 subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.write_at_index[routing]() -> void:
     block@0: // L16
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.uint64_L16
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%2#0 0u) // on error: invalid array length header
+        let value#0: bytes = tmp%2#0
+        goto block@3
+    block@3: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 add%0#0)
-        (assert eq%1#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 add%0#0)
+        (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@4
+    block@4: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L16
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%2#0
         let tmp%3#0: string = ((extract 2 0) as_Encoded(len+utf8[])%0#0)
         test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.write_at_index(tmp%1#0, tmp%3#0)
@@ -154,9 +164,14 @@ subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArr
 subroutine test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.read_at_index[routing]() -> void:
     block@0: // L20
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.uint64_L20
         let as_Encoded(uint64)%0#0: Encoded(uint64) = tmp%0#0
         let tmp%1#0: uint64 = (btoi as_Encoded(uint64)%0#0)
         let tmp%2#0: Encoded(uint64,(len+utf8[])) = test_cases.mutable_native_types.fixed_array_dynamic_elements.FixedArrayDynamicElements.read_at_index(tmp%1#0)

@@ -1386,10 +1386,22 @@ test_bool_array_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_bool_array_block@1
+
+test_bool_array_block@1:
+    dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/immutable.py:155
+    // @arc4.abimethod()
+    b test_bool_array_after_inlined_%Validate__arc4.uint64@2
+
+test_bool_array_after_inlined_%Validate__arc4.uint64@2:
+    // array/immutable.py:155
+    // @arc4.abimethod()
+    dig 1
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_bool_array
     intc_1 // 1
@@ -1453,16 +1465,28 @@ test_implicit_conversion_log_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_implicit_conversion_log_block@1
+
+test_implicit_conversion_log_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 8
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // array/immutable.py:250
+    // @arc4.abimethod()
+    b test_implicit_conversion_log_after_inlined_%Validate__arc4.dynamic_array<uint64>@2
+
+test_implicit_conversion_log_after_inlined_%Validate__arc4.dynamic_array<uint64>@2:
+    // array/immutable.py:250
+    // @arc4.abimethod()
+    dig 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_log
     intc_1 // 1
     return
@@ -1477,16 +1501,28 @@ test_implicit_conversion_emit_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_implicit_conversion_emit_block@1
+
+test_implicit_conversion_emit_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 8
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // array/immutable.py:254
+    // @arc4.abimethod()
+    b test_implicit_conversion_emit_after_inlined_%Validate__arc4.dynamic_array<uint64>@2
+
+test_implicit_conversion_emit_after_inlined_%Validate__arc4.dynamic_array<uint64>@2:
+    // array/immutable.py:254
+    // @arc4.abimethod()
+    dig 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_implicit_conversion_emit
     intc_1 // 1
     return
@@ -1494,6 +1530,12 @@ test_implicit_conversion_emit_block@0:
 
 // test_cases.array.immutable.ImmutableArrayContract.test_nested_array[routing]() -> void:
 test_nested_array:
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b test_nested_array_block@0
 
 test_nested_array_block@0:
@@ -1501,51 +1543,68 @@ test_nested_array_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_nested_array_block@1
+
+test_nested_array_block@1:
+    dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/immutable.py:258
+    // @arc4.abimethod()
+    b test_nested_array_after_inlined_%Validate__arc4.uint64@2
+
+test_nested_array_after_inlined_%Validate__arc4.uint64@2:
+    // array/immutable.py:258
+    // @arc4.abimethod()
+    dig 1
     btoi
+    bury 3
     txna ApplicationArgs 2
+    dup
+    bury 8
+    bury 1
+    b test_nested_array_block@3
+
+test_nested_array_block@3:
     dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    bury 7
     intc_2 // 2
     *
-    cover 1
+    bury 5
     dup
     len
     cover 1
     intc_2 // 2
     uncover 2
     substring3
+    bury 8
     intc_0 // 0
-    b test_nested_array_for_header@1
+    bury 6
+    b test_nested_array_for_header@4
 
-test_nested_array_for_header@1:
-    // array/immutable.py:258
-    // @arc4.abimethod()
-    dup
-    dig 4
+test_nested_array_for_header@4:
+    dig 5
+    dig 5
     <
-    bz test_nested_array_after_for@4
-    b test_nested_array_for_body@2
+    bz test_nested_array_after_for@7
+    b test_nested_array_for_body@5
 
-test_nested_array_for_body@2:
-    // array/immutable.py:258
-    // @arc4.abimethod()
-    dup
+test_nested_array_for_body@5:
+    dig 5
     intc_2 // 2
     *
-    dig 2
+    dig 8
     dup
     cover 2
     uncover 1
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 5
+    dig 6
     dup
     cover 4
     ==
@@ -1564,29 +1623,33 @@ test_nested_array_for_body@2:
     intc_2 // 2
     +
     +
-    bury 3
-    b test_nested_array_for_footer@3
+    bury 4
+    b test_nested_array_for_footer@6
 
-test_nested_array_for_footer@3:
-    dup
+test_nested_array_for_footer@6:
+    dig 5
     intc_1 // 1
     +
-    bury 1
-    b test_nested_array_for_header@1
+    bury 6
+    b test_nested_array_for_header@4
 
-test_nested_array_after_for@4:
-    // array/immutable.py:258
-    // @arc4.abimethod()
-    dig 2
+test_nested_array_after_for@7:
+    dig 3
     intc_2 // 2
     +
-    dig 5
-    dup
-    cover 2
+    dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<uint64>>
+    // array/immutable.py:258
+    // @arc4.abimethod()
+    b test_nested_array_after_inlined_%Validate__arc4.dynamic_array<arc4.dynamic_array<uint64>>@8
+
+test_nested_array_after_inlined_%Validate__arc4.dynamic_array<arc4.dynamic_array<uint64>>@8:
+    // array/immutable.py:258
+    // @arc4.abimethod()
     dig 6
+    dig 3
     uncover 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_nested_array
     bytec_1 // 0x151f7c75
@@ -1611,6 +1674,16 @@ test_bit_packed_tuples_block@0:
 
 // test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues[routing]() -> void:
 sum_uints_and_lengths_and_trues:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b sum_uints_and_lengths_and_trues_block@0
 
 sum_uints_and_lengths_and_trues_block@0:
@@ -1618,18 +1691,37 @@ sum_uints_and_lengths_and_trues_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b sum_uints_and_lengths_and_trues_block@1
+
+sum_uints_and_lengths_and_trues_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 8
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    b sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<uint64>@2
+
+sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<uint64>@2:
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    dig 1
+    bury 9
     txna ApplicationArgs 2
     dup
+    bury 9
+    bury 1
+    b sum_uints_and_lengths_and_trues_block@3
+
+sum_uints_and_lengths_and_trues_block@3:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
@@ -1640,56 +1732,84 @@ sum_uints_and_lengths_and_trues_block@0:
     /
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bool>
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    b sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<bool>@4
+
+sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<bool>@4:
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    dig 7
+    bury 10
     txna ApplicationArgs 3
     dup
+    bury 8
+    bury 1
+    b sum_uints_and_lengths_and_trues_block@5
+
+sum_uints_and_lengths_and_trues_block@5:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 9
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    b sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyTuple>@6
+
+sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyTuple>@6:
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    dig 6
+    bury 11
     txna ApplicationArgs 4
+    dup
+    bury 7
+    bury 1
+    b sum_uints_and_lengths_and_trues_block@7
+
+sum_uints_and_lengths_and_trues_block@7:
     dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    bury 6
     intc_2 // 2
     *
-    cover 1
+    bury 4
     dup
     len
     cover 1
     intc_2 // 2
     uncover 2
     substring3
+    bury 12
     intc_0 // 0
-    b sum_uints_and_lengths_and_trues_for_header@1
+    bury 5
+    b sum_uints_and_lengths_and_trues_for_header@8
 
-sum_uints_and_lengths_and_trues_for_header@1:
-    // array/immutable.py:341
-    // @arc4.abimethod()
-    dup
+sum_uints_and_lengths_and_trues_for_header@8:
+    dig 4
     dig 4
     <
-    bz sum_uints_and_lengths_and_trues_after_for@4
-    b sum_uints_and_lengths_and_trues_for_body@2
+    bz sum_uints_and_lengths_and_trues_after_for@11
+    b sum_uints_and_lengths_and_trues_for_body@9
 
-sum_uints_and_lengths_and_trues_for_body@2:
-    // array/immutable.py:341
-    // @arc4.abimethod()
-    dup
+sum_uints_and_lengths_and_trues_for_body@9:
+    dig 4
     intc_2 // 2
     *
-    dig 2
+    dig 12
     dup
     cover 2
     uncover 1
@@ -1729,30 +1849,34 @@ sum_uints_and_lengths_and_trues_for_body@2:
     +
     +
     bury 3
-    b sum_uints_and_lengths_and_trues_for_footer@3
+    b sum_uints_and_lengths_and_trues_for_footer@10
 
-sum_uints_and_lengths_and_trues_for_footer@3:
-    dup
+sum_uints_and_lengths_and_trues_for_footer@10:
+    dig 4
     intc_1 // 1
     +
-    bury 1
-    b sum_uints_and_lengths_and_trues_for_header@1
+    bury 5
+    b sum_uints_and_lengths_and_trues_for_header@8
 
-sum_uints_and_lengths_and_trues_after_for@4:
-    // array/immutable.py:341
-    // @arc4.abimethod()
+sum_uints_and_lengths_and_trues_after_for@11:
     dig 2
     intc_2 // 2
     +
-    dig 5
-    dup
-    cover 2
+    dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
-    dig 8
-    dig 8
-    dig 8
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    b sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>@12
+
+sum_uints_and_lengths_and_trues_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>@12:
+    // array/immutable.py:341
+    // @arc4.abimethod()
+    dig 5
+    dig 9
+    dig 11
+    dig 13
     uncover 3
     callsub test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengths_and_trues
     cover 3
@@ -1788,10 +1912,22 @@ test_uint64_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_uint64_return_block@1
+
+test_uint64_return_block@1:
+    dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/immutable.py:368
+    // @arc4.abimethod()
+    b test_uint64_return_after_inlined_%Validate__arc4.uint64@2
+
+test_uint64_return_after_inlined_%Validate__arc4.uint64@2:
+    // array/immutable.py:368
+    // @arc4.abimethod()
+    dig 1
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_uint64_return
     bytec_1 // 0x151f7c75
@@ -1811,10 +1947,22 @@ test_bool_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_bool_return_block@1
+
+test_bool_return_block@1:
+    dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/immutable.py:375
+    // @arc4.abimethod()
+    b test_bool_return_after_inlined_%Validate__arc4.uint64@2
+
+test_bool_return_after_inlined_%Validate__arc4.uint64@2:
+    // array/immutable.py:375
+    // @arc4.abimethod()
+    dig 1
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_bool_return
     bytec_1 // 0x151f7c75
@@ -1834,10 +1982,22 @@ test_tuple_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_tuple_return_block@1
+
+test_tuple_return_block@1:
+    dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/immutable.py:382
+    // @arc4.abimethod()
+    b test_tuple_return_after_inlined_%Validate__arc4.uint64@2
+
+test_tuple_return_after_inlined_%Validate__arc4.uint64@2:
+    // array/immutable.py:382
+    // @arc4.abimethod()
+    dig 1
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_tuple_return
     bytec_1 // 0x151f7c75
@@ -1857,10 +2017,22 @@ test_dynamic_tuple_return_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_dynamic_tuple_return_block@1
+
+test_dynamic_tuple_return_block@1:
+    dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/immutable.py:389
+    // @arc4.abimethod()
+    b test_dynamic_tuple_return_after_inlined_%Validate__arc4.uint64@2
+
+test_dynamic_tuple_return_after_inlined_%Validate__arc4.uint64@2:
+    // array/immutable.py:389
+    // @arc4.abimethod()
+    dig 1
     btoi
     callsub test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_return
     bytec_1 // 0x151f7c75
@@ -1873,6 +2045,8 @@ test_dynamic_tuple_return_block@0:
 
 // test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back[routing]() -> void:
 test_convert_to_array_and_back:
+    intc_0 // 0
+    intc_0 // 0
     b test_convert_to_array_and_back_block@0
 
 test_convert_to_array_and_back_block@0:
@@ -1880,23 +2054,52 @@ test_convert_to_array_and_back_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_convert_to_array_and_back_block@1
+
+test_convert_to_array_and_back_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 9
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyTuple>
+    // array/immutable.py:396
+    // @arc4.abimethod()
+    b test_convert_to_array_and_back_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyTuple>@2
+
+test_convert_to_array_and_back_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyTuple>@2:
+    // array/immutable.py:396
+    // @arc4.abimethod()
+    dig 1
+    bury 4
     txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b test_convert_to_array_and_back_block@3
+
+test_convert_to_array_and_back_block@3:
     dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/immutable.py:396
+    // @arc4.abimethod()
+    b test_convert_to_array_and_back_after_inlined_%Validate__arc4.uint64@4
+
+test_convert_to_array_and_back_after_inlined_%Validate__arc4.uint64@4:
+    // array/immutable.py:396
+    // @arc4.abimethod()
+    dig 2
     btoi
+    dig 4
+    uncover 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_convert_to_array_and_back
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1915,10 +2118,22 @@ test_concat_with_arc4_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_concat_with_arc4_tuple_block@1
+
+test_concat_with_arc4_tuple_block@1:
+    dup
     len
     pushint 16
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    // array/immutable.py:406
+    // @arc4.abimethod()
+    b test_concat_with_arc4_tuple_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64>@2
+
+test_concat_with_arc4_tuple_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64>@2:
+    // array/immutable.py:406
+    // @arc4.abimethod()
+    dig 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple
     bytec_1 // 0x151f7c75
     uncover 1
@@ -1937,10 +2152,22 @@ test_concat_with_native_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_concat_with_native_tuple_block@1
+
+test_concat_with_native_tuple_block@1:
+    dup
     len
     pushint 16
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    // array/immutable.py:414
+    // @arc4.abimethod()
+    b test_concat_with_native_tuple_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64>@2
+
+test_concat_with_native_tuple_after_inlined_%Validate__arc4.tuple<arc4.uint64,arc4.uint64>@2:
+    // array/immutable.py:414
+    // @arc4.abimethod()
+    dig 1
     dup
     intc_0 // 0
     intc_3 // 8
@@ -1967,6 +2194,10 @@ test_dynamic_concat_with_arc4_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_dynamic_concat_with_arc4_tuple_block@1
+
+test_dynamic_concat_with_arc4_tuple_block@1:
+    dupn 2
     len
     cover 1
     dup
@@ -2006,10 +2237,18 @@ test_dynamic_concat_with_arc4_tuple_block@0:
     intc_2 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    // array/immutable.py:422
+    // @arc4.abimethod()
+    b test_dynamic_concat_with_arc4_tuple_after_inlined_%Validate__arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>@2
+
+test_dynamic_concat_with_arc4_tuple_after_inlined_%Validate__arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>@2:
+    // array/immutable.py:422
+    // @arc4.abimethod()
+    dig 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple
     bytec_1 // 0x151f7c75
     uncover 1
@@ -2028,6 +2267,10 @@ test_dynamic_concat_with_native_tuple_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_dynamic_concat_with_native_tuple_block@1
+
+test_dynamic_concat_with_native_tuple_block@1:
+    dupn 2
     len
     cover 1
     dup
@@ -2067,10 +2310,18 @@ test_dynamic_concat_with_native_tuple_block@0:
     intc_2 // 2
     +
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>
+    // array/immutable.py:430
+    // @arc4.abimethod()
+    b test_dynamic_concat_with_native_tuple_after_inlined_%Validate__arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>@2
+
+test_dynamic_concat_with_native_tuple_after_inlined_%Validate__arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>>@2:
+    // array/immutable.py:430
+    // @arc4.abimethod()
+    dig 1
     dup
     intc_0 // 0
     extract_uint16
@@ -2116,39 +2367,41 @@ test_concat_immutable_dynamic_block@0:
     // array/immutable.py:438
     // @arc4.abimethod()
     txna ApplicationArgs 1
+    dup
+    b test_concat_immutable_dynamic_block@1
+
+test_concat_immutable_dynamic_block@1:
     dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    bury 6
     intc_2 // 2
     *
-    cover 1
+    bury 4
     dup
     len
     cover 1
     intc_2 // 2
     uncover 2
     substring3
+    bury 8
     intc_0 // 0
-    b test_concat_immutable_dynamic_for_header@1
+    bury 5
+    b test_concat_immutable_dynamic_for_header@2
 
-test_concat_immutable_dynamic_for_header@1:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dup
+test_concat_immutable_dynamic_for_header@2:
+    dig 4
     dig 4
     <
-    bz test_concat_immutable_dynamic_after_for@4
-    b test_concat_immutable_dynamic_for_body@2
+    bz test_concat_immutable_dynamic_after_for@5
+    b test_concat_immutable_dynamic_for_body@3
 
-test_concat_immutable_dynamic_for_body@2:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dup
+test_concat_immutable_dynamic_for_body@3:
+    dig 4
     intc_2 // 2
     *
-    dig 2
+    dig 8
     dup
     cover 2
     uncover 1
@@ -2188,72 +2441,76 @@ test_concat_immutable_dynamic_for_body@2:
     +
     +
     bury 3
-    b test_concat_immutable_dynamic_for_footer@3
+    b test_concat_immutable_dynamic_for_footer@4
 
-test_concat_immutable_dynamic_for_footer@3:
-    dup
+test_concat_immutable_dynamic_for_footer@4:
+    dig 4
     intc_1 // 1
     +
-    bury 1
-    b test_concat_immutable_dynamic_for_header@1
+    bury 5
+    b test_concat_immutable_dynamic_for_header@2
 
-test_concat_immutable_dynamic_after_for@4:
-    // array/immutable.py:438
-    // @arc4.abimethod()
+test_concat_immutable_dynamic_after_for@5:
     dig 2
     intc_2 // 2
     +
-    dig 5
-    dup
-    cover 2
+    dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
-    bury 10
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    b test_concat_immutable_dynamic_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>@6
+
+test_concat_immutable_dynamic_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>@6:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dig 1
+    bury 7
     txna ApplicationArgs 2
     dup
-    bury 10
-    dup
+    bury 7
+    bury 1
+    b test_concat_immutable_dynamic_block@7
+
+test_concat_immutable_dynamic_block@7:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 9
+    bury 6
     intc_2 // 2
     *
-    bury 7
+    bury 4
     dup
     len
     cover 1
     intc_2 // 2
     uncover 2
     substring3
-    bury 11
-    intc_0 // 0
     bury 8
-    b test_concat_immutable_dynamic_for_header@5
+    intc_0 // 0
+    bury 5
+    b test_concat_immutable_dynamic_for_header@8
 
-test_concat_immutable_dynamic_for_header@5:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dig 7
-    dig 7
+test_concat_immutable_dynamic_for_header@8:
+    dig 4
+    dig 4
     <
-    bz test_concat_immutable_dynamic_after_for@8
-    b test_concat_immutable_dynamic_for_body@6
+    bz test_concat_immutable_dynamic_after_for@11
+    b test_concat_immutable_dynamic_for_body@9
 
-test_concat_immutable_dynamic_for_body@6:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dig 7
+test_concat_immutable_dynamic_for_body@9:
+    dig 4
     intc_2 // 2
     *
-    dig 11
+    dig 8
     dup
     cover 2
     uncover 1
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 8
+    dig 5
     dup
     cover 4
     ==
@@ -2286,29 +2543,33 @@ test_concat_immutable_dynamic_for_body@6:
     pushint 10
     +
     +
-    bury 6
-    b test_concat_immutable_dynamic_for_footer@7
+    bury 3
+    b test_concat_immutable_dynamic_for_footer@10
 
-test_concat_immutable_dynamic_for_footer@7:
-    dig 7
+test_concat_immutable_dynamic_for_footer@10:
+    dig 4
     intc_1 // 1
     +
-    bury 8
-    b test_concat_immutable_dynamic_for_header@5
+    bury 5
+    b test_concat_immutable_dynamic_for_header@8
 
-test_concat_immutable_dynamic_after_for@8:
-    // array/immutable.py:438
-    // @arc4.abimethod()
-    dig 5
+test_concat_immutable_dynamic_after_for@11:
+    dig 2
     intc_2 // 2
     +
-    dig 9
-    dup
-    cover 2
+    dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>
-    dig 10
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    b test_concat_immutable_dynamic_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>@12
+
+test_concat_immutable_dynamic_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyDynamicSizedTuple>@12:
+    // array/immutable.py:438
+    // @arc4.abimethod()
+    dig 5
+    dig 7
     uncover 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic
     bytec_1 // 0x151f7c75
@@ -2328,16 +2589,28 @@ test_immutable_arc4_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_immutable_arc4_block@1
+
+test_immutable_arc4_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 16
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<test_cases.array.immutable.MyStruct>
+    // array/immutable.py:444
+    // @arc4.abimethod()
+    b test_immutable_arc4_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyStruct>@2
+
+test_immutable_arc4_after_inlined_%Validate__arc4.dynamic_array<test_cases.array.immutable.MyStruct>@2:
+    // array/immutable.py:444
+    // @arc4.abimethod()
+    dig 1
     callsub test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4
     bytec_1 // 0x151f7c75
     uncover 1

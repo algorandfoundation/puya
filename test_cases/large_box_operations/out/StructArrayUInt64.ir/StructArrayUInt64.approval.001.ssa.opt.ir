@@ -531,11 +531,11 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
 
 subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.append[routing]() -> void:
     block@0: // L32
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let value#0: uint64 = decode_bytes<uint64>(tmp%0#0)
+        let value#1: uint64 = decode_bytes<uint64>(value#0)
         let storage_value%0#0: bytes = box_read("box")
         let box%offset%0#0: uint64 = (+ 0u 20u)
         let box%box_extract%0#0: bytes = (box_extract "box" box%offset%0#0 2u)
@@ -544,7 +544,7 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
         let box%total_bytes%0#0: uint64 = (+ box%data_bytes%0#0 2u)
         let box%box_extract%1#0: Encoded(len+uint64[]) = (box_extract "box" box%offset%0#0 box%total_bytes%0#0)
         let tuple_item%0#0: Encoded(len+uint64[]) = box%box_extract%1#0
-        let tmp%0#1: Encoded(uint64[]) = bytes_encode<uint64[]>(value#0)
+        let tmp%0#1: Encoded(uint64[]) = bytes_encode<uint64[]>(value#1)
         let tmp%1#1: Encoded(len+uint64[]) = array_concat(tuple_item%0#0, tmp%0#1, 1u)
         let updated_tuple%0#0: Encoded(uint64,(len+uint64[]),uint64,(len+uint8[4096][])) = replace_value(storage_value%0#0, 1, tmp%1#1)
         let box%mul%0#0: uint64 = (* 1u 8u)
@@ -557,11 +557,11 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
 
 subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.concat[routing]() -> void:
     block@0: // L36
-        let array#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(array#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = (* length%0#0 8u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len array#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
         let storage_value%0#0: bytes = box_read("box")
@@ -572,8 +572,8 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
         let box%total_bytes%0#0: uint64 = (+ box%data_bytes%0#0 2u)
         let box%box_extract%1#0: Encoded(len+uint64[]) = (box_extract "box" box%offset%0#0 box%total_bytes%0#0)
         let tuple_item%0#0: Encoded(len+uint64[]) = box%box_extract%1#0
-        let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
-        let tmp%0#1: uint64 = array_len(array#0)
+        let extract_to_end%0#0: bytes = ((extract 2 0) value#0)
+        let tmp%0#1: uint64 = array_len(value#0)
         let tmp%1#0: Encoded(len+uint64[]) = array_concat(tuple_item%0#0, extract_to_end%0#0, tmp%0#1)
         let updated_tuple%0#0: Encoded(uint64,(len+uint64[]),uint64,(len+uint8[4096][])) = replace_value(storage_value%0#0, 1, tmp%1#0)
         let box%mul%0#0: uint64 = (* tmp%0#1 8u)
@@ -624,11 +624,11 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
 
 subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.get[routing]() -> void:
     block@0: // L44
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
+        let idx#0: uint64 = decode_bytes<uint64>(value#0)
         let storage_value%0#0: bytes = box_read("box")
         let box%offset%0#0: uint64 = (+ 0u 20u)
         let box%box_extract%0#0: bytes = (box_extract "box" box%offset%0#0 2u)
@@ -655,18 +655,18 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
 
 subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.set[routing]() -> void:
     block@0: // L48
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 8u)
         (assert eq%0#0) // invalid number of bytes for arc4.uint64
-        let idx#0: uint64 = decode_bytes<uint64>(tmp%0#0)
-        let tmp%2#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%2#0)
-        let eq%1#0: bool = (== len%1#0 8u)
-        (assert eq%1#0) // invalid number of bytes for arc4.uint64
-        let value#0: uint64 = decode_bytes<uint64>(tmp%2#0)
+        let idx#0: uint64 = decode_bytes<uint64>(value#0)
+        let value#1: bytes = (txna ApplicationArgs 2)
+        let len%0#1: uint64 = (len value#1)
+        let eq%0#1: bool = (== len%0#1 8u)
+        (assert eq%0#1) // invalid number of bytes for arc4.uint64
+        let value#2: uint64 = decode_bytes<uint64>(value#1)
         let storage_value%0#0: bytes = box_read("box")
-        let encoded_value%0#0: Encoded(uint64) = tmp%2#0
+        let encoded_value%0#0: Encoded(uint64) = value#1
         let updated_tuple%0#0: Encoded(uint64,(len+uint64[]),uint64,(len+uint8[4096][])) = replace_value(storage_value%0#0, 1, idx#0, encoded_value%0#0)
         let box%offset%0#0: uint64 = (+ 0u 20u)
         let box%box_extract%0#0: bytes = (box_extract "box" box%offset%0#0 2u)
@@ -681,14 +681,14 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
 
 subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.verify[routing]() -> void:
     block@0: // L52
-        let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let length%0#0: uint64 = array_len(tmp%0#0)
+        let value#0: bytes = (txna ApplicationArgs 1)
+        let length%0#0: uint64 = array_len(value#0)
         let mul%0#0: uint64 = (* length%0#0 8u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
-        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.verify(tmp%0#0)
+        let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.verify(value#0)
         exit 1u
 
 subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.verify(expected: Encoded(len+uint64[])) -> Encoded(len+uint64[]):

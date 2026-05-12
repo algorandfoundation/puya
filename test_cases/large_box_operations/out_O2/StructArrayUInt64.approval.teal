@@ -20,16 +20,7 @@ main:
 main_verify_route@12:
     txna ApplicationArgs 1
     dup
-    pushint 0
-    extract_uint16 // on error: invalid array length header
-    intc_0 // 8
-    *
-    intc_1 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    callsub %Validate__arc4.dynamic_array<uint64>
     callsub verify
     pop
     intc_2 // 1
@@ -175,27 +166,22 @@ main_pop_route@9:
 main_concat_route@8:
     txna ApplicationArgs 1
     dup
+    callsub %Validate__arc4.dynamic_array<uint64>
+    dup
+    extract 2 0
+    swap
     pushint 0
     extract_uint16 // on error: invalid array length header
     dup
     intc_0 // 8
     *
-    dup
-    intc_1 // 2
-    +
-    dig 3
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    uncover 2
-    extract 2 0
     bytec_0 // "box"
     pushint 18
-    uncover 3
+    uncover 2
     callsub box_update_offset_inc
     bytec_0 // "box"
     intc_3 // 20
-    uncover 2
+    uncover 3
     uncover 3
     intc_0 // 8
     callsub box_dynamic_array_concat_fixed
@@ -375,4 +361,21 @@ verify:
     >
     assert // expected box length >4096
     frame_dig -1
+    retsub
+
+
+// %Validate__arc4.dynamic_array<uint64>(value: bytes) -> void:
+%Validate__arc4.dynamic_array<uint64>:
+    proto 1 0
+    frame_dig -1
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    intc_0 // 8
+    *
+    intc_1 // 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
     retsub

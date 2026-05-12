@@ -205,16 +205,28 @@ all_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b all_block@1
+
+all_block@1:
+    dupn 2
     intc_1 // 0
     extract_uint16 // on error: invalid array length header
     intc_0 // 1
     *
     pushint 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // intrinsics/optimizations.py:21
+    // @arc4.abimethod()
+    b all_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+all_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    // intrinsics/optimizations.py:21
+    // @arc4.abimethod()
+    dig 1
     extract 2 0
     callsub test_cases.intrinsics.optimizations.Optimizations.all
     cover 3

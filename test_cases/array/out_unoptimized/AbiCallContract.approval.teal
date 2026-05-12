@@ -227,6 +227,8 @@ dynamic_array_concat_dynamic_element_after_for@8:
 
 // test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call[routing]() -> void:
 test_implicit_conversion_abi_call:
+    intc_0 // 0
+    intc_0 // 0
     b test_implicit_conversion_abi_call_block@0
 
 test_implicit_conversion_abi_call_block@0:
@@ -234,23 +236,52 @@ test_implicit_conversion_abi_call_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_implicit_conversion_abi_call_block@1
+
+test_implicit_conversion_abi_call_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 8
     *
     intc_1 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // array/unused_opt_allowed.py:13
+    // @arc4.abimethod()
+    b test_implicit_conversion_abi_call_after_inlined_%Validate__arc4.dynamic_array<uint64>@2
+
+test_implicit_conversion_abi_call_after_inlined_%Validate__arc4.dynamic_array<uint64>@2:
+    // array/unused_opt_allowed.py:13
+    // @arc4.abimethod()
+    dig 1
+    bury 4
     txna ApplicationArgs 2
+    dup
+    bury 4
+    bury 1
+    b test_implicit_conversion_abi_call_block@3
+
+test_implicit_conversion_abi_call_block@3:
     dup
     len
     pushint 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/unused_opt_allowed.py:13
+    // @arc4.abimethod()
+    b test_implicit_conversion_abi_call_after_inlined_%Validate__arc4.uint64@4
+
+test_implicit_conversion_abi_call_after_inlined_%Validate__arc4.uint64@4:
+    // array/unused_opt_allowed.py:13
+    // @arc4.abimethod()
+    dig 2
     btoi
+    dig 4
+    uncover 1
     callsub test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call
     intc_2 // 1
     return

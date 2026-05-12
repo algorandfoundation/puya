@@ -115,10 +115,22 @@ router_validate_block@0:
     // @arc4.abimethod(validate_encoding="args")
     txna ApplicationArgs 1
     dup
+    b router_validate_block@1
+
+router_validate_block@1:
+    dup
     len
     intc_2 // 11
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 11>
+    // fixed_bytes_ops/abi_values.py:53
+    // @arc4.abimethod(validate_encoding="args")
+    b router_validate_after_inlined_%Validate__arc4.static_array<arc4.uint8,11>@2
+
+router_validate_after_inlined_%Validate__arc4.static_array<arc4.uint8,11>@2:
+    // fixed_bytes_ops/abi_values.py:53
+    // @arc4.abimethod(validate_encoding="args")
+    dig 1
     callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.router_validate
     intc_1 // 1
     return
@@ -133,16 +145,28 @@ i_am_a_dynamic_personality_block@0:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
+    b i_am_a_dynamic_personality_block@1
+
+i_am_a_dynamic_personality_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_1 // 1
     *
     pushint 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // fixed_bytes_ops/abi_values.py:57
+    // @arc4.abimethod
+    b i_am_a_dynamic_personality_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2
+
+i_am_a_dynamic_personality_after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>@2:
+    // fixed_bytes_ops/abi_values.py:57
+    // @arc4.abimethod
+    dig 1
     callsub test_cases.fixed_bytes_ops.abi_values.CheckABIApp.i_am_a_dynamic_personality
     intc_1 // 1
     return

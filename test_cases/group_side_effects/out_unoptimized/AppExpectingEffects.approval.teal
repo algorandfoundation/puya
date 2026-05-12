@@ -248,10 +248,22 @@ test_cases.group_side_effects.contract.AppExpectingEffects.log_group_block@0:
     assert // application log value is not the result of an ABI return
     extract 4 0
     dup
+    b test_cases.group_side_effects.contract.AppExpectingEffects.log_group_block@1
+
+test_cases.group_side_effects.contract.AppExpectingEffects.log_group_block@1:
+    frame_dig 1
     len
     pushint 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // group_side_effects/contract.py:29
+    // arc4.UInt64.from_log(app_call.last_log)
+    b test_cases.group_side_effects.contract.AppExpectingEffects.log_group_after_inlined_%Validate__arc4.uint64@2
+
+test_cases.group_side_effects.contract.AppExpectingEffects.log_group_after_inlined_%Validate__arc4.uint64@2:
+    // group_side_effects/contract.py:29
+    // arc4.UInt64.from_log(app_call.last_log)
+    frame_dig 0
     // group_side_effects/contract.py:30
     // == (app_call.group_index + 1) * Global.group_size
     frame_dig -1

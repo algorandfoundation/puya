@@ -74,9 +74,14 @@ subroutine examples.merkle.contract.hash_pair(a: bytes, b: bytes) -> bytes:
 subroutine examples.merkle.contract.MerkleTree.create[routing]() -> void:
     block@0: // L10
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 32u)
         (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.static_array<arc4.uint8,32>_L10
         let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%0#0
         examples.merkle.contract.MerkleTree.create(as_Encoded(uint8[32])%0#0)
         exit 1u
@@ -84,18 +89,28 @@ subroutine examples.merkle.contract.MerkleTree.create[routing]() -> void:
 subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
     block@0: // L14
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 32u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.static_array<arc4.uint8,32>>_L14
         let as_Encoded(len+uint8[32][])%0#0: Encoded(len+uint8[32][]) = tmp%0#0
         let tmp%1#0: bytes = (txna ApplicationArgs 2)
-        let len%1#0: uint64 = (len tmp%1#0)
-        let eq%1#0: bool = (== len%1#0 32u)
-        (assert eq%1#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        let value#0: bytes = tmp%1#0
+        goto block@3
+    block@3: // L1
+        let len%0#0: uint64 = (len value#0)
+        let eq%0#0: bool = (== len%0#0 32u)
+        (assert eq%0#0) // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+        goto block@4
+    block@4: // after_inlined_%Validate__arc4.static_array<arc4.uint8,32>_L14
         let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%1#0
         let tmp%2#0: bool = examples.merkle.contract.MerkleTree.verify(as_Encoded(len+uint8[32][])%0#0, as_Encoded(uint8[32])%0#0)
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%2#0)

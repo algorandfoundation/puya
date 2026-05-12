@@ -80,16 +80,30 @@ verify_block@0:
     // @abimethod
     txna ApplicationArgs 1
     dup
+    b verify_block@1
+
+verify_block@1:
+    dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     pushint 32
     *
     intc_2 // 2
     +
-    dig 1
+    uncover 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint256>
+    // regression_tests/issue_118.py:6-7
+    // # ref: https://github.com/algorandfoundation/puya/issues/118
+    // @abimethod
+    b verify_after_inlined_%Validate__arc4.dynamic_array<arc4.uint256>@2
+
+verify_after_inlined_%Validate__arc4.dynamic_array<arc4.uint256>@2:
+    // regression_tests/issue_118.py:6-7
+    // # ref: https://github.com/algorandfoundation/puya/issues/118
+    // @abimethod
+    dig 1
     callsub test_cases.regression_tests.issue_118.Issue118.verify
     pushbytes 0x151f7c75
     uncover 1

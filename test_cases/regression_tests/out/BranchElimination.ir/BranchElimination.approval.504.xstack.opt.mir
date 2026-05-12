@@ -213,37 +213,33 @@ subroutine calculate:
     calculate_block@0:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
-        txna ApplicationArgs 1                                    nested_list#0
-        l-load-copy nested_list#0 0                               nested_list#0,nested_list#0 (copy)
-        int 0                                                     nested_list#0,nested_list#0 (copy),0
-        extract_uint16 // on error: invalid array length header   nested_list#0,length#2
-        l-store-copy length#2 0                                   nested_list#0,length#2,length#2 (copy)
-        v-store length#2                                          nested_list#0,length#2
-        l-load length#2 0                                         nested_list#0,length#2
-        int 2                                                     nested_list#0,length#2,2
-        *                                                         nested_list#0,num_bytes%0#0
-        v-store num_bytes%0#0                                     nested_list#0
-        l-load-copy nested_list#0 0                               nested_list#0,nested_list#0 (copy)
-        len                                                       nested_list#0,total_length%0#0
-        v-store total_length%0#0                                  nested_list#0
-        l-load nested_list#0 0                                    nested_list#0
+        txna ApplicationArgs 1                                    value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        int 0                                                     value#0,value#0 (copy),0
+        extract_uint16 // on error: invalid array length header   value#0,length#2
+        l-store-copy length#2 0                                   value#0,length#2,length#2 (copy)
+        v-store length#2                                          value#0,length#2
+        l-load length#2 0                                         value#0,length#2
+        int 2                                                     value#0,length#2,2
+        *                                                         value#0,num_bytes%0#0
+        v-store num_bytes%0#0                                     value#0
+        l-load-copy value#0 0                                     value#0,value#0 (copy)
+        len                                                       value#0,total_length%0#0
+        v-store total_length%0#0                                  value#0
+        l-load value#0 0                                          value#0
         extract 2 0                                               array_data%0#0
         v-store array_data%0#0
         int 0                                                     0
         v-store index%0#0
-        b calculate_for_header@1
+        b calculate_for_header@2
 
-    calculate_for_header@1:
-        // regression_tests/leftover_branch.py:29
-        // @arc4.abimethod
+    calculate_for_header@2:
         v-load index%0#0                                          index%0#0
         v-load length#2                                           index%0#0,length#2
         <                                                         continue_looping%0#0
-        bz calculate_after_for@4 ; b calculate_for_body@2
+        bz calculate_after_for@5 ; b calculate_for_body@3
 
-    calculate_for_body@2:
-        // regression_tests/leftover_branch.py:29
-        // @arc4.abimethod
+    calculate_for_body@3:
         v-load index%0#0                                          index%0#0
         l-store-copy index%0#0 0                                  index%0#0,index%0#0 (copy)
         int 2                                                     index%0#0,index%0#0 (copy),2
@@ -277,11 +273,9 @@ subroutine calculate:
         int 1                                                     index%0#0,1
         +                                                         index%0#0
         v-store index%0#0
-        b calculate_for_header@1
+        b calculate_for_header@2
 
-    calculate_after_for@4:
-        // regression_tests/leftover_branch.py:29
-        // @arc4.abimethod
+    calculate_after_for@5:
         v-load num_bytes%0#0                                      num_bytes%0#0
         int 2                                                     num_bytes%0#0,2
         +                                                         num_bytes%1#0
@@ -289,13 +283,15 @@ subroutine calculate:
         l-load num_bytes%1#0 1                                    total_length%0#0,num_bytes%1#0
         ==                                                        eq%0#0
         assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>> 
-        txna ApplicationArgs 2                                    threshold#0
-        l-store-copy threshold#0 0                                threshold#0,threshold#0 (copy)
-        v-store threshold#0                                       threshold#0
-        l-load threshold#0 0                                      threshold#0
-        len                                                       len%1#0
-        int 8                                                     len%1#0,8
-        ==                                                        eq%1#0
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        txna ApplicationArgs 2                                    value#0
+        l-store-copy value#0 0                                    value#0,value#0 (copy)
+        v-store value#0                                           value#0
+        l-load value#0 0                                          value#0
+        len                                                       len%0#1
+        int 8                                                     len%0#1,8
+        ==                                                        eq%0#0
         assert // invalid number of bytes for arc4.uint64
         // regression_tests/leftover_branch.py:35
         // total = UInt64(0)
@@ -309,9 +305,9 @@ subroutine calculate:
         // for i in urange(nested_list.length):
         int 0                                                     value_internal%0#0
         v-store i#0
-        b calculate_for_header@6
+        b calculate_for_header@10
 
-    calculate_for_header@6:
+    calculate_for_header@10:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                i#0
@@ -320,9 +316,9 @@ subroutine calculate:
         l-store-copy continue_looping%0#0 0                       continue_looping%0#0,continue_looping%0#0 (copy)
         v-store continue_looping%0#0                              continue_looping%0#0
         l-load continue_looping%0#0 0                             continue_looping%0#0
-        bz calculate_after_for@19 ; b calculate_for_body@7
+        bz calculate_after_for@23 ; b calculate_for_body@11
 
-    calculate_for_body@7:
+    calculate_for_body@11:
         v-load continue_looping%0#0                               continue_looping%0#0
         assert // index out of bounds
         // regression_tests/leftover_branch.py:39
@@ -362,17 +358,17 @@ subroutine calculate:
         // for j in urange(inner_list.length):
         int 0                                                     value_internal%1#0
         v-store j#0
-        b calculate_for_header@8
+        b calculate_for_header@12
 
-    calculate_for_header@8:
+    calculate_for_header@12:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                j#0
         v-load aggregate%array_length%3#0                         j#0,aggregate%array_length%3#0
         <                                                         continue_looping%1#0
-        bz calculate_after_for@17 ; b calculate_for_body@9
+        bz calculate_after_for@21 ; b calculate_for_body@13
 
-    calculate_for_body@9:
+    calculate_for_body@13:
         // regression_tests/leftover_branch.py:42
         // value = inner_list[j]
         v-load inner_list#0                                       inner_list#0
@@ -385,17 +381,17 @@ subroutine calculate:
         l-load aggregate%array_trimmed%0#0 1                      aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
         l-load aggregate%bytes_offset%0#0 1                       aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
         int 8                                                     aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,8
-        extract3 // on error: index access is out of bounds       value#0
-        l-store-copy value#0 0                                    value#0,value#0 (copy)
-        v-store value#0                                           value#0
+        extract3 // on error: index access is out of bounds       value#2
+        l-store-copy value#2 0                                    value#2,value#2 (copy)
+        v-store value#2                                           value#2
         // regression_tests/leftover_branch.py:43
         // if value >= threshold:
-        l-load value#0 0                                          value#0
-        v-load threshold#0                                        value#0,threshold#0
+        l-load value#2 0                                          value#2
+        v-load value#0                                            value#2,value#0
         b>=                                                       tmp%4#0
-        bz calculate_after_if_else@15 ; b calculate_if_body@10
+        bz calculate_after_if_else@19 ; b calculate_if_body@14
 
-    calculate_if_body@10:
+    calculate_if_body@14:
         // regression_tests/leftover_branch.py:44
         // has_next = j < last_inner_list_index
         v-load j#0                                                j#0
@@ -403,9 +399,9 @@ subroutine calculate:
         <                                                         has_next#0
         // regression_tests/leftover_branch.py:45
         // if has_next:
-        bz calculate_after_if_else@15 ; b calculate_if_body@11
+        bz calculate_after_if_else@19 ; b calculate_if_body@15
 
-    calculate_if_body@11:
+    calculate_if_body@15:
         // regression_tests/leftover_branch.py:46
         // total += 1
         v-load total#0                                            total#0
@@ -425,12 +421,12 @@ subroutine calculate:
         extract3 // on error: index access is out of bounds       next_value#0
         // regression_tests/leftover_branch.py:48
         // if value < next_value:
-        v-load value#0                                            next_value#0,value#0
-        l-load next_value#0 1                                     value#0,next_value#0
+        v-load value#2                                            next_value#0,value#2
+        l-load next_value#0 1                                     value#2,next_value#0
         b<                                                        tmp%8#0
-        bz calculate_after_if_else@15 ; b calculate_if_body@12
+        bz calculate_after_if_else@19 ; b calculate_if_body@16
 
-    calculate_if_body@12:
+    calculate_if_body@16:
         // regression_tests/leftover_branch.py:49
         // total *= 2
         v-load total#0                                            total#0
@@ -443,27 +439,27 @@ subroutine calculate:
         int 1                                                     num_boosts#0,1
         +                                                         num_boosts#0
         v-store num_boosts#0
-        b calculate_after_if_else@15
+        b calculate_after_if_else@19
 
-    calculate_after_if_else@15:
+    calculate_after_if_else@19:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                j#0
         int 1                                                     j#0,1
         +                                                         value_internal%1#0
         v-store j#0
-        b calculate_for_header@8
+        b calculate_for_header@12
 
-    calculate_after_for@17:
+    calculate_after_for@21:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                i#0
         int 1                                                     i#0,1
         +                                                         value_internal%0#0
         v-store i#0
-        b calculate_for_header@6
+        b calculate_for_header@10
 
-    calculate_after_for@19:
+    calculate_after_for@23:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
         int 1                                                     1

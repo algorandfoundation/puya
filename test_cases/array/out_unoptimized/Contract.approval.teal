@@ -940,10 +940,22 @@ test_allocations_block@0:
     // @arc4.abimethod()
     txna ApplicationArgs 1
     dup
+    b test_allocations_block@1
+
+test_allocations_block@1:
+    dup
     len
     intc_0 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // array/uint64.py:134
+    // @arc4.abimethod()
+    b test_allocations_after_inlined_%Validate__arc4.uint64@2
+
+test_allocations_after_inlined_%Validate__arc4.uint64@2:
+    // array/uint64.py:134
+    // @arc4.abimethod()
+    dig 1
     btoi
     callsub test_cases.array.uint64.Contract.test_allocations
     intc_1 // 1

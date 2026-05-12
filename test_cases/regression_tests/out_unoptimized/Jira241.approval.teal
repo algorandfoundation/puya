@@ -95,10 +95,22 @@ oh_no_block@0:
     // @arc4.abimethod(default_args={"wrong_size": False})
     txna ApplicationArgs 1
     dup
+    b oh_no_block@1
+
+oh_no_block@1:
+    dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.bool
+    // regression_tests/jira_241.py:5
+    // @arc4.abimethod(default_args={"wrong_size": False})
+    b oh_no_after_inlined_%Validate__arc4.bool@2
+
+oh_no_after_inlined_%Validate__arc4.bool@2:
+    // regression_tests/jira_241.py:5
+    // @arc4.abimethod(default_args={"wrong_size": False})
+    dig 1
     intc_0 // 0
     getbit
     callsub test_cases.regression_tests.jira_241.Jira241.oh_no
@@ -115,10 +127,22 @@ oh_yes_block@0:
     // @arc4.abimethod(default_args={"wrong_size": True})
     txna ApplicationArgs 1
     dup
+    b oh_yes_block@1
+
+oh_yes_block@1:
+    dup
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.bool
+    // regression_tests/jira_241.py:9
+    // @arc4.abimethod(default_args={"wrong_size": True})
+    b oh_yes_after_inlined_%Validate__arc4.bool@2
+
+oh_yes_after_inlined_%Validate__arc4.bool@2:
+    // regression_tests/jira_241.py:9
+    // @arc4.abimethod(default_args={"wrong_size": True})
+    dig 1
     intc_0 // 0
     getbit
     callsub test_cases.regression_tests.jira_241.Jira241.oh_yes

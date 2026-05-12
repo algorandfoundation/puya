@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 0 2
+    intcblock 1
     bytecblock 0x0002 0x0003
     txn NumAppArgs
     bz main___algots__.defaultCreate@10
@@ -20,28 +20,13 @@ main:
 main_emitDynamicBytes_route@6:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    dup
-    uncover 2
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub %Validate__arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
+    callsub %Validate__arc4.dynamic_array<arc4.uint8>
     dig 1
     len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     pushint 4
-    uncover 2
     +
     itob
     extract 6 2
@@ -62,14 +47,7 @@ main_emitDynamicBytes_route@6:
 main_emitCustom_route@5:
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    callsub %Validate__arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 2
     dup
     len
@@ -214,3 +192,18 @@ main___algots__.defaultCreate@10:
     !
     &&
     return
+
+
+// %Validate__arc4.dynamic_array<arc4.uint8>(value: bytes) -> void:
+%Validate__arc4.dynamic_array<arc4.uint8>:
+    proto 1 0
+    frame_dig -1
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    frame_dig -1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    retsub

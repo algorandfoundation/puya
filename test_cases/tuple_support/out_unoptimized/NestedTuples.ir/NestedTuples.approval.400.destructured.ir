@@ -313,11 +313,14 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_iteration() -> voi
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routing]() -> void:
     block@0: // L61
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len tmp%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid tuple encoding
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 4u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
-        let substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let tuple_len%1#0: uint64 = (len substring3%0#0)
         let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 16u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 18u)
@@ -344,21 +347,21 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routi
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let add%4#0: uint64 = (+ 18u add%3#0)
         let add%5#0: uint64 = (+ 4u add%4#0)
-        let extract_uint16%4#0: uint64 = (extract_uint16 tmp%0#0 2u) // on error: invalid tuple encoding
+        let extract_uint16%4#0: uint64 = (extract_uint16 value#0 2u) // on error: invalid tuple encoding
         let eq%4#0: bool = (== extract_uint16%4#0 add%5#0)
         (assert eq%4#0) // invalid tail pointer at index 1 of ((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))
-        let substring3%4#0: bytes = (substring3 tmp%0#0 extract_uint16%4#0 tuple_len%0#0)
+        let substring3%4#0: bytes = (substring3 value#0 extract_uint16%4#0 tuple_len%0#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 substring3%4#0 0u) // on error: invalid array length header
         let length%2#0: uint64 = aggregate%array_length%2#0
         let num_bytes%0#0: uint64 = (* length%2#0 2u)
         let total_length%0#0: uint64 = (len substring3%4#0)
         let array_data%0#0: bytes = (substring3 substring3%4#0 2u total_length%0#0)
         let index%0#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L61
+        goto block@2
+    block@2: // for_header_L1
         let continue_looping%0#0: bool = (< index%0#0 length%2#0)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L61
+        goto continue_looping%0#0 ? block@3 : block@5
+    block@3: // for_body_L1
         let head_offset_bytes%0#0: uint64 = (* index%0#0 2u)
         let item_offset%0#0: uint64 = (extract_uint16 array_data%0#0 head_offset_bytes%0#0) // on error: invalid array encoding
         let offset_is_correct%0#0: bool = (== item_offset%0#0 num_bytes%0#0)
@@ -385,16 +388,18 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routi
         let add%8#0: uint64 = (+ mul%3#0 2u)
         let add%9#0: uint64 = (+ add%7#0 add%8#0)
         let num_bytes%0#0: uint64 = (+ num_bytes%0#0 add%9#0)
-        goto block@3
-    block@3: // for_footer_L61
+        goto block@4
+    block@4: // for_footer_L1
         let index%0#0: uint64 = (+ index%0#0 1u)
-        goto block@1
-    block@4: // after_for_L61
+        goto block@2
+    block@5: // after_for_L1
         let num_bytes%1#0: uint64 = (+ num_bytes%0#0 2u)
         let add%10#0: uint64 = (+ add%5#0 num_bytes%1#0)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%7#0: bool = (== len%0#0 add%10#0)
         (assert eq%7#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.ParentWithList
+        goto block@6
+    block@6: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.ParentWithList_L61
         let as_Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))%0#0: Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[])) = tmp%0#0
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 as_Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))%0#0 0u)
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 as_Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))%0#0 2u)
@@ -482,9 +487,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple[routin
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box[routing]() -> void:
     block@0: // L69
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.SimpleTup_L69
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -498,9 +508,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_bo
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[routing]() -> void:
     block@0: // L73
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.SimpleTup_L73
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -519,9 +534,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[r
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box[routing]() -> void:
     block@0: // L77
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.SimpleTup_L77
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -545,9 +565,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box[routing]() -> void:
     block@0: // L81
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.SimpleTup_L81
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -575,9 +600,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default[routing]() -> void:
     block@0: // L86
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 16u)
         (assert eq%0#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.SimpleTup
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.SimpleTup_L86
         let as_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64)%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -601,13 +631,18 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_local_state_or_default[routing]() -> void:
     block@0: // L90
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid array length header
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.dynamic_array<arc4.uint8>_L90
         let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = tmp%0#0
         let tmp%1#0: string = ((extract 2 0) as_Encoded(len+utf8[])%0#0)
         let (tmp%2#0: uint64, tmp%3#0: uint64) = test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_local_state_or_default(tmp%1#0)
@@ -684,20 +719,23 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params[routing]() -> void:
     block@0: // L149
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len tmp%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u) // on error: invalid tuple encoding
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 4u)
         (assert eq%0#0) // invalid tail pointer at index 0 of ((len+utf8[]),((len+uint8[]),(uint64)))
-        let substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 4u add%0#0)
-        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 2u) // on error: invalid tuple encoding
+        let extract_uint16%1#0: uint64 = (extract_uint16 value#0 2u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 1 of ((len+utf8[]),((len+uint8[]),(uint64)))
-        let substring3%1#0: bytes = (substring3 tmp%0#0 extract_uint16%1#0 tuple_len%0#0)
+        let substring3%1#0: bytes = (substring3 value#0 extract_uint16%1#0 tuple_len%0#0)
         let tuple_len%1#0: uint64 = (len substring3%1#0)
         let extract_uint16%2#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid tuple encoding
         let eq%2#0: bool = (== extract_uint16%2#0 10u)
@@ -709,9 +747,11 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_para
         let add%2#0: uint64 = (+ mul%1#0 2u)
         let add%3#0: uint64 = (+ 10u add%2#0)
         let add%4#0: uint64 = (+ add%1#0 add%3#0)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%3#0: bool = (== len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>
+        goto block@2
+    block@2: // after_inlined_%Validate__arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.dynamic_array<arc4.uint8>,arc4.tuple<arc4.uint64>>>_L149
         let as_Encoded((len+utf8[]),((len+uint8[]),(uint64)))%0#0: Encoded((len+utf8[]),((len+uint8[]),(uint64))) = tmp%0#0
         let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 as_Encoded((len+utf8[]),((len+uint8[]),(uint64)))%0#0 0u)
         let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 as_Encoded((len+utf8[]),((len+uint8[]),(uint64)))%0#0 2u)
@@ -768,28 +808,33 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_para
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple[routing]() -> void:
     block@0: // L156
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len tmp%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 8u) // on error: invalid tuple encoding
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 8u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 12u)
         (assert eq%0#0) // invalid tail pointer at index 1 of (uint64,(len+uint8[]),(len+utf8[]))
-        let substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header
         let length%0#0: uint64 = aggregate%array_length%0#0
         let mul%0#0: uint64 = (* length%0#0 1u)
         let add%0#0: uint64 = (+ mul%0#0 2u)
         let add%1#0: uint64 = (+ 12u add%0#0)
-        let extract_uint16%1#0: uint64 = (extract_uint16 tmp%0#0 10u) // on error: invalid tuple encoding
+        let extract_uint16%1#0: uint64 = (extract_uint16 value#0 10u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 add%1#0)
         (assert eq%1#0) // invalid tail pointer at index 2 of (uint64,(len+uint8[]),(len+utf8[]))
-        let substring3%1#0: bytes = (substring3 tmp%0#0 extract_uint16%1#0 tuple_len%0#0)
+        let substring3%1#0: bytes = (substring3 value#0 extract_uint16%1#0 tuple_len%0#0)
         let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%1#0 0u) // on error: invalid array length header
         let length%1#0: uint64 = aggregate%array_length%1#0
         let mul%1#0: uint64 = (* length%1#0 1u)
         let add%2#0: uint64 = (+ mul%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%2#0: bool = (== len%0#0 add%3#0)
         (assert eq%2#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Child
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.Child_L156
         let as_Encoded(uint64,(len+uint8[]),(len+utf8[]))%0#0: Encoded(uint64,(len+uint8[]),(len+utf8[])) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,(len+uint8[]),(len+utf8[]))%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
@@ -837,11 +882,14 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple[routi
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params[routing]() -> void:
     block@0: // L161
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
-        let tuple_len%0#0: uint64 = (len tmp%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 16u) // on error: invalid tuple encoding
+        let value#0: bytes = tmp%0#0
+        goto block@1
+    block@1: // L1
+        let tuple_len%0#0: uint64 = (len value#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 value#0 16u) // on error: invalid tuple encoding
         let eq%0#0: bool = (== extract_uint16%0#0 18u)
         (assert eq%0#0) // invalid tail pointer at index 2 of (uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))
-        let substring3%0#0: bytes = (substring3 tmp%0#0 extract_uint16%0#0 tuple_len%0#0)
+        let substring3%0#0: bytes = (substring3 value#0 extract_uint16%0#0 tuple_len%0#0)
         let tuple_len%1#0: uint64 = (len substring3%0#0)
         let extract_uint16%1#0: uint64 = (extract_uint16 substring3%0#0 8u) // on error: invalid tuple encoding
         let eq%1#0: bool = (== extract_uint16%1#0 12u)
@@ -862,9 +910,11 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tupl
         let add%2#0: uint64 = (+ mul%1#0 2u)
         let add%3#0: uint64 = (+ add%1#0 add%2#0)
         let add%4#0: uint64 = (+ 18u add%3#0)
-        let len%0#0: uint64 = (len tmp%0#0)
+        let len%0#0: uint64 = (len value#0)
         let eq%3#0: bool = (== len%0#0 add%4#0)
         (assert eq%3#0) // invalid number of bytes for test_cases.tuple_support.nested_tuples.Parent
+        goto block@2
+    block@2: // after_inlined_%Validate__test_cases.tuple_support.nested_tuples.Parent_L161
         let as_Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))%0#0: Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))) = tmp%0#0
         let aggregate%extract%0#0: bytes = (extract3 as_Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))%0#0 0u 8u)
         let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)

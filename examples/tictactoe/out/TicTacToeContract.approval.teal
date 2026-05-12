@@ -35,6 +35,8 @@ new_game:
     intc_3 // 16
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    // tictactoe/tictactoe.py:20
+    // @arc4.abimethod(create="allow")
     dup
     intc_0 // 0
     extract_uint64
@@ -44,7 +46,7 @@ new_game:
     // tictactoe/tictactoe.py:22
     // if Txn.application_id:
     txn ApplicationID
-    bz new_game_after_if_else@5
+    bz new_game_after_if_else@7
     // tictactoe/tictactoe.py:23-25
     // # if a challenger has joined, don't allow starting a new game
     // # until this one is complete
@@ -53,7 +55,7 @@ new_game:
     bytec_2 // "challenger"
     app_global_get_ex
     bury 1
-    bz new_game_after_if_else@4
+    bz new_game_after_if_else@6
     // tictactoe/tictactoe.py:26
     // assert self.winner, "Game isn't over"
     intc_0 // 0
@@ -62,7 +64,7 @@ new_game:
     bury 1
     assert // Game isn't over
 
-new_game_after_if_else@4:
+new_game_after_if_else@6:
     // tictactoe/tictactoe.py:27-28
     // # reset challenger and winner
     // del self.challenger.value
@@ -73,7 +75,7 @@ new_game_after_if_else@4:
     bytec_3 // "winner"
     app_global_del
 
-new_game_after_if_else@5:
+new_game_after_if_else@7:
     // tictactoe/tictactoe.py:30
     // self.host = Txn.sender
     bytec 6 // "host"
@@ -91,14 +93,14 @@ new_game_after_if_else@5:
     dig 1
     intc_2 // 3
     <
-    bz new_game_bool_false@8
+    bz new_game_bool_false@10
     dup
     intc_2 // 3
     <
-    bz new_game_bool_false@8
+    bz new_game_bool_false@10
     intc_1 // 1
 
-new_game_bool_merge@9:
+new_game_bool_merge@11:
     // tictactoe/tictactoe.py:33
     // assert column < 3 and row < 3, "Move must be in range"
     assert // Move must be in range
@@ -131,9 +133,9 @@ new_game_bool_merge@9:
     intc_1 // 1
     return
 
-new_game_bool_false@8:
+new_game_bool_false@10:
     intc_0 // 0
-    b new_game_bool_merge@9
+    b new_game_bool_merge@11
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -> void:
@@ -146,6 +148,8 @@ join_game:
     intc_3 // 16
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    // tictactoe/tictactoe.py:37
+    // @arc4.abimethod
     dup
     intc_0 // 0
     extract_uint64
@@ -210,6 +214,8 @@ play:
     intc_3 // 16
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64>
+    // tictactoe/tictactoe.py:47
+    // @arc4.abimethod
     dup
     intc_0 // 0
     extract_uint64
@@ -232,7 +238,7 @@ play:
     assert // check self.turns exists
     pushint 2
     %
-    bz play_else_body@3
+    bz play_else_body@5
     // tictactoe/tictactoe.py:51
     // assert Txn.sender == self.host, "It is the host's turn"
     txn Sender
@@ -246,7 +252,7 @@ play:
     // player = arc4.UInt8(HOST)
     bytec 4 // 0x01
 
-play_after_if_else@4:
+play_after_if_else@6:
     // tictactoe/tictactoe.py:58
     // self.make_move(player, move)
     dig 2
@@ -257,7 +263,7 @@ play_after_if_else@4:
     intc_1 // 1
     return
 
-play_else_body@3:
+play_else_body@5:
     // tictactoe/tictactoe.py:54
     // assert Txn.sender == self.challenger.get(
     txn Sender
@@ -279,7 +285,7 @@ play_else_body@3:
     // tictactoe/tictactoe.py:57
     // player = arc4.UInt8(CHALLENGER)
     bytec 5 // 0x02
-    b play_after_if_else@4
+    b play_after_if_else@6
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: bytes, move.0: uint64, move.1: uint64) -> void:

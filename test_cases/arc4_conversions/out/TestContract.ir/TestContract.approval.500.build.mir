@@ -1649,9 +1649,9 @@ subroutine test_bytes_to_fixed:
     test_bytes_to_fixed_block@0:
         // arc4_conversions/contract.py:178
         // @arc4.abimethod
-        txna ApplicationArgs 1                                                                       tmp%0#0
-        v-store tmp%0#0
-        v-load tmp%0#0                                                                               tmp%0#0
+        txna ApplicationArgs 1                                                                       value#0
+        v-store value#0
+        v-load value#0                                                                               value#0
         len                                                                                          len%0#0
         v-store len%0#0
         v-load len%0#0                                                                               len%0#0
@@ -1660,8 +1660,10 @@ subroutine test_bytes_to_fixed:
         v-store eq%0#0
         v-load eq%0#0                                                                                eq%0#0
         assert // invalid number of bytes for arc4.bool
-        v-load tmp%0#0                                                                               tmp%0#0
-        int 0                                                                                        tmp%0#0,0
+        // arc4_conversions/contract.py:178
+        // @arc4.abimethod
+        v-load value#0                                                                               value#0
+        int 0                                                                                        value#0,0
         getbit                                                                                       wrong_size#0
         v-store wrong_size#0
         // arc4_conversions/contract.py:180
@@ -1685,18 +1687,18 @@ subroutine test_bytes_to_fixed:
         // arc4_conversions/contract.py:183
         // if wrong_size:
         v-load wrong_size#0                                                                          wrong_size#0
-        bz test_bytes_to_fixed_after_if_else@4 ; b test_bytes_to_fixed_if_body@3
+        bz test_bytes_to_fixed_after_if_else@6 ; b test_bytes_to_fixed_if_body@5
 
-    test_bytes_to_fixed_if_body@3:
+    test_bytes_to_fixed_if_body@5:
         // arc4_conversions/contract.py:184
         // sender = sender + sender
         v-load sender#0                                                                              sender#0
         v-load sender#0                                                                              sender#0,sender#0
         concat                                                                                       sender#0
         v-store sender#0
-        b test_bytes_to_fixed_after_if_else@4
+        b test_bytes_to_fixed_after_if_else@6
 
-    test_bytes_to_fixed_after_if_else@4:
+    test_bytes_to_fixed_after_if_else@6:
         // arc4_conversions/contract.py:186
         // arc4.abi_call(CheckApp.check_static_bytes, sender, app_id=app)
         itxn_begin

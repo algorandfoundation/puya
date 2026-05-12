@@ -162,45 +162,53 @@ umm2_block@0:
 
 // test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]() -> void:
 calculate:
+    intc_0 // 0
+    intc_0 // 0
+    intc_0 // 0
+    bytec_0 // ""
+    bytec_0 // ""
+    bytec_0 // ""
     b calculate_block@0
 
 calculate_block@0:
     // regression_tests/leftover_branch.py:29
     // @arc4.abimethod
     txna ApplicationArgs 1
+    dup
+    b calculate_block@1
+
+calculate_block@1:
     dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    bury 6
     intc_2 // 2
     *
-    cover 1
+    bury 4
     dup
     len
     cover 1
     intc_2 // 2
     uncover 2
     substring3
+    bury 8
     intc_0 // 0
-    b calculate_for_header@1
+    bury 5
+    b calculate_for_header@2
 
-calculate_for_header@1:
-    // regression_tests/leftover_branch.py:29
-    // @arc4.abimethod
-    dup
+calculate_for_header@2:
+    dig 4
     dig 4
     <
-    bz calculate_after_for@4
-    b calculate_for_body@2
+    bz calculate_after_for@5
+    b calculate_for_body@3
 
-calculate_for_body@2:
-    // regression_tests/leftover_branch.py:29
-    // @arc4.abimethod
-    dup
+calculate_for_body@3:
+    dig 4
     intc_2 // 2
     *
-    dig 2
+    dig 8
     dup
     cover 2
     uncover 1
@@ -226,33 +234,54 @@ calculate_for_body@2:
     +
     +
     bury 3
-    b calculate_for_footer@3
+    b calculate_for_footer@4
 
-calculate_for_footer@3:
-    dup
+calculate_for_footer@4:
+    dig 4
     intc_1 // 1
     +
-    bury 1
-    b calculate_for_header@1
+    bury 5
+    b calculate_for_header@2
 
-calculate_after_for@4:
-    // regression_tests/leftover_branch.py:29
-    // @arc4.abimethod
+calculate_after_for@5:
     dig 2
     intc_2 // 2
     +
-    dig 5
-    dup
-    cover 2
+    dig 1
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>
+    // regression_tests/leftover_branch.py:29
+    // @arc4.abimethod
+    b calculate_after_inlined_%Validate__arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>@6
+
+calculate_after_inlined_%Validate__arc4.dynamic_array<arc4.dynamic_array<arc4.uint64>>@6:
+    // regression_tests/leftover_branch.py:29
+    // @arc4.abimethod
+    dig 1
+    bury 7
     txna ApplicationArgs 2
+    dup
+    bury 7
+    bury 1
+    b calculate_block@7
+
+calculate_block@7:
     dup
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
+    // regression_tests/leftover_branch.py:29
+    // @arc4.abimethod
+    b calculate_after_inlined_%Validate__arc4.uint64@8
+
+calculate_after_inlined_%Validate__arc4.uint64@8:
+    // regression_tests/leftover_branch.py:29
+    // @arc4.abimethod
+    dig 5
+    dig 7
+    uncover 1
     callsub test_cases.regression_tests.leftover_branch.BranchElimination.calculate
     intc_1 // 1
     return
