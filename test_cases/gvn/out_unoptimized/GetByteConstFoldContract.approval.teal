@@ -1,0 +1,85 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.getbyte_const_fold.GetByteConstFoldContract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x68656c6c6f
+    b main_block@0
+
+main_block@0:
+    // gvn/getbyte_const_fold.py:13
+    // test_direct()
+    callsub test_direct
+    // gvn/getbyte_const_fold.py:14
+    // test_through_phi(UInt64(0))
+    intc_0 // 0
+    callsub test_through_phi
+    // gvn/getbyte_const_fold.py:15
+    // return True
+    intc_1 // 1
+    return
+
+
+// test_cases.gvn.getbyte_const_fold.test_direct() -> void:
+test_direct:
+    b test_direct_block@0
+
+test_direct_block@0:
+    // gvn/getbyte_const_fold.py:23-24
+    // # const bytes + const index — collapses in intrinsic_simplifier
+    // assert op.getbyte(Bytes(b"hello"), 0) == 104  # 'h'
+    bytec_0 // 0x68656c6c6f
+    intc_0 // 0
+    getbyte
+    pushint 104
+    ==
+    assert
+    // gvn/getbyte_const_fold.py:25
+    // assert op.getbyte(Bytes(b"hello"), 4) == 111  # 'o'
+    bytec_0 // 0x68656c6c6f
+    pushint 4
+    getbyte
+    pushint 111
+    ==
+    assert
+    retsub
+
+
+// test_cases.gvn.getbyte_const_fold.test_through_phi(selector: uint64) -> void:
+test_through_phi:
+    // gvn/getbyte_const_fold.py:28-29
+    // @subroutine(inline=False)
+    // def test_through_phi(selector: UInt64) -> None:
+    proto 1 0
+    b test_through_phi_block@0
+
+test_through_phi_block@0:
+    // gvn/getbyte_const_fold.py:30-32
+    // # selector flows through a phi but both arms produce the same const-foldable arg;
+    // # only GVN sees the equivalence and folds the getbyte.
+    // if selector:
+    frame_dig -1
+    intc_0 // 0
+    !=
+    bz test_through_phi_else_body@2
+    b test_through_phi_if_body@1
+
+test_through_phi_if_body@1:
+    b test_through_phi_after_if_else@3
+
+test_through_phi_after_if_else@3:
+    // gvn/getbyte_const_fold.py:33
+    // b = Bytes(b"AB")
+    pushbytes 0x4142
+    // gvn/getbyte_const_fold.py:36
+    // assert op.getbyte(b, 1) == 66  # 'B'
+    intc_1 // 1
+    getbyte
+    pushint 66
+    ==
+    assert
+    retsub
+
+test_through_phi_else_body@2:
+    b test_through_phi_after_if_else@3

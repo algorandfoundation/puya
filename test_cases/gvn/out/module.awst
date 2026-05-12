@@ -166,6 +166,45 @@ subroutine test_biguint_double_negated(a: biguint, b: biguint): void
   assert(!(neg))
 }
 
+contract GetByteConstFoldContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.getbyte_const_fold.GetByteConstFoldContract.approval_program(): bool
+  {
+    test_cases.gvn.getbyte_const_fold.test_direct()
+    test_cases.gvn.getbyte_const_fold.test_through_phi(0u)
+    return true
+  }
+  
+  subroutine test_cases.gvn.getbyte_const_fold.GetByteConstFoldContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_direct(): void
+{
+  assert(getbyte(hex<"68656C6C6F">, 0u) == 104u)
+  assert(getbyte(hex<"68656C6C6F">, 4u) == 111u)
+}
+
+subroutine test_through_phi(selector: uint64): void
+{
+  if (selector != 0u) {
+    b: bytes = hex<"4142">
+  } else {
+    b: bytes = hex<"4142">
+  }
+  assert(getbyte(b, 1u) == 66u)
+}
+
 contract ComparisonSwapsContract
 {
   method_resolution_order: (
