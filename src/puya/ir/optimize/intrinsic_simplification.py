@@ -733,6 +733,25 @@ def _try_fold_intrinsic(
                     ),
                     value=folded_bytes,
                 )
+    elif intrinsic.op is AVMOp.setbyte:
+        match intrinsic.args:
+            case [
+                models.Value(atype=AVMType.bytes) as byte_arg,
+                models.UInt64Constant(value=index),
+                models.UInt64Constant(value=value),
+            ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
+                folded_bytes = fold_setbyte(byte_const.value, index, value)
+                if folded_bytes is None:
+                    return None
+                return models.BytesConstant(
+                    source_location=op_loc,
+                    encoding=(
+                        byte_const.encoding
+                        if byte_const.encoding != AVMBytesEncoding.utf8
+                        else AVMBytesEncoding.unknown
+                    ),
+                    value=folded_bytes,
+                )
     elif intrinsic.op in _EXTRACT_UINTN_BYTE_SIZE:
         match intrinsic.args:
             case [
@@ -1514,6 +1533,16 @@ def fold_setbit_bytes(b: bytes, index: int, value: int) -> bytes | None:
     byte = b[byte_index]
     new_byte = byte | mask if value else byte & ~mask
     return b[:byte_index] + bytes([new_byte]) + b[byte_index + 1 :]
+
+
+def fold_setbyte(b: bytes, index: int, value: int) -> bytes | None:
+    if index >= len(b):
+        return None
+    if value > 0xFF:
+        return None
+    out = bytearray(b)
+    out[index] = value
+    return bytes(out)
 
 
 def fold_uint64_const_unary_op(op: AVMOp, x: int) -> int | None:
