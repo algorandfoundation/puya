@@ -46,6 +46,7 @@ from puya.ir.optimize.intrinsic_simplification import (
     fold_replace2,
     fold_setbit_bytes,
     fold_setbit_uint64,
+    fold_setbyte,
     fold_uint64_const_binary_op,
     fold_uint64_const_unary_op,
     hash_eval_funcs,
@@ -827,6 +828,25 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         _UInt64ConstKey(value=value),
                     ]:
                         folded_bytes = fold_setbit_bytes(bv, index, value)
+                        if folded_bytes is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _BytesConstKey(
+                                    value=folded_bytes,
+                                    encoding=(
+                                        enc
+                                        if enc != AVMBytesEncoding.utf8
+                                        else AVMBytesEncoding.unknown
+                                    ),
+                                )
+                            )
+            case AVMOp.setbyte:
+                match arg_defns:
+                    case [
+                        _BytesConstKey(value=bv, encoding=enc),
+                        _UInt64ConstKey(value=index),
+                        _UInt64ConstKey(value=value),
+                    ]:
+                        folded_bytes = fold_setbyte(bv, index, value)
                         if folded_bytes is not None:
                             return self._tables.lookup_or_assign_const(
                                 _BytesConstKey(
