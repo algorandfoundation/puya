@@ -344,7 +344,7 @@ def _build_equivalence_sets(
     # defs whose sole use is also r's defining op). Subroutine-wide: only populated
     # for registers with exactly one read across the whole subroutine, so eliminating
     # that one read truly kills r and DCE will remove its defining op.
-    savings: dict[models.Register, int] = {}
+    savings = dict[models.Register, int]()
 
     def _keep_defn(
         reg: models.Register, vn_to_rep: _VNRepresentativeMap, *, force_new_rep: bool = False
@@ -394,7 +394,7 @@ def _build_equivalence_sets(
                         logger.debug(f"removing redundant assert of {op.condition}")
                         ops.pop()
                         ssa_reads.remove(op)
-            elif isinstance(op, models.Assignment) and not isinstance(op.source, models.Constant):
+            elif isinstance(op, models.Assignment):
                 replaced = False
                 if len(op.targets) == 1 and not isinstance(op.source, models.Value):
                     (target,) = op.targets
@@ -445,6 +445,8 @@ def _build_equivalence_sets(
 
                 if not replaced:
                     match op.source:
+                        case models.Constant():
+                            continue
                         case models.Intrinsic(args=[]):
                             force_new_rep = True
                         case _:
