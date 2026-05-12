@@ -42,6 +42,7 @@ from puya.ir.optimize.intrinsic_simplification import (
     fold_bytes_const_unary_op,
     fold_extract_uint_n,
     fold_getbit_bytes,
+    fold_getbyte,
     fold_replace2,
     fold_setbit_bytes,
     fold_setbit_uint64,
@@ -841,6 +842,14 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 match arg_defns:
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
                         folded = fold_getbit_bytes(bv, index)
+                        if folded is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=folded)
+                            )
+            case AVMOp.getbyte:
+                match arg_defns:
+                    case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
+                        folded = fold_getbyte(bv, index)
                         if folded is not None:
                             return self._tables.lookup_or_assign_const(
                                 _UInt64ConstKey(value=folded)
