@@ -675,8 +675,29 @@ def _try_fold_intrinsic(
                 encoding=choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
                 source_location=op_loc,
             )
-    # replace3 with a constant start arg will be converted to replace2 by
-    # stack-to-immediate conversion, so replace2 folding above handles it on the next pass
+    elif intrinsic.op is AVMOp.replace3:
+        match intrinsic.args:
+            case [
+                models.Value(atype=AVMType.bytes) as byte_arg_a,
+                models.UInt64Constant(value=start),
+                models.Value(atype=AVMType.bytes) as byte_arg_b,
+            ] if (
+                (byte_const_a := _get_byte_constant(register_assignments, byte_arg_a)) is not None
+                and (byte_const_b := _get_byte_constant(register_assignments, byte_arg_b))
+                is not None
+            ):
+                folded_bytes = fold_replace2(byte_const_a.value, start, byte_const_b.value)
+                if folded_bytes is None:
+                    return None
+                return models.BytesConstant(
+                    value=folded_bytes,
+                    encoding=choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
+                    source_location=op_loc,
+                )
+    # replace3 with a constant start arg ≤ 255 is converted to replace2 by
+    # stack-to-immediate conversion (so the replace2 branch above handles it on a
+    # subsequent pass); the replace3 branch directly above handles starts > 255 and
+    # the pre-conversion case.
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
