@@ -37,6 +37,47 @@ subroutine test_through_phi(selector: uint64): void
   assert(setbyte(b, 0u, 67u) == hex<"4342">)
 }
 
+contract Replace3ConstFoldContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.replace3_const_fold.Replace3ConstFoldContract.approval_program(): bool
+  {
+    test_cases.gvn.replace3_const_fold.test_large_index()
+    test_cases.gvn.replace3_const_fold.test_through_phi(0u)
+    return true
+  }
+  
+  subroutine test_cases.gvn.replace3_const_fold.Replace3ConstFoldContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_large_index(): void
+{
+  src: bytes = bzero(300u)
+  patched: bytes = replace3(src, 256u, hex<"58595A">)
+  assert(getbyte(patched, 256u) == 88u)
+}
+
+subroutine test_through_phi(selector: uint64): void
+{
+  if (selector != 0u) {
+    repl: bytes = hex<"4142">
+  } else {
+    repl: bytes = hex<"4142">
+  }
+  out: bytes = replace3(hex<"30303030">, 1u, repl)
+  assert(getbyte(out, 1u) == 65u)
+}
+
 contract PhiCongruenceContract
 {
   method_resolution_order: (
