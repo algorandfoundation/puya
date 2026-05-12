@@ -695,6 +695,16 @@ def _try_fold_intrinsic(
                 if folded is None:
                     return None
                 return models.UInt64Constant(source_location=op_loc, value=folded)
+    elif intrinsic.op is AVMOp.getbyte:
+        match intrinsic.args:
+            case [
+                models.Value(atype=AVMType.bytes) as byte_arg,
+                models.UInt64Constant(value=index),
+            ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
+                folded = fold_getbyte(byte_const.value, index)
+                if folded is None:
+                    return None
+                return models.UInt64Constant(source_location=op_loc, value=folded)
     elif intrinsic.op is AVMOp.setbit:
         match intrinsic.args:
             case [
@@ -1488,6 +1498,12 @@ def fold_getbit_bytes(b: bytes, index: int) -> int | None:
         return None
     byte_index, bit_offset = divmod(index, 8)
     return (b[byte_index] >> (7 - bit_offset)) & 1
+
+
+def fold_getbyte(b: bytes, index: int) -> int | None:
+    if index >= len(b):
+        return None
+    return b[index]
 
 
 def fold_setbit_bytes(b: bytes, index: int, value: int) -> bytes | None:
