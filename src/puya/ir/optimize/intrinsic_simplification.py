@@ -61,7 +61,7 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "%",
         "exp",
         "sqrt",
-        # wide math
+        # wide math: multi-return - covered by GVN but not here
         "addw",
         "mulw",
         "divw",
@@ -109,8 +109,14 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "bzero",
         "select",
         "bitlen",
+        # implemented hash ops
+        "keccak256",
+        "sha256",
+        "sha3_256",
+        "sha512_256",
         # ! unimplemented for constant arg evaluation
         "base64_decode",
+        "json_ref",
         "ec_add",
         "ec_map_to",
         "ec_multi_scalar_mul",
@@ -122,13 +128,13 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "ecdsa_verify",
         "ed25519verify",
         "ed25519verify_bare",
-        "json_ref",
-        "keccak256",
-        "sha256",
-        "sha3_256",
-        "sha512_256",
+        "falcon_verify",
+        "mimc",
         "vrf_verify",
-        "sumhash512",  # AVM 11
+        # AVM vNext ops (currently v13)
+        "poseidon2",
+        "sha512",
+        "sumhash512",
     ]
 )
 
