@@ -508,13 +508,45 @@ def _build_equivalence_sets(
                             force_new_rep = True
                         case _:
                             force_new_rep = False
-                    keep = False
-                    for target in op.targets:
-                        keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
-                    if not keep:
-                        ops.pop()
-                        modified = True
-                        ssa_reads.remove(op)
+                    if len(op.targets) == 1 or force_new_rep:
+                        keep = False
+                        for target in op.targets:
+                            keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
+                        if not keep:
+                            ops.pop()
+                            modified = True
+                            ssa_reads.remove(op)
+                    else:
+                        # Multi-target: only drop the op if EVERY target has an external
+                        # dominating rep. Partial folding would let MemoryReplacer rewrite
+                        # only some targets on the LHS, producing duplicate Assignment
+                        # targets and violating SSA. When kept, still register the novel
+                        # targets as reps so a later identical op can drop itself.
+                        target_keys = [
+                            (tables.register_vn[t], t.ir_type.maybe_avm_type) for t in op.targets
+                        ]
+                        external_reps = [scope.get(k) for k in target_keys]
+                        if all(rep is not None for rep in external_reps):
+                            for target, rep in zip(op.targets, external_reps, strict=True):
+                                assert rep is not None
+                                all_sets[rep].append(target)
+                            ops.pop()
+                            modified = True
+                            ssa_reads.remove(op)
+                        else:
+                            seen_keys = set[tuple[VN, _MaybeAVMType]]()
+                            for target, key, ext_rep in zip(
+                                op.targets, target_keys, external_reps, strict=True
+                            ):
+                                if ext_rep is not None:
+                                    # has an external rep — leave isolated to avoid LHS
+                                    # rewriting that would clash with the existing def
+                                    continue
+                                if not set_add(seen_keys, key):
+                                    # a co-target already claimed this (VN, type) —
+                                    # same hazard as above
+                                    continue
+                                _keep_defn(target, scope, force_new_rep=False)
         block.ops[:] = ops
         for child in dom_tree.get(block, []):
             _walk(child, scope, asserted)
