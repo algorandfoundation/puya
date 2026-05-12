@@ -30,6 +30,13 @@ from puya.ir import (
 )
 from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
+from puya.ir.optimize._intrinsics import (
+    fold_addw,
+    fold_divmodw,
+    fold_divw,
+    fold_expw,
+    fold_mulw,
+)
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.optimize.intrinsic_simplification import (
@@ -398,39 +405,89 @@ def _build_equivalence_sets(
                         ssa_reads.remove(op)
             elif isinstance(op, models.Assignment):
                 replaced = False
-                if len(op.targets) == 1 and not isinstance(op.source, models.Value):
-                    (target,) = op.targets
-                    target_vn = tables.register_vn[target]
-                    match tables.vn_definition.get(target_vn):
-                        case _UInt64ConstKey(value=uint64_const):
-                            modified = True
-                            (source_type,) = op.source.types
-                            with ssa_reads.update(op):
-                                op.source = models.UInt64Constant(
-                                    value=uint64_const,
-                                    ir_type=source_type,
-                                    source_location=op.source.source_location,
+                if not isinstance(op.source, models.Value):
+                    if len(op.targets) == 1:
+                        (target,) = op.targets
+                        target_vn = tables.register_vn[target]
+                        match tables.vn_definition.get(target_vn):
+                            case _UInt64ConstKey(value=uint64_const):
+                                modified = True
+                                (source_type,) = op.source.types
+                                with ssa_reads.update(op):
+                                    op.source = models.UInt64Constant(
+                                        value=uint64_const,
+                                        ir_type=source_type,
+                                        source_location=op.source.source_location,
+                                    )
+                                replaced = True
+                            case _BytesConstKey(
+                                value=bytes_const, encoding=bytes_encoding
+                            ) if expand_all_bytes or (
+                                isinstance(op.source, models.Intrinsic)
+                                and (
+                                    len(_encode_bytes(bytes_const))
+                                    <= _intrinsic_dead_cost(op.source, savings)
                                 )
-                            replaced = True
-                        case _BytesConstKey(
-                            value=bytes_const, encoding=bytes_encoding
-                        ) if expand_all_bytes or (
-                            isinstance(op.source, models.Intrinsic)
-                            and (
-                                len(_encode_bytes(bytes_const))
-                                <= _intrinsic_dead_cost(op.source, savings)
-                            )
+                            ):
+                                modified = True
+                                (source_type,) = op.source.types
+                                with ssa_reads.update(op):
+                                    op.source = models.BytesConstant(
+                                        value=bytes_const,
+                                        encoding=bytes_encoding,
+                                        ir_type=source_type,
+                                        source_location=op.source.source_location,
+                                    )
+                                replaced = True
+                    else:
+                        target_defns = [
+                            tables.vn_definition.get(tables.register_vn[t]) for t in op.targets
+                        ]
+                        if all(
+                            isinstance(d, _UInt64ConstKey | _BytesConstKey) for d in target_defns
                         ):
-                            modified = True
-                            (source_type,) = op.source.types
-                            with ssa_reads.update(op):
-                                op.source = models.BytesConstant(
-                                    value=bytes_const,
-                                    encoding=bytes_encoding,
-                                    ir_type=source_type,
-                                    source_location=op.source.source_location,
-                                )
-                            replaced = True
+                            const_values = list[models.Value]()
+                            for target_defn, source_type in zip(
+                                target_defns, op.source.types, strict=True
+                            ):
+                                match target_defn:
+                                    case _UInt64ConstKey(value=uint64_const):
+                                        const_values.append(
+                                            models.UInt64Constant(
+                                                value=uint64_const,
+                                                ir_type=source_type,
+                                                source_location=op.source.source_location,
+                                            )
+                                        )
+                                    case _BytesConstKey(
+                                        value=bytes_const, encoding=bytes_encoding
+                                    ) if expand_all_bytes or (
+                                        isinstance(op.source, models.Intrinsic)
+                                        and (
+                                            len(_encode_bytes(bytes_const))
+                                            <= _intrinsic_dead_cost(op.source, savings)
+                                        )
+                                    ):
+                                        const_values.append(
+                                            models.BytesConstant(
+                                                value=bytes_const,
+                                                encoding=bytes_encoding,
+                                                ir_type=source_type,
+                                                source_location=op.source.source_location,
+                                            )
+                                        )
+                                    case _:
+                                        # cost gate failed (bytes target) — bail
+                                        # entirely rather than half-folding
+                                        break
+                            else:
+                                modified = True
+                                with ssa_reads.update(op):
+                                    op.source = models.ValueTuple(
+                                        values=const_values,
+                                        source_location=op.source.source_location,
+                                    )
+                                replaced = True
 
                 if len(op.targets) == 1:
                     (saved_target,) = op.targets
@@ -1012,6 +1069,65 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if folded is not None:
                             return self._tables.lookup_or_assign_const(
                                 _UInt64ConstKey(value=folded)
+                            )
+            case AVMOp.addw:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=addw_a), _UInt64ConstKey(value=addw_b)]:
+                        addw_folded = fold_addw(addw_a, addw_b)
+                        if addw_folded is not None:
+                            carry, lo = addw_folded
+                            return (
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=carry)),
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=lo)),
+                            )
+            case AVMOp.mulw:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=mulw_a), _UInt64ConstKey(value=mulw_b)]:
+                        mulw_folded = fold_mulw(mulw_a, mulw_b)
+                        if mulw_folded is not None:
+                            hi, lo = mulw_folded
+                            return (
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=hi)),
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=lo)),
+                            )
+            case AVMOp.expw:
+                match arg_defns:
+                    case [_UInt64ConstKey(value=expw_a), _UInt64ConstKey(value=expw_b)]:
+                        expw_folded = fold_expw(expw_a, expw_b)
+                        if expw_folded is not None:
+                            hi, lo = expw_folded
+                            return (
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=hi)),
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=lo)),
+                            )
+            case AVMOp.divw:
+                match arg_defns:
+                    case [
+                        _UInt64ConstKey(value=hi),
+                        _UInt64ConstKey(value=lo),
+                        _UInt64ConstKey(value=divisor),
+                    ]:
+                        divw_folded = fold_divw(hi, lo, divisor)
+                        if divw_folded is not None:
+                            return self._tables.lookup_or_assign_const(
+                                _UInt64ConstKey(value=divw_folded)
+                            )
+            case AVMOp.divmodw:
+                match arg_defns:
+                    case [
+                        _UInt64ConstKey(value=h1),
+                        _UInt64ConstKey(value=l1),
+                        _UInt64ConstKey(value=h2),
+                        _UInt64ConstKey(value=l2),
+                    ]:
+                        divmodw_folded = fold_divmodw(h1, l1, h2, l2)
+                        if divmodw_folded is not None:
+                            qh, ql, rh, rl = divmodw_folded
+                            return (
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=qh)),
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=ql)),
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=rh)),
+                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=rl)),
                             )
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
