@@ -538,15 +538,9 @@ def _build_equivalence_sets(
                             for target, key, ext_rep in zip(
                                 op.targets, target_keys, external_reps, strict=True
                             ):
-                                if ext_rep is not None:
-                                    # has an external rep — leave isolated to avoid LHS
-                                    # rewriting that would clash with the existing def
-                                    continue
-                                if not set_add(seen_keys, key):
-                                    # a co-target already claimed this (VN, type) —
-                                    # same hazard as above
-                                    continue
-                                _keep_defn(target, scope, force_new_rep=False)
+                                if ext_rep is None and set_add(seen_keys, key):
+                                    _keep_defn(target, scope, force_new_rep=False)
+
         block.ops[:] = ops
         for child in dom_tree.get(block, []):
             _walk(child, scope, asserted)
