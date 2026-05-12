@@ -1,0 +1,92 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.replace3_const_fold.Replace3ConstFoldContract.approval_program() -> uint64:
+main:
+    intcblock 1 0 256
+    b main_block@0
+
+main_block@0:
+    // gvn/replace3_const_fold.py:15
+    // test_large_index()
+    callsub test_large_index
+    // gvn/replace3_const_fold.py:16
+    // test_through_phi(UInt64(0))
+    intc_1 // 0
+    callsub test_through_phi
+    // gvn/replace3_const_fold.py:17
+    // return True
+    intc_0 // 1
+    return
+
+
+// test_cases.gvn.replace3_const_fold.test_large_index() -> void:
+test_large_index:
+    b test_large_index_block@0
+
+test_large_index_block@0:
+    // gvn/replace3_const_fold.py:25-27
+    // # 300-byte source so we can replace at index 256 — stack-to-immediate
+    // # bails on indices > 255, so this must be folded as replace3.
+    // src = op.bzero(300)
+    pushint 300
+    bzero
+    // gvn/replace3_const_fold.py:28
+    // patched = op.replace(src, 256, Bytes(b"XYZ"))
+    intc_2 // 256
+    pushbytes 0x58595a
+    replace3
+    // gvn/replace3_const_fold.py:29
+    // assert op.getbyte(patched, 256) == 88  # ord('X')
+    intc_2 // 256
+    getbyte
+    pushint 88
+    ==
+    assert
+    retsub
+
+
+// test_cases.gvn.replace3_const_fold.test_through_phi(selector: uint64) -> void:
+test_through_phi:
+    // gvn/replace3_const_fold.py:32-33
+    // @subroutine(inline=False)
+    // def test_through_phi(selector: UInt64) -> None:
+    proto 1 0
+    b test_through_phi_block@0
+
+test_through_phi_block@0:
+    // gvn/replace3_const_fold.py:34-36
+    // # const replacement arrives via a phi so intrinsic_simplifier can't see it,
+    // # but GVN can.
+    // if selector:
+    frame_dig -1
+    intc_1 // 0
+    !=
+    bz test_through_phi_else_body@2
+    b test_through_phi_if_body@1
+
+test_through_phi_if_body@1:
+    b test_through_phi_after_if_else@3
+
+test_through_phi_after_if_else@3:
+    // gvn/replace3_const_fold.py:40
+    // out = op.replace(Bytes(b"0000"), 1, repl)
+    pushbytes 0x30303030
+    intc_0 // 1
+    // gvn/replace3_const_fold.py:37
+    // repl = Bytes(b"AB")
+    pushbytes 0x4142
+    // gvn/replace3_const_fold.py:40
+    // out = op.replace(Bytes(b"0000"), 1, repl)
+    replace3
+    // gvn/replace3_const_fold.py:41
+    // assert op.getbyte(out, 1) == 65  # ord('A')
+    intc_0 // 1
+    getbyte
+    pushint 65
+    ==
+    assert
+    retsub
+
+test_through_phi_else_body@2:
+    b test_through_phi_after_if_else@3
