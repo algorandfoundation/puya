@@ -410,10 +410,6 @@ def _build_equivalence_sets(
                                     source_location=op.source.source_location,
                                 )
                             replaced = True
-                        # The below can produce some good wins if we disable the expand_all_bytes
-                        # guard, e.g. in inner_transactions/contracy.py, but it needs to be handled
-                        # carefully to avoid punching through multiple layers # to a bzero or itob
-                        # that is otherwise being reused.
                         case _BytesConstKey(
                             value=bytes_const, encoding=bytes_encoding
                         ) if expand_all_bytes or (
@@ -438,7 +434,9 @@ def _build_equivalence_sets(
                     (saved_target,) = op.targets
                     if ssa_reads.count(saved_target) == 1:
                         match op.source:
-                            case models.Intrinsic() as intrinsic:
+                            case (
+                                models.Intrinsic() as intrinsic
+                            ) if intrinsic.op in COMPILE_TIME_CONSTANT_OPS:
                                 savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
                             case models.Constant():
                                 savings[saved_target] = _get_const_size(op.source)
