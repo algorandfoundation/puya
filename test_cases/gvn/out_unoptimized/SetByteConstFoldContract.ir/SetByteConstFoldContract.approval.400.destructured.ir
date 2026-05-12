@@ -1,0 +1,29 @@
+main test_cases.gvn.setbyte_const_fold.SetByteConstFoldContract.approval_program:
+    block@0: // L12
+        test_cases.gvn.setbyte_const_fold.test_direct()
+        test_cases.gvn.setbyte_const_fold.test_through_phi(0u)
+        return 1u
+
+subroutine test_cases.gvn.setbyte_const_fold.test_direct() -> void:
+    block@0: // L21
+        let tmp%0#0: bytes = (setbyte 0x4142 0u 90u)
+        let tmp%1#0: bool = (== tmp%0#0 0x5a42)
+        (assert tmp%1#0)
+        let tmp%2#0: bytes = (setbyte 0x4142 1u 90u)
+        let tmp%3#0: bool = (== tmp%2#0 0x415a)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.setbyte_const_fold.test_through_phi(selector: uint64) -> void:
+    block@0: // L28
+        let tmp%0#0: bool = (!= selector#0 0u)
+        goto tmp%0#0 ? block@1 : block@2
+    block@1: // if_body_L33
+        goto block@3
+    block@2: // else_body_L35
+        goto block@3
+    block@3: // after_if_else_L32
+        let tmp%1#0: bytes = (setbyte 0x4142 0u 67u)
+        let tmp%2#0: bool = (== tmp%1#0 0x4342)
+        (assert tmp%2#0)
+        return 
