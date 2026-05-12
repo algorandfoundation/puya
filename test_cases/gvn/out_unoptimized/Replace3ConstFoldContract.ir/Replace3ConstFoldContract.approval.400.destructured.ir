@@ -1,0 +1,32 @@
+main test_cases.gvn.replace3_const_fold.Replace3ConstFoldContract.approval_program:
+    block@0: // L14
+        test_cases.gvn.replace3_const_fold.test_large_index()
+        test_cases.gvn.replace3_const_fold.test_through_phi(0u)
+        return 1u
+
+subroutine test_cases.gvn.replace3_const_fold.test_large_index() -> void:
+    block@0: // L23
+        let tmp%0#0: bytes = (bzero 300u)
+        let src#0: bytes = tmp%0#0
+        let tmp%1#0: bytes = (replace3 src#0 256u 0x58595a)
+        let patched#0: bytes = tmp%1#0
+        let tmp%2#0: uint64 = (getbyte patched#0 256u)
+        let tmp%3#0: bool = (== tmp%2#0 88u)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.replace3_const_fold.test_through_phi(selector: uint64) -> void:
+    block@0: // L32
+        let tmp%0#0: bool = (!= selector#0 0u)
+        goto tmp%0#0 ? block@1 : block@2
+    block@1: // if_body_L37
+        goto block@3
+    block@2: // else_body_L39
+        goto block@3
+    block@3: // after_if_else_L36
+        let tmp%1#0: bytes = (replace3 0x30303030 1u 0x4142)
+        let out#0: bytes = tmp%1#0
+        let tmp%2#0: uint64 = (getbyte out#0 1u)
+        let tmp%3#0: bool = (== tmp%2#0 65u)
+        (assert tmp%3#0)
+        return 
