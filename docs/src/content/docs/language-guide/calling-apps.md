@@ -64,7 +64,7 @@ def call_another_contract() -> None:
 
 #### Method signature or name
 
-An ARC-4 method selector can be used e.g. `"hello(string)string` along with a type index to specify the return type.
+An ARC-4 method selector can be used e.g. `"hello(string)string"` along with a type index to specify the return type.
 Additionally just a name can be provided and the method signature will be inferred e.g.
 
 ```python
