@@ -1,4 +1,11 @@
-#!/usr/bin/env python3
+"""Helper module for the API docs build.
+
+Exposes :func:`output_doc_stubs`, which processes the ``stubs/algopy-stubs/``
+sources via mypy and writes combined ``.pyi`` files to ``docs/algopy-stubs/``
+for sphinx-autoapi to consume. Driven by ``docs/api_build.py``. Not intended
+to be run directly.
+"""
+
 import subprocess
 import typing
 from collections.abc import Callable
