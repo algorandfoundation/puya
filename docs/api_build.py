@@ -66,6 +66,21 @@ _CLASS_ARGS_RE = re.compile(
     re.MULTILINE,
 )
 
+# Matches function/method headings with signatures, e.g.
+# "### compile_contract(contract: type[...], ...) → CompiledContract"
+# "#### copy() → Self"
+# The leading ``*kind*`` token (``*staticmethod*``, ``*async*``, …) is
+# captured so it can be preserved on the heading line. ``*class*``,
+# ``*property*`` and ``*classmethod*`` headings don't take parens so they
+# won't match.
+_FUNC_SIG_RE = re.compile(
+    r"^(?P<hashes>#{3,4}) "
+    r"(?P<kind>(?:\*(?:staticmethod|classmethod|abstractmethod|async)\* )*)"
+    r"(?P<name>[\w.]+)"
+    r"(?P<sig>\(.*)$",
+    re.MULTILINE,
+)
+
 _H3_TEXT_RE = re.compile(r"^### (.+)$", re.MULTILINE)
 
 _QUALIFIED_ANCHOR_RE = re.compile(
@@ -380,6 +395,89 @@ def _simplify_class_headings(content: str) -> str:
     return _CLASS_ARGS_RE.sub(r"\1", content)
 
 
+_CLASS_HEADING_RE = re.compile(r"^### \*class\* (\w+)")
+_H4_HEADING_RE = re.compile(
+    r"^#### (?P<kind>(?:\*\w+\* )+)?(?P<name>\w+)(?P<rest>.*)$"
+)
+
+
+def _qualify_method_headings(content: str) -> str:
+    """Prefix H4 method headings with their enclosing class name.
+
+    Rewrites:
+        ### *class* FixedArray
+        ...
+        #### copy() → Self
+    Into:
+        ### *class* FixedArray
+        ...
+        #### FixedArray.copy() → Self
+
+    Without this, methods sharing a name across classes (``copy`` on every
+    array/struct type) all collapse to ``#copy``/``#copy-1``/``#copy-2`` via
+    github-slugger's order-dependent dedup. Qualifying with the class name
+    yields stable, unique anchors like ``#fixedarraycopy`` that survive
+    reordering of class declarations.
+    """
+    lines = content.splitlines()
+    current_class: str | None = None
+    for i, line in enumerate(lines):
+        m = _CLASS_HEADING_RE.match(line)
+        if m:
+            current_class = m.group(1)
+            continue
+        # Note: don't reset on non-class H3s. autoapi emits ``### Initialization``
+        # as a sub-section under each class — methods that follow still belong
+        # to the most recent ``### *class* Foo``. Top-level functions render as
+        # H3 (not H4), so they aren't matched here regardless of context.
+        if current_class is None:
+            continue
+        hm = _H4_HEADING_RE.match(line)
+        if not hm:
+            continue
+        name = hm.group("name")
+        # Don't re-qualify (e.g. ``FixedArray.copy`` already qualified) or
+        # touch private names emitted by autoapi.
+        if name.startswith("_") or "." in name:
+            continue
+        kind = hm.group("kind") or ""
+        rest = hm.group("rest")
+        lines[i] = f"#### {kind}{current_class}.{name}{rest}"
+    return "\n".join(lines)
+
+
+def _split_function_signatures(content: str) -> str:
+    """Lift function/method signatures out of headings into a sibling line.
+
+    Converts: ### compile_contract(contract: type[...], ...) → CompiledContract
+    To:
+        ### compile_contract
+
+        <div class="api-signature">compile_contract(contract: type[...], ...) → CompiledContract</div>
+
+    Keeps the signature visible (with its embedded type cross-reference links
+    intact) but gives the heading a clean slug like ``#compile_contract``
+    instead of a 200-character anchor that includes the full parameter list.
+    Method-name collisions on the same page (e.g. ``stage`` on every inner
+    transaction class) are deduplicated by github-slugger with ``-1``/``-2``
+    suffixes; :func:`_fix_member_index_anchors` keeps same-page references in
+    sync.
+    """
+    def sub(m: re.Match[str]) -> str:
+        hashes = m.group("hashes")
+        kind = m.group("kind") or ""
+        name = m.group("name")
+        sig = m.group("sig")
+        return (
+            f"{hashes} {kind}{name}\n\n"
+            f'<div class="api-signature">\n\n'
+            f"{name}{sig}\n\n"
+            f"</div>"
+        )
+
+    return _FUNC_SIG_RE.sub(sub, content)
+
+
 # Attribute heading followed by a standalone literal-default line (``Ellipsis``
 # for ``= ...``, ``None`` for ``= None``, etc.) emitted by autoapi.
 _ATTR_HEADING_WITH_DEFAULT_RE = re.compile(
@@ -625,6 +723,8 @@ def _process_md_files() -> None:
         content = _fix_internal_links(content)
         content = _shorten_qualified_names(content)
         content = _simplify_class_headings(content)
+        content = _qualify_method_headings(content)
+        content = _split_function_signatures(content)
         content = _simplify_attribute_renderings(content)
         content = _fix_module_md_links(content)
         content = _fix_member_index_anchors(content)
