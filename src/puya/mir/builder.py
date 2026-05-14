@@ -4,9 +4,8 @@ from collections.abc import Mapping
 import attrs
 
 from puya import log
-from puya.algo_constants import MAX_BYTES_LENGTH
 from puya.avm import AVMType
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.types_ import AVMBytesEncoding
@@ -254,19 +253,6 @@ class MemoryIRBuilder(IRVisitor[None]):
         )
 
     def visit_intrinsic_op(self, intrinsic: ir.Intrinsic) -> None:
-        if intrinsic.op.code.startswith("box_"):
-            try:
-                box_key = intrinsic.args[0]
-            except ValueError:
-                raise InternalError("box key arg not found", intrinsic.source_location) from None
-            if isinstance(box_key, ir.BytesConstant) and not box_key.value:
-                raise CodeError("AVM does not support empty box keys", intrinsic.source_location)
-        if intrinsic.op.code == "box_extract":
-            length = intrinsic.args[2]
-            if isinstance(length, ir.UInt64Constant) and length.value > MAX_BYTES_LENGTH:
-                logger.warning(
-                    f"value exceeds {MAX_BYTES_LENGTH} bytes", location=intrinsic.source_location
-                )
         for arg in intrinsic.args:
             arg.accept(self)
         produces = len(intrinsic.op_signature.returns)
