@@ -64,7 +64,7 @@ def optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
         return [
             models.Intrinsic(
                 op_code=f"arg_{idx}",
-                immediates=[],
+                immediates=(),
                 consumes=0,
                 produces=1,
                 stack_manipulations=a.stack_manipulations,
