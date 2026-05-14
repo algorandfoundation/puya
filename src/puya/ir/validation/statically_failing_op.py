@@ -284,6 +284,39 @@ def _check_biguint_sub_underflow(intrinsic: models.Intrinsic) -> _Problem | None
     return None
 
 
+def _check_box_extract_end_bounds(intrinsic: models.Intrinsic) -> _Problem | None:
+    match intrinsic.args:
+        case [_, models.UInt64Constant(value=start), models.UInt64Constant(value=length)]:
+            if start + length > algo_constants.MAX_BOX_BYTES_LENGTH:
+                return _Problem("box_extract end exceeds maximum box size")
+    return None
+
+
+def _check_box_replace_end_bounds(intrinsic: models.Intrinsic) -> _Problem | None:
+    match intrinsic.args:
+        case [_, models.UInt64Constant(value=start), replacement_arg]:
+            replacement = _get_bytes_constant_value(replacement_arg)
+            if (
+                replacement is not None
+                and start + len(replacement) > algo_constants.MAX_BOX_BYTES_LENGTH
+            ):
+                return _Problem("box_replace end exceeds maximum box size")
+    return None
+
+
+def _check_box_splice_end_bounds(intrinsic: models.Intrinsic) -> _Problem | None:
+    match intrinsic.args:
+        case [
+            _,
+            models.UInt64Constant(value=start),
+            models.UInt64Constant(value=length),
+            _,
+        ]:
+            if start + length > algo_constants.MAX_BOX_BYTES_LENGTH:
+                return _Problem("box_splice end exceeds maximum box size")
+    return None
+
+
 # endregion
 
 
@@ -315,6 +348,14 @@ def _make_scratch_slot_check(idx: int) -> Checker:
         idx,
         lambda x: x <= algo_constants.MAX_SCRATCH_SLOT_NUMBER,
         "scratch slot id constant exceeds 255",
+    )
+
+
+def _make_box_size_arg_check(idx: int, description: str) -> Checker:
+    return _make_uint64_const_arg_checker(
+        idx,
+        lambda x: x <= algo_constants.MAX_BOX_BYTES_LENGTH,
+        f"{description} exceeds maximum box size ({algo_constants.MAX_BOX_BYTES_LENGTH})",
     )
 
 
@@ -411,12 +452,29 @@ _CHECKERS: typing.Final[Mapping[AVMOp, Sequence[Checker]]] = {
     AVMOp.mod_bytes: [
         _make_biguint_const_arg_checker(1, lambda x: x != 0, "biguint modulo by constant zero"),
     ],
+    AVMOp.box_create: [
+        _make_box_size_arg_check(1, "box_create length"),
+    ],
     AVMOp.box_extract: [
         _make_uint64_const_arg_checker(
             2,
             lambda x: x <= algo_constants.MAX_BYTES_LENGTH,
             "box_extract length exceeds AVM stack byte limit",
         ),
+        _make_box_size_arg_check(1, "box_extract start"),
+        _check_box_extract_end_bounds,
+    ],
+    AVMOp.box_replace: [
+        _make_box_size_arg_check(1, "box_replace start"),
+        _check_box_replace_end_bounds,
+    ],
+    AVMOp.box_resize: [
+        _make_box_size_arg_check(1, "box_resize length"),
+    ],
+    AVMOp.box_splice: [
+        _make_box_size_arg_check(1, "box_splice start"),
+        _make_box_size_arg_check(2, "box_splice length"),
+        _check_box_splice_end_bounds,
     ],
     # group ops
     AVMOp.gaid: [_check_txn_group_index_immediate],

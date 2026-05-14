@@ -99,6 +99,26 @@ class StaticallyFailingOps(Contract, scratch_slots=(0,)):
         # box_extract length > MAX_BYTES_LENGTH
         log(op.Box.extract(b"k", 0, 5000))
 
+        # box op constants exceeding maximum box size (32768)
+        # box_create length > MAX_BOX_BYTES_LENGTH
+        log(op.Box.create(b"k", 32769))
+        # box_extract start > MAX_BOX_BYTES_LENGTH
+        log(op.Box.extract(b"k", 32769, 0))
+        # box_extract start + length > MAX_BOX_BYTES_LENGTH (length within stack limit)
+        log(op.Box.extract(b"k", 32000, 1000))
+        # box_replace start > MAX_BOX_BYTES_LENGTH
+        op.Box.replace(b"k", 32769, b"")
+        # box_replace start + len(replacement) > MAX_BOX_BYTES_LENGTH
+        op.Box.replace(b"k", 32700, b"x" * 100)
+        # box_resize new length > MAX_BOX_BYTES_LENGTH
+        op.Box.resize(b"k", 32769)
+        # box_splice start > MAX_BOX_BYTES_LENGTH
+        op.Box.splice(b"k", 32769, 0, b"")
+        # box_splice length > MAX_BOX_BYTES_LENGTH
+        op.Box.splice(b"k", 0, 32769, b"")
+        # box_splice start + length > MAX_BOX_BYTES_LENGTH
+        op.Box.splice(b"k", 16000, 17000, b"")
+
         # txn group index >= 16 — immediate forms (T as uint8 imm but >= 16)
         log(op.GTxn.fee(20))
         log(op.GTxn.application_args(20, 0))
