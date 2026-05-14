@@ -1,0 +1,175 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock 0x6b 0x00
+    b main_block@0
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+    b main_call___init__@1
+
+main_call___init__@1:
+    callsub __init__
+    b main_after_if_else@2
+
+main_after_if_else@2:
+    b main_block@3
+
+main_block@3:
+    // regression_tests/box_read_cache.py:4
+    // class BoxReadCache(ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz main___algopy_default_create@7
+    b main_abi_routing@4
+
+main_abi_routing@4:
+    // regression_tests/box_read_cache.py:4
+    // class BoxReadCache(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xa4a276ef // method "repro()(bool,bool,uint64,uint64)"
+    uncover 1
+    match main_repro_route@5
+    b main_switch_case_next@6
+
+main_switch_case_next@6:
+    b main_after_if_else@8
+
+main_after_if_else@8:
+    // regression_tests/box_read_cache.py:4
+    // class BoxReadCache(ARC4Contract):
+    err
+
+main_repro_route@5:
+    // regression_tests/box_read_cache.py:8
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    &&
+    assert
+    callsub repro
+    b main_switch_case_next@6
+
+main___algopy_default_create@7:
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    &&
+    assert
+    b main_block@10
+
+main_block@10:
+    b main_after_inlined_test_cases.regression_tests.box_read_cache.BoxReadCache.__algopy_default_create@11
+
+main_after_inlined_test_cases.regression_tests.box_read_cache.BoxReadCache.__algopy_default_create@11:
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.box_read_cache.BoxReadCache.repro[routing]() -> void:
+repro:
+    b repro_block@0
+
+repro_block@0:
+    // regression_tests/box_read_cache.py:8
+    // @arc4.abimethod
+    callsub test_cases.regression_tests.box_read_cache.BoxReadCache.repro
+    pushbytes 0x151f7c75
+    uncover 1
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// test_cases.regression_tests.box_read_cache.BoxReadCache.__init__() -> void:
+__init__:
+    b __init___block@0
+
+__init___block@0:
+    retsub
+
+
+// test_cases.regression_tests.box_read_cache.BoxReadCache.repro() -> bytes:
+test_cases.regression_tests.box_read_cache.BoxReadCache.repro:
+    b test_cases.regression_tests.box_read_cache.BoxReadCache.repro_block@0
+
+test_cases.regression_tests.box_read_cache.BoxReadCache.repro_block@0:
+    // regression_tests/box_read_cache.py:10-11
+    // # Box does not exist initially, so we should have empty v1 and False
+    // v1, exists1 = self.b.maybe()
+    bytec_0 // 0x6b
+    box_get
+    // regression_tests/box_read_cache.py:12
+    // self.b.create(size=UInt64(16))
+    bytec_0 // 0x6b
+    pushint 16
+    box_create
+    pop
+    // regression_tests/box_read_cache.py:14-15
+    // # we should see: len(v2) = 16, exists2 = True
+    // v2, exists2 = self.b.maybe()
+    bytec_0 // 0x6b
+    box_get
+    cover 1
+    cover 2
+    // regression_tests/box_read_cache.py:19
+    // arc4.Bool(exists1),
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    cover 3
+    // regression_tests/box_read_cache.py:20
+    // arc4.Bool(exists2),
+    bytec_1 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // regression_tests/box_read_cache.py:21
+    // arc4.UInt64(v1.length),
+    uncover 2
+    len
+    itob
+    cover 1
+    // regression_tests/box_read_cache.py:22
+    // arc4.UInt64(v2.length),
+    uncover 2
+    len
+    itob
+    // regression_tests/box_read_cache.py:17-24
+    // return arc4.Tuple[arc4.Bool, arc4.Bool, arc4.UInt64, arc4.UInt64](
+    //     (
+    //         arc4.Bool(exists1),
+    //         arc4.Bool(exists2),
+    //         arc4.UInt64(v1.length),
+    //         arc4.UInt64(v2.length),
+    //     )
+    // )
+    uncover 1
+    intc_0 // 0
+    getbit
+    uncover 3
+    intc_1 // 1
+    uncover 2
+    setbit
+    pushbytes 0x
+    uncover 1
+    concat
+    uncover 2
+    concat
+    uncover 1
+    concat
+    retsub

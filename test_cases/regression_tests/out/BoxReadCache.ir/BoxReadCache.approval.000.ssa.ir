@@ -1,0 +1,74 @@
+main algopy.arc4.ARC4Contract.approval_program:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        test_cases.regression_tests.box_read_cache.BoxReadCache.__init__()
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%1#0: bool = test_cases.regression_tests.box_read_cache.BoxReadCache.__puya_arc4_router__()
+        return tmp%1#0
+
+subroutine test_cases.regression_tests.box_read_cache.BoxReadCache.__puya_arc4_router__() -> bool:
+    block@0: // L4
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@4
+    block@1: // abi_routing_L4
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "repro()(bool,bool,uint64,uint64)" => block@2, * => block@3}
+    block@2: // repro_route_L8
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 NoOp)
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        let tmp%7#0: bool = (&& tmp%4#0 tmp%6#0)
+        (assert tmp%7#0)
+        test_cases.regression_tests.box_read_cache.BoxReadCache.repro[routing]()
+        goto block@3
+    block@3: // switch_case_next_L4
+        goto block@5
+    block@4: // __algopy_default_create_L1
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 NoOp)
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (== tmp%10#0 0u)
+        let tmp%12#0: bool = (&& tmp%9#0 tmp%11#0)
+        (assert tmp%12#0)
+        test_cases.regression_tests.box_read_cache.BoxReadCache.__algopy_default_create()
+        exit 1u
+    block@5: // after_if_else_L4
+        exit 0u
+
+subroutine test_cases.regression_tests.box_read_cache.BoxReadCache.repro[routing]() -> void:
+    block@0: // L8
+        let tmp%0#0: Encoded(bool1,bool1,uint64,uint64) = test_cases.regression_tests.box_read_cache.BoxReadCache.repro()
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        exit 1u
+
+subroutine test_cases.regression_tests.box_read_cache.BoxReadCache.__init__() -> void:
+    block@0: // L5
+        return 
+
+subroutine test_cases.regression_tests.box_read_cache.BoxReadCache.repro() -> Encoded(bool1,bool1,uint64,uint64):
+    block@0: // L8
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get 0x6b)
+        let v1#0: bytes = maybe_value%0#0
+        let exists1#0: bool = maybe_exists%0#0
+        (box_create 0x6b 16u)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get 0x6b)
+        let v2#0: bytes = maybe_value%1#0
+        let exists2#0: bool = maybe_exists%1#0
+        let tmp%0#0: Encoded(bool8) = bytes_encode<bool8>(exists1#0)
+        let tmp%1#0: Encoded(bool8) = bytes_encode<bool8>(exists2#0)
+        let tmp%2#0: uint64 = (len v1#0)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
+        let tmp%4#0: uint64 = (len v2#0)
+        let tmp%5#0: Encoded(uint64) = bytes_encode<uint64>(tmp%4#0)
+        let tmp%6#0: Encoded(bool1,bool1,uint64,uint64) = bytes_encode<(bool1,bool1,uint64,uint64)>(tmp%0#0, tmp%1#0, tmp%3#0, tmp%5#0)
+        return tmp%6#0
+
+subroutine test_cases.regression_tests.box_read_cache.BoxReadCache.__algopy_default_create() -> void:
+    block@0: // L1
+        return 

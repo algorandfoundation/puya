@@ -1,0 +1,117 @@
+// Op                                                                         Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // regression_tests/box_read_cache.py:4
+        // class BoxReadCache(ARC4Contract):
+        txn NumAppArgs                                                        tmp%0#1
+        bz main___algopy_default_create@7 ; b main_abi_routing@4
+
+    main_abi_routing@4:
+        // regression_tests/box_read_cache.py:4
+        // class BoxReadCache(ARC4Contract):
+        txna ApplicationArgs 0                                                tmp%2#0
+        method repro()(bool,bool,uint64,uint64)                               tmp%2#0,Method(repro()(bool,bool,uint64,uint64))
+        l-load tmp%2#0 1                                                      Method(repro()(bool,bool,uint64,uint64)),tmp%2#0
+        match main_repro_route@5 ; b main_switch_case_next@6
+
+    main_repro_route@5:
+        // regression_tests/box_read_cache.py:8
+        // @arc4.abimethod
+        txn OnCompletion                                                      tmp%3#0
+        !                                                                     tmp%4#0
+        txn ApplicationID                                                     tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                                      tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                                      tmp%4#0,tmp%5#0
+        &&                                                                    tmp%7#0
+        assert
+        callsub repro
+        b main_switch_case_next@6
+
+    main_switch_case_next@6:
+        // regression_tests/box_read_cache.py:4
+        // class BoxReadCache(ARC4Contract):
+        err
+
+    main___algopy_default_create@7:
+        txn OnCompletion                                                      tmp%8#0
+        !                                                                     tmp%9#0
+        txn ApplicationID                                                     tmp%9#0,tmp%10#0
+        !                                                                     tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                                      tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                                     tmp%9#0,tmp%11#0
+        &&                                                                    tmp%12#0
+        assert
+        int 1                                                                 1
+        return
+
+
+// test_cases.regression_tests.box_read_cache.BoxReadCache.repro[routing]() -> void:
+subroutine repro:
+    repro_block@0:
+        // regression_tests/box_read_cache.py:11
+        // v1, exists1 = self.b.maybe()
+        byte 0x6b                                                             0x6b
+        box_get                                                               v1#0,exists1#0
+        // regression_tests/box_read_cache.py:12
+        // self.b.create(size=UInt64(16))
+        byte 0x6b                                                             v1#0,exists1#0,0x6b
+        int 16                                                                v1#0,exists1#0,0x6b,16
+        box_create                                                            v1#0,exists1#0,{box_create}
+        pop 1                                                                 v1#0,exists1#0
+        // regression_tests/box_read_cache.py:15
+        // v2, exists2 = self.b.maybe()
+        byte 0x6b                                                             v1#0,exists1#0,0x6b
+        box_get                                                               v1#0,exists1#0,v2#0,exists2#0
+        // regression_tests/box_read_cache.py:19
+        // arc4.Bool(exists1),
+        byte 0x00                                                             v1#0,exists1#0,v2#0,exists2#0,0x00
+        int 0                                                                 v1#0,exists1#0,v2#0,exists2#0,0x00,0
+        l-load exists1#0 4                                                    v1#0,v2#0,exists2#0,0x00,0,exists1#0
+        setbit                                                                v1#0,v2#0,exists2#0,aggregate%encoded_bool%0#0
+        // regression_tests/box_read_cache.py:20
+        // arc4.Bool(exists2),
+        byte 0x00                                                             v1#0,v2#0,exists2#0,aggregate%encoded_bool%0#0,0x00
+        int 0                                                                 v1#0,v2#0,exists2#0,aggregate%encoded_bool%0#0,0x00,0
+        l-load exists2#0 3                                                    v1#0,v2#0,aggregate%encoded_bool%0#0,0x00,0,exists2#0
+        setbit                                                                v1#0,v2#0,aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0
+        // regression_tests/box_read_cache.py:21
+        // arc4.UInt64(v1.length),
+        l-load v1#0 3                                                         v2#0,aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0,v1#0
+        len                                                                   v2#0,aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0,tmp%2#0
+        itob                                                                  v2#0,aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0,aggregate%val_as_bytes%0#0
+        // regression_tests/box_read_cache.py:22
+        // arc4.UInt64(v2.length),
+        l-load v2#0 3                                                         aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0,aggregate%val_as_bytes%0#0,v2#0
+        len                                                                   aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0,aggregate%val_as_bytes%0#0,tmp%4#0
+        itob                                                                  aggregate%encoded_bool%0#0,aggregate%encoded_bool%1#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        // regression_tests/box_read_cache.py:17-24
+        // return arc4.Tuple[arc4.Bool, arc4.Bool, arc4.UInt64, arc4.UInt64](
+        //     (
+        //         arc4.Bool(exists1),
+        //         arc4.Bool(exists2),
+        //         arc4.UInt64(v1.length),
+        //         arc4.UInt64(v2.length),
+        //     )
+        // )
+        l-load aggregate%encoded_bool%1#0 2                                   aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%encoded_bool%1#0
+        int 0                                                                 aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%encoded_bool%1#0,0
+        getbit                                                                aggregate%encoded_bool%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%get_bit%0#0
+        l-load aggregate%encoded_bool%0#0 3                                   aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%get_bit%0#0,aggregate%encoded_bool%0#0
+        int 1                                                                 aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%get_bit%0#0,aggregate%encoded_bool%0#0,1
+        l-load aggregate%get_bit%0#0 2                                        aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%encoded_bool%0#0,1,aggregate%get_bit%0#0
+        setbit                                                                aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0,aggregate%set_bit%0#0
+        l-load aggregate%val_as_bytes%0#0 2                                   aggregate%val_as_bytes%1#0,aggregate%set_bit%0#0,aggregate%val_as_bytes%0#0
+        concat                                                                aggregate%val_as_bytes%1#0,aggregate%head%1#0
+        l-load aggregate%val_as_bytes%1#0 1                                   aggregate%head%1#0,aggregate%val_as_bytes%1#0
+        concat                                                                aggregate%head%2#0
+        // regression_tests/box_read_cache.py:8
+        // @arc4.abimethod
+        byte 0x151f7c75                                                       aggregate%head%2#0,0x151f7c75
+        l-load aggregate%head%2#0 1                                           0x151f7c75,aggregate%head%2#0
+        concat                                                                tmp%1#0
+        log
+        int 1                                                                 1
+        return
+
+

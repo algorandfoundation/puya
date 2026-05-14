@@ -1377,6 +1377,50 @@ contract VRFVerifier
   }
 }
 
+contract BoxReadCache
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    [hex<"6B">]: bytes
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.box_read_cache.BoxReadCache.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.regression_tests.box_read_cache.BoxReadCache.repro(): arc4.tuple<arc4.bool,arc4.bool,arc4.uint64,arc4.uint64>
+  {
+    (v1, exists1): tuple<bytes,bool> = STATE_GET_EX(Box[hex<"6B">])
+    box_create(hex<"6B">, 16u)
+    (v2, exists2): tuple<bytes,bool> = STATE_GET_EX(Box[hex<"6B">])
+    return arc4_encode((arc4_encode(exists1, arc4.bool), arc4_encode(exists2, arc4.bool), arc4_encode(len(v1), arc4.uint64), arc4_encode(len(v2), arc4.uint64)), arc4.tuple<arc4.bool,arc4.bool,arc4.uint64,arc4.uint64>)
+  }
+  
+  baremethod test_cases.regression_tests.box_read_cache.BoxReadCache.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract BoxReadBoxLenExistenceCheck
 {
   method_resolution_order: (
