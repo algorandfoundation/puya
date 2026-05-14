@@ -91,7 +91,7 @@ def test_assemble_last_op_jump() -> None:
         ops=[
             teal.Intrinsic(
                 op_code="b",
-                immediates=["start"],
+                immediates=("start",),
                 consumes=0,
                 produces=0,
                 source_location=None,
