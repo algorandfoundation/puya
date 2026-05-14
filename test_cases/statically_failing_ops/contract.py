@@ -96,31 +96,8 @@ class StaticallyFailingOps(Contract, scratch_slots=(0,)):
         log(op.Scratch.load_uint64(256))
         log(op.gload_uint64(0, 256))
 
-        # box key invalid length (empty / > 64 bytes)
-        big_box = Bytes(b"b" * 65)
-        log(op.Box.create(big_box, 100))
-        log(op.Box.create(b"", 100))
-        log(op.Box.delete(big_box))
-        log(op.Box.extract(big_box, 0, 0))
-        log(op.Box.get(big_box)[0])
-        log(op.Box.length(big_box)[0])
-        op.Box.put(big_box, b"")
-        op.Box.replace(big_box, 0, b"")
-        op.Box.resize(big_box, 0)
-        op.Box.splice(big_box, 0, 0, b"")
         # box_extract length > MAX_BYTES_LENGTH
         log(op.Box.extract(b"k", 0, 5000))
-
-        # state key > 64 bytes
-        big_key = Bytes(b"k" * 65)
-        op.AppGlobal.delete(big_key)
-        log(op.AppGlobal.get_bytes(big_key))
-        log(op.AppGlobal.get_ex_bytes(0, big_key)[0])
-        op.AppGlobal.put(big_key, b"")
-        op.AppLocal.delete(0, big_key)
-        log(op.AppLocal.get_bytes(0, big_key))
-        log(op.AppLocal.get_ex_bytes(0, 0, big_key)[0])
-        op.AppLocal.put(0, big_key, b"")
 
         # txn group index >= 16 — immediate forms (T as uint8 imm but >= 16)
         log(op.GTxn.fee(20))

@@ -1,0 +1,33 @@
+## case: test_invalid_box_key_size
+from algopy import *
+
+class StaticallyFailingOps(Contract):
+    def approval_program(self) -> bool:
+        # box key invalid length (empty / > 64 bytes)
+        big_box = Bytes(b"b" * 65)
+        log(op.Box.create(big_box, 100)) ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        log(op.Box.create(b"", 100)) ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        log(op.Box.delete(big_box)) ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        log(op.Box.extract(big_box, 0, 0)) ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        log(op.Box.get(big_box)[0]) ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        log(op.Box.length(big_box)[0]) ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        op.Box.put(big_box, b"") ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        op.Box.replace(big_box, 0, b"") ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        op.Box.resize(big_box, 0) ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+        op.Box.splice(big_box, 0, 0, b"") ## E: box key constant has invalid length (must be 1-64 bytes); will fail at runtime if reached
+
+        # state key > 64 bytes
+        big_key = Bytes(b"k" * 65)
+        op.AppGlobal.delete(big_key) ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+        log(op.AppGlobal.get_bytes(big_key)) ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+        log(op.AppGlobal.get_ex_bytes(0, big_key)[0]) ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+        op.AppGlobal.put(big_key, b"") ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+        op.AppLocal.delete(0, big_key) ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+        log(op.AppLocal.get_bytes(0, big_key)) ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+        log(op.AppLocal.get_ex_bytes(0, 0, big_key)[0]) ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+        op.AppLocal.put(0, big_key, b"") ## E: state key constant exceeds 64 bytes; will fail at runtime if reached
+
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
