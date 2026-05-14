@@ -200,7 +200,7 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                 key, value = op.args
                 self._handle_box_put_or_write(op, key=key, value=value)
             case AVMOp.box_create:
-                # box_create never modifies existing boxes or their contents
+                self._invalidate(_StateType.box)
                 key, len_ = op.args
                 self._cache_box_len(key=key, length=len_)
             case AVMOp.box_del | AVMOp.box_splice | AVMOp.box_resize | AVMOp.box_replace:
