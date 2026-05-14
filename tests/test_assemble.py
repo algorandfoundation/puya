@@ -111,7 +111,7 @@ def test_assemble_last_op_self_jump() -> None:
 def _intrinsic(op_code: str, *immediates: str) -> teal.Intrinsic:
     return teal.Intrinsic(
         op_code=op_code,
-        immediates=list(immediates),
+        immediates=immediates,
         consumes=0,
         produces=0,
         source_location=None,
