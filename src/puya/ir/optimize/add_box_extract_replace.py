@@ -366,7 +366,11 @@ class _AddInplaceBoxReadWritesVisitor(MutatingRegisterContext):
             source_location=merged_loc,
         )
 
-        box_len, _ = self.materialise_value_provider(get_box_len, ("box_len", "_"))
+        box_len, exists = self.materialise_value_provider(get_box_len, ("box_len", "exists"))
+        # preserve the existence assertion
+        OpFactory(self, merged_loc).assert_value(
+            exists, error_message=box_read.exists_assertion_message
+        )
 
         self.modified = True
         logger.debug(
