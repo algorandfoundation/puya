@@ -18,12 +18,23 @@ subroutine test_cases.gvn.setbyte_const_fold.test_through_phi(selector: uint64) 
     block@0: // L28
         let tmp%0#0: bool = (!= selector#0 0u)
         goto tmp%0#0 ? block@1 : block@2
-    block@1: // if_body_L33
+    block@1: // if_body_L31
         goto block@3
-    block@2: // else_body_L35
+    block@2: // else_body_L33
         goto block@3
-    block@3: // after_if_else_L32
-        let tmp%1#0: bytes = (setbyte 0x4142 0u 67u)
-        let tmp%2#0: bool = (== tmp%1#0 0x4342)
-        (assert tmp%2#0)
+    block@3: // after_if_else_L30
+        let tmp%1#0: bool = (!= selector#0 0u)
+        goto tmp%1#0 ? block@4 : block@5
+    block@4: // if_body_L35
+        let tmp%2#0: bytes = (concat 0x41 0x42)
+        let b#0: bytes = tmp%2#0
+        goto block@6
+    block@5: // else_body_L37
+        let tmp%3#0: bytes = (concat 0x41 0x42)
+        let b#0: bytes = tmp%3#0
+        goto block@6
+    block@6: // after_if_else_L34
+        let tmp%4#0: bytes = (setbyte b#0 0u 67u)
+        let tmp%5#0: bool = (== tmp%4#0 0x4342)
+        (assert tmp%5#0)
         return 
