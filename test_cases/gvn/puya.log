@@ -440,10 +440,25 @@ debug: Terminated block@1
 debug: Sealing block@2
 debug: Terminated block@2
 debug: Sealing block@3
-debug: Created Phi assignment: let b#2: bytes = undefined while trying to resolve 'b' in block@3
-debug: Added b#0 to Phi node: let b#2: bytes = φ(b#0 <- block@1) in block@1
-debug: Added b#1 to Phi node: let b#2: bytes = φ(b#0 <- block@1, b#1 <- block@2) in block@2
+debug: Created Phi assignment: let selector#1: uint64 = undefined while trying to resolve 'selector' in block@3
+debug: Added selector#0 to Phi node: let selector#1: uint64 = φ(selector#0 <- block@1) in block@1
+debug: Added selector#0 to Phi node: let selector#1: uint64 = φ(selector#0 <- block@1, selector#0 <- block@2) in block@2
+debug: Replacing trivial Phi node: let selector#1: uint64 = φ(selector#0 <- block@1, selector#0 <- block@2) (selector#1) with selector#0
+debug: Deleting Phi assignment: let selector#1: uint64 = φ(selector#0 <- block@1, selector#0 <- block@2)
+debug: Replaced trivial Phi node: let selector#1: uint64 = φ(selector#0 <- block@1, selector#0 <- block@2) (selector#1) with selector#0 in current definition for 1 blocks
 debug: Terminated block@3
+debug: Sealing block@4
+debug: Created Phi assignment: let a#2: bytes = undefined while trying to resolve 'a' in block@3
+debug: Added a#0 to Phi node: let a#2: bytes = φ(a#0 <- block@1) in block@1
+debug: Added a#1 to Phi node: let a#2: bytes = φ(a#0 <- block@1, a#1 <- block@2) in block@2
+debug: Terminated block@4
+debug: Sealing block@5
+debug: Terminated block@5
+debug: Sealing block@6
+debug: Created Phi assignment: let b#2: bytes = undefined while trying to resolve 'b' in block@6
+debug: Added b#0 to Phi node: let b#2: bytes = φ(b#0 <- block@4) in block@4
+debug: Added b#1 to Phi node: let b#2: bytes = φ(b#0 <- block@4, b#1 <- block@5) in block@5
+debug: Terminated block@6
 debug: Building IR for function test_cases.gvn.replace3_const_fold.test_large_index
 debug: Sealing block@0
 debug: Terminated block@0
@@ -2310,14 +2325,19 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: tmp%2#0, b#0
+debug: selected b#0 from equivalence set
+debug: Found equivalence set: tmp%3#0, b#1
+debug: selected b#1 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable b#2
-debug: Removing unused variable b#0
-debug: Removing unused variable b#1
+debug: Removing unused variable a#2
+debug: Removing unused variable a#0
+debug: Removing unused variable a#1
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (setbyte 0x4142 0u 67u) to 0x4342
-debug: Simplified (== 0x4342 0x4342) to 1u
+debug: Simplified (concat 0x41 0x42) to 0x4142
+debug: Simplified (concat 0x41 0x42) to 0x4142
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -2330,6 +2350,9 @@ debug: branching to block@2 will be replaced with block@3
 debug: replaced goto selector#0 ? block@3 : block@3 with goto block@3
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
+debug: GVN: redundant phi b#2 (VN=3)
+debug: GVN found equivalence set: (tmp%0#0, tmp%1#0), selected replacement: tmp%0#0
+debug: GVN: 1 replacement(s) in test_cases.gvn.setbyte_const_fold.test_through_phi
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -2388,16 +2411,26 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable b#2
 debug: Removing unused variable tmp%0#0
-debug: Removing unused variable tmp%1#0
-debug: Removing unused variable tmp%2#0
+debug: Removing unused variable tmp%4#0
+debug: Removing unused variable tmp%5#0
+debug: Removing unused variable b#0
+debug: Removing unused variable b#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
+debug: Replaced predecessor block@3 with block@0 in block@5
+debug: Replaced predecessor block@3 with block@0 in block@4
 debug: Merged linear block@3 into block@0
 debug: Optimizer: Remove Linear Jumps
+debug: Removing jump block block@4
+debug: Removing jump block block@5
+debug: branching to block@4 will be replaced with block@6
+debug: branching to block@5 will be replaced with block@6
+debug: replaced goto selector#0 ? block@6 : block@6 with goto block@6
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: Optimizer: Encode Decode Pair Elimination
@@ -2459,6 +2492,7 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
+debug: Merged linear block@6 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
@@ -2467,7 +2501,69 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: Output IR to gvn/out/SetByteConstFoldContract.ir/SetByteConstFoldContract.approval.003.ssa.opt.ir
+debug: Begin optimization pass 4/100
+debug: Optimizing subroutine test_cases.gvn.setbyte_const_fold.SetByteConstFoldContract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.gvn.setbyte_const_fold.test_direct
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.gvn.setbyte_const_fold.test_through_phi
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.gvn.setbyte_const_fold.SetByteConstFoldContract at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.gvn.setbyte_const_fold.SetByteConstFoldContract.clear_state_program

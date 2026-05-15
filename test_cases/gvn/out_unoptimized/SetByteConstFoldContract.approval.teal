@@ -4,7 +4,7 @@
 // test_cases.gvn.setbyte_const_fold.SetByteConstFoldContract.approval_program() -> uint64:
 main:
     intcblock 0 1 90
-    bytecblock 0x4142
+    bytecblock 0x4142 0x41 0x42
     b main_block@0
 
 main_block@0:
@@ -28,7 +28,7 @@ test_direct:
 test_direct_block@0:
     // gvn/setbyte_const_fold.py:23-24
     // # const args — collapses in intrinsic_simplifier
-    // assert op.setbyte(Bytes(b"AB"), 0, 90) == Bytes(b"ZB")  # 90 == ord('Z')
+    // assert op.setbyte(b"AB", 0, 90) == b"ZB"  # 90 == ord('Z')
     bytec_0 // 0x4142
     intc_0 // 0
     intc_2 // 90
@@ -37,7 +37,7 @@ test_direct_block@0:
     ==
     assert
     // gvn/setbyte_const_fold.py:25
-    // assert op.setbyte(Bytes(b"AB"), 1, 90) == Bytes(b"AZ")
+    // assert op.setbyte(b"AB", 1, 90) == b"AZ"
     bytec_0 // 0x4142
     intc_1 // 1
     intc_2 // 90
@@ -54,12 +54,11 @@ test_through_phi:
     // @subroutine(inline=False)
     // def test_through_phi(selector: UInt64) -> None:
     proto 1 0
+    intc_0 // 0
     b test_through_phi_block@0
 
 test_through_phi_block@0:
-    // gvn/setbyte_const_fold.py:30-32
-    // # selector flows through a phi but both arms produce the same const-foldable arg;
-    // # only GVN sees the equivalence and folds the setbyte.
+    // gvn/setbyte_const_fold.py:30
     // if selector:
     frame_dig -1
     intc_0 // 0
@@ -71,11 +70,29 @@ test_through_phi_if_body@1:
     b test_through_phi_after_if_else@3
 
 test_through_phi_after_if_else@3:
-    // gvn/setbyte_const_fold.py:33
-    // b = Bytes(b"AB")
-    bytec_0 // 0x4142
-    // gvn/setbyte_const_fold.py:36
-    // assert op.setbyte(b, 0, 67) == Bytes(b"CB")  # 67 == ord('C')
+    // gvn/setbyte_const_fold.py:34
+    // if selector:
+    frame_dig -1
+    intc_0 // 0
+    !=
+    bz test_through_phi_else_body@5
+    b test_through_phi_if_body@4
+
+test_through_phi_if_body@4:
+    // gvn/setbyte_const_fold.py:31
+    // a = Bytes(b"A")
+    bytec_1 // 0x41
+    // gvn/setbyte_const_fold.py:35
+    // b = a + b"B"
+    bytec_2 // 0x42
+    concat
+    frame_bury 0
+    b test_through_phi_after_if_else@6
+
+test_through_phi_after_if_else@6:
+    // gvn/setbyte_const_fold.py:38
+    // assert op.setbyte(b, 0, 67) == b"CB"  # 67 == ord('C')
+    frame_dig 0
     intc_0 // 0
     pushint 67
     setbyte
@@ -83,6 +100,17 @@ test_through_phi_after_if_else@3:
     ==
     assert
     retsub
+
+test_through_phi_else_body@5:
+    // gvn/setbyte_const_fold.py:31
+    // a = Bytes(b"A")
+    bytec_1 // 0x41
+    // gvn/setbyte_const_fold.py:37
+    // b = a + b"B"
+    bytec_2 // 0x42
+    concat
+    frame_bury 0
+    b test_through_phi_after_if_else@6
 
 test_through_phi_else_body@2:
     b test_through_phi_after_if_else@3
