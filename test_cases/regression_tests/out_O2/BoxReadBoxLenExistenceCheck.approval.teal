@@ -1,0 +1,36 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    bz main___algopy_default_create@7
+    pushbytes 0xe1eb4297 // method "len_via_value()uint64"
+    txna ApplicationArgs 0
+    match main_len_via_value_route@5
+    err
+
+main_len_via_value_route@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    pushbytes 0x6b
+    box_len
+    assert // check self.box exists
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1
+    return
+
+main___algopy_default_create@7:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
