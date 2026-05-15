@@ -30,48 +30,10 @@ subroutine test_cases.gvn.const_folding.test_setbyte(selector: bool) -> void:
 
 subroutine test_cases.gvn.const_folding.test_uint64_mod(x: uint64, selector: bool) -> void:
     block@0: // L27
-        let tmp%0#0: uint64 = (% x#0 1u)
-        let tmp%1#0: bool = (! tmp%0#0)
-        (assert tmp%1#0)
-        goto selector#0 ? block@1 : block@2
-    block@1: // if_body_L35
-        let tmp%2#0: bytes = (bzero 65u)
-        let tmp%3#0: bytes = (concat tmp%2#0 0x01)
-        let tmp%4#0: bytes = ((substring 56 66) tmp%3#0)
-        let one#0: uint64 = (btoi tmp%4#0)
-        goto block@3
-    block@2: // else_body_L37
-        let tmp%6#0: bytes = (bzero 66u)
-        let tmp%7#0: bytes = (concat tmp%6#0 0x01)
-        let tmp%8#0: bytes = ((substring 57 67) tmp%7#0)
-        let one#0: uint64 = (btoi tmp%8#0)
-        goto block@3
-    block@3: // after_if_else_L34
-        let tmp%10#0: uint64 = (% x#0 one#0)
-        let tmp%11#0: bool = (! tmp%10#0)
-        (assert tmp%11#0)
         return 
 
 subroutine test_cases.gvn.const_folding.test_biguint_mod(x: biguint, selector: bool) -> void:
     block@0: // L41
-        let tmp%0#0: biguint = (b% x#0 1b)
-        let tmp%1#0: bool = (b== tmp%0#0 0b)
-        (assert tmp%1#0)
-        goto selector#0 ? block@1 : block@2
-    block@1: // if_body_L49
-        let tmp%2#0: bytes = (bzero 65u)
-        let tmp%3#0: bytes = (concat tmp%2#0 0x01)
-        let one#0: bytes = ((substring 56 66) tmp%3#0)
-        goto block@3
-    block@2: // else_body_L51
-        let tmp%5#0: bytes = (bzero 66u)
-        let tmp%6#0: bytes = (concat tmp%5#0 0x01)
-        let one#0: bytes = ((substring 57 67) tmp%6#0)
-        goto block@3
-    block@3: // after_if_else_L48
-        let tmp%8#0: biguint = (b% x#0 one#0)
-        let tmp%9#0: bool = (b== tmp%8#0 0b)
-        (assert tmp%9#0)
         return 
 
 subroutine test_cases.gvn.const_folding.GVNConstFolding.entry[routing]() -> void:
