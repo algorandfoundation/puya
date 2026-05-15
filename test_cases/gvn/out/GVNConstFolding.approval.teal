@@ -1,0 +1,52 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // gvn/const_folding.py:4
+    // class GVNConstFolding(ARC4Contract):
+    txn NumAppArgs
+    bz main___algopy_default_create@5
+    pushbytes 0x468f60d0 // method "entry()void"
+    txna ApplicationArgs 0
+    match main_entry_route@3
+    err
+
+main_entry_route@3:
+    // gvn/const_folding.py:5
+    // @public
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b entry
+
+main___algopy_default_create@5:
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// test_cases.gvn.const_folding.test_setbyte(selector: uint64) -> void:
+test_setbyte:
+    // gvn/const_folding.py:10-11
+    // @subroutine(inline=False)
+    // def test_setbyte(selector: bool) -> None:
+    proto 1 0
+    retsub
+
+
+// test_cases.gvn.const_folding.GVNConstFolding.entry[routing]() -> void:
+entry:
+    // gvn/const_folding.py:7
+    // test_setbyte(True)
+    pushint 1
+    callsub test_setbyte
+    // gvn/const_folding.py:5
+    // @public
+    pushint 1
+    return
