@@ -21,8 +21,8 @@ class SetByteConstFoldContract(Contract):
 @subroutine(inline=False)
 def test_direct() -> None:
     # const args — collapses in intrinsic_simplifier
-    assert op.setbyte(Bytes(b"AB"), 0, 90) == Bytes(b"ZB")  # 90 == ord('Z')
-    assert op.setbyte(Bytes(b"AB"), 1, 90) == Bytes(b"AZ")
+    assert op.setbyte(b"AB", 0, 90) == b"ZB"  # 90 == ord('Z')
+    assert op.setbyte(b"AB", 1, 90) == b"AZ"
 
 
 @subroutine(inline=False)
