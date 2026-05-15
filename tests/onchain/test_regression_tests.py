@@ -9,6 +9,17 @@ def test_regression_194(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "issue_194.py")
 
 
+def test_box_read_box_len_existence_check(deployer_o: Deployer) -> None:
+    # self.box.value.length on a missing box should reject the txn
+    create_result = deployer_o.create_bare(
+        TEST_CASES_DIR / "regression_tests" / "box_read_box_len_existence_check.py"
+    )
+    with pytest.raises(au.LogicError, match="check self.box exists"):
+        create_result.client.send.call(
+            au.AppClientMethodCallParams(method="len_via_value", box_references=[b"k"])
+        )
+
+
 def test_div_identity_fold_uint64(deployer_o: Deployer) -> None:
     # self_div(UInt64(0)) does `0 // 0` which should panic on the AVM.
     # Without the fix, the optimizer folds `x // x` to `1` and the panic is lost.
