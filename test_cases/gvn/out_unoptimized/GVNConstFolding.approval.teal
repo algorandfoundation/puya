@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 90
-    bytecblock 0x4142 0x41 0x42
+    intcblock 0 1 100 90
+    bytecblock 0x4142
     b main_block@0
 
 main_block@0:
@@ -84,7 +84,7 @@ test_setbyte_block@0:
     // assert op.setbyte(b"AB", 0, 90) == b"ZB"  # 90 == ord('Z')
     bytec_0 // 0x4142
     intc_0 // 0
-    intc_2 // 90
+    intc_3 // 90
     setbyte
     pushbytes 0x5a42
     ==
@@ -93,7 +93,7 @@ test_setbyte_block@0:
     // assert op.setbyte(b"AB", 1, 90) == b"AZ"
     bytec_0 // 0x4142
     intc_1 // 1
-    intc_2 // 90
+    intc_3 // 90
     setbyte
     pushbytes 0x415a
     ==
@@ -105,50 +105,38 @@ test_setbyte_block@0:
     b test_setbyte_if_body@1
 
 test_setbyte_if_body@1:
+    // gvn/const_folding.py:17
+    // ab = op.bzero(100) + Bytes(b"AB")
+    intc_2 // 100
+    bzero
+    bytec_0 // 0x4142
+    concat
+    frame_bury 0
     b test_setbyte_after_if_else@3
 
 test_setbyte_after_if_else@3:
     // gvn/const_folding.py:20
-    // if selector:
-    frame_dig -1
-    bz test_setbyte_else_body@5
-    b test_setbyte_if_body@4
-
-test_setbyte_if_body@4:
-    // gvn/const_folding.py:17
-    // a = Bytes(b"A")
-    bytec_1 // 0x41
-    // gvn/const_folding.py:21
-    // b = a + b"B"
-    bytec_2 // 0x42
-    concat
-    frame_bury 0
-    b test_setbyte_after_if_else@6
-
-test_setbyte_after_if_else@6:
-    // gvn/const_folding.py:24
-    // assert op.setbyte(b, 0, 67) == b"CB"  # 67 == ord('C')
+    // assert op.setbyte(ab, 100, 67) == op.bzero(100) + b"CB"  # 67 == ord('C')
     frame_dig 0
-    intc_0 // 0
+    intc_2 // 100
     pushint 67
     setbyte
+    intc_2 // 100
+    bzero
     pushbytes 0x4342
+    concat
     ==
     assert
     retsub
 
-test_setbyte_else_body@5:
-    // gvn/const_folding.py:17
-    // a = Bytes(b"A")
-    bytec_1 // 0x41
-    // gvn/const_folding.py:23
-    // b = a + b"B"
-    bytec_2 // 0x42
+test_setbyte_else_body@2:
+    // gvn/const_folding.py:19
+    // ab = op.bzero(100) + Bytes(b"AB")
+    intc_2 // 100
+    bzero
+    bytec_0 // 0x4142
     concat
     frame_bury 0
-    b test_setbyte_after_if_else@6
-
-test_setbyte_else_body@2:
     b test_setbyte_after_if_else@3
 
 
