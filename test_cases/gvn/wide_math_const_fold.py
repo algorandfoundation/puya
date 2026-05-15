@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, op, subroutine
+from algopy import Contract, op, subroutine
 
 
 class WideMathConstFoldContract(Contract):
@@ -22,21 +22,21 @@ class WideMathConstFoldContract(Contract):
 
 @subroutine(inline=False)
 def test_addw() -> None:
-    carry, lo = op.addw(UInt64(2**63), 2**63)
+    carry, lo = op.addw(2**63, 2**63)
     assert carry == 1
     assert lo == 0
 
 
 @subroutine(inline=False)
 def test_mulw() -> None:
-    hi, lo = op.mulw(UInt64(2**32), 2**32)
+    hi, lo = op.mulw(2**32, 2**32)
     assert hi == 1
     assert lo == 0
 
 
 @subroutine(inline=False)
 def test_expw() -> None:
-    hi, lo = op.expw(UInt64(2), 80)
+    hi, lo = op.expw(2, 80)
     # 2^80 = 0x10_0000_0000_0000_0000_0000 — hi has the high 16 bits set.
     assert hi == 1 << 16
     assert lo == 0
@@ -44,13 +44,13 @@ def test_expw() -> None:
 
 @subroutine(inline=False)
 def test_divw() -> None:
-    q = op.divw(UInt64(1), 0, 2)  # (2^64) / 2 = 2^63
+    q = op.divw(1, 0, 2)  # (2^64) / 2 = 2^63
     assert q == 1 << 63
 
 
 @subroutine(inline=False)
 def test_divmodw() -> None:
-    qh, ql, rh, rl = op.divmodw(UInt64(1), 2, 0, 3)
+    qh, ql, rh, rl = op.divmodw(1, 2, 0, 3)
     # dividend = 2^64 + 2, divisor = 3
     # quotient = (2^64 + 2) // 3, remainder = (2^64 + 2) % 3
     assert qh == 0
