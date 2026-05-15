@@ -1723,6 +1723,9 @@ def simplify_uint64_binary_op_one_const(
         case AVMOp.div_floor:
             if b_const == 1:
                 return BinarySimplification.LEFT
+        case AVMOp.mod:
+            if b_const == 1:
+                return 0
         case AVMOp.add:
             if a_const == 0:
                 return BinarySimplification.RIGHT
@@ -1881,6 +1884,9 @@ def simplify_bytes_binary_op_one_const(
         case AVMOp.div_floor_bytes:
             if b_const == 1:
                 return BinarySimplification.LEFT
+        case AVMOp.mod_bytes:
+            if b_const == 1:
+                return 0
     return None
 
 
