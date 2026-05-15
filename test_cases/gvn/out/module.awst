@@ -328,6 +328,8 @@ contract GVNConstFolding
   abimethod test_cases.gvn.const_folding.GVNConstFolding.entry(): void
   {
     test_cases.gvn.const_folding.test_setbyte(true)
+    test_cases.gvn.const_folding.test_uint64_mod(42u, false)
+    test_cases.gvn.const_folding.test_biguint_mod(77259978947021905600184340317603197947481177389714460678206771900175196402510074614992658926100855914496n, true)
   }
   
   baremethod test_cases.gvn.const_folding.GVNConstFolding.__algopy_default_create(): void
@@ -349,6 +351,28 @@ subroutine test_setbyte(selector: bool): void
     ab: bytes = bzero(100u) + hex<"4142">
   }
   assert(setbyte(ab, 100u, 67u) == bzero(100u) + hex<"4342">)
+}
+
+subroutine test_uint64_mod(x: uint64, selector: bool): void
+{
+  assert(x % 1u == 0u)
+  if (selector) {
+    one: uint64 = btoi(bzero(65u) + hex<"01">[-10:])
+  } else {
+    one: uint64 = btoi(bzero(66u) + hex<"01">[-10:])
+  }
+  assert(x % one == 0u)
+}
+
+subroutine test_biguint_mod(x: biguint, selector: bool): void
+{
+  assert(x b% 1n == 0n)
+  if (selector) {
+    one: bytes = bzero(65u) + hex<"01">[-10:]
+  } else {
+    one: bytes = bzero(66u) + hex<"01">[-10:]
+  }
+  assert(x b% reinterpret_cast<biguint>(one) == 0n)
 }
 
 contract ComparisonSwapsContract
