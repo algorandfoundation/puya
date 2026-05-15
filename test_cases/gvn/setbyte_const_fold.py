@@ -27,10 +27,12 @@ def test_direct() -> None:
 
 @subroutine(inline=False)
 def test_through_phi(selector: UInt64) -> None:
-    # selector flows through a phi but both arms produce the same const-foldable arg;
-    # only GVN sees the equivalence and folds the setbyte.
     if selector:
-        b = Bytes(b"AB")
+        a = Bytes(b"A")
     else:
-        b = Bytes(b"AB")
-    assert op.setbyte(b, 0, 67) == Bytes(b"CB")  # 67 == ord('C')
+        a = Bytes(b"A")
+    if selector:
+        b = a + b"B"
+    else:
+        b = a + b"B"
+    assert op.setbyte(b, 0, 67) == b"CB"  # 67 == ord('C')
