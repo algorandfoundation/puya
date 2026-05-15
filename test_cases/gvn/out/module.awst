@@ -344,16 +344,11 @@ subroutine test_setbyte(selector: bool): void
   assert(setbyte(hex<"4142">, 0u, 90u) == hex<"5A42">)
   assert(setbyte(hex<"4142">, 1u, 90u) == hex<"415A">)
   if (selector) {
-    a: bytes = hex<"41">
+    ab: bytes = bzero(100u) + hex<"4142">
   } else {
-    a: bytes = hex<"41">
+    ab: bytes = bzero(100u) + hex<"4142">
   }
-  if (selector) {
-    b: bytes = a + hex<"42">
-  } else {
-    b: bytes = a + hex<"42">
-  }
-  assert(setbyte(b, 0u, 67u) == hex<"4342">)
+  assert(setbyte(ab, 100u, 67u) == bzero(100u) + hex<"4342">)
 }
 
 contract ComparisonSwapsContract
