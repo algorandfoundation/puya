@@ -14,11 +14,7 @@ def test_setbyte(selector: bool) -> None:
     assert op.setbyte(b"AB", 1, 90) == b"AZ"
 
     if selector:
-        a = Bytes(b"A")
+        ab = op.bzero(100) + Bytes(b"AB")
     else:
-        a = Bytes(b"A")
-    if selector:
-        b = a + b"B"
-    else:
-        b = a + b"B"
-    assert op.setbyte(b, 0, 67) == b"CB"  # 67 == ord('C')
+        ab = op.bzero(100) + Bytes(b"AB")
+    assert op.setbyte(ab, 100, 67) == op.bzero(100) + b"CB"  # 67 == ord('C')
