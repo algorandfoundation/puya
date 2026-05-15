@@ -32,9 +32,9 @@ def test_uint64_mod(x: UInt64, selector: bool) -> None:
     # demonstrate GVN ability to handle larger constants
     # and also punch through Phi nodes
     if selector:
-        one = op.btoi((op.bzero(65) + b"\x01")[-10:])
+        one = op.btoi((op.bzero(65) + b"\x01")[-7:])
     else:
-        one = op.btoi((op.bzero(66) + b"\x01")[-10:])
+        one = op.btoi((op.bzero(66) + b"\x01")[-7:])
     assert x % one == 0
 
 
