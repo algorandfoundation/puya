@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 10 1 100
+    intcblock 0 1 100 7
     bytecblock 0x01 0x4142 0x
     b main_block@0
 
@@ -65,7 +65,7 @@ main_block@8:
     b main_after_inlined_test_cases.gvn.const_folding.GVNConstFolding.__algopy_default_create@9
 
 main_after_inlined_test_cases.gvn.const_folding.GVNConstFolding.__algopy_default_create@9:
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -92,7 +92,7 @@ test_setbyte_block@0:
     // gvn/const_folding.py:16
     // assert op.setbyte(b"AB", 1, 90) == b"AZ"
     bytec_1 // 0x4142
-    intc_2 // 1
+    intc_1 // 1
     pushint 90
     setbyte
     pushbytes 0x415a
@@ -109,7 +109,7 @@ test_setbyte_block@0:
 test_setbyte_if_body@1:
     // gvn/const_folding.py:21
     // ab = op.bzero(100) + Bytes(b"AB")
-    intc_3 // 100
+    intc_2 // 100
     bzero
     bytec_1 // 0x4142
     concat
@@ -120,10 +120,10 @@ test_setbyte_after_if_else@3:
     // gvn/const_folding.py:24
     // assert op.setbyte(ab, 100, 67) == op.bzero(100) + b"CB"  # 67 == ord('C')
     frame_dig 0
-    intc_3 // 100
+    intc_2 // 100
     pushint 67
     setbyte
-    intc_3 // 100
+    intc_2 // 100
     bzero
     pushbytes 0x4342
     concat
@@ -134,7 +134,7 @@ test_setbyte_after_if_else@3:
 test_setbyte_else_body@2:
     // gvn/const_folding.py:23
     // ab = op.bzero(100) + Bytes(b"AB")
-    intc_3 // 100
+    intc_2 // 100
     bzero
     bytec_1 // 0x4142
     concat
@@ -156,7 +156,7 @@ test_uint64_mod_block@0:
     // # simple case — collapses in intrinsic_simplifier
     // assert x % 1 == 0
     frame_dig -2
-    intc_2 // 1
+    intc_1 // 1
     %
     intc_0 // 0
     ==
@@ -171,17 +171,17 @@ test_uint64_mod_block@0:
 
 test_uint64_mod_if_body@1:
     // gvn/const_folding.py:35
-    // one = op.btoi((op.bzero(65) + b"\x01")[-10:])
+    // one = op.btoi((op.bzero(65) + b"\x01")[-7:])
     pushint 65
     bzero
     bytec_0 // 0x01
     concat
     dup
     len
-    intc_1 // 10
+    intc_3 // 7
     dig 1
     >=
-    intc_1 // 10
+    intc_3 // 7
     dig 2
     uncover 2
     select
@@ -209,17 +209,17 @@ test_uint64_mod_after_if_else@3:
 
 test_uint64_mod_else_body@2:
     // gvn/const_folding.py:37
-    // one = op.btoi((op.bzero(66) + b"\x01")[-10:])
+    // one = op.btoi((op.bzero(66) + b"\x01")[-7:])
     pushint 66
     bzero
     bytec_0 // 0x01
     concat
     dup
     len
-    intc_1 // 10
+    intc_3 // 7
     dig 1
     >=
-    intc_1 // 10
+    intc_3 // 7
     dig 2
     uncover 2
     select
@@ -271,10 +271,10 @@ test_biguint_mod_if_body@1:
     concat
     dup
     len
-    intc_1 // 10
+    pushint 10
     dig 1
     >=
-    intc_1 // 10
+    pushint 10
     dig 2
     uncover 2
     select
@@ -308,10 +308,10 @@ test_biguint_mod_else_body@2:
     concat
     dup
     len
-    intc_1 // 10
+    pushint 10
     dig 1
     >=
-    intc_1 // 10
+    pushint 10
     dig 2
     uncover 2
     select
@@ -334,7 +334,7 @@ entry_block@0:
     // gvn/const_folding.py:5
     // @public
     callsub test_cases.gvn.const_folding.GVNConstFolding.entry
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -345,7 +345,7 @@ test_cases.gvn.const_folding.GVNConstFolding.entry:
 test_cases.gvn.const_folding.GVNConstFolding.entry_block@0:
     // gvn/const_folding.py:7
     // test_setbyte(True)
-    intc_2 // 1
+    intc_1 // 1
     callsub test_setbyte
     // gvn/const_folding.py:8
     // test_uint64_mod(UInt64(42), False)
@@ -355,6 +355,6 @@ test_cases.gvn.const_folding.GVNConstFolding.entry_block@0:
     // gvn/const_folding.py:9
     // test_biguint_mod(BigUInt(42**64), True)
     pushbytes 0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000
-    intc_2 // 1
+    intc_1 // 1
     callsub test_biguint_mod
     retsub
