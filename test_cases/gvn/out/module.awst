@@ -60,50 +60,6 @@ subroutine test_divmodw(): void
   assert(rl == 0u)
 }
 
-contract SetByteConstFoldContract
-{
-  method_resolution_order: (
-    algopy._contract.Contract,
-  )
-  
-  subroutine test_cases.gvn.setbyte_const_fold.SetByteConstFoldContract.approval_program(): bool
-  {
-    test_cases.gvn.setbyte_const_fold.test_direct()
-    test_cases.gvn.setbyte_const_fold.test_through_phi(0u)
-    return true
-  }
-  
-  subroutine test_cases.gvn.setbyte_const_fold.SetByteConstFoldContract.clear_state_program(): bool
-  {
-    return true
-  }
-  
-  subroutine algopy._contract.Contract.__init__(): void
-  {
-  }
-}
-
-subroutine test_direct(): void
-{
-  assert(setbyte(hex<"4142">, 0u, 90u) == hex<"5A42">)
-  assert(setbyte(hex<"4142">, 1u, 90u) == hex<"415A">)
-}
-
-subroutine test_through_phi(selector: uint64): void
-{
-  if (selector != 0u) {
-    a: bytes = hex<"41">
-  } else {
-    a: bytes = hex<"41">
-  }
-  if (selector != 0u) {
-    b: bytes = a + hex<"42">
-  } else {
-    b: bytes = a + hex<"42">
-  }
-  assert(setbyte(b, 0u, 67u) == hex<"4342">)
-}
-
 contract Replace3ConstFoldContract
 {
   method_resolution_order: (
@@ -350,6 +306,54 @@ subroutine test_through_phi(selector: uint64): void
     b: bytes = hex<"4142">
   }
   assert(getbyte(b, 1u) == 66u)
+}
+
+contract GVNConstFolding
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.gvn.const_folding.GVNConstFolding.entry(): void
+  {
+    test_cases.gvn.const_folding.test_setbyte(true)
+  }
+  
+  baremethod test_cases.gvn.const_folding.GVNConstFolding.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_setbyte(selector: bool): void
+{
+  assert(setbyte(hex<"4142">, 0u, 90u) == hex<"5A42">)
+  assert(setbyte(hex<"4142">, 1u, 90u) == hex<"415A">)
+  if (selector) {
+    a: bytes = hex<"41">
+  } else {
+    a: bytes = hex<"41">
+  }
+  if (selector) {
+    b: bytes = a + hex<"42">
+  } else {
+    b: bytes = a + hex<"42">
+  }
+  assert(setbyte(b, 0u, 67u) == hex<"4342">)
 }
 
 contract ComparisonSwapsContract
