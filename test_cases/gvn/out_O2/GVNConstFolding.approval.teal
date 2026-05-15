@@ -3,8 +3,6 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 65 66
-    bytecblock 0x01 0x
     txn NumAppArgs
     bz main___algopy_default_create@5
     pushbytes 0x468f60d0 // method "entry()void"
@@ -18,14 +16,14 @@ main_entry_route@3:
     txn ApplicationID
     &&
     assert
-    intc_0 // 1
+    pushint 1
     callsub test_setbyte
     pushints 42 0
     callsub test_uint64_mod
     pushbytes 0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000
-    intc_0 // 1
+    pushint 1
     callsub test_biguint_mod
-    intc_0 // 1
+    pushint 1
     return
 
 main___algopy_default_create@5:
@@ -46,68 +44,10 @@ test_setbyte:
 // test_cases.gvn.const_folding.test_uint64_mod(x: uint64, selector: uint64) -> void:
 test_uint64_mod:
     proto 2 0
-    frame_dig -2
-    intc_0 // 1
-    %
-    !
-    assert
-    frame_dig -1
-    bz test_uint64_mod_else_body@2
-    intc_1 // 65
-    bzero
-    bytec_0 // 0x01
-    concat
-    substring 56 66
-    btoi
-
-test_uint64_mod_after_if_else@3:
-    frame_dig -2
-    swap
-    %
-    !
-    assert
     retsub
-
-test_uint64_mod_else_body@2:
-    intc_2 // 66
-    bzero
-    bytec_0 // 0x01
-    concat
-    substring 57 67
-    btoi
-    b test_uint64_mod_after_if_else@3
 
 
 // test_cases.gvn.const_folding.test_biguint_mod(x: bytes, selector: uint64) -> void:
 test_biguint_mod:
     proto 2 0
-    frame_dig -2
-    bytec_0 // 0x01
-    b%
-    bytec_1 // 0x
-    b==
-    assert
-    frame_dig -1
-    bz test_biguint_mod_else_body@2
-    intc_1 // 65
-    bzero
-    bytec_0 // 0x01
-    concat
-    substring 56 66
-
-test_biguint_mod_after_if_else@3:
-    frame_dig -2
-    swap
-    b%
-    bytec_1 // 0x
-    b==
-    assert
     retsub
-
-test_biguint_mod_else_body@2:
-    intc_2 // 66
-    bzero
-    bytec_0 // 0x01
-    concat
-    substring 57 67
-    b test_biguint_mod_after_if_else@3

@@ -1,32 +1,32 @@
-// Op                                                                  Stack (out)
+// Op                                                            Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // gvn/const_folding.py:4
         // class GVNConstFolding(ARC4Contract):
-        txn NumAppArgs                                                 tmp%0#1
-        l-load tmp%0#1 0                                               tmp%0#1
+        txn NumAppArgs                                           tmp%0#1
+        l-load tmp%0#1 0                                         tmp%0#1
         bz main___algopy_default_create@5 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // gvn/const_folding.py:4
         // class GVNConstFolding(ARC4Contract):
-        txna ApplicationArgs 0                                         tmp%2#0
-        method entry()void                                             tmp%2#0,Method(entry()void)
-        l-load tmp%2#0 1                                               Method(entry()void),tmp%2#0
+        txna ApplicationArgs 0                                   tmp%2#0
+        method entry()void                                       tmp%2#0,Method(entry()void)
+        l-load tmp%2#0 1                                         Method(entry()void),tmp%2#0
         match main_entry_route@3 ; b main_switch_case_next@4
 
     main_entry_route@3:
         // gvn/const_folding.py:5
         // @public
-        txn OnCompletion                                               tmp%3#0
-        l-load tmp%3#0 0                                               tmp%3#0
-        !                                                              tmp%4#0
-        txn ApplicationID                                              tmp%4#0,tmp%5#0
-        l-load tmp%4#0 1                                               tmp%5#0,tmp%4#0
-        l-load tmp%5#0 1                                               tmp%4#0,tmp%5#0
-        &&                                                             tmp%7#0
-        l-load tmp%7#0 0                                               tmp%7#0
+        txn OnCompletion                                         tmp%3#0
+        l-load tmp%3#0 0                                         tmp%3#0
+        !                                                        tmp%4#0
+        txn ApplicationID                                        tmp%4#0,tmp%5#0
+        l-load tmp%4#0 1                                         tmp%5#0,tmp%4#0
+        l-load tmp%5#0 1                                         tmp%4#0,tmp%5#0
+        &&                                                       tmp%7#0
+        l-load tmp%7#0 0                                         tmp%7#0
         assert
         callsub entry
         b main_switch_case_next@4
@@ -37,142 +37,36 @@ subroutine main:
         err
 
     main___algopy_default_create@5:
-        txn OnCompletion                                               tmp%8#0
-        l-load tmp%8#0 0                                               tmp%8#0
-        !                                                              tmp%9#0
-        txn ApplicationID                                              tmp%9#0,tmp%10#0
-        l-load tmp%10#0 0                                              tmp%9#0,tmp%10#0
-        !                                                              tmp%9#0,tmp%11#0
-        l-load tmp%9#0 1                                               tmp%11#0,tmp%9#0
-        l-load tmp%11#0 1                                              tmp%9#0,tmp%11#0
-        &&                                                             tmp%12#0
-        l-load tmp%12#0 0                                              tmp%12#0
+        txn OnCompletion                                         tmp%8#0
+        l-load tmp%8#0 0                                         tmp%8#0
+        !                                                        tmp%9#0
+        txn ApplicationID                                        tmp%9#0,tmp%10#0
+        l-load tmp%10#0 0                                        tmp%9#0,tmp%10#0
+        !                                                        tmp%9#0,tmp%11#0
+        l-load tmp%9#0 1                                         tmp%11#0,tmp%9#0
+        l-load tmp%11#0 1                                        tmp%9#0,tmp%11#0
+        &&                                                       tmp%12#0
+        l-load tmp%12#0 0                                        tmp%12#0
         assert
-        int 1                                                          1
+        int 1                                                    1
         return
 
 
 // test_cases.gvn.const_folding.test_setbyte(selector: uint64) -> void:
 subroutine test_setbyte:
-    test_setbyte_block@0:                                              (𝕡) selector#0 |
+    test_setbyte_block@0:                                        (𝕡) selector#0 |
         retsub
 
 
 // test_cases.gvn.const_folding.test_uint64_mod(x: uint64, selector: uint64) -> void:
 subroutine test_uint64_mod:
-    test_uint64_mod_block@0:                                           (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:30
-        // assert x % 1 == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | x#0 (copy)
-        int 1                                                          (𝕡) x#0,selector#0 | x#0 (copy),1
-        %                                                              (𝕡) x#0,selector#0 | tmp%0#0
-        l-load tmp%0#0 0                                               (𝕡) x#0,selector#0 | tmp%0#0
-        !                                                              (𝕡) x#0,selector#0 | tmp%1#0
-        l-load tmp%1#0 0                                               (𝕡) x#0,selector#0 | tmp%1#0
-        assert                                                         (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:34
-        // if selector:
-        p-load selector#0                                              (𝕡) x#0,selector#0 | selector#0 (copy)
-        bz test_uint64_mod_else_body@2 ; b test_uint64_mod_if_body@1   (𝕡) x#0,selector#0 |
-
-    test_uint64_mod_if_body@1:                                         (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:35
-        // one = op.btoi((op.bzero(65) + b"\x01")[-10:])
-        int 65                                                         (𝕡) x#0,selector#0 | 65
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%2#0
-        l-load tmp%2#0 0                                               (𝕡) x#0,selector#0 | tmp%2#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%2#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%3#0
-        l-load tmp%3#0 0                                               (𝕡) x#0,selector#0 | tmp%3#0
-        substring 56 66                                                (𝕡) x#0,selector#0 | tmp%4#0
-        l-load tmp%4#0 0                                               (𝕡) x#0,selector#0 | tmp%4#0
-        btoi                                                           (𝕡) x#0,selector#0 | one#0
-        v-store one#0                                                  (𝕡) x#0,selector#0 |
-        b test_uint64_mod_after_if_else@3                              (𝕡) x#0,selector#0 |
-
-    test_uint64_mod_else_body@2:                                       (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:37
-        // one = op.btoi((op.bzero(66) + b"\x01")[-10:])
-        int 66                                                         (𝕡) x#0,selector#0 | 66
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%6#0
-        l-load tmp%6#0 0                                               (𝕡) x#0,selector#0 | tmp%6#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%6#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%7#0
-        l-load tmp%7#0 0                                               (𝕡) x#0,selector#0 | tmp%7#0
-        substring 57 67                                                (𝕡) x#0,selector#0 | tmp%8#0
-        l-load tmp%8#0 0                                               (𝕡) x#0,selector#0 | tmp%8#0
-        btoi                                                           (𝕡) x#0,selector#0 | one#0
-        v-store one#0                                                  (𝕡) x#0,selector#0 |
-        b test_uint64_mod_after_if_else@3                              (𝕡) x#0,selector#0 |
-
-    test_uint64_mod_after_if_else@3:                                   (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:38
-        // assert x % one == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | x#0 (copy)
-        v-load one#0                                                   (𝕡) x#0,selector#0 | x#0 (copy),one#0
-        %                                                              (𝕡) x#0,selector#0 | tmp%10#0
-        l-load tmp%10#0 0                                              (𝕡) x#0,selector#0 | tmp%10#0
-        !                                                              (𝕡) x#0,selector#0 | tmp%11#0
-        l-load tmp%11#0 0                                              (𝕡) x#0,selector#0 | tmp%11#0
-        assert                                                         (𝕡) x#0,selector#0 |
+    test_uint64_mod_block@0:                                     (𝕡) x#0,selector#0 |
         retsub
 
 
 // test_cases.gvn.const_folding.test_biguint_mod(x: bytes, selector: uint64) -> void:
 subroutine test_biguint_mod:
-    test_biguint_mod_block@0:                                          (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:44
-        // assert x % 1 == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | x#0 (copy)
-        byte 0x01                                                      (𝕡) x#0,selector#0 | x#0 (copy),0x01
-        b%                                                             (𝕡) x#0,selector#0 | tmp%0#0
-        l-load tmp%0#0 0                                               (𝕡) x#0,selector#0 | tmp%0#0
-        byte 0x                                                        (𝕡) x#0,selector#0 | tmp%0#0,0x
-        b==                                                            (𝕡) x#0,selector#0 | tmp%1#0
-        l-load tmp%1#0 0                                               (𝕡) x#0,selector#0 | tmp%1#0
-        assert                                                         (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:48
-        // if selector:
-        p-load selector#0                                              (𝕡) x#0,selector#0 | selector#0 (copy)
-        bz test_biguint_mod_else_body@2 ; b test_biguint_mod_if_body@1 (𝕡) x#0,selector#0 |
-
-    test_biguint_mod_if_body@1:                                        (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:49
-        // one = (op.bzero(65) + b"\x01")[-10:]
-        int 65                                                         (𝕡) x#0,selector#0 | 65
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%2#0
-        l-load tmp%2#0 0                                               (𝕡) x#0,selector#0 | tmp%2#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%2#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%3#0
-        l-load tmp%3#0 0                                               (𝕡) x#0,selector#0 | tmp%3#0
-        substring 56 66                                                (𝕡) x#0,selector#0 | one#0
-        v-store one#0                                                  (𝕡) x#0,selector#0 |
-        b test_biguint_mod_after_if_else@3                             (𝕡) x#0,selector#0 |
-
-    test_biguint_mod_else_body@2:                                      (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:51
-        // one = (op.bzero(66) + b"\x01")[-10:]
-        int 66                                                         (𝕡) x#0,selector#0 | 66
-        bzero                                                          (𝕡) x#0,selector#0 | tmp%5#0
-        l-load tmp%5#0 0                                               (𝕡) x#0,selector#0 | tmp%5#0
-        byte 0x01                                                      (𝕡) x#0,selector#0 | tmp%5#0,0x01
-        concat                                                         (𝕡) x#0,selector#0 | tmp%6#0
-        l-load tmp%6#0 0                                               (𝕡) x#0,selector#0 | tmp%6#0
-        substring 57 67                                                (𝕡) x#0,selector#0 | one#0
-        v-store one#0                                                  (𝕡) x#0,selector#0 |
-        b test_biguint_mod_after_if_else@3                             (𝕡) x#0,selector#0 |
-
-    test_biguint_mod_after_if_else@3:                                  (𝕡) x#0,selector#0 |
-        // gvn/const_folding.py:52
-        // assert x % BigUInt.from_bytes(one) == 0
-        p-load x#0                                                     (𝕡) x#0,selector#0 | x#0 (copy)
-        v-load one#0                                                   (𝕡) x#0,selector#0 | x#0 (copy),one#0
-        b%                                                             (𝕡) x#0,selector#0 | tmp%8#0
-        l-load tmp%8#0 0                                               (𝕡) x#0,selector#0 | tmp%8#0
-        byte 0x                                                        (𝕡) x#0,selector#0 | tmp%8#0,0x
-        b==                                                            (𝕡) x#0,selector#0 | tmp%9#0
-        l-load tmp%9#0 0                                               (𝕡) x#0,selector#0 | tmp%9#0
-        assert                                                         (𝕡) x#0,selector#0 |
+    test_biguint_mod_block@0:                                    (𝕡) x#0,selector#0 |
         retsub
 
 
@@ -181,21 +75,21 @@ subroutine entry:
     entry_block@0:
         // gvn/const_folding.py:7
         // test_setbyte(True)
-        int 1                                                          1
+        int 1                                                    1
         callsub test_setbyte
         // gvn/const_folding.py:8
         // test_uint64_mod(UInt64(42), False)
-        int 42                                                         42
-        int 0                                                          42,0
+        int 42                                                   42
+        int 0                                                    42,0
         callsub test_uint64_mod
         // gvn/const_folding.py:9
         // test_biguint_mod(BigUInt(42**64), True)
         byte 0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000 0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000
-        int 1                                                          0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000,1
+        int 1                                                    0x0227eb7da8f7a843ac592cb594e3b9ef0876d3dee6e243fe9763733a81bb74a9b45833010000000000000000,1
         callsub test_biguint_mod
         // gvn/const_folding.py:5
         // @public
-        int 1                                                          1
+        int 1                                                    1
         return
 
 
