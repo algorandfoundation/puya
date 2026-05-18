@@ -32,11 +32,24 @@ from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._intrinsics import (
     fold_addw,
+    fold_biguint_const_binary_op,
+    fold_bytes_const_binary_op,
+    fold_bytes_const_unary_op,
     fold_divmodw,
     fold_divw,
     fold_expw,
+    fold_extract_uint_n,
+    fold_getbit_bytes,
+    fold_getbyte,
     fold_mulw,
+    fold_replace2,
+    fold_setbit_bytes,
+    fold_setbit_uint64,
+    fold_setbyte,
+    fold_uint64_const_binary_op,
+    fold_uint64_const_unary_op,
     hash_eval_funcs,
+    valid_uint64,
 )
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
@@ -45,21 +58,8 @@ from puya.ir.optimize.intrinsic_simplification import (
     BinarySimplification,
     SSAReadTracker,
     choose_encoding,
-    fold_biguint_const_binary_op,
-    fold_bytes_const_binary_op,
-    fold_bytes_const_unary_op,
-    fold_extract_uint_n,
-    fold_getbit_bytes,
-    fold_getbyte,
-    fold_replace2,
-    fold_setbit_bytes,
-    fold_setbit_uint64,
-    fold_setbyte,
-    fold_uint64_const_binary_op,
-    fold_uint64_const_unary_op,
     simplify_bytes_binary_op_one_const,
     simplify_uint64_binary_op_one_const,
-    valid_uint64,
 )
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
