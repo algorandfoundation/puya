@@ -789,6 +789,38 @@ def _try_fold_intrinsic(
                 if folded is None:
                     return None
                 return models.UInt64Constant(value=folded, source_location=op_loc)
+            case [
+                models.Register() as bytes_arg,
+                models.UInt64Constant(value=offset) as offset_const,
+            ] if (bytes_arg_defn := register_assignments.get(bytes_arg)) is not None and (
+                all(
+                    isinstance(r, models.Assignment)
+                    and isinstance(r.source, models.Intrinsic)
+                    and r.source.op in _EXTRACT_UINTN_BYTE_SIZE
+                    for r in ssa_reads.get(bytes_arg)
+                )
+            ):
+                # chained extract: extract_uint{N} (extract S 0 src) offset
+                #     -> extract_uint{N} src (S + offset)
+                match bytes_arg_defn.source:
+                    case models.Intrinsic(
+                        op=AVMOp.extract,
+                        args=[src_bytes_arg],
+                        immediates=[int(src_start), 0],
+                    ):
+                        new_offset = src_start + offset
+                        if not valid_uint64(new_offset):
+                            return None
+                        return attrs.evolve(
+                            intrinsic,
+                            args=[
+                                src_bytes_arg,
+                                models.UInt64Constant(
+                                    value=new_offset,
+                                    source_location=offset_const.source_location,
+                                ),
+                            ],
+                        )
     elif intrinsic.op is AVMOp.concat:
         left_arg, right_arg = intrinsic.args
         left_const = _get_byte_constant(register_assignments, left_arg)
@@ -1773,7 +1805,7 @@ def _try_simplify_uint64_binary_op(
     b_const = _get_int_constant(b)
     c: models.Value | int | None = None
     if a_const is not None and b_const is not None:
-        c = fold_uint64_const_binary_op(op, a_const, b_const)
+        c = None  # fold_uint64_const_binary_op(op, a_const, b_const)
     elif a_const is not None or b_const is not None:
         # eq → !operand is shaped differently to other one-const folds, so
         # the shared simplifier doesn't cover it.
