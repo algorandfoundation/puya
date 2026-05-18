@@ -527,13 +527,11 @@ def _try_fold_intrinsic(
             byte_const_b := _get_byte_constant(register_assignments, byte_arg_b)
         ) is not None:
             folded_bytes = fold_replace2(byte_const_a.value, start, byte_const_b.value)
-            if folded_bytes is None:
-                return None
-            return models.BytesConstant(
-                value=folded_bytes,
-                encoding=choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
-                source_location=op_loc,
-            )
+            if folded_bytes is not None:
+                enc = choose_encoding(byte_const_a.encoding, byte_const_b.encoding)
+                return models.BytesConstant(
+                    value=folded_bytes, encoding=enc, source_location=op_loc
+                )
     elif intrinsic.op is AVMOp.replace3:
         match intrinsic.args:
             case [
@@ -546,13 +544,11 @@ def _try_fold_intrinsic(
                 is not None
             ):
                 folded_bytes = fold_replace2(byte_const_a.value, start, byte_const_b.value)
-                if folded_bytes is None:
-                    return None
-                return models.BytesConstant(
-                    value=folded_bytes,
-                    encoding=choose_encoding(byte_const_a.encoding, byte_const_b.encoding),
-                    source_location=op_loc,
-                )
+                if folded_bytes is not None:
+                    enc = choose_encoding(byte_const_a.encoding, byte_const_b.encoding)
+                    return models.BytesConstant(
+                        value=folded_bytes, encoding=enc, source_location=op_loc
+                    )
     # replace3 with a constant start arg ≤ 255 is converted to replace2 by
     # stack-to-immediate conversion (so the replace2 branch above handles it on a
     # subsequent pass); the replace3 branch directly above handles starts > 255 and
@@ -563,18 +559,16 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=source, ir_type=PrimitiveIRType.uint64),
                 models.UInt64Constant(value=index),
             ]:
-                if index >= 64:
-                    return None
-                getbit_result = 1 if (source & (1 << index)) else 0
-                return models.UInt64Constant(value=getbit_result, source_location=op_loc)
+                if index < 64:
+                    getbit_result = 1 if (source & (1 << index)) else 0
+                    return models.UInt64Constant(value=getbit_result, source_location=op_loc)
             case [
                 models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 folded = fold_getbit_bytes(byte_const.value, index)
-                if folded is None:
-                    return None
-                return models.UInt64Constant(source_location=op_loc, value=folded)
+                if folded is not None:
+                    return models.UInt64Constant(value=folded, source_location=op_loc)
     elif intrinsic.op is AVMOp.getbyte:
         match intrinsic.args:
             case [
@@ -582,9 +576,8 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=index),
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 folded = fold_getbyte(byte_const.value, index)
-                if folded is None:
-                    return None
-                return models.UInt64Constant(source_location=op_loc, value=folded)
+                if folded is not None:
+                    return models.UInt64Constant(value=folded, source_location=op_loc)
     elif intrinsic.op is AVMOp.setbit:
         match intrinsic.args:
             case [
@@ -593,26 +586,23 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=value),
             ]:
                 folded = fold_setbit_uint64(source, index, value)
-                if folded is None:
-                    return None
-                return models.UInt64Constant(value=folded, source_location=op_loc)
+                if folded is not None:
+                    return models.UInt64Constant(value=folded, source_location=op_loc)
             case [
                 models.Value(atype=AVMType.bytes) as byte_arg,
                 models.UInt64Constant(value=index),
                 models.UInt64Constant(value=value),
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 folded_bytes = fold_setbit_bytes(byte_const.value, index, value)
-                if folded_bytes is None:
-                    return None
-                return models.BytesConstant(
-                    source_location=op_loc,
-                    encoding=(
+                if folded_bytes is not None:
+                    enc = (
                         byte_const.encoding
                         if byte_const.encoding != AVMBytesEncoding.utf8
                         else AVMBytesEncoding.unknown
-                    ),
-                    value=folded_bytes,
-                )
+                    )
+                    return models.BytesConstant(
+                        value=folded_bytes, encoding=enc, source_location=op_loc
+                    )
     elif intrinsic.op is AVMOp.setbyte:
         match intrinsic.args:
             case [
@@ -621,17 +611,15 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=value),
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 folded_bytes = fold_setbyte(byte_const.value, index, value)
-                if folded_bytes is None:
-                    return None
-                return models.BytesConstant(
-                    source_location=op_loc,
-                    encoding=(
+                if folded_bytes is not None:
+                    enc = (
                         byte_const.encoding
                         if byte_const.encoding != AVMBytesEncoding.utf8
                         else AVMBytesEncoding.unknown
-                    ),
-                    value=folded_bytes,
-                )
+                    )
+                    return models.BytesConstant(
+                        value=folded_bytes, encoding=enc, source_location=op_loc
+                    )
     elif intrinsic.op in EXTRACT_UINTN_BYTE_SIZE:
         match intrinsic.args:
             case [
@@ -639,9 +627,8 @@ def _try_fold_intrinsic(
                 models.UInt64Constant(value=offset),
             ] if (bytes_const := _get_byte_constant(register_assignments, bytes_arg)) is not None:
                 folded = fold_extract_uint_n(intrinsic.op, bytes_const.value, offset)
-                if folded is None:
-                    return None
-                return models.UInt64Constant(value=folded, source_location=op_loc)
+                if folded is not None:
+                    return models.UInt64Constant(value=folded, source_location=op_loc)
             case [
                 models.Register() as bytes_arg,
                 models.UInt64Constant(value=offset) as offset_const,
@@ -662,18 +649,12 @@ def _try_fold_intrinsic(
                         immediates=[int(src_start), 0],
                     ):
                         new_offset = src_start + offset
-                        if not valid_uint64(new_offset):
-                            return None
-                        return attrs.evolve(
-                            intrinsic,
-                            args=[
-                                src_bytes_arg,
-                                models.UInt64Constant(
-                                    value=new_offset,
-                                    source_location=offset_const.source_location,
-                                ),
-                            ],
-                        )
+                        if valid_uint64(new_offset):
+                            new_offset_const = models.UInt64Constant(
+                                value=new_offset,
+                                source_location=offset_const.source_location,
+                            )
+                            return attrs.evolve(intrinsic, args=[src_bytes_arg, new_offset_const])
     elif intrinsic.op is AVMOp.concat:
         left_arg, right_arg = intrinsic.args
         left_const = _get_byte_constant(register_assignments, left_arg)
@@ -784,18 +765,16 @@ def _try_fold_intrinsic(
                     ],
                 )
             ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
-                if not (S <= E <= len(byte_const.value)):
-                    return None  # would fail at runtime, lets hope this is unreachable 😬
-                extracted = byte_const.value[S:E]
-                return models.BytesConstant(
-                    source_location=op_loc,
-                    encoding=(
+                if S <= E <= len(byte_const.value):
+                    extracted = byte_const.value[S:E]
+                    enc = (
                         byte_const.encoding
                         if byte_const.encoding != AVMBytesEncoding.utf8
                         else AVMBytesEncoding.unknown
-                    ),
-                    value=extracted,
-                )
+                    )
+                    return models.BytesConstant(
+                        value=extracted, encoding=enc, source_location=op_loc
+                    )
             case models.Intrinsic(
                 args=[byte_arg, models.UInt64Constant(value=S), maybe_len_arg]
             ) if (
