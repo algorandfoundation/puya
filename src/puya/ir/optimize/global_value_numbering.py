@@ -664,6 +664,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
         evald = biguint_bytes_eval(value)
         return self._const_bytes(evald, AVMBytesEncoding.base16)
 
+    def _const_wide_math_result(self, values: tuple[int, ...]) -> tuple[VN, ...]:
+        return tuple(vn for val in values for vn in self._const_uint64(val))
+
     def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
         return tuple(
             (
@@ -1027,31 +1030,19 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     case [_UInt64ConstKey(value=addw_a), _UInt64ConstKey(value=addw_b)]:
                         addw_folded = fold_addw(addw_a, addw_b)
                         if addw_folded is not None:
-                            carry, lo = addw_folded
-                            return (
-                                *self._const_uint64(carry),
-                                *self._const_uint64(lo),
-                            )
+                            return self._const_wide_math_result(addw_folded)
             case AVMOp.mulw:
                 match arg_defns:
                     case [_UInt64ConstKey(value=mulw_a), _UInt64ConstKey(value=mulw_b)]:
                         mulw_folded = fold_mulw(mulw_a, mulw_b)
                         if mulw_folded is not None:
-                            hi, lo = mulw_folded
-                            return (
-                                *self._const_uint64(hi),
-                                *self._const_uint64(lo),
-                            )
+                            return self._const_wide_math_result(mulw_folded)
             case AVMOp.expw:
                 match arg_defns:
                     case [_UInt64ConstKey(value=expw_a), _UInt64ConstKey(value=expw_b)]:
                         expw_folded = fold_expw(expw_a, expw_b)
                         if expw_folded is not None:
-                            hi, lo = expw_folded
-                            return (
-                                *self._const_uint64(hi),
-                                *self._const_uint64(lo),
-                            )
+                            return self._const_wide_math_result(expw_folded)
             case AVMOp.divw:
                 match arg_defns:
                     case [
@@ -1072,13 +1063,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     ]:
                         divmodw_folded = fold_divmodw(h1, l1, h2, l2)
                         if divmodw_folded is not None:
-                            qh, ql, rh, rl = divmodw_folded
-                            return (
-                                *self._const_uint64(qh),
-                                *self._const_uint64(ql),
-                                *self._const_uint64(rh),
-                                *self._const_uint64(rl),
-                            )
+                            return self._const_wide_math_result(divmodw_folded)
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
                 match op:
