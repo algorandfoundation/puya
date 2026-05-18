@@ -18,7 +18,7 @@ from itertools import zip_longest
 from puya import algo_constants, log
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
-from puya.ir.types_ import PrimitiveIRType
+from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.utils import sha512_256_hash
 
 logger = log.get_logger(__name__)
@@ -717,3 +717,30 @@ def simplify_bytes_binary_op_one_const(
             if b_const == 1:
                 return 0
     return None
+
+
+def choose_encoding(
+    a: AVMBytesEncoding, b: AVMBytesEncoding, *, is_concat: bool = False
+) -> AVMBytesEncoding:
+    if a == b:
+        # special case handling of utf8:
+        # most byte/bit ops. would destroy
+        # encoding save for concat
+        match a:
+            case AVMBytesEncoding.utf8:
+                return a if is_concat else AVMBytesEncoding.unknown
+            case _:
+                # preserve encoding if both equal
+                return a
+    # exclude utf8 from known choices, we don't preserve that encoding choice unless
+    # they're both utf8 strings and the op. is a concat, which is covered by the first check
+    known_binary_choices = {a, b} - {AVMBytesEncoding.utf8, AVMBytesEncoding.unknown}
+    if not known_binary_choices:
+        return AVMBytesEncoding.unknown
+
+    # pick the most compact encoding of the known binary encodings
+    if AVMBytesEncoding.base64 in known_binary_choices:
+        return AVMBytesEncoding.base64
+    if AVMBytesEncoding.base32 in known_binary_choices:
+        return AVMBytesEncoding.base32
+    return AVMBytesEncoding.base16
