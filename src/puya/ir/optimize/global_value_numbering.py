@@ -653,10 +653,16 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
     _tables: _GVNTables
 
     def _const_uint64(self, value: int) -> tuple[VN, ...]:
-        return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=value))
+        key = _UInt64ConstKey(value=value)
+        return self._tables.lookup_or_assign_const(key)
 
     def _const_bytes(self, value: bytes, encoding: AVMBytesEncoding) -> tuple[VN, ...]:
-        return self._tables.lookup_or_assign_const(_BytesConstKey(value=value, encoding=encoding))
+        key = _BytesConstKey(value=value, encoding=encoding)
+        return self._tables.lookup_or_assign_const(key)
+
+    def _const_biguint(self, value: int) -> tuple[VN, ...]:
+        evald = biguint_bytes_eval(value)
+        return self._const_bytes(evald, AVMBytesEncoding.base16)
 
     def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
         return tuple(
@@ -788,9 +794,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if zi is not None:
                             (ir_type,) = intrinsic.types
                             if ir_type == PrimitiveIRType.biguint:
-                                return self._const_bytes(
-                                    biguint_bytes_eval(zi), AVMBytesEncoding.base16
-                                )
+                                return self._const_biguint(zi)
                             assert ir_type.avm_type is AVMType.uint64
                             return self._const_uint64(zi)
                     match fold_bytes_const_binary_op(op, xb, yb):
@@ -846,9 +850,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         match fold_bytes_const_unary_op(op, bv):
                             case int(v):
                                 if intrinsic.types[0] == PrimitiveIRType.biguint:
-                                    return self._const_bytes(
-                                        biguint_bytes_eval(v), AVMBytesEncoding.base16
-                                    )
+                                    return self._const_biguint(v)
                                 return self._const_uint64(v)
                             case bytes(result_bytes):
                                 return self._const_bytes(result_bytes, _chop_encoding(enc))
@@ -1153,8 +1155,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             )
             if a_bg is not None or b_bg is not None:
                 match simplify_bytes_binary_op_one_const(op, a_bg, b_bg):
-                    case int() as v:
-                        return self._const_bytes(biguint_bytes_eval(v), AVMBytesEncoding.base16)
+                    case int(v):
+                        return self._const_biguint(v)
                     case BinarySimplification.LEFT:
                         return (arg_vns[0],)
                     case BinarySimplification.RIGHT:
@@ -1229,8 +1231,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_biguint_constant(self, const: models.BigUIntConstant) -> tuple[VN, ...]:
-        evald = biguint_bytes_eval(const.value)
-        return self._const_bytes(evald, AVMBytesEncoding.base16)
+        return self._const_biguint(const.value)
 
     @typing.override
     def visit_bytes_constant(self, const: models.BytesConstant) -> tuple[VN, ...]:
