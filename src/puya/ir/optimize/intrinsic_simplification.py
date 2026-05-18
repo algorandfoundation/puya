@@ -15,6 +15,8 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize._intrinsics import (
     _EXTRACT_UINTN_BYTE_SIZE,
+    COMPILE_TIME_CONSTANT_OPS,
+    SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
@@ -33,7 +35,6 @@ from puya.ir.optimize._intrinsics import (
     valid_uint64,
 )
 from puya.ir.optimize.context import IROptimizationContext
-from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS, SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
@@ -46,113 +47,6 @@ logger = log.get_logger(__name__)
 AnyOp = models.Op | models.ControlOp | models.Phi
 
 _RegisterAssignments = Mapping[models.Value, models.Assignment]
-
-COMPILE_TIME_CONSTANT_OPS = frozenset(
-    [
-        # "generic" comparison ops
-        "==",
-        "!=",
-        # uint64 comparison ops
-        "<",
-        "<=",
-        ">",
-        ">=",
-        # boolean ops
-        "!",
-        "&&",
-        "||",
-        # uint64 bitwise ops
-        "&",
-        "|",
-        "^",
-        "~",
-        "shl",
-        "shr",
-        # uint64 math
-        "+",
-        "-",
-        "*",
-        "/",
-        "%",
-        "exp",
-        "sqrt",
-        # wide math: multi-return - covered by GVN but not here
-        "addw",
-        "mulw",
-        "divw",
-        "expw",
-        "divmodw",
-        # bit/byte ops
-        "concat",
-        "extract",
-        "extract3",
-        "getbit",
-        "getbyte",
-        "len",
-        "replace2",
-        "replace3",
-        "setbit",
-        "setbyte",
-        "substring",
-        "substring3",
-        # conversion
-        "itob",
-        "btoi",
-        "extract_uint16",
-        "extract_uint32",
-        "extract_uint64",
-        # byte math
-        "b+",
-        "b-",
-        "b*",
-        "b/",
-        "b%",
-        "bsqrt",
-        # byte comaprison ops
-        "b==",
-        "b!=",
-        "b<",
-        "b<=",
-        "b>",
-        "b>=",
-        # byte bitwise ops
-        "b&",
-        "b|",
-        "b^",
-        "b~",
-        # misc
-        "bzero",
-        "select",
-        "bitlen",
-        # implemented hash ops
-        "keccak256",
-        "sha256",
-        "sha3_256",
-        "sha512_256",
-        # ! unimplemented for constant arg evaluation
-        "base64_decode",
-        "json_ref",
-        "ec_add",
-        "ec_map_to",
-        "ec_multi_scalar_mul",
-        "ec_pairing_check",
-        "ec_scalar_mul",
-        "ec_subgroup_check",
-        "ecdsa_pk_decompress",
-        "ecdsa_pk_recover",
-        "ecdsa_verify",
-        "ed25519verify",
-        "ed25519verify_bare",
-        "falcon_verify",
-        "mimc",
-        "vrf_verify",
-        # AVM vNext ops (currently v13)
-        "poseidon2",
-        "sha512",
-        "sumhash512",
-    ]
-)
-assert COMPILE_TIME_CONSTANT_OPS.issubset(PURE_AVM_OPS), COMPILE_TIME_CONSTANT_OPS - PURE_AVM_OPS
 
 
 def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
