@@ -980,10 +980,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 match arg_defns, intrinsic.immediates:
                     case [
                         [_BytesConstKey(value=byte_arg, encoding=byte_enc)],
-                        [
-                            int(start_arg),
-                            int(end_arg),
-                        ],
+                        [int(start_arg), int(end_arg)],
                     ]:
                         if (
                             start_arg
@@ -1008,10 +1005,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 match arg_defns, intrinsic.immediates:
                     case [
                         [_BytesConstKey(value=byte_arg, encoding=byte_enc)],
-                        [
-                            int(start_arg),
-                            int(length_arg),
-                        ],
+                        [int(start_arg), int(length_arg)],
                     ]:
                         # immediate variant: L=0 means "extract to end".
                         byte_len = len(byte_arg)
@@ -1106,7 +1100,6 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             a_const = a_def.value if isinstance(a_def, _UInt64ConstKey) else None
             b_const = b_def.value if isinstance(b_def, _UInt64ConstKey) else None
             if a_const is not None or b_const is not None:
-                a, b = intrinsic.args
                 # eq → !operand is shaped differently to other one-const folds.
                 if op == AVMOp.eq:
                     if a_const == 0:
@@ -1119,8 +1112,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             _IntrinsicKey(op=AVMOp.not_, immediates=(), arg_vns=(arg_vns[0],)),
                             intrinsic,
                         )
+                a, b = intrinsic.args
                 match simplify_uint64_binary_op_one_const(op, a, b, a_const, b_const):
-                    case int() as v:
+                    case int(v):
                         return self._const_uint64(v)
                     case BinarySimplification.LEFT:
                         return (arg_vns[0],)
