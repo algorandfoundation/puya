@@ -1385,46 +1385,24 @@ def _eval_bzero(arg: int, loc: SourceLocation | None) -> models.BytesConstant | 
     return None
 
 
-def _eval_sha256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
-    return models.BytesConstant(
-        value=hashlib.sha256(arg).digest(),
-        encoding=AVMBytesEncoding.base16,
-        source_location=loc,
-    )
+def _eval_sha256(arg: bytes) -> bytes:
+    return hashlib.sha256(arg).digest()
 
 
-def _eval_sha3_256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
-    return models.BytesConstant(
-        value=hashlib.sha3_256(arg).digest(),
-        encoding=AVMBytesEncoding.base16,
-        source_location=loc,
-    )
+def _eval_sha3_256(arg: bytes) -> bytes:
+    return hashlib.sha3_256(arg).digest()
 
 
-def _eval_sha512_256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
-    return models.BytesConstant(
-        value=sha512_256_hash(arg),
-        encoding=AVMBytesEncoding.base16,
-        source_location=loc,
-    )
-
-
-def _eval_keccak256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
+def _eval_keccak256(arg: bytes) -> bytes:
     from Cryptodome.Hash import keccak
 
-    return models.BytesConstant(
-        value=keccak.new(data=arg, digest_bits=256).digest(),
-        encoding=AVMBytesEncoding.base16,
-        source_location=loc,
-    )
+    return keccak.new(data=arg, digest_bits=256).digest()
 
 
-hash_eval_funcs: typing.Final[
-    Mapping[AVMOp, Callable[[bytes, SourceLocation | None], models.BytesConstant]]
-] = {
+hash_eval_funcs: typing.Final[Mapping[AVMOp, Callable[[bytes], bytes]]] = {
     AVMOp.sha256: _eval_sha256,
     AVMOp.sha3_256: _eval_sha3_256,
-    AVMOp.sha512_256: _eval_sha512_256,
+    AVMOp.sha512_256: sha512_256_hash,
     AVMOp.keccak256: _eval_keccak256,
 }
 
@@ -1526,7 +1504,11 @@ def _try_simplify_bytes_unary_op(
             case other:
                 typing.assert_type(other, None)
         if hash_eval := hash_eval_funcs.get(op):
-            return hash_eval(byte_const.value, op_loc)
+            return models.BytesConstant(
+                value=hash_eval(byte_const.value),
+                encoding=AVMBytesEncoding.base16,
+                source_location=op_loc,
+            )
         if op is AVMOp.len_:
             return models.UInt64Constant(value=len(byte_const.value), source_location=op_loc)
         logger.debug(f"Don't know how to simplify {op.code} of {byte_const}")
