@@ -734,3 +734,9 @@ def choose_encoding(
     if AVMBytesEncoding.base32 in known_binary_choices:
         return AVMBytesEncoding.base32
     return AVMBytesEncoding.base16
+
+
+def chop_encoding(enc: AVMBytesEncoding) -> AVMBytesEncoding:
+    """When a bytes operation might not respect code-point boundaries,
+    don't keep UTF-8 encoding."""
+    return AVMBytesEncoding.unknown if enc == AVMBytesEncoding.utf8 else enc
