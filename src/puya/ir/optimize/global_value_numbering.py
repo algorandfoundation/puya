@@ -34,6 +34,7 @@ from puya.ir.optimize._intrinsics import (
     COMPILE_TIME_CONSTANT_OPS,
     PURE_AVM_OPS,
     BinarySimplification,
+    choose_encoding,
     fold_addw,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
@@ -57,7 +58,7 @@ from puya.ir.optimize._intrinsics import (
     valid_uint64,
 )
 from puya.ir.optimize._utils import compute_dominator_tree
-from puya.ir.optimize.intrinsic_simplification import SSAReadTracker, choose_encoding
+from puya.ir.optimize.intrinsic_simplification import SSAReadTracker
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer

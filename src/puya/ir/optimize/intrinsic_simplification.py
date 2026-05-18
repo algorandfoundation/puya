@@ -18,6 +18,7 @@ from puya.ir.optimize._intrinsics import (
     COMPILE_TIME_CONSTANT_OPS,
     SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
+    choose_encoding,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
     fold_bytes_const_unary_op,
@@ -1163,33 +1164,6 @@ def _get_biguint_constant(
     if len(byte_const.value) <= 64:
         biguint_value = int.from_bytes(byte_const.value, byteorder="big", signed=False)
     return biguint_value, byte_const
-
-
-def choose_encoding(
-    a: AVMBytesEncoding, b: AVMBytesEncoding, *, is_concat: bool = False
-) -> AVMBytesEncoding:
-    if a == b:
-        # special case handling of utf8:
-        # most byte/bit ops. would destroy
-        # encoding save for concat
-        match a:
-            case AVMBytesEncoding.utf8:
-                return a if is_concat else AVMBytesEncoding.unknown
-            case _:
-                # preserve encoding if both equal
-                return a
-    # exclude utf8 from known choices, we don't preserve that encoding choice unless
-    # they're both utf8 strings and the op. is a concat, which is covered by the first check
-    known_binary_choices = {a, b} - {AVMBytesEncoding.utf8, AVMBytesEncoding.unknown}
-    if not known_binary_choices:
-        return AVMBytesEncoding.unknown
-
-    # pick the most compact encoding of the known binary encodings
-    if AVMBytesEncoding.base64 in known_binary_choices:
-        return AVMBytesEncoding.base64
-    if AVMBytesEncoding.base32 in known_binary_choices:
-        return AVMBytesEncoding.base32
-    return AVMBytesEncoding.base16
 
 
 def _get_byte_constant(
