@@ -7,7 +7,13 @@ returns `None` if the inputs would cause the op to fail at runtime
 (out-of-range, overflow, divide-by-zero, etc.). No model imports.
 """
 
+import hashlib
+import typing
+from collections.abc import Callable, Mapping
+
+from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize.intrinsic_simplification import valid_uint64
+from puya.utils import sha512_256_hash
 
 _U64_MASK = (1 << 64) - 1
 
@@ -58,3 +64,25 @@ def fold_divmodw(h1: int, l1: int, h2: int, l2: int) -> tuple[int, int, int, int
     dividend = (h1 << 64) | l1
     q, r = divmod(dividend, divisor)
     return q >> 64, q & _U64_MASK, r >> 64, r & _U64_MASK
+
+
+def _eval_sha256(arg: bytes) -> bytes:
+    return hashlib.sha256(arg).digest()
+
+
+def _eval_sha3_256(arg: bytes) -> bytes:
+    return hashlib.sha3_256(arg).digest()
+
+
+def _eval_keccak256(arg: bytes) -> bytes:
+    from Cryptodome.Hash import keccak
+
+    return keccak.new(data=arg, digest_bits=256).digest()
+
+
+hash_eval_funcs: typing.Final[Mapping[AVMOp, Callable[[bytes], bytes]]] = {
+    AVMOp.sha256: _eval_sha256,
+    AVMOp.sha3_256: _eval_sha3_256,
+    AVMOp.sha512_256: sha512_256_hash,
+    AVMOp.keccak256: _eval_keccak256,
+}
