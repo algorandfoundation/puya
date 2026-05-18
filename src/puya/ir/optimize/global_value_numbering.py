@@ -57,8 +57,7 @@ from puya.ir.optimize._intrinsics import (
     simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
-from puya.ir.optimize._utils import compute_dominator_tree
-from puya.ir.optimize.intrinsic_simplification import SSAReadTracker
+from puya.ir.optimize._utils import SSAReadTracker, compute_dominator_tree
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor, ValueProviderVisitor
 from puya.ir.visitor_mem_replacer import MemoryReplacer
