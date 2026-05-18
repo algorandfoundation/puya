@@ -651,6 +651,9 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     _tables: _GVNTables
 
+    def lookup_or_assign_const_uint64(self, value: int) -> tuple[VN, ...]:
+        return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=value))
+
     def _index_vns(self, indexes: tuple[int | models.Value, ...]) -> tuple[_IndexVN, ...]:
         return tuple(
             (
@@ -774,8 +777,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                 case [_UInt64ConstKey(value=x), _UInt64ConstKey(value=y)]:
                     z = fold_uint64_const_binary_op(op, x, y)
                     if z is not None:
-                        binary_uint64_result = _UInt64ConstKey(value=z)
-                        return self._tables.lookup_or_assign_const(binary_uint64_result)
+                        return self.lookup_or_assign_const_uint64(z)
                 case [
                     _BytesConstKey(value=xb, encoding=ea, as_biguint=xb_int),
                     _BytesConstKey(value=yb, encoding=eb, as_biguint=yb_int),
@@ -792,10 +794,10 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                     )
                                 )
                             assert ir_type.avm_type is AVMType.uint64
-                            return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=zi))
+                            return self.lookup_or_assign_const_uint64(zi)
                     match fold_bytes_const_binary_op(op, xb, yb):
                         case int(zi):
-                            return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=zi))
+                            return self.lookup_or_assign_const_uint64(zi)
                         case bytes(zb):
                             return self._tables.lookup_or_assign_const(
                                 _BytesConstKey(value=zb, encoding=choose_encoding(ea, eb))
@@ -809,8 +811,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     case [_BytesConstKey(value=len_arg)]:
                         len_result = len(len_arg)
                         if len_result <= algo_constants.MAX_BYTES_LENGTH:
-                            len_const_key = _UInt64ConstKey(value=len(len_arg))
-                            return self._tables.lookup_or_assign_const(len_const_key)
+                            return self.lookup_or_assign_const_uint64(len(len_arg))
             case AVMOp.itob:
                 match arg_defns:
                     case [_UInt64ConstKey(value=itob_arg)]:
@@ -834,15 +835,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     case [_UInt64ConstKey(value=x)]:
                         folded = fold_uint64_const_unary_op(op, x)
                         if folded is not None:
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(folded)
                     case [_BytesConstKey(value=bv)] if op is AVMOp.bitlen:
                         bitlen_folded = fold_bytes_const_unary_op(op, bv)
                         if isinstance(bitlen_folded, int):
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=bitlen_folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(bitlen_folded)
                     case [_IntrinsicKey(op=source_op) as comp] if op is AVMOp.not_:
                         # Negation-aware numbering: !(comparison) -> inverse comparison.
                         # e.g. !(a < b) gets the same key as (a >= b).
@@ -865,9 +862,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                             encoding=AVMBytesEncoding.base16,
                                         )
                                     )
-                                return self._tables.lookup_or_assign_const(
-                                    _UInt64ConstKey(value=v)
-                                )
+                                return self.lookup_or_assign_const_uint64(v)
                             case bytes(result_bytes):
                                 return self._tables.lookup_or_assign_const(
                                     _BytesConstKey(
@@ -902,9 +897,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     ]:
                         folded = fold_setbit_uint64(source, index, value)
                         if folded is not None:
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(folded)
                     case [
                         _BytesConstKey(value=bv, encoding=enc),
                         _UInt64ConstKey(value=index),
@@ -946,25 +939,19 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
                         folded = fold_getbit_bytes(bv, index)
                         if folded is not None:
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(folded)
             case AVMOp.getbyte:
                 match arg_defns:
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
                         folded = fold_getbyte(bv, index)
                         if folded is not None:
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(folded)
             case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64:
                 match arg_defns:
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=offset)]:
                         folded = fold_extract_uint_n(op, bv, offset)
                         if folded is not None:
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(folded)
             case AVMOp.select:
                 # arg layout: [false_branch, true_branch, selector]
                 if arg_vns[0] == arg_vns[1]:
@@ -1093,9 +1080,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=offset)]:
                         folded = fold_extract_uint_n(op, bv, offset)
                         if folded is not None:
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(folded)
             case AVMOp.addw:
                 match arg_defns:
                     case [_UInt64ConstKey(value=addw_a), _UInt64ConstKey(value=addw_b)]:
@@ -1103,8 +1088,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if addw_folded is not None:
                             carry, lo = addw_folded
                             return (
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=carry)),
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=lo)),
+                                *self.lookup_or_assign_const_uint64(carry),
+                                *self.lookup_or_assign_const_uint64(lo),
                             )
             case AVMOp.mulw:
                 match arg_defns:
@@ -1113,8 +1098,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if mulw_folded is not None:
                             hi, lo = mulw_folded
                             return (
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=hi)),
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=lo)),
+                                *self.lookup_or_assign_const_uint64(hi),
+                                *self.lookup_or_assign_const_uint64(lo),
                             )
             case AVMOp.expw:
                 match arg_defns:
@@ -1123,8 +1108,8 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if expw_folded is not None:
                             hi, lo = expw_folded
                             return (
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=hi)),
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=lo)),
+                                *self.lookup_or_assign_const_uint64(hi),
+                                *self.lookup_or_assign_const_uint64(lo),
                             )
             case AVMOp.divw:
                 match arg_defns:
@@ -1135,9 +1120,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     ]:
                         divw_folded = fold_divw(hi, lo, divisor)
                         if divw_folded is not None:
-                            return self._tables.lookup_or_assign_const(
-                                _UInt64ConstKey(value=divw_folded)
-                            )
+                            return self.lookup_or_assign_const_uint64(divw_folded)
             case AVMOp.divmodw:
                 match arg_defns:
                     case [
@@ -1150,10 +1133,10 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         if divmodw_folded is not None:
                             qh, ql, rh, rl = divmodw_folded
                             return (
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=qh)),
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=ql)),
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=rh)),
-                                *self._tables.lookup_or_assign_const(_UInt64ConstKey(value=rl)),
+                                *self.lookup_or_assign_const_uint64(qh),
+                                *self.lookup_or_assign_const_uint64(ql),
+                                *self.lookup_or_assign_const_uint64(rh),
+                                *self.lookup_or_assign_const_uint64(rl),
                             )
         match arg_vns:
             case [vn1, vn2] if vn1 == vn2:
@@ -1169,8 +1152,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         # | AVMOp.bitwise_xor_bytes - need length
                         | AVMOp.sub
                     ):
-                        const = _UInt64ConstKey(value=0)
-                        return self._tables.lookup_or_assign_const(const)
+                        return self.lookup_or_assign_const_uint64(0)
                     case AVMOp.sub_bytes:
                         const1 = _BytesConstKey(value=b"")
                         return self._tables.lookup_or_assign_const(const1)
@@ -1184,8 +1166,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         # | AVMOp.div_floor - div by zero
                         # | AVMOp.div_floor_bytes - div by zero
                     ):
-                        const2 = _UInt64ConstKey(value=1)
-                        return self._tables.lookup_or_assign_const(const2)
+                        return self.lookup_or_assign_const_uint64(1)
                     case (
                         AVMOp.bitwise_and
                         | AVMOp.bitwise_and_bytes
@@ -1215,7 +1196,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         )
                 match simplify_uint64_binary_op_one_const(op, a, b, a_const, b_const):
                     case int() as v:
-                        return self._tables.lookup_or_assign_const(_UInt64ConstKey(value=v))
+                        return self.lookup_or_assign_const_uint64(v)
                     case BinarySimplification.LEFT:
                         return (arg_vns[0],)
                     case BinarySimplification.RIGHT:
@@ -1311,8 +1292,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_uint64_constant(self, const: models.UInt64Constant) -> tuple[VN, ...]:
-        key = _UInt64ConstKey(value=const.value)
-        return self._tables.lookup_or_assign_const(key)
+        return self.lookup_or_assign_const_uint64(const.value)
 
     @typing.override
     def visit_biguint_constant(self, const: models.BigUIntConstant) -> tuple[VN, ...]:
@@ -1344,8 +1324,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
     @typing.override
     def visit_slot_constant(self, const: models.SlotConstant) -> tuple[VN, ...]:
-        key = _UInt64ConstKey(value=const.value)
-        return self._tables.lookup_or_assign_const(key)
+        return self.lookup_or_assign_const_uint64(const.value)
 
     @typing.override
     def visit_template_var(self, deploy_var: models.TemplateVar) -> tuple[VN, ...]:
