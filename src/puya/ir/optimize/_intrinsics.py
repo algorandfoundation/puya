@@ -381,7 +381,7 @@ def _byte_wise(op: Callable[[int, int], int], lhs: bytes, rhs: bytes) -> bytes:
     return bytes([op(a, b) for a, b in zip_longest(lhs[::-1], rhs[::-1], fillvalue=0)][::-1])
 
 
-_EXTRACT_UINTN_BYTE_SIZE: typing.Final[Mapping[AVMOp, int]] = {
+EXTRACT_UINTN_BYTE_SIZE: typing.Final[Mapping[AVMOp, int]] = {
     AVMOp.extract_uint16: 2,
     AVMOp.extract_uint32: 4,
     AVMOp.extract_uint64: 8,
@@ -389,7 +389,7 @@ _EXTRACT_UINTN_BYTE_SIZE: typing.Final[Mapping[AVMOp, int]] = {
 
 
 def fold_extract_uint_n(op: AVMOp, b: bytes, offset: int) -> int | None:
-    byte_size = _EXTRACT_UINTN_BYTE_SIZE.get(op)
+    byte_size = EXTRACT_UINTN_BYTE_SIZE.get(op)
     if byte_size is None:
         return None
     extracted = b[offset : offset + byte_size]

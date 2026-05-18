@@ -13,8 +13,8 @@ from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize._intrinsics import (
-    _EXTRACT_UINTN_BYTE_SIZE,
     COMPILE_TIME_CONSTANT_OPS,
+    EXTRACT_UINTN_BYTE_SIZE,
     SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
     choose_encoding,
@@ -632,7 +632,7 @@ def _try_fold_intrinsic(
                     ),
                     value=folded_bytes,
                 )
-    elif intrinsic.op in _EXTRACT_UINTN_BYTE_SIZE:
+    elif intrinsic.op in EXTRACT_UINTN_BYTE_SIZE:
         match intrinsic.args:
             case [
                 models.Value() as bytes_arg,
@@ -649,7 +649,7 @@ def _try_fold_intrinsic(
                 all(
                     isinstance(r, models.Assignment)
                     and isinstance(r.source, models.Intrinsic)
-                    and r.source.op in _EXTRACT_UINTN_BYTE_SIZE
+                    and r.source.op in EXTRACT_UINTN_BYTE_SIZE
                     for r in ssa_reads.get(bytes_arg)
                 )
             ):
@@ -1252,7 +1252,7 @@ def _try_simplify_uint64_unary_op(
 
 _EXTRACT_UINT_OPS_BY_LENGTH = {
     1: AVMOp.getbyte,
-    **{v: k for k, v in _EXTRACT_UINTN_BYTE_SIZE.items()},
+    **{v: k for k, v in EXTRACT_UINTN_BYTE_SIZE.items()},
 }
 
 
