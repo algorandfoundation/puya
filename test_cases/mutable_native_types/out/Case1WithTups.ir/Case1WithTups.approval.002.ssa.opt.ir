@@ -403,11 +403,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
         (box_replace "tup_bag" box%offset%1#0 encoded_value%1#0) // on error: index out of bounds
         let encoded_value%2#0: Encoded(bool1) = bytes_encode<bool1>(1u)
         let box%element_byte_offset%0#0: uint64 = 4272u
-        let box%byte_containing_bit_offset%0#0: uint64 = box%element_byte_offset%0#0
+        let box%byte_containing_bit_offset%0#0: uint64 = 4272u
         let box%element_bit_offset%0#0: uint64 = 0u
-        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" box%element_byte_offset%0#0 1u)
+        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" box%byte_containing_bit_offset%0#0 1u)
         let box%tmp%0#0: Encoded(bool1[8]) = replace_value(box%box_extract%0#0, box%element_bit_offset%0#0, encoded_value%2#0)
-        (box_replace "tup_bag" box%element_byte_offset%0#0 box%tmp%0#0) // on error: index out of bounds
+        (box_replace "tup_bag" box%byte_containing_bit_offset%0#0 box%tmp%0#0) // on error: index out of bounds
         exit 1u
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups[routing]() -> void:
@@ -678,9 +678,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
     block@0: // L123
         let box%element_byte_offset%0#0: uint64 = 4272u
-        let box%byte_containing_bit_offset%0#0: uint64 = box%element_byte_offset%0#0
+        let box%byte_containing_bit_offset%0#0: uint64 = 4272u
         let box%element_bit_offset%0#0: uint64 = 0u
-        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" box%element_byte_offset%0#0 1u) // on error: index out of bounds
+        let box%box_extract%0#0: Encoded(bool1[8]) = (box_extract "tup_bag" box%byte_containing_bit_offset%0#0 1u) // on error: index out of bounds
         let tuple_item%0#0: bool = extract_value(box%box_extract%0#0, box%element_bit_offset%0#0)
         let tmp%0#0: bool = decode_bytes<bool>(tuple_item%0#0)
         (assert tmp%0#0) // app not bootstrapped

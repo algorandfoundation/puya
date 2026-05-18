@@ -1,32 +1,15 @@
 main test_cases.loop_else.loop_else.LoopElseContract.approval_program:
     block@0: // L6
         let tmp%0#1: bool = 1u
-        (assert tmp%0#1)
         let result#0: uint64 = 0u
         let should_loop%0#0: bool = 0u
-        goto should_loop%0#0 ? block@20 : block@26
-    block@20: // for_header_L43
-        let range_length%0#0: uint64 = 0u
-        let i#1: uint64 = (- range_length%0#0 1u)
-        goto block@21
-    block@21: // for_body_L44
-        let i#2: uint64 = φ(i#1 <- block@20, i#3 <- block@25)
-        let tmp%1#1: bool = (! i#2)
-        goto i#2 ? block@23 : block@22
-    block@22: // if_body_L45
-        goto block@27
-    block@23: // after_if_else_L44
-        let continue_looping%0#1: bool = (< 0u i#2)
-        goto i#2 ? block@25 : block@26
-    block@25: // for_increment_L43
-        let i#3: uint64 = (- i#2 1u)
-        goto block@21
+        goto block@26
     block@26: // after_for_L43
         let result#3: uint64 = 1u
         goto block@27
     block@27: // L43
-        let result#4: uint64 = φ(result#0 <- block@22, result#3 <- block@26)
-        let tmp%3#1: bool = (== result#4 1u)
+        let result#4: uint64 = result#3
+        let tmp%3#1: bool = 1u
         (assert tmp%3#1)
         let arg_idx#0: uint64 = 0u
         goto block@1
@@ -36,11 +19,7 @@ main test_cases.loop_else.loop_else.LoopElseContract.approval_program:
         let tmp%1#0: bool = (< arg_idx#1 tmp%0#0)
         (assert tmp%1#0) // access denied, missing secret argument
         let continue_looping%0#0: bool = 1u
-        goto continue_looping%0#0 ? block@4 : block@7
-    block@4: // for_body_L12
         let tmp%2#0: bool = 1u
-        goto block@7
-    block@7: // after_for_L11
         let tmp%3#0: bytes = ((txnas ApplicationArgs) arg_idx#1)
         let tmp%4#0: bool = (== tmp%3#0 0x7768696c655f736563726574)
         goto tmp%4#0 ? block@8 : block@16
