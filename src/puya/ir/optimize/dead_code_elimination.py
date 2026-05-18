@@ -127,8 +127,11 @@ PURE_AVM_OPS = frozenset(
         "ed25519verify",
         "ed25519verify_bare",
         "vrf_verify",
-        # group: v11
         "falcon_verify",
+        "mimc",
+        # AVM vNext ops (currently v13)
+        "poseidon2",
+        "sha512",
         "sumhash512",
     ]
 )
