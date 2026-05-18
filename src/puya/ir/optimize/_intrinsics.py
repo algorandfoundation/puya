@@ -7,6 +7,7 @@ returns `None` if the inputs would cause the op to fail at runtime
 (out-of-range, overflow, divide-by-zero, etc.). No model imports.
 """
 
+import enum
 import hashlib
 import math
 import operator
@@ -15,7 +16,9 @@ from collections.abc import Callable, Mapping
 from itertools import zip_longest
 
 from puya import algo_constants, log
+from puya.ir import models
 from puya.ir.avm_ops import AVMOp
+from puya.ir.types_ import PrimitiveIRType
 from puya.utils import sha512_256_hash
 
 logger = log.get_logger(__name__)
@@ -309,4 +312,131 @@ def fold_bytes_const_binary_op(op: AVMOp, a: bytes, b: bytes) -> int | bytes | N
             return _byte_wise(operator.and_, a, b)
         case AVMOp.bitwise_xor_bytes:
             return _byte_wise(operator.xor, a, b)
+    return None
+
+
+class BinarySimplification(enum.Enum):
+    """Symbolic outcome for value-level binary-op simplifications.
+
+    Callers map LEFT/RIGHT to their identity space (Value for the rewriter,
+    VN for GVN).
+    """
+
+    LEFT = enum.auto()
+    RIGHT = enum.auto()
+
+
+def simplify_uint64_binary_op_one_const(
+    op: AVMOp,
+    a: models.Value,
+    b: models.Value,
+    a_const: int | None,
+    b_const: int | None,
+    *,
+    bool_context: bool = False,
+) -> int | BinarySimplification | None:
+    """Algebraic simplification of `op(a, b)` when at least one operand is constant.
+
+    Returns an int for a folded literal, LEFT/RIGHT for a pass-through to
+    operand a/b, or None if no rule fires. Does NOT handle `op == AVMOp.eq` —
+    each caller emits its own `!operand` rewrite (the rewrite shape is
+    caller-specific).
+    """
+
+    def bool_safe(arg: models.Value) -> bool:
+        return bool_context or arg.ir_type == PrimitiveIRType.bool
+
+    match op:
+        case AVMOp.gte:
+            # a >= 0 <-> 1
+            if b_const == 0:
+                return 1
+            # a >= 1 <-> a (in bool context)
+            if b_const == 1 and bool_safe(a):
+                return BinarySimplification.LEFT
+        case AVMOp.lte:
+            # 0 <= b <-> 1
+            if a_const == 0:
+                return 1
+            # 1 <= b <-> b (in bool context)
+            if a_const == 1 and bool_safe(b):
+                return BinarySimplification.RIGHT
+        case AVMOp.mul:
+            if a_const == 1:
+                return BinarySimplification.RIGHT
+            if b_const == 1:
+                return BinarySimplification.LEFT
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.div_floor:
+            if b_const == 1:
+                return BinarySimplification.LEFT
+        case AVMOp.mod:
+            if b_const == 1:
+                return 0
+        case AVMOp.add:
+            if a_const == 0:
+                return BinarySimplification.RIGHT
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.sub:
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.and_:
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.or_:
+            if bool_context:
+                if a_const == 0:
+                    return BinarySimplification.RIGHT
+                if b_const == 0:
+                    return BinarySimplification.LEFT
+        case AVMOp.neq:
+            # 0 != b <-> b  /  a != 0 <-> a (in bool context)
+            if a_const == 0 and bool_safe(b):
+                return BinarySimplification.RIGHT
+            if b_const == 0 and bool_safe(a):
+                return BinarySimplification.LEFT
+        case AVMOp.lt:
+            # 0 < b <-> b (in bool context)
+            if a_const == 0 and bool_safe(b):
+                return BinarySimplification.RIGHT
+        case AVMOp.gt:
+            # a > 0 <-> a (in bool context)
+            if b_const == 0 and bool_safe(a):
+                return BinarySimplification.LEFT
+    return None
+
+
+def simplify_bytes_binary_op_one_const(
+    op: AVMOp,
+    a_const: int | None,
+    b_const: int | None,
+) -> int | BinarySimplification | None:
+    """BigUInt-valued one-const algebra on bytes binary ops.
+
+    Simpler than uint64's: no bool_context, no Value args, no eq carve-out.
+    """
+    match op:
+        case AVMOp.mul_bytes:
+            if a_const == 1:
+                return BinarySimplification.RIGHT
+            if b_const == 1:
+                return BinarySimplification.LEFT
+            if 0 in (a_const, b_const):
+                return 0
+        case AVMOp.add_bytes:
+            if a_const == 0:
+                return BinarySimplification.RIGHT
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.sub_bytes:
+            if b_const == 0:
+                return BinarySimplification.LEFT
+        case AVMOp.div_floor_bytes:
+            if b_const == 1:
+                return BinarySimplification.LEFT
+        case AVMOp.mod_bytes:
+            if b_const == 1:
+                return 0
     return None
