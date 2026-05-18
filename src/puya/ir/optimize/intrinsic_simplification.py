@@ -1803,39 +1803,33 @@ def _try_simplify_uint64_binary_op(
     op = intrinsic.op
     a_const = _get_int_constant(a)
     b_const = _get_int_constant(b)
-    c: models.Value | int | None = None
-    if a_const is not None and b_const is not None:
-        c = None  # fold_uint64_const_binary_op(op, a_const, b_const)
-    elif a_const is not None or b_const is not None:
-        # eq → !operand is shaped differently to other one-const folds, so
-        # the shared simplifier doesn't cover it.
+    if a_const is not None or b_const is not None:
         if op == AVMOp.eq:
             if a_const == 0:
                 return attrs.evolve(intrinsic, op=AVMOp.not_, args=[b])
             if b_const == 0:
                 return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
-        match simplify_uint64_binary_op_one_const(
-            op, a, b, a_const, b_const, bool_context=bool_context
-        ):
-            case int() as v:
-                c = v
-            case BinarySimplification.LEFT:
-                c = a
-            case BinarySimplification.RIGHT:
-                c = b
-            case None:
-                pass
-    if c is None and op in (AVMOp.and_, AVMOp.or_):
+        if bool_context:
+            match simplify_uint64_binary_op_one_const(
+                op, a, b, a_const, b_const, bool_context=True
+            ):
+                case int(c):
+                    (ir_type,) = intrinsic.types
+                    return models.UInt64Constant(
+                        value=c, ir_type=ir_type, source_location=intrinsic.source_location
+                    )
+                case BinarySimplification.LEFT:
+                    return a
+                case BinarySimplification.RIGHT:
+                    return b
+                case default:
+                    typing.assert_type(default, None)
+    if op in (AVMOp.and_, AVMOp.or_):
         new_a = _try_simplify_bool_condition(register_assignments, a) or a
         new_b = _try_simplify_bool_condition(register_assignments, b) or b
         if new_a is not a or new_b is not b:
             return attrs.evolve(intrinsic, args=[new_a, new_b])
-    if isinstance(c, int):
-        (ir_type,) = intrinsic.types
-        return models.UInt64Constant(
-            value=c, ir_type=ir_type, source_location=intrinsic.source_location
-        )
-    return c
+    return None
 
 
 def fold_biguint_const_binary_op(op: AVMOp, a_const: int, b_const: int) -> int | None:
