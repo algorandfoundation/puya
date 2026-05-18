@@ -1,7 +1,6 @@
 import contextlib
 import enum
 import functools
-import hashlib
 import math
 import operator
 import typing
@@ -17,13 +16,14 @@ from puya.ir import models
 from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
+from puya.ir.optimize._intrinsics import hash_eval_funcs
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS, SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
-from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add, sha512_256_hash
+from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add
 
 logger = log.get_logger(__name__)
 
@@ -1383,28 +1383,6 @@ def _eval_bzero(arg: int, loc: SourceLocation | None) -> models.BytesConstant | 
             source_location=loc,
         )
     return None
-
-
-def _eval_sha256(arg: bytes) -> bytes:
-    return hashlib.sha256(arg).digest()
-
-
-def _eval_sha3_256(arg: bytes) -> bytes:
-    return hashlib.sha3_256(arg).digest()
-
-
-def _eval_keccak256(arg: bytes) -> bytes:
-    from Cryptodome.Hash import keccak
-
-    return keccak.new(data=arg, digest_bits=256).digest()
-
-
-hash_eval_funcs: typing.Final[Mapping[AVMOp, Callable[[bytes], bytes]]] = {
-    AVMOp.sha256: _eval_sha256,
-    AVMOp.sha3_256: _eval_sha3_256,
-    AVMOp.sha512_256: sha512_256_hash,
-    AVMOp.keccak256: _eval_keccak256,
-}
 
 
 def _try_simplify_uint64_unary_op(

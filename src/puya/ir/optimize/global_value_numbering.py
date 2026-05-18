@@ -36,6 +36,7 @@ from puya.ir.optimize._intrinsics import (
     fold_divw,
     fold_expw,
     fold_mulw,
+    hash_eval_funcs,
 )
 from puya.ir.optimize._utils import compute_dominator_tree
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
@@ -56,7 +57,6 @@ from puya.ir.optimize.intrinsic_simplification import (
     fold_setbyte,
     fold_uint64_const_binary_op,
     fold_uint64_const_unary_op,
-    hash_eval_funcs,
     simplify_bytes_binary_op_one_const,
     simplify_uint64_binary_op_one_const,
     valid_uint64,
