@@ -303,23 +303,17 @@ assert COMPILE_TIME_CONSTANT_OPS.issubset(PURE_AVM_OPS), COMPILE_TIME_CONSTANT_O
 _U64_MASK = (1 << 64) - 1
 
 
-def fold_addw(a: int, b: int) -> tuple[int, int] | None:
-    if not (valid_uint64(a) and valid_uint64(b)):
-        return None
+def fold_addw(a: int, b: int) -> tuple[int, int]:
     total = a + b
     return total >> 64, total & _U64_MASK
 
 
-def fold_mulw(a: int, b: int) -> tuple[int, int] | None:
-    if not (valid_uint64(a) and valid_uint64(b)):
-        return None
+def fold_mulw(a: int, b: int) -> tuple[int, int]:
     product = a * b
     return product >> 64, product & _U64_MASK
 
 
 def fold_expw(a: int, b: int) -> tuple[int, int] | None:
-    if not (valid_uint64(a) and valid_uint64(b)):
-        return None
     if a == 0 and b == 0:
         return None  # 0**0 traps on AVM
     result = a**b
@@ -329,8 +323,6 @@ def fold_expw(a: int, b: int) -> tuple[int, int] | None:
 
 
 def fold_divw(hi: int, lo: int, divisor: int) -> int | None:
-    if not (valid_uint64(hi) and valid_uint64(lo) and valid_uint64(divisor)):
-        return None
     if divisor == 0:
         return None
     dividend = (hi << 64) | lo
@@ -341,8 +333,6 @@ def fold_divw(hi: int, lo: int, divisor: int) -> int | None:
 
 
 def fold_divmodw(h1: int, l1: int, h2: int, l2: int) -> tuple[int, int, int, int] | None:
-    if not all(valid_uint64(x) for x in (h1, l1, h2, l2)):
-        return None
     divisor = (h2 << 64) | l2
     if divisor == 0:
         return None
