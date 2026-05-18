@@ -13,15 +13,9 @@ def test_amm(
     asset_a: int,
     asset_b: int,
 ) -> None:
+    # use a short cache window so later txns do not pick up a stale validity window
+    localnet.set_suggested_params_cache_timeout(1)
     app_client = deployer.create(EXAMPLES_DIR / "amm").client
-
-    pay_txn = localnet.create_transaction.payment(
-        au.PaymentParams(
-            sender=account.addr,
-            receiver=app_client.app_address,
-            amount=au.AlgoAmount.from_algo(10),
-        )
-    )
 
     def abi_call[T](method: str, args: list[object], typ: type[T] | None = None) -> T:
         response = app_client.send.call(
@@ -39,7 +33,24 @@ def test_amm(
         else:
             return None  # type: ignore[return-value]
 
-    pool_token = abi_call("bootstrap", [pay_txn, asset_a, asset_b], typ=int)
+    def pay(amount: au.AlgoAmount) -> au.PaymentParams:
+        return au.PaymentParams(
+            sender=account.addr, receiver=app_client.app_address, amount=amount
+        )
+
+    def xfer(asset_id: int, amount: int) -> au.AssetTransferParams:
+        return au.AssetTransferParams(
+            sender=account.addr,
+            receiver=app_client.app_address,
+            amount=amount,
+            asset_id=asset_id,
+        )
+
+    pool_token = abi_call(
+        "bootstrap",
+        [pay(au.AlgoAmount.from_algo(10)), asset_a, asset_b],
+        typ=int,
+    )
 
     def get_token_balances(addr: str) -> dict[int, int]:
         account_info = localnet.client.algod.account_information(addr)
@@ -76,19 +87,7 @@ def test_amm(
     )
 
     # mint
-    a_xfer = localnet.create_transaction.asset_transfer(
-        au.AssetTransferParams(
-            sender=account.addr, receiver=app_client.app_address, amount=10_000, asset_id=asset_a
-        )
-    )
-    b_xfer = localnet.create_transaction.asset_transfer(
-        au.AssetTransferParams(
-            sender=account.addr, receiver=app_client.app_address, amount=3_000, asset_id=asset_b
-        )
-    )
-
-    # mint
-    abi_call("mint", [a_xfer, b_xfer])
+    abi_call("mint", [xfer(asset_a, 10_000), xfer(asset_b, 3_000)])
 
     account_balance = get_token_balances(account.addr)
     app_balance = get_token_balances(app_client.app_address)
@@ -97,17 +96,7 @@ def test_amm(
     assert get_ratio() == 3_333
 
     # mint again
-    a_xfer = localnet.create_transaction.asset_transfer(
-        au.AssetTransferParams(
-            sender=account.addr, receiver=app_client.app_address, amount=100_000, asset_id=asset_a
-        )
-    )
-    b_xfer = localnet.create_transaction.asset_transfer(
-        au.AssetTransferParams(
-            sender=account.addr, receiver=app_client.app_address, amount=1_000, asset_id=asset_b
-        )
-    )
-    abi_call("mint", [a_xfer, b_xfer])
+    abi_call("mint", [xfer(asset_a, 100_000), xfer(asset_b, 1_000)])
 
     account_balance = get_token_balances(account.addr)
     app_balance = get_token_balances(app_client.app_address)
@@ -116,12 +105,7 @@ def test_amm(
     assert get_ratio() == 27_500
 
     # swap asset_a for asset_b
-    swap_xfer = localnet.create_transaction.asset_transfer(
-        au.AssetTransferParams(
-            sender=account.addr, receiver=app_client.app_address, amount=500, asset_id=asset_a
-        )
-    )
-    abi_call("swap", [swap_xfer])
+    abi_call("swap", [xfer(asset_a, 500)])
 
     account_balance = get_token_balances(account.addr)
     app_balance = get_token_balances(app_client.app_address)
@@ -130,12 +114,7 @@ def test_amm(
     assert get_ratio() == 24_187
 
     # swap asset_b for asset_a
-    swap_xfer = localnet.create_transaction.asset_transfer(
-        au.AssetTransferParams(
-            sender=account.addr, receiver=app_client.app_address, amount=500, asset_id=asset_b
-        )
-    )
-    abi_call("swap", [swap_xfer])
+    abi_call("swap", [xfer(asset_b, 500)])
 
     account_balance = get_token_balances(account.addr)
     app_balance = get_token_balances(app_client.app_address)
@@ -144,12 +123,7 @@ def test_amm(
     assert get_ratio() == 21_610
 
     # burn
-    pool_xfer = localnet.create_transaction.asset_transfer(
-        au.AssetTransferParams(
-            sender=account.addr, receiver=app_client.app_address, amount=100, asset_id=pool_token
-        )
-    )
-    abi_call("burn", [pool_xfer])
+    abi_call("burn", [xfer(pool_token, 100)])
 
     account_balance = get_token_balances(account.addr)
     app_balance = get_token_balances(app_client.app_address)
