@@ -18,7 +18,7 @@ from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize.context import IROptimizationContext
-from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
+from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS, SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
@@ -137,6 +137,7 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "sumhash512",
     ]
 )
+assert COMPILE_TIME_CONSTANT_OPS.issubset(PURE_AVM_OPS), COMPILE_TIME_CONSTANT_OPS - PURE_AVM_OPS
 
 
 def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
