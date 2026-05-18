@@ -1,5 +1,4 @@
 import contextlib
-import enum
 import functools
 import operator
 import typing
@@ -16,6 +15,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize._intrinsics import (
     _EXTRACT_UINTN_BYTE_SIZE,
+    BinarySimplification,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
     fold_bytes_const_unary_op,
@@ -28,6 +28,8 @@ from puya.ir.optimize._intrinsics import (
     fold_setbyte,
     fold_uint64_const_unary_op,
     hash_eval_funcs,
+    simplify_bytes_binary_op_one_const,
+    simplify_uint64_binary_op_one_const,
     valid_uint64,
 )
 from puya.ir.optimize.context import IROptimizationContext
@@ -1506,99 +1508,6 @@ def _try_simplify_bytes_unary_op(
     return None
 
 
-class BinarySimplification(enum.Enum):
-    """Symbolic outcome for value-level binary-op simplifications.
-
-    Callers map LEFT/RIGHT to their identity space (Value for the rewriter,
-    VN for GVN).
-    """
-
-    LEFT = enum.auto()
-    RIGHT = enum.auto()
-
-
-def simplify_uint64_binary_op_one_const(
-    op: AVMOp,
-    a: models.Value,
-    b: models.Value,
-    a_const: int | None,
-    b_const: int | None,
-    *,
-    bool_context: bool = False,
-) -> int | BinarySimplification | None:
-    """Algebraic simplification of `op(a, b)` when at least one operand is constant.
-
-    Returns an int for a folded literal, LEFT/RIGHT for a pass-through to
-    operand a/b, or None if no rule fires. Does NOT handle `op == AVMOp.eq` —
-    each caller emits its own `!operand` rewrite (the rewrite shape is
-    caller-specific).
-    """
-
-    def bool_safe(arg: models.Value) -> bool:
-        return bool_context or arg.ir_type == PrimitiveIRType.bool
-
-    match op:
-        case AVMOp.gte:
-            # a >= 0 <-> 1
-            if b_const == 0:
-                return 1
-            # a >= 1 <-> a (in bool context)
-            if b_const == 1 and bool_safe(a):
-                return BinarySimplification.LEFT
-        case AVMOp.lte:
-            # 0 <= b <-> 1
-            if a_const == 0:
-                return 1
-            # 1 <= b <-> b (in bool context)
-            if a_const == 1 and bool_safe(b):
-                return BinarySimplification.RIGHT
-        case AVMOp.mul:
-            if a_const == 1:
-                return BinarySimplification.RIGHT
-            if b_const == 1:
-                return BinarySimplification.LEFT
-            if 0 in (a_const, b_const):
-                return 0
-        case AVMOp.div_floor:
-            if b_const == 1:
-                return BinarySimplification.LEFT
-        case AVMOp.mod:
-            if b_const == 1:
-                return 0
-        case AVMOp.add:
-            if a_const == 0:
-                return BinarySimplification.RIGHT
-            if b_const == 0:
-                return BinarySimplification.LEFT
-        case AVMOp.sub:
-            if b_const == 0:
-                return BinarySimplification.LEFT
-        case AVMOp.and_:
-            if 0 in (a_const, b_const):
-                return 0
-        case AVMOp.or_:
-            if bool_context:
-                if a_const == 0:
-                    return BinarySimplification.RIGHT
-                if b_const == 0:
-                    return BinarySimplification.LEFT
-        case AVMOp.neq:
-            # 0 != b <-> b  /  a != 0 <-> a (in bool context)
-            if a_const == 0 and bool_safe(b):
-                return BinarySimplification.RIGHT
-            if b_const == 0 and bool_safe(a):
-                return BinarySimplification.LEFT
-        case AVMOp.lt:
-            # 0 < b <-> b (in bool context)
-            if a_const == 0 and bool_safe(b):
-                return BinarySimplification.RIGHT
-        case AVMOp.gt:
-            # a > 0 <-> a (in bool context)
-            if b_const == 0 and bool_safe(a):
-                return BinarySimplification.LEFT
-    return None
-
-
 def _try_simplify_uint64_binary_op(
     register_assignments: _RegisterAssignments,
     intrinsic: models.Intrinsic,
@@ -1636,40 +1545,6 @@ def _try_simplify_uint64_binary_op(
         new_b = _try_simplify_bool_condition(register_assignments, b) or b
         if new_a is not a or new_b is not b:
             return attrs.evolve(intrinsic, args=[new_a, new_b])
-    return None
-
-
-def simplify_bytes_binary_op_one_const(
-    op: AVMOp,
-    a_const: int | None,
-    b_const: int | None,
-) -> int | BinarySimplification | None:
-    """BigUInt-valued one-const algebra on bytes binary ops.
-
-    Simpler than uint64's: no bool_context, no Value args, no eq carve-out.
-    """
-    match op:
-        case AVMOp.mul_bytes:
-            if a_const == 1:
-                return BinarySimplification.RIGHT
-            if b_const == 1:
-                return BinarySimplification.LEFT
-            if 0 in (a_const, b_const):
-                return 0
-        case AVMOp.add_bytes:
-            if a_const == 0:
-                return BinarySimplification.RIGHT
-            if b_const == 0:
-                return BinarySimplification.LEFT
-        case AVMOp.sub_bytes:
-            if b_const == 0:
-                return BinarySimplification.LEFT
-        case AVMOp.div_floor_bytes:
-            if b_const == 1:
-                return BinarySimplification.LEFT
-        case AVMOp.mod_bytes:
-            if b_const == 1:
-                return 0
     return None
 
 
