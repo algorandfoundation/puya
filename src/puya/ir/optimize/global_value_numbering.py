@@ -35,6 +35,7 @@ from puya.ir.optimize._intrinsics import (
     PURE_AVM_OPS,
     BinarySimplification,
     choose_encoding,
+    chop_encoding,
     fold_addw,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
@@ -128,13 +129,6 @@ _INVERSE_COMPARISONS: typing.Final = symmetric_mapping(
     (AVMOp.gt_bytes, AVMOp.lte_bytes),
     (AVMOp.eq_bytes, AVMOp.neq_bytes),
 )
-
-
-def _chop_encoding(enc: AVMBytesEncoding) -> AVMBytesEncoding:
-    """When a bytes operation might not respect code-point boundaries,
-    don't keep UTF-8 encoding."""
-    return AVMBytesEncoding.unknown if enc == AVMBytesEncoding.utf8 else enc
-
 
 # Encoding preference for `lookup_or_assign_const` collisions: when two
 # `_BytesConstKey`s with the same value but different encodings unify to one VN,
@@ -835,7 +829,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                                     return self._const_biguint(v)
                                 return self._const_uint64(v)
                             case bytes(result_bytes):
-                                return self._const_bytes(result_bytes, _chop_encoding(enc))
+                                return self._const_bytes(result_bytes, chop_encoding(enc))
                             case other:
                                 typing.assert_type(other, None)
                     case [
@@ -865,7 +859,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     ]:
                         folded_bytes = fold_setbit_bytes(bv, index, value)
                         if folded_bytes is not None:
-                            return self._const_bytes(folded_bytes, _chop_encoding(enc))
+                            return self._const_bytes(folded_bytes, chop_encoding(enc))
             case AVMOp.setbyte:
                 match arg_defns:
                     case [
@@ -875,7 +869,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                     ]:
                         folded_bytes = fold_setbyte(bv, index, value)
                         if folded_bytes is not None:
-                            return self._const_bytes(folded_bytes, _chop_encoding(enc))
+                            return self._const_bytes(folded_bytes, chop_encoding(enc))
             case AVMOp.getbit:
                 match arg_defns:
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=index)]:
@@ -954,7 +948,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             <= algo_constants.MAX_BYTES_LENGTH
                         ):
                             substring_result = byte_arg[start_arg:end_arg]
-                            return self._const_bytes(substring_result, _chop_encoding(byte_enc))
+                            return self._const_bytes(substring_result, chop_encoding(byte_enc))
             case AVMOp.substring:
                 match arg_defns, intrinsic.immediates:
                     case [
@@ -968,7 +962,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                             <= algo_constants.MAX_BYTES_LENGTH
                         ):
                             substring_result = byte_arg[start_arg:end_arg]
-                            return self._const_bytes(substring_result, _chop_encoding(byte_enc))
+                            return self._const_bytes(substring_result, chop_encoding(byte_enc))
             case AVMOp.extract3:
                 match arg_defns:
                     case [
@@ -979,7 +973,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         end_arg = start_arg + length_arg
                         if end_arg <= len(byte_arg) <= algo_constants.MAX_BYTES_LENGTH:
                             extract_result = byte_arg[start_arg:end_arg]
-                            return self._const_bytes(extract_result, _chop_encoding(byte_enc))
+                            return self._const_bytes(extract_result, chop_encoding(byte_enc))
             case AVMOp.extract:
                 match arg_defns, intrinsic.immediates:
                     case [
@@ -991,7 +985,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
                         end_arg = byte_len if length_arg == 0 else start_arg + length_arg
                         if start_arg <= end_arg <= byte_len <= algo_constants.MAX_BYTES_LENGTH:
                             extract_result = byte_arg[start_arg:end_arg]
-                            return self._const_bytes(extract_result, _chop_encoding(byte_enc))
+                            return self._const_bytes(extract_result, chop_encoding(byte_enc))
             case AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64:
                 match arg_defns:
                     case [_BytesConstKey(value=bv), _UInt64ConstKey(value=offset)]:

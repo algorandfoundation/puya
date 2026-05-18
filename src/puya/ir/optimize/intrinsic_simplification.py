@@ -18,6 +18,7 @@ from puya.ir.optimize._intrinsics import (
     SIDE_EFFECT_FREE_AVM_OPS,
     BinarySimplification,
     choose_encoding,
+    chop_encoding,
     fold_biguint_const_binary_op,
     fold_bytes_const_binary_op,
     fold_bytes_const_unary_op,
@@ -595,11 +596,7 @@ def _try_fold_intrinsic(
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 folded_bytes = fold_setbit_bytes(byte_const.value, index, value)
                 if folded_bytes is not None:
-                    enc = (
-                        byte_const.encoding
-                        if byte_const.encoding != AVMBytesEncoding.utf8
-                        else AVMBytesEncoding.unknown
-                    )
+                    enc = chop_encoding(byte_const.encoding)
                     return models.BytesConstant(
                         value=folded_bytes, encoding=enc, source_location=op_loc
                     )
@@ -612,11 +609,7 @@ def _try_fold_intrinsic(
             ] if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 folded_bytes = fold_setbyte(byte_const.value, index, value)
                 if folded_bytes is not None:
-                    enc = (
-                        byte_const.encoding
-                        if byte_const.encoding != AVMBytesEncoding.utf8
-                        else AVMBytesEncoding.unknown
-                    )
+                    enc = chop_encoding(byte_const.encoding)
                     return models.BytesConstant(
                         value=folded_bytes, encoding=enc, source_location=op_loc
                     )
@@ -706,14 +699,9 @@ def _try_fold_intrinsic(
                         extracted = byte_const.value[S:]
                     else:
                         extracted = byte_const.value[S : S + L]
+                    enc = chop_encoding(byte_const.encoding)
                     return models.BytesConstant(
-                        source_location=op_loc,
-                        encoding=(
-                            byte_const.encoding
-                            if byte_const.encoding != AVMBytesEncoding.utf8
-                            else AVMBytesEncoding.unknown
-                        ),
-                        value=extracted,
+                        value=extracted, encoding=enc, source_location=op_loc
                     )
                 elif (
                     (byte_arg_defn := register_assignments.get(byte_arg))
@@ -767,11 +755,7 @@ def _try_fold_intrinsic(
             ) if (byte_const := _get_byte_constant(register_assignments, byte_arg)) is not None:
                 if S <= E <= len(byte_const.value):
                     extracted = byte_const.value[S:E]
-                    enc = (
-                        byte_const.encoding
-                        if byte_const.encoding != AVMBytesEncoding.utf8
-                        else AVMBytesEncoding.unknown
-                    )
+                    enc = chop_encoding(byte_const.encoding)
                     return models.BytesConstant(
                         value=extracted, encoding=enc, source_location=op_loc
                     )
@@ -1249,14 +1233,9 @@ def _try_simplify_bytes_unary_op(
     if byte_const is not None:
         match fold_bytes_const_unary_op(op, byte_const.value):
             case bytes(result_bytes):
+                enc = chop_encoding(byte_const.encoding)
                 return models.BytesConstant(
-                    value=result_bytes,
-                    encoding=(
-                        byte_const.encoding
-                        if byte_const.encoding != AVMBytesEncoding.utf8
-                        else AVMBytesEncoding.unknown
-                    ),
-                    source_location=op_loc,
+                    value=result_bytes, encoding=enc, source_location=op_loc
                 )
             case int(v):
                 return _wrap_biguint_or_uint64(v, intrinsic)
