@@ -1001,15 +1001,11 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             case AVMOp.addw:
                 match arg_defns:
                     case [_UInt64ConstKey(value=addw_a), _UInt64ConstKey(value=addw_b)]:
-                        addw_folded = fold_addw(addw_a, addw_b)
-                        if addw_folded is not None:
-                            return self._const_wide_math_result(addw_folded)
+                        return self._const_wide_math_result(fold_addw(addw_a, addw_b))
             case AVMOp.mulw:
                 match arg_defns:
                     case [_UInt64ConstKey(value=mulw_a), _UInt64ConstKey(value=mulw_b)]:
-                        mulw_folded = fold_mulw(mulw_a, mulw_b)
-                        if mulw_folded is not None:
-                            return self._const_wide_math_result(mulw_folded)
+                        return self._const_wide_math_result(fold_mulw(mulw_a, mulw_b))
             case AVMOp.expw:
                 match arg_defns:
                     case [_UInt64ConstKey(value=expw_a), _UInt64ConstKey(value=expw_b)]:
