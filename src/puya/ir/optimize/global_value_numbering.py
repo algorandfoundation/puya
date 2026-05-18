@@ -10,7 +10,6 @@ References:
 """
 
 import itertools
-import struct
 import typing
 from collections import defaultdict
 from collections.abc import Collection, Mapping, Sequence, Set
@@ -21,6 +20,7 @@ import networkx as nx  # type: ignore[import-untyped]
 
 from puya import algo_constants, log
 from puya.avm import AVMType
+from puya.avm_encoding import encode_bytes, encode_varuint
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import (
@@ -423,7 +423,7 @@ def _build_equivalence_sets(
                             ) if expand_all_bytes or (
                                 isinstance(op.source, models.Intrinsic)
                                 and (
-                                    len(_encode_bytes(bytes_const))
+                                    len(encode_bytes(bytes_const))
                                     <= _intrinsic_dead_cost(op.source, savings)
                                 )
                             ):
@@ -462,7 +462,7 @@ def _build_equivalence_sets(
                                     ) if expand_all_bytes or (
                                         isinstance(op.source, models.Intrinsic)
                                         and (
-                                            len(_encode_bytes(bytes_const))
+                                            len(encode_bytes(bytes_const))
                                             <= _intrinsic_dead_cost(op.source, savings)
                                         )
                                     ):
@@ -563,37 +563,19 @@ def _cost(intrinsic: models.Intrinsic) -> int:
     return instr_size + const_arg_sizes
 
 
-_encode_uint8 = struct.Struct(">B").pack
-
-
 def _get_const_size(arg: models.Constant) -> int:
     bytes_const = get_bytes_constant(arg)
     if bytes_const is not None:
-        return len(_encode_bytes(bytes_const))
+        return len(encode_bytes(bytes_const))
     match arg:
         case models.ITxnConstant():
             return 0  # immediates get counted as part of op
         case models.SlotConstant():
             raise InternalError("slot constant should not appear in IR during optimisation")
         case models.UInt64Constant(value=int_value):
-            return len(_encode_varuint(int_value))
+            return len(encode_varuint(int_value))
     logger.debug(f"GVN: unhandled constant type {type(arg).__name__}")
     return 0
-
-
-def _encode_varuint(value: int) -> bytes:
-    bits = value & 0x7F
-    value >>= 7
-    result = b""
-    while value:
-        result += _encode_uint8(0x80 | bits)
-        bits = value & 0x7F
-        value >>= 7
-    return result + _encode_uint8(bits)
-
-
-def _encode_bytes(value: bytes) -> bytes:
-    return _encode_varuint(len(value)) + value
 
 
 def build_replacements(
