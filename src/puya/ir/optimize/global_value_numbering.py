@@ -867,7 +867,7 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
             case AVMOp.sha256 | AVMOp.sha3_256 | AVMOp.sha512_256 | AVMOp.keccak256:
                 match arg_defns:
                     case [_BytesConstKey(value=bv)]:
-                        digest = hash_eval_funcs[op](bv, None).value
+                        digest = hash_eval_funcs[op](bv)
                         return self._const_bytes(digest, AVMBytesEncoding.base16)
             case AVMOp.setbit:
                 match arg_defns:
