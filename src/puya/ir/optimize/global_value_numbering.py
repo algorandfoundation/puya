@@ -330,60 +330,21 @@ def _materialize_constants(
     *,
     expand_all_bytes: bool,
 ) -> bool:
-    """Rewrite assignments whose target VNs resolve to constant definitions.
-
-    Doesn't need dominance for correctness — if a VN's definition is a `_ConstKey`,
-    it is constant everywhere — but BFS order ensures the `savings` map used by
-    the cost-gate for bytes is built def-before-use: in SSA the defining block
-    of any register strictly dominates uses, so it has shorter BFS distance.
-    """
     modified = False
     # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
     # defs whose sole use is also r's defining op). Subroutine-wide: only populated
     # for registers with exactly one read across the whole subroutine, so eliminating
     # that one read truly kills r and DCE will remove its defining op.
     savings = dict[models.Register, int]()
-
     for block in bfs_block_order(start):
         for op in block.ops:
             if not isinstance(op, models.Assignment):
                 continue
             if not isinstance(op.source, models.MultiValue):
-                target_defns = [
-                    tables.vn_definition.get(tables.register_vn[t]) for t in op.targets
-                ]
-                const_values = list[models.Value]()
-                for target_defn, source_type in zip(target_defns, op.source.types, strict=True):
-                    match target_defn:
-                        case _UInt64ConstKey(value=uint64_const):
-                            const_values.append(
-                                models.UInt64Constant(
-                                    value=uint64_const,
-                                    ir_type=source_type,
-                                    source_location=op.source.source_location,
-                                )
-                            )
-                        case _BytesConstKey(
-                            value=bytes_const, encoding=bytes_encoding
-                        ) if expand_all_bytes or (
-                            isinstance(op.source, models.Intrinsic)
-                            and (
-                                len(encode_bytes(bytes_const))
-                                <= _intrinsic_dead_cost(op.source, savings)
-                            )
-                        ):
-                            const_values.append(
-                                models.BytesConstant(
-                                    value=bytes_const,
-                                    encoding=bytes_encoding,
-                                    ir_type=source_type,
-                                    source_location=op.source.source_location,
-                                )
-                            )
-                        case _:
-                            # not a foldable constant, avoid folding at all
-                            break
-                else:
+                const_values = _try_fold_constants(
+                    op, tables, savings, expand_all_bytes=expand_all_bytes
+                )
+                if const_values is not None:
                     modified = True
                     with ssa_reads.update(op):
                         if len(op.source.types) == 1:
@@ -393,7 +354,6 @@ def _materialize_constants(
                                 values=const_values,
                                 source_location=op.source.source_location,
                             )
-
             if len(op.targets) == 1:
                 (saved_target,) = op.targets
                 if ssa_reads.count(saved_target) == 1:
@@ -405,6 +365,45 @@ def _materialize_constants(
                         case models.Constant():
                             savings[saved_target] = _get_const_size(op.source)
     return modified
+
+
+def _try_fold_constants(
+    op: models.Assignment,
+    tables: _GVNTables,
+    savings: dict[models.Register, int],
+    *,
+    expand_all_bytes: bool,
+) -> list[models.Value] | None:
+    result = list[models.Value]()
+    for target, source_type in zip(op.targets, op.source.types, strict=True):
+        target_vn = tables.register_vn[target]
+        match tables.vn_definition.get(target_vn):
+            case _UInt64ConstKey(value=uint64_const):
+                result.append(
+                    models.UInt64Constant(
+                        value=uint64_const,
+                        ir_type=source_type,
+                        source_location=op.source.source_location,
+                    )
+                )
+            case _BytesConstKey(
+                value=bytes_const, encoding=bytes_encoding
+            ) if expand_all_bytes or (
+                isinstance(op.source, models.Intrinsic)
+                and (len(encode_bytes(bytes_const)) <= _intrinsic_dead_cost(op.source, savings))
+            ):
+                result.append(
+                    models.BytesConstant(
+                        value=bytes_const,
+                        encoding=bytes_encoding,
+                        ir_type=source_type,
+                        source_location=op.source.source_location,
+                    )
+                )
+            case _:
+                # can't fold unless all values are foldable
+                return None
+    return result
 
 
 def _build_equivalence_sets(
