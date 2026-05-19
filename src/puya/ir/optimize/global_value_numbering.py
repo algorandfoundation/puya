@@ -346,14 +346,16 @@ def _materialize_constants(
                 )
                 if const_values is not None:
                     modified = True
+                    folded: models.MultiValue
+                    if len(op.source.types) == 1:
+                        (folded,) = const_values
+                    else:
+                        folded = models.ValueTuple(
+                            values=const_values,
+                            source_location=op.source.source_location,
+                        )
                     with ssa_reads.update(op):
-                        if len(op.source.types) == 1:
-                            (op.source,) = const_values
-                        else:
-                            op.source = models.ValueTuple(
-                                values=const_values,
-                                source_location=op.source.source_location,
-                            )
+                        op.source = folded
             if len(op.targets) == 1:
                 (saved_target,) = op.targets
                 if ssa_reads.count(saved_target) == 1:
