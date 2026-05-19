@@ -28,7 +28,7 @@ from puya.ir import (
     models,
     types_ as types,
 )
-from puya.ir._utils import get_bytes_constant
+from puya.ir._utils import bfs_block_order, get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize._intrinsics import (
     COMPILE_TIME_CONSTANT_OPS,
@@ -325,7 +325,6 @@ _VNRepresentativeMap: typing.TypeAlias = dict[tuple[VN, _MaybeAVMType], models.R
 
 def _materialize_constants(
     tables: _GVNTables,
-    dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     start: models.BasicBlock,
     ssa_reads: SSAReadTracker,
     *,
@@ -334,8 +333,9 @@ def _materialize_constants(
     """Rewrite assignments whose target VNs resolve to constant definitions.
 
     Doesn't need dominance for correctness — if a VN's definition is a `_ConstKey`,
-    it is constant everywhere — but the dom-preorder walk ensures the `savings` map
-    used by the cost-gate for bytes is built def-before-use.
+    it is constant everywhere — but BFS order ensures the `savings` map used by
+    the cost-gate for bytes is built def-before-use: in SSA the defining block
+    of any register strictly dominates uses, so it has shorter BFS distance.
     """
     modified = False
     # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
@@ -344,8 +344,7 @@ def _materialize_constants(
     # that one read truly kills r and DCE will remove its defining op.
     savings = dict[models.Register, int]()
 
-    def _walk(block: models.BasicBlock) -> None:
-        nonlocal modified
+    for block in bfs_block_order(start):
         for op in block.ops:
             if not isinstance(op, models.Assignment):
                 continue
@@ -405,11 +404,6 @@ def _materialize_constants(
                             savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
                         case models.Constant():
                             savings[saved_target] = _get_const_size(op.source)
-
-        for child in dom_tree.get(block, []):
-            _walk(child)
-
-    _walk(start)
     return modified
 
 
@@ -1373,7 +1367,6 @@ def global_value_numbering(context: CompileContext, subroutine: models.Subroutin
             ssa_reads.add(op)
     folded = _materialize_constants(
         tables,
-        dom_tree,
         start,
         ssa_reads,
         expand_all_bytes=context.options.expand_all_bytes,
