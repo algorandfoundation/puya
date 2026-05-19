@@ -397,21 +397,23 @@ def _build_equivalence_sets(
                         ssa_reads.remove(op)
             elif isinstance(op, models.Assignment):
                 replaced = False
-                if not isinstance(op.source, models.Value):
-                    if len(op.targets) == 1:
-                        (target,) = op.targets
-                        target_vn = tables.register_vn[target]
-                        match tables.vn_definition.get(target_vn):
+                if not isinstance(op.source, models.Value | models.ValueTuple):
+                    target_defns = [
+                        tables.vn_definition.get(tables.register_vn[t]) for t in op.targets
+                    ]
+                    const_values = list[models.Value]()
+                    for target_defn, source_type in zip(
+                        target_defns, op.source.types, strict=True
+                    ):
+                        match target_defn:
                             case _UInt64ConstKey(value=uint64_const):
-                                modified = True
-                                (source_type,) = op.source.types
-                                with ssa_reads.update(op):
-                                    op.source = models.UInt64Constant(
+                                const_values.append(
+                                    models.UInt64Constant(
                                         value=uint64_const,
                                         ir_type=source_type,
                                         source_location=op.source.source_location,
                                     )
-                                replaced = True
+                                )
                             case _BytesConstKey(
                                 value=bytes_const, encoding=bytes_encoding
                             ) if expand_all_bytes or (
@@ -421,65 +423,28 @@ def _build_equivalence_sets(
                                     <= _intrinsic_dead_cost(op.source, savings)
                                 )
                             ):
-                                modified = True
-                                (source_type,) = op.source.types
-                                with ssa_reads.update(op):
-                                    op.source = models.BytesConstant(
+                                const_values.append(
+                                    models.BytesConstant(
                                         value=bytes_const,
                                         encoding=bytes_encoding,
                                         ir_type=source_type,
                                         source_location=op.source.source_location,
                                     )
-                                replaced = True
+                                )
+                            case _:
+                                # not a foldable constant, avoid folding at all
+                                break
                     else:
-                        target_defns = [
-                            tables.vn_definition.get(tables.register_vn[t]) for t in op.targets
-                        ]
-                        if all(
-                            isinstance(d, _UInt64ConstKey | _BytesConstKey) for d in target_defns
-                        ):
-                            const_values = list[models.Value]()
-                            for target_defn, source_type in zip(
-                                target_defns, op.source.types, strict=True
-                            ):
-                                match target_defn:
-                                    case _UInt64ConstKey(value=uint64_const):
-                                        const_values.append(
-                                            models.UInt64Constant(
-                                                value=uint64_const,
-                                                ir_type=source_type,
-                                                source_location=op.source.source_location,
-                                            )
-                                        )
-                                    case _BytesConstKey(
-                                        value=bytes_const, encoding=bytes_encoding
-                                    ) if expand_all_bytes or (
-                                        isinstance(op.source, models.Intrinsic)
-                                        and (
-                                            len(encode_bytes(bytes_const))
-                                            <= _intrinsic_dead_cost(op.source, savings)
-                                        )
-                                    ):
-                                        const_values.append(
-                                            models.BytesConstant(
-                                                value=bytes_const,
-                                                encoding=bytes_encoding,
-                                                ir_type=source_type,
-                                                source_location=op.source.source_location,
-                                            )
-                                        )
-                                    case _:
-                                        # cost gate failed (bytes target) — bail
-                                        # entirely rather than half-folding
-                                        break
+                        modified = True
+                        with ssa_reads.update(op):
+                            if len(op.source.types) == 1:
+                                (op.source,) = const_values
                             else:
-                                modified = True
-                                with ssa_reads.update(op):
-                                    op.source = models.ValueTuple(
-                                        values=const_values,
-                                        source_location=op.source.source_location,
-                                    )
-                                replaced = True
+                                op.source = models.ValueTuple(
+                                    values=const_values,
+                                    source_location=op.source.source_location,
+                                )
+                        replaced = True
 
                 if len(op.targets) == 1:
                     (saved_target,) = op.targets
