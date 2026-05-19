@@ -370,7 +370,7 @@ def _materialize_constants(
 def _try_fold_constants(
     op: models.Assignment,
     tables: _GVNTables,
-    savings: dict[models.Register, int],
+    savings: Mapping[models.Register, int],
     *,
     expand_all_bytes: bool,
 ) -> list[models.Value] | None:
@@ -528,7 +528,7 @@ def _build_equivalence_sets(
     return modified, [s for s in all_sets.values() if len(s) > 1]
 
 
-def _intrinsic_dead_cost(source: models.Intrinsic, savings: dict[models.Register, int]) -> int:
+def _intrinsic_dead_cost(source: models.Intrinsic, savings: Mapping[models.Register, int]) -> int:
     """Bytes saved if `source` and its transitively-dead upstream defs go away."""
     # dedupe args: a register used N times in this op is still one upstream def
     arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
