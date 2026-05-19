@@ -349,7 +349,7 @@ def _materialize_constants(
         for op in block.ops:
             if not isinstance(op, models.Assignment):
                 continue
-            if not isinstance(op.source, models.Value | models.ValueTuple):
+            if not isinstance(op.source, models.MultiValue):
                 target_defns = [
                     tables.vn_definition.get(tables.register_vn[t]) for t in op.targets
                 ]
