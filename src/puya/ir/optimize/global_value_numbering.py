@@ -323,29 +323,114 @@ _MaybeAVMType: typing.TypeAlias = AVMType | str
 _VNRepresentativeMap: typing.TypeAlias = dict[tuple[VN, _MaybeAVMType], models.Register]
 
 
-def _build_equivalence_sets(
-    subroutine: models.Subroutine,
+def _materialize_constants(
     tables: _GVNTables,
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     start: models.BasicBlock,
     ssa_reads: SSAReadTracker,
     *,
     expand_all_bytes: bool,
+) -> bool:
+    """Rewrite assignments whose target VNs resolve to constant definitions.
+
+    Doesn't need dominance for correctness — if a VN's definition is a `_ConstKey`,
+    it is constant everywhere — but the dom-preorder walk ensures the `savings` map
+    used by the cost-gate for bytes is built def-before-use.
+    """
+    modified = False
+    # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
+    # defs whose sole use is also r's defining op). Subroutine-wide: only populated
+    # for registers with exactly one read across the whole subroutine, so eliminating
+    # that one read truly kills r and DCE will remove its defining op.
+    savings = dict[models.Register, int]()
+
+    def _walk(block: models.BasicBlock) -> None:
+        nonlocal modified
+        for op in block.ops:
+            if not isinstance(op, models.Assignment):
+                continue
+            if not isinstance(op.source, models.Value | models.ValueTuple):
+                target_defns = [
+                    tables.vn_definition.get(tables.register_vn[t]) for t in op.targets
+                ]
+                const_values = list[models.Value]()
+                for target_defn, source_type in zip(target_defns, op.source.types, strict=True):
+                    match target_defn:
+                        case _UInt64ConstKey(value=uint64_const):
+                            const_values.append(
+                                models.UInt64Constant(
+                                    value=uint64_const,
+                                    ir_type=source_type,
+                                    source_location=op.source.source_location,
+                                )
+                            )
+                        case _BytesConstKey(
+                            value=bytes_const, encoding=bytes_encoding
+                        ) if expand_all_bytes or (
+                            isinstance(op.source, models.Intrinsic)
+                            and (
+                                len(encode_bytes(bytes_const))
+                                <= _intrinsic_dead_cost(op.source, savings)
+                            )
+                        ):
+                            const_values.append(
+                                models.BytesConstant(
+                                    value=bytes_const,
+                                    encoding=bytes_encoding,
+                                    ir_type=source_type,
+                                    source_location=op.source.source_location,
+                                )
+                            )
+                        case _:
+                            # not a foldable constant, avoid folding at all
+                            break
+                else:
+                    modified = True
+                    with ssa_reads.update(op):
+                        if len(op.source.types) == 1:
+                            (op.source,) = const_values
+                        else:
+                            op.source = models.ValueTuple(
+                                values=const_values,
+                                source_location=op.source.source_location,
+                            )
+
+            if len(op.targets) == 1:
+                (saved_target,) = op.targets
+                if ssa_reads.count(saved_target) == 1:
+                    match op.source:
+                        case (
+                            models.Intrinsic() as intrinsic
+                        ) if intrinsic.op in COMPILE_TIME_CONSTANT_OPS:
+                            savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
+                        case models.Constant():
+                            savings[saved_target] = _get_const_size(op.source)
+
+        for child in dom_tree.get(block, []):
+            _walk(child)
+
+    _walk(start)
+    return modified
+
+
+def _build_equivalence_sets(
+    subroutine: models.Subroutine,
+    tables: _GVNTables,
+    dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
+    start: models.BasicBlock,
+    ssa_reads: SSAReadTracker,
 ) -> tuple[bool, Collection[Sequence[models.Register]]]:
     """Walk the dominator tree to build equivalence sets respecting dominance.
 
     Each (VN, AVMType) pair tracks the first register on each dominator path.
     Later registers with the same key are appended — they can safely be replaced
     by the dominating first register.
+
+    Also drops redundant asserts where the condition VN was already asserted on
+    this dominator path.
     """
     modified = False
-
     all_sets = defaultdict[models.Register, list[models.Register]](list)
-    # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
-    # defs whose sole use is also r's defining op). Subroutine-wide: only populated
-    # for registers with exactly one read across the whole subroutine, so eliminating
-    # that one read truly kills r and DCE will remove its defining op.
-    savings = dict[models.Register, int]()
 
     def _keep_defn(
         reg: models.Register, vn_to_rep: _VNRepresentativeMap, *, force_new_rep: bool = False
@@ -396,107 +481,51 @@ def _build_equivalence_sets(
                         ops.pop()
                         ssa_reads.remove(op)
             elif isinstance(op, models.Assignment):
-                replaced = False
-                if not isinstance(op.source, models.Value | models.ValueTuple):
-                    target_defns = [
-                        tables.vn_definition.get(tables.register_vn[t]) for t in op.targets
-                    ]
-                    const_values = list[models.Value]()
-                    for target_defn, source_type in zip(
-                        target_defns, op.source.types, strict=True
+                match op.source:
+                    case models.Constant():
+                        continue
+                    case models.ValueTuple(values=values) if all(
+                        isinstance(v, models.Constant) for v in values
                     ):
-                        match target_defn:
-                            case _UInt64ConstKey(value=uint64_const):
-                                const_values.append(
-                                    models.UInt64Constant(
-                                        value=uint64_const,
-                                        ir_type=source_type,
-                                        source_location=op.source.source_location,
-                                    )
-                                )
-                            case _BytesConstKey(
-                                value=bytes_const, encoding=bytes_encoding
-                            ) if expand_all_bytes or (
-                                isinstance(op.source, models.Intrinsic)
-                                and (
-                                    len(encode_bytes(bytes_const))
-                                    <= _intrinsic_dead_cost(op.source, savings)
-                                )
-                            ):
-                                const_values.append(
-                                    models.BytesConstant(
-                                        value=bytes_const,
-                                        encoding=bytes_encoding,
-                                        ir_type=source_type,
-                                        source_location=op.source.source_location,
-                                    )
-                                )
-                            case _:
-                                # not a foldable constant, avoid folding at all
-                                break
-                    else:
+                        # matches multi-target ops folded by _materialize_constants —
+                        # mirrors the single-target Constant skip above
+                        continue
+                    case models.Intrinsic(args=[]):
+                        force_new_rep = True
+                    case _:
+                        force_new_rep = False
+                if len(op.targets) == 1 or force_new_rep:
+                    keep = False
+                    for target in op.targets:
+                        keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
+                    if not keep:
+                        ops.pop()
                         modified = True
-                        with ssa_reads.update(op):
-                            if len(op.source.types) == 1:
-                                (op.source,) = const_values
-                            else:
-                                op.source = models.ValueTuple(
-                                    values=const_values,
-                                    source_location=op.source.source_location,
-                                )
-                        replaced = True
-
-                if len(op.targets) == 1:
-                    (saved_target,) = op.targets
-                    if ssa_reads.count(saved_target) == 1:
-                        match op.source:
-                            case (
-                                models.Intrinsic() as intrinsic
-                            ) if intrinsic.op in COMPILE_TIME_CONSTANT_OPS:
-                                savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
-                            case models.Constant():
-                                savings[saved_target] = _get_const_size(op.source)
-
-                if not replaced:
-                    match op.source:
-                        case models.Constant():
-                            continue
-                        case models.Intrinsic(args=[]):
-                            force_new_rep = True
-                        case _:
-                            force_new_rep = False
-                    if len(op.targets) == 1 or force_new_rep:
-                        keep = False
-                        for target in op.targets:
-                            keep |= _keep_defn(target, scope, force_new_rep=force_new_rep)
-                        if not keep:
-                            ops.pop()
-                            modified = True
-                            ssa_reads.remove(op)
+                        ssa_reads.remove(op)
+                else:
+                    # Multi-target: only drop the op if EVERY target has an external
+                    # dominating rep. Partial folding would let MemoryReplacer rewrite
+                    # only some targets on the LHS, producing duplicate Assignment
+                    # targets and violating SSA. When kept, still register the novel
+                    # targets as reps so a later identical op can drop itself.
+                    target_keys = [
+                        (tables.register_vn[t], t.ir_type.maybe_avm_type) for t in op.targets
+                    ]
+                    external_reps = [scope.get(k) for k in target_keys]
+                    if all(rep is not None for rep in external_reps):
+                        for target, rep in zip(op.targets, external_reps, strict=True):
+                            assert rep is not None
+                            all_sets[rep].append(target)
+                        ops.pop()
+                        modified = True
+                        ssa_reads.remove(op)
                     else:
-                        # Multi-target: only drop the op if EVERY target has an external
-                        # dominating rep. Partial folding would let MemoryReplacer rewrite
-                        # only some targets on the LHS, producing duplicate Assignment
-                        # targets and violating SSA. When kept, still register the novel
-                        # targets as reps so a later identical op can drop itself.
-                        target_keys = [
-                            (tables.register_vn[t], t.ir_type.maybe_avm_type) for t in op.targets
-                        ]
-                        external_reps = [scope.get(k) for k in target_keys]
-                        if all(rep is not None for rep in external_reps):
-                            for target, rep in zip(op.targets, external_reps, strict=True):
-                                assert rep is not None
-                                all_sets[rep].append(target)
-                            ops.pop()
-                            modified = True
-                            ssa_reads.remove(op)
-                        else:
-                            seen_keys = set[tuple[VN, _MaybeAVMType]]()
-                            for target, key, ext_rep in zip(
-                                op.targets, target_keys, external_reps, strict=True
-                            ):
-                                if ext_rep is None and set_add(seen_keys, key):
-                                    _keep_defn(target, scope, force_new_rep=False)
+                        seen_keys = set[tuple[VN, _MaybeAVMType]]()
+                        for target, key, ext_rep in zip(
+                            op.targets, target_keys, external_reps, strict=True
+                        ):
+                            if ext_rep is None and set_add(seen_keys, key):
+                                _keep_defn(target, scope, force_new_rep=False)
 
         block.ops[:] = ops
         for child in dom_tree.get(block, []):
@@ -1333,7 +1362,8 @@ def _number_values(
 def global_value_numbering(context: CompileContext, subroutine: models.Subroutine) -> bool:
     """Run GVN on a subroutine.
 
-    Flow: hash-based numbering -> SCC phi congruence -> eliminate.
+    Flow: hash-based numbering -> constant materialization -> dominance-based
+    elimination -> SCC phi congruence.
     """
     start, dom_tree = compute_dominator_tree(subroutine)
     tables = _number_values(subroutine, dom_tree, start)
@@ -1341,14 +1371,21 @@ def global_value_numbering(context: CompileContext, subroutine: models.Subroutin
     for block in subroutine.body:
         for op in block.all_ops:
             ssa_reads.add(op)
-    modified, equivalence_sets = _build_equivalence_sets(
-        subroutine,
+    folded = _materialize_constants(
         tables,
         dom_tree,
         start,
         ssa_reads,
         expand_all_bytes=context.options.expand_all_bytes,
     )
+    eliminated, equivalence_sets = _build_equivalence_sets(
+        subroutine,
+        tables,
+        dom_tree,
+        start,
+        ssa_reads,
+    )
+    modified = folded or eliminated
     register_map = build_replacements(subroutine, equivalence_sets)
 
     if _refine_phi_congruence(subroutine, register_map):
