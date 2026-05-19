@@ -408,6 +408,37 @@ def _try_fold_constants(
     return result
 
 
+def _intrinsic_dead_cost(source: models.Intrinsic, savings: Mapping[models.Register, int]) -> int:
+    """Bytes saved if `source` and its transitively-dead upstream defs go away."""
+    # dedupe args: a register used N times in this op is still one upstream def
+    arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
+    upstream = sum(savings.get(arg, 0) for arg in arg_regs)
+    return _cost(source) + upstream
+
+
+def _cost(intrinsic: models.Intrinsic) -> int:
+    instr_size = intrinsic.op.size
+    const_arg_sizes = sum(
+        _get_const_size(arg) for arg in intrinsic.args if isinstance(arg, models.Constant)
+    )
+    return instr_size + const_arg_sizes
+
+
+def _get_const_size(arg: models.Constant) -> int:
+    bytes_const = get_bytes_constant(arg)
+    if bytes_const is not None:
+        return len(encode_bytes(bytes_const))
+    match arg:
+        case models.ITxnConstant():
+            return 0  # immediates get counted as part of op
+        case models.SlotConstant():
+            raise InternalError("slot constant should not appear in IR during optimisation")
+        case models.UInt64Constant(value=int_value):
+            return len(encode_varuint(int_value))
+    logger.debug(f"GVN: unhandled constant type {type(arg).__name__}")
+    return 0
+
+
 def _build_equivalence_sets(
     subroutine: models.Subroutine,
     tables: _GVNTables,
@@ -528,37 +559,6 @@ def _build_equivalence_sets(
 
     _walk(start, initial_scope, set())
     return modified, [s for s in all_sets.values() if len(s) > 1]
-
-
-def _intrinsic_dead_cost(source: models.Intrinsic, savings: Mapping[models.Register, int]) -> int:
-    """Bytes saved if `source` and its transitively-dead upstream defs go away."""
-    # dedupe args: a register used N times in this op is still one upstream def
-    arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
-    upstream = sum(savings.get(arg, 0) for arg in arg_regs)
-    return _cost(source) + upstream
-
-
-def _cost(intrinsic: models.Intrinsic) -> int:
-    instr_size = intrinsic.op.size
-    const_arg_sizes = sum(
-        _get_const_size(arg) for arg in intrinsic.args if isinstance(arg, models.Constant)
-    )
-    return instr_size + const_arg_sizes
-
-
-def _get_const_size(arg: models.Constant) -> int:
-    bytes_const = get_bytes_constant(arg)
-    if bytes_const is not None:
-        return len(encode_bytes(bytes_const))
-    match arg:
-        case models.ITxnConstant():
-            return 0  # immediates get counted as part of op
-        case models.SlotConstant():
-            raise InternalError("slot constant should not appear in IR during optimisation")
-        case models.UInt64Constant(value=int_value):
-            return len(encode_varuint(int_value))
-    logger.debug(f"GVN: unhandled constant type {type(arg).__name__}")
-    return 0
 
 
 def build_replacements(
