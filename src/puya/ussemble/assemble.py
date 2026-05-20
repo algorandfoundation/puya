@@ -34,6 +34,7 @@ _STACK_OPS = {
     "dup",
     "dup2",
     "dig",
+    "bury",
     "swap",
     "cover",
     "uncover",
