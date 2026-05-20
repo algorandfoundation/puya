@@ -34,7 +34,7 @@ def optimize_pair(
 
     if isinstance(a, mir.LoadOp) and isinstance(b, mir.StoreOp) and a.local_id == b.local_id:
         match a, b:
-            case mir.LoadXStack(), mir.StoreXStack():
+            case mir.LoadXStack(depth=load), mir.StoreXStack(depth=store) if load == store:
                 return ()
             case mir.LoadFStack(), mir.StoreFStack():
                 return ()

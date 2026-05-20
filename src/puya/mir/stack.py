@@ -68,6 +68,13 @@ class Stack(MIRVisitor[None]):
             - 1
         )
 
+    def x_stack_depth_for_index(self, x_stack_index: int) -> int:
+        """Depth from top of stack for the given x-stack index."""
+        return self.xl_height - x_stack_index - 1
+
+    def x_stack_depth_for_local(self, local_id: str) -> int:
+        return self.x_stack_depth_for_index(self._x_stack.index(local_id))
+
     def visit_int(self, const: models.Int) -> None:
         self._apply_lstack_effects(const)
 
@@ -127,17 +134,21 @@ class Stack(MIRVisitor[None]):
     def visit_store_x_stack(self, store: models.StoreXStack) -> None:
         local_id = store.local_id
         assert self._l_stack, f"l-stack too small to store {local_id} to x-stack"
-
-        cover = len(self._x_stack) + len(self._l_stack) - 1
-        assert cover == store.depth, f"expected {cover=} == {store.depth=}"
-        self._x_stack.insert(0, local_id)
+        l_stack_depth = len(self._l_stack) - 1
+        x_stack_depth = self.xl_height - 1
+        assert l_stack_depth <= store.depth <= x_stack_depth, (
+            f"{local_id} ({store.depth=}) is outside valid x-stack range"
+            f" [{l_stack_depth}, {x_stack_depth}]"
+        )
+        x_stack_index = self.xl_height - store.depth - 1
+        self._x_stack.insert(x_stack_index, local_id)
         self._apply_lstack_effects(store)
 
     def visit_load_x_stack(self, load: models.LoadXStack) -> None:
         local_id = load.local_id
         assert local_id in self._x_stack, f"{local_id} not found in x-stack"
         index = self._x_stack.index(local_id)
-        uncover = len(self._l_stack) + len(self._x_stack) - index - 1
+        uncover = self.x_stack_depth_for_index(index)
         assert uncover == load.depth, f"expected {uncover=} == {load.depth=}"
         self._x_stack.pop(index)
         self._apply_lstack_effects(load)
