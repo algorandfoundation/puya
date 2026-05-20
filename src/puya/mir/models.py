@@ -280,18 +280,23 @@ class StoreXStack(StoreOp):
 @attrs.frozen(eq=False)
 class LoadXStack(LoadOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
+    copy: bool
     consumes: int = attrs.field(default=0, init=False)
     produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
-        return (self.local_id,)
+        produces = self.local_id
+        if self.copy:
+            produces += " (copy)"
+        return (produces,)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_load_x_stack(self)
 
     def __str__(self) -> str:
-        return f"x-load {self.local_id}"
+        op = "x-load-copy" if self.copy else "x-load"
+        return f"{op} {self.local_id}"
 
 
 @attrs.frozen(eq=False)

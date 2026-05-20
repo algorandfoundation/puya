@@ -320,6 +320,7 @@ def _add_x_stack_ops(sub: mir.MemorySubroutine, record: _BlockRecord) -> None:
             block.mem_ops[index] = op = mir.LoadXStack(
                 local_id=op.local_id,
                 depth=stack.xl_height - stack.x_stack.index(op.local_id) - 1,
+                copy=False,
                 atype=op.atype,
                 source_location=op.source_location,
             )

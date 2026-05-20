@@ -150,7 +150,8 @@ class Stack(MIRVisitor[None]):
         index = self._x_stack.index(local_id)
         uncover = self.x_stack_depth_for_index(index)
         assert uncover == load.depth, f"expected {uncover=} == {load.depth=}"
-        self._x_stack.pop(index)
+        if not load.copy:
+            self._x_stack.pop(index)
         self._apply_lstack_effects(load)
 
     def visit_store_l_stack(self, store: models.StoreLStack) -> None:
