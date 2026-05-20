@@ -128,7 +128,6 @@ def puyapy(
         output_teal_intermediates: Output TEAL before peephole optimization and before
                                 block optimization
         output_op_statistics: Output statistics about ops used for each program compiled
-                optimization_level: Set optimization level of output TEAL / AVM bytecode
         optimization_level: Set optimization level of output TEAL / AVM bytecode
         treat_warnings_as_errors: Treat all compiler warnings as errors
         debug_level: Output debug information level, 0 = none,
