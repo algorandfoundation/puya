@@ -22,6 +22,7 @@ _OPT_LEVELS = {
     "out": 1,
     "out_O2": 2,
 }
+_Category = typing.Literal["total", "constant", "control_flow", "stack", "other"]
 
 app = cyclopts.App(help_on_error=True)
 
@@ -32,6 +33,7 @@ def main(
     before: typing.Annotated[str, cyclopts.Parameter(alias="-b")] = "origin/main",
     after: typing.Annotated[str, cyclopts.Parameter(alias="-a")] = "HEAD",
     verbose: typing.Annotated[bool, cyclopts.Parameter(alias="-v", negative=())] = False,
+    category: typing.Annotated[_Category, cyclopts.Parameter(alias="-c")] = "total",
 ) -> None:
     """
     Summarize compiler output differences between branches
@@ -40,11 +42,12 @@ def main(
         before: Base git tag to compare
         after: Target git tag to compare (or . for working copy)
         verbose: Show all rows, including unchanged ones
+        category: Stats category to compare
     """
     before_files = _get_git_files(before)
     after_files = _get_git_files(after)
 
-    diffs = _calculate_diffs(before_files, after_files)
+    diffs = _calculate_diffs(before_files, after_files, category)
     summary = _render_summary(diffs, show_all=verbose)
     print(summary)
 
@@ -156,10 +159,10 @@ def _get_git_files(tag: str) -> dict[str, str]:
 
 
 def _calculate_diffs(
-    before_files: dict[str, str], after_files: dict[str, str]
+    before_files: dict[str, str], after_files: dict[str, str], category: _Category
 ) -> dict[Artifact, ArtifactDiff]:
-    before = _parse_files(before_files)
-    after = _parse_files(after_files)
+    before = _parse_files(before_files, category)
+    after = _parse_files(after_files, category)
     all_artifacts = sorted({*before, *after})
 
     artifacts_per_test_case = Counter(a.test_case for a in all_artifacts)
@@ -199,7 +202,9 @@ def _calculate_diffs(
     return diffs
 
 
-def _parse_files(files: dict[str, str]) -> dict[Artifact, ArtifactDetails]:
+def _parse_files(files: dict[str, str], category: _Category) -> dict[Artifact, ArtifactDetails]:
+    bytes_key = f"{category}_bytes"
+    ops_key = f"{category}_ops"
     result = defaultdict[Artifact, ArtifactDetails](ArtifactDetails)
     test_case_srcs = defaultdict[TestCase, dict[Path, str]](dict)
     for path_str, contents in files.items():
@@ -214,9 +219,7 @@ def _parse_files(files: dict[str, str]) -> dict[Artifact, ArtifactDetails]:
             contract, opt_level = _parse_stat_path(path)
             stats = tomllib.loads(contents)
             details = result[contract]
-            details.stats[opt_level] += Size(
-                num_bytes=stats["total_bytes"], num_ops=stats["total_ops"]
-            )
+            details.stats[opt_level] += Size(num_bytes=stats[bytes_key], num_ops=stats[ops_key])
 
     # update artifacts with src
     for artifact, details in result.items():
