@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 0 1 2
+    intcblock 8 1 0 2
     bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8 "local_uint" "local_bytes"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -59,7 +59,7 @@ main_get_an_int_route@17:
     // @arc4.abimethod(readonly=True, name="get_an_int")
     pushbytes 0x151f7c750000000000000003
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_get_application_route@16:
@@ -67,7 +67,7 @@ main_get_application_route@16:
     // @arc4.abimethod(readonly=True, name="get_application")
     bytec_2 // 0x151f7c7500000000000001c8
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_get_asset_route@15:
@@ -75,7 +75,7 @@ main_get_asset_route@15:
     // @arc4.abimethod(readonly=True)
     bytec_2 // 0x151f7c7500000000000001c8
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_get_address_route@14:
@@ -83,7 +83,7 @@ main_get_address_route@14:
     // @arc4.abimethod(readonly=True)
     pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 main_mixed_oca_route@7:
@@ -97,7 +97,7 @@ main_mixed_oca_route@7:
     //     create="disallow",
     //     readonly=True,
     // )
-    intc_2 // 1
+    intc_1 // 1
     txn OnCompletion
     shl
     pushint 37
@@ -111,7 +111,7 @@ main_opt_in_route@5:
     // abi_routing/contract.py:45
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     txn OnCompletion
-    intc_2 // OptIn
+    intc_1 // OptIn
     ==
     txn ApplicationID
     &&
@@ -148,7 +148,7 @@ main_bare_abi_config@25:
     //     ],
     //     create="require",
     // )
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -165,7 +165,7 @@ noop_with_uint64:
     // abi_routing/contract.py:42
     // result = 1 + a.as_uint64()
     btoi
-    intc_2 // 1
+    intc_1 // 1
     +
     // abi_routing/contract.py:43
     // return arc4.UInt8(result)
@@ -182,7 +182,7 @@ noop_with_uint64:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -199,7 +199,7 @@ opt_in:
     btoi
     txna ApplicationArgs 2
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
@@ -222,7 +222,7 @@ opt_in:
     app_local_put
     // abi_routing/contract.py:45
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -250,7 +250,7 @@ full_abi_config:
     // abi_routing/contract.py:63
     // result = UInt64(1) + a.as_uint64()
     btoi
-    intc_2 // 1
+    intc_1 // 1
     +
     // abi_routing/contract.py:64
     // return arc4.UInt8(result)
@@ -278,7 +278,7 @@ full_abi_config:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -303,7 +303,7 @@ mixed_oca:
     // abi_routing/contract.py:76
     // result = UInt64(1) + a.as_uint64()
     btoi
-    intc_2 // 1
+    intc_1 // 1
     +
     // abi_routing/contract.py:77
     // return arc4.UInt8(result)
@@ -328,7 +328,7 @@ mixed_oca:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -353,7 +353,7 @@ opt_into_asset:
     // abi_routing/contract.py:96-97
     // # Verify a ASA hasn't already been opted into
     // assert not self.asa, "ASA already opted in"
-    intc_1 // 0
+    intc_2 // 0
     bytec_1 // "asa"
     app_global_get_ex
     assert // check self.asa exists
@@ -375,7 +375,7 @@ opt_into_asset:
     itxn_field TypeEnum
     // abi_routing/contract.py:104
     // op.ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // abi_routing/contract.py:105
     // op.ITxnCreate.set_asset_receiver(op.Global.current_application_address)
@@ -389,7 +389,7 @@ opt_into_asset:
     itxn_submit
     // abi_routing/contract.py:92
     // @arc4.abimethod
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -411,11 +411,11 @@ with_transactions:
     ==
     assert // invalid number of bytes for arc4.uint64
     txn GroupIndex
-    intc_2 // 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    intc_2 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 3
@@ -426,7 +426,7 @@ with_transactions:
     assert // invalid number of bytes for arc4.uint64
     // abi_routing/contract.py:117
     // assert self.asa == asset, "is correct asset"
-    intc_1 // 0
+    intc_2 // 0
     bytec_1 // "asa"
     app_global_get_ex
     assert // check self.asa exists
@@ -437,7 +437,7 @@ with_transactions:
     // assert an_int.as_uint64() == 1, "is correct int"
     uncover 2
     btoi
-    intc_2 // 1
+    intc_1 // 1
     ==
     assert // is correct int
     // abi_routing/contract.py:119
@@ -455,7 +455,7 @@ with_transactions:
     assert // is correct int
     // abi_routing/contract.py:109
     // @arc4.abimethod
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -483,7 +483,7 @@ compare_assets:
     assert // asset a == b
     // abi_routing/contract.py:122
     // @arc4.abimethod
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -573,7 +573,7 @@ method_with_default_args:
     assert // invalid number of bytes for arc4.uint32
     txna ApplicationArgs 11
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
@@ -590,7 +590,7 @@ method_with_default_args:
     btoi
     txna ApplicationArgs 13
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
@@ -685,7 +685,7 @@ method_with_default_args:
     // abi_routing/contract.py:188
     // assert int_from_local == self.local_uint[Txn.sender]
     txn Sender
-    intc_1 // 0
+    intc_2 // 0
     bytec_3 // "local_uint"
     app_local_get_ex
     assert // check self.local_uint exists for account
@@ -695,7 +695,7 @@ method_with_default_args:
     // abi_routing/contract.py:189
     // assert bytes_from_local == self.local_bytes[Txn.sender]
     txn Sender
-    intc_1 // 0
+    intc_2 // 0
     bytec 4 // "local_bytes"
     app_local_get_ex
     assert // check self.local_bytes exists for account
@@ -719,7 +719,7 @@ method_with_default_args:
     //         "bytes_from_local": "local_bytes",
     //     }
     // )
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -827,7 +827,7 @@ method_with_15_args:
     btoi
     txna ApplicationArgs 15
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
@@ -1003,7 +1003,7 @@ method_with_15_args:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -1060,7 +1060,7 @@ method_with_more_than_15_args:
     -
     dup
     gtxns TypeEnum
-    intc_2 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 8
@@ -1116,192 +1116,10 @@ method_with_more_than_15_args:
     ==
     assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
     dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    txna ApplicationArgs 15
-    dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    txna ApplicationArgs 15
-    dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    pushint 16
-    extract_uint64
-    txna ApplicationArgs 15
-    dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    txna ApplicationArgs 15
-    dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    txna ApplicationArgs 15
-    dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
     dig 1
     dig 3
     substring3
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     pushint 70
     +
@@ -1316,175 +1134,41 @@ method_with_more_than_15_args:
     dig 1
     dig 5
     substring3
-    intc_1 // 0
+    dup
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
-    +
-    uncover 2
     +
     uncover 3
+    +
+    uncover 4
     ==
     assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    substring3
-    extract 2 0
     txna ApplicationArgs 15
     dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
+    pushint 16
+    extract_uint64
+    txna ApplicationArgs 15
+    dupn 2
+    uncover 7
+    uncover 7
     substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    uncover 3
-    swap
-    dig 3
-    substring3
-    dup
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    uncover 2
-    +
-    uncover 2
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
+    extract 2 0
+    uncover 5
     extract 2 0
     txna ApplicationArgs 15
-    dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
     pushint 44
     extract_uint64
     txn GroupIndex
-    intc_2 // 1
+    intc_1 // 1
     -
     dup
     gtxns TypeEnum
-    intc_2 // pay
+    intc_1 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 15
     dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
-    txna ApplicationArgs 15
-    dup
-    len
-    dig 1
-    pushint 40
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 68
-    ==
-    assert // invalid tail pointer at index 5 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 2
-    swap
-    dig 2
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 70
-    +
-    dig 2
-    pushint 42
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    dig 2
-    ==
-    assert // invalid tail pointer at index 6 of (uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)
-    dig 3
-    swap
-    dig 3
-    substring3
-    intc_1 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    +
-    ==
-    assert // invalid number of bytes for arc4.tuple<arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.uint64,arc4.dynamic_array<arc4.uint8>,arc4.dynamic_array<arc4.uint8>,arc4.uint64,arc4.uint64,arc4.uint64>
     // abi_routing/contract.py:264
     // assert op.Txn.num_app_args == 16
     txn NumAppArgs
@@ -1687,7 +1371,7 @@ method_with_more_than_15_args:
     uncover 7
     // abi_routing/contract.py:229
     // @arc4.abimethod
-    intc_1 // 0
+    intc_2 // 0
     // abi_routing/contract.py:286
     // + n.as_uint64()
     extract_uint64
@@ -1900,7 +1584,7 @@ method_with_more_than_15_args:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     return
 
 
@@ -1910,7 +1594,7 @@ hello_with_algopy_string:
     // @arc4.abimethod
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
@@ -1938,5 +1622,5 @@ hello_with_algopy_string:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     return
