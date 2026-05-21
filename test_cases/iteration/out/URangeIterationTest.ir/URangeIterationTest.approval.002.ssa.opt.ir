@@ -19,6 +19,7 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let tmp%1#0: bool = (== i#2 6u)
         (assert tmp%1#0)
         (log "test_reversed")
+        let i#9: uint64 = undefined
         let i#4: uint64 = 5u
         goto block@9
     block@9: // for_body_L23
@@ -60,6 +61,8 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let tmp%3#0: bool = (== idx#2 3u)
         (assert tmp%3#0)
         (log "test_forwards_with_reverse_index")
+        let idx#9: uint64 = undefined
+        let i#19: uint64 = undefined
         let idx#4: uint64 = 2u
         let i#14: uint64 = 1u
         goto block@22
@@ -77,11 +80,14 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let idx#7: uint64 = (- idx#5 1u)
         goto block@22
     block@25: // after_for_L42
-        let tmp%2#1: bool = (== i#16 6u)
+        let (i#18: uint64, idx#8: uint64) = (i#16, idx#6)
+        let tmp%2#1: bool = (== i#18 6u)
         (assert tmp%2#1)
-        let tmp%3#1: bool = (== idx#6 1u)
+        let tmp%3#1: bool = (== idx#8 1u)
         (assert tmp%3#1)
         (log "test_reverse_with_forwards_index")
+        let idx#15: uint64 = undefined
+        let i#25: uint64 = undefined
         let i#20: uint64 = 5u
         let idx#10: uint64 = 0u
         goto block@29
@@ -98,11 +104,14 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let i#23: uint64 = (- i#21 2u)
         goto block@29
     block@32: // after_for_L53
-        let tmp%2#2: bool = (== i#22 2u)
+        let (i#24: uint64, idx#14: uint64) = (i#22, idx#12)
+        let tmp%2#2: bool = (== i#24 2u)
         (assert tmp%2#2)
-        let tmp%3#2: bool = (== idx#12 3u)
+        let tmp%3#2: bool = (== idx#14 3u)
         (assert tmp%3#2)
         (log "test_reverse_with_reverse_index")
+        let idx#21: uint64 = undefined
+        let i#31: uint64 = undefined
         let idx#16: uint64 = 2u
         let i#26: uint64 = 5u
         goto block@36
@@ -120,9 +129,10 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let idx#19: uint64 = (- idx#17 1u)
         goto block@36
     block@39: // after_for_L64
-        let tmp%2#3: bool = (== i#28 2u)
+        let (i#30: uint64, idx#20: uint64) = (i#28, idx#18)
+        let tmp%2#3: bool = (== i#30 2u)
         (assert tmp%2#3)
-        let tmp%3#3: bool = (== idx#18 1u)
+        let tmp%3#3: bool = (== idx#20 1u)
         (assert tmp%3#3)
         (log "test_empty")
         let value_internal%0#6: uint64 = 0u
@@ -130,21 +140,21 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
     block@42: // for_header_L74
         let i#32: uint64 = φ(value_internal%0#6 <- block@39, value_internal%0#8 <- block@43)
         let continue_looping%0#6: bool = (< i#32 0u)
-        goto continue_looping%0#6 ? block@43 : block@45
+        goto continue_looping%0#6 ? block@43 : block@50
     block@43: // for_body_L75
         let tmp%0#6: bytes = (itob i#32)
         (log tmp%0#6)
         let value_internal%0#8: uint64 = (+ i#32 1u)
         goto block@42
-    block@45: // after_for_L74
+    block@50: // after_for_L76
         let value_internal%1#0: uint64 = 0u
         let item_index_internal%0#3: uint64 = 0u
         goto block@51
     block@51: // for_header_L78
-        let i#36: uint64 = φ(value_internal%1#0 <- block@45, value_internal%1#2 <- block@52)
-        let idx#22: uint64 = φ(item_index_internal%0#3 <- block@45, item_index_internal%0#5 <- block@52)
+        let i#36: uint64 = φ(value_internal%1#0 <- block@50, value_internal%1#2 <- block@52)
+        let idx#22: uint64 = φ(item_index_internal%0#3 <- block@50, item_index_internal%0#5 <- block@52)
         let continue_looping%2#0: bool = (< i#36 0u)
-        goto continue_looping%2#0 ? block@52 : block@54
+        goto continue_looping%2#0 ? block@52 : block@69
     block@52: // for_body_L79
         let tmp%2#4: bytes = (itob idx#22)
         let tmp%4#0: bytes = (itob i#36)
@@ -153,9 +163,14 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let value_internal%1#2: uint64 = (+ i#36 1u)
         let item_index_internal%0#5: uint64 = (+ idx#22 1u)
         goto block@51
-    block@54: // after_for_L78
+    block@69: // after_for_L84
         (log "test_break")
+        let i#48: uint64 = undefined
+        let i#46: uint64 = 1u
         (log 0x61)
+        let i#47: uint64 = i#46
+        let tmp%0#7: bool = 1u
+        (assert tmp%0#7)
         (log "test_tuple_target")
         let tup.1#2: uint64 = undefined
         let tup.0#2: uint64 = undefined
@@ -163,10 +178,10 @@ main test_cases.iteration.base.IterationTestBase.approval_program:
         let item_index_internal%0#6: uint64 = 0u
         goto block@77
     block@77: // for_header_L100
-        let tup.1#0: uint64 = φ(value_internal%0#10 <- block@54, value_internal%0#12 <- block@78)
-        let tup.0#0: uint64 = φ(item_index_internal%0#6 <- block@54, item_index_internal%0#8 <- block@78)
-        let tup.0#1: uint64 = φ(tup.0#2 <- block@54, tup.0#0 <- block@78)
-        let tup.1#1: uint64 = φ(tup.1#2 <- block@54, tup.1#0 <- block@78)
+        let tup.1#0: uint64 = φ(value_internal%0#10 <- block@69, value_internal%0#12 <- block@78)
+        let tup.0#0: uint64 = φ(item_index_internal%0#6 <- block@69, item_index_internal%0#8 <- block@78)
+        let tup.0#1: uint64 = φ(tup.0#2 <- block@69, tup.0#0 <- block@78)
+        let tup.1#1: uint64 = φ(tup.1#2 <- block@69, tup.1#0 <- block@78)
         let continue_looping%0#8: bool = (< tup.1#0 1u)
         goto continue_looping%0#8 ? block@78 : block@80
     block@78: // for_body_L101

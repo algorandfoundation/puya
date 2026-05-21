@@ -218,7 +218,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         (box_replace "box_large" 4096u 0x000000000000002a)
         let box%box_extract%0#0: bytes = (box_extract "b" 0u 2u)
         let box%btoi%0#0: uint64 = (btoi box%box_extract%0#0)
-        let tmp%4#0: bool = (== box%btoi%0#0 box%btoi%0#0)
+        let tmp%4#0: bool = 1u
         (assert tmp%4#0) // direct reference should match copy
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box_a")
         (assert aggregate%box_get%1#0) // check self.box_a exists
@@ -595,6 +595,7 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_arr_struct[r
         let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 0x0014)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%1#0)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 0x0016)
         let aggregate%concat%1#0: bytes = (concat aggregate%head%2#0 0x001600000000)
         (box_del "dynamic_arr_struct")
         (box_put "dynamic_arr_struct" aggregate%concat%1#0)
@@ -1135,7 +1136,7 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_box[routing]() 
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L320
         let box%element_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
-        let box%offset%0#0: uint64 = (+ 2u box%element_offset%0#0)
+        let box%offset%0#0: uint64 = (+ box%element_offset%0#0 2u)
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "dynamic_box" box%offset%0#0 8u) // on error: index out of bounds
         let val#0: uint64 = (btoi box%box_extract%1#0)
         let total#2: uint64 = (+ total#1 val#0)
@@ -1159,7 +1160,7 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_box[routing](
         let eq%1#0: bool = (== len%1#0 8u)
         (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let box%element_offset%0#0: uint64 = (* index#0 8u)
-        let box%offset%0#0: uint64 = (+ 2u box%element_offset%0#0)
+        let box%offset%0#0: uint64 = (+ box%element_offset%0#0 2u)
         (box_replace "dynamic_box" box%offset%0#0 tmp%2#0) // on error: index out of bounds
         exit 1u
 
@@ -1192,7 +1193,7 @@ subroutine examples.box_storage.contract.BoxContract.slice_box[routing]() -> voi
         let is_out_of_bounds%1#0: bool = 0u
         let bounded_index%1#0: uint64 = 7u
         let box%substring3_length%0#0: uint64 = 7u
-        let box%box_extract%0#0: bytes = (box_extract "0" 0u 7u)
+        let box%box_extract%0#0: bytes = (box_extract "0" bounded_index%0#0 box%substring3_length%0#0)
         let tmp%1#0: bool = (== box%box_extract%0#0 0x54657374696e67)
         (assert tmp%1#0)
         (box_del 0x424f585f43)
@@ -1202,7 +1203,7 @@ subroutine examples.box_storage.contract.BoxContract.slice_box[routing]() -> voi
         let is_out_of_bounds%3#0: bool = 1u
         let bounded_index%3#0: uint64 = 7u
         let box%substring3_length%1#0: uint64 = 5u
-        let box%box_extract%1#0: bytes = (box_extract 0x424f585f43 2u 5u)
+        let box%box_extract%1#0: bytes = (box_extract 0x424f585f43 bounded_index%2#0 box%substring3_length%1#0)
         let tmp%4#0: bool = (== box%box_extract%1#0 0x48656c6c6f)
         (assert tmp%4#0)
         exit 1u
@@ -1263,6 +1264,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test[routing]() -> 
         (box_del box_0#0)
         (box_put box_0#0 "Hmmmmm")
         let tmp%2#0: bool = 1u
+        (assert tmp%2#0)
         let tmp%4#0: bool = 1u
         let tmp%6#0: bool = 1u
         let encoded_value%5#0: bytes[8] = (itob 1u)

@@ -576,21 +576,21 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing
         let aggregate%length%1#0: uint64 = 0u
         let aggregate%length_uint16%1#0: bytes = 0x0000
         let aggregate%encoded_value%1#0: bytes = 0x0000
-        let aggregate%as_bytes%4#0: bytes[8] = (itob 24u)
+        let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0018
         let aggregate%head%3#0: bytes = 0x0000000000000000000000000000000000160018
         let aggregate%data_length%1#0: uint64 = 2u
         let aggregate%current_tail_offset%1#0: uint64 = 26u
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 26u)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x001a
         let aggregate%head%4#0: bytes = 0x0000000000000000000000000000000000160018001a
-        let aggregate%concat%0#0: bytes = 0x0000000000000000000000000000000000160018001a0000
-        let aggregate%concat%1#0: bytes = 0x0000000000000000000000000000000000160018001a00000000
-        let dynamic_struct#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = 0x0000000000000000000000000000000000160018001a000000000000
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%4#0 0x0000)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%4#0 0x00000000)
+        let dynamic_struct#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (concat aggregate%head%4#0 0x000000000000)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void")
-        ((itxn_field ApplicationArgs) 0x0000000000000000000000000000000000160018001a000000000000)
+        ((itxn_field ApplicationArgs) dynamic_struct#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

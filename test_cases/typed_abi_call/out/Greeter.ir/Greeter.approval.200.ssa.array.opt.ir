@@ -841,6 +841,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint[routi
         itxn_begin
         let aggregate%value_len%0#0: uint64 = 1u
         let aggregate%len_ok%0#0: bool = 1u
+        (assert aggregate%len_ok%0#0) // overflow
         let aggregate%bzero%0#0: bytes = (bzero 64u)
         let aggregate%arc4_encoded%0#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         ((itxn_field ApplicationID) app#0)
@@ -960,6 +961,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple[routing
         itxn_begin
         let aggregate%value_len%0#0: uint64 = 1u
         let aggregate%len_ok%0#0: bool = 1u
+        (assert aggregate%len_ok%0#0) // overflow
         let aggregate%arc4_encoded%1#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)")
@@ -1091,6 +1093,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%value_len%0#0: uint64 = 1u
         let aggregate%len_ok%0#0: bool = 1u
+        (assert aggregate%len_ok%0#0) // overflow
         let aggregate%bzero%0#0: bytes = (bzero 64u)
         let aggregate%arc4_encoded%0#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         ((itxn_field ApplicationID) app#0)
@@ -1294,11 +1297,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let aggregate%head%0#0: bytes = 0x0004
         let aggregate%data_length%0#0: uint64 = 4u
         let aggregate%current_tail_offset%0#0: uint64 = 8u
-        let aggregate%as_bytes%3#0: bytes[8] = (itob 8u)
+        let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0008
         let aggregate%head%1#0: bytes = 0x00040008
-        let aggregate%concat%0#0: bytes = 0x0004000800027331
-        let aggregate%concat%1#0: bytes = 0x000400080002733100027332
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 0x00027331)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%1#0 0x0002733100027332)
         let aggregate%offset_as_uint16%2#0: bytes = 0x0004
         let aggregate%head%2#0: bytes = 0x0004
         let aggregate%data_length%2#0: uint64 = 12u
@@ -1312,14 +1315,14 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let aggregate%offset_as_uint16%3#0: bytes = 0x0012
         let aggregate%head%5#0: bytes = 0x000000000000000100000000000000020012
         let aggregate%concat%2#0: bytes = 0x000000000000000100000000000000020012000133
-        let aggregate%as_bytes%7#0: bytes[8] = (itob 16u)
+        let aggregate%as_bytes%7#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%4#0: bytes = 0x0010
         let aggregate%head%6#0: bytes = 0x00040010
-        let aggregate%concat%3#0: bytes = 0x00040010000400080002733100027332
-        let aggregate%concat%4#0: bytes = 0x00040010000400080002733100027332000000000000000100000000000000020012000133
+        let aggregate%concat%3#0: bytes = (concat aggregate%head%6#0 aggregate%concat%1#0)
+        let aggregate%concat%4#0: bytes = (concat aggregate%concat%3#0 0x000000000000000100000000000000020012000133)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
-        ((itxn_field ApplicationArgs) 0x00040010000400080002733100027332000000000000000100000000000000020012000133)
+        ((itxn_field ApplicationArgs) aggregate%concat%4#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1389,7 +1392,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
-        ((itxn_field ApplicationArgs) 0x00040010000400080002733100027332000000000000000100000000000000020012000133)
+        ((itxn_field ApplicationArgs) aggregate%concat%4#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -1465,11 +1468,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let aggregate%head%7#0: bytes = 0x0004
         let aggregate%data_length%5#0: uint64 = 5u
         let aggregate%current_tail_offset%5#0: uint64 = 9u
-        let aggregate%as_bytes%12#0: bytes[8] = (itob 9u)
+        let aggregate%as_bytes%12#0: bytes[8] = (itob aggregate%current_tail_offset%5#0)
         let aggregate%offset_as_uint16%6#0: bytes = 0x0009
         let aggregate%head%8#0: bytes = 0x00040009
-        let aggregate%concat%5#0: bytes = 0x000400090003733162
-        let aggregate%concat%6#0: bytes = 0x0004000900037331620003733262
+        let aggregate%concat%5#0: bytes = (concat aggregate%head%8#0 0x0003733162)
+        let aggregate%concat%6#0: bytes = (concat aggregate%head%8#0 0x00037331620003733262)
         let aggregate%length%6#0: uint64 = 2u
         let aggregate%length_uint16%6#0: bytes = 0x0002
         let aggregate%encoded_value%6#0: bytes = 0x00023362
@@ -1484,11 +1487,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples[routin
         let aggregate%current_tail_offset%8#0: uint64 = 18u
         let aggregate%offset_as_uint16%9#0: bytes = 0x0012
         let aggregate%head%13#0: bytes = 0x00040012
-        let aggregate%concat%8#0: bytes = 0x000400120004000900037331620003733262
-        let aggregate%concat%9#0: bytes = 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
+        let aggregate%concat%8#0: bytes = (concat aggregate%head%13#0 aggregate%concat%6#0)
+        let aggregate%concat%9#0: bytes = (concat aggregate%concat%8#0 0x000000000000000b0000000000000015001200023362)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))")
-        ((itxn_field ApplicationArgs) 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362)
+        ((itxn_field ApplicationArgs) aggregate%concat%9#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

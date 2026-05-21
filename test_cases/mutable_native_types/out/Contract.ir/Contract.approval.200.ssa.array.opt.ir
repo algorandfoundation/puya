@@ -29,17 +29,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%length%1#0: uint64 = 0u
         let aggregate%length_uint16%1#0: bytes = 0x0000
         let aggregate%encoded_value%1#0: bytes = 0x0000
-        let aggregate%as_bytes%4#0: bytes[8] = (itob 24u)
+        let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0018
-        let aggregate%head%12#0: bytes = (concat aggregate%head%1#0 0x00160018)
+        let aggregate%head%12#0: bytes = (concat aggregate%head%11#0 aggregate%offset_as_uint16%1#0)
         let aggregate%data_length%1#0: uint64 = 2u
         let aggregate%current_tail_offset%1#0: uint64 = 26u
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 26u)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x001a
-        let aggregate%head%13#0: bytes = (concat aggregate%head%1#0 0x00160018001a)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 0x00160018001a0000)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%1#0 0x00160018001a00000000)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%1#0 0x00160018001a000000000000)
+        let aggregate%head%13#0: bytes = (concat aggregate%head%12#0 aggregate%offset_as_uint16%2#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%13#0 0x0000)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%13#0 0x00000000)
+        let aggregate%concat%2#0: bytes = (concat aggregate%head%13#0 0x000000000000)
         (app_global_put "dyn" aggregate%concat%2#0)
         (app_global_put "num_payments" 0u)
         let tmp%16#0: Encoded((uint8[32],uint64,uint64)[2]) = (bzero 96u)
@@ -150,16 +150,16 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize[ro
         let arr_3#0: Encoded(uint64[3]) = (bzero 24u)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%write_offset%0#0: uint64 = 0u
-        let arr_3#1: Encoded(uint64[3]) = 0x000000000000000000000000000000000000000000000000
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 1u)
         let aggregate%write_offset%1#0: uint64 = 8u
-        let arr_3#2: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000000
+        let arr_3#2: Encoded(uint64[3]) = (replace3 arr_3#0 aggregate%write_offset%1#0 aggregate%val_as_bytes%1#0) // on error: index access is out of bounds
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 2u)
         let aggregate%write_offset%2#0: uint64 = 16u
-        let arr_3#3: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000002
+        let arr_3#3: Encoded(uint64[3]) = (replace3 arr_3#2 aggregate%write_offset%2#0 aggregate%val_as_bytes%2#0) // on error: index access is out of bounds
         let aggregate%head%1#0: bytes = 0x00000000000000000000000000000001
         let arr_3_from_tuple#0: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000002
         let tmp%1#0: bool = 1u
+        (assert tmp%1#0) // should be the same
         let aggregate%head%4#0: bytes = 0x00000000000000010000000000000001
         let arr_3_from_full#0: Encoded(uint64[3]) = 0x000000000000000100000000000000010000000000000001
         let aggregate%bytes_offset%0#0: uint64 = 0u
@@ -445,7 +445,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         let aggregate%total_length%0#0: uint64 = (len arr2#1)
         let new_items_bytes#3: bytes = ((extract 2 0) arr2#1)
         let aggregate%bytes_offset%0#0: uint64 = 0u
-        let aggregate%encoded_element%0#0: bytes = ((extract 2 16) arr2#1)
+        let aggregate%encoded_element%0#0: bytes = (extract3 new_items_bytes#3 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#0: bytes = 0x0001
         let arr7#0: Encoded(len+(uint64,uint64)[]) = (concat 0x0001 aggregate%encoded_element%0#0)

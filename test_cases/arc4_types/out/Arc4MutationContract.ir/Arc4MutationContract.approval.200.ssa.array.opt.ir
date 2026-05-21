@@ -7,7 +7,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let new_items_bytes#0: bytes = 0x32
         let array_length#0: uint64 = 2u
         let new_array_length#0: uint64 = 3u
-        let tmp%0#9: bytes = (itob 3u)
+        let tmp%0#9: bytes = (itob new_array_length#0)
         let new_len_u16#0: bytes = 0x0003
         let result#0: bytes = 0x00030102
         let dynamic_uint8_array#1: Encoded(len+uint8[]) = 0x0003010232
@@ -16,13 +16,14 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%head%4#0: bytes = 0x00030102
         let aggregate%head%5#0: bytes = 0x0003010232
         let tmp%2#0: bool = 1u
-        let new_items_bytes#1: bytes = 0x010232
+        (assert tmp%2#0)
+        let new_items_bytes#1: bytes = ((extract 2 0) dynamic_uint8_array#1)
         let new_items_count#1: uint64 = 3u
         let array_length#1: uint64 = 3u
         let new_array_length#1: uint64 = 6u
-        let tmp%0#11: bytes = (itob 6u)
+        let tmp%0#11: bytes = (itob new_array_length#1)
         let new_len_u16#1: bytes = 0x0006
-        let result#1: bytes = 0x0006010232
+        let result#1: bytes = ((replace2 0) dynamic_uint8_array#1 new_len_u16#1)
         let dynamic_uint8_array#2: Encoded(len+uint8[]) = 0x0006010232010232
         let aggregate%len_u16%2#0: bytes = 0x0006
         let aggregate%head%6#0: bytes = 0x000601
@@ -36,10 +37,10 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let new_items_bytes#2: bytes = 0x045a
         let array_length#2: uint64 = 6u
         let new_array_length#2: uint64 = 8u
-        let tmp%0#13: bytes = (itob 8u)
+        let tmp%0#13: bytes = (itob new_array_length#2)
         let new_len_u16#2: bytes = 0x0008
-        let result#2: bytes = 0x0008010232010232
-        let dynamic_uint8_array#3: Encoded(len+uint8[]) = 0x0008010232010232045a
+        let result#2: bytes = ((replace2 0) dynamic_uint8_array#2 new_len_u16#2)
+        let dynamic_uint8_array#3: Encoded(len+uint8[]) = (concat result#2 0x045a)
         let aggregate%len_u16%3#0: bytes = 0x0008
         let aggregate%head%14#0: bytes = 0x000801
         let aggregate%head%15#0: bytes = 0x00080102
@@ -53,17 +54,17 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%array_length%1#0: uint64 = 8u
         let sub%0#0: uint64 = 7u
         let aggregate%total_length%0#0: uint64 = 10u
-        let aggregate%array_trimmed%0#0: bytes = 0x010232010232045a
-        let aggregate%bytes_offset%0#0: uint64 = 7u
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) dynamic_uint8_array#3)
+        let aggregate%bytes_offset%0#0: uint64 = sub%0#0
         let popped#0: Encoded(uint8) = 0x5a
         let tmp%0#15: uint64 = 10u
         let tmp%1#8: uint64 = 9u
-        let result#3: bytes = 0x000801023201023204
+        let result#3: bytes = (substring3 dynamic_uint8_array#3 0u tmp%1#8)
         let array_length#3: uint64 = 8u
         let length_minus_1#0: uint64 = 7u
-        let tmp%0#16: bytes = (itob 7u)
+        let tmp%0#16: bytes = (itob length_minus_1#0)
         let tmp%1#9: bytes = 0x0007
-        let dynamic_uint8_array#4: Encoded(len+uint8[]) = 0x000701023201023204
+        let dynamic_uint8_array#4: Encoded(len+uint8[]) = ((replace2 0) result#3 tmp%1#9)
         let tmp%12#0: bool = 1u
         let aggregate%len_u16%4#0: bytes = 0x0007
         let aggregate%head%22#0: bytes = 0x000701
@@ -189,14 +190,14 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%head%37#0: bytes = 0x00020004
         let aggregate%data_length%0#0: uint64 = 7u
         let aggregate%current_tail_offset%0#0: uint64 = 11u
-        let aggregate%as_bytes%16#0: bytes[8] = (itob 11u)
+        let aggregate%as_bytes%16#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x000b
         let aggregate%head%38#0: bytes = 0x00020004000b
-        let aggregate%concat%0#0: bytes = 0x00020004000b000548656c6c6f
-        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = 0x00020004000b000548656c6c6f0005576f726c64
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%38#0 0x000548656c6c6f)
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = (concat aggregate%head%38#0 0x000548656c6c6f0005576f726c64)
         let tmp%4#2: bool = 1u
         let concat%1#0: bytes = 0x0003466f6f0003426172
-        let dynamic_string_array#1: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x00020004000b000548656c6c6f0005576f726c64, 0x0003466f6f0003426172, 2u)
+        let dynamic_string_array#1: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(dynamic_string_array#0, 0x0003466f6f0003426172, 2u)
         let tmp%6#2: bool = (== dynamic_string_array#1 0x00040008000f0016001b000548656c6c6f0005576f726c640003466f6f0003426172)
         (assert tmp%6#2)
         let extract_to_end%0#2: bytes = ((extract 2 0) dynamic_string_array#1)
@@ -211,51 +212,51 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%head%39#0: bytes = 0x00080010
         let aggregate%data_length%2#0: uint64 = 7u
         let aggregate%current_tail_offset%2#0: uint64 = 23u
-        let aggregate%as_bytes%19#0: bytes[8] = (itob 23u)
+        let aggregate%as_bytes%19#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = 0x0017
         let aggregate%head%40#0: bytes = 0x000800100017
         let aggregate%data_length%3#0: uint64 = 7u
         let aggregate%current_tail_offset%3#0: uint64 = 30u
-        let aggregate%as_bytes%20#0: bytes[8] = (itob 30u)
+        let aggregate%as_bytes%20#0: bytes[8] = (itob aggregate%current_tail_offset%3#0)
         let aggregate%offset_as_uint16%4#0: bytes = 0x001e
         let aggregate%head%41#0: bytes = 0x000800100017001e
         let aggregate%data_length%4#0: uint64 = 5u
         let aggregate%current_tail_offset%4#0: uint64 = 35u
-        let aggregate%as_bytes%21#0: bytes[8] = (itob 35u)
+        let aggregate%as_bytes%21#0: bytes[8] = (itob aggregate%current_tail_offset%4#0)
         let aggregate%offset_as_uint16%5#0: bytes = 0x0023
         let aggregate%head%42#0: bytes = 0x000800100017001e0023
         let aggregate%data_length%5#0: uint64 = 5u
         let aggregate%current_tail_offset%5#0: uint64 = 40u
-        let aggregate%as_bytes%22#0: bytes[8] = (itob 40u)
+        let aggregate%as_bytes%22#0: bytes[8] = (itob aggregate%current_tail_offset%5#0)
         let aggregate%offset_as_uint16%6#0: bytes = 0x0028
         let aggregate%head%43#0: bytes = 0x000800100017001e00230028
         let aggregate%data_length%6#0: uint64 = 7u
         let aggregate%current_tail_offset%6#0: uint64 = 47u
-        let aggregate%as_bytes%23#0: bytes[8] = (itob 47u)
+        let aggregate%as_bytes%23#0: bytes[8] = (itob aggregate%current_tail_offset%6#0)
         let aggregate%offset_as_uint16%7#0: bytes = 0x002f
         let aggregate%head%44#0: bytes = 0x000800100017001e00230028002f
         let aggregate%data_length%7#0: uint64 = 7u
         let aggregate%current_tail_offset%7#0: uint64 = 54u
-        let aggregate%as_bytes%24#0: bytes[8] = (itob 54u)
+        let aggregate%as_bytes%24#0: bytes[8] = (itob aggregate%current_tail_offset%7#0)
         let aggregate%offset_as_uint16%8#0: bytes = 0x0036
         let aggregate%head%45#0: bytes = 0x000800100017001e00230028002f0036
         let aggregate%data_length%8#0: uint64 = 5u
         let aggregate%current_tail_offset%8#0: uint64 = 59u
-        let aggregate%as_bytes%25#0: bytes[8] = (itob 59u)
+        let aggregate%as_bytes%25#0: bytes[8] = (itob aggregate%current_tail_offset%8#0)
         let aggregate%offset_as_uint16%9#0: bytes = 0x003b
         let aggregate%head%46#0: bytes = 0x000800100017001e00230028002f0036003b
-        let aggregate%concat%2#0: bytes = 0x000800100017001e00230028002f0036003b000548656c6c6f
-        let aggregate%concat%3#0: bytes = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c64
-        let aggregate%concat%4#0: bytes = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f
-        let aggregate%concat%5#0: bytes = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172
-        let aggregate%concat%6#0: bytes = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f
-        let aggregate%concat%7#0: bytes = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c64
-        let aggregate%concat%8#0: bytes = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f
-        let dynamic_string_array#3: Encoded(len+(len+utf8[])[]) = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
-        let tmp%9#2: bool = (== dynamic_string_array#2 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172)
+        let aggregate%concat%2#0: bytes = (concat aggregate%head%46#0 0x000548656c6c6f)
+        let aggregate%concat%3#0: bytes = (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c64)
+        let aggregate%concat%4#0: bytes = (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f)
+        let aggregate%concat%5#0: bytes = (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172)
+        let aggregate%concat%6#0: bytes = (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f)
+        let aggregate%concat%7#0: bytes = (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c64)
+        let aggregate%concat%8#0: bytes = (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f)
+        let dynamic_string_array#3: Encoded(len+(len+utf8[])[]) = (concat aggregate%head%46#0 0x000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172)
+        let tmp%9#2: bool = (== dynamic_string_array#2 dynamic_string_array#3)
         (assert tmp%9#2)
-        _puya_lib.arc4.dynamic_assert_index(0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172, 3u)
-        let dynamic_string_array#4: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172, 0x000548656c6c6f, 3u)
+        _puya_lib.arc4.dynamic_assert_index(dynamic_string_array#3, 3u)
+        let dynamic_string_array#4: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#3, 0x000548656c6c6f, 3u)
         _puya_lib.arc4.dynamic_assert_index(dynamic_string_array#4, 5u)
         let dynamic_string_array#5: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#4, 0x000548656c6c6f, 5u)
         let aggregate%len_u16%12#0: bytes = 0x0008
@@ -275,33 +276,33 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%head%50#0: bytes = 0x000800100017001e0023
         let aggregate%data_length%13#0: uint64 = 7u
         let aggregate%current_tail_offset%13#0: uint64 = 42u
-        let aggregate%as_bytes%31#0: bytes[8] = (itob 42u)
+        let aggregate%as_bytes%31#0: bytes[8] = (itob aggregate%current_tail_offset%13#0)
         let aggregate%offset_as_uint16%14#0: bytes = 0x002a
         let aggregate%head%51#0: bytes = 0x000800100017001e0023002a
         let aggregate%data_length%14#0: uint64 = 7u
         let aggregate%current_tail_offset%14#0: uint64 = 49u
-        let aggregate%as_bytes%32#0: bytes[8] = (itob 49u)
+        let aggregate%as_bytes%32#0: bytes[8] = (itob aggregate%current_tail_offset%14#0)
         let aggregate%offset_as_uint16%15#0: bytes = 0x0031
         let aggregate%head%52#0: bytes = 0x000800100017001e0023002a0031
         let aggregate%data_length%15#0: uint64 = 7u
         let aggregate%current_tail_offset%15#0: uint64 = 56u
-        let aggregate%as_bytes%33#0: bytes[8] = (itob 56u)
+        let aggregate%as_bytes%33#0: bytes[8] = (itob aggregate%current_tail_offset%15#0)
         let aggregate%offset_as_uint16%16#0: bytes = 0x0038
         let aggregate%head%53#0: bytes = 0x000800100017001e0023002a00310038
         let aggregate%data_length%16#0: uint64 = 5u
         let aggregate%current_tail_offset%16#0: uint64 = 61u
-        let aggregate%as_bytes%34#0: bytes[8] = (itob 61u)
+        let aggregate%as_bytes%34#0: bytes[8] = (itob aggregate%current_tail_offset%16#0)
         let aggregate%offset_as_uint16%17#0: bytes = 0x003d
         let aggregate%head%54#0: bytes = 0x000800100017001e0023002a00310038003d
-        let aggregate%concat%10#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f
-        let aggregate%concat%11#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c64
-        let aggregate%concat%12#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f
-        let aggregate%concat%13#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f
-        let aggregate%concat%14#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f
-        let aggregate%concat%15#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f
-        let aggregate%concat%16#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f
-        let aggregate%concat%17#0: bytes = 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
-        let tmp%10#2: bool = (== dynamic_string_array#5 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172)
+        let aggregate%concat%10#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f)
+        let aggregate%concat%11#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c64)
+        let aggregate%concat%12#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f)
+        let aggregate%concat%13#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f)
+        let aggregate%concat%14#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f)
+        let aggregate%concat%15#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f)
+        let aggregate%concat%16#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f)
+        let aggregate%concat%17#0: bytes = (concat aggregate%head%54#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172)
+        let tmp%10#2: bool = (== dynamic_string_array#5 aggregate%concat%17#0)
         (assert tmp%10#2)
         let aggregate%array_length%6#0: uint64 = (extract_uint16 dynamic_string_array#5 0u) // on error: invalid array length header
         let sub%0#2: uint64 = (- aggregate%array_length%6#0 1u) // on error: cannot pop from empty array
@@ -321,36 +322,36 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%head%55#0: bytes = 0x0006000c
         let aggregate%data_length%18#0: uint64 = 7u
         let aggregate%current_tail_offset%18#0: uint64 = 19u
-        let aggregate%as_bytes%37#0: bytes[8] = (itob 19u)
+        let aggregate%as_bytes%37#0: bytes[8] = (itob aggregate%current_tail_offset%18#0)
         let aggregate%offset_as_uint16%19#0: bytes = 0x0013
         let aggregate%head%56#0: bytes = 0x0006000c0013
         let aggregate%data_length%19#0: uint64 = 7u
         let aggregate%current_tail_offset%19#0: uint64 = 26u
-        let aggregate%as_bytes%38#0: bytes[8] = (itob 26u)
+        let aggregate%as_bytes%38#0: bytes[8] = (itob aggregate%current_tail_offset%19#0)
         let aggregate%offset_as_uint16%20#0: bytes = 0x001a
         let aggregate%head%57#0: bytes = 0x0006000c0013001a
         let aggregate%data_length%20#0: uint64 = 5u
         let aggregate%current_tail_offset%20#0: uint64 = 31u
-        let aggregate%as_bytes%39#0: bytes[8] = (itob 31u)
+        let aggregate%as_bytes%39#0: bytes[8] = (itob aggregate%current_tail_offset%20#0)
         let aggregate%offset_as_uint16%21#0: bytes = 0x001f
         let aggregate%head%58#0: bytes = 0x0006000c0013001a001f
         let aggregate%data_length%21#0: uint64 = 7u
         let aggregate%current_tail_offset%21#0: uint64 = 38u
-        let aggregate%as_bytes%40#0: bytes[8] = (itob 38u)
+        let aggregate%as_bytes%40#0: bytes[8] = (itob aggregate%current_tail_offset%21#0)
         let aggregate%offset_as_uint16%22#0: bytes = 0x0026
         let aggregate%head%59#0: bytes = 0x0006000c0013001a001f0026
         let aggregate%data_length%22#0: uint64 = 7u
         let aggregate%current_tail_offset%22#0: uint64 = 45u
-        let aggregate%as_bytes%41#0: bytes[8] = (itob 45u)
+        let aggregate%as_bytes%41#0: bytes[8] = (itob aggregate%current_tail_offset%22#0)
         let aggregate%offset_as_uint16%23#0: bytes = 0x002d
         let aggregate%head%60#0: bytes = 0x0006000c0013001a001f0026002d
-        let aggregate%concat%18#0: bytes = 0x0006000c0013001a001f0026002d000548656c6c6f
-        let aggregate%concat%19#0: bytes = 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c64
-        let aggregate%concat%20#0: bytes = 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f
-        let aggregate%concat%21#0: bytes = 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f
-        let aggregate%concat%22#0: bytes = 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f
-        let aggregate%concat%23#0: bytes = 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f
-        let tmp%19#1: bool = (== dynamic_string_array#7 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f)
+        let aggregate%concat%18#0: bytes = (concat aggregate%head%60#0 0x000548656c6c6f)
+        let aggregate%concat%19#0: bytes = (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c64)
+        let aggregate%concat%20#0: bytes = (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f)
+        let aggregate%concat%21#0: bytes = (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f)
+        let aggregate%concat%22#0: bytes = (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f)
+        let aggregate%concat%23#0: bytes = (concat aggregate%head%60#0 0x000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f)
+        let tmp%19#1: bool = (== dynamic_string_array#7 aggregate%concat%23#0)
         (assert tmp%19#1)
         let aggregate%as_bytes%42#0: bytes[8] = (itob 0u)
         let array_of_array#0: Encoded(len+(len+uint8[])[]) = 0x0000
@@ -383,7 +384,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%item%3#0: bytes = _puya_lib.arc4.dynamic_array_read_byte_length_element(array_of_array#3, 0u)
         let aggregate%write_offset%0#0: uint64 = 1u
         let aggregate%write_offset_with_length_header%0#0: uint64 = 3u
-        let aggregate%updated_array%3#0: bytes = ((replace2 3) aggregate%item%3#0 0x00) // on error: index access is out of bounds
+        let aggregate%updated_array%3#0: bytes = (replace3 aggregate%item%3#0 aggregate%write_offset_with_length_header%0#0 0x00) // on error: index access is out of bounds
         _puya_lib.arc4.dynamic_assert_index(array_of_array#3, 0u)
         let array_of_array#4: Encoded(len+(len+uint8[])[]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#3, aggregate%updated_array%3#0, 0u)
         let tmp%8#3: bool = (== array_of_array#4 0x00020004000800020a00000110)
@@ -439,12 +440,12 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%head%77#0: bytes = 0x80320006
         let aggregate%data_length%24#0: uint64 = 7u
         let aggregate%current_tail_offset%24#0: uint64 = 13u
-        let aggregate%as_bytes%48#0: bytes[8] = (itob 13u)
+        let aggregate%as_bytes%48#0: bytes[8] = (itob aggregate%current_tail_offset%24#0)
         let aggregate%offset_as_uint16%25#0: bytes = 0x000d
         let aggregate%head%78#0: bytes = 0x80320006000d
-        let aggregate%concat%24#0: bytes = 0x80320006000d00054861707079
-        let test_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = 0x80320006000d00054861707079000444617973
-        let test_struct#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = 0x00320006000d00054861707079000444617973
+        let aggregate%concat%24#0: bytes = (concat aggregate%head%78#0 0x00054861707079)
+        let test_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat aggregate%head%78#0 0x00054861707079000444617973)
+        let test_struct#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (setbit test_struct#0 0u 0u)
         let test_struct#2: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = 0x000c0006000d00054861707079000444617973
         let aggregate%head%79#0: bytes = 0x00
         let aggregate%head%80#0: bytes = 0x000c
@@ -454,32 +455,30 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%current_tail_offset%26#0: uint64 = 13u
         let aggregate%offset_as_uint16%27#0: bytes = 0x000d
         let aggregate%head%82#0: bytes = 0x000c0006000d
-        let aggregate%concat%26#0: bytes = 0x000c0006000d00054861707079
-        let aggregate%concat%27#0: bytes = 0x000c0006000d00054861707079000444617973
+        let aggregate%concat%26#0: bytes = (concat aggregate%head%82#0 0x00054861707079)
+        let aggregate%concat%27#0: bytes = (concat aggregate%head%82#0 0x00054861707079000444617973)
         let tmp%9#4: bool = 1u
         let aggregate%length%6#0: uint64 = 5u
         let aggregate%length_uint16%6#0: bytes = 0x0005
         let aggregate%encoded_value%6#0: bytes = 0x0005486d6d6d6d
         let aggregate%item_offset%0#0: uint64 = 6u
-        let aggregate%data_up_to_item%0#0: bytes = 0x000c0006000d
-        let aggregate%updated_data%2#0: bytes = 0x000c0006000d0005486d6d6d6d
+        let aggregate%data_up_to_item%0#0: bytes = (extract3 test_struct#2 0u aggregate%item_offset%0#0)
+        let aggregate%updated_data%2#0: bytes = (concat aggregate%data_up_to_item%0#0 0x0005486d6d6d6d)
         let aggregate%next_item_offset%0#0: uint64 = 13u
         let aggregate%total_length%1#0: uint64 = 19u
-        let aggregate%data_beyond_item%0#0: bytes = 0x000444617973
-        let aggregate%updated_data%3#0: bytes = 0x000c0006000d0005486d6d6d6d000444617973
+        let aggregate%data_beyond_item%0#0: bytes = (substring3 test_struct#2 aggregate%next_item_offset%0#0 aggregate%total_length%1#0)
+        let test_struct#3: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat aggregate%updated_data%2#0 aggregate%data_beyond_item%0#0)
         let aggregate%old_value_length%0#0: uint64 = 7u
         let aggregate%new_value_length%0#0: uint64 = 7u
         let aggregate%tail_offset%0#0: uint64 = 13u
         let aggregate%tail_offset%1#0: uint64 = 20u
         let aggregate%tail_offset%2#0: uint64 = 13u
         let aggregate%tail_offset_bytes%0#0: bytes = 0x000d
-        let test_struct#3: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = 0x000c0006000d0005486d6d6d6d000444617973
         let aggregate%length%7#0: uint64 = 7u
         let aggregate%length_uint16%7#0: bytes = 0x0007
         let aggregate%encoded_value%7#0: bytes = 0x00074f682077656c6c
         let aggregate%item_offset%1#0: uint64 = 13u
-        let aggregate%data_up_to_item%1#0: bytes = 0x000c0006000d0005486d6d6d6d
-        let test_struct#4: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = 0x000c0006000d0005486d6d6d6d00074f682077656c6c
+        let test_struct#4: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat aggregate%updated_data%2#0 0x00074f682077656c6c)
         let aggregate%head%83#0: bytes = 0x00
         let aggregate%head%84#0: bytes = 0x000c
         let aggregate%offset_as_uint16%28#0: bytes = 0x0006
@@ -488,8 +487,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let aggregate%current_tail_offset%28#0: uint64 = 13u
         let aggregate%offset_as_uint16%29#0: bytes = 0x000d
         let aggregate%head%86#0: bytes = 0x000c0006000d
-        let aggregate%concat%28#0: bytes = 0x000c0006000d0005486d6d6d6d
-        let aggregate%concat%29#0: bytes = 0x000c0006000d0005486d6d6d6d00074f682077656c6c
         let tmp%16#2: bool = 1u
         let aggregate%head%87#0: bytes = 0x03
         let new_items_bytes#4: bytes = 0x0304
@@ -508,7 +505,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array_length#6: uint64 = 4u
         let new_array_length#5: uint64 = 5u
         let new_len_u16#5: bytes = 0x0005
-        let result#6: bytes = 0x000501020304
+        let result#6: bytes = ((replace2 0) array_concat_tuple#0 new_len_u16#5)
         let array_concat_tuple#1: Encoded(len+uint8[]) = 0x00050102030405
         let aggregate%len_u16%18#0: bytes = 0x0005
         let aggregate%head%94#0: bytes = 0x000501
@@ -530,8 +527,8 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let start_of_tail%0#1: uint64 = 2u
         let total_length%1#1: uint64 = 9u
         let data%0#1: bytes = 0x0005576f726c64
-        let hello_world_concat#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x00010002000548656c6c6f, 0x0005576f726c64, 1u)
-        let tmp%12#4: bool = (== 0x00020004000b000548656c6c6f0005576f726c64 hello_world_concat#0)
+        let hello_world_concat#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x00010002000548656c6c6f, data%0#1, 1u)
+        let tmp%12#4: bool = (== dynamic_string_array#0 hello_world_concat#0)
         (assert tmp%12#4)
         return 1u
 

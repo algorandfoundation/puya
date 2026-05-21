@@ -621,11 +621,11 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_arr_struct[r
         let aggregate%current_tail_offset%0#0: uint64 = 22u
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%1#0)
-        let aggregate%as_bytes%2#0: bytes[8] = (itob 22u)
+        let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x0016
-        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 0x0016)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 0x00160000)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%2#0 0x001600000000)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%1#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 0x0000)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%3#0 0x00000000)
         (box_del "dynamic_arr_struct")
         (box_put "dynamic_arr_struct" aggregate%concat%1#0)
         exit 1u
@@ -799,6 +799,7 @@ subroutine examples.box_storage.contract.BoxContract.set_nested_struct[routing](
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob 4098u)
         let aggregate%bitlen%0#0: uint64 = 13u
         let aggregate%no_overflow%0#0: bool = 1u
+        (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint16%0#0: bytes = 0x1002
         (box_replace "box" 4096u 0x1002)
         (box_replace "box" 4098u struct_bytes#0)
@@ -1185,7 +1186,7 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_box[routing]() 
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L320
         let box%element_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
-        let box%offset%0#0: uint64 = (+ 2u box%element_offset%0#0)
+        let box%offset%0#0: uint64 = (+ box%element_offset%0#0 2u)
         let box%box_extract%1#0: Encoded(uint64) = (box_extract "dynamic_box" box%offset%0#0 8u) // on error: index out of bounds
         let val#0: uint64 = (btoi box%box_extract%1#0)
         let total#2: uint64 = (+ total#1 val#0)
@@ -1209,7 +1210,7 @@ subroutine examples.box_storage.contract.BoxContract.write_dynamic_box[routing](
         let eq%1#0: bool = (== len%1#0 8u)
         (assert eq%1#0) // invalid number of bytes for arc4.uint64
         let box%element_offset%0#0: uint64 = (* index#0 8u)
-        let box%offset%0#0: uint64 = (+ 2u box%element_offset%0#0)
+        let box%offset%0#0: uint64 = (+ box%element_offset%0#0 2u)
         (box_replace "dynamic_box" box%offset%0#0 tmp%2#0) // on error: index out of bounds
         exit 1u
 
@@ -1272,22 +1273,22 @@ subroutine examples.box_storage.contract.BoxContract.arc4_box[routing]() -> void
         (box_put 0x64 0x00010203)
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (0x00010203, 1u)
         let aggregate%bytes_offset%0#0: uint64 = 0u
-        let aggregate%encoded_element%0#0: bytes = ((extract 0 1) aggregate%box_get%0#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%box_get%0#0 aggregate%bytes_offset%0#0 1u) // on error: index access is out of bounds
         let tmp%0#0: bool = (b== aggregate%encoded_element%0#0 0x00)
         (assert tmp%0#0)
         let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (0x00010203, 1u)
         let aggregate%bytes_offset%1#0: uint64 = 1u
-        let aggregate%encoded_element%1#0: bytes = ((extract 1 1) aggregate%box_get%2#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%box_get%2#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
         let tmp%1#0: bool = (b== aggregate%encoded_element%1#0 0x01)
         (assert tmp%1#0)
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (0x00010203, 1u)
         let aggregate%bytes_offset%2#0: uint64 = 2u
-        let aggregate%encoded_element%2#0: bytes = ((extract 2 1) aggregate%box_get%4#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%box_get%4#0 aggregate%bytes_offset%2#0 1u) // on error: index access is out of bounds
         let tmp%2#0: bool = (b== aggregate%encoded_element%2#0 0x02)
         (assert tmp%2#0)
         let (aggregate%box_get%6#0: bytes, aggregate%box_get%7#0: bool) = (0x00010203, 1u)
         let aggregate%bytes_offset%3#0: uint64 = 3u
-        let aggregate%encoded_element%3#0: bytes = ((extract 3 1) aggregate%box_get%6#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%3#0: bytes = (extract3 aggregate%box_get%6#0 aggregate%bytes_offset%3#0 1u) // on error: index access is out of bounds
         let tmp%3#0: bool = (b== aggregate%encoded_element%3#0 0x03)
         (assert tmp%3#0)
         exit 1u
