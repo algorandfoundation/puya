@@ -102,7 +102,7 @@ def test_cast() -> None:
     tree = result.graph[TEST_MODULE].tree
     assert tree
     var = get_assignment_var_named(tree, "wrong")
-    assert str(var.type) == "builtins.int"
+    assert str(var.type) == "int"
 
 
 def test_implicit_cast() -> None:
@@ -115,7 +115,7 @@ def test_implicit_cast() -> None:
     tree = result.graph[TEST_MODULE].tree
     assert tree
     var = get_assignment_var_named(tree, "wrong_implicit")
-    assert str(var.type) == "builtins.int"
+    assert str(var.type) == "int"
 
 
 @pytest.mark.xfail(reason="The observed behaviour here changed after updating mypy to 1.5.0")
@@ -130,7 +130,7 @@ def test_assert_isinstance_does_not_cast() -> None:
     tree = result.graph[TEST_MODULE].tree
     assert tree
     var = get_assignment_var_named(tree, "another_int")
-    assert str(var.type) == "builtins.int"
+    assert str(var.type) == "int"
 
 
 def test_assert_isinstance_does_narrow() -> None:
@@ -146,7 +146,7 @@ def test_assert_isinstance_does_narrow() -> None:
     tree = result.graph[TEST_MODULE].tree
     assert tree
     var = get_assignment_var_named(tree, "another_int")
-    assert str(var.type) == "builtins.str"
+    assert str(var.type) == "str"
 
 
 def test_name_defined():
@@ -723,7 +723,7 @@ def test_if_else_expr_combined_type() -> None:
     assert strip_error_prefixes(result) == [
         'note: Revealed type is "__test__.Base"',
         "note: Revealed type is \"Literal['str']? | Literal[1]?\"",
-        'note: Revealed type is "builtins.str | builtins.int"',
+        'note: Revealed type is "str | int"',
         'error: Incompatible types in assignment (expression has type "str | int",'
         ' variable has type "str")  [assignment]',
     ]
@@ -732,7 +732,7 @@ def test_if_else_expr_combined_type() -> None:
     assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
         "Literal['str']? | Literal[1]?",
-        "builtins.str | builtins.int",
+        "str | int",
     ]
 
 
@@ -764,7 +764,7 @@ def test_or_expr_combined_type() -> None:
         'note: Revealed type is "__test__.Base"',
         'note: Revealed type is "__test__.Base"',
         'note: Revealed type is "Literal[True] | __test__.Base"',
-        'note: Revealed type is "__test__.Base | builtins.int"',
+        'note: Revealed type is "__test__.Base | int"',
         'error: Incompatible types in assignment (expression has type "Base",'
         ' variable has type "Derived")  [assignment]',
     ]
@@ -774,7 +774,7 @@ def test_or_expr_combined_type() -> None:
         "__test__.Base",
         "__test__.Base",
         "Literal[True] | __test__.Base",
-        "__test__.Base | builtins.int",
+        "__test__.Base | int",
     ]
 
 
@@ -1027,6 +1027,6 @@ def test_match_case_reachability() -> None:
     tree = result.graph[TEST_MODULE].tree
     assert list(map(str, get_revealed_types(result, tree))) == [
         "None",
-        "builtins.str",
-        "Union[builtins.str, None]",
+        "str",
+        "Union[str, None]",
     ]

@@ -364,7 +364,7 @@ def _mypy_build(
     )
 
     reset_global_state()
-    graph = dispatch(sources, manager, sys.stdout)
+    graph = dispatch(sources, manager, sys.stdout, connect_threads=[])
     _log_mypy_messages(all_messages)
     if not options.fine_grained_incremental:
         type_state.reset_all_subtype_caches()
