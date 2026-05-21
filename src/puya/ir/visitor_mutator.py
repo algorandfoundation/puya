@@ -2,9 +2,12 @@ import typing
 
 import attrs
 
+from puya import log
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.visitor import IRVisitor
+
+logger = log.get_logger(__name__)
 
 
 @attrs.define(kw_only=True)
@@ -233,10 +236,19 @@ class IRMutator(IRVisitor[typing.Any]):
         if replacement := switch.value.accept(self):
             switch.value = replacement
 
-        cases = switch.cases
-        for value in list(cases):
-            if replacement := value.accept(self):
-                cases[replacement] = cases.pop(value)
+        # Rebuilding the dict so as to preserve order.
+        # On key collision, the textually earliest should win.
+        new_cases = dict[ir.Value, ir.BasicBlock]()
+        for value, block in switch.cases.items():
+            maybe_replaced = value.accept(self) or value
+            if maybe_replaced in new_cases:
+                logger.debug(
+                    "switch case became unreachable after key replacement",
+                    location=block.source_location,
+                )
+            else:
+                new_cases[maybe_replaced] = block
+        switch.cases = new_cases
         return None
 
     @typing.override
