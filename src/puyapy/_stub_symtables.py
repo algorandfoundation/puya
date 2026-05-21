@@ -516,6 +516,7 @@ STUB_DEPENDENCIES: typing.Final[Mapping[str, Sequence[str]]] = {
         "algopy._native",
         "algopy._primitives",
         "algopy._reference",
+        "algopy._transaction",
         "algopy._unsigned_builtins",
         "algopy.itxn",
     ],
@@ -523,6 +524,7 @@ STUB_DEPENDENCIES: typing.Final[Mapping[str, Sequence[str]]] = {
     "algopy.itxn": [
         "algopy",
         "algopy._constants",
+        "algopy._interfaces",
         "algopy._primitives",
         "algopy._reference",
         "algopy._transaction",

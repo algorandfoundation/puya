@@ -192,7 +192,7 @@ class LiteralBuilderImpl(LiteralBuilder):
         end = _constant_slice_arg(end_index)
         stride_ = _constant_slice_arg(stride)
         try:
-            folded = self.value[begin:end:stride_]  # type: ignore[index,misc]
+            folded = self.value[begin:end:stride_]  # type: ignore[index]
         except Exception as ex:
             raise CodeError(str(ex), location) from ex
         return LiteralBuilderImpl(value=folded, source_location=location)
