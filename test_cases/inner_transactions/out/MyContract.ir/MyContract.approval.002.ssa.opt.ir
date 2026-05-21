@@ -355,16 +355,15 @@ main test_cases.inner_transactions.contract.MyContract.approval_program:
         (assert tmp%4#0) // approval_pages == 2
         let tmp%5#0: bytes = (itxna ApprovalProgramPages 0)
         let tmp%6#0: bytes = (concat 0x098101 approval_2#0)
-        let length%0#0: uint64 = (len approval_2#0)
-        let is_out_of_bounds%0#0: bool = (>= 3u length%0#0)
-        let bounded_offset%0#0: uint64 = (select 3u length%0#0 is_out_of_bounds%0#0)
-        let bounded_index%0#0: uint64 = (- length%0#0 bounded_offset%0#0)
-        let tmp%7#0: bytes = (substring3 approval_2#0 0u bounded_index%0#0)
+        let is_out_of_bounds%0#0: bool = 0u
+        let bounded_offset%0#0: uint64 = 3u
+        let bounded_index%0#0: uint64 = 2045u
+        let tmp%7#0: bytes = (substring3 approval_2#0 0u 2045u)
         let tmp%8#0: bytes = (concat tmp%6#0 tmp%7#0)
         let tmp%9#0: bool = (== tmp%5#0 tmp%8#0)
         (assert tmp%9#0) // expected approval page 0
         let tmp%10#0: bytes = (itxna ApprovalProgramPages 1)
-        let tmp%11#0: bytes = (substring3 approval_2#0 bounded_index%0#0 length%0#0)
+        let tmp%11#0: bytes = (substring3 approval_2#0 2045u 2048u)
         let tmp%12#0: bytes = (concat tmp%11#0 approval_2#0)
         let tmp%13#0: bool = (== tmp%10#0 tmp%12#0)
         (assert tmp%13#0) // expected approval page 1
