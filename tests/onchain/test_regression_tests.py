@@ -22,6 +22,10 @@ def test_box_read_box_len_existence_check(deployer_o: Deployer) -> None:
         )
 
 
+def test_switch_case_key_collision(deployer_o: Deployer) -> None:
+    deployer_o.create_bare(TEST_CASES_DIR / "regression_tests" / "switch_case_key_collision.py")
+
+
 def test_div_identity_fold_uint64(deployer_o: Deployer) -> None:
     # self_div(UInt64(0)) does `0 // 0` which should panic on the AVM.
     # Without the fix, the optimizer folds `x // x` to `1` and the panic is lost.
