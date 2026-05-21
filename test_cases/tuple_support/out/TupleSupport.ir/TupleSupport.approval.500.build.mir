@@ -30,92 +30,40 @@ subroutine main:
         v-store tmp%2#0
         v-load tmp%2#0                                                                tmp%2#0
         log
-        // tuple_support/tuple_support.py:11
-        // (a, b) = (UInt64(1), UInt64(2))
-        int 1                                                                         1
-        int 2                                                                         1,2
         // tuple_support/tuple_support.py:12
         // (did_overflow, self.state) = op.addw(a, b)
-        addw                                                                          did_overflow#0,result.1#0
-        v-store result.1#0                                                            did_overflow#0
-        v-store did_overflow#0
         byte "state"                                                                  "state"
-        v-load result.1#0                                                             "state",result.1#0
+        int 3                                                                         "state",3
         app_global_put
-        // tuple_support/tuple_support.py:13
-        // assert not did_overflow, "overflow!"
-        v-load did_overflow#0                                                         did_overflow#0
-        !                                                                             tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                tmp%5#0
-        assert // overflow!
         // tuple_support/tuple_support.py:125
         // result = a + b
         byte 0x48656c6c6f2c20776f726c6421                                             0x48656c6c6f2c20776f726c6421
         // tuple_support/tuple_support.py:34
         // log(bytes_combine((Bytes(b"Hello, "), Bytes(b"world!"))))
         log
-        // tuple_support/tuple_support.py:35
-        // max_uint64 = UInt64(2**64 - 1)
-        int 18446744073709551615                                                      18446744073709551615
-        int 18446744073709551615                                                      18446744073709551615,18446744073709551615
-        // tuple_support/tuple_support.py:36
-        // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
-        addw                                                                          a.0#0,a.1#0
-        v-store a.1#0                                                                 a.0#0
-        v-store a.0#0
-        // tuple_support/tuple_support.py:151
-        // lo_carry, c_lo = op.addw(a_lo, b_lo)
-        v-load a.1#0                                                                  a.1#0
-        v-load result.1#0                                                             a.1#0,result.1#0
-        addw                                                                          lo_carry#0,c_lo#0
-        v-store c_lo#0                                                                lo_carry#0
-        v-store lo_carry#0
-        // tuple_support/tuple_support.py:152
-        // hi_carry1, c_mid = op.addw(a_hi, b_hi)
-        v-load a.0#0                                                                  a.0#0
-        v-load did_overflow#0                                                         a.0#0,did_overflow#0
-        addw                                                                          hi_carry1#0,c_mid#0
-        v-store c_mid#0                                                               hi_carry1#0
-        v-store hi_carry1#0
-        // tuple_support/tuple_support.py:153
-        // hi_carry2, c_mid = op.addw(c_mid, lo_carry)
-        v-load c_mid#0                                                                c_mid#0
-        v-load lo_carry#0                                                             c_mid#0,lo_carry#0
-        addw                                                                          hi_carry2#0,c_mid#0
-        v-store c_mid#0                                                               hi_carry2#0
-        v-store hi_carry2#0
         // tuple_support/tuple_support.py:154
         // did_overflow, c_hi = op.addw(hi_carry1, hi_carry2)
-        v-load hi_carry1#0                                                            hi_carry1#0
-        v-load hi_carry2#0                                                            hi_carry1#0,hi_carry2#0
-        addw                                                                          did_overflow#0,c_hi#0
-        v-store c_hi#0                                                                did_overflow#0
-        v-store did_overflow#0
-        // tuple_support/tuple_support.py:155
-        // assert not did_overflow, "is such a thing even possible? 👽"
-        v-load did_overflow#0                                                         did_overflow#0
-        !                                                                             tmp%8#1
-        v-store tmp%8#1
-        v-load tmp%8#1                                                                tmp%8#1
-        assert // is such a thing even possible? 👽
+        int 0                                                                         0
         // tuple_support/tuple_support.py:37
         // log(hi)
-        v-load c_hi#0                                                                 c_hi#0
         itob                                                                          tmp%29#0
         v-store tmp%29#0
         v-load tmp%29#0                                                               tmp%29#0
         log
+        // tuple_support/tuple_support.py:153
+        // hi_carry2, c_mid = op.addw(c_mid, lo_carry)
+        int 2                                                                         2
         // tuple_support/tuple_support.py:38
         // log(mid)
-        v-load c_mid#0                                                                c_mid#0
         itob                                                                          tmp%30#0
         v-store tmp%30#0
         v-load tmp%30#0                                                               tmp%30#0
         log
+        // tuple_support/tuple_support.py:151
+        // lo_carry, c_lo = op.addw(a_lo, b_lo)
+        int 1                                                                         1
         // tuple_support/tuple_support.py:39
         // log(lo)
-        v-load c_lo#0                                                                 c_lo#0
         itob                                                                          tmp%31#0
         v-store tmp%31#0
         v-load tmp%31#0                                                               tmp%31#0

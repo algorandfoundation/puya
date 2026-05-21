@@ -1,3 +1,65 @@
+contract WideMathConstFoldContract
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.gvn.wide_math_const_fold.WideMathConstFoldContract.approval_program(): bool
+  {
+    test_cases.gvn.wide_math_const_fold.test_addw()
+    test_cases.gvn.wide_math_const_fold.test_mulw()
+    test_cases.gvn.wide_math_const_fold.test_expw()
+    test_cases.gvn.wide_math_const_fold.test_divw()
+    test_cases.gvn.wide_math_const_fold.test_divmodw()
+    return true
+  }
+  
+  subroutine test_cases.gvn.wide_math_const_fold.WideMathConstFoldContract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine test_addw(): void
+{
+  (carry, lo): tuple<uint64,uint64> = addw(9223372036854775808u, 9223372036854775808u)
+  assert(carry == 1u)
+  assert(lo == 0u)
+}
+
+subroutine test_mulw(): void
+{
+  (hi, lo): tuple<uint64,uint64> = mulw(4294967296u, 4294967296u)
+  assert(hi == 1u)
+  assert(lo == 0u)
+}
+
+subroutine test_expw(): void
+{
+  (hi, lo): tuple<uint64,uint64> = expw(2u, 80u)
+  assert(hi == 65536u)
+  assert(lo == 0u)
+}
+
+subroutine test_divw(): void
+{
+  q: uint64 = divw(1u, 0u, 2u)
+  assert(q == 9223372036854775808u)
+}
+
+subroutine test_divmodw(): void
+{
+  (qh, ql, rh, rl): tuple<uint64,uint64,uint64,uint64> = divmodw(1u, 2u, 0u, 3u)
+  assert(qh == 0u)
+  assert(ql == 6148914691236517206u)
+  assert(rh == 0u)
+  assert(rl == 0u)
+}
+
 contract SetByteConstFoldContract
 {
   method_resolution_order: (
