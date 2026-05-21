@@ -178,6 +178,53 @@ contract TealSwitchInlining
   }
 }
 
+contract SwitchCaseKeyCollision
+{
+  method_resolution_order: (
+    algopy._contract.Contract,
+  )
+  globals {
+    ['glob']: uint64
+  }
+  
+  subroutine test_cases.regression_tests.switch_case_key_collision.SwitchCaseKeyCollision.approval_program(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    x: uint64 = txn<NumAppArgs>() + 5u
+    GlobalState['glob']: uint64 = 5u
+    switch (x) {
+      case 5u: {
+        match_case_L16:
+        val: uint64 = 1u
+      }
+      case GlobalState['glob']: {
+        match_case_L18:
+        val: uint64 = 2u
+      }
+      case _: {
+        val: uint64 = 3u
+      }
+    }
+    assert(val == 1u, comment="case 5 must win")
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.switch_case_key_collision.SwitchCaseKeyCollision.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.switch_case_key_collision.SwitchCaseKeyCollision.__init__(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract SlotAllocationInlining
 {
   method_resolution_order: (

@@ -1,0 +1,51 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.regression_tests.switch_case_key_collision.SwitchCaseKeyCollision.approval_program() -> uint64:
+main:
+    intcblock 5 1
+    // regression_tests/switch_case_key_collision.py:9
+    // x = op.Txn.num_app_args + UInt64(5)
+    txn NumAppArgs
+    intc_0 // 5
+    +
+    // regression_tests/switch_case_key_collision.py:11-13
+    // # here when x=5, per python semantics we should go into
+    // # the first branch regardless of the value of `glob`
+    // self.glob.value = UInt64(5)
+    pushbytes "glob"
+    intc_0 // 5
+    app_global_put
+    // regression_tests/switch_case_key_collision.py:15
+    // case 5:
+    intc_0 // 5
+    // regression_tests/switch_case_key_collision.py:14-20
+    // match x:
+    //     case 5:
+    //         val = UInt64(1)
+    //     case self.glob.value:
+    //         val = UInt64(2)
+    //     case _:
+    //         val = UInt64(3)
+    swap
+    match main_switch_case_0@3
+    // regression_tests/switch_case_key_collision.py:20
+    // val = UInt64(3)
+    pushint 3
+
+main_switch_case_next@6:
+    // regression_tests/switch_case_key_collision.py:21
+    // assert val == 1, "case 5 must win"
+    intc_1 // 1
+    ==
+    assert // case 5 must win
+    // regression_tests/switch_case_key_collision.py:23
+    // return True
+    intc_1 // 1
+    return
+
+main_switch_case_0@3:
+    // regression_tests/switch_case_key_collision.py:16
+    // val = UInt64(1)
+    intc_1 // 1
+    b main_switch_case_next@6
