@@ -201,22 +201,16 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         (app_global_put "end_time" end_time#0)
         (app_global_put "quorum" quorum#0)
         (app_global_put "nft_image_url" nft_image_url#0)
-        let aggregate%array_length%5#0: uint64 = (extract_uint16 option_counts#0 0u) // on error: invalid array length header
-        let tmp%0#2: uint64 = aggregate%array_length%5#0
-        (assert tmp%0#2) // option_counts should be non-empty
-        let aggregate%array_length%6#0: uint64 = (extract_uint16 option_counts#0 0u) // on error: invalid array length header
-        let tmp%2#2: uint64 = aggregate%array_length%6#0
-        let tmp%3#0: bool = (<= tmp%2#2 112u)
+        (assert length%3#0) // option_counts should be non-empty
+        let tmp%3#0: bool = (<= length%3#0 112u)
         (assert tmp%3#0) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
-        let aggregate%array_length%7#0: uint64 = (extract_uint16 option_counts#0 0u) // on error: invalid array length header
-        let array_length%0#0: uint64 = aggregate%array_length%7#0
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L223
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
         let total_options#1: uint64 = φ(total_options#0 <- block@0, total_options#2 <- block@3)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 length%3#0)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L224
         let aggregate%total_length%0#0: uint64 = (len option_counts#0)
@@ -450,13 +444,9 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         (assert maybe_exists%0#0) // check self.option_counts exists
         let aggregate%array_length%2#0: uint64 = (extract_uint16 maybe_value%0#0 0u) // on error: invalid array length header
         let questions_count#0: uint64 = aggregate%array_length%2#0
-        let aggregate%array_length%3#0: uint64 = (extract_uint16 answer_ids#0 0u) // on error: invalid array length header
-        let tmp%5#0: uint64 = aggregate%array_length%3#0
-        let tmp%6#0: bool = (== tmp%5#0 questions_count#0)
+        let tmp%6#0: bool = (== length%1#0 questions_count#0)
         (assert tmp%6#0) // Number of answers incorrect
-        let aggregate%array_length%4#0: uint64 = (extract_uint16 answer_ids#0 0u) // on error: invalid array length header
-        let tmp%7#0: uint64 = aggregate%array_length%4#0
-        let tmp%9#0: uint64 = (+ 34u tmp%7#0)
+        let tmp%9#0: uint64 = (+ 34u length%1#0)
         let tmp%10#0: uint64 = (* tmp%9#0 400u)
         let min_bal_req#0: uint64 = (+ 2500u tmp%10#0)
         let tmp%12#0: account = ((gtxns Receiver) fund_min_bal_req#0)

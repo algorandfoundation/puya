@@ -239,38 +239,38 @@ subroutine pop:
         int 2                                                            "box",0,2
         box_extract                                                      arr_len_bytes#0
         l-load arr_len_bytes#0 0                                         arr_len_bytes#0
-        btoi                                                             arr_len#0
-        l-load arr_len#0 0                                               arr_len#0
-        int 1                                                            arr_len#0,1
-        - // on error: cannot pop from empty array                       new_arr_len#0
-        l-load-copy new_arr_len#0 0                                      new_arr_len#0,new_arr_len#0 (copy)
-        int 8                                                            new_arr_len#0,new_arr_len#0 (copy),8
-        *                                                                new_arr_len#0,box%element_offset%0#0
-        int 2                                                            new_arr_len#0,box%element_offset%0#0,2
-        l-load box%element_offset%0#0 1                                  new_arr_len#0,2,box%element_offset%0#0
-        +                                                                new_arr_len#0,popped_item_offset#0
-        byte "box"                                                       new_arr_len#0,popped_item_offset#0,"box"
-        l-load-copy popped_item_offset#0 1                               new_arr_len#0,popped_item_offset#0,"box",popped_item_offset#0 (copy)
-        int 8                                                            new_arr_len#0,popped_item_offset#0,"box",popped_item_offset#0 (copy),8
-        box_extract // on error: index out of bounds                     new_arr_len#0,popped_item_offset#0,box%box_extract%1#0
-        l-load new_arr_len#0 2                                           popped_item_offset#0,box%box_extract%1#0,new_arr_len#0
-        itob                                                             popped_item_offset#0,box%box_extract%1#0,value_bytes#0
-        l-load value_bytes#0 0                                           popped_item_offset#0,box%box_extract%1#0,value_bytes#0
-        extract 6 2                                                      popped_item_offset#0,box%box_extract%1#0,new_arr_len_u16#0
+        btoi                                                             box%btoi%0#0
+        l-load box%btoi%0#0 0                                            box%btoi%0#0
+        int 1                                                            box%btoi%0#0,1
+        - // on error: cannot pop from empty array                       sub%0#0
+        l-load-copy sub%0#0 0                                            sub%0#0,sub%0#0 (copy)
+        int 8                                                            sub%0#0,sub%0#0 (copy),8
+        *                                                                sub%0#0,box%element_offset%0#0
+        int 2                                                            sub%0#0,box%element_offset%0#0,2
+        l-load box%element_offset%0#0 1                                  sub%0#0,2,box%element_offset%0#0
+        +                                                                sub%0#0,box%offset%0#0
+        byte "box"                                                       sub%0#0,box%offset%0#0,"box"
+        l-load-copy box%offset%0#0 1                                     sub%0#0,box%offset%0#0,"box",box%offset%0#0 (copy)
+        int 8                                                            sub%0#0,box%offset%0#0,"box",box%offset%0#0 (copy),8
+        box_extract // on error: index out of bounds                     sub%0#0,box%offset%0#0,box%box_extract%1#0
+        l-load sub%0#0 2                                                 box%offset%0#0,box%box_extract%1#0,sub%0#0
+        itob                                                             box%offset%0#0,box%box_extract%1#0,value_bytes#0
+        l-load value_bytes#0 0                                           box%offset%0#0,box%box_extract%1#0,value_bytes#0
+        extract 6 2                                                      box%offset%0#0,box%box_extract%1#0,new_arr_len_u16#0
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()
-        byte "box"                                                       popped_item_offset#0,box%box_extract%1#0,new_arr_len_u16#0,"box"
-        int 0                                                            popped_item_offset#0,box%box_extract%1#0,new_arr_len_u16#0,"box",0
-        l-load new_arr_len_u16#0 2                                       popped_item_offset#0,box%box_extract%1#0,"box",0,new_arr_len_u16#0
-        box_replace                                                      popped_item_offset#0,box%box_extract%1#0
+        byte "box"                                                       box%offset%0#0,box%box_extract%1#0,new_arr_len_u16#0,"box"
+        int 0                                                            box%offset%0#0,box%box_extract%1#0,new_arr_len_u16#0,"box",0
+        l-load new_arr_len_u16#0 2                                       box%offset%0#0,box%box_extract%1#0,"box",0,new_arr_len_u16#0
+        box_replace                                                      box%offset%0#0,box%box_extract%1#0
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()
-        byte "box"                                                       popped_item_offset#0,box%box_extract%1#0,"box"
-        l-load popped_item_offset#0 2                                    box%box_extract%1#0,"box",popped_item_offset#0
+        byte "box"                                                       box%offset%0#0,box%box_extract%1#0,"box"
+        l-load box%offset%0#0 2                                          box%box_extract%1#0,"box",box%offset%0#0
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()
-        int 8                                                            box%box_extract%1#0,"box",popped_item_offset#0,8
-        byte 0x                                                          box%box_extract%1#0,"box",popped_item_offset#0,8,0x
+        int 8                                                            box%box_extract%1#0,"box",box%offset%0#0,8
+        byte 0x                                                          box%box_extract%1#0,"box",box%offset%0#0,8,0x
         box_splice                                                       box%box_extract%1#0
         // large_box_operations/array_uint64.py:28
         // return self.box.value.pop()

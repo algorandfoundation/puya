@@ -552,11 +552,11 @@ subroutine dynamic_array_concat_byte_length_head:
         v-store tmp%1#1                                                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load new_length#0                                                                 (𝕡) array#0,new_items_bytes#0,new_items_count#0 | new_length#0
         int 2                                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 | new_length#0,2
-        *                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tail_offset#0
-        v-store tail_offset#0                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
+        *                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tmp%0#2
+        v-store tmp%0#2                                                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         int 0                                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 | 0
         v-store tmp%1#0                                                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
-        v-load tail_offset#0                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tail_offset#0
+        v-load tmp%0#2                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tmp%0#2
         v-store tail_offset#1                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load tmp%1#0                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0 | tmp%1#0
         v-store head_offset#0                                                               (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
@@ -564,7 +564,7 @@ subroutine dynamic_array_concat_byte_length_head:
 
     dynamic_array_concat_byte_length_head_for_header@2:                                     (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load head_offset#0                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 | head_offset#0
-        v-load tail_offset#0                                                                (𝕡) array#0,new_items_bytes#0,new_items_count#0 | head_offset#0,tail_offset#0
+        v-load tmp%0#2                                                                      (𝕡) array#0,new_items_bytes#0,new_items_count#0 | head_offset#0,tmp%0#2
         <                                                                                   (𝕡) array#0,new_items_bytes#0,new_items_count#0 | continue_looping%0#0
         v-store continue_looping%0#0                                                        (𝕡) array#0,new_items_bytes#0,new_items_count#0 |
         v-load continue_looping%0#0                                                         (𝕡) array#0,new_items_bytes#0,new_items_count#0 | continue_looping%0#0
@@ -897,8 +897,8 @@ subroutine add_x:
         // array/immutable.py:499
         // arr = arr.append(i)
         v-load i#0                                                                          (𝕡) arr#0,x#0 | i#0
-        itob                                                                                (𝕡) arr#0,x#0 | new_items_bytes#0
-        v-store new_items_bytes#0                                                           (𝕡) arr#0,x#0 |
+        itob                                                                                (𝕡) arr#0,x#0 | aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0                                                  (𝕡) arr#0,x#0 |
         p-load arr#0                                                                        (𝕡) arr#0,x#0 | arr#0 (copy)
         int 0                                                                               (𝕡) arr#0,x#0 | arr#0 (copy),0
         extract_uint16                                                                      (𝕡) arr#0,x#0 | array_length#0
@@ -920,7 +920,7 @@ subroutine add_x:
         replace2 0                                                                          (𝕡) arr#0,x#0 | result#0
         v-store result#0                                                                    (𝕡) arr#0,x#0 |
         v-load result#0                                                                     (𝕡) arr#0,x#0 | result#0
-        v-load new_items_bytes#0                                                            (𝕡) arr#0,x#0 | result#0,new_items_bytes#0
+        v-load aggregate%val_as_bytes%0#0                                                   (𝕡) arr#0,x#0 | result#0,aggregate%val_as_bytes%0#0
         concat                                                                              (𝕡) arr#0,x#0 | arr#0
         p-store arr#0                                                                       (𝕡) arr#0,x#0 |
         // array/immutable.py:498
@@ -953,18 +953,18 @@ subroutine test_uint64_array:
         // assert arr.length == 6
         v-load arr#2                                                                        arr#2
         int 0                                                                               arr#2,0
-        extract_uint16 // on error: invalid array length header                             array_length#0
-        v-store array_length#0
-        v-load array_length#0                                                               array_length#0
-        int 6                                                                               array_length#0,6
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
+        int 6                                                                               aggregate%array_length%2#0,6
         ==                                                                                  tmp%12#0
         v-store tmp%12#0
         v-load tmp%12#0                                                                     tmp%12#0
         assert
         // array/immutable.py:105
         // assert arr[-1] == 4
-        v-load array_length#0                                                               array_length#0
-        int 1                                                                               array_length#0,1
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
+        int 1                                                                               aggregate%array_length%2#0,1
         -                                                                                   tmp%14#0
         v-store tmp%14#0
         v-load arr#2                                                                        arr#2
@@ -987,12 +987,12 @@ subroutine test_uint64_array:
         // array/immutable.py:107
         // arr = arr.append(UInt64(43))
         int 43                                                                              43
-        itob                                                                                new_items_bytes#0
-        v-store new_items_bytes#0
-        v-load array_length#0                                                               array_length#0
+        itob                                                                                aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
         // array/immutable.py:107
         // arr = arr.append(UInt64(43))
-        int 1                                                                               array_length#0,1
+        int 1                                                                               aggregate%array_length%2#0,1
         +                                                                                   new_array_length#0
         v-store new_array_length#0
         v-load new_array_length#0                                                           new_array_length#0
@@ -1006,25 +1006,25 @@ subroutine test_uint64_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%val_as_bytes%1#0                                                   result#0,aggregate%val_as_bytes%1#0
         concat                                                                              arr#2
         v-store arr#2
         // array/immutable.py:108
         // assert arr.length == 7
         v-load arr#2                                                                        arr#2
         int 0                                                                               arr#2,0
-        extract_uint16 // on error: invalid array length header                             aggregate%array_length%5#0
-        v-store aggregate%array_length%5#0
-        v-load aggregate%array_length%5#0                                                   aggregate%array_length%5#0
-        int 7                                                                               aggregate%array_length%5#0,7
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%3#0
+        v-store aggregate%array_length%3#0
+        v-load aggregate%array_length%3#0                                                   aggregate%array_length%3#0
+        int 7                                                                               aggregate%array_length%3#0,7
         ==                                                                                  tmp%20#0
         v-store tmp%20#0
         v-load tmp%20#0                                                                     tmp%20#0
         assert
         // array/immutable.py:109
         // assert arr[-1] == 43
-        v-load aggregate%array_length%5#0                                                   aggregate%array_length%5#0
-        int 1                                                                               aggregate%array_length%5#0,1
+        v-load aggregate%array_length%3#0                                                   aggregate%array_length%3#0
+        int 1                                                                               aggregate%array_length%3#0,1
         -                                                                                   tmp%22#0
         v-store tmp%22#0
         v-load arr#2                                                                        arr#2
@@ -1100,18 +1100,18 @@ subroutine test_uint64_array:
         // assert arr.length == 4
         v-load arr#2                                                                        arr#2
         int 0                                                                               arr#2,0
-        extract_uint16 // on error: invalid array length header                             aggregate%array_length%7#0
-        v-store aggregate%array_length%7#0
-        v-load aggregate%array_length%7#0                                                   aggregate%array_length%7#0
-        int 4                                                                               aggregate%array_length%7#0,4
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%4#0
+        v-store aggregate%array_length%4#0
+        v-load aggregate%array_length%4#0                                                   aggregate%array_length%4#0
+        int 4                                                                               aggregate%array_length%4#0,4
         ==                                                                                  tmp%29#0
         v-store tmp%29#0
         v-load tmp%29#0                                                                     tmp%29#0
         assert
         // array/immutable.py:114
         // assert arr[-1] == 2
-        v-load aggregate%array_length%7#0                                                   aggregate%array_length%7#0
-        int 1                                                                               aggregate%array_length%7#0,1
+        v-load aggregate%array_length%4#0                                                   aggregate%array_length%4#0
+        int 1                                                                               aggregate%array_length%4#0,1
         -                                                                                   tmp%31#0
         v-store tmp%31#0
         v-load arr#2                                                                        arr#2
@@ -1141,18 +1141,18 @@ subroutine test_uint64_array:
         // assert arr.length == 14
         v-load arr#2                                                                        arr#2
         int 0                                                                               arr#2,0
-        extract_uint16 // on error: invalid array length header                             array_length#0
-        v-store array_length#0
-        v-load array_length#0                                                               array_length#0
-        int 14                                                                              array_length#0,14
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%5#0
+        v-store aggregate%array_length%5#0
+        v-load aggregate%array_length%5#0                                                   aggregate%array_length%5#0
+        int 14                                                                              aggregate%array_length%5#0,14
         ==                                                                                  tmp%36#0
         v-store tmp%36#0
         v-load tmp%36#0                                                                     tmp%36#0
         assert
         // array/immutable.py:118
         // assert arr[-1] == 9
-        v-load array_length#0                                                               array_length#0
-        int 1                                                                               array_length#0,1
+        v-load aggregate%array_length%5#0                                                   aggregate%array_length%5#0
+        int 1                                                                               aggregate%array_length%5#0,1
         -                                                                                   tmp%38#0
         v-store tmp%38#0
         v-load arr#2                                                                        arr#2
@@ -1175,12 +1175,12 @@ subroutine test_uint64_array:
         // array/immutable.py:120
         // arr = arr.append(UInt64(44))
         int 44                                                                              44
-        itob                                                                                new_items_bytes#0
-        v-store new_items_bytes#0
-        v-load array_length#0                                                               array_length#0
+        itob                                                                                aggregate%val_as_bytes%2#0
+        v-store aggregate%val_as_bytes%2#0
+        v-load aggregate%array_length%5#0                                                   aggregate%array_length%5#0
         // array/immutable.py:120
         // arr = arr.append(UInt64(44))
-        int 1                                                                               array_length#0,1
+        int 1                                                                               aggregate%array_length%5#0,1
         +                                                                                   new_array_length#0
         v-store new_array_length#0
         v-load new_array_length#0                                                           new_array_length#0
@@ -1194,25 +1194,25 @@ subroutine test_uint64_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%val_as_bytes%2#0                                                   result#0,aggregate%val_as_bytes%2#0
         concat                                                                              arr#2
         v-store arr#2
         // array/immutable.py:121
         // assert arr.length == 15
         v-load arr#2                                                                        arr#2
         int 0                                                                               arr#2,0
-        extract_uint16 // on error: invalid array length header                             aggregate%array_length%11#0
-        v-store aggregate%array_length%11#0
-        v-load aggregate%array_length%11#0                                                  aggregate%array_length%11#0
-        int 15                                                                              aggregate%array_length%11#0,15
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%6#0
+        v-store aggregate%array_length%6#0
+        v-load aggregate%array_length%6#0                                                   aggregate%array_length%6#0
+        int 15                                                                              aggregate%array_length%6#0,15
         ==                                                                                  tmp%44#0
         v-store tmp%44#0
         v-load tmp%44#0                                                                     tmp%44#0
         assert
         // array/immutable.py:122
         // assert arr[-1] == 44
-        v-load aggregate%array_length%11#0                                                  aggregate%array_length%11#0
-        int 1                                                                               aggregate%array_length%11#0,1
+        v-load aggregate%array_length%6#0                                                   aggregate%array_length%6#0
+        int 1                                                                               aggregate%array_length%6#0,1
         -                                                                                   tmp%46#0
         v-store tmp%46#0
         v-load arr#2                                                                        arr#2
@@ -1245,10 +1245,10 @@ subroutine test_uint64_array:
         // assert arr.length == 15
         v-load arr#2                                                                        arr#2
         int 0                                                                               arr#2,0
-        extract_uint16 // on error: invalid array length header                             aggregate%array_length%13#0
-        v-store aggregate%array_length%13#0
-        v-load aggregate%array_length%13#0                                                  aggregate%array_length%13#0
-        int 15                                                                              aggregate%array_length%13#0,15
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%7#0
+        v-store aggregate%array_length%7#0
+        v-load aggregate%array_length%7#0                                                   aggregate%array_length%7#0
+        int 15                                                                              aggregate%array_length%7#0,15
         ==                                                                                  tmp%50#0
         v-store tmp%50#0
         v-load tmp%50#0                                                                     tmp%50#0
@@ -1295,10 +1295,10 @@ subroutine test_biguint_array:
         v-store aggregate%bzero%0#0
         v-load tmp%4#0                                                                      tmp%4#0
         v-load aggregate%bzero%0#0                                                          tmp%4#0,aggregate%bzero%0#0
-        b|                                                                                  new_items_bytes#0
-        v-store new_items_bytes#0
+        b|                                                                                  aggregate%arc4_encoded%0#0
+        v-store aggregate%arc4_encoded%0#0
         byte 0x0001                                                                         0x0001
-        v-load new_items_bytes#0                                                            0x0001,new_items_bytes#0
+        v-load aggregate%arc4_encoded%0#0                                                   0x0001,aggregate%arc4_encoded%0#0
         concat                                                                              arr#1
         v-store arr#1
         // array/immutable.py:136
@@ -1367,16 +1367,16 @@ subroutine test_biguint_array:
         v-store tmp%0#1
         v-load tmp%0#1                                                                      tmp%0#1
         v-load aggregate%bzero%0#0                                                          tmp%0#1,aggregate%bzero%0#0
-        b|                                                                                  new_items_bytes#0
-        v-store new_items_bytes#0
+        b|                                                                                  aggregate%arc4_encoded%1#0
+        v-store aggregate%arc4_encoded%1#0
         v-load arr#1                                                                        arr#1
         int 0                                                                               arr#1,0
-        extract_uint16                                                                      array_length#0
-        v-store array_length#0
-        v-load array_length#0                                                               array_length#0
+        extract_uint16                                                                      array_length#2
+        v-store array_length#2
+        v-load array_length#2                                                               array_length#2
         // array/immutable.py:513
         // arr = arr.append(BigUInt(i))
-        int 1                                                                               array_length#0,1
+        int 1                                                                               array_length#2,1
         +                                                                                   new_array_length#0
         v-store new_array_length#0
         v-load new_array_length#0                                                           new_array_length#0
@@ -1390,7 +1390,7 @@ subroutine test_biguint_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%arc4_encoded%1#0                                                   result#0,aggregate%arc4_encoded%1#0
         concat                                                                              arr#1
         v-store arr#1
         // array/immutable.py:512
@@ -1408,18 +1408,18 @@ subroutine test_biguint_array:
         // assert arr.length == 6
         v-load arr#1                                                                        arr#1
         int 0                                                                               arr#1,0
-        extract_uint16 // on error: invalid array length header                             array_length#0
-        v-store array_length#0
-        v-load array_length#0                                                               array_length#0
-        int 6                                                                               array_length#0,6
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
+        int 6                                                                               aggregate%array_length%2#0,6
         ==                                                                                  tmp%15#0
         v-store tmp%15#0
         v-load tmp%15#0                                                                     tmp%15#0
         assert
         // array/immutable.py:141
         // assert arr[-1] == 4
-        v-load array_length#0                                                               array_length#0
-        int 1                                                                               array_length#0,1
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
+        int 1                                                                               aggregate%array_length%2#0,1
         -                                                                                   tmp%17#0
         v-store tmp%17#0
         v-load arr#1                                                                        arr#1
@@ -1462,12 +1462,12 @@ subroutine test_biguint_array:
         assert // overflow
         v-load tmp%22#0                                                                     tmp%22#0
         v-load aggregate%bzero%0#0                                                          tmp%22#0,aggregate%bzero%0#0
-        b|                                                                                  new_items_bytes#0
-        v-store new_items_bytes#0
-        v-load array_length#0                                                               array_length#0
+        b|                                                                                  aggregate%arc4_encoded%2#0
+        v-store aggregate%arc4_encoded%2#0
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
         // array/immutable.py:143
         // arr = arr.append(BigUInt(2**512 - 1) - Txn.num_app_args)
-        int 1                                                                               array_length#0,1
+        int 1                                                                               aggregate%array_length%2#0,1
         +                                                                                   new_array_length#0
         v-store new_array_length#0
         v-load new_array_length#0                                                           new_array_length#0
@@ -1481,25 +1481,25 @@ subroutine test_biguint_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%arc4_encoded%2#0                                                   result#0,aggregate%arc4_encoded%2#0
         concat                                                                              arr#1
         v-store arr#1
         // array/immutable.py:144
         // assert arr.length == 7
         v-load arr#1                                                                        arr#1
         int 0                                                                               arr#1,0
-        extract_uint16 // on error: invalid array length header                             array_length#0
-        v-store array_length#0
-        v-load array_length#0                                                               array_length#0
-        int 7                                                                               array_length#0,7
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%3#0
+        v-store aggregate%array_length%3#0
+        v-load aggregate%array_length%3#0                                                   aggregate%array_length%3#0
+        int 7                                                                               aggregate%array_length%3#0,7
         ==                                                                                  tmp%26#0
         v-store tmp%26#0
         v-load tmp%26#0                                                                     tmp%26#0
         assert
         // array/immutable.py:145
         // assert arr[-1] == 2**512 - 2
-        v-load array_length#0                                                               array_length#0
-        int 1                                                                               array_length#0,1
+        v-load aggregate%array_length%3#0                                                   aggregate%array_length%3#0
+        int 1                                                                               aggregate%array_length%3#0,1
         -                                                                                   tmp%28#0
         v-store tmp%28#0
         v-load arr#1                                                                        arr#1
@@ -1531,10 +1531,10 @@ subroutine test_biguint_array:
         v-store tmp%32#0
         v-load tmp%32#0                                                                     tmp%32#0
         assert
-        v-load array_length#0                                                               array_length#0
+        v-load aggregate%array_length%3#0                                                   aggregate%array_length%3#0
         // array/immutable.py:148
         // arr = arr.append(BigUInt(2**512 - 1))
-        int 1                                                                               array_length#0,1
+        int 1                                                                               aggregate%array_length%3#0,1
         +                                                                                   new_array_length#0
         v-store new_array_length#0
         v-load new_array_length#0                                                           new_array_length#0
@@ -1557,18 +1557,18 @@ subroutine test_biguint_array:
         // assert arr.length == 8
         v-load arr#1                                                                        arr#1
         int 0                                                                               arr#1,0
-        extract_uint16 // on error: invalid array length header                             aggregate%array_length%7#0
-        v-store aggregate%array_length%7#0
-        v-load aggregate%array_length%7#0                                                   aggregate%array_length%7#0
-        int 8                                                                               aggregate%array_length%7#0,8
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%4#0
+        v-store aggregate%array_length%4#0
+        v-load aggregate%array_length%4#0                                                   aggregate%array_length%4#0
+        int 8                                                                               aggregate%array_length%4#0,8
         ==                                                                                  tmp%36#0
         v-store tmp%36#0
         v-load tmp%36#0                                                                     tmp%36#0
         assert
         // array/immutable.py:150
         // assert arr[-1] == 2**512 - 1
-        v-load aggregate%array_length%7#0                                                   aggregate%array_length%7#0
-        int 1                                                                               aggregate%array_length%7#0,1
+        v-load aggregate%array_length%4#0                                                   aggregate%array_length%4#0
+        int 1                                                                               aggregate%array_length%4#0,1
         -                                                                                   tmp%38#0
         v-store tmp%38#0
         v-load arr#1                                                                        arr#1
@@ -1690,10 +1690,10 @@ subroutine test_bool_array:
         // assert arr.length == length
         v-load arr#0                                                                        arr#0
         int 0                                                                               arr#0,0
-        extract_uint16 // on error: invalid array length header                             array_length#0
-        v-store array_length#0
-        v-load array_length#0                                                               array_length#0
-        v-load length#0                                                                     array_length#0,length#0
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%1#0
+        v-store aggregate%array_length%1#0
+        v-load aggregate%array_length%1#0                                                   aggregate%array_length%1#0
+        v-load length#0                                                                     aggregate%array_length%1#0,length#0
         ==                                                                                  tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                      tmp%7#0
@@ -1704,7 +1704,7 @@ subroutine test_bool_array:
         bz test_bool_array_after_if_else@7 ; b test_bool_array_if_body@6
 
     test_bool_array_if_body@6:
-        v-load array_length#0                                                               array_length#0
+        v-load aggregate%array_length%1#0                                                   aggregate%array_length%1#0
         assert // index out of bounds
         // array/immutable.py:166
         // assert not arr[0], "expected element 0 to be False"
@@ -1733,7 +1733,7 @@ subroutine test_bool_array:
         // array/immutable.py:168
         // assert not arr[1], "expected element 1 to be False"
         int 1                                                                               1
-        v-load array_length#0                                                               1,array_length#0
+        v-load aggregate%array_length%1#0                                                   1,aggregate%array_length%1#0
         <                                                                                   tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                      tmp%1#0
@@ -1765,7 +1765,7 @@ subroutine test_bool_array:
         // array/immutable.py:170
         // assert arr[2], "expected element 2 to be True"
         int 2                                                                               2
-        v-load array_length#0                                                               2,array_length#0
+        v-load aggregate%array_length%1#0                                                   2,aggregate%array_length%1#0
         <                                                                                   tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                      tmp%1#0
@@ -1798,7 +1798,7 @@ subroutine test_bool_array:
         -                                                                                   index#0
         v-store index#0
         v-load index#0                                                                      index#0
-        v-load array_length#0                                                               index#0,array_length#0
+        v-load aggregate%array_length%1#0                                                   index#0,aggregate%array_length%1#0
         <                                                                                   tmp%1#0
         v-store tmp%1#0
         v-load tmp%1#0                                                                      tmp%1#0
@@ -1832,8 +1832,8 @@ subroutine test_bool_array:
         bz test_bool_array_after_if_else@15 ; b test_bool_array_if_body@14
 
     test_bool_array_if_body@14:
-        v-load array_length#0                                                               array_length#0
-        int 1                                                                               array_length#0,1
+        v-load aggregate%array_length%1#0                                                   aggregate%array_length%1#0
+        int 1                                                                               aggregate%array_length%1#0,1
         -                                                                                   new_length#0
         v-store new_length#0
         v-load new_length#0                                                                 new_length#0
@@ -1936,8 +1936,8 @@ subroutine test_fixed_size_tuple_array:
         v-store aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%0#0                                                   aggregate%val_as_bytes%0#0
         v-load aggregate%val_as_bytes%1#0                                                   aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                              new_items_bytes#0
-        v-store new_items_bytes#0
+        concat                                                                              aggregate%head%1#0
+        v-store aggregate%head%1#0
         v-load arr#0                                                                        arr#0
         int 0                                                                               arr#0,0
         extract_uint16                                                                      array_length#0
@@ -1959,7 +1959,7 @@ subroutine test_fixed_size_tuple_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%head%1#0                                                           result#0,aggregate%head%1#0
         concat                                                                              arr#0
         v-store arr#0
         v-load tmp%2#0                                                                      tmp%2#0
@@ -2056,10 +2056,10 @@ subroutine test_fixed_size_tuple_array:
         // assert arr.length == 4
         v-load arr#0                                                                        arr#0
         int 0                                                                               arr#0,0
-        extract_uint16 // on error: invalid array length header                             aggregate%array_length%3#0
-        v-store aggregate%array_length%3#0
-        v-load aggregate%array_length%3#0                                                   aggregate%array_length%3#0
-        int 4                                                                               aggregate%array_length%3#0,4
+        extract_uint16 // on error: invalid array length header                             aggregate%array_length%2#0
+        v-store aggregate%array_length%2#0
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
+        int 4                                                                               aggregate%array_length%2#0,4
         ==                                                                                  tmp%26#0
         v-store tmp%26#0
         v-load tmp%26#0                                                                     tmp%26#0
@@ -2096,8 +2096,8 @@ subroutine test_fixed_size_tuple_array:
         assert
         // array/immutable.py:194
         // assert arr[-1] == (UInt64(4), UInt64(5))
-        v-load aggregate%array_length%3#0                                                   aggregate%array_length%3#0
-        int 1                                                                               aggregate%array_length%3#0,1
+        v-load aggregate%array_length%2#0                                                   aggregate%array_length%2#0
+        int 1                                                                               aggregate%array_length%2#0,1
         -                                                                                   tmp%33#0
         v-store tmp%33#0
         v-load tmp%33#0                                                                     tmp%33#0
@@ -2203,8 +2203,8 @@ subroutine test_fixed_size_named_tuple_array:
         v-store aggregate%set_bit%0#0
         v-load aggregate%val_as_bytes%0#0                                                   aggregate%val_as_bytes%0#0
         v-load aggregate%set_bit%0#0                                                        aggregate%val_as_bytes%0#0,aggregate%set_bit%0#0
-        concat                                                                              new_items_bytes#0
-        v-store new_items_bytes#0
+        concat                                                                              aggregate%head%1#0
+        v-store aggregate%head%1#0
         v-load arr#0                                                                        arr#0
         int 0                                                                               arr#0,0
         extract_uint16                                                                      array_length#0
@@ -2226,7 +2226,7 @@ subroutine test_fixed_size_named_tuple_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%head%1#0                                                           result#0,aggregate%head%1#0
         concat                                                                              arr#0
         v-store arr#0
         // array/immutable.py:202
@@ -3065,8 +3065,8 @@ subroutine test_nested_array:
         // array/immutable.py:266
         // extra_arr = extra_arr.append(j)
         v-load j#0                                                                          j#0
-        itob                                                                                new_items_bytes#0
-        v-store new_items_bytes#0
+        itob                                                                                aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load extra_arr#0                                                                  extra_arr#0
         int 0                                                                               extra_arr#0,0
         extract_uint16                                                                      array_length#0
@@ -3088,7 +3088,7 @@ subroutine test_nested_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%val_as_bytes%0#0                                                   result#0,aggregate%val_as_bytes%0#0
         concat                                                                              extra_arr#0
         v-store extra_arr#0
         // array/immutable.py:265
@@ -3233,8 +3233,8 @@ subroutine test_nested_array:
         // array/immutable.py:272
         // totals = totals.append(sum_arr(inner_arr))
         v-load total#0                                                                      total#0
-        itob                                                                                new_items_bytes#0
-        v-store new_items_bytes#0
+        itob                                                                                aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0
         v-load totals#0                                                                     totals#0
         int 0                                                                               totals#0,0
         extract_uint16                                                                      array_length#0
@@ -3256,7 +3256,7 @@ subroutine test_nested_array:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%val_as_bytes%1#0                                                   result#0,aggregate%val_as_bytes%1#0
         concat                                                                              totals#0
         v-store totals#0
         v-load item_index_internal%0#0                                                      item_index_internal%0#0
@@ -3333,8 +3333,8 @@ subroutine test_bit_packed_tuples:
         v-load aggregate%encoded_bool%0#0                                                   aggregate%encoded_bool%0#0
         int 1                                                                               aggregate%encoded_bool%0#0,1
         v-load tmp%9#0                                                                      aggregate%encoded_bool%0#0,1,tmp%9#0
-        setbit                                                                              new_items_bytes#0
-        v-store new_items_bytes#0
+        setbit                                                                              aggregate%set_bit%0#0
+        v-store aggregate%set_bit%0#0
         v-load arr2#0                                                                       arr2#0
         int 0                                                                               arr2#0,0
         extract_uint16                                                                      array_length#0
@@ -3356,7 +3356,7 @@ subroutine test_bit_packed_tuples:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%set_bit%0#0                                                        result#0,aggregate%set_bit%0#0
         concat                                                                              arr2#0
         v-store arr2#0
         // array/immutable.py:292
@@ -3412,9 +3412,9 @@ subroutine test_bit_packed_tuples:
         v-load i#0                                                                          i#0
         itob                                                                                aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
-        v-load new_items_bytes#0                                                            new_items_bytes#0
-        int 2                                                                               new_items_bytes#0,2
-        v-load tmp%15#0                                                                     new_items_bytes#0,2,tmp%15#0
+        v-load aggregate%set_bit%0#0                                                        aggregate%set_bit%0#0
+        int 2                                                                               aggregate%set_bit%0#0,2
+        v-load tmp%15#0                                                                     aggregate%set_bit%0#0,2,tmp%15#0
         setbit                                                                              aggregate%set_bit%2#0
         v-store aggregate%set_bit%2#0
         v-load aggregate%set_bit%2#0                                                        aggregate%set_bit%2#0
@@ -3446,8 +3446,8 @@ subroutine test_bit_packed_tuples:
         v-store aggregate%val_as_bytes%1#0
         v-load aggregate%head%3#0                                                           aggregate%head%3#0
         v-load aggregate%val_as_bytes%1#0                                                   aggregate%head%3#0,aggregate%val_as_bytes%1#0
-        concat                                                                              new_items_bytes#0
-        v-store new_items_bytes#0
+        concat                                                                              aggregate%head%4#0
+        v-store aggregate%head%4#0
         v-load arr7#0                                                                       arr7#0
         int 0                                                                               arr7#0,0
         extract_uint16                                                                      array_length#0
@@ -3481,7 +3481,7 @@ subroutine test_bit_packed_tuples:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%head%4#0                                                           result#0,aggregate%head%4#0
         concat                                                                              arr7#0
         v-store arr7#0
         // array/immutable.py:313
@@ -3516,8 +3516,8 @@ subroutine test_bit_packed_tuples:
         v-store aggregate%head%7#0
         v-load aggregate%head%7#0                                                           aggregate%head%7#0
         v-load aggregate%val_as_bytes%1#0                                                   aggregate%head%7#0,aggregate%val_as_bytes%1#0
-        concat                                                                              new_items_bytes#0
-        v-store new_items_bytes#0
+        concat                                                                              aggregate%head%8#0
+        v-store aggregate%head%8#0
         v-load arr8#0                                                                       arr8#0
         int 0                                                                               arr8#0,0
         extract_uint16                                                                      array_length#0
@@ -3552,7 +3552,7 @@ subroutine test_bit_packed_tuples:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%head%8#0                                                           result#0,aggregate%head%8#0
         concat                                                                              arr8#0
         v-store arr8#0
         // array/immutable.py:328
@@ -3588,8 +3588,8 @@ subroutine test_bit_packed_tuples:
         v-store aggregate%head%12#0
         v-load aggregate%head%12#0                                                          aggregate%head%12#0
         v-load aggregate%val_as_bytes%1#0                                                   aggregate%head%12#0,aggregate%val_as_bytes%1#0
-        concat                                                                              new_items_bytes#0
-        v-store new_items_bytes#0
+        concat                                                                              aggregate%head%13#0
+        v-store aggregate%head%13#0
         v-load arr9#0                                                                       arr9#0
         int 0                                                                               arr9#0,0
         extract_uint16                                                                      array_length#0
@@ -3625,7 +3625,7 @@ subroutine test_bit_packed_tuples:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%head%13#0                                                          result#0,aggregate%head%13#0
         concat                                                                              arr9#0
         v-store arr9#0
         v-load tmp%12#0                                                                     tmp%12#0
@@ -4226,8 +4226,8 @@ subroutine test_uint64_return:
         // array/immutable.py:372
         // arr = arr.append(i)
         v-load i#0                                                                          i#0
-        itob                                                                                new_items_bytes#0
-        v-store new_items_bytes#0
+        itob                                                                                aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0
         v-load arr#0                                                                        arr#0
         int 0                                                                               arr#0,0
         extract_uint16                                                                      array_length#0
@@ -4249,7 +4249,7 @@ subroutine test_uint64_return:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%val_as_bytes%3#0                                                   result#0,aggregate%val_as_bytes%3#0
         concat                                                                              arr#0
         v-store arr#0
         // array/immutable.py:371
@@ -4433,8 +4433,8 @@ subroutine test_tuple_return:
         v-store aggregate%set_bit%1#0
         v-load aggregate%val_as_bytes%1#0                                                   aggregate%val_as_bytes%1#0
         v-load aggregate%set_bit%1#0                                                        aggregate%val_as_bytes%1#0,aggregate%set_bit%1#0
-        concat                                                                              new_items_bytes#0
-        v-store new_items_bytes#0
+        concat                                                                              aggregate%head%4#0
+        v-store aggregate%head%4#0
         v-load arr#0                                                                        arr#0
         int 0                                                                               arr#0,0
         extract_uint16                                                                      array_length#0
@@ -4456,7 +4456,7 @@ subroutine test_tuple_return:
         replace2 0                                                                          result#0
         v-store result#0
         v-load result#0                                                                     result#0
-        v-load new_items_bytes#0                                                            result#0,new_items_bytes#0
+        v-load aggregate%head%4#0                                                           result#0,aggregate%head%4#0
         concat                                                                              arr#0
         v-store arr#0
         // array/immutable.py:385
@@ -4942,10 +4942,10 @@ subroutine test_dynamic_concat_with_native_tuple:
         v-load tmp%0#0                                                                      tmp%0#0
         v-load extract_uint16%1#0                                                           tmp%0#0,extract_uint16%1#0
         v-load tuple_len%0#0                                                                tmp%0#0,extract_uint16%1#0,tuple_len%0#0
-        substring3                                                                          arg.1#0
-        v-store arg.1#0
-        v-load arg.1#0                                                                      arg.1#0
-        int 0                                                                               arg.1#0,0
+        substring3                                                                          substring3%1#0
+        v-store substring3%1#0
+        v-load substring3%1#0                                                               substring3%1#0
+        int 0                                                                               substring3%1#0,0
         extract_uint16 // on error: invalid array length header                             aggregate%array_length%1#0
         v-store aggregate%array_length%1#0
         v-load aggregate%array_length%1#0                                                   aggregate%array_length%1#0
@@ -4970,7 +4970,7 @@ subroutine test_dynamic_concat_with_native_tuple:
         // array/immutable.py:435
         // result = prefix + arg
         v-load arg.0#0                                                                      arg.0#0
-        v-load arg.1#0                                                                      arg.0#0,arg.1#0
+        v-load substring3%1#0                                                               arg.0#0,substring3%1#0
         concat                                                                              concat%1#0
         v-store concat%1#0
         // array/immutable.py:434

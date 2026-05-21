@@ -532,8 +532,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let tmp%19#0: uint64 = decode_bytes<uint64>(array_item%4#0)
         let tmp%20#0: bool = (== tmp%19#0 1u)
         (assert tmp%20#0)
-        let tmp%21#0: uint64 = array_len(arr#2)
-        let tmp%22#0: uint64 = (- tmp%21#0 1u)
+        let tmp%22#0: uint64 = (- tmp%9#0 1u)
         let array_item%5#0: Encoded(uint64) = extract_value(arr#2, tmp%22#0)
         let tmp%23#0: uint64 = decode_bytes<uint64>(array_item%5#0)
         let tmp%24#0: bool = (== tmp%23#0 4u)
@@ -576,8 +575,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
     block@16: // bool_merge_L55
         let and_result%1#2: bool = φ(and_result%1#0 <- block@14, and_result%1#1 <- block@15)
         (assert and_result%1#2) // assert target is match for conditions
-        let tmp%40#0: uint64 = array_len(arr#5)
-        let sub%1#0: uint64 = (- tmp%40#0 1u) // on error: cannot pop from empty array
+        let sub%1#0: uint64 = (- tmp%28#0 1u) // on error: cannot pop from empty array
         let tmp%41#0: Encoded(uint64) = extract_value(arr#5, sub%1#0)
         let top#0: uint64 = decode_bytes<uint64>(tmp%41#0)
         let arr#8: Encoded(len+uint64[]) = array_pop(arr#5)
@@ -735,10 +733,8 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         let as_bytes%0#0: bytes[8] = (itob tmp%103#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let converted_array%0#0: Encoded(len+uint64[]) = (concat as_u16_bytes%0#0 fArr1#0)
-        let tmp%104#0: uint64 = array_len(fArr1#0)
-        let fArr2#0: Encoded(len+uint64[]) = array_concat(converted_array%0#0, fArr1#0, tmp%104#0)
-        let tmp%106#0: uint64 = array_len(fArr1#0)
-        let tmp%107#0: bool = (== tmp%106#0 4u)
+        let fArr2#0: Encoded(len+uint64[]) = array_concat(converted_array%0#0, fArr1#0, tmp%103#0)
+        let tmp%107#0: bool = (== tmp%103#0 4u)
         goto tmp%107#0 ? block@43 : block@48
     block@43: // and_contd_L83
         let array_item%28#0: Encoded(uint64) = extract_value(fArr1#0, 0u)
@@ -823,8 +819,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
         (assert and_result%6#2) // assert target is match for conditions
         let total_length%3#0: uint64 = (len fArr2#0)
         let extract_to_end%3#0: bytes = ((extract 2 0) fArr2#0)
-        let tmp%136#0: uint64 = array_len(fArr2#0)
-        let arr3#0: Encoded(len+uint64[]) = array_concat(rArr1#2, extract_to_end%3#0, tmp%136#0)
+        let arr3#0: Encoded(len+uint64[]) = array_concat(rArr1#2, extract_to_end%3#0, tmp%116#0)
         let tmp%138#0: uint64 = array_len(arr3#0)
         let tmp%139#0: bool = (== tmp%138#0 13u)
         goto tmp%139#0 ? block@61 : block@75
@@ -902,14 +897,9 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
     block@76: // bool_merge_L87
         let and_result%7#2: bool = φ(and_result%7#0 <- block@74, and_result%7#1 <- block@75)
         (assert and_result%7#2) // assert target is match for conditions
-        let tmp%166#0: uint64 = array_len(fArr1#0)
-        let as_bytes%1#0: bytes[8] = (itob tmp%166#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let converted_array%1#0: Encoded(len+uint64[]) = (concat as_u16_bytes%1#0 fArr1#0)
         let total_length%4#0: uint64 = (len rArr1#2)
         let extract_to_end%4#0: bytes = ((extract 2 0) rArr1#2)
-        let tmp%168#0: uint64 = array_len(rArr1#2)
-        let arr4#0: Encoded(len+uint64[]) = array_concat(converted_array%1#0, extract_to_end%4#0, tmp%168#0)
+        let arr4#0: Encoded(len+uint64[]) = array_concat(converted_array%0#0, extract_to_end%4#0, tmp%90#0)
         let tmp%170#0: uint64 = array_len(arr4#0)
         let tmp%171#0: bool = (== tmp%170#0 9u)
         goto tmp%171#0 ? block@77 : block@87
@@ -967,14 +957,9 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
     block@88: // bool_merge_L90
         let and_result%8#2: bool = φ(and_result%8#0 <- block@86, and_result%8#1 <- block@87)
         (assert and_result%8#2) // assert target is match for conditions
-        let tmp%190#0: uint64 = array_len(fArr1#0)
-        let as_bytes%2#0: bytes[8] = (itob tmp%190#0)
-        let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let converted_array%2#0: Encoded(len+uint64[]) = (concat as_u16_bytes%2#0 fArr1#0)
         let total_length%5#0: uint64 = (len arr#12)
         let extract_to_end%5#0: bytes = ((extract 2 0) arr#12)
-        let tmp%191#0: uint64 = array_len(arr#12)
-        let arr8#0: Encoded(len+uint64[]) = array_concat(converted_array%2#0, extract_to_end%5#0, tmp%191#0)
+        let arr8#0: Encoded(len+uint64[]) = array_concat(converted_array%0#0, extract_to_end%5#0, tmp%58#0)
         let tmp%193#0: uint64 = array_len(arr8#0)
         let tmp%194#0: bool = (== tmp%193#0 15u)
         goto tmp%194#0 ? block@89 : block@105
@@ -1062,8 +1047,7 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[rout
     block@106: // bool_merge_L93
         let and_result%9#2: bool = φ(and_result%9#0 <- block@104, and_result%9#1 <- block@105)
         (assert and_result%9#2) // assert target is match for conditions
-        let tmp%227#0: uint64 = array_len(arr#12)
-        let arr5#0: Encoded(len+uint64[]) = array_concat(rArr1#2, extract_to_end%5#0, tmp%227#0)
+        let arr5#0: Encoded(len+uint64[]) = array_concat(rArr1#2, extract_to_end%5#0, tmp%58#0)
         let tmp%229#0: uint64 = array_len(arr5#0)
         let tmp%230#0: bool = (== tmp%229#0 16u)
         goto tmp%230#0 ? block@107 : block@124

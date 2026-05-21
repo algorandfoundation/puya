@@ -198,16 +198,16 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
         let tmp%0#1: bytes = (itob new_length#0)
         let tmp%1#1: bytes = ((extract 6 0) tmp%0#1)
-        let tail_offset#0: uint64 = (* new_length#0 2u)
+        let tmp%0#2: uint64 = (* new_length#0 2u)
         let tmp%1#2: uint64 = 0u
         let tmp%2#1: uint64 = (extract_uint16 array_head_and_tail#0 0u)
         let tmp%5#1: uint64 = 0u
         goto block@4
     block@4: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%5#1 <- block@0, value_internal%0#2 <- block@5)
-        let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@5)
+        let tail_offset#1: uint64 = φ(tmp%0#2 <- block@0, tail_offset#2 <- block@5)
         let array_head_and_tail#2: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#3 <- block@5)
-        let continue_looping%0#0: bool = (< head_offset#0 tail_offset#0)
+        let continue_looping%0#0: bool = (< head_offset#0 tmp%0#2)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L413
         let tail_offset_bytes#0: bytes = _puya_lib.arc4._itob16(tail_offset#1)
@@ -602,8 +602,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array[routing]() 
         store(arr#0, encoded_array%0#0)
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) arc4_arr#0)
-        let tmp%0#1: uint64 = array_len(arc4_arr#0)
-        let tmp%1#1: Encoded(uint64[]) = array_concat(slot_contents%0#0, extract_to_end%0#0, tmp%0#1)
+        let tmp%1#1: Encoded(uint64[]) = array_concat(slot_contents%0#0, extract_to_end%0#0, length%0#0)
         store(arr#0, tmp%1#1)
         let total#0: uint64 = 0u
         let array_length%0#0: uint64 = array_len(arr#0)
@@ -677,12 +676,11 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routin
         let arr2#0: Encoded(bool8[])* = new()
         let slot_contents%3#0: Encoded(bool8[]) = load(arr#0)
         store(arr2#0, slot_contents%3#0)
-        let array_length%0#0: uint64 = array_len(dyn_arr#1)
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L156
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 tmp%14#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L157
         let array_item%2#0: bool = extract_value(dyn_arr#1, item_index_internal%0#1)
