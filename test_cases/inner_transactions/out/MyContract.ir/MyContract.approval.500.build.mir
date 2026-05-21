@@ -1258,8 +1258,17 @@ subroutine main:
         // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
         itxna ApprovalProgramPages 1                                                                 tmp%10#0
         v-store tmp%10#0
-        byte 0x000048                                                                                0x000048
-        v-load approval_2#0                                                                          0x000048,approval_2#0
+        v-load approval_2#0                                                                          approval_2#0
+        // inner_transactions/contract.py:253
+        // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
+        int 2045                                                                                     approval_2#0,2045
+        // inner_transactions/contract.py:256
+        // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
+        int 2048                                                                                     approval_2#0,2045,2048
+        substring3                                                                                   tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                                              tmp%11#0
+        v-load approval_2#0                                                                          tmp%11#0,approval_2#0
         concat                                                                                       tmp%12#0
         v-store tmp%12#0
         v-load tmp%10#0                                                                              tmp%10#0
