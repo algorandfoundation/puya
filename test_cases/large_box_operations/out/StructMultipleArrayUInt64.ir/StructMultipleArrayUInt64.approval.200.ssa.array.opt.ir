@@ -133,27 +133,27 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let aggregate%head%1#0: bytes = 0x00000000000000010018
         let aggregate%data_length%0#0: uint64 = 2u
         let aggregate%current_tail_offset%0#0: uint64 = 26u
-        let aggregate%as_bytes%3#0: bytes[8] = (itob 26u)
+        let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x001a
         let aggregate%head%2#0: bytes = 0x00000000000000010018001a
         let aggregate%data_length%1#0: uint64 = 2u
         let aggregate%current_tail_offset%1#0: uint64 = 28u
-        let aggregate%as_bytes%4#0: bytes[8] = (itob 28u)
+        let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
         let aggregate%offset_as_uint16%2#0: bytes = 0x001c
         let aggregate%head%3#0: bytes = 0x00000000000000010018001a001c
         let aggregate%data_length%2#0: uint64 = 2u
         let aggregate%current_tail_offset%2#0: uint64 = 30u
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
-        let aggregate%head%4#0: bytes = 0x00000000000000010018001a001c0000000000000002
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 30u)
+        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 aggregate%val_as_bytes%1#0)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = 0x001e
-        let aggregate%head%5#0: bytes = 0x00000000000000010018001a001c0000000000000002001e
-        let aggregate%concat%0#0: bytes = 0x00000000000000010018001a001c0000000000000002001e0000
-        let aggregate%concat%1#0: bytes = 0x00000000000000010018001a001c0000000000000002001e00000000
-        let aggregate%concat%2#0: bytes = 0x00000000000000010018001a001c0000000000000002001e000000000000
-        let aggregate%concat%3#0: bytes = 0x00000000000000010018001a001c0000000000000002001e0000000000000000
+        let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%offset_as_uint16%3#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%5#0 0x0000)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%5#0 0x00000000)
+        let aggregate%concat%2#0: bytes = (concat aggregate%head%5#0 0x000000000000)
+        let aggregate%concat%3#0: bytes = (concat aggregate%head%5#0 0x0000000000000000)
         (box_del "box")
-        (box_put "box" 0x00000000000000010018001a001c0000000000000002001e0000000000000000)
+        (box_put "box" aggregate%concat%3#0)
         let tmp%1#0: bytes[4096] = (bzero 4096u)
         let box%box_extract%4#0: bytes = (box_extract "box" 22u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)

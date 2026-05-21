@@ -955,12 +955,7 @@ debug: Simplified (itob 4u) to 0x0000000000000004
 debug: Simplified ((extract 6 2) 0x0000000000000004) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
 debug: Simplified (len 0x00026869) to 4u
-debug: Simplified (+ 4u 4u) to 8u
-debug: Simplified (itob 8u) to 0x0000000000000008
-debug: Simplified ((extract 6 2) 0x0000000000000008) to 0x0008
-debug: Simplified (concat 0x0004 0x0008) to 0x00040008
-debug: Simplified (concat 0x00040008 0x00026869) to 0x0004000800026869
-debug: Simplified (concat 0x0004000800026869 0x0006746865726521) to 0x00040008000268690006746865726521
+debug: Simplified (concat aggregate%concat%0#0 0x0006746865726521) to (concat aggregate%head%1#0 0x000268690006746865726521)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1106,12 +1101,7 @@ debug: Simplified (itob 4u) to 0x0000000000000004
 debug: Simplified ((extract 6 2) 0x0000000000000004) to 0x0004
 debug: Simplified (concat 0x0002 0x0004) to 0x00020004
 debug: Simplified (len 0x00036f6e65) to 5u
-debug: Simplified (+ 4u 5u) to 9u
-debug: Simplified (itob 9u) to 0x0000000000000009
-debug: Simplified ((extract 6 2) 0x0000000000000009) to 0x0009
-debug: Simplified (concat 0x00020004 0x0009) to 0x000200040009
-debug: Simplified (concat 0x000200040009 0x00036f6e65) to 0x00020004000900036f6e65
-debug: Simplified (concat 0x00020004000900036f6e65 0x000374776f) to 0x00020004000900036f6e65000374776f
+debug: Simplified (concat aggregate%concat%0#0 0x000374776f) to (concat aggregate%head%1#0 0x00036f6e65000374776f)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -3883,12 +3873,7 @@ debug: Simplified (concat 0x00032a 0x000668656c6c6f32) to 0x00032a000668656c6c6f
 debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
 debug: Simplified (len 0x000568656c6c6f) to 7u
-debug: Simplified (+ 4u 7u) to 11u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x000b
-debug: Simplified (concat 0x0004 0x000b) to 0x0004000b
-debug: Simplified (concat 0x0004000b 0x000568656c6c6f) to 0x0004000b000568656c6c6f
-debug: Simplified (concat 0x0004000b000568656c6c6f 0x00032a000668656c6c6f32) to 0x0004000b000568656c6c6f00032a000668656c6c6f32
-debug: Simplified (concat method "Anonymous(string,(byte[],uint8))" 0x0004000b000568656c6c6f00032a000668656c6c6f32) to 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32
+debug: Simplified (concat aggregate%concat%2#0 0x00032a000668656c6c6f32) to (concat aggregate%head%5#0 0x000568656c6c6f00032a000668656c6c6f32)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4021,9 +4006,6 @@ debug: Removing unused variable length%2#0
 debug: Removing unused variable index#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 tmp%6#0 0u)
-debug: Simplified (* 2u 2u) to 4u
-debug: Simplified (< 0u 2u) to 1u
-debug: Simplified (* 0u 2u) to 0u
 debug: Simplified (len "hi") to 2u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0002
 debug: Simplified (concat 0x0002 "hi") to 0x00026869
@@ -4176,9 +4158,9 @@ debug: Removing unused variable aggregate%as_bytes%6#0
 debug: Removing unused variable aggregate%offset_as_uint16%3#0
 debug: Removing unused variable aggregate%head%5#0
 debug: Removing unused variable aggregate%concat%2#0
-debug: Removing unused variable aggregate%concat%3#0
-debug: Removing unused variable event%1#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x0004000b 0x000568656c6c6f00032a000668656c6c6f32) to 0x0004000b000568656c6c6f00032a000668656c6c6f32
+debug: Simplified (concat method "Anonymous(string,(byte[],uint8))" 0x0004000b000568656c6c6f00032a000668656c6c6f32) to 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4367,6 +4349,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%concat%3#0
+debug: Removing unused variable event%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4440,7 +4424,169 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: Output IR to arc_56/out/Contract.ir/Contract.approval.202.ssa.array.opt.ir
+debug: Begin optimization pass 4/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.arc_56.contract.Contract.struct_return[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.arc_56.contract.Contract.errors[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.arc_56.contract.Contract.emitter[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.arc_56.contract.Contract.conditional_emit[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.arc_56.contract.Contract.template_value[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.arc_56.contract.Contract at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program

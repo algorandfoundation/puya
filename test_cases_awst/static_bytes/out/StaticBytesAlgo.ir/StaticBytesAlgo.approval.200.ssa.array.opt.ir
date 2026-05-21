@@ -115,7 +115,7 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray[routi
         store(b#0, aggregate%concat%0#0)
         let slot_contents%1#0: Encoded(uint8[32][]) = aggregate%concat%0#0
         let aggregate%bytes_offset%0#0: uint64 = 0u
-        let aggregate%encoded_element%0#0: bytes = ((extract 0 32) slot_contents%1#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#0: bytes = (extract3 slot_contents%1#0 aggregate%bytes_offset%0#0 32u) // on error: index access is out of bounds
         let bitAnd#0: bytes[32] = (b& a.0#0 aggregate%encoded_element%0#0)
         let tmp%7#0: account = (txn Sender)
         let tmp%8#0: bool = (== bitAnd#0 tmp%7#0)
