@@ -341,19 +341,11 @@ def _materialize_constants(
             if not isinstance(op, models.Assignment):
                 continue
             if not isinstance(op.source, models.MultiValue):
-                const_values = _try_fold_constants(
+                folded = _try_fold_constants(
                     op, tables, savings, expand_all_bytes=expand_all_bytes
                 )
-                if const_values is not None:
+                if folded is not None:
                     modified = True
-                    folded: models.MultiValue
-                    if len(op.source.types) == 1:
-                        (folded,) = const_values
-                    else:
-                        folded = models.ValueTuple(
-                            values=const_values,
-                            source_location=op.source.source_location,
-                        )
                     with ssa_reads.update(op):
                         op.source = folded
             if len(op.targets) == 1:
@@ -375,18 +367,18 @@ def _try_fold_constants(
     savings: Mapping[models.Register, int],
     *,
     expand_all_bytes: bool,
-) -> list[models.Value] | None:
-    result = list[models.Value]()
-    for target, source_type in zip(op.targets, op.source.types, strict=True):
-        target_vn = tables.register_vn[target]
-        match tables.vn_definition.get(target_vn):
+) -> models.MultiValue | None:
+    target_vns = [tables.register_vn[t] for t in op.targets]
+    target_defns = [tables.vn_definition.get(vn) for vn in target_vns]
+    if len(target_defns) == 1:
+        (target_defn,) = target_defns
+        (source_type,) = op.source.types
+        match target_defn:
             case _UInt64ConstKey(value=uint64_const):
-                result.append(
-                    models.UInt64Constant(
-                        value=uint64_const,
-                        ir_type=source_type,
-                        source_location=op.source.source_location,
-                    )
+                return models.UInt64Constant(
+                    value=uint64_const,
+                    ir_type=source_type,
+                    source_location=op.source.source_location,
                 )
             case _BytesConstKey(
                 value=bytes_const, encoding=bytes_encoding
@@ -394,18 +386,30 @@ def _try_fold_constants(
                 isinstance(op.source, models.Intrinsic)
                 and (len(encode_bytes(bytes_const)) <= _intrinsic_dead_cost(op.source, savings))
             ):
-                result.append(
-                    models.BytesConstant(
-                        value=bytes_const,
-                        encoding=bytes_encoding,
-                        ir_type=source_type,
-                        source_location=op.source.source_location,
-                    )
+                return models.BytesConstant(
+                    value=bytes_const,
+                    encoding=bytes_encoding,
+                    ir_type=source_type,
+                    source_location=op.source.source_location,
                 )
-            case _:
-                # can't fold unless all values are foldable
-                return None
-    return result
+    elif _is_list_of(target_defns, _UInt64ConstKey):
+        return models.ValueTuple(
+            values=[
+                models.UInt64Constant(
+                    value=uint64_defn.value,
+                    ir_type=source_type,
+                    source_location=op.source.source_location,
+                )
+                for uint64_defn, source_type in zip(target_defns, op.source.types, strict=True)
+            ],
+            source_location=op.source_location,
+        )
+
+    return None
+
+
+def _is_list_of[T, U](lst: list[U], typ: type[T]) -> typing.TypeGuard[list[T]]:
+    return all(isinstance(x, typ) for x in lst)
 
 
 def _intrinsic_dead_cost(source: models.Intrinsic, savings: Mapping[models.Register, int]) -> int:
