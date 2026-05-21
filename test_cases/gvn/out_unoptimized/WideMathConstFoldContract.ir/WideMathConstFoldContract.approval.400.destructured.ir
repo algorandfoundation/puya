@@ -1,0 +1,66 @@
+main test_cases.gvn.wide_math_const_fold.WideMathConstFoldContract.approval_program:
+    block@0: // L11
+        test_cases.gvn.wide_math_const_fold.test_addw()
+        test_cases.gvn.wide_math_const_fold.test_mulw()
+        test_cases.gvn.wide_math_const_fold.test_expw()
+        test_cases.gvn.wide_math_const_fold.test_divw()
+        test_cases.gvn.wide_math_const_fold.test_divmodw()
+        return 1u
+
+subroutine test_cases.gvn.wide_math_const_fold.test_addw() -> void:
+    block@0: // L23
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = (addw 9223372036854775808u 9223372036854775808u)
+        let carry#0: uint64 = tmp%0#0
+        let lo#0: uint64 = tmp%1#0
+        let tmp%2#0: bool = (== carry#0 1u)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (== lo#0 0u)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.wide_math_const_fold.test_mulw() -> void:
+    block@0: // L30
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = (mulw 4294967296u 4294967296u)
+        let hi#0: uint64 = tmp%0#0
+        let lo#0: uint64 = tmp%1#0
+        let tmp%2#0: bool = (== hi#0 1u)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (== lo#0 0u)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.wide_math_const_fold.test_expw() -> void:
+    block@0: // L37
+        let (tmp%0#0: uint64, tmp%1#0: uint64) = (expw 2u 80u)
+        let hi#0: uint64 = tmp%0#0
+        let lo#0: uint64 = tmp%1#0
+        let tmp%2#0: bool = (== hi#0 65536u)
+        (assert tmp%2#0)
+        let tmp%3#0: bool = (== lo#0 0u)
+        (assert tmp%3#0)
+        return 
+
+subroutine test_cases.gvn.wide_math_const_fold.test_divw() -> void:
+    block@0: // L45
+        let tmp%0#0: uint64 = (divw 1u 0u 2u)
+        let q#0: uint64 = tmp%0#0
+        let tmp%1#0: bool = (== q#0 9223372036854775808u)
+        (assert tmp%1#0)
+        return 
+
+subroutine test_cases.gvn.wide_math_const_fold.test_divmodw() -> void:
+    block@0: // L51
+        let (tmp%0#0: uint64, tmp%1#0: uint64, tmp%2#0: uint64, tmp%3#0: uint64) = (divmodw 1u 2u 0u 3u)
+        let qh#0: uint64 = tmp%0#0
+        let ql#0: uint64 = tmp%1#0
+        let rh#0: uint64 = tmp%2#0
+        let rl#0: uint64 = tmp%3#0
+        let tmp%4#0: bool = (== qh#0 0u)
+        (assert tmp%4#0)
+        let tmp%5#0: bool = (== ql#0 6148914691236517206u)
+        (assert tmp%5#0)
+        let tmp%6#0: bool = (== rh#0 0u)
+        (assert tmp%6#0)
+        let tmp%7#0: bool = (== rl#0 0u)
+        (assert tmp%7#0)
+        return 

@@ -1,0 +1,165 @@
+#pragma version 11
+#pragma typetrack false
+
+// test_cases.gvn.wide_math_const_fold.WideMathConstFoldContract.approval_program() -> uint64:
+main:
+    intcblock 0 1 9223372036854775808 2 4294967296
+    b main_block@0
+
+main_block@0:
+    // gvn/wide_math_const_fold.py:12
+    // test_addw()
+    callsub test_addw
+    // gvn/wide_math_const_fold.py:13
+    // test_mulw()
+    callsub test_mulw
+    // gvn/wide_math_const_fold.py:14
+    // test_expw()
+    callsub test_expw
+    // gvn/wide_math_const_fold.py:15
+    // test_divw()
+    callsub test_divw
+    // gvn/wide_math_const_fold.py:16
+    // test_divmodw()
+    callsub test_divmodw
+    // gvn/wide_math_const_fold.py:17
+    // return True
+    intc_1 // 1
+    return
+
+
+// test_cases.gvn.wide_math_const_fold.test_addw() -> void:
+test_addw:
+    b test_addw_block@0
+
+test_addw_block@0:
+    // gvn/wide_math_const_fold.py:25
+    // carry, lo = op.addw(UInt64(2**63), 2**63)
+    intc_2 // 9223372036854775808
+    intc_2 // 9223372036854775808
+    addw
+    cover 1
+    // gvn/wide_math_const_fold.py:26
+    // assert carry == 1
+    intc_1 // 1
+    ==
+    assert
+    // gvn/wide_math_const_fold.py:27
+    // assert lo == 0
+    intc_0 // 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.gvn.wide_math_const_fold.test_mulw() -> void:
+test_mulw:
+    b test_mulw_block@0
+
+test_mulw_block@0:
+    // gvn/wide_math_const_fold.py:32
+    // hi, lo = op.mulw(UInt64(2**32), 2**32)
+    intc 4 // 4294967296
+    intc 4 // 4294967296
+    mulw
+    cover 1
+    // gvn/wide_math_const_fold.py:33
+    // assert hi == 1
+    intc_1 // 1
+    ==
+    assert
+    // gvn/wide_math_const_fold.py:34
+    // assert lo == 0
+    intc_0 // 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.gvn.wide_math_const_fold.test_expw() -> void:
+test_expw:
+    b test_expw_block@0
+
+test_expw_block@0:
+    // gvn/wide_math_const_fold.py:39
+    // hi, lo = op.expw(UInt64(2), 80)
+    intc_3 // 2
+    pushint 80
+    expw
+    cover 1
+    // gvn/wide_math_const_fold.py:40-41
+    // # 2^80 = 0x10_0000_0000_0000_0000_0000 — hi has the high 16 bits set.
+    // assert hi == 1 << 16
+    pushint 65536
+    ==
+    assert
+    // gvn/wide_math_const_fold.py:42
+    // assert lo == 0
+    intc_0 // 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.gvn.wide_math_const_fold.test_divw() -> void:
+test_divw:
+    b test_divw_block@0
+
+test_divw_block@0:
+    // gvn/wide_math_const_fold.py:47
+    // q = op.divw(UInt64(1), 0, 2)  # (2^64) / 2 = 2^63
+    intc_1 // 1
+    intc_0 // 0
+    intc_3 // 2
+    divw
+    // gvn/wide_math_const_fold.py:48
+    // assert q == 1 << 63
+    intc_2 // 9223372036854775808
+    ==
+    assert
+    retsub
+
+
+// test_cases.gvn.wide_math_const_fold.test_divmodw() -> void:
+test_divmodw:
+    b test_divmodw_block@0
+
+test_divmodw_block@0:
+    // gvn/wide_math_const_fold.py:53
+    // qh, ql, rh, rl = op.divmodw(UInt64(1), 2, 0, 3)
+    intc_1 // 1
+    intc_3 // 2
+    intc_0 // 0
+    pushint 3
+    divmodw
+    cover 3
+    cover 2
+    cover 1
+    cover 2
+    cover 3
+    cover 3
+    uncover 1
+    cover 3
+    // gvn/wide_math_const_fold.py:54-56
+    // # dividend = 2^64 + 2, divisor = 3
+    // # quotient = (2^64 + 2) // 3, remainder = (2^64 + 2) % 3
+    // assert qh == 0
+    intc_0 // 0
+    ==
+    assert
+    // gvn/wide_math_const_fold.py:57
+    // assert ql == ((1 << 64) + 2) // 3
+    pushint 6148914691236517206
+    ==
+    assert
+    // gvn/wide_math_const_fold.py:58
+    // assert rh == 0
+    intc_0 // 0
+    ==
+    assert
+    // gvn/wide_math_const_fold.py:59
+    // assert rl == ((1 << 64) + 2) % 3
+    intc_0 // 0
+    ==
+    assert
+    retsub
