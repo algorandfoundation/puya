@@ -318,7 +318,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%3#0: uint64 = 22u
         let box%box_extract%4#0: bytes = (box_extract "box" 22u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%4#0)
-        let box%offset%1#0: uint64 = box%btoi%3#0
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%3#0, tmp%2#0, 1u, 4096u)
         let verify%0#0: Encoded(len+uint64[]) = test_cases.large_box_operations.struct_multiple_array_uint64.StructMultipleArrayUInt64.verify(encoded_array%0#0)
         exit 1u
@@ -348,7 +347,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%9#0: uint64 = 10u
         let box%box_extract%6#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%4#0: uint64 = (btoi box%box_extract%6#0)
-        let box%offset%3#0: uint64 = box%btoi%4#0
         _puya_lib.box_arc4.box_update_offset_inc("box", 12u, 8u)
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, 8u)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%4#0, tmp%3#0, 1u, 8u)
@@ -359,7 +357,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%14#0: uint64 = 12u
         let box%box_extract%11#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%8#0: uint64 = (btoi box%box_extract%11#0)
-        let box%offset%5#0: uint64 = box%btoi%8#0
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, 8u)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%8#0, tmp%6#0, 1u, 8u)
         exit 1u
@@ -374,16 +371,14 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let eq%0#0: bool = (== len%0#0 add%0#0)
         (assert eq%0#0) // invalid number of bytes for arc4.dynamic_array<uint64>
         let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
-        let tmp%0#1: uint64 = array_len(array#0)
-        let box%mul%0#0: uint64 = (* tmp%0#1 8u)
         let box%add%0#0: uint64 = 10u
         let box%add%1#0: uint64 = 12u
         let box%add%2#0: uint64 = 22u
         let box%offset%1#0: uint64 = 24u
-        _puya_lib.box_arc4.box_update_offset_inc("box", 10u, box%mul%0#0)
-        _puya_lib.box_arc4.box_update_offset_inc("box", 12u, box%mul%0#0)
-        _puya_lib.box_arc4.box_update_offset_inc("box", 22u, box%mul%0#0)
-        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", 24u, extract_to_end%0#0, tmp%0#1, 8u)
+        _puya_lib.box_arc4.box_update_offset_inc("box", 10u, mul%0#0)
+        _puya_lib.box_arc4.box_update_offset_inc("box", 12u, mul%0#0)
+        _puya_lib.box_arc4.box_update_offset_inc("box", 22u, mul%0#0)
+        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", 24u, extract_to_end%0#0, length%0#0, 8u)
         let (inc_array%0#0: Encoded(len+uint64[]), array#1: Encoded(len+uint64[])) = test_cases.large_box_operations.struct_multiple_array_uint64.inc_array(array#0, 1u)
         let extract_to_end%1#0: bytes = ((extract 2 0) inc_array%0#0)
         let tmp%2#0: uint64 = array_len(inc_array%0#0)
@@ -393,7 +388,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%9#0: uint64 = 10u
         let box%box_extract%6#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%4#0: uint64 = (btoi box%box_extract%6#0)
-        let box%offset%3#0: uint64 = box%btoi%4#0
         _puya_lib.box_arc4.box_update_offset_inc("box", 12u, box%mul%1#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, box%mul%1#0)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%4#0, extract_to_end%1#0, tmp%2#0, 8u)
@@ -405,7 +399,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%14#0: uint64 = 12u
         let box%box_extract%11#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%8#0: uint64 = (btoi box%box_extract%11#0)
-        let box%offset%5#0: uint64 = box%btoi%8#0
         _puya_lib.box_arc4.box_update_offset_inc("box", 22u, box%mul%2#0)
         _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%btoi%8#0, extract_to_end%2#0, tmp%4#0, 8u)
         exit 1u
@@ -437,14 +430,12 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%6#0: uint64 = 10u
         let box%box_extract%8#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%5#0: uint64 = (btoi box%box_extract%8#0)
-        let box%offset%6#0: uint64 = box%btoi%5#0
         let box%box_extract%9#0: bytes = (box_extract "box" box%btoi%5#0 2u)
         let box%btoi%6#0: uint64 = (btoi box%box_extract%9#0)
         let sub%1#0: uint64 = (- box%btoi%6#0 1u) // on error: cannot pop from empty array
         let box%add%7#0: uint64 = 10u
         let box%box_extract%10#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%7#0: uint64 = (btoi box%box_extract%10#0)
-        let box%offset%7#0: uint64 = box%btoi%7#0
         let box%box_extract%11#0: bytes = (box_extract "box" box%btoi%7#0 2u)
         let box%btoi%8#0: uint64 = (btoi box%box_extract%11#0)
         let box%index_ok%1#0: bool = (< sub%1#0 box%btoi%8#0)
@@ -459,7 +450,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%13#0: uint64 = 10u
         let box%box_extract%14#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%10#0: uint64 = (btoi box%box_extract%14#0)
-        let box%offset%9#0: uint64 = box%btoi%10#0
         _puya_lib.box_arc4.box_update_offset_dec("box", 12u, 8u)
         _puya_lib.box_arc4.box_update_offset_dec("box", 22u, 8u)
         _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("box", box%btoi%10#0, 8u)
@@ -469,14 +459,12 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%15#0: uint64 = 12u
         let box%box_extract%18#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%13#0: uint64 = (btoi box%box_extract%18#0)
-        let box%offset%11#0: uint64 = box%btoi%13#0
         let box%box_extract%19#0: bytes = (box_extract "box" box%btoi%13#0 2u)
         let box%btoi%14#0: uint64 = (btoi box%box_extract%19#0)
         let sub%2#0: uint64 = (- box%btoi%14#0 1u) // on error: cannot pop from empty array
         let box%add%16#0: uint64 = 12u
         let box%box_extract%20#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%15#0: uint64 = (btoi box%box_extract%20#0)
-        let box%offset%12#0: uint64 = box%btoi%15#0
         let box%box_extract%21#0: bytes = (box_extract "box" box%btoi%15#0 2u)
         let box%btoi%16#0: uint64 = (btoi box%box_extract%21#0)
         let box%index_ok%2#0: bool = (< sub%2#0 box%btoi%16#0)
@@ -490,7 +478,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%21#0: uint64 = 12u
         let box%box_extract%24#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%18#0: uint64 = (btoi box%box_extract%24#0)
-        let box%offset%14#0: uint64 = box%btoi%18#0
         _puya_lib.box_arc4.box_update_offset_dec("box", 22u, 8u)
         _puya_lib.box_arc4.box_dynamic_array_pop_fixed_size("box", box%btoi%18#0, 8u)
         let tmp%14#0: uint64 = (+ result#0 2u)
@@ -634,7 +621,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%0#0: uint64 = 10u
         let box%box_extract%2#0: bytes = (box_extract "box" 10u 2u)
         let box%btoi%1#0: uint64 = (btoi box%box_extract%2#0)
-        let box%offset%1#0: uint64 = box%btoi%1#0
         let box%box_extract%3#0: bytes = (box_extract "box" box%btoi%1#0 2u)
         let box%btoi%2#0: uint64 = (btoi box%box_extract%3#0)
         let box%data_bytes%1#0: uint64 = (* box%btoi%2#0 8u)
@@ -646,7 +632,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%1#0: uint64 = 12u
         let box%box_extract%5#0: bytes = (box_extract "box" 12u 2u)
         let box%btoi%3#0: uint64 = (btoi box%box_extract%5#0)
-        let box%offset%2#0: uint64 = box%btoi%3#0
         let box%box_extract%6#0: bytes = (box_extract "box" box%btoi%3#0 2u)
         let box%btoi%4#0: uint64 = (btoi box%box_extract%6#0)
         let box%data_bytes%2#0: uint64 = (* box%btoi%4#0 8u)
@@ -668,7 +653,6 @@ subroutine test_cases.large_box_operations.struct_multiple_array_uint64.StructMu
         let box%add%3#0: uint64 = 22u
         let box%box_extract%13#0: bytes = (box_extract "box" 22u 2u)
         let box%btoi%7#0: uint64 = (btoi box%box_extract%13#0)
-        let box%offset%6#0: uint64 = box%btoi%7#0
         let box%box_extract%14#0: bytes = (box_extract "box" box%btoi%7#0 2u)
         let box%btoi%8#0: uint64 = (btoi box%box_extract%14#0)
         let tmp%8#0: bool = (== box%btoi%8#0 1u)

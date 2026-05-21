@@ -139,7 +139,6 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
     block@0: // L58
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -147,7 +146,6 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         let vote_id#0: string = decode_bytes<string>(tmp%0#0)
         let tmp%2#0: bytes = (txna ApplicationArgs 2)
         let length%1#0: uint64 = array_len(tmp%2#0)
-        let mul%1#0: uint64 = length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len tmp%2#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
@@ -155,7 +153,6 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         let snapshot_public_key#0: bytes = decode_bytes<bytes>(tmp%2#0)
         let tmp%4#0: bytes = (txna ApplicationArgs 3)
         let length%2#0: uint64 = array_len(tmp%4#0)
-        let mul%2#0: uint64 = length%2#0
         let add%2#0: uint64 = (+ length%2#0 2u)
         let len%2#0: uint64 = (len tmp%4#0)
         let eq%2#0: bool = (== len%2#0 add%2#0)
@@ -173,7 +170,6 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         let end_time#0: uint64 = decode_bytes<uint64>(tmp%8#0)
         let option_counts#0: Encoded(len+uint8[]) = (txna ApplicationArgs 6)
         let length%3#0: uint64 = array_len(option_counts#0)
-        let mul%3#0: uint64 = length%3#0
         let add%3#0: uint64 = (+ length%3#0 2u)
         let len%5#0: uint64 = (len option_counts#0)
         let eq%5#0: bool = (== len%5#0 add%3#0)
@@ -185,7 +181,6 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         let quorum#0: uint64 = decode_bytes<uint64>(tmp%11#0)
         let tmp%13#0: bytes = (txna ApplicationArgs 8)
         let length%4#0: uint64 = array_len(tmp%13#0)
-        let mul%4#0: uint64 = length%4#0
         let add%4#0: uint64 = (+ length%4#0 2u)
         let len%7#0: uint64 = (len tmp%13#0)
         let eq%7#0: bool = (== len%7#0 add%4#0)
@@ -349,7 +344,6 @@ subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() ->
     block@0: // L160
         let tmp%0#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%0#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%0#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -377,7 +371,6 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         (assert gtxn_type_matches%0#0) // transaction type is pay
         let tmp%1#0: bytes = (txna ApplicationArgs 1)
         let length%0#0: uint64 = array_len(tmp%1#0)
-        let mul%0#0: uint64 = length%0#0
         let add%0#0: uint64 = (+ length%0#0 2u)
         let len%0#0: uint64 = (len tmp%1#0)
         let eq%0#0: bool = (== len%0#0 add%0#0)
@@ -385,7 +378,6 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let signature#0: bytes = decode_bytes<bytes>(tmp%1#0)
         let answer_ids#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
         let length%1#0: uint64 = array_len(answer_ids#0)
-        let mul%1#0: uint64 = length%1#0
         let add%1#0: uint64 = (+ length%1#0 2u)
         let len%1#0: uint64 = (len answer_ids#0)
         let eq%1#0: bool = (== len%1#0 add%1#0)
@@ -401,12 +393,9 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%0#0) // check self.option_counts exists
         let questions_count#0: uint64 = array_len(maybe_value%0#0)
-        let tmp%5#0: uint64 = array_len(answer_ids#0)
-        let tmp%6#0: bool = (== tmp%5#0 questions_count#0)
+        let tmp%6#0: bool = (== length%1#0 questions_count#0)
         (assert tmp%6#0) // Number of answers incorrect
-        let tmp%7#0: uint64 = array_len(answer_ids#0)
-        let tmp%8#0: uint64 = tmp%7#0
-        let tmp%9#0: uint64 = (+ 34u tmp%7#0)
+        let tmp%9#0: uint64 = (+ 34u length%1#0)
         let tmp%10#0: uint64 = (* tmp%9#0 400u)
         let min_bal_req#0: uint64 = (+ 2500u tmp%10#0)
         let tmp%12#0: account = ((gtxns Receiver) fund_min_bal_req#0)
@@ -439,7 +428,6 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         examples.voting.voting.VotingRoundApp.increment_vote_in_box(tmp%21#0)
         let cumulative_offset#2: uint64 = (+ cumulative_offset#1 options_count#0)
         let materialized_values%0#0: account = (txn Sender)
-        let map_prefixed_key%0#0: bytes = materialized_values%0#0
         box_write(materialized_values%0#0, answer_ids#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
@@ -482,7 +470,6 @@ subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:
 subroutine examples.voting.voting.VotingRoundApp.already_voted() -> bool:
     block@0: // L213
         let materialized_values%0#0: account = (txn Sender)
-        let map_prefixed_key%0#0: bytes = materialized_values%0#0
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
         return maybe_exists%0#0
 
@@ -491,17 +478,15 @@ subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_coun
         let tmp%0#0: uint64 = array_len(option_counts#0)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
         (assert tmp%0#0) // option_counts should be non-empty
-        let tmp%2#0: uint64 = array_len(option_counts#0)
-        let tmp%3#0: bool = (<= tmp%2#0 112u)
+        let tmp%3#0: bool = (<= tmp%0#0 112u)
         (assert tmp%3#0) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
-        let array_length%0#0: uint64 = array_len(option_counts#0)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L223
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
         let total_options#1: uint64 = φ(total_options#0 <- block@0, total_options#2 <- block@2)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L224
         let item#0: Encoded(uint8) = extract_value(option_counts#0, item_index_internal%0#1)

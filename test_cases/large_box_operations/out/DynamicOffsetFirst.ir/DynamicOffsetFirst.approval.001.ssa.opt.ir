@@ -555,10 +555,9 @@ subroutine test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFir
         let box%box_extract%1#0: Encoded(len+uint64[]) = (box_extract "box" box%offset%2#0 box%total_bytes%0#0)
         let tuple_item%2#0: Encoded(len+uint64[]) = box%box_extract%1#0
         let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
-        let tmp%0#1: uint64 = array_len(array#0)
-        let tmp%1#0: Encoded(len+uint64[]) = array_concat(tuple_item%2#0, extract_to_end%0#0, tmp%0#1)
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(tuple_item%2#0, extract_to_end%0#0, length%0#0)
         let updated_tuple%0#0: Encoded((uint64,(uint64,(len+uint64[]),uint64),uint64),(len+uint8[4096][]),(len+uint8[4096][])) = replace_value(storage_value%0#0, 0, 1, 1, tmp%1#0)
-        let box%mul%0#0: uint64 = (* tmp%0#1 8u)
+        let box%mul%0#0: uint64 = (* length%0#0 8u)
         let box%add%0#0: uint64 = (+ 0u 2u)
         let box%add%1#0: uint64 = (+ 0u 4u)
         let box%add%2#0: uint64 = (+ 0u 6u)
@@ -569,7 +568,7 @@ subroutine test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFir
         let box%offset%5#0: uint64 = (+ box%offset%4#0 18u)
         _puya_lib.box_arc4.box_update_offset_inc("box", box%add%0#0, box%mul%0#0)
         _puya_lib.box_arc4.box_update_offset_inc("box", box%add%1#0, box%mul%0#0)
-        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, tmp%0#1, 8u)
+        _puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, length%0#0, 8u)
         exit 1u
 
 subroutine test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.append[routing]() -> void:
