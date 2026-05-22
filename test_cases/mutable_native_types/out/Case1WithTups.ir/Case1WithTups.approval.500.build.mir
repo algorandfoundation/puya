@@ -611,16 +611,16 @@ subroutine set_a:
         int 16                                                                                box%box_extract%2#0,aggregate%bytes_offset%0#0,16
         extract3 // on error: index access is out of bounds                                   aggregate%encoded_element%0#0
         v-store aggregate%encoded_element%0#0
-        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
-        extract 8 8                                                                           aggregate%extract%1#0
-        v-store aggregate%extract%1#0
         // mutable_native_types/case1_with_tups.py:92
         // self.tup_bag.value.items[i] = tup._replace(a=a)
         v-load a#0                                                                            a#0
         itob                                                                                  aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0
+        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
+        extract 8 8                                                                           aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0
         v-load aggregate%val_as_bytes%0#0                                                     aggregate%val_as_bytes%0#0
-        v-load aggregate%extract%1#0                                                          aggregate%val_as_bytes%0#0,aggregate%extract%1#0
+        v-load aggregate%val_as_bytes%1#0                                                     aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                aggregate%head%1#0
         v-store aggregate%head%1#0
         v-load i#0                                                                            i#0
@@ -719,16 +719,16 @@ subroutine set_b:
         int 16                                                                                box%box_extract%2#0,aggregate%bytes_offset%0#0,16
         extract3 // on error: index access is out of bounds                                   aggregate%encoded_element%0#0
         v-store aggregate%encoded_element%0#0
-        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
-        extract 0 8                                                                           aggregate%extract%0#0
-        v-store aggregate%extract%0#0
         // mutable_native_types/case1_with_tups.py:99
         // self.tup_bag.value.items[i] = tup._replace(b=b)
+        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
+        extract 0 8                                                                           aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load b#0                                                                            b#0
         itob                                                                                  aggregate%val_as_bytes%1#0
         v-store aggregate%val_as_bytes%1#0
-        v-load aggregate%extract%0#0                                                          aggregate%extract%0#0
-        v-load aggregate%val_as_bytes%1#0                                                     aggregate%extract%0#0,aggregate%val_as_bytes%1#0
+        v-load aggregate%val_as_bytes%0#0                                                     aggregate%val_as_bytes%0#0
+        v-load aggregate%val_as_bytes%1#0                                                     aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                aggregate%head%1#0
         v-store aggregate%head%1#0
         v-load i#0                                                                            i#0
@@ -819,12 +819,6 @@ subroutine get_3_tups:
         int 16                                                                                box%box_extract%2#0,aggregate%bytes_offset%0#0,16
         extract3 // on error: index access is out of bounds                                   aggregate%encoded_element%0#0
         v-store aggregate%encoded_element%0#0
-        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
-        extract 0 8                                                                           aggregate%extract%0#0
-        v-store aggregate%extract%0#0
-        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
-        extract 8 8                                                                           aggregate%extract%1#0
-        v-store aggregate%extract%1#0
         // mutable_native_types/case1_with_tups.py:109
         // items[start + 1],
         v-load start#0                                                                        start#0
@@ -840,12 +834,6 @@ subroutine get_3_tups:
         int 16                                                                                box%box_extract%2#0,aggregate%bytes_offset%1#0,16
         extract3 // on error: index access is out of bounds                                   aggregate%encoded_element%1#0
         v-store aggregate%encoded_element%1#0
-        v-load aggregate%encoded_element%1#0                                                  aggregate%encoded_element%1#0
-        extract 0 8                                                                           aggregate%extract%2#0
-        v-store aggregate%extract%2#0
-        v-load aggregate%encoded_element%1#0                                                  aggregate%encoded_element%1#0
-        extract 8 8                                                                           aggregate%extract%3#0
-        v-store aggregate%extract%3#0
         // mutable_native_types/case1_with_tups.py:110
         // items[start + 2],
         v-load start#0                                                                        start#0
@@ -861,12 +849,6 @@ subroutine get_3_tups:
         int 16                                                                                box%box_extract%2#0,aggregate%bytes_offset%2#0,16
         extract3 // on error: index access is out of bounds                                   aggregate%encoded_element%2#0
         v-store aggregate%encoded_element%2#0
-        v-load aggregate%encoded_element%2#0                                                  aggregate%encoded_element%2#0
-        extract 0 8                                                                           aggregate%extract%4#0
-        v-store aggregate%extract%4#0
-        v-load aggregate%encoded_element%2#0                                                  aggregate%encoded_element%2#0
-        extract 8 8                                                                           aggregate%extract%5#0
-        v-store aggregate%extract%5#0
         // mutable_native_types/case1_with_tups.py:106-112
         // return FixedArray[NamedTup, typing.Literal[3]](
         //     (
@@ -875,20 +857,38 @@ subroutine get_3_tups:
         //         items[start + 2],
         //     )
         // )
-        v-load aggregate%extract%0#0                                                          aggregate%extract%0#0
-        v-load aggregate%extract%1#0                                                          aggregate%extract%0#0,aggregate%extract%1#0
+        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
+        extract 0 8                                                                           aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
+        v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
+        extract 8 8                                                                           aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0
+        v-load aggregate%val_as_bytes%0#0                                                     aggregate%val_as_bytes%0#0
+        v-load aggregate%val_as_bytes%1#0                                                     aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                aggregate%head%1#0
         v-store aggregate%head%1#0
-        v-load aggregate%extract%2#0                                                          aggregate%extract%2#0
-        v-load aggregate%extract%3#0                                                          aggregate%extract%2#0,aggregate%extract%3#0
+        v-load aggregate%encoded_element%1#0                                                  aggregate%encoded_element%1#0
+        extract 0 8                                                                           aggregate%val_as_bytes%2#0
+        v-store aggregate%val_as_bytes%2#0
+        v-load aggregate%encoded_element%1#0                                                  aggregate%encoded_element%1#0
+        extract 8 8                                                                           aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0
+        v-load aggregate%val_as_bytes%2#0                                                     aggregate%val_as_bytes%2#0
+        v-load aggregate%val_as_bytes%3#0                                                     aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
         concat                                                                                aggregate%head%4#0
         v-store aggregate%head%4#0
         v-load aggregate%head%1#0                                                             aggregate%head%1#0
         v-load aggregate%head%4#0                                                             aggregate%head%1#0,aggregate%head%4#0
         concat                                                                                aggregate%head%5#0
         v-store aggregate%head%5#0
-        v-load aggregate%extract%4#0                                                          aggregate%extract%4#0
-        v-load aggregate%extract%5#0                                                          aggregate%extract%4#0,aggregate%extract%5#0
+        v-load aggregate%encoded_element%2#0                                                  aggregate%encoded_element%2#0
+        extract 0 8                                                                           aggregate%val_as_bytes%4#0
+        v-store aggregate%val_as_bytes%4#0
+        v-load aggregate%encoded_element%2#0                                                  aggregate%encoded_element%2#0
+        extract 8 8                                                                           aggregate%val_as_bytes%5#0
+        v-store aggregate%val_as_bytes%5#0
+        v-load aggregate%val_as_bytes%4#0                                                     aggregate%val_as_bytes%4#0
+        v-load aggregate%val_as_bytes%5#0                                                     aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
         concat                                                                                aggregate%head%7#0
         v-store aggregate%head%7#0
         v-load aggregate%head%5#0                                                             aggregate%head%5#0
@@ -960,13 +960,13 @@ subroutine get_all_tups:
         extract3 // on error: index access is out of bounds                                   aggregate%encoded_element%0#0
         v-store aggregate%encoded_element%0#0
         v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
-        extract 0 8                                                                           aggregate%extract%0#0
-        v-store aggregate%extract%0#0
+        extract 0 8                                                                           aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0
         v-load aggregate%encoded_element%0#0                                                  aggregate%encoded_element%0#0
-        extract 8 8                                                                           aggregate%extract%1#0
-        v-store aggregate%extract%1#0
-        v-load aggregate%extract%0#0                                                          aggregate%extract%0#0
-        v-load aggregate%extract%1#0                                                          aggregate%extract%0#0,aggregate%extract%1#0
+        extract 8 8                                                                           aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0
+        v-load aggregate%val_as_bytes%0#0                                                     aggregate%val_as_bytes%0#0
+        v-load aggregate%val_as_bytes%1#0                                                     aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                new_items_bytes#0
         v-store new_items_bytes#0
         v-load result#0                                                                       result#0

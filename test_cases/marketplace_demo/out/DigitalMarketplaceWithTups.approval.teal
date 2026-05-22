@@ -336,28 +336,25 @@ deposit:
     intc_2 // 0
     extract_uint64
     dig 1
-    extract 8 8
-    dig 2
     extract 16 32
-    dig 3
-    extract 48 8
-    uncover 4
-    extract 56 8
     // marketplace_demo/marketplace_with_tups.py:135
     // deposited=existing.deposited + xfer.asset_amount,
+    swap
     uncover 4
-    uncover 6
     +
     // marketplace_demo/marketplace_with_tups.py:130
     // self.listings[key] = ListingValue(
     itob
-    uncover 4
-    concat
-    uncover 3
-    concat
-    uncover 2
+    dig 2
+    extract 8 8
     concat
     swap
+    concat
+    dig 1
+    extract 48 8
+    concat
+    swap
+    extract 56 8
     concat
     // marketplace_demo/marketplace_with_tups.py:130-136
     // self.listings[key] = ListingValue(
@@ -417,25 +414,21 @@ set_price:
     box_get
     assert // check self.listings entry exists
     dup
-    extract 0 8
-    dig 1
     extract 16 32
-    dig 2
-    extract 48 8
-    uncover 3
-    extract 56 8
     // marketplace_demo/marketplace_with_tups.py:143
     // self.listings[key] = ListingValue(
-    uncover 5
-    itob
+    dig 1
+    extract 0 8
     uncover 4
-    swap
-    concat
-    uncover 3
-    concat
-    uncover 2
+    itob
     concat
     swap
+    concat
+    dig 1
+    extract 48 8
+    concat
+    swap
+    extract 56 8
     concat
     // marketplace_demo/marketplace_with_tups.py:143-149
     // self.listings[key] = ListingValue(
@@ -515,19 +508,15 @@ buy:
     extract_uint64
     dig 2
     extract 16 32
-    dig 3
-    extract 48 8
-    uncover 4
-    extract 56 8
     // marketplace_demo/marketplace_with_tups.py:164
     // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
-    dig 8
+    dig 7
     asset_params_get AssetDecimals
     assert // asset exists
     // marketplace_demo/marketplace_with_tups.py:70
     // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
-    dig 4
-    dig 8
+    dig 2
+    dig 7
     mulw
     // marketplace_demo/marketplace_with_tups.py:71
     // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
@@ -547,40 +536,42 @@ buy:
     assert
     // marketplace_demo/marketplace_with_tups.py:166
     // assert buy_pay.sender == Txn.sender
-    dig 8
+    dig 7
     gtxns Sender
     txn Sender
     ==
     assert
     // marketplace_demo/marketplace_with_tups.py:167
     // assert buy_pay.receiver == owner
-    dig 8
+    dig 7
     gtxns Receiver
-    uncover 11
+    uncover 10
     ==
     assert
     // marketplace_demo/marketplace_with_tups.py:168
     // assert buy_pay.amount == amount_to_be_paid
-    uncover 8
+    uncover 7
     gtxns Amount
     ==
     assert
     // marketplace_demo/marketplace_with_tups.py:175
     // deposited=listing.deposited - quantity,
-    uncover 4
-    dig 6
+    uncover 2
+    dig 5
     -
     // marketplace_demo/marketplace_with_tups.py:170
     // self.listings[key] = ListingValue(
     itob
-    uncover 4
+    uncover 2
     itob
     concat
-    uncover 3
+    swap
     concat
-    uncover 2
+    dig 1
+    extract 48 8
     concat
     swap
+    extract 56 8
     concat
     // marketplace_demo/marketplace_with_tups.py:170-176
     // self.listings[key] = ListingValue(
@@ -852,13 +843,10 @@ bid:
     concat
     dup
     box_get
+    swap
+    dup
+    uncover 2
     assert // check self.listings entry exists
-    dup
-    extract 0 8
-    swap
-    dup
-    extract 8 8
-    swap
     dup
     extract 16 32
     dup
@@ -877,7 +865,7 @@ bid:
     bz bid_after_if_else@4
     // marketplace_demo/marketplace_with_tups.py:215
     // assert unitary_price > listing.bidUnitaryPrice
-    dig 6
+    dig 5
     dig 1
     dup
     cover 2
@@ -885,7 +873,7 @@ bid:
     assert
     // marketplace_demo/marketplace_with_tups.py:218
     // listing.bid, listing.bidUnitaryPrice, asset.decimals
-    dig 10
+    dig 9
     asset_params_get AssetDecimals
     assert // asset exists
     // marketplace_demo/marketplace_with_tups.py:70
@@ -924,15 +912,15 @@ bid:
 bid_after_if_else@4:
     // marketplace_demo/marketplace_with_tups.py:223
     // amount_to_be_bid = self.quantity_price(quantity, unitary_price, asset.decimals)
-    dig 9
+    dig 8
     asset_params_get AssetDecimals
     assert // asset exists
     // marketplace_demo/marketplace_with_tups.py:70
     // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
-    dig 7
+    dig 6
     dup
     cover 2
-    dig 10
+    dig 9
     dup
     cover 3
     mulw
@@ -954,7 +942,7 @@ bid_after_if_else@4:
     assert
     // marketplace_demo/marketplace_with_tups.py:225
     // assert bid_pay.sender == Txn.sender
-    dig 11
+    dig 10
     dup
     gtxns Sender
     txn Sender
@@ -977,8 +965,11 @@ bid_after_if_else@4:
     txn Sender
     // marketplace_demo/marketplace_with_tups.py:229
     // self.listings[key] = ListingValue(
-    dig 7
-    dig 7
+    dig 6
+    dup
+    extract 0 8
+    swap
+    extract 8 8
     concat
     swap
     concat
@@ -996,7 +987,7 @@ bid_after_if_else@4:
     //     bid=quantity,
     //     bidUnitaryPrice=unitary_price,
     // )
-    dig 6
+    dig 5
     swap
     box_put
     // marketplace_demo/marketplace_with_tups.py:201
@@ -1040,15 +1031,15 @@ accept_bid:
     concat
     dup
     box_get
+    swap
+    dup
+    uncover 2
     assert // check self.listings entry exists
     dup
     intc_2 // 0
     extract_uint64
     dup
     uncover 2
-    dup
-    extract 8 8
-    cover 2
     dup
     extract 16 32
     dup
@@ -1072,7 +1063,7 @@ accept_bid:
     // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
     <
     bz accept_bid_ternary_false@3
-    dig 4
+    dig 3
 
 accept_bid_ternary_merge@4:
     // marketplace_demo/marketplace_with_tups.py:247
@@ -1143,7 +1134,7 @@ accept_bid_ternary_merge@4:
     itxn_submit
     // marketplace_demo/marketplace_with_tups.py:260
     // deposited=listing.deposited - min_quantity,
-    dig 7
+    dig 6
     dig 1
     -
     // marketplace_demo/marketplace_with_tups.py:261
@@ -1155,7 +1146,8 @@ accept_bid_ternary_merge@4:
     // self.listings[key] = ListingValue(
     swap
     itob
-    dig 7
+    dig 8
+    extract 8 8
     concat
     uncover 2
     concat
