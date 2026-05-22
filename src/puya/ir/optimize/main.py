@@ -14,6 +14,7 @@ from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.control_op_simplification import simplify_control_ops
+from puya.ir.optimize.convert_stack_args_to_immediates import convert_stack_args_to_immediates
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
     remove_unused_subroutines,
@@ -24,7 +25,6 @@ from puya.ir.optimize.global_value_numbering import global_value_numbering
 from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_subroutine_inlining
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import (
-    convert_stack_args_to_immediates,
     intrinsic_simplifier,
 )
 from puya.ir.optimize.itxn_field_elision import elide_itxn_field_calls
