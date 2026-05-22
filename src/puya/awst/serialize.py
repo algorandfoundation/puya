@@ -5,7 +5,9 @@ import typing
 import warnings
 from collections.abc import Mapping, Sequence
 from pathlib import Path
+from typing import Any
 
+from cattrs.gen import make_dict_structure_fn
 from cattrs.literals import is_literal_containing_enums
 from cattrs.preconf.json import JsonConverter, make_converter
 from cattrs.strategies import configure_tagged_union, include_subclasses
@@ -13,9 +15,14 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import nodes, txn_fields, wtypes
+from puya.awst.nodes import Node
+from puya.awst.wtypes import WType
 from puya.errors import InternalError, PuyaError
 
 logger = log.get_logger(__name__)
+
+ID_KEY = "_$%!#ID"
+REF_KEY = "_$%!#REF"
 
 
 def _unstructure_optional_enum_literal(value: object) -> object:
@@ -34,6 +41,49 @@ def get_converter() -> JsonConverter:
     converter.register_unstructure_hook_factory(
         is_literal_containing_enums, lambda _: _unstructure_optional_enum_literal
     )
+
+    known: dict[int, object] = {}
+    definitions: dict[int, dict] = {}
+    visited_nodes: set[object] = set()
+
+    def gather_definitions(v: Any) -> None:
+        if id(v) in visited_nodes:
+            return
+        visited_nodes.add(id(v))
+
+        if isinstance(v, dict):
+            if ID_KEY in v:
+                definitions[v[ID_KEY]] = v
+            for child in v.values():
+                gather_definitions(child)
+        if isinstance(v, list):
+            for child in v:
+                gather_definitions(child)
+
+    def json_references_factory[T](cl: type[T]) -> typing.Callable[[Any, type[T]], T]:
+        do_structure = make_dict_structure_fn(cl, converter)
+
+        def process_references(v: Any, _: type[T]) -> T:  # ignore[ANN401]
+            gather_definitions(v)
+
+            if isinstance(v, dict):
+                if REF_KEY in v:
+                    v_ref = v[REF_KEY]
+                    if v_ref in known:
+                        result = known[v[REF_KEY]]
+                        assert isinstance(result, cl)
+                        return result
+                    v = definitions[v_ref]
+                if ID_KEY in v:
+                    v_id = v[ID_KEY]
+                    del v[ID_KEY]
+                    result = known[v_id] = do_structure(v, cl)
+                    return result
+            return do_structure(v, cl)
+
+        return process_references
+
+    converter.register_structure_hook_factory(lambda cl: isinstance(cl, type) and issubclass(cl, WType) or issubclass(cl, Node), json_references_factory)
 
     # TxnField and PuyaLibFunction as name
     for enum_type in (txn_fields.TxnField, nodes.PuyaLibFunction, log.LogLevel):
