@@ -331,93 +331,217 @@ def _materialize_constants(
     expand_all_bytes: bool,
 ) -> bool:
     modified = False
-    # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
-    # defs whose sole use is also r's defining op). Subroutine-wide: only populated
-    # for registers with exactly one read across the whole subroutine, so eliminating
-    # that one read truly kills r and DCE will remove its defining op.
-    savings = dict[models.Register, int]()
+    # Pre-fold uint64-target ops (single + multi-target) unconditionally, and bytes
+    # ops unconditionally when expand_all_bytes is set. Collect bytes single-target
+    # candidates for a joint cost-aware decision via Schlesinger-Flach min-cut.
+    bytes_candidates = list[_BytesFoldCandidate]()
+    constant_assignments = list[models.Assignment]()
     for block in bfs_block_order(start):
         for op in block.ops:
             if not isinstance(op, models.Assignment):
                 continue
-            if not isinstance(op.source, models.MultiValue):
-                folded = _try_fold_constants(
-                    op, tables, savings, expand_all_bytes=expand_all_bytes
+            if isinstance(op.source, models.Constant):
+                constant_assignments.append(op)
+                continue
+            if not isinstance(op.source, models.Intrinsic):
+                continue
+            target_vns = [tables.register_vn[t] for t in op.targets]
+            target_defns = [tables.vn_definition.get(vn) for vn in target_vns]
+            (source_type, *_) = op.source.types
+            if len(target_defns) == 1:
+                (target_defn,) = target_defns
+                match target_defn:
+                    case _UInt64ConstKey(value=uint64_const):
+                        folded: models.MultiValue = models.UInt64Constant(
+                            value=uint64_const,
+                            ir_type=source_type,
+                            source_location=op.source.source_location,
+                        )
+                        modified = True
+                        with ssa_reads.update(op):
+                            op.source = folded
+                        constant_assignments.append(op)
+                    case _BytesConstKey(value=bytes_const, encoding=bytes_encoding):
+                        folded = models.BytesConstant(
+                            value=bytes_const,
+                            encoding=bytes_encoding,
+                            ir_type=source_type,
+                            source_location=op.source.source_location,
+                        )
+                        if expand_all_bytes:
+                            modified = True
+                            with ssa_reads.update(op):
+                                op.source = folded
+                            constant_assignments.append(op)
+                        else:
+                            bytes_candidates.append(
+                                _BytesFoldCandidate(
+                                    op=op,
+                                    source=op.source,
+                                    folded=folded,
+                                    orig=_cost(op.source),
+                                    mat=len(encode_bytes(bytes_const)),
+                                )
+                            )
+            elif _is_list_of(target_defns, _UInt64ConstKey):
+                folded = models.ValueTuple(
+                    values=[
+                        models.UInt64Constant(
+                            value=uint64_defn.value,
+                            ir_type=tgt_type,
+                            source_location=op.source.source_location,
+                        )
+                        for uint64_defn, tgt_type in zip(
+                            target_defns, op.source.types, strict=True
+                        )
+                    ],
+                    source_location=op.source_location,
                 )
-                if folded is not None:
-                    modified = True
-                    with ssa_reads.update(op):
-                        op.source = folded
-            if len(op.targets) == 1:
-                (saved_target,) = op.targets
-                if ssa_reads.count(saved_target) == 1:
-                    match op.source:
-                        case (
-                            models.Intrinsic() as intrinsic
-                        ) if intrinsic.op in COMPILE_TIME_CONSTANT_OPS:
-                            savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
-                        case models.Constant():
-                            savings[saved_target] = _get_const_size(op.source)
+                modified = True
+                with ssa_reads.update(op):
+                    op.source = folded
+
+    if not bytes_candidates:
+        return modified
+
+    fold_decisions = _solve_bytes_fold_min_cut(bytes_candidates, constant_assignments, ssa_reads)
+    for candidate in bytes_candidates:
+        if fold_decisions[candidate.op]:
+            modified = True
+            with ssa_reads.update(candidate.op):
+                candidate.op.source = candidate.folded
     return modified
 
 
-def _try_fold_constants(
-    op: models.Assignment,
-    tables: _GVNTables,
-    savings: Mapping[models.Register, int],
-    *,
-    expand_all_bytes: bool,
-) -> models.MultiValue | None:
-    target_vns = [tables.register_vn[t] for t in op.targets]
-    target_defns = [tables.vn_definition.get(vn) for vn in target_vns]
-    if len(target_defns) == 1:
-        (target_defn,) = target_defns
-        (source_type,) = op.source.types
-        match target_defn:
-            case _UInt64ConstKey(value=uint64_const):
-                return models.UInt64Constant(
-                    value=uint64_const,
-                    ir_type=source_type,
-                    source_location=op.source.source_location,
-                )
-            case _BytesConstKey(
-                value=bytes_const, encoding=bytes_encoding
-            ) if expand_all_bytes or (
-                isinstance(op.source, models.Intrinsic)
-                and (len(encode_bytes(bytes_const)) <= _intrinsic_dead_cost(op.source, savings))
-            ):
-                return models.BytesConstant(
-                    value=bytes_const,
-                    encoding=bytes_encoding,
-                    ir_type=source_type,
-                    source_location=op.source.source_location,
-                )
-    elif _is_list_of(target_defns, _UInt64ConstKey):
-        return models.ValueTuple(
-            values=[
-                models.UInt64Constant(
-                    value=uint64_defn.value,
-                    ir_type=source_type,
-                    source_location=op.source.source_location,
-                )
-                for uint64_defn, source_type in zip(target_defns, op.source.types, strict=True)
-            ],
-            source_location=op.source_location,
-        )
+@attrs.frozen(kw_only=True)
+class _BytesFoldCandidate:
+    op: models.Assignment
+    source: models.Intrinsic
+    folded: models.BytesConstant
+    orig: int  # bytes-cost of source intrinsic if kept (state C)
+    mat: int  # bytes-cost of materialised constant if folded (state B)
 
-    return None
+
+def _solve_bytes_fold_min_cut(
+    candidates: list[_BytesFoldCandidate],
+    constant_assignments: list[models.Assignment],
+    ssa_reads: SSAReadTracker,
+) -> dict[models.Assignment, bool]:
+    """Decide which bytes-target V_F ops to fold via Schlesinger-Flach min-cut.
+
+    The discrete optimisation collapses each V_F op's (alive, folded) decision into a
+    ternary label `s_O ∈ {A=dead, B=alive-folded, C=alive-unfolded}` and each V_C node
+    (Constant assignment with V_F-only consumers) into binary `s_O ∈ {dead, alive}`.
+    The pairwise constraint along each def-use edge — "if O is dead, no V_F consumer
+    can be unfolded" — is submodular under the natural order, so the energy reduces
+    exactly to s-t min-cut. See `_tmp/gvn_folding/fold_decision_np_hardness.md`.
+
+    Returns: dict mapping each candidate op to True (fold) or False (keep as-is).
+    """
+    # V_F: bytes-target single-target candidates.
+    v_f_set = {c.op for c in candidates}
+
+    # Register -> defining op for the union of V_F and all Constant assignments.
+    reg_def = dict[models.Register, models.Assignment]()
+    for c in candidates:
+        (target,) = c.op.targets
+        reg_def[target] = c.op
+    for op in constant_assignments:
+        (target,) = op.targets
+        reg_def[target] = op
+
+    # For each V_F op, collect its in-graph operand defs (V_F or V_C candidates).
+    # Deduplicate: same register used N times by one op is still one upstream def.
+    v_f_operand_defs = dict[models.Assignment, list[models.Assignment]]()
+    v_c_candidates = set[models.Assignment]()
+    for c in candidates:
+        defs = list[models.Assignment]()
+        for arg in unique(a for a in c.source.args if isinstance(a, models.Register)):
+            def_op = reg_def.get(arg)
+            if def_op is None:
+                continue
+            if def_op in v_f_set:
+                defs.append(def_op)
+            elif isinstance(def_op.source, models.Constant):
+                v_c_candidates.add(def_op)
+                defs.append(def_op)
+        v_f_operand_defs[c.op] = defs
+
+    # A V_C node enters the graph only if every reader of its target is a V_F op --
+    # otherwise it's pinned alive and contributes only a constant offset.
+    v_c_in_graph = set[models.Assignment]()
+    for op in v_c_candidates:
+        (target,) = op.targets
+        if all(r in v_f_set for r in ssa_reads.get(target)):
+            v_c_in_graph.add(op)
+
+    # A V_F op is pinned alive (state A forbidden) if any of its readers isn't a V_F op.
+    v_f_pinned = dict[models.Assignment, bool]()
+    for op in v_f_set:
+        (target,) = op.targets
+        v_f_pinned[op] = any(r not in v_f_set for r in ssa_reads.get(target))
+
+    # Encoding: per V_F O two binary indicator nodes -- D_O ("alive"), K_O ("unfolded").
+    # Per V_C O one indicator -- D_O ("alive"). Cut convention: x in S-side iff x = 0.
+    # Implication "K=1 implies D=1" is enforced by inf-cap edge D -> K (a cut requires
+    # D in S, K in T, which is the forbidden corner). Unary cost u(x=1) is encoded by
+    # an edge S -> x with cap u(1) - u(0) when positive, or x -> T with cap u(0) - u(1)
+    # when negative.
+    inf_cap = 10**15
+
+    def node_d(op: models.Assignment) -> tuple[str, int]:
+        return ("D", id(op))
+
+    def node_k(op: models.Assignment) -> tuple[str, int]:
+        return ("K", id(op))
+
+    g = nx.DiGraph()
+    source = "__S__"
+    sink = "__T__"
+    g.add_node(source)
+    g.add_node(sink)
+
+    for c in candidates:
+        op = c.op
+        # u_D(0) = 0, u_D(1) = mat
+        if c.mat > 0:
+            g.add_edge(source, node_d(op), capacity=c.mat)
+        # u_K(0) = 0, u_K(1) = orig - mat
+        delta = c.orig - c.mat
+        if delta > 0:
+            g.add_edge(source, node_k(op), capacity=delta)
+        elif delta < 0:
+            g.add_edge(node_k(op), sink, capacity=-delta)
+        # Monotonicity: forbid (D=0, K=1).
+        g.add_edge(node_d(op), node_k(op), capacity=inf_cap)
+        # Pinned: D must be 1 (alive). Edge D -> T cap inf forces D in T-side.
+        if v_f_pinned[op]:
+            g.add_edge(node_d(op), sink, capacity=inf_cap)
+
+    for op in v_c_in_graph:
+        assert isinstance(op.source, models.Constant)
+        const_size = _get_const_size(op.source)
+        if const_size > 0:
+            g.add_edge(source, node_d(op), capacity=const_size)
+
+    # Pairwise constraint per def-use edge: forbid (s_def = A, s_use = C).
+    for op, defs in v_f_operand_defs.items():
+        for def_op in defs:
+            if def_op in v_c_in_graph or def_op in v_f_set:
+                g.add_edge(node_d(def_op), node_k(op), capacity=inf_cap)
+
+    _cut_value, (reachable, _non_reachable) = nx.minimum_cut(g, source, sink)
+
+    decisions = dict[models.Assignment, bool]()
+    for op in v_f_set:
+        # Fold iff state B (alive-folded): D in T-side AND K in S-side.
+        # State A (dead) lets DCE remove the op as-is; state C (unfolded) keeps it.
+        decisions[op] = node_d(op) not in reachable and node_k(op) in reachable
+    return decisions
 
 
 def _is_list_of[T, U](lst: list[U], typ: type[T]) -> typing.TypeGuard[list[T]]:
     return all(isinstance(x, typ) for x in lst)
-
-
-def _intrinsic_dead_cost(source: models.Intrinsic, savings: Mapping[models.Register, int]) -> int:
-    """Bytes saved if `source` and its transitively-dead upstream defs go away."""
-    # dedupe args: a register used N times in this op is still one upstream def
-    arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
-    upstream = sum(savings.get(arg, 0) for arg in arg_regs)
-    return _cost(source) + upstream
 
 
 def _cost(intrinsic: models.Intrinsic) -> int:
