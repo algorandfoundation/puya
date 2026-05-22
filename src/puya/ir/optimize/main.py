@@ -23,7 +23,10 @@ from puya.ir.optimize.eliminate_box_asserts import minimize_box_exist_asserts
 from puya.ir.optimize.global_value_numbering import global_value_numbering
 from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_subroutine_inlining
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
-from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
+from puya.ir.optimize.intrinsic_simplification import (
+    convert_stack_args_to_immediates,
+    intrinsic_simplifier,
+)
 from puya.ir.optimize.itxn_field_elision import elide_itxn_field_calls
 from puya.ir.optimize.repeated_aggregate_reads_merge import merge_chained_aggregate_reads
 from puya.ir.optimize.repeated_loads_elimination import (
@@ -83,6 +86,7 @@ def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(elide_itxn_field_calls),
         # TODO: improve this algorithm instead of looping
         SubroutineOptimization.from_function(remove_unused_variables, loop=True, min_level=0),
+        SubroutineOptimization.from_function(convert_stack_args_to_immediates),
         SubroutineOptimization.from_function(intrinsic_simplifier),
         SubroutineOptimization.from_function(inner_txn_field_replacer, min_level=0),
         SubroutineOptimization.from_function(replace_compiled_references, min_level=0),
