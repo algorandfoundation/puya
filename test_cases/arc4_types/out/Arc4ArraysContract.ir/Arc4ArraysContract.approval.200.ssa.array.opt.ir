@@ -61,10 +61,10 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%data_length%0#0: uint64 = 7u
         let aggregate%current_tail_offset%0#0: uint64 = 11u
         let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
-        let aggregate%offset_as_uint16%1#0: bytes = 0x000b
-        let aggregate%head%4#0: bytes = 0x00020004000b
+        let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)
+        let aggregate%head%4#0: bytes = (concat 0x00020004 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%4#0 0x000548656c6c6f)
-        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = (concat aggregate%head%4#0 0x000548656c6c6f0005576f726c64)
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = 0x00020004000b000548656c6c6f0005576f726c64
         let aggregate%array_length%2#0: uint64 = 2u
         let tmp%9#0: bool = 1u
         (assert tmp%9#0)
@@ -145,7 +145,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         (assert tmp%25#0)
         let aliased_static#0: Encoded(uint8[1]) = 0x65
         let aggregate%bytes_offset%4#0: uint64 = 0u
-        let aggregate%encoded_element%4#0: bytes = 0x65
+        let aggregate%encoded_element%4#0: bytes = (extract3 0x65 aggregate%bytes_offset%4#0 1u) // on error: index access is out of bounds
         let tmp%26#0: uint64 = 101u
         let tmp%28#0: uint64 = 202u
         let tmp%29#0: bool = 1u
@@ -160,10 +160,10 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%data_length%2#0: uint64 = 6u
         let aggregate%current_tail_offset%2#0: uint64 = 10u
         let aggregate%as_bytes%10#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
-        let aggregate%offset_as_uint16%3#0: bytes = 0x000a
-        let aggregate%head%11#0: bytes = 0x0004000a
+        let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%10#0)
+        let aggregate%head%11#0: bytes = (concat 0x0004 aggregate%offset_as_uint16%3#0)
         let aggregate%concat%2#0: bytes = (concat aggregate%head%11#0 0x000450696e67)
-        let static_string_array#0: Encoded((len+utf8[])[2]) = (concat aggregate%head%11#0 0x000450696e670004506f6e67)
+        let static_string_array#0: Encoded((len+utf8[])[2]) = 0x0004000a000450696e670004506f6e67
         let result#5: string = ""
         let item_index_internal%5#0: uint64 = 0u
         goto block@24

@@ -8,7 +8,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let length%0#0: uint64 = 14u
         let is_out_of_bounds%0#0: bool = 0u
         let bounded_index%0#0: uint64 = 2u
-        let tmp%3#0: bytes = 0x48656c6c6f20576f726c6421
+        let tmp%3#0: bytes = (substring3 0x000c48656c6c6f20576f726c6421 bounded_index%0#0 14u)
         let tmp%4#0: bool = 1u
         (assert tmp%4#0) // Original bytes should match encoded if we strip the length header
         let aggregate%length%1#0: uint64 = 5u
@@ -27,14 +27,14 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let new_items_count#0: uint64 = 1u
         let array_length#0: uint64 = 5u
         let new_array_length#0: uint64 = 6u
-        let new_len_u16#0: bytes = 0x0006
-        let result#0: bytes = 0x000648656c6c6f
-        let array#1: bytes = 0x000648656c6c6f20
+        let new_len_u16#0: bytes = ((extract 6 0) aggregate%as_bytes%3#0)
+        let result#0: bytes = ((replace2 0) 0x000548656c6c6f new_len_u16#0)
+        let array#1: bytes = (concat result#0 0x20)
         let new_items_bytes#1: bytes = 0x576f726c6421
         let new_items_count#1: uint64 = 6u
         let array_length#1: uint64 = 6u
         let new_array_length#1: uint64 = 12u
-        let new_len_u16#1: bytes = 0x000c
+        let new_len_u16#1: bytes = ((extract 6 0) aggregate%as_bytes%0#0)
         let result#1: bytes = ((replace2 0) array#1 new_len_u16#1)
         let tmp%4#2: bytes = (concat result#1 0x576f726c6421)
         let tmp%14#0: bool = 1u
@@ -47,9 +47,9 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let array_length#2: uint64 = 2u
         let new_array_length#2: uint64 = 4u
         let tmp%0#5: bytes = (itob new_array_length#2)
-        let new_len_u16#2: bytes = 0x0004
-        let result#2: bytes = 0x00046869
-        let thing#1: Encoded(len+utf8[]) = 0x000468696869
+        let new_len_u16#2: bytes = ((extract 6 0) tmp%0#5)
+        let result#2: bytes = ((replace2 0) 0x00026869 new_len_u16#2)
+        let thing#1: Encoded(len+utf8[]) = (concat result#2 0x6869)
         let aggregate%length%5#0: uint64 = 4u
         let aggregate%length_uint16%5#0: bytes = 0x0004
         let aggregate%encoded_value%5#0: bytes = 0x000468696869
@@ -64,9 +64,9 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let new_items_count#3: uint64 = 1u
         let array_length#3: uint64 = 1u
         let new_array_length#3: uint64 = 2u
-        let new_len_u16#3: bytes = 0x0002
-        let result#3: bytes = 0x000261
-        let array#4: bytes = 0x00026162
+        let new_len_u16#3: bytes = ((extract 6 0) aggregate%as_bytes%4#0)
+        let result#3: bytes = ((replace2 0) 0x000161 new_len_u16#3)
+        let array#4: bytes = (concat result#3 0x62)
         let aggregate%length%8#0: uint64 = 2u
         let aggregate%length_uint16%8#0: bytes = 0x0002
         let aggregate%encoded_value%8#0: bytes = 0x00026364
@@ -74,9 +74,8 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let new_items_count#4: uint64 = 2u
         let array_length#4: uint64 = 2u
         let new_array_length#4: uint64 = 4u
-        let new_len_u16#4: bytes = 0x0004
-        let result#4: bytes = 0x00046162
-        let value#0: Encoded(len+utf8[]) = 0x000461626364
+        let result#4: bytes = ((replace2 0) array#4 new_len_u16#2)
+        let value#0: Encoded(len+utf8[]) = (concat result#4 0x6364)
         let aggregate%length%9#0: uint64 = 1u
         let aggregate%length_uint16%9#0: bytes = 0x0001
         let aggregate%encoded_value%9#0: bytes = 0x000165
@@ -84,9 +83,9 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let new_items_count#5: uint64 = 1u
         let array_length#5: uint64 = 4u
         let new_array_length#5: uint64 = 5u
-        let new_len_u16#5: bytes = 0x0005
+        let new_len_u16#5: bytes = ((extract 6 0) aggregate%as_bytes%1#0)
         let result#5: bytes = ((replace2 0) value#0 new_len_u16#5)
-        let value#1: Encoded(len+utf8[]) = 0x00056162636465
+        let value#1: Encoded(len+utf8[]) = (concat result#5 0x65)
         let aggregate%length%10#0: uint64 = 1u
         let aggregate%length_uint16%10#0: bytes = 0x0001
         let aggregate%encoded_value%10#0: bytes = 0x000166
@@ -94,8 +93,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let new_items_count#6: uint64 = 1u
         let array_length#6: uint64 = 5u
         let new_array_length#6: uint64 = 6u
-        let new_len_u16#6: bytes = 0x0006
-        let result#6: bytes = ((replace2 0) value#1 new_len_u16#6)
+        let result#6: bytes = ((replace2 0) value#1 new_len_u16#0)
         let value#2: Encoded(len+utf8[]) = (concat result#6 0x66)
         let aggregate%length%11#0: uint64 = 1u
         let aggregate%length_uint16%11#0: bytes = 0x0001
@@ -105,7 +103,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let array_length#7: uint64 = 6u
         let new_array_length#7: uint64 = 7u
         let tmp%0#15: bytes = (itob new_array_length#7)
-        let new_len_u16#7: bytes = 0x0007
+        let new_len_u16#7: bytes = ((extract 6 0) tmp%0#15)
         let result#7: bytes = ((replace2 0) value#2 new_len_u16#7)
         let value#3: Encoded(len+utf8[]) = (concat result#7 0x67)
         let aggregate%length%12#0: uint64 = 7u

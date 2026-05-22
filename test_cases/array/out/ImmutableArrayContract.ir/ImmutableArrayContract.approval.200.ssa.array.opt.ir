@@ -362,7 +362,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array[r
         let array_length#1: uint64 = 0u
         let new_array_length#1: uint64 = 1u
         let tmp%0#4: bytes = (itob new_array_length#1)
-        let new_len_u16#1: bytes = 0x0001
+        let new_len_u16#1: bytes = ((extract 6 0) tmp%0#4)
         let result#1: bytes = 0x0001
         let arr#1: Encoded(len+uint64[]) = (concat result#1 new_items_bytes#1)
         let aggregate%array_length%1#0: uint64 = 1u
@@ -493,7 +493,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array[
         let array_length#3: uint64 = 0u
         let new_array_length#3: uint64 = 1u
         let tmp%0#9: bytes = (itob new_array_length#3)
-        let new_len_u16#3: bytes = 0x0001
+        let new_len_u16#3: bytes = ((extract 6 0) tmp%0#9)
         let result#3: bytes = 0x0001
         let arr#1: Encoded(len+uint512[]) = (concat result#3 new_items_bytes#3)
         let aggregate%array_length%1#0: uint64 = (extract_uint16 arr#1 0u) // on error: invalid array length header
@@ -1623,7 +1623,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_ar
         let array_length#0: uint64 = 2u
         let new_array_length#0: uint64 = 4u
         let tmp%0#1: bytes = (itob new_array_length#0)
-        let new_len_u16#0: bytes = 0x0004
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#1)
         let result#1: bytes = 0x000400000000000000010000000000000002
         let result#0: Encoded(len+uint64[]) = (concat result#1 arg#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 result#0)
@@ -1646,7 +1646,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_na
         let array_length#0: uint64 = 2u
         let new_array_length#0: uint64 = 4u
         let tmp%0#3: bytes = (itob new_array_length#0)
-        let new_len_u16#0: bytes = 0x0004
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#3)
         let result#1: bytes = 0x000400000000000000010000000000000002
         let result#0: Encoded(len+uint64[]) = (concat result#1 new_items_bytes#0)
         let tmp%4#0: bytes = (concat 0x151f7c75 result#0)
@@ -1687,10 +1687,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let aggregate%data_length%0#0: uint64 = 3u
         let aggregate%current_tail_offset%0#0: uint64 = 7u
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
-        let aggregate%offset_as_uint16%1#0: bytes = 0x0007
-        let aggregate%head%1#0: bytes = 0x000200040007
+        let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
+        let aggregate%head%1#0: bytes = (concat 0x00020004 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 0x000161)
-        let prefix#0: Encoded(len+(len+utf8[])[]) = (concat aggregate%head%1#0 0x000161000162)
+        let prefix#0: Encoded(len+(len+utf8[])[]) = 0x000200040007000161000162
         let data%0#0: bytes = ((extract 4 0) arg#0)
         let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(prefix#0, data%0#0, 2u)
         let tmp%2#0: bytes = (concat 0x151f7c75 result#0)
@@ -1732,10 +1732,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let aggregate%data_length%0#0: uint64 = 3u
         let aggregate%current_tail_offset%0#0: uint64 = 7u
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
-        let aggregate%offset_as_uint16%1#0: bytes = 0x0007
-        let aggregate%head%1#0: bytes = 0x000200040007
+        let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
+        let aggregate%head%1#0: bytes = (concat 0x00020004 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%1#0 0x000161)
-        let prefix#0: Encoded(len+(len+utf8[])[]) = (concat aggregate%head%1#0 0x000161000162)
+        let prefix#0: Encoded(len+(len+utf8[])[]) = 0x000200040007000161000162
         let concat%1#0: bytes = (concat arg.0#0 arg.1#0)
         let result#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(prefix#0, concat%1#0, 2u)
         let tmp%4#0: bytes = (concat 0x151f7c75 result#0)
