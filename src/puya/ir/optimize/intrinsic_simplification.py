@@ -140,7 +140,9 @@ def convert_stack_args_to_immediates(
 ) -> bool:
     modified = 0
     for block in subroutine.body:
+        ops = []
         for op in block.ops:
+            ops.append(op)
             match op:
                 case models.Assignment(source=models.Intrinsic(args=args) as intrinsic) if args:
                     with_immediates = _try_convert_stack_args_to_immediates(intrinsic)
@@ -148,6 +150,13 @@ def convert_stack_args_to_immediates(
                         logger.debug(f"Simplified {op.source} to {with_immediates}")
                         op.source = with_immediates
                         modified += 1
+                case models.Intrinsic(args=args) as intrinsic if args:
+                    with_immediates = _try_convert_stack_args_to_immediates(intrinsic)
+                    if with_immediates is not None:
+                        logger.debug(f"Simplified {op} to {with_immediates}")
+                        ops[-1] = with_immediates
+                        modified += 1
+        block.ops[:] = ops
     return modified > 0
 
 
@@ -287,12 +296,6 @@ def _visit_intrinsic_op(intrinsic: Intrinsic) -> Intrinsic | None:
     elif intrinsic.op.code in SIDE_EFFECT_FREE_AVM_OPS:
         logger.debug(f"Removing unused pure op {intrinsic}")
         return None
-    elif intrinsic.args:
-        simplified = _try_convert_stack_args_to_immediates(intrinsic)
-        if simplified is not None:
-            return simplified
-        else:
-            return intrinsic
     else:
         return intrinsic
 
