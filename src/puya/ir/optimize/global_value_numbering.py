@@ -323,6 +323,12 @@ _MaybeAVMType: typing.TypeAlias = AVMType | str
 _VNRepresentativeMap: typing.TypeAlias = dict[tuple[VN, _MaybeAVMType], models.Register]
 
 
+# Safety cap on the per-component brute-force enumeration. Empirical corpus has bytes-V_F
+# components well under this; if a future case exceeds it, we conservatively fold nothing
+# in that component rather than spend exponential time.
+_MAX_BRUTE_FORCE_BITS: typing.Final = 20
+
+
 def _materialize_constants(
     tables: _GVNTables,
     start: models.BasicBlock,
@@ -330,44 +336,90 @@ def _materialize_constants(
     *,
     expand_all_bytes: bool,
 ) -> bool:
-    modified = False
-    # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
-    # defs whose sole use is also r's defining op). Subroutine-wide: only populated
-    # for registers with exactly one read across the whole subroutine, so eliminating
-    # that one read truly kills r and DCE will remove its defining op.
-    savings = dict[models.Register, int]()
-    for block in bfs_block_order(start):
+    """Replace foldable ops with materialised constants.
+
+    uint64-target V_F always fold (mirrors prior greedy behaviour, which uint64 fold has
+    no cost gate). Bytes-target V_F are decided jointly per moralised connected component
+    via brute-force enumeration: each component minimises total bytecode under the cost
+    cascade where killing a shared upstream def requires all its V_F readers to fold-or-die.
+    """
+    blocks = list(bfs_block_order(start))
+
+    # Build the foldable subgraph: V_F (foldable ops) and V_C (Constant assignments).
+    # V_F materialisation is built unconditionally; whether to apply it is decided below.
+    fold_source = dict[models.Assignment, models.MultiValue]()
+    is_bytes_fold = dict[models.Assignment, bool]()
+    op_orig_cost = dict[models.Assignment, int]()
+    op_mat_cost = dict[models.Assignment, int]()
+    vc_ops = list[models.Assignment]()
+
+    for block in blocks:
         for op in block.ops:
             if not isinstance(op, models.Assignment):
                 continue
-            if not isinstance(op.source, models.MultiValue):
-                folded = _try_fold_constants(
-                    op, tables, savings, expand_all_bytes=expand_all_bytes
-                )
-                if folded is not None:
-                    modified = True
-                    with ssa_reads.update(op):
-                        op.source = folded
-            if len(op.targets) == 1:
-                (saved_target,) = op.targets
-                if ssa_reads.count(saved_target) == 1:
-                    match op.source:
-                        case (
-                            models.Intrinsic() as intrinsic
-                        ) if intrinsic.op in COMPILE_TIME_CONSTANT_OPS:
-                            savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
-                        case models.Constant():
-                            savings[saved_target] = _get_const_size(op.source)
+            if isinstance(op.source, models.Constant):
+                vc_ops.append(op)
+                op_orig_cost[op] = _get_const_size(op.source)
+                continue
+            if isinstance(op.source, models.MultiValue):
+                continue
+            new_source = _try_fold_constants(op, tables)
+            if new_source is None:
+                continue
+            fold_source[op] = new_source
+            is_bytes_fold[op] = isinstance(new_source, models.BytesConstant)
+            if isinstance(op.source, models.Intrinsic):
+                op_orig_cost[op] = _cost(op.source)
+            else:
+                # Non-Intrinsic source with a constant target VN — no computable opcode cost.
+                # In practice this branch is unreachable (only Intrinsic-derived VNs ever
+                # resolve to a constant key), but stay defensive.
+                op_orig_cost[op] = 0
+            op_mat_cost[op] = _size_of_materialised(new_source)
+
+    if not fold_source:
+        return False
+
+    chosen = set[models.Assignment]()
+    bytes_vf = list[models.Assignment]()
+    for op, is_bytes in is_bytes_fold.items():
+        if not is_bytes or expand_all_bytes:
+            chosen.add(op)
+        else:
+            bytes_vf.append(op)
+
+    if bytes_vf:
+        uint64_vf = set(fold_source) - set(bytes_vf)
+        chosen.update(
+            _solve_bytes_folds(
+                bytes_vf=set(bytes_vf),
+                uint64_vf=uint64_vf,
+                vc_ops=vc_ops,
+                ssa_reads=ssa_reads,
+                blocks=blocks,
+                op_orig_cost=op_orig_cost,
+                op_mat_cost=op_mat_cost,
+            )
+        )
+
+    modified = False
+    for op in chosen:
+        new_source = fold_source[op]
+        modified = True
+        with ssa_reads.update(op):
+            op.source = new_source
     return modified
 
 
 def _try_fold_constants(
     op: models.Assignment,
     tables: _GVNTables,
-    savings: Mapping[models.Register, int],
-    *,
-    expand_all_bytes: bool,
 ) -> models.MultiValue | None:
+    """Build the materialised constant(s) for `op` if every target has a constant VN.
+
+    Returns the new ValueProvider (Constant or ValueTuple of Constants), or None if not
+    eligible. Doesn't consider bytecode cost — that decision is the caller's.
+    """
     target_vns = [tables.register_vn[t] for t in op.targets]
     target_defns = [tables.vn_definition.get(vn) for vn in target_vns]
     if len(target_defns) == 1:
@@ -380,12 +432,7 @@ def _try_fold_constants(
                     ir_type=source_type,
                     source_location=op.source.source_location,
                 )
-            case _BytesConstKey(
-                value=bytes_const, encoding=bytes_encoding
-            ) if expand_all_bytes or (
-                isinstance(op.source, models.Intrinsic)
-                and (len(encode_bytes(bytes_const)) <= _intrinsic_dead_cost(op.source, savings))
-            ):
+            case _BytesConstKey(value=bytes_const, encoding=bytes_encoding):
                 return models.BytesConstant(
                     value=bytes_const,
                     encoding=bytes_encoding,
@@ -412,14 +459,6 @@ def _is_list_of[T, U](lst: list[U], typ: type[T]) -> typing.TypeGuard[list[T]]:
     return all(isinstance(x, typ) for x in lst)
 
 
-def _intrinsic_dead_cost(source: models.Intrinsic, savings: Mapping[models.Register, int]) -> int:
-    """Bytes saved if `source` and its transitively-dead upstream defs go away."""
-    # dedupe args: a register used N times in this op is still one upstream def
-    arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
-    upstream = sum(savings.get(arg, 0) for arg in arg_regs)
-    return _cost(source) + upstream
-
-
 def _cost(intrinsic: models.Intrinsic) -> int:
     instr_size = intrinsic.op.size
     const_arg_sizes = sum(
@@ -441,6 +480,180 @@ def _get_const_size(arg: models.Constant) -> int:
             return len(encode_varuint(int_value))
     logger.debug(f"GVN: unhandled constant type {type(arg).__name__}")
     return 0
+
+
+def _size_of_materialised(value: models.MultiValue) -> int:
+    if isinstance(value, models.Constant):
+        return _get_const_size(value)
+    if isinstance(value, models.ValueTuple):
+        return sum(_get_const_size(v) for v in value.values if isinstance(v, models.Constant))
+    return 0
+
+
+def _solve_bytes_folds(
+    *,
+    bytes_vf: set[models.Assignment],
+    uint64_vf: set[models.Assignment],
+    vc_ops: Sequence[models.Assignment],
+    ssa_reads: SSAReadTracker,
+    blocks: Sequence[models.BasicBlock],
+    op_orig_cost: Mapping[models.Assignment, int],
+    op_mat_cost: Mapping[models.Assignment, int],
+) -> set[models.Assignment]:
+    """Pick the cost-optimal subset of `bytes_vf` to fold, per moralised component.
+
+    `uint64_vf` ops are pre-decided to fold; they're modelled as constant-like (their
+    targets are alive, they no longer read their operands).
+    """
+    in_subgraph = bytes_vf | uint64_vf | set(vc_ops)
+    # Iterate in BFS block + within-block order. This is a valid SSA topo sort (defs
+    # precede uses) and stable across runs — critical because set iteration over
+    # Assignment ops (identity-hashed) varies between invocations.
+    topo_order = list[models.Assignment]()
+    for block in blocks:
+        for block_op in block.ops:
+            if isinstance(block_op, models.Assignment) and block_op in in_subgraph:
+                topo_order.append(block_op)
+    topo_index = {op: i for i, op in enumerate(topo_order)}
+
+    # Post-uint64-fold consumer graph: ignore uint64_vf as a reader (they won't read after
+    # fold); split remaining readers into bytes_vf (fold-decided) vs V_R (pins op alive).
+    # Readers come from ssa_reads, a set keyed by Assignment identity, so iteration order
+    # is non-deterministic — sort by topo index to keep the rest of the pipeline stable.
+    bytes_vf_consumers = dict[models.Assignment, list[models.Assignment]]()
+    has_vr_consumer = {op: False for op in topo_order}
+    for op in topo_order:
+        bytes_readers = set[models.Assignment]()
+        for target in op.targets:
+            for reader in ssa_reads.get(target):
+                if reader in uint64_vf:
+                    continue
+                if reader in bytes_vf:
+                    bytes_readers.add(reader)
+                else:
+                    has_vr_consumer[op] = True
+        bytes_vf_consumers[op] = sorted(bytes_readers, key=topo_index.__getitem__)
+
+    # Undirected adjacency over in_subgraph: an edge whenever a V_F op reads a node's
+    # target (after pre-fold). Weakly-connected components partition the joint-decision
+    # space — fold decisions in different components are independent.
+    adj = {op: list[models.Assignment]() for op in topo_order}
+    for op in topo_order:
+        for consumer in bytes_vf_consumers[op]:
+            adj[op].append(consumer)
+            adj[consumer].append(op)
+
+    components = list[list[models.Assignment]]()
+    visited = set[models.Assignment]()
+    for seed in topo_order:
+        if seed in visited:
+            continue
+        component_set = set[models.Assignment]()
+        stack = [seed]
+        while stack:
+            x = stack.pop()
+            if x in visited:
+                continue
+            visited.add(x)
+            component_set.add(x)
+            stack.extend(n for n in adj[x] if n not in visited)
+        # Keep the component in topo order for stable enumeration and reproducible logs.
+        components.append([op for op in topo_order if op in component_set])
+
+    chosen = set[models.Assignment]()
+    for component in components:
+        bytes_in_comp = [op for op in component if op in bytes_vf]
+        if not bytes_in_comp:
+            continue
+        chosen.update(
+            _enumerate_best_fold(
+                comp_in_topo=component,
+                bytes_in_comp=bytes_in_comp,
+                bytes_vf_consumers=bytes_vf_consumers,
+                has_vr_consumer=has_vr_consumer,
+                uint64_vf=uint64_vf,
+                op_orig_cost=op_orig_cost,
+                op_mat_cost=op_mat_cost,
+            )
+        )
+    return chosen
+
+
+def _enumerate_best_fold(
+    *,
+    comp_in_topo: Sequence[models.Assignment],
+    bytes_in_comp: Sequence[models.Assignment],
+    bytes_vf_consumers: Mapping[models.Assignment, Sequence[models.Assignment]],
+    has_vr_consumer: Mapping[models.Assignment, bool],
+    uint64_vf: Set[models.Assignment],
+    op_orig_cost: Mapping[models.Assignment, int],
+    op_mat_cost: Mapping[models.Assignment, int],
+) -> set[models.Assignment]:
+    n = len(bytes_in_comp)
+    if n > _MAX_BRUTE_FORCE_BITS:
+        logger.debug(
+            f"GVN: brute-force cap exceeded ({n} > {_MAX_BRUTE_FORCE_BITS});"
+            " folding no bytes V_F in this component"
+        )
+        return set()
+
+    best_cost: int | None = None
+    best_subset = set[models.Assignment]()
+    for mask in range(1 << n):
+        fold_set = {bytes_in_comp[i] for i in range(n) if mask & (1 << i)}
+        cost = _component_cost(
+            comp_in_topo=comp_in_topo,
+            fold_set=fold_set,
+            bytes_vf_consumers=bytes_vf_consumers,
+            has_vr_consumer=has_vr_consumer,
+            uint64_vf=uint64_vf,
+            op_orig_cost=op_orig_cost,
+            op_mat_cost=op_mat_cost,
+        )
+        if best_cost is None or cost < best_cost:
+            best_cost = cost
+            best_subset = fold_set
+    return best_subset
+
+
+def _component_cost(
+    *,
+    comp_in_topo: Sequence[models.Assignment],
+    fold_set: Set[models.Assignment],
+    bytes_vf_consumers: Mapping[models.Assignment, Sequence[models.Assignment]],
+    has_vr_consumer: Mapping[models.Assignment, bool],
+    uint64_vf: Set[models.Assignment],
+    op_orig_cost: Mapping[models.Assignment, int],
+    op_mat_cost: Mapping[models.Assignment, int],
+) -> int:
+    alive = dict[models.Assignment, bool]()
+    # Reverse topo order: process consumers before producers, so consumer aliveness is
+    # known when deciding whether a producer has any live reader.
+    for op in reversed(comp_in_topo):
+        if op in uint64_vf or op in fold_set:
+            alive[op] = True
+            continue
+        if has_vr_consumer[op]:
+            alive[op] = True
+            continue
+        is_alive = False
+        for consumer in bytes_vf_consumers[op]:
+            if consumer in fold_set:
+                continue
+            if alive.get(consumer, False):
+                is_alive = True
+                break
+        alive[op] = is_alive
+
+    total = 0
+    for op in comp_in_topo:
+        if not alive[op]:
+            continue
+        if op in fold_set or op in uint64_vf:
+            total += op_mat_cost[op]
+        else:
+            total += op_orig_cost[op]
+    return total
 
 
 def _build_equivalence_sets(
