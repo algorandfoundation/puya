@@ -88,10 +88,10 @@ subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.bootstrap[ro
         let aggregate%data_length%1#0: uint64 = 20u
         let aggregate%current_tail_offset%1#0: uint64 = 24u
         let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
-        let aggregate%offset_as_uint16%2#0: bytes = 0x0018
-        let aggregate%head%4#0: bytes = 0x00040018
+        let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
+        let aggregate%head%4#0: bytes = (concat 0x0004 aggregate%offset_as_uint16%2#0)
         let aggregate%concat%1#0: bytes = (concat aggregate%head%4#0 0x0000000000000001001200000000000000020000)
-        let aggregate%concat%2#0: bytes = (concat aggregate%head%4#0 0x00000000000000010012000000000000000200000000)
+        let aggregate%concat%2#0: bytes = 0x0004001800000000000000010012000000000000000200000000
         (box_del "box")
         (box_put "box" aggregate%concat%2#0)
         let tmp%2#0: bytes[4096] = (bzero 4096u)

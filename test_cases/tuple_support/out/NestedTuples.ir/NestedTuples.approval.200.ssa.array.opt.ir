@@ -23,15 +23,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%length_uint16%1#0: bytes = 0x0000
         let aggregate%encoded_value%1#0: bytes = 0x0000
         let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
-        let aggregate%offset_as_uint16%2#0: bytes = 0x000e
-        let aggregate%head%3#0: bytes = 0x0000000000000000000c000e
+        let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%5#0)
+        let aggregate%head%3#0: bytes = (concat 0x0000000000000000000c aggregate%offset_as_uint16%2#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 0x0000)
         let aggregate%concat%1#0: bytes = (concat aggregate%head%3#0 0x00000000)
         let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
-        let aggregate%offset_as_uint16%3#0: bytes = 0x0006
-        let aggregate%head%4#0: bytes = 0x00040006
-        let aggregate%concat%2#0: bytes = 0x000400060000
-        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%concat%1#0)
+        let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)
+        let aggregate%head%4#0: bytes = (concat 0x0004 aggregate%offset_as_uint16%3#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%head%4#0 0x0000)
+        let aggregate%concat%3#0: bytes = 0x0004000600000000000000000000000c000e00000000
         (app_global_put "twm" aggregate%concat%3#0)
         goto block@2
     block@2: // after_if_else_L1
@@ -370,16 +370,16 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let array_length#0: uint64 = 1u
         let new_array_length#0: uint64 = 2u
         let tmp%0#3: bytes = (itob new_array_length#0)
-        let new_len_u16#0: bytes = 0x0002
-        let result#0: bytes = 0x00020000000000000000
-        let twm.arr#1: Encoded(len+uint64[]) = 0x000200000000000000000000000000000001
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#3)
+        let result#0: bytes = ((replace2 0) 0x00010000000000000000 new_len_u16#0)
+        let twm.arr#1: Encoded(len+uint64[]) = (concat result#0 0x0000000000000001)
         let new_items_bytes#1: bytes = 0x0000000000000002
         let array_length#1: uint64 = 2u
         let new_array_length#1: uint64 = 3u
         let tmp%0#5: bytes = (itob new_array_length#1)
-        let new_len_u16#1: bytes = 0x0003
+        let new_len_u16#1: bytes = ((extract 6 0) tmp%0#5)
         let result#1: bytes = ((replace2 0) twm.arr#1 new_len_u16#1)
-        let twm.arr#2: Encoded(len+uint64[]) = (concat result#1 0x0000000000000002)
+        let twm.arr#2: Encoded(len+uint64[]) = 0x0003000000000000000000000000000000010000000000000002
         let value_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L107
@@ -415,12 +415,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let aggregate%length_uint16%1#0: bytes = 0x0000
         let aggregate%encoded_value%1#0: bytes = 0x0000
         let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
-        let aggregate%offset_as_uint16%2#0: bytes = 0x000e
-        let aggregate%head%6#0: bytes = 0x0000000000000000000c000e
+        let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%5#0)
+        let aggregate%head%6#0: bytes = (concat 0x0000000000000000000c aggregate%offset_as_uint16%2#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%6#0 0x0000)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%6#0 0x00000000)
+        let aggregate%concat%1#0: bytes = 0x0000000000000000000c000e00000000
         let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
-        let aggregate%offset_as_uint16%3#0: bytes = 0x001e
+        let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)
         let aggregate%head%7#0: bytes = 0x0004001e
         let aggregate%concat%2#0: bytes = (concat aggregate%head%7#0 twm.arr#2)
         let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%concat%1#0)
@@ -499,9 +499,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing
         let array_length#0: uint64 = 1u
         let new_array_length#0: uint64 = 2u
         let tmp%0#6: bytes = (itob new_array_length#0)
-        let new_len_u16#0: bytes = 0x0002
-        let result#0: bytes = 0x00020000000000000000
-        let x.0.0#1: Encoded(len+uint64[]) = 0x000200000000000000000000000000000001
+        let new_len_u16#0: bytes = ((extract 6 0) tmp%0#6)
+        let result#0: bytes = ((replace2 0) 0x00010000000000000000 new_len_u16#0)
+        let x.0.0#1: Encoded(len+uint64[]) = (concat result#0 0x0000000000000001)
         let aggregate%array_length%0#0: uint64 = 2u
         let tmp%3#1: bool = 1u
         (assert tmp%3#1)

@@ -181,11 +181,11 @@ subroutine test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
         let aggregate%data_length%2#0: uint64 = 7u
         let aggregate%current_tail_offset%2#0: uint64 = 11u
         let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
-        let aggregate%offset_as_uint16%3#0: bytes = 0x000b
-        let aggregate%head%5#0: bytes = 0x0004000b
+        let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)
+        let aggregate%head%5#0: bytes = (concat 0x0004 aggregate%offset_as_uint16%3#0)
         let aggregate%concat%2#0: bytes = (concat aggregate%head%5#0 0x000568656c6c6f)
         let aggregate%concat%3#0: bytes = (concat aggregate%head%5#0 0x000568656c6c6f00032a000668656c6c6f32)
-        let event%1#0: bytes = (concat method "Anonymous(string,(byte[],uint8))" aggregate%concat%3#0)
+        let event%1#0: bytes = 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32
         (log event%1#0)
         exit 1u
 

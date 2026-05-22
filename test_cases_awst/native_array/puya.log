@@ -5196,6 +5196,7 @@ debug: Merged linear block@127 into block@106
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
+debug: GVN: brute-force cap exceeded (98 > 20); folding no bytes V_F in this component
 debug: GVN found equivalence set: (aggregate%val_as_bytes%0#0, new_items_bytes#11, aggregate%val_as_bytes%11#0, tmp%0#13, aggregate%encoded_element%29#0, aggregate%encoded_element%46#0, aggregate%encoded_element%63#0), selected replacement: new_items_bytes#11
 debug: GVN found equivalence set: (aggregate%array_length%1#0, array_length#10), selected replacement: array_length#10
 debug: GVN found equivalence set: (aggregate%total_length%1#0, aggregate%total_length%2#0, aggregate%total_length%3#0, aggregate%total_length%4#0), selected replacement: aggregate%total_length%1#0
@@ -5400,7 +5401,6 @@ debug: Removing unused variable aggregate%encoded_element%13#0
 debug: Removing unused variable aggregate%write_offset%0#0
 debug: Removing unused variable aggregate%write_offset_with_length_header%0#0
 debug: Removing unused variable aggregate%val_as_bytes%2#0
-debug: Removing unused variable aggregate%val_as_bytes%3#0
 debug: Removing unused variable t1#0
 debug: Removing unused variable aggregate%extract%0#0
 debug: Removing unused variable tmp%54#0
@@ -5443,15 +5443,12 @@ debug: Removing unused variable aggregate%head%7#0
 debug: Removing unused variable rArr1#0
 debug: Removing unused variable array_length#5
 debug: Removing unused variable new_array_length#5
-debug: Removing unused variable new_len_u16#5
-debug: Removing unused variable result#5
 debug: Removing unused variable aggregate%len_u16%2#0
 debug: Removing unused variable aggregate%head%10#0
 debug: Removing unused variable new_items_bytes#6
 debug: Removing unused variable new_items_count#6
 debug: Removing unused variable array_length#6
 debug: Removing unused variable new_array_length#6
-debug: Removing unused variable new_len_u16#6
 debug: Removing unused variable new_items_count#2
 debug: Removing unused variable tmp%91#0
 debug: Removing unused variable aggregate%total_length%25#0
@@ -5479,9 +5476,6 @@ debug: Removing unused variable as_u16_bytes%0#0
 debug: Removing unused variable array#4
 debug: Removing unused variable array_length#4
 debug: Removing unused variable new_array_length#4
-debug: Removing unused variable tmp%0#9
-debug: Removing unused variable new_len_u16#4
-debug: Removing unused variable result#4
 debug: Removing unused variable tmp%107#0
 debug: Removing unused variable aggregate%bytes_offset%30#0
 debug: Removing unused variable aggregate%encoded_element%30#0
@@ -5521,7 +5515,6 @@ debug: Removing unused variable aggregate%bytes_offset%41#0
 debug: Removing unused variable tmp%132#0
 debug: Removing unused variable array_length#3
 debug: Removing unused variable new_array_length#3
-debug: Removing unused variable new_len_u16#3
 debug: Removing unused variable aggregate%array_length%10#0
 debug: Removing unused variable tmp%139#0
 debug: Removing unused variable aggregate%total_length%38#0
@@ -5571,9 +5564,6 @@ debug: Removing unused variable aggregate%bytes_offset%54#0
 debug: Removing unused variable tmp%164#0
 debug: Removing unused variable array_length#2
 debug: Removing unused variable new_array_length#2
-debug: Removing unused variable tmp%0#5
-debug: Removing unused variable new_len_u16#2
-debug: Removing unused variable result#2
 debug: Removing unused variable aggregate%array_length%11#0
 debug: Removing unused variable tmp%171#0
 debug: Removing unused variable aggregate%total_length%51#0
@@ -5683,8 +5673,16 @@ debug: Removing unused variable arr4#0
 debug: Removing unused variable new_items_bytes#3
 debug: Removing unused variable result#3
 debug: Removing unused variable new_items_bytes#2
+debug: Removing unused variable result#2
 debug: Removing unused variable fArr2#0
+debug: Removing unused variable new_len_u16#3
+debug: Removing unused variable new_len_u16#2
+debug: Removing unused variable aggregate%val_as_bytes%3#0
 debug: Removing unused variable fArr1#0
+debug: Removing unused variable result#4
+debug: Removing unused variable tmp%0#5
+debug: Removing unused variable new_len_u16#4
+debug: Removing unused variable tmp%0#9
 debug: Optimizer: Convert Stack Args To Immediates
 debug: Simplified (replace3 arr#8 10u aggregate%val_as_bytes%1#0) // on error: index access is out of bounds to ((replace2 10) arr#8 aggregate%val_as_bytes%1#0) // on error: index access is out of bounds
 debug: Optimizer: Intrinsic Simplifier
@@ -5710,7 +5708,10 @@ debug: Simplified (extract_uint64 aggregate%array_trimmed%14#0 56u) to (extract_
 debug: Simplified (extract_uint64 aggregate%array_trimmed%14#0 64u) to (extract_uint64 arr#12 66u)
 debug: Simplified (extract_uint64 aggregate%array_trimmed%14#0 72u) to (extract_uint64 arr#12 74u)
 debug: Simplified (extract_uint64 aggregate%array_trimmed%14#0 80u) to (extract_uint64 arr#12 82u)
+debug: Simplified ((extract 6 0) new_items_bytes#5) to 0x0004
+debug: Simplified ((replace2 0) 0x0003000000000000000100000000000000020000000000000003 0x0004) to 0x0004000000000000000100000000000000020000000000000003
 debug: Simplified (concat 0x0004000000000000000100000000000000020000000000000003 new_items_bytes#5) to 0x00040000000000000001000000000000000200000000000000030000000000000004
+debug: Simplified ((extract 6 0) new_items_bytes#11) to 0x0005
 debug: Simplified ((replace2 0) 0x00040000000000000001000000000000000200000000000000030000000000000004 0x0005) to 0x00050000000000000001000000000000000200000000000000030000000000000004
 debug: Simplified (concat 0x00050000000000000001000000000000000200000000000000030000000000000004 0x0000000000000005) to 0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005
 debug: Simplified (extract_uint64 aggregate%array_trimmed%60#0 0u) to (extract_uint64 arr8#0 2u)
@@ -6059,7 +6060,10 @@ debug: Removing unused variable aggregate%array_trimmed%7#0
 debug: Removing unused variable aggregate%array_trimmed%13#0
 debug: Removing unused variable aggregate%array_trimmed%14#0
 debug: Removing unused variable new_items_bytes#5
+debug: Removing unused variable new_len_u16#5
+debug: Removing unused variable result#5
 debug: Removing unused variable rArr1#1
+debug: Removing unused variable new_len_u16#6
 debug: Removing unused variable result#6
 debug: Removing unused variable rArr1#2
 debug: Removing unused variable and_result%4#0

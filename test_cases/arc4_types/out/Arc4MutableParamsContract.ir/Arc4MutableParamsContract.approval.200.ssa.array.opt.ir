@@ -21,18 +21,18 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let aggregate%data_length%0#0: uint64 = 7u
         let aggregate%current_tail_offset%0#0: uint64 = 13u
         let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
-        let aggregate%offset_as_uint16%1#0: bytes = 0x000d
-        let aggregate%head%7#0: bytes = 0x80320006000d
+        let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
+        let aggregate%head%7#0: bytes = (concat 0x80320006 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%7#0 0x00054861707079)
-        let my_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat aggregate%head%7#0 0x00054861707079000444617973)
+        let my_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = 0x80320006000d00054861707079000444617973
         let aggregate%write_offset%0#0: uint64 = 2u
         let my_array#1: Encoded(uint8[4]) = 0x01020504
         let aggregate%bytes_offset%0#0: uint64 = 2u
-        let aggregate%encoded_element%0#0: bytes = 0x03
+        let aggregate%encoded_element%0#0: bytes = (extract3 0x01020304 aggregate%bytes_offset%0#0 1u) // on error: index access is out of bounds
         let tmp%4#0: bool = 1u
         (assert tmp%4#0) // my_array_copy should be unchanged
         let aggregate%bytes_offset%1#0: uint64 = 2u
-        let aggregate%encoded_element%1#0: bytes = 0x05
+        let aggregate%encoded_element%1#0: bytes = (extract3 my_array#1 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
         let tmp%5#0: bool = 1u
         let (t#0: bool, f#0: bool, my_array#2: Encoded(uint8[4]), my_struct#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#1, my_struct#0)
         (assert t#0)
@@ -53,19 +53,19 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         (assert tmp%9#0) // my_struct has been mutated by the subroutine
         let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: Encoded(uint8[4]), other_routine%7#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, my_struct#0)
         let aggregate%bytes_offset%3#0: uint64 = 1u
-        let aggregate%encoded_element%3#0: bytes = 0x02
+        let aggregate%encoded_element%3#0: bytes = (extract3 0x01020304 aggregate%bytes_offset%3#0 1u) // on error: index access is out of bounds
         let tmp%10#0: bool = 1u
         let aggregate%extract_uint16%2#0: uint64 = 6u
         let aggregate%extract_uint16%3#0: uint64 = 13u
         let aggregate%substring3%1#0: bytes = (substring3 my_struct#0 aggregate%extract_uint16%2#0 aggregate%extract_uint16%3#0)
         let tmp%12#0: bool = 1u
         let aggregate%bytes_offset%4#0: uint64 = 0u
-        let aggregate%encoded_element%4#0: bytes = 0x01
+        let aggregate%encoded_element%4#0: bytes = (extract3 0x01020304 aggregate%bytes_offset%4#0 1u) // on error: index access is out of bounds
         let tmp%13#0: bool = 1u
         let aggregate%write_offset%0#2: uint64 = 0u
         let array#3: Encoded(uint8[4]) = 0x0a020304
         let aggregate%bytes_offset%5#0: uint64 = 0u
-        let aggregate%encoded_element%5#0: bytes = 0x0a
+        let aggregate%encoded_element%5#0: bytes = (extract3 array#3 aggregate%bytes_offset%5#0 1u) // on error: index access is out of bounds
         let tmp%14#0: bool = 1u
         let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, array#3, 0x01020304, 0u, 1u)
         let (my_array#3: Encoded(uint8[4]), my_array_copy_2#4: Encoded(uint8[4]), my_array_copy_3#1: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, array#3, 0x01020304, 100u, 1u)

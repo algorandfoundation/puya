@@ -84,10 +84,10 @@ subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob 2u)
         let aggregate%head%2#0: bytes = 0x000000000000000100140000000000000002
         let aggregate%as_bytes%3#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
-        let aggregate%offset_as_uint16%1#0: bytes = 0x0016
-        let aggregate%head%3#0: bytes = 0x0000000000000001001400000000000000020016
+        let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
+        let aggregate%head%3#0: bytes = (concat 0x000000000000000100140000000000000002 aggregate%offset_as_uint16%1#0)
         let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 0x0000)
-        let aggregate%concat%1#0: bytes = (concat aggregate%head%3#0 0x00000000)
+        let aggregate%concat%1#0: bytes = 0x000000000000000100140000000000000002001600000000
         (box_del "box")
         (box_put "box" aggregate%concat%1#0)
         let tmp%1#0: bytes[4096] = (bzero 4096u)
