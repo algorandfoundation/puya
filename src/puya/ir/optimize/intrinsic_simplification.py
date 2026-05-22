@@ -107,30 +107,24 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
         for op in block.ops:
             match op:
                 case (
-                    models.Assignment(source=models.Intrinsic() as intrinsic) as ass
-                ) if intrinsic.args:
-                    with_immediates = _try_convert_stack_args_to_immediates(intrinsic)
-                    if with_immediates is not None:
-                        logger.debug(f"Simplified {op.source} to {with_immediates}")
-                        op.source = with_immediates
+                    models.Assignment(
+                        source=models.Intrinsic(op=AVMOp.box_get) as intrinsic
+                    ) as ass
+                ):
+                    maybe_value, exists = ass.targets
+                    if ssa_reads.count(maybe_value) == 0:
+                        logger.debug(
+                            f"replacing box_get with box_len"
+                            f" because {maybe_value.local_id} is unused"
+                        )
                         modified += 1
-                    elif intrinsic.op == AVMOp.box_get:
-                        maybe_value, exists = ass.targets
-                        if ssa_reads.count(maybe_value) == 0:
-                            logger.debug(
-                                f"replacing box_get with box_len"
-                                f" because {maybe_value.local_id} is unused"
-                            )
-                            modified += 1
-                            # we've checked this isn't used, so it's safe to just change it's type
-                            ass.targets[0] = attrs.evolve(
-                                maybe_value, ir_type=PrimitiveIRType.uint64
-                            )
-                            ass.source = attrs.evolve(
-                                intrinsic,
-                                op=AVMOp.box_len,
-                                types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
-                            )
+                        # we've checked this isn't used, so it's safe to just change it's type
+                        ass.targets[0] = attrs.evolve(maybe_value, ir_type=PrimitiveIRType.uint64)
+                        ass.source = attrs.evolve(
+                            intrinsic,
+                            op=AVMOp.box_len,
+                            types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
+                        )
     register_intrinsics = {
         target: ass.source
         for target, ass in register_assignments.items()
@@ -138,6 +132,22 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
     }
     modified += _simplify_conditional_branches(subroutine, register_intrinsics)
     modified += _simplify_non_returning_intrinsics(subroutine, register_intrinsics)
+    return modified > 0
+
+
+def convert_stack_args_to_immediates(
+    _context: IROptimizationContext, subroutine: models.Subroutine
+) -> bool:
+    modified = 0
+    for block in subroutine.body:
+        for op in block.ops:
+            match op:
+                case models.Assignment(source=models.Intrinsic(args=args) as intrinsic) if args:
+                    with_immediates = _try_convert_stack_args_to_immediates(intrinsic)
+                    if with_immediates is not None:
+                        logger.debug(f"Simplified {op.source} to {with_immediates}")
+                        op.source = with_immediates
+                        modified += 1
     return modified > 0
 
 
