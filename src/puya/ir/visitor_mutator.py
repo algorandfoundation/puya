@@ -242,8 +242,8 @@ class IRMutator(IRVisitor[typing.Any]):
         for value, block in switch.cases.items():
             maybe_replaced = value.accept(self) or value
             if maybe_replaced in new_cases:
-                logger.debug(
-                    "switch case became unreachable after key replacement",
+                logger.error(
+                    "match case became unreachable after key replacement",
                     location=block.source_location,
                 )
             else:

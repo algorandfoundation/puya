@@ -32,7 +32,7 @@ For top level release notes, leave all the headers commented out.
 
 ### Fixed
 
-- A bug where a `match` statement would compile to the wrong branch when two case values optimized to the same constant.
+- A bug where a `match` statement could silently compile to the wrong branch when two case values were optimised to the same constant. Such collisions are now reported as an error.
 
 
 <!--

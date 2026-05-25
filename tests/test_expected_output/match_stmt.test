@@ -148,3 +148,28 @@ def a_is_one(arg: FixedStruct) -> bool:
             return True
         case _:
             return False
+
+
+## case: match_case_optimised_into_collision
+from algopy import *
+
+class MatchCaseCollision(Contract):
+    def __init__(self) -> None:
+        self.glob = GlobalState(UInt64)
+
+    def approval_program(self) -> bool:
+        # `glob.value` is a global state read; the optimiser folds it to the
+        # constant 5 it was just assigned, colliding with `case 5` above and
+        # making this case's block unreachable.
+        self.glob.value = UInt64(5)
+        match op.Txn.num_app_args:
+            case 5:
+                result = UInt64(1)
+            case self.glob.value:
+                result = UInt64(2) ## E: match case became unreachable after key replacement
+            case _:
+                result = UInt64(3)
+        return result == UInt64(1)
+
+    def clear_state_program(self) -> bool:
+        return True
