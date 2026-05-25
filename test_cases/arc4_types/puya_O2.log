@@ -6986,9 +6986,14 @@ debug: Simplified (len 0x000003000100) to 6u
 debug: Simplified (substring3 0x000003000100 3u 6u) to 0x000100
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (+ 0u 2u) to 2u
+debug: Simplified (replace3 0x000100 2u 0x01) // on error: index access is out of bounds to 0x000101
 debug: Simplified (extract_uint16 0x000003000100 1u) to 3u
 debug: Simplified (extract3 0x000003000100 0u 3u) to 0x000003
-debug: Simplified (replace3 0x000100 2u 0x01) // on error: index access is out of bounds to ((replace2 2) 0x000100 0x01) // on error: index access is out of bounds
+debug: Simplified (concat 0x000003 0x000101) to 0x000003000101
+debug: Simplified (extract_uint16 0x000003000101 1u) to 3u
+debug: Simplified (len 0x000003000101) to 6u
+debug: Simplified (substring3 0x000003000101 3u 6u) to 0x000101
+debug: Simplified (!= 0x000101 0x000100) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -7038,7 +7043,6 @@ debug: Removing unreachable block: block@8
 debug: Removing unreachable block: block@11
 debug: Optimizer: Global Value Numbering
 debug: removing redundant assert of tmp%47#0
-debug: removing redundant assert of tmp%5#2
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%as_bytes%1#0), selected replacement: aggregate%as_bytes%0#0
 debug: GVN found equivalence set: (tmp%0#4, aggregate%as_bytes%6#0), selected replacement: tmp%0#4
 debug: GVN: 2 replacement(s) in test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
@@ -16343,14 +16347,24 @@ debug: Simplified (== 0x0a094080 0x0a094080) to 1u
 debug: Simplified (concat 0x 0xff) to 0xff
 debug: Simplified (concat 0xff 0xfe) to 0xfffe
 debug: Simplified (* 0u 2u) to 0u
+debug: Simplified (replace3 0x0a094080 0u 0xfffe) // on error: index access is out of bounds to 0xfffe4080
+debug: Simplified (== 0xfffe4080 0xfffe4080) to 1u
 debug: Simplified (* 1u 2u) to 2u
+debug: Simplified (extract3 0xfffe4080 2u 2u) // on error: index access is out of bounds to 0x4080
 debug: Simplified (* 0u 1u) to 0u
+debug: Simplified (replace3 0x4080 0u 0x01) // on error: index access is out of bounds to 0x0180
 debug: Simplified (* 1u 2u) to 2u
+debug: Simplified (replace3 0xfffe4080 2u 0x0180) // on error: index access is out of bounds to 0xfffe0180
+debug: Simplified (== 0xfffe0180 0xfffe0180) to 1u
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (+ 0u 2u) to 2u
+debug: Simplified (replace3 0x00020102 2u 0xff) // on error: index access is out of bounds to 0x0002ff02
+debug: Simplified (== 0x0002ff02 0x0002ff02) to 1u
 debug: Simplified (concat 0x 0x01) to 0x01
 debug: Simplified (concat 0x01 0x02) to 0x0102
 debug: Simplified (* 1u 1u) to 1u
+debug: Simplified (replace3 0x0102 1u 0xff) // on error: index access is out of bounds to 0x01ff
+debug: Simplified (== 0x01ff 0x01ff) to 1u
 debug: Simplified (getbit 0x00 0u) to 0u
 debug: Simplified (+ 0u 16u) to 16u
 debug: Simplified (setbit 0x000280 16u 0u) to 0x000200
@@ -16378,6 +16392,7 @@ debug: Simplified (concat 0x80320006 0x000d) to 0x80320006000d
 debug: Simplified (concat 0x80320006000d 0x00054861707079) to 0x80320006000d00054861707079
 debug: Simplified (concat 0x80320006000d00054861707079 0x000444617973) to 0x80320006000d00054861707079000444617973
 debug: Simplified (setbit 0x80320006000d00054861707079000444617973 0u 0u) to 0x00320006000d00054861707079000444617973
+debug: Simplified (replace3 0x00320006000d00054861707079000444617973 1u 0x0c) to 0x000c0006000d00054861707079000444617973
 debug: Simplified (concat 0x 0x00) to 0x00
 debug: Simplified (concat 0x00 0x0c) to 0x000c
 debug: Simplified ((extract 6 2) aggregate%as_bytes%49#0) to 0x0006
@@ -16388,13 +16403,30 @@ debug: Simplified ((extract 6 2) aggregate%as_bytes%50#0) to 0x000d
 debug: Simplified (concat 0x000c0006 0x000d) to 0x000c0006000d
 debug: Simplified (concat 0x000c0006000d 0x00054861707079) to 0x000c0006000d00054861707079
 debug: Simplified (concat 0x000c0006000d00054861707079 0x000444617973) to 0x000c0006000d00054861707079000444617973
+debug: Simplified (== 0x000c0006000d00054861707079000444617973 0x000c0006000d00054861707079000444617973) to 1u
 debug: Simplified (len "Hmmmm") to 5u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%51#0) to 0x0005
 debug: Simplified (concat 0x0005 "Hmmmm") to 0x0005486d6d6d6d
+debug: Simplified (extract_uint16 0x000c0006000d00054861707079000444617973 2u) to 6u
+debug: Simplified (extract3 0x000c0006000d00054861707079000444617973 0u 6u) to 0x000c0006000d
+debug: Simplified (concat 0x000c0006000d 0x0005486d6d6d6d) to 0x000c0006000d0005486d6d6d6d
+debug: Simplified (extract_uint16 0x000c0006000d00054861707079000444617973 4u) to 13u
+debug: Simplified (len 0x000c0006000d00054861707079000444617973) to 19u
+debug: Simplified (substring3 0x000c0006000d00054861707079000444617973 13u 19u) to 0x000444617973
+debug: Simplified (concat 0x000c0006000d0005486d6d6d6d 0x000444617973) to 0x000c0006000d0005486d6d6d6d000444617973
+debug: Simplified (- 13u 6u) to 7u
 debug: Simplified (len 0x0005486d6d6d6d) to 7u
+debug: Simplified (extract_uint16 0x000c0006000d00054861707079000444617973 4u) to 13u
+debug: Simplified (+ 13u 7u) to 20u
+debug: Simplified (- 20u 7u) to 13u
+debug: Simplified ((extract 6 2) aggregate%as_bytes%52#0) to 0x000d
+debug: Simplified (replace3 0x000c0006000d0005486d6d6d6d000444617973 4u 0x000d) to 0x000c0006000d0005486d6d6d6d000444617973
 debug: Simplified (len "Oh well") to 7u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%53#0) to 0x0007
 debug: Simplified (concat 0x0007 "Oh well") to 0x00074f682077656c6c
+debug: Simplified (extract_uint16 0x000c0006000d0005486d6d6d6d000444617973 4u) to 13u
+debug: Simplified (extract3 0x000c0006000d0005486d6d6d6d000444617973 0u 13u) to 0x000c0006000d0005486d6d6d6d
+debug: Simplified (concat 0x000c0006000d0005486d6d6d6d 0x00074f682077656c6c) to 0x000c0006000d0005486d6d6d6d00074f682077656c6c
 debug: Simplified (concat 0x 0x00) to 0x00
 debug: Simplified (concat 0x00 0x0c) to 0x000c
 debug: Simplified ((extract 6 2) aggregate%as_bytes%54#0) to 0x0006
@@ -16405,6 +16437,7 @@ debug: Simplified ((extract 6 2) aggregate%as_bytes%55#0) to 0x000d
 debug: Simplified (concat 0x000c0006 0x000d) to 0x000c0006000d
 debug: Simplified (concat 0x000c0006000d 0x0005486d6d6d6d) to 0x000c0006000d0005486d6d6d6d
 debug: Simplified (concat 0x000c0006000d0005486d6d6d6d 0x00074f682077656c6c) to 0x000c0006000d0005486d6d6d6d00074f682077656c6c
+debug: Simplified (== 0x000c0006000d0005486d6d6d6d00074f682077656c6c 0x000c0006000d0005486d6d6d6d00074f682077656c6c) to 1u
 debug: Simplified (concat 0x 0x03) to 0x03
 debug: Simplified (concat 0x03 0x04) to 0x0304
 debug: Simplified (extract_uint16 0x00020102 0u) to 2u
@@ -16445,14 +16478,6 @@ debug: Simplified (* 1u 2u) to 2u
 debug: Simplified (len 0x00020005576f726c64) to 9u
 debug: Simplified (substring3 0x00020005576f726c64 2u 9u) to 0x0005576f726c64
 debug: Simplified (replace3 aggregate%item%3#0 3u 0x00) // on error: index access is out of bounds to ((replace2 3) aggregate%item%3#0 0x00) // on error: index access is out of bounds
-debug: Simplified (replace3 0x0a094080 0u 0xfffe) // on error: index access is out of bounds to ((replace2 0) 0x0a094080 0xfffe) // on error: index access is out of bounds
-debug: Simplified (extract3 array_of_array#6 2u 2u) // on error: index access is out of bounds to ((extract 2 2) array_of_array#6) // on error: index access is out of bounds
-debug: Simplified (replace3 aggregate%encoded_element%1#0 0u 0x01) // on error: index access is out of bounds to ((replace2 0) aggregate%encoded_element%1#0 0x01) // on error: index access is out of bounds
-debug: Simplified (replace3 array_of_array#6 2u aggregate%updated_array%6#0) // on error: index access is out of bounds to ((replace2 2) array_of_array#6 aggregate%updated_array%6#0) // on error: index access is out of bounds
-debug: Simplified (replace3 0x00020102 2u 0xff) // on error: index access is out of bounds to ((replace2 2) 0x00020102 0xff) // on error: index access is out of bounds
-debug: Simplified (replace3 0x0102 1u 0xff) // on error: index access is out of bounds to ((replace2 1) 0x0102 0xff) // on error: index access is out of bounds
-debug: Simplified (replace3 0x00320006000d00054861707079000444617973 1u 0x0c) to ((replace2 1) 0x00320006000d00054861707079000444617973 0x0c)
-debug: Simplified (replace3 aggregate%updated_data%3#0 4u aggregate%tail_offset_bytes%0#0) to ((replace2 4) aggregate%updated_data%3#0 aggregate%tail_offset_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -16488,11 +16513,6 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
 debug: removing redundant assert of tmp%12#1
-debug: removing redundant assert of tmp%2#4
-debug: removing redundant assert of tmp%0#5
-debug: removing redundant assert of tmp%1#5
-debug: removing redundant assert of tmp%9#4
-debug: removing redundant assert of tmp%16#2
 debug: GVN found equivalence set: (aggregate%as_bytes%0#0, aggregate%as_bytes%5#0, aggregate%as_bytes%14#0, aggregate%as_bytes%59#0, aggregate%as_bytes%61#0), selected replacement: aggregate%as_bytes%0#0
 debug: GVN found equivalence set: (tmp%0#9, aggregate%as_bytes%1#0, aggregate%as_bytes%12#0, aggregate%as_bytes%13#0), selected replacement: tmp%0#9
 debug: GVN found equivalence set: (tmp%0#11, aggregate%as_bytes%2#0, aggregate%as_bytes%35#0, aggregate%as_bytes%47#0, aggregate%as_bytes%49#0, aggregate%as_bytes%54#0), selected replacement: tmp%0#11
@@ -16507,9 +16527,7 @@ debug: GVN found equivalence set: (aggregate%as_bytes%20#0, aggregate%as_bytes%2
 debug: GVN found equivalence set: (aggregate%as_bytes%21#0, aggregate%as_bytes%30#0), selected replacement: aggregate%as_bytes%21#0
 debug: GVN found equivalence set: (aggregate%as_bytes%43#0, aggregate%as_bytes%44#0, aggregate%as_bytes%58#0, aggregate%as_bytes%60#0), selected replacement: aggregate%as_bytes%43#0
 debug: GVN found equivalence set: (aggregate%as_bytes%48#0, aggregate%as_bytes%50#0, aggregate%as_bytes%52#0, aggregate%as_bytes%55#0), selected replacement: aggregate%as_bytes%48#0
-debug: GVN found equivalence set: (aggregate%updated_data%2#0, aggregate%data_up_to_item%1#0), selected replacement: aggregate%updated_data%2#0
-debug: GVN found equivalence set: (aggregate%updated_data%3#0, test_struct#3), selected replacement: test_struct#3
-debug: GVN: 41 replacement(s) in test_cases.arc4_types.mutation.Arc4MutationContract.approval_program
+debug: GVN: 39 replacement(s) in test_cases.arc4_types.mutation.Arc4MutationContract.approval_program
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -17398,19 +17416,24 @@ debug: Removing unused variable aggregate%length%6#0
 debug: Removing unused variable aggregate%length_uint16%6#0
 debug: Removing unused variable aggregate%encoded_value%6#0
 debug: Removing unused variable aggregate%item_offset%0#0
+debug: Removing unused variable aggregate%data_up_to_item%0#0
+debug: Removing unused variable aggregate%updated_data%2#0
 debug: Removing unused variable aggregate%next_item_offset%0#0
 debug: Removing unused variable aggregate%total_length%1#0
-debug: Removing unused variable test_struct#3
+debug: Removing unused variable aggregate%data_beyond_item%0#0
+debug: Removing unused variable aggregate%updated_data%3#0
 debug: Removing unused variable aggregate%old_value_length%0#0
 debug: Removing unused variable aggregate%new_value_length%0#0
 debug: Removing unused variable aggregate%tail_offset%0#0
 debug: Removing unused variable aggregate%tail_offset%1#0
 debug: Removing unused variable aggregate%tail_offset%2#0
 debug: Removing unused variable aggregate%tail_offset_bytes%0#0
+debug: Removing unused variable test_struct#3
 debug: Removing unused variable aggregate%length%7#0
 debug: Removing unused variable aggregate%length_uint16%7#0
 debug: Removing unused variable aggregate%encoded_value%7#0
 debug: Removing unused variable aggregate%item_offset%1#0
+debug: Removing unused variable aggregate%data_up_to_item%1#0
 debug: Removing unused variable test_struct#4
 debug: Removing unused variable aggregate%head%83#0
 debug: Removing unused variable aggregate%head%84#0
@@ -17462,9 +17485,6 @@ debug: Removing unused variable aggregate%array_length%8#0
 debug: Removing unused variable start_of_tail%0#1
 debug: Removing unused variable total_length%1#1
 debug: Removing unused variable data%0#1
-debug: Removing unused variable aggregate%updated_data%2#0
-debug: Removing unused variable aggregate%data_beyond_item%0#0
-debug: Removing unused variable aggregate%data_up_to_item%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (extract_uint16 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172 0u) to 8u
 debug: Simplified (< 3u 8u) to 1u
@@ -21859,10 +21879,13 @@ debug: Simplified (concat 0x80320006 0x000d) to 0x80320006000d
 debug: Simplified (concat 0x80320006000d 0x00054861707079) to 0x80320006000d00054861707079
 debug: Simplified (concat 0x80320006000d00054861707079 0x000444617973) to 0x80320006000d00054861707079000444617973
 debug: Simplified (* 2u 1u) to 2u
+debug: Simplified (replace3 0x01020304 2u 0x05) // on error: index access is out of bounds to 0x01020504
 debug: Simplified (* 2u 1u) to 2u
 debug: Simplified (extract3 0x01020304 2u 1u) // on error: index access is out of bounds to 0x03
 debug: Simplified (b== 0x03 0x03) to 1u
 debug: Simplified (* 2u 1u) to 2u
+debug: Simplified (extract3 0x01020504 2u 1u) // on error: index access is out of bounds to 0x05
+debug: Simplified (b== 0x05 0x05) to 1u
 debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (len "AARRGH!") to 7u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0007
@@ -21878,10 +21901,13 @@ debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (extract3 0x01020304 0u 1u) // on error: index access is out of bounds to 0x01
 debug: Simplified (b== 0x01 0x01) to 1u
 debug: Simplified (* 0u 1u) to 0u
+debug: Simplified (replace3 0x01020304 0u 0x0a) // on error: index access is out of bounds to 0x0a020304
+debug: Simplified (* 0u 1u) to 0u
+debug: Simplified (extract3 0x0a020304 0u 1u) // on error: index access is out of bounds to 0x0a
+debug: Simplified (b== 0x0a 0x0a) to 1u
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (* 0u 1u) to 0u
-debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 1u 1u) to 1u
@@ -21894,11 +21920,7 @@ debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 1u 1u) to 1u
 debug: Simplified (* 1u 1u) to 1u
-debug: Simplified (replace3 0x01020304 2u 0x05) // on error: index access is out of bounds to ((replace2 2) 0x01020304 0x05) // on error: index access is out of bounds
-debug: Simplified (extract3 my_array#1 2u 1u) // on error: index access is out of bounds to ((extract 2 1) my_array#1) // on error: index access is out of bounds
 debug: Simplified (extract3 my_array#2 1u 1u) // on error: index access is out of bounds to ((extract 1 1) my_array#2) // on error: index access is out of bounds
-debug: Simplified (replace3 0x01020304 0u 0x0a) // on error: index access is out of bounds to ((replace2 0) 0x01020304 0x0a) // on error: index access is out of bounds
-debug: Simplified (extract3 array#3 0u 1u) // on error: index access is out of bounds to ((extract 0 1) array#3) // on error: index access is out of bounds
 debug: Simplified (extract3 my_array#3 0u 1u) // on error: index access is out of bounds to ((extract 0 1) my_array#3) // on error: index access is out of bounds
 debug: Simplified (extract3 my_array_copy_2#4 0u 1u) // on error: index access is out of bounds to ((extract 0 1) my_array_copy_2#4) // on error: index access is out of bounds
 debug: Simplified (extract3 my_array_copy_3#1 0u 1u) // on error: index access is out of bounds to ((extract 0 1) my_array_copy_3#1) // on error: index access is out of bounds
@@ -21932,7 +21954,6 @@ debug: Merged linear block@6 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
-debug: removing redundant assert of tmp%14#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -22311,14 +22332,20 @@ debug: Unused subroutines removed
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
+arc4_types/mutable_params.py:52:16 debug: constant function call to test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 arc4_types/mutable_params.py:63:9 debug: constant function call to test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array#5, other_routine%6#0
+debug: Found equivalence set: array#5, my_array#2
 debug: selected array#5 from equivalence set
-debug: Found equivalence set: struct#2, other_routine%7#0
+debug: Found equivalence set: struct#2, my_struct#1
 debug: selected struct#2 from equivalence set
+debug: Found equivalence set: array#7, other_routine%6#0
+debug: selected array#7 from equivalence set
+debug: Found equivalence set: struct#5, other_routine%7#0
+debug: selected struct#5 from equivalence set
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%head%0#0
@@ -22354,21 +22381,31 @@ debug: Removing unused variable tmp%4#0
 debug: Removing unused variable aggregate%bytes_offset%1#0
 debug: Removing unused variable aggregate%encoded_element%1#0
 debug: Removing unused variable tmp%5#0
-debug: Removing unused variable aggregate%bytes_offset%2#0
-debug: Removing unused variable aggregate%length%2#0
-debug: Removing unused variable aggregate%as_bytes%4#0
-debug: Removing unused variable aggregate%length_uint16%2#0
-debug: Removing unused variable aggregate%encoded_value%2#0
 debug: Removing unused variable array#4
 debug: Removing unused variable struct#0
 debug: Removing unused variable aggregate%write_offset%0#3
-debug: Removing unused variable array#5
 debug: Removing unused variable aggregate%length%0#1
 debug: Removing unused variable aggregate%as_bytes%0#1
 debug: Removing unused variable aggregate%length_uint16%0#1
 debug: Removing unused variable aggregate%encoded_value%0#1
 debug: Removing unused variable aggregate%new_value_length%0#0
-debug: Removing unused variable struct#2
+debug: Removing unused variable t#0
+debug: Removing unused variable f#0
+debug: Removing unused variable aggregate%bytes_offset%2#0
+debug: Removing unused variable aggregate%length%2#0
+debug: Removing unused variable aggregate%as_bytes%4#0
+debug: Removing unused variable aggregate%length_uint16%2#0
+debug: Removing unused variable aggregate%encoded_value%2#0
+debug: Removing unused variable array#6
+debug: Removing unused variable struct#3
+debug: Removing unused variable aggregate%write_offset%0#4
+debug: Removing unused variable array#7
+debug: Removing unused variable aggregate%length%0#2
+debug: Removing unused variable aggregate%as_bytes%0#2
+debug: Removing unused variable aggregate%length_uint16%0#2
+debug: Removing unused variable aggregate%encoded_value%0#2
+debug: Removing unused variable aggregate%new_value_length%0#1
+debug: Removing unused variable struct#5
 debug: Removing unused variable other_routine%4#0
 debug: Removing unused variable other_routine%5#0
 debug: Removing unused variable aggregate%bytes_offset%3#0
@@ -22386,7 +22423,7 @@ debug: Removing unused variable array#3
 debug: Removing unused variable aggregate%bytes_offset%5#0
 debug: Removing unused variable aggregate%encoded_element%5#0
 debug: Removing unused variable tmp%14#0
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, 0x0a020304, 0x01020304, 0u, 1u)
+debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#5, 0x0a020304, 0x01020304, 0u, 1u)
 debug: Removing unused variable aggregate%bytes_offset%6#0
 debug: Removing unused variable aggregate%bytes_offset%7#0
 debug: Removing unused variable aggregate%bytes_offset%8#0
@@ -22402,32 +22439,56 @@ debug: Removing unused variable aggregate%bytes_offset%17#0
 debug: Removing unused variable aggregate%bytes_offset%18#0
 debug: Removing unused variable aggregate%bytes_offset%19#0
 debug: Removing unused variable aggregate%bytes_offset%20#0
-debug: Removing unused variable aggregate%updated_data%1#0
-debug: Removing unused variable aggregate%tail_offset_bytes%0#0
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, 0x0a020304, 0x01020304, 0u, 1u)
-debug: Removing unused variable aggregate%updated_data%0#0
-debug: Removing unused variable aggregate%data_beyond_item%0#0
-debug: Removing unused variable aggregate%as_bytes%1#1
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, 0x0a020304, 0x01020304, 0u, 1u)
-debug: Removing unused variable aggregate%data_up_to_item%0#0
-debug: Removing unused variable aggregate%total_length%0#0
-debug: Removing unused variable aggregate%tail_offset%2#0
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, 0x0a020304, 0x01020304, 0u, 1u)
-debug: Removing unused variable aggregate%old_value_length%0#0
-debug: Removing unused variable aggregate%tail_offset%1#0
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, 0x0a020304, 0x01020304, 0u, 1u)
-debug: Removing unused variable aggregate%item_offset%0#0
-debug: Removing unused variable aggregate%next_item_offset%0#0
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, 0x0a020304, 0x01020304, 0u, 1u)
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(my_array#2, 0x0a020304, 0x01020304, 0u, 1u)
+debug: Removing unused variable aggregate%updated_data%1#1
+debug: Removing unused variable aggregate%tail_offset_bytes%0#1
+debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#5, 0x0a020304, 0x01020304, 0u, 1u)
+debug: Removing unused variable aggregate%updated_data%0#1
+debug: Removing unused variable aggregate%data_beyond_item%0#1
+debug: Removing unused variable aggregate%as_bytes%1#2
+debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#5, 0x0a020304, 0x01020304, 0u, 1u)
+debug: Removing unused variable aggregate%data_up_to_item%0#1
+debug: Removing unused variable aggregate%total_length%0#1
+debug: Removing unused variable aggregate%tail_offset%2#1
+debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#5, 0x0a020304, 0x01020304, 0u, 1u)
+debug: Removing unused variable aggregate%old_value_length%0#1
+debug: Removing unused variable aggregate%tail_offset%1#1
+debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#5, 0x0a020304, 0x01020304, 0u, 1u)
+debug: Removing unused variable aggregate%item_offset%0#1
+debug: Removing unused variable aggregate%next_item_offset%0#1
+debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#5, 0x0a020304, 0x01020304, 0u, 1u)
+debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#5, 0x0a020304, 0x01020304, 0u, 1u)
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified ((replace2 1) 0x01020504 0x05) // on error: index access is out of bounds to 0x01050504
+debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 2u) to 6u
+debug: Simplified (extract3 0x80320006000d00054861707079000444617973 0u 6u) to 0x80320006000d
+debug: Simplified (concat 0x80320006000d 0x000741415252474821) to 0x80320006000d000741415252474821
+debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 4u) to 13u
+debug: Simplified (len 0x80320006000d00054861707079000444617973) to 19u
+debug: Simplified (substring3 0x80320006000d00054861707079000444617973 13u 19u) to 0x000444617973
+debug: Simplified (concat 0x80320006000d000741415252474821 0x000444617973) to 0x80320006000d000741415252474821000444617973
+debug: Simplified (- 13u 6u) to 7u
+debug: Simplified (+ 13u 9u) to 22u
+debug: Simplified (- 22u 7u) to 15u
+debug: Simplified ((extract 6 2) aggregate%as_bytes%1#1) to 0x000f
+debug: Simplified ((replace2 4) 0x80320006000d000741415252474821000444617973 0x000f) to 0x80320006000f000741415252474821000444617973
+debug: Simplified (! 0u) to 1u
+debug: Simplified ((extract 1 1) 0x01050504) // on error: index access is out of bounds to 0x05
+debug: Simplified (b== 0x05 0x05) to 1u
+debug: Simplified (extract_uint16 0x80320006000f000741415252474821000444617973 2u) to 6u
+debug: Simplified (extract_uint16 0x80320006000f000741415252474821000444617973 4u) to 15u
+debug: Simplified (substring3 0x80320006000f000741415252474821000444617973 6u 15u) to 0x000741415252474821
+debug: Simplified (== 0x000741415252474821 0x000741415252474821) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Merge Blocks
 debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Merged linear block@1 into block@0
+debug: Replaced predecessor block@2 with block@0 in block@3
 debug: Merged linear block@2 into block@0
+debug: Replaced predecessor block@3 with block@0 in block@4
+debug: Merged linear block@3 into block@0
+debug: Merged linear block@4 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
@@ -22500,109 +22561,9 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 3/100
-debug: marking single-use function test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine for inlining
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-arc4_types/mutable_params.py:52:16 debug: inlining call to test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array#1, my_array#2
-debug: selected array#1 from equivalence set
-debug: Found equivalence set: struct#2, my_struct#1
-debug: selected struct#2 from equivalence set
-debug: Copy propagation made 6 modifications
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array#0
-debug: Removing unused variable struct#0
-debug: Removing unused variable t#0
-debug: Removing unused variable f#0
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#1, 0x0a020304, 0x01020304, 0u, 1u)
-debug: Not removing unused assignment since source is not marked as pure: let (mutate_tuple_items_and_reassign%0#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%1#0: Encoded(uint8[4]), mutate_tuple_items_and_reassign%2#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign(array#1, 0x0a020304, 0x01020304, 0u, 1u)
-debug: Optimizer: Intrinsic Simplifier
-debug: Simplified ((replace2 1) 0x01020504 0x05) // on error: index access is out of bounds to 0x01050504
-debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 2u) to 6u
-debug: Simplified (extract3 0x80320006000d00054861707079000444617973 0u 6u) to 0x80320006000d
-debug: Simplified (concat 0x80320006000d 0x000741415252474821) to 0x80320006000d000741415252474821
-debug: Simplified (extract_uint16 0x80320006000d00054861707079000444617973 4u) to 13u
-debug: Simplified (len 0x80320006000d00054861707079000444617973) to 19u
-debug: Simplified (substring3 0x80320006000d00054861707079000444617973 13u 19u) to 0x000444617973
-debug: Simplified (concat 0x80320006000d000741415252474821 0x000444617973) to 0x80320006000d000741415252474821000444617973
-debug: Simplified (- 13u 6u) to 7u
-debug: Simplified (+ 13u 9u) to 22u
-debug: Simplified (- 22u 7u) to 15u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x000f
-debug: Simplified ((replace2 4) 0x80320006000d000741415252474821000444617973 0x000f) to 0x80320006000f000741415252474821000444617973
-debug: Simplified (! 0u) to 1u
-debug: Simplified ((extract 1 1) 0x01050504) // on error: index access is out of bounds to 0x05
-debug: Simplified (b== 0x05 0x05) to 1u
-debug: Simplified (extract_uint16 0x80320006000f000741415252474821000444617973 2u) to 6u
-debug: Simplified (extract_uint16 0x80320006000f000741415252474821000444617973 4u) to 15u
-debug: Simplified (substring3 0x80320006000f000741415252474821000444617973 6u 15u) to 0x000741415252474821
-debug: Simplified (== 0x000741415252474821 0x000741415252474821) to 1u
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Replaced predecessor block@1 with block@0 in block@2
-debug: Merged linear block@1 into block@0
-debug: Merged linear block@2 into block@0
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Global Value Numbering
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Global Value Numbering
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Merge Blocks
-debug: Optimizer: Remove Linear Jumps
-debug: Not removing empty block block@21 because it's used by phi nodes
-debug: Not removing empty block block@23 because it's used by phi nodes
-debug: Not removing empty block block@25 because it's used by phi nodes
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Global Value Numbering
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine
 debug: Unused subroutines removed
-debug: Begin optimization pass 4/100
+debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 arc4_types/mutable_params.py:85:9 debug: constant function call to test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
@@ -22628,7 +22589,7 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable arrays.0%out#7
 debug: Removing unused variable arrays.1%out#6
 debug: Removing unused variable arrays.2%out#5
-debug: Removing unused variable array#1
+debug: Removing unused variable array#5
 debug: Removing unused variable aggregate%item_offset%0#0
 debug: Removing unused variable aggregate%data_up_to_item%0#0
 debug: Removing unused variable aggregate%updated_data%0#0
@@ -22639,7 +22600,7 @@ debug: Removing unused variable aggregate%updated_data%1#0
 debug: Removing unused variable aggregate%old_value_length%0#0
 debug: Removing unused variable aggregate%tail_offset%1#0
 debug: Removing unused variable aggregate%tail_offset%2#0
-debug: Removing unused variable aggregate%as_bytes%1#0
+debug: Removing unused variable aggregate%as_bytes%1#1
 debug: Removing unused variable aggregate%tail_offset_bytes%0#0
 debug: Removing unused variable struct#2
 debug: Removing unused variable tmp%6#0
@@ -22842,7 +22803,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 5/100
+debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -23038,7 +22999,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 6/100
+debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -23108,7 +23069,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 7/100
+debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 arc4_types/mutable_params.py:103:9 debug: constant function call to test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign in test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
@@ -23230,7 +23191,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 8/100
+debug: Begin optimization pass 7/100
 debug: marking single-use function test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign for inlining
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
@@ -23425,7 +23386,7 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate_tuple_items_and_reassign
 debug: Unused subroutines removed
-debug: Begin optimization pass 9/100
+debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -23555,7 +23516,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 10/100
+debug: Begin optimization pass 9/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -23594,7 +23555,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 11/100
+debug: Begin optimization pass 10/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -23615,7 +23576,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 11, ending loop
+debug: No optimizations performed in pass 10, ending loop
 debug: optimizing clear program of test_cases.arc4_types.mutable_params.Arc4MutableParamsContract at level 2
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.clear_state_program
