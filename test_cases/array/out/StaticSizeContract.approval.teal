@@ -898,23 +898,30 @@ test_arc4_bool:
     txn Sender
     txn Receiver
     ==
+    dup
     bytec_3 // 0x00
     intc_0 // 0
-    uncover 2
+    dig 2
     setbit
     // array/static_size.py:144
     // arr.append(arc4.Bool(Txn.sender != Txn.receiver))
     txn Sender
     txn Receiver
     !=
+    dup
+    cover 3
     bytec_3 // 0x00
     intc_0 // 0
-    uncover 2
+    dig 2
     setbit
+    uncover 2
+    swap
     concat // on error: max array length exceeded
-    dupn 2
+    dup
+    cover 3
     // array/static_size.py:147
     // dyn_arr.extend(arr)
+    dup
     len
     // array/static_size.py:146
     // dyn_arr = arc4.DynamicArray[arc4.Bool]()
@@ -926,14 +933,14 @@ test_arc4_bool:
     intc_2 // 8
     callsub dynamic_array_concat_bits
     dup
-    cover 2
+    cover 4
     // array/static_size.py:148
     // assert dyn_arr.length == 2, "expected correct length"
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 3
+    cover 5
     dup
     pushint 2
     ==
@@ -958,9 +965,7 @@ test_arc4_bool:
     setbit
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    ==
+    uncover 5
     ==
     assert // expected correct value at 0
     // array/static_size.py:151
@@ -978,9 +983,7 @@ test_arc4_bool:
     setbit
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    !=
+    uncover 2
     ==
     assert // expected correct value at 1
     intc_0 // 0
@@ -1030,9 +1033,9 @@ test_arc4_bool_after_for@5:
     extract 0 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    ==
+    dig 8
+    dup
+    cover 3
     ==
     assert // expected correct value at 0
     // array/static_size.py:160
@@ -1041,9 +1044,9 @@ test_arc4_bool_after_for@5:
     extract 1 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    !=
+    dig 8
+    dup
+    cover 4
     ==
     assert // expected correct value at 1
     // array/static_size.py:161
@@ -1052,9 +1055,7 @@ test_arc4_bool_after_for@5:
     extract 2 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    ==
+    uncover 2
     ==
     assert // expected correct value at 2
     // array/static_size.py:162
@@ -1062,9 +1063,6 @@ test_arc4_bool_after_for@5:
     extract 3 1 // on error: index access is out of bounds
     intc_0 // 0
     getbit
-    txn Sender
-    txn Receiver
-    !=
     ==
     assert // expected correct value at 3
     dig 4
