@@ -60,16 +60,18 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%head%3#0: bytes = 0x00020004
         let aggregate%data_length%0#0: uint64 = 7u
         let aggregate%current_tail_offset%0#0: uint64 = 11u
-        let aggregate%as_bytes%6#0: bytes[8] = (itob 11u)
+        let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
         let aggregate%offset_as_uint16%1#0: bytes = 0x000b
         let aggregate%head%4#0: bytes = 0x00020004000b
-        let aggregate%concat%0#0: bytes = 0x00020004000b000548656c6c6f
-        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = 0x00020004000b000548656c6c6f0005576f726c64
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%4#0 0x000548656c6c6f)
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = (concat aggregate%head%4#0 0x000548656c6c6f0005576f726c64)
         let aggregate%array_length%2#0: uint64 = 2u
         let tmp%9#0: bool = 1u
+        (assert tmp%9#0)
         let length#0: uint64 = 2u
         let tmp%1#0: bool = 1u
-        let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_byte_length_element(0x00020004000b000548656c6c6f0005576f726c64, 0u)
+        (assert length#0) // index out of bounds
+        let aggregate%item%0#0: bytes = _puya_lib.arc4.dynamic_array_read_byte_length_element(dynamic_string_array#0, 0u)
         let tmp%11#0: bool = (== aggregate%item%0#0 0x000548656c6c6f)
         (assert tmp%11#0)
         let result#0: string = ""
@@ -78,10 +80,10 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@9: // for_header_L39
         let index#0: uint64 = φ(item_index_internal%2#0 <- block@8, item_index_internal%2#2 <- block@13)
         let result#2: string = φ(result#0 <- block@8, result#4 <- block@13)
-        let continue_looping%2#0: bool = (< index#0 2u)
+        let continue_looping%2#0: bool = (< index#0 aggregate%array_length%2#0)
         goto continue_looping%2#0 ? block@10 : block@15
     block@10: // for_body_L40
-        let string_item#0: Encoded(len+utf8[]) = _puya_lib.arc4.dynamic_array_read_byte_length_element(0x00020004000b000548656c6c6f0005576f726c64, index#0)
+        let string_item#0: Encoded(len+utf8[]) = _puya_lib.arc4.dynamic_array_read_byte_length_element(dynamic_string_array#0, index#0)
         goto index#0 ? block@12 : block@11
     block@11: // if_body_L41
         let result#1: string = ((extract 2 0) string_item#0)
@@ -157,11 +159,11 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let aggregate%head%10#0: bytes = 0x0004
         let aggregate%data_length%2#0: uint64 = 6u
         let aggregate%current_tail_offset%2#0: uint64 = 10u
-        let aggregate%as_bytes%10#0: bytes[8] = (itob 10u)
+        let aggregate%as_bytes%10#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = 0x000a
         let aggregate%head%11#0: bytes = 0x0004000a
-        let aggregate%concat%2#0: bytes = 0x0004000a000450696e67
-        let static_string_array#0: Encoded((len+utf8[])[2]) = 0x0004000a000450696e670004506f6e67
+        let aggregate%concat%2#0: bytes = (concat aggregate%head%11#0 0x000450696e67)
+        let static_string_array#0: Encoded((len+utf8[])[2]) = (concat aggregate%head%11#0 0x000450696e670004506f6e67)
         let result#5: string = ""
         let item_index_internal%5#0: uint64 = 0u
         goto block@24
@@ -171,7 +173,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let continue_looping%5#0: bool = (< index#2 2u)
         goto continue_looping%5#0 ? block@25 : block@30
     block@25: // for_body_L74
-        let string_item#1: Encoded(len+utf8[]) = _puya_lib.arc4.static_array_read_byte_length_element(0x0004000a000450696e670004506f6e67, index#2)
+        let string_item#1: Encoded(len+utf8[]) = _puya_lib.arc4.static_array_read_byte_length_element(static_string_array#0, index#2)
         goto index#2 ? block@27 : block@26
     block@26: // if_body_L75
         let result#6: string = ((extract 2 0) string_item#1)
@@ -194,20 +196,18 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let old_item_length#0: uint64 = 4u
         let tmp%3#1: uint64 = 14u
         let old_item_end#0: uint64 = 16u
-        let tmp%5#1: bytes = 0x0004000a000450696e67
-        let tmp%6#1: bytes = 0x0004000a000450696e67000450696e67
+        let new_head_and_tail#0: bytes = (concat aggregate%concat%2#0 0x000450696e67)
         let tmp%7#1: uint64 = 16u
-        let tmp%8#1: bytes = 0x
-        let new_head_and_tail#0: bytes = 0x0004000a000450696e67000450696e67
+        let tmp%8#1: bytes = ""
         let tmp%0#2: uint64 = 4u
         let tmp%2#2: uint64 = 10u
-        let tail_offset#0: uint64 = 10u
+        let tail_offset#0: uint64 = tmp%2#2
         goto block@36
     block@36: // for_header_L412
         let head_offset#0: uint64 = φ(tmp%0#1 <- block@30, value_internal%0#2 <- block@37)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@30, tail_offset#2 <- block@37)
         let array_head_and_tail#2: bytes = φ(new_head_and_tail#0 <- block@30, array_head_and_tail#3 <- block@37)
-        let continue_looping%0#1: bool = (< head_offset#0 4u)
+        let continue_looping%0#1: bool = (< head_offset#0 tmp%0#2)
         goto continue_looping%0#1 ? block@37 : block@38
     block@37: // for_body_L413
         let tmp%0#3: bytes = (itob tail_offset#1)

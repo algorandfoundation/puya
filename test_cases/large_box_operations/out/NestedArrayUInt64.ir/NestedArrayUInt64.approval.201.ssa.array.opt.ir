@@ -72,6 +72,7 @@ subroutine _puya_lib.box_arc4.box_update_offset_inc(box_key: bytes, offset: uint
 
 subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.bootstrap[routing]() -> void:
     block@0: // L35
+        let aggregate%concat%2#0: bytes = 0x0004001800000000000000010012000000000000000200000000
         (box_del "box")
         (box_put "box" 0x0004001800000000000000010012000000000000000200000000)
         let tmp%2#0: bytes[4096] = (bzero 4096u)
@@ -113,7 +114,7 @@ subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.pop[routing]
         let box%index_ok%0#0: bool = (< sub%0#0 box%btoi%1#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%element_offset%0#0: uint64 = (* sub%0#0 32u)
-        let box%offset%6#0: uint64 = (+ 24u box%element_offset%0#0)
+        let box%offset%6#0: uint64 = (+ box%element_offset%0#0 24u)
         let box%box_extract%4#0: Encoded(uint64,(uint64,uint64),uint64) = (box_extract "box" box%offset%6#0 32u) // on error: index out of bounds
         let arr_len_bytes#0: bytes = (box_extract "box" 2u 2u)
         let offset_value#0: uint64 = (btoi arr_len_bytes#0)
@@ -128,7 +129,7 @@ subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.pop[routing]
         let new_arr_len_u16#0: bytes = ((extract 6 2) value_bytes#1)
         (box_replace "box" 22u new_arr_len_u16#0)
         let tmp%4#0: uint64 = (* new_arr_len#0 32u)
-        let popped_item_offset#0: uint64 = (+ 24u tmp%4#0)
+        let popped_item_offset#0: uint64 = (+ tmp%4#0 24u)
         (box_splice "box" popped_item_offset#0 32u 0x)
         let (box_size#0: uint64, _exists#0: bool) = (box_len "box")
         let new_size#0: uint64 = (- box_size#0 32u)
@@ -149,7 +150,7 @@ subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.get[routing]
         let box%index_ok%0#0: bool = (< idx#0 box%btoi%1#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%element_offset%0#0: uint64 = (* idx#0 32u)
-        let box%offset%4#0: uint64 = (+ 24u box%element_offset%0#0)
+        let box%offset%4#0: uint64 = (+ box%element_offset%0#0 24u)
         let box%box_extract%3#0: Encoded(uint64,(uint64,uint64),uint64) = (box_extract "box" box%offset%4#0 32u) // on error: index out of bounds
         let tmp%3#0: bytes = (concat 0x151f7c75 box%box_extract%3#0)
         (log tmp%3#0)
@@ -171,7 +172,7 @@ subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.set[routing]
         let box%index_ok%0#0: bool = (< idx#0 box%btoi%0#0)
         (assert box%index_ok%0#0) // index out of bounds
         let box%element_offset%0#0: uint64 = (* idx#0 32u)
-        let box%offset%2#0: uint64 = (+ 24u box%element_offset%0#0)
+        let box%offset%2#0: uint64 = (+ box%element_offset%0#0 24u)
         (box_replace "box" box%offset%2#0 value#0) // on error: index out of bounds
         exit 1u
 

@@ -17,11 +17,18 @@ main test_cases.tuple_support.tuple_support.TupleSupport.approval_program:
         let (result.0#0: uint64, result.1#0: uint64) = (0u, 3u)
         let tmp%9#0: bool = 1u
         let tmp%10#0: bool = 0u
+        goto tmp%10#0 ? block@3 : block@4
+    block@3: // if_body_L21
+        let tup.0#0: uint64 = 1u
+        let tup.1#0: uint64 = 2u
+        goto block@5
+    block@4: // else_body_L23
         let tup.0#1: uint64 = 3u
         let tup.1#1: uint64 = 3u
         goto block@5
     block@5: // after_if_else_L20
-        let (tup.0#2: uint64, tup.1#2: uint64) = (tup.0#1, tup.1#1)
+        let tup.0#2: uint64 = φ(tup.0#0 <- block@3, tup.0#1 <- block@4)
+        let tup.1#2: uint64 = φ(tup.1#0 <- block@3, tup.1#1 <- block@4)
         let tmp%11#0: bool = 1u
         let tmp%12#0: bool = 1u
         let tmp%13#0: bool = (== 3u tup.0#2)
@@ -31,11 +38,18 @@ main test_cases.tuple_support.tuple_support.TupleSupport.approval_program:
         let tmp%15#0: bool = 1u
         let tmp%16#0: bool = 1u
         let tmp%17#0: bool = 1u
+        goto tmp%17#0 ? block@6 : block@7
+    block@6: // ternary_true_L29
         let ternary_result%0.0#0: uint64 = 1u
         let ternary_result%0.1#0: uint64 = 2u
         goto block@8
+    block@7: // ternary_false_L29
+        let ternary_result%0.0#1: uint64 = 2u
+        let ternary_result%0.1#1: uint64 = 1u
+        goto block@8
     block@8: // ternary_merge_L29
-        let (m#0: uint64, n#0: uint64) = (ternary_result%0.0#0, ternary_result%0.1#0)
+        let m#0: uint64 = φ(ternary_result%0.0#0 <- block@6, ternary_result%0.0#1 <- block@7)
+        let n#0: uint64 = φ(ternary_result%0.1#0 <- block@6, ternary_result%0.1#1 <- block@7)
         let tmp%18#0: bool = (== m#0 1u)
         let tmp%19#0: bool = (== n#0 2u)
         let tmp%20#0: bool = (&& tmp%18#0 tmp%19#0)
@@ -104,15 +118,23 @@ main test_cases.tuple_support.tuple_support.TupleSupport.approval_program:
         let tmp%33#0: bool = 1u
         let tmp%34#0: bool = 1u
         let tmp%35#0: bool = 1u
+        goto tmp%35#0 ? block@9 : block@10
+    block@9: // if_body_L56
         (log "not empty")
+        goto block@10
+    block@10: // after_if_else_L55
         (log "get_uint_with_side_effect called")
         let tmp%36#0: bool = 1u
+        goto tmp%36#0 ? block@11 : block@12
+    block@11: // if_body_L58
         (log "not empty2")
+        goto block@12
+    block@12: // after_if_else_L57
         let tmp%0#1: bool = 1u
         let tmp%37#0: bool = 1u
         let tmp%38#0: bool = 1u
         let tmp%39#0: uint64 = 3u
-        return 3u
+        return tmp%39#0
 
 subroutine test_cases.tuple_support.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
     block@0: // L138

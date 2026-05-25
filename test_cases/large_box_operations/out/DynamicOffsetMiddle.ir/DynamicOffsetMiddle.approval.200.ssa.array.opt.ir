@@ -93,19 +93,19 @@ subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMi
         let aggregate%head%6#0: bytes = 0x0006
         let aggregate%data_length%2#0: uint64 = 2u
         let aggregate%current_tail_offset%2#0: uint64 = 8u
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 8u)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
         let aggregate%offset_as_uint16%3#0: bytes = 0x0008
         let aggregate%head%7#0: bytes = 0x00060008
         let aggregate%data_length%3#0: uint64 = 38u
         let aggregate%current_tail_offset%3#0: uint64 = 46u
-        let aggregate%as_bytes%6#0: bytes[8] = (itob 46u)
+        let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%current_tail_offset%3#0)
         let aggregate%offset_as_uint16%4#0: bytes = 0x002e
         let aggregate%head%8#0: bytes = 0x00060008002e
-        let aggregate%concat%2#0: bytes = 0x00060008002e0000
-        let aggregate%concat%3#0: bytes = 0x00060008002e00000000000000000001001200000000000000040000000000000002001200000000000000030000
-        let aggregate%concat%4#0: bytes = 0x00060008002e000000000000000000010012000000000000000400000000000000020012000000000000000300000000
+        let aggregate%concat%2#0: bytes = (concat aggregate%head%8#0 0x0000)
+        let aggregate%concat%3#0: bytes = (concat aggregate%head%8#0 0x00000000000000000001001200000000000000040000000000000002001200000000000000030000)
+        let aggregate%concat%4#0: bytes = (concat aggregate%head%8#0 0x000000000000000000010012000000000000000400000000000000020012000000000000000300000000)
         (box_del "box")
-        (box_put "box" 0x00060008002e000000000000000000010012000000000000000400000000000000020012000000000000000300000000)
+        (box_put "box" aggregate%concat%4#0)
         let tmp%3#0: bytes[4096] = (bzero 4096u)
         _puya_lib.box_arc4.box_update_offset_inc("box", 2u, 4096u)
         _puya_lib.box_arc4.box_update_offset_inc("box", 4u, 4096u)

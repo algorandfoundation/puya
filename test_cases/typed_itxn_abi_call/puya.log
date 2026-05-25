@@ -1599,9 +1599,7 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable start_at_index#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (* 0u 2u) to 0u
 debug: Simplified (select tmp%0#2 tmp%2#1 0u) to tmp%0#2
-debug: Simplified (* 0u 2u) to 0u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -20635,11 +20633,9 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (len 2b) to 1u
-debug: Simplified (<= 1u 64u) to 1u
 debug: Simplified (b| 2b aggregate%bzero%0#0) to 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
 debug: Simplified (b| aggregate%val_as_bytes%0#0 aggregate%bzero%1#0) to 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
 debug: Simplified (len 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094b) to 64u
-debug: Simplified (<= 64u 64u) to 1u
 debug: Simplified (b| 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094b aggregate%bzero%2#0) to 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -20648,6 +20644,7 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Global Value Numbering
+debug: removing redundant assert of aggregate%len_ok%1#0
 debug: GVN found equivalence set: (aggregate%bzero%0#0, aggregate%bzero%1#0, aggregate%bzero%2#0), selected replacement: aggregate%bzero%0#0
 debug: GVN: 2 replacement(s) in test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[routing]
 debug: Optimizer: Encode Decode Pair Elimination
@@ -20717,7 +20714,6 @@ debug: Simplified (extract3 result1#0 4u 8u) to ((extract 8 8) awst_tmp%0#0)
 debug: Simplified (extract3 result1#0 12u 64u) to ((extract 16 64) awst_tmp%0#0)
 debug: Simplified (btoi u#0) to (extract_uint64 awst_tmp%0#0 8u)
 debug: Simplified (len 2b) to 1u
-debug: Simplified (<= 1u 64u) to 1u
 debug: Simplified (b| 2b aggregate%bzero%1#0) to 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
 debug: Simplified (extract3 tmp%37#0 4u 8u) to ((extract 8 8) awst_tmp%3#0)
 debug: Simplified (btoi aggregate%extract%2#0) to (extract_uint64 awst_tmp%3#0 8u)
@@ -20817,7 +20813,6 @@ debug: Simplified (len 0x6231) to 2u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#0) to 0x0002
 debug: Simplified (concat 0x0002 0x6231) to 0x00026231
 debug: Simplified (len 2b) to 1u
-debug: Simplified (<= 1u 64u) to 1u
 debug: Simplified (b| 2b aggregate%bzero%0#0) to 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
 debug: Simplified (extract3 tmp%6#0 4u 8u) to ((extract 8 8) awst_tmp%0#0)
 debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 awst_tmp%0#0 8u)
@@ -20969,15 +20964,9 @@ debug: Simplified (concat 0x0002 "s1") to 0x00027331
 debug: Simplified ((extract 6 2) aggregate%as_bytes%2#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
 debug: Simplified (len 0x00027331) to 4u
-debug: Simplified (+ 4u 4u) to 8u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0008
-debug: Simplified (concat 0x0004 0x0008) to 0x00040008
-debug: Simplified (concat 0x00040008 0x00027331) to 0x0004000800027331
-debug: Simplified (concat 0x0004000800027331 0x00027332) to 0x000400080002733100027332
+debug: Simplified (concat aggregate%concat%0#0 0x00027332) to (concat aggregate%head%1#0 0x0002733100027332)
 debug: Simplified ((extract 6 2) aggregate%as_bytes%4#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
-debug: Simplified (len 0x000400080002733100027332) to 12u
-debug: Simplified (+ 4u 12u) to 16u
 debug: Simplified (concat 0x aggregate%val_as_bytes%0#0) to aggregate%val_as_bytes%0#0
 debug: Simplified (concat aggregate%val_as_bytes%0#0 0x0000000000000002) to 0x00000000000000010000000000000002
 debug: Simplified (len 0x33) to 1u
@@ -20986,10 +20975,6 @@ debug: Simplified (concat 0x0001 0x33) to 0x000133
 debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0012
 debug: Simplified (concat 0x00000000000000010000000000000002 0x0012) to 0x000000000000000100000000000000020012
 debug: Simplified (concat 0x000000000000000100000000000000020012 0x000133) to 0x000000000000000100000000000000020012000133
-debug: Simplified ((extract 6 2) aggregate%as_bytes%7#0) to 0x0010
-debug: Simplified (concat 0x0004 0x0010) to 0x00040010
-debug: Simplified (concat 0x00040010 0x000400080002733100027332) to 0x00040010000400080002733100027332
-debug: Simplified (concat 0x00040010000400080002733100027332 0x000000000000000100000000000000020012000133) to 0x00040010000400080002733100027332000000000000000100000000000000020012000133
 debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 aggregate%substring3%3#0 0u)
 debug: Simplified (len "echo: s2") to 8u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%8#0) to 0x0008
@@ -21004,11 +20989,7 @@ debug: Simplified (concat 0x0003 "s2b") to 0x0003733262
 debug: Simplified ((extract 6 2) aggregate%as_bytes%11#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
 debug: Simplified (len 0x0003733162) to 5u
-debug: Simplified (+ 4u 5u) to 9u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%12#0) to 0x0009
-debug: Simplified (concat 0x0004 0x0009) to 0x00040009
-debug: Simplified (concat 0x00040009 0x0003733162) to 0x000400090003733162
-debug: Simplified (concat 0x000400090003733162 0x0003733262) to 0x0004000900037331620003733262
+debug: Simplified (concat aggregate%concat%5#0 0x0003733262) to (concat aggregate%head%8#0 0x00037331620003733262)
 debug: Simplified (len 0x3362) to 2u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%13#0) to 0x0002
 debug: Simplified (concat 0x0002 0x3362) to 0x00023362
@@ -21019,12 +21000,6 @@ debug: Simplified (concat 0x000000000000000b0000000000000015 0x0012) to 0x000000
 debug: Simplified (concat 0x000000000000000b00000000000000150012 0x00023362) to 0x000000000000000b0000000000000015001200023362
 debug: Simplified ((extract 6 2) aggregate%as_bytes%15#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
-debug: Simplified (len 0x0004000900037331620003733262) to 14u
-debug: Simplified (+ 4u 14u) to 18u
-debug: Simplified ((extract 6 2) aggregate%as_bytes%16#0) to 0x0012
-debug: Simplified (concat 0x0004 0x0012) to 0x00040012
-debug: Simplified (concat 0x00040012 0x0004000900037331620003733262) to 0x000400120004000900037331620003733262
-debug: Simplified (concat 0x000400120004000900037331620003733262 0x000000000000000b0000000000000015001200023362) to 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
 debug: Simplified (btoi aggregate%extract%4#0) to (extract_uint64 aggregate%substring3%13#0 0u)
 debug: Simplified (len "echo: s2b") to 9u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%17#0) to 0x0009
@@ -21768,7 +21743,6 @@ debug: Removing unused variable aggregate%as_bytes%3#0
 debug: Removing unused variable aggregate%offset_as_uint16%1#0
 debug: Removing unused variable aggregate%head%1#0
 debug: Removing unused variable aggregate%concat%0#0
-debug: Removing unused variable aggregate%concat%1#0
 debug: Removing unused variable aggregate%offset_as_uint16%2#0
 debug: Removing unused variable aggregate%head%2#0
 debug: Removing unused variable aggregate%data_length%2#0
@@ -21785,8 +21759,6 @@ debug: Removing unused variable aggregate%concat%2#0
 debug: Removing unused variable aggregate%as_bytes%7#0
 debug: Removing unused variable aggregate%offset_as_uint16%4#0
 debug: Removing unused variable aggregate%head%6#0
-debug: Removing unused variable aggregate%concat%3#0
-debug: Removing unused variable aggregate%concat%4#0
 debug: Removing unused variable aggregate%extract%0#0
 debug: Removing unused variable aggregate%length%3#0
 debug: Removing unused variable aggregate%length_uint16%3#0
@@ -21807,7 +21779,6 @@ debug: Removing unused variable aggregate%as_bytes%12#0
 debug: Removing unused variable aggregate%offset_as_uint16%6#0
 debug: Removing unused variable aggregate%head%8#0
 debug: Removing unused variable aggregate%concat%5#0
-debug: Removing unused variable aggregate%concat%6#0
 debug: Removing unused variable aggregate%length%6#0
 debug: Removing unused variable aggregate%length_uint16%6#0
 debug: Removing unused variable aggregate%encoded_value%6#0
@@ -21822,13 +21793,17 @@ debug: Removing unused variable aggregate%data_length%8#0
 debug: Removing unused variable aggregate%current_tail_offset%8#0
 debug: Removing unused variable aggregate%offset_as_uint16%9#0
 debug: Removing unused variable aggregate%head%13#0
-debug: Removing unused variable aggregate%concat%8#0
-debug: Removing unused variable aggregate%concat%9#0
 debug: Removing unused variable aggregate%extract%4#0
 debug: Removing unused variable aggregate%length%7#0
 debug: Removing unused variable aggregate%length_uint16%7#0
 debug: Removing unused variable aggregate%encoded_value%7#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x00040008 0x0002733100027332) to 0x000400080002733100027332
+debug: Simplified (concat 0x00040010 0x000400080002733100027332) to 0x00040010000400080002733100027332
+debug: Simplified (concat 0x00040010000400080002733100027332 0x000000000000000100000000000000020012000133) to 0x00040010000400080002733100027332000000000000000100000000000000020012000133
+debug: Simplified (concat 0x00040009 0x00037331620003733262) to 0x0004000900037331620003733262
+debug: Simplified (concat 0x00040012 0x0004000900037331620003733262) to 0x000400120004000900037331620003733262
+debug: Simplified (concat 0x000400120004000900037331620003733262 0x000000000000000b0000000000000015001200023362) to 0x000400120004000900037331620003733262000000000000000b0000000000000015001200023362
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -22273,6 +22248,12 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%concat%1#0
+debug: Removing unused variable aggregate%concat%3#0
+debug: Removing unused variable aggregate%concat%4#0
+debug: Removing unused variable aggregate%concat%6#0
+debug: Removing unused variable aggregate%concat%8#0
+debug: Removing unused variable aggregate%concat%9#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -22366,7 +22347,409 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: Output IR to typed_itxn_abi_call/out/Greeter.ir/Greeter.approval.202.ssa.array.opt.ir
+debug: Begin optimization pass 4/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_is_a_b[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_selector_kinds[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_method_overload[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arg_conversion[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_15plus_args[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_void[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_ref_types[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_account_to_address[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_string[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_bytes[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_uint64[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_biguint[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_native_tuple_method_ref[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_nested_tuples[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_no_args[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_named_tuples[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_arc4_struct[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.typed_itxn_abi_call.typed_c2c.Greeter.test_resource_encoding[routing]
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Merge Blocks
+debug: Optimizer: Remove Linear Jumps
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Global Value Numbering
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.typed_itxn_abi_call.typed_c2c.Greeter at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
