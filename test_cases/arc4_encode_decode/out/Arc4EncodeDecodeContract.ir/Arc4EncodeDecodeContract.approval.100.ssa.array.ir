@@ -17,14 +17,14 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "hello")
         let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
-        let encoded#4: bytes = aggregate%as_Encoded(len+utf8[])%0#0
+        let tmp%0#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
         let aggregate%head%2#0: bytes = (concat 0x 0x000000000000002a)
         let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
         let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%0#0)
-        let aggregate%data_length%0#0: uint64 = (len encoded#4)
+        let aggregate%data_length%0#0: uint64 = (len tmp%0#1)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
-        let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 encoded#4)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 tmp%0#1)
         let aggregate%as_Encoded(uint64,(len+utf8[]))%0#0: Encoded(uint64,(len+utf8[])) = aggregate%concat%0#0
         let original#1: Encoded(uint64,(len+utf8[])) = aggregate%as_Encoded(uint64,(len+utf8[]))%0#0
         let tuple_len%0#0: uint64 = (len original#1)
@@ -58,12 +58,12 @@ main test_cases.arc4_encode_decode.contract.Arc4EncodeDecodeContract.approval_pr
         let decoded#3: biguint = encoded#3
         let tmp%2#3: bool = (b== decoded#3 42b)
         (assert tmp%2#3)
-        let tmp%1#4: bool = (== encoded#4 0x000568656c6c6f)
+        let tmp%1#4: bool = (== tmp%0#1 0x000568656c6c6f)
         (assert tmp%1#4)
-        let aggregate%array_length%1#0: uint64 = (extract_uint16 encoded#4 0u) // on error: invalid array length header
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 tmp%0#1 0u) // on error: invalid array length header
         let length%0#1: uint64 = aggregate%array_length%1#0
         let add%0#1: uint64 = (+ length%0#1 2u)
-        let len%0#4: uint64 = (len encoded#4)
+        let len%0#4: uint64 = (len tmp%0#1)
         let eq%0#4: bool = (== len%0#4 add%0#1)
         (assert eq%0#4) // invalid number of bytes for string
         let aggregate%length%1#0: uint64 = (len 0x010203)
