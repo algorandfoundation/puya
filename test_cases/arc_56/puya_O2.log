@@ -2561,6 +2561,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let len%4#0: uint64 = (len tmp%6#0) with copy of existing registers [Register(source_location=arc_56/contract.py:131-143:5-5, ir_type=uint64, name='tuple_len%0', version=0)]
 debug: Replacing redundant declaration let len%6#0: uint64 = (len g#0) with copy of existing registers [Register(source_location=arc_56/contract.py:131-143:5-5, ir_type=uint64, name='total_length%1', version=0)]
+debug: Replacing redundant declaration let tmp%11#1: uint64 = array_len(g#0) with copy of existing registers [Register(source_location=arc_56/contract.py:131-143:5-5, ir_type=uint64, name='length%4', version=0)]
 debug: Found equivalence set: length%0#0, mul%0#0
 debug: selected length%0#0 from equivalence set
 debug: Found equivalence set: length%1#0, mul%1#0
@@ -2573,7 +2574,9 @@ debug: Found equivalence set: length%5#0, mul%3#0
 debug: selected length%5#0 from equivalence set
 debug: Found equivalence set: total_length%1#0, len%6#0
 debug: selected total_length%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: length%4#0, tmp%11#1
+debug: selected length%4#0 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -3784,8 +3787,6 @@ debug: Found equivalence set: tmp%4#6, aggregate%item%0#0, array_item%0#0
 debug: selected tmp%4#6 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%5#0, aggregate%as_Encoded(len+utf8[])%2#0, tmp%9#2
 debug: selected aggregate%encoded_value%5#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%12#0, tmp%11#2
-debug: selected aggregate%array_length%12#0 from equivalence set
 debug: Copy propagation made 48 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -3877,7 +3878,6 @@ debug: Replacing redundant declaration let aggregate%as_bytes%3#0: bytes[8] = (i
 debug: Replacing redundant declaration let aggregate%as_bytes%4#0: bytes[8] = (itob 3u) with copy of existing registers [Register(source_location=arc_56/contract.py:105:18-84, ir_type=bytes[8], name='aggregate%as_bytes%1', version=0)]
 debug: Replacing redundant declaration let aggregate%extract_uint16%2#0: uint64 = (extract_uint16 tmp%6#1 8u) with copy of existing registers [Register(source_location=arc_56/contract.py:131-143:5-5, ir_type=uint64, name='extract_uint16%0', version=0)]
 debug: Replacing redundant declaration let aggregate%len%2#0: uint64 = (len tmp%6#1) with copy of existing registers [Register(source_location=arc_56/contract.py:131-143:5-5, ir_type=uint64, name='tuple_len%0', version=0)]
-debug: Replacing redundant declaration let aggregate%array_length%12#0: uint64 = (extract_uint16 g#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=arc_56/contract.py:131-143:5-5, ir_type=uint64, name='aggregate%array_length%10', version=0)]
 debug: Found equivalence set: extract_uint16%1#2, aggregate%extract_uint16%0#0
 debug: selected extract_uint16%1#2 from equivalence set
 debug: Found equivalence set: tuple_len%0#3, aggregate%len%0#0
@@ -3894,9 +3894,7 @@ debug: Found equivalence set: extract_uint16%0#0, aggregate%extract_uint16%2#0
 debug: selected extract_uint16%0#0 from equivalence set
 debug: Found equivalence set: tuple_len%0#0, aggregate%len%2#0
 debug: selected tuple_len%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%10#0, aggregate%array_length%12#0
-debug: selected aggregate%array_length%10#0 from equivalence set
-debug: Copy propagation made 7 modifications
+debug: Copy propagation made 6 modifications
 debug: Replacing redundant declaration let aggregate%substring3%0#0: bytes = (substring3 arg#2 extract_uint16%1#2 tuple_len%0#3) with copy of existing registers [Register(source_location=arc_56/contract.py:88:5-21, ir_type=bytes, name='substring3%1', version=2)]
 debug: Replacing redundant declaration let s#0: Encoded((len+uint8[]),uint8) = (substring3 arg#1 extract_uint16%1#1 tuple_len%0#2) with copy of existing registers [Register(source_location=arc_56/contract.py:94:5-34, ir_type=bytes, name='substring3%1', version=1)]
 debug: Replacing redundant declaration let aggregate%substring3%2#0: bytes = (substring3 tmp%6#1 extract_uint16%0#0 tuple_len%0#0) with copy of existing registers [Register(source_location=arc_56/contract.py:131-143:5-5, ir_type=bytes, name='substring3%0', version=0)]

@@ -3145,15 +3145,19 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len array#0) with copy of existing registers [Register(source_location=large_box_operations/struct_multiple_array_uint64.py:55:5-11, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let tmp%0#1: uint64 = array_len(array#0) with copy of existing registers [Register(source_location=large_box_operations/struct_multiple_array_uint64.py:55:5-11, ir_type=uint64, name='length%0', version=0)]
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Found equivalence set: length%0#0, tmp%0#1
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 large_box_operations/struct_multiple_array_uint64.py:57:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%1#0
-large_box_operations/struct_multiple_array_uint64.py:57:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%0#0, extract_to_end%0#0, tmp%0#1); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%1#0, extract_to_end%0#0, tmp%0#1, 8u)`
+large_box_operations/struct_multiple_array_uint64.py:57:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%0#0, extract_to_end%0#0, length%0#0); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%1#0, extract_to_end%0#0, length%0#0, 8u)`
 large_box_operations/struct_multiple_array_uint64.py:58:9 debug: combined BoxRead `storage_value%1#0 = box_read("box")`
 and ExtractValue `extract_value(storage_value%1#0, 2)`
 into box%box_extract%4#0
@@ -4437,6 +4441,14 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/struct_multiple_array_uint64.py:55:5-11, ir_type=uint64, name='mul%0', version=0)]
+debug: Found equivalence set: mul%0#0, box%mul%0#0
+debug: selected mul%0#0 from equivalence set
+debug: Found equivalence set: box%btoi%4#0, box%offset%3#0
+debug: selected box%btoi%4#0 from equivalence set
+debug: Found equivalence set: box%btoi%8#0, box%offset%5#0
+debug: selected box%btoi%8#0 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -5174,10 +5186,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: box%btoi%4#0, box%offset%3#0
-debug: selected box%btoi%4#0 from equivalence set
-debug: Found equivalence set: box%btoi%8#0, box%offset%5#0
-debug: selected box%btoi%8#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%add%0#0
@@ -6315,13 +6323,11 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%0#1
+debug: Found equivalence set: aggregate%array_length%1#0, tmp%2#0
 debug: selected aggregate%array_length%1#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%2#0, tmp%2#0
+debug: Found equivalence set: aggregate%array_length%2#0, tmp%4#0
 debug: selected aggregate%array_length%2#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%3#0, tmp%4#0
-debug: selected aggregate%array_length%3#0 from equivalence set
-debug: Copy propagation made 7 modifications
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6332,14 +6338,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/struct_multiple_array_uint64.py:55:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* aggregate%array_length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/struct_multiple_array_uint64.py:55:5-11, ir_type=uint64, name='mul%0', version=0)]
-debug: Found equivalence set: mul%0#0, box%mul%0#0
-debug: selected mul%0#0 from equivalence set
-debug: Copy propagation made 3 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -7730,14 +7728,14 @@ debug: Inserted concat_block@0.ops[24]: 'l-store-copy eq%0#0 0'
 debug: Replaced concat_block@0.ops[26]: 'v-load eq%0#0' with 'l-load eq%0#0'
 debug: Inserted concat_block@0.ops[53]: 'l-store-copy inc_array%0#0 0'
 debug: Replaced concat_block@0.ops[55]: 'v-load inc_array%0#0' with 'l-load inc_array%0#0'
-debug: Inserted concat_block@0.ops[61]: 'l-store-copy aggregate%array_length%2#0 0'
-debug: Replaced concat_block@0.ops[63]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
+debug: Inserted concat_block@0.ops[61]: 'l-store-copy aggregate%array_length%1#0 0'
+debug: Replaced concat_block@0.ops[63]: 'v-load aggregate%array_length%1#0' with 'l-load aggregate%array_length%1#0'
 debug: Inserted concat_block@0.ops[71]: 'l-store-copy box%box_extract%6#0 0'
 debug: Replaced concat_block@0.ops[73]: 'v-load box%box_extract%6#0' with 'l-load box%box_extract%6#0'
 debug: Inserted concat_block@0.ops[94]: 'l-store-copy inc_array%2#0 0'
 debug: Replaced concat_block@0.ops[96]: 'v-load inc_array%2#0' with 'l-load inc_array%2#0'
-debug: Inserted concat_block@0.ops[102]: 'l-store-copy aggregate%array_length%3#0 0'
-debug: Replaced concat_block@0.ops[104]: 'v-load aggregate%array_length%3#0' with 'l-load aggregate%array_length%3#0'
+debug: Inserted concat_block@0.ops[102]: 'l-store-copy aggregate%array_length%2#0 0'
+debug: Replaced concat_block@0.ops[104]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
 debug: Inserted concat_block@0.ops[112]: 'l-store-copy box%box_extract%11#0 0'
 debug: Replaced concat_block@0.ops[114]: 'v-load box%box_extract%11#0' with 'l-load box%box_extract%11#0'
 debug: Inserted concat_block@0.ops[56]: 'l-store-copy inc_array%0#0 0'
@@ -7768,12 +7766,12 @@ debug: Inserted concat_block@0.ops[33]: 'l-store-copy extract_to_end%0#0 0'
 debug: Replaced concat_block@0.ops[51]: 'v-load extract_to_end%0#0' with 'l-load extract_to_end%0#0'
 debug: Inserted concat_block@0.ops[15]: 'l-store-copy mul%0#0 1'
 debug: Replaced concat_block@0.ops[38]: 'v-load mul%0#0' with 'l-load mul%0#0'
-debug: Inserted concat_block@0.ops[117]: 'l-store-copy aggregate%array_length%3#0 0'
-debug: Replaced concat_block@0.ops[139]: 'v-load aggregate%array_length%3#0' with 'l-load aggregate%array_length%3#0'
+debug: Inserted concat_block@0.ops[117]: 'l-store-copy aggregate%array_length%2#0 0'
+debug: Replaced concat_block@0.ops[139]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
 debug: Inserted concat_block@0.ops[33]: 'l-store-copy array#0 1'
 debug: Replaced concat_block@0.ops[57]: 'v-load array#0' with 'l-load array#0'
-debug: Inserted concat_block@0.ops[73]: 'l-store-copy aggregate%array_length%2#0 0'
-debug: Replaced concat_block@0.ops[100]: 'v-load aggregate%array_length%2#0' with 'l-load aggregate%array_length%2#0'
+debug: Inserted concat_block@0.ops[73]: 'l-store-copy aggregate%array_length%1#0 0'
+debug: Replaced concat_block@0.ops[100]: 'v-load aggregate%array_length%1#0' with 'l-load aggregate%array_length%1#0'
 debug: Inserted concat_block@0.ops[112]: 'l-store-copy extract_to_end%2#0 1'
 debug: Replaced concat_block@0.ops[141]: 'v-load extract_to_end%2#0' with 'l-load extract_to_end%2#0'
 debug: Inserted concat_block@0.ops[66]: 'l-store-copy extract_to_end%1#0 1'
@@ -9481,15 +9479,19 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len array#0) with copy of existing registers [Register(source_location=large_box_operations/struct_array_uint64.py:36:5-11, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let tmp%0#1: uint64 = array_len(array#0) with copy of existing registers [Register(source_location=large_box_operations/struct_array_uint64.py:36:5-11, ir_type=uint64, name='length%0', version=0)]
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Found equivalence set: length%0#0, tmp%0#1
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 large_box_operations/struct_array_uint64.py:38:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%1#0
-large_box_operations/struct_array_uint64.py:38:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%0#0, extract_to_end%0#0, tmp%0#1); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%1#0, extract_to_end%0#0, tmp%0#1, 8u)`
+large_box_operations/struct_array_uint64.py:38:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%0#0, extract_to_end%0#0, length%0#0); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%1#0, extract_to_end%0#0, length%0#0, 8u)`
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.large_box_operations.struct_array_uint64.StructArrayUInt64.pop[routing]
@@ -10523,6 +10525,10 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/struct_array_uint64.py:36:5-11, ir_type=uint64, name='mul%0', version=0)]
+debug: Found equivalence set: mul%0#0, box%mul%0#0
+debug: selected mul%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -11430,9 +11436,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%0#1
-debug: selected aggregate%array_length%1#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -11443,14 +11447,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/struct_array_uint64.py:36:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* aggregate%array_length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/struct_array_uint64.py:36:5-11, ir_type=uint64, name='mul%0', version=0)]
-debug: Found equivalence set: mul%0#0, box%mul%0#0
-debug: selected mul%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -21585,8 +21581,12 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len array#0) with copy of existing registers [Register(source_location=large_box_operations/nested.py:48:5-11, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let tmp%0#1: uint64 = array_len(array#0) with copy of existing registers [Register(source_location=large_box_operations/nested.py:48:5-11, ir_type=uint64, name='length%0', version=0)]
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Found equivalence set: length%0#0, tmp%0#1
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 large_box_operations/nested.py:50:9 debug: replacing extract_value(tuple_item%0#0, 1) with extract_value(storage_value%0#0, 0, 1)
@@ -21594,7 +21594,7 @@ debug: Optimizer: Replace Aggregate Box Ops
 large_box_operations/nested.py:50:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and ExtractValue `extract_value(storage_value%0#0, 0, 1)`
 into box%box_extract%1#0
-large_box_operations/nested.py:50:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 0, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%1#0, extract_to_end%0#0, tmp%0#1); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%3#0, extract_to_end%0#0, tmp%0#1, 32u)`
+large_box_operations/nested.py:50:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 0, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%1#0, extract_to_end%0#0, length%0#0); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%3#0, extract_to_end%0#0, length%0#0, 32u)`
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.large_box_operations.nested.NestedArrayUInt64.pop[routing]
@@ -22640,6 +22640,10 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* length%0#0 32u) with copy of existing registers [Register(source_location=large_box_operations/nested.py:48:5-11, ir_type=uint64, name='mul%0', version=0)]
+debug: Found equivalence set: mul%0#0, box%mul%0#0
+debug: selected mul%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -23572,9 +23576,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%0#1
-debug: selected aggregate%array_length%1#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -23585,14 +23587,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/nested.py:48:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* aggregate%array_length%0#0 32u) with copy of existing registers [Register(source_location=large_box_operations/nested.py:48:5-11, ir_type=uint64, name='mul%0', version=0)]
-debug: Found equivalence set: mul%0#0, box%mul%0#0
-debug: selected mul%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -25846,8 +25840,12 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len array#0) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_middle.py:50:5-11, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let tmp%0#1: uint64 = array_len(array#0) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_middle.py:50:5-11, ir_type=uint64, name='length%0', version=0)]
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Found equivalence set: length%0#0, tmp%0#1
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 large_box_operations/dynamic_offset_middle.py:52:9 debug: replacing extract_value(tuple_item%0#0, 1) with extract_value(storage_value%0#0, 1, 1)
@@ -25856,7 +25854,7 @@ debug: Optimizer: Replace Aggregate Box Ops
 large_box_operations/dynamic_offset_middle.py:52:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and ExtractValue `extract_value(storage_value%0#0, 1, 1, 1)`
 into box%box_extract%2#0
-large_box_operations/dynamic_offset_middle.py:52:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 1, 1, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%2#0, extract_to_end%0#0, tmp%0#1); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, tmp%0#1, 8u)`
+large_box_operations/dynamic_offset_middle.py:52:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 1, 1, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%2#0, extract_to_end%0#0, length%0#0); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, length%0#0, 8u)`
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.large_box_operations.dynamic_offset_middle.DynamicOffsetMiddle.append[routing]
@@ -26928,6 +26926,12 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_middle.py:50:5-11, ir_type=uint64, name='mul%0', version=0)]
+debug: Found equivalence set: mul%0#0, box%mul%0#0
+debug: selected mul%0#0 from equivalence set
+debug: Found equivalence set: box%btoi%3#0, box%offset%3#0
+debug: selected box%btoi%3#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -27378,8 +27382,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: box%btoi%3#0, box%offset%3#0
-debug: selected box%btoi%3#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%add%1#0
@@ -28229,9 +28231,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%0#1
-debug: selected aggregate%array_length%1#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -28242,14 +28242,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_middle.py:50:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* aggregate%array_length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_middle.py:50:5-11, ir_type=uint64, name='mul%0', version=0)]
-debug: Found equivalence set: mul%0#0, box%mul%0#0
-debug: selected mul%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -30643,8 +30635,12 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len array#0) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_last.py:50:5-11, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let tmp%0#1: uint64 = array_len(array#0) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_last.py:50:5-11, ir_type=uint64, name='length%0', version=0)]
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Found equivalence set: length%0#0, tmp%0#1
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 large_box_operations/dynamic_offset_last.py:52:9 debug: replacing extract_value(tuple_item%0#0, 1) with extract_value(storage_value%0#0, 2, 1)
@@ -30653,7 +30649,7 @@ debug: Optimizer: Replace Aggregate Box Ops
 large_box_operations/dynamic_offset_last.py:52:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and ExtractValue `extract_value(storage_value%0#0, 2, 1, 1)`
 into box%box_extract%2#0
-large_box_operations/dynamic_offset_last.py:52:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 2, 1, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%2#0, extract_to_end%0#0, tmp%0#1); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, tmp%0#1, 8u)`
+large_box_operations/dynamic_offset_last.py:52:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 2, 1, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%2#0, extract_to_end%0#0, length%0#0); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, length%0#0, 8u)`
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.large_box_operations.dynamic_offset_last.DynamicOffsetLast.append[routing]
@@ -33024,8 +33020,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%0#1
-debug: selected aggregate%array_length%1#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -33037,10 +33031,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_last.py:50:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -35408,8 +35398,12 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len array#0) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_first.py:50:5-11, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let tmp%0#1: uint64 = array_len(array#0) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_first.py:50:5-11, ir_type=uint64, name='length%0', version=0)]
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Found equivalence set: length%0#0, tmp%0#1
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 large_box_operations/dynamic_offset_first.py:52:9 debug: replacing extract_value(tuple_item%0#0, 1) with extract_value(storage_value%0#0, 0, 1)
@@ -35418,7 +35412,7 @@ debug: Optimizer: Replace Aggregate Box Ops
 large_box_operations/dynamic_offset_first.py:52:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
 and ExtractValue `extract_value(storage_value%0#0, 0, 1, 1)`
 into box%box_extract%1#0
-large_box_operations/dynamic_offset_first.py:52:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 0, 1, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%2#0, extract_to_end%0#0, tmp%0#1); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, tmp%0#1, 8u)`
+large_box_operations/dynamic_offset_first.py:52:9 debug: combined `storage_value%0#0 = box_read("box"); updated_tuple%0#0 = replace_value(storage_value%0#0, 0, 1, 1, tmp%1#0); tmp%1#0 = array_concat(tuple_item%2#0, extract_to_end%0#0, length%0#0); box_write("box", updated_tuple%0#0)` into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed("box", box%offset%5#0, extract_to_end%0#0, length%0#0, 8u)`
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.large_box_operations.dynamic_offset_first.DynamicOffsetFirst.append[routing]
@@ -36493,6 +36487,10 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_first.py:50:5-11, ir_type=uint64, name='mul%0', version=0)]
+debug: Found equivalence set: mul%0#0, box%mul%0#0
+debug: selected mul%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -37592,9 +37590,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%0#1
-debug: selected aggregate%array_length%1#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -37605,14 +37601,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_first.py:50:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let box%mul%0#0: uint64 = (* aggregate%array_length%0#0 8u) with copy of existing registers [Register(source_location=large_box_operations/dynamic_offset_first.py:50:5-11, ir_type=uint64, name='mul%0', version=0)]
-debug: Found equivalence set: mul%0#0, box%mul%0#0
-debug: selected mul%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -40000,12 +39988,16 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len array#0) with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:22:5-11, ir_type=uint64, name='len%0', version=0)]
+debug: Replacing redundant declaration let tmp%0#1: uint64 = array_len(array#0) with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:22:5-11, ir_type=uint64, name='length%0', version=0)]
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Found equivalence set: length%0#0, tmp%0#1
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
-large_box_operations/array_uint64.py:24:9 debug: combined `storage_value%0#0 = box_read("box"); tmp%1#0 = array_concat(storage_value%0#0, extract_to_end%0#0, tmp%0#1) into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed()`
+large_box_operations/array_uint64.py:24:9 debug: combined `storage_value%0#0 = box_read("box"); tmp%1#0 = array_concat(storage_value%0#0, extract_to_end%0#0, length%0#0) into `_puya_lib.box_arc4.box_dynamic_array_concat_fixed()`
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.large_box_operations.array_uint64.ArrayUInt64.pop[routing]
@@ -40136,6 +40128,11 @@ debug: Merged linear block@6 into block@5
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let tmp%1#0: uint64 = array_len(expected#0) with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:38:5-11, ir_type=uint64, name='length%0', version=0)]
+debug: Replacing redundant declaration let tmp%3#0: uint64 = array_len(expected#0) with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:38:5-11, ir_type=uint64, name='length%0', version=0)]
+debug: Found equivalence set: length%0#0, tmp%1#0, tmp%3#0
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -40315,6 +40312,10 @@ debug: Merged linear block@3 into block@2
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let tmp%3#0: uint64 = array_len(expected#0) with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:42:40-55, ir_type=uint64, name='tmp%1', version=0)]
+debug: Found equivalence set: tmp%1#0, tmp%3#0
+debug: selected tmp%1#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -41930,8 +41931,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%0#1
-debug: selected aggregate%array_length%1#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -41943,10 +41942,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 array#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:22:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -42019,10 +42014,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%1#0
-debug: selected aggregate%array_length%1#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%2#0, tmp%3#0
-debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#0, array_item%1#0
 debug: selected aggregate%encoded_element%0#0 from equivalence set
 debug: Copy propagation made 4 modifications
@@ -42038,17 +42029,13 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 expected#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:38:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Replacing redundant declaration let aggregate%array_length%2#0: uint64 = (extract_uint16 expected#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:38:5-11, ir_type=uint64, name='aggregate%array_length%0', version=0)]
 debug: Replacing redundant declaration let aggregate%total_length%0#0: uint64 = (len expected#0) with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:38:5-11, ir_type=uint64, name='len%0', version=0)]
 debug: Replacing redundant declaration let aggregate%bytes_offset%0#0: uint64 = (* i#0 8u) with copy of existing registers [Register(source_location=large_box_operations/array_uint64.py:44:19-36, ir_type=uint64, name='box%element_offset%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0, aggregate%array_length%2#0
-debug: selected aggregate%array_length%0#0 from equivalence set
 debug: Found equivalence set: len%0#0, aggregate%total_length%0#0
 debug: selected len%0#0 from equivalence set
 debug: Found equivalence set: box%element_offset%0#0, aggregate%bytes_offset%0#0
 debug: selected box%element_offset%0#0 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops

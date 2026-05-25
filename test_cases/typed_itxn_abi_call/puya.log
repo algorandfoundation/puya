@@ -1869,10 +1869,12 @@ debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let total_length%0#0: uint64 = (len value#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/logger.py:37:5-19, ir_type=uint64, name='len%0', version=0)]
-debug: Found equivalence set: length%0#0, mul%0#0
+debug: Replacing redundant declaration let tmp%1#1: uint64 = array_len(value#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/logger.py:37:5-19, ir_type=uint64, name='length%0', version=0)]
+debug: Found equivalence set: length%0#0, mul%0#0, tmp%1#1
 debug: selected length%0#0 from equivalence set
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -4852,12 +4854,10 @@ typed_itxn_abi_call/logger.py:39:16 debug: inlining call to _puya_lib.arc4.dynam
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
-debug: selected aggregate%array_length%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%0#0, length%0#0, new_items_count#0
+debug: selected new_items_count#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%0#0, aggregate%as_Encoded(len+utf8[])%0#0, tmp%0#1, array#0
 debug: selected array#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, tmp%1#1, new_items_count#0
-debug: selected new_items_count#0 from equivalence set
 debug: Found equivalence set: extract_to_end%0#0, new_items_bytes#0
 debug: selected new_items_bytes#0 from equivalence set
 debug: Found equivalence set: tmp%4#0, tmp%2#1
@@ -4880,10 +4880,6 @@ debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let new_items_count#0: uint64 = (extract_uint16 value#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=typed_itxn_abi_call/logger.py:37:5-19, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, new_items_count#0
-debug: selected new_items_count#0 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -9219,17 +9215,29 @@ debug: Found equivalence set: length%4#0, mul%4#0
 debug: selected length%4#0 from equivalence set
 debug: Copy propagation made 5 modifications
 debug: Replacing redundant declaration let tmp%19#0: bool = (== tmp%13#0 0x151f7c75) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=bool, name='tmp%14', version=0)]
+debug: Replacing redundant declaration let length%3#0: uint64 = array_len(tmp%15#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='length%2', version=0)]
 debug: Replacing redundant declaration let len%3#0: uint64 = (len tmp%15#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='len%2', version=0)]
 debug: Replacing redundant declaration let tmp%22#0: bool = (== tmp%15#0 tmp%16#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-45, ir_type=bool, name='tmp%17', version=0)]
 debug: Found equivalence set: tmp%14#0, tmp%19#0
 debug: selected tmp%14#0 from equivalence set
+debug: Found equivalence set: length%2#0, length%3#0
+debug: selected length%2#0 from equivalence set
 debug: Found equivalence set: len%2#0, len%3#0
 debug: selected len%2#0 from equivalence set
 debug: Found equivalence set: tmp%17#0, tmp%22#0
 debug: selected tmp%17#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Removing redundant assert of tmp%14#0
+debug: Replacing redundant declaration let add%3#0: uint64 = (+ length%2#0 2u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='add%2', version=0)]
 debug: Removing redundant assert of tmp%17#0
+debug: Found equivalence set: add%2#0, add%3#0
+debug: selected add%2#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let eq%3#0: bool = (== len%2#0 add%2#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=bool, name='eq%2', version=0)]
+debug: Found equivalence set: eq%2#0, eq%3#0
+debug: selected eq%2#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Removing redundant assert of eq%2#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -13577,6 +13585,22 @@ debug: Found equivalence set: substring3%0#0, substring3%1#0
 debug: selected substring3%0#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Removing redundant assert of eq%0#1
+debug: Replacing redundant declaration let length%1#0: uint64 = array_len(substring3%0#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='length%0', version=0)]
+debug: Found equivalence set: length%0#0, length%1#0
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Replacing redundant declaration let add%2#0: uint64 = (+ length%0#0 2u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='add%0', version=0)]
+debug: Replacing redundant declaration let add%3#0: uint64 = (+ length%0#0 12u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='add%1', version=0)]
+debug: Found equivalence set: add%0#0, add%2#0
+debug: selected add%0#0 from equivalence set
+debug: Found equivalence set: add%1#0, add%3#0
+debug: selected add%1#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let eq%3#0: bool = (== tuple_len%0#0 add%1#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=bool, name='eq%1', version=0)]
+debug: Found equivalence set: eq%1#0, eq%3#0
+debug: selected eq%1#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Removing redundant assert of eq%1#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -14897,17 +14921,29 @@ debug: Found equivalence set: length%4#0, mul%4#0
 debug: selected length%4#0 from equivalence set
 debug: Copy propagation made 5 modifications
 debug: Replacing redundant declaration let tmp%19#0: bool = (== tmp%13#0 0x151f7c75) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=bool, name='tmp%14', version=0)]
+debug: Replacing redundant declaration let length%3#0: uint64 = array_len(tmp%15#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='length%2', version=0)]
 debug: Replacing redundant declaration let len%3#0: uint64 = (len tmp%15#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='len%2', version=0)]
 debug: Replacing redundant declaration let tmp%22#0: bool = (== tmp%15#0 tmp%16#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-45, ir_type=bool, name='tmp%17', version=0)]
 debug: Found equivalence set: tmp%14#0, tmp%19#0
 debug: selected tmp%14#0 from equivalence set
+debug: Found equivalence set: length%2#0, length%3#0
+debug: selected length%2#0 from equivalence set
 debug: Found equivalence set: len%2#0, len%3#0
 debug: selected len%2#0 from equivalence set
 debug: Found equivalence set: tmp%17#0, tmp%22#0
 debug: selected tmp%17#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Removing redundant assert of tmp%14#0
+debug: Replacing redundant declaration let add%3#0: uint64 = (+ length%2#0 2u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='add%2', version=0)]
 debug: Removing redundant assert of tmp%17#0
+debug: Found equivalence set: add%2#0, add%3#0
+debug: selected add%2#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let eq%3#0: bool = (== len%2#0 add%2#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=bool, name='eq%2', version=0)]
+debug: Found equivalence set: eq%2#0, eq%3#0
+debug: selected eq%2#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Removing redundant assert of eq%2#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -19144,6 +19180,22 @@ debug: Found equivalence set: substring3%0#0, substring3%1#0
 debug: selected substring3%0#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Removing redundant assert of eq%0#0
+debug: Replacing redundant declaration let length%1#0: uint64 = array_len(substring3%0#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='length%0', version=0)]
+debug: Found equivalence set: length%0#0, length%1#0
+debug: selected length%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Replacing redundant declaration let add%2#0: uint64 = (+ length%0#0 2u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='add%0', version=0)]
+debug: Replacing redundant declaration let add%3#0: uint64 = (+ length%0#0 12u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='add%1', version=0)]
+debug: Found equivalence set: add%0#0, add%2#0
+debug: selected add%0#0 from equivalence set
+debug: Found equivalence set: add%1#0, add%3#0
+debug: selected add%1#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let eq%3#0: bool = (== tuple_len%0#0 add%1#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=bool, name='eq%1', version=0)]
+debug: Found equivalence set: eq%1#0, eq%3#0
+debug: selected eq%1#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Removing redundant assert of eq%1#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -20099,7 +20151,6 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable add%0#0
-debug: Removing unused variable add%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -20751,15 +20802,13 @@ debug: Found equivalence set: aggregate%array_length%2#0, length%2#0
 debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%5#0, aggregate%as_Encoded(len+utf8[])%5#0, tmp%16#0
 debug: selected aggregate%encoded_value%5#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%3#0, length%3#0
-debug: selected aggregate%array_length%3#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%6#0, aggregate%as_Encoded(len+utf8[])%6#0, tmp%23#0
 debug: selected aggregate%encoded_value%6#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%4#0, length%4#0
-debug: selected aggregate%array_length%4#0 from equivalence set
+debug: Found equivalence set: aggregate%array_length%3#0, length%4#0
+debug: selected aggregate%array_length%3#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_value%7#0, aggregate%as_Encoded(len+utf8[])%7#0, tmp%27#0
 debug: selected aggregate%encoded_value%7#0 from equivalence set
-debug: Copy propagation made 13 modifications
+debug: Copy propagation made 12 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -20794,19 +20843,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%3#0: uint64 = (extract_uint16 tmp%15#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='aggregate%array_length%2', version=0)]
-debug: Found equivalence set: aggregate%array_length%2#0, aggregate%array_length%3#0
-debug: selected aggregate%array_length%2#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let add%3#0: uint64 = (+ aggregate%array_length%2#0 2u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=uint64, name='add%2', version=0)]
-debug: Found equivalence set: add%2#0, add%3#0
-debug: selected add%2#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let eq%3#0: bool = (== len%2#0 add%2#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:62:15-28, ir_type=bool, name='eq%2', version=0)]
-debug: Found equivalence set: eq%2#0, eq%3#0
-debug: selected eq%2#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Removing redundant assert of eq%2#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -21790,9 +21826,7 @@ debug: Found equivalence set: aggregate%concat%0#0, aggregate%as_Encoded(uint64,
 debug: selected log#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%0#0, length%0#0
 debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_length%1#0, length%1#0
-debug: selected aggregate%array_length%1#0 from equivalence set
-debug: Copy propagation made 5 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%current_tail_offset%0#0
@@ -21812,19 +21846,6 @@ debug: Optimizer: Merge Blocks
 debug: Optimizer: Remove Linear Jumps
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 substring3%0#0 0u) // on error: invalid array length header with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='aggregate%array_length%0', version=0)]
-debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length%1#0
-debug: selected aggregate%array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let add%3#0: uint64 = (+ aggregate%array_length%0#0 12u) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=uint64, name='add%1', version=0)]
-debug: Found equivalence set: add%1#0, add%3#0
-debug: selected add%1#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let eq%3#0: bool = (== tuple_len%0#0 add%1#0) with copy of existing registers [Register(source_location=typed_itxn_abi_call/typed_c2c.py:467:15-25, ir_type=bool, name='eq%1', version=0)]
-debug: Found equivalence set: eq%1#0, eq%3#0
-debug: selected eq%1#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Removing redundant assert of eq%1#0
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -23487,8 +23508,8 @@ debug: Inserted test_method_overload_block@0.ops[210]: 'l-store-copy tmp%25#0 0'
 debug: Replaced test_method_overload_block@0.ops[212]: 'v-load tmp%25#0' with 'l-load tmp%25#0'
 debug: Inserted test_method_overload_block@0.ops[216]: 'l-store-copy tmp%26#0 0'
 debug: Replaced test_method_overload_block@0.ops[218]: 'v-load tmp%26#0' with 'l-load tmp%26#0'
-debug: Inserted test_method_overload_block@0.ops[221]: 'l-store-copy aggregate%array_length%4#0 0'
-debug: Replaced test_method_overload_block@0.ops[223]: 'v-load aggregate%array_length%4#0' with 'l-load aggregate%array_length%4#0'
+debug: Inserted test_method_overload_block@0.ops[221]: 'l-store-copy aggregate%array_length%3#0 0'
+debug: Replaced test_method_overload_block@0.ops[223]: 'v-load aggregate%array_length%3#0' with 'l-load aggregate%array_length%3#0'
 debug: Inserted test_method_overload_block@0.ops[229]: 'l-store-copy len%4#0 0'
 debug: Replaced test_method_overload_block@0.ops[231]: 'v-load len%4#0' with 'l-load len%4#0'
 debug: Inserted test_method_overload_block@0.ops[234]: 'l-store-copy eq%4#0 0'
