@@ -53,7 +53,7 @@ class TealBuilder(MIRVisitor[None]):
             teal_block = teal.TealBlock(
                 label=mir_block.block_name,
                 ops=builder.ops,
-                x_stack_in=mir_block.x_stack_in or (),
+                x_stack_in=mir_block.x_stack_in,
                 entry_stack_height=mir_block.entry_stack_height,
                 exit_stack_height=mir_block.exit_stack_height,
             )

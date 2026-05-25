@@ -625,13 +625,13 @@ class MemoryBasicBlock:
     # the ordering of values on the stack is used by debug maps
     # the assumption is lower levels won't change the order of variables in the stack
     # however they can introduce changes that do that ordering more efficiently
-    x_stack_in: Sequence[str] | None = None
+    x_stack_in: tuple[str, ...] = ()
     """local_ids on x-stack on entry to a block"""
-    x_stack_out: Sequence[str] | None = None
+    x_stack_out: tuple[str, ...] = ()
     """local_ids on x-stack on exit from a block"""
-    f_stack_in: Sequence[str] = attrs.field(factory=list)
+    f_stack_in: tuple[str, ...] = ()
     """local_ids on f-stack on entry to a block"""
-    f_stack_out: Sequence[str] = attrs.field(factory=list)
+    f_stack_out: tuple[str, ...] = ()
     """local_ids on f-stack on exit from a block"""
 
     @property
@@ -643,11 +643,11 @@ class MemoryBasicBlock:
 
     @property
     def entry_stack_height(self) -> int:
-        return len(self.f_stack_in) + len(self.x_stack_in or ())
+        return len(self.f_stack_in) + len(self.x_stack_in)
 
     @property
     def exit_stack_height(self) -> int:
-        return len(self.f_stack_out) + len(self.x_stack_out or ())
+        return len(self.f_stack_out) + len(self.x_stack_out)
 
     @property
     def successors(self) -> Sequence[str]:

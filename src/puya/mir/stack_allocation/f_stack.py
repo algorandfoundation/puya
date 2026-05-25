@@ -84,8 +84,8 @@ def f_stack_allocation(_ctx: ProgramMIRContext, subroutine: mir.MemorySubroutine
     )
     logger.debug(f"{subroutine.signature.name} f-stack on first store: {list(first_store_ops)}")
 
-    entry_block.f_stack_in = subroutine.pre_alloc.allocate_on_entry
-    entry_block.f_stack_out = [*entry_block.f_stack_in, *first_store_ops]
+    entry_block.f_stack_in = tuple(subroutine.pre_alloc.allocate_on_entry)
+    entry_block.f_stack_out = (*entry_block.f_stack_in, *first_store_ops)
     # f-stack is initialized in the entry block and doesn't change after that
     for block in subroutine.body[1:]:
         block.f_stack_in = block.f_stack_out = entry_block.f_stack_out

@@ -24,7 +24,7 @@ class Stack(MIRVisitor[None]):
         return cls(
             parameters=subroutine.signature.local_ids,
             f_stack=list(block.f_stack_in),
-            x_stack=list(block.x_stack_in or ()),  # x-stack might not be assigned yet
+            x_stack=list(block.x_stack_in),
         )
 
     @property
