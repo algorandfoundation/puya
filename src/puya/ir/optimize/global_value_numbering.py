@@ -325,46 +325,41 @@ _VNRepresentativeMap: typing.TypeAlias = dict[tuple[VN, _MaybeAVMType], models.R
 
 def _materialize_constants(
     tables: _GVNTables,
+    subroutine: models.Subroutine,
     start: models.BasicBlock,
     ssa_reads: SSAReadTracker,
     *,
     expand_all_bytes: bool,
 ) -> bool:
     modified = False
-    # savings[r] = bytes saved if r's sole use disappears (recursive over upstream
-    # defs whose sole use is also r's defining op). Subroutine-wide: only populated
-    # for registers with exactly one read across the whole subroutine, so eliminating
-    # that one read truly kills r and DCE will remove its defining op.
-    savings = dict[models.Register, int]()
+    defining_op = {
+        target: op
+        for block in subroutine.body
+        for op in block.ops
+        if isinstance(op, models.Assignment)
+        for target in op.targets
+    }
     for block in bfs_block_order(start):
         for op in block.ops:
             if not isinstance(op, models.Assignment):
                 continue
-            if not isinstance(op.source, models.MultiValue):
-                folded = _try_fold_constants(
-                    op, tables, savings, expand_all_bytes=expand_all_bytes
-                )
-                if folded is not None:
-                    modified = True
-                    with ssa_reads.update(op):
-                        op.source = folded
-            if len(op.targets) == 1:
-                (saved_target,) = op.targets
-                if ssa_reads.count(saved_target) == 1:
-                    match op.source:
-                        case (
-                            models.Intrinsic() as intrinsic
-                        ) if intrinsic.op in COMPILE_TIME_CONSTANT_OPS:
-                            savings[saved_target] = _intrinsic_dead_cost(intrinsic, savings)
-                        case models.Constant():
-                            savings[saved_target] = _get_const_size(op.source)
+            if isinstance(op.source, models.MultiValue):
+                continue
+            folded = _try_fold_constants(
+                op, tables, ssa_reads, defining_op, expand_all_bytes=expand_all_bytes
+            )
+            if folded is not None:
+                modified = True
+                with ssa_reads.update(op):
+                    op.source = folded
     return modified
 
 
 def _try_fold_constants(
     op: models.Assignment,
     tables: _GVNTables,
-    savings: Mapping[models.Register, int],
+    ssa_reads: SSAReadTracker,
+    defining_op: Mapping[models.Register, models.Assignment],
     *,
     expand_all_bytes: bool,
 ) -> models.MultiValue | None:
@@ -384,7 +379,8 @@ def _try_fold_constants(
                 value=bytes_const, encoding=bytes_encoding
             ) if expand_all_bytes or (
                 isinstance(op.source, models.Intrinsic)
-                and (len(encode_bytes(bytes_const)) <= _intrinsic_dead_cost(op.source, savings))
+                and len(encode_bytes(bytes_const))
+                <= _intrinsic_dead_cost(op, op.source, ssa_reads, defining_op)
             ):
                 return models.BytesConstant(
                     value=bytes_const,
@@ -412,12 +408,24 @@ def _is_list_of[T, U](lst: list[U], typ: type[T]) -> typing.TypeGuard[list[T]]:
     return all(isinstance(x, typ) for x in lst)
 
 
-def _intrinsic_dead_cost(source: models.Intrinsic, savings: Mapping[models.Register, int]) -> int:
-    """Bytes saved if `source` and its transitively-dead upstream defs go away."""
-    # dedupe args: a register used N times in this op is still one upstream def
-    arg_regs = unique(arg for arg in source.args if isinstance(arg, models.Register))
-    upstream = sum(savings.get(arg, 0) for arg in arg_regs)
-    return _cost(source) + upstream
+def _intrinsic_dead_cost(
+    op: models.Assignment,
+    source: models.Intrinsic,
+    ssa_reads: SSAReadTracker,
+    defining_op: Mapping[models.Register, models.Assignment],
+) -> int:
+    cost = _cost(source)
+    for reg in unique(a for a in source.args if isinstance(a, models.Register)):
+        if ssa_reads.is_sole_usage(reg, op):
+            defn = defining_op.get(reg)
+            if defn is None or len(defn.targets) != 1:
+                continue
+            match defn.source:
+                case models.Intrinsic() as inner if inner.op in COMPILE_TIME_CONSTANT_OPS:
+                    cost += _intrinsic_dead_cost(defn, inner, ssa_reads, defining_op)
+                case models.Constant() as const:
+                    cost += _get_const_size(const)
+    return cost
 
 
 def _cost(intrinsic: models.Intrinsic) -> int:
@@ -1372,6 +1380,7 @@ def global_value_numbering(context: CompileContext, subroutine: models.Subroutin
             ssa_reads.add(op)
     folded = _materialize_constants(
         tables,
+        subroutine,
         start,
         ssa_reads,
         expand_all_bytes=context.options.expand_all_bytes,
