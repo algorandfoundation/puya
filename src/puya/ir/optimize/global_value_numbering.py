@@ -1340,26 +1340,30 @@ def _refine_phi_congruence(
         if len(scc_set) <= 1:
             continue
 
-        scc_data = [phi_register_lookup[reg] for reg in sorted(scc_set, key=lambda r: r.local_id)]
-
         resolved_set = {
             register_replacements.get(arg.value, arg.value)
-            for _block, phi in scc_data
-            for arg in phi.args
+            for phi_reg in scc_set
+            for arg in phi_register_lookup[phi_reg][1].args
+            if arg.value not in scc_set
         }
 
         try:
-            (target,) = resolved_set - scc_set
+            (target,) = resolved_set
         except ValueError:
             continue
 
-        for block, phi in scc_data:
-            reg = phi.register
-            if reg.ir_type.maybe_avm_type == target.ir_type.maybe_avm_type:
+        if all(
+            phi_reg.ir_type.maybe_avm_type == target.ir_type.maybe_avm_type for phi_reg in scc_set
+        ):
+            for phi_reg in scc_set:
+                block, phi = phi_register_lookup[phi_reg]
                 block.phis.remove(phi)
                 modified = True
-                register_replacements[reg] = target
-                logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
+                register_replacements[phi_reg] = target
+            logger.debug(
+                "GVN: SCC phi congruence"
+                f" ({', '.join(sorted(phi_reg.local_id for phi_reg in scc_set))}) -> {target.local_id}"
+            )
     return modified
 
 
