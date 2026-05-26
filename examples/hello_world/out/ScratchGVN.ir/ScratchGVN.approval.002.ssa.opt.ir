@@ -10,13 +10,19 @@ main examples.hello_world.scratch_gvn.ScratchGVN.approval_program:
         return 1u
 
 subroutine examples.hello_world.scratch_gvn.scratch_gvn_demo(n: uint64) -> uint64:
+    block@0: // L13
+        goto block@1
     block@1: // while_top_L17
+        goto n#0 ? block@4 : block@3
+    block@3: // if_body_L19
         goto block@4
     block@4: // after_if_else_L18
         let tmp%1#0: bytes = (itob n#0)
         (log tmp%1#0)
         (log tmp%1#0)
-        goto n#0 ? block@1 : block@5
+        goto n#0 ? block@6 : block@5
     block@5: // if_body_L26
         let tmp%4#0: uint64 = (+ n#0 n#0)
         return tmp%4#0
+    block@6: // after_if_else_L25
+        goto block@1
