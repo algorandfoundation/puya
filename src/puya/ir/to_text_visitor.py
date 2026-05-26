@@ -5,6 +5,7 @@ from collections.abc import Iterator, Sequence
 from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
+from puya.ir.models import Subroutine
 from puya.ir.types_ import IRType
 from puya.ir.utils import format_bytes
 from puya.ir.visitor import IRVisitor
@@ -298,16 +299,20 @@ def render_program(
         _render_body(emitter, program.main.body)
     for sub in program.subroutines:
         emitter.append("")
-        args = ", ".join(f"{r.name}: {r.ir_type.name}" for r in sub.parameters)
-        match sub.returns:
-            case []:
-                returns = "void"
-            case [IRType(name=returns)]:
-                pass
-            case _ as ir_types:
-                returns = f"<{', '.join(t.name for t in ir_types)}>"
-        emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
-        with emitter.indent():
-            _render_body(emitter, sub.body)
+        render_subroutine(emitter, sub)
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")
+
+
+def render_subroutine(emitter: TextEmitter, sub: Subroutine) -> None:
+    args = ", ".join(f"{r.name}: {r.ir_type.name}" for r in sub.parameters)
+    match sub.returns:
+        case []:
+            returns = "void"
+        case [IRType(name=returns)]:
+            pass
+        case _ as ir_types:
+            returns = f"<{', '.join(t.name for t in ir_types)}>"
+    emitter.append(f"subroutine {sub.id}({args}) -> {returns}:")
+    with emitter.indent():
+        _render_body(emitter, sub.body)
