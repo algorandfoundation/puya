@@ -1,3 +1,5 @@
+import random
+
 import algokit_utils as au
 import pytest
 
@@ -38,6 +40,22 @@ def test_getbyte_const_fold(deployer_o: Deployer) -> None:
 
 def test_negated_comparisons(deployer_o: Deployer) -> None:
     deployer_o.create_bare(TEST_CASES_DIR / "gvn" / "negated_comparisons.py")
+
+
+def test_loop_invariant_phi_aliasing(deployer_o: Deployer) -> None:
+    client = deployer_o.create(TEST_CASES_DIR / "gvn" / "loop_invariant_phi_aliasing.py").client
+
+    def run(x: int, y: int) -> int:
+        result = client.send.call(
+            au.AppClientMethodCallParams(method="run", args=[x, y], note=random.randbytes(8))
+        ).abi_return
+        assert isinstance(result, int)
+        return result
+
+    for x, y in [(1, 2), (3, 7), (5, 0), (0, 4)]:
+        expected = x + 10 * (2 * y + x)
+        actual = run(x, y)
+        assert actual == expected, f"run({x}, {y}) gave {actual}, expected {expected}"
 
 
 def test_partial_redundancy_elimination(deployer_o: Deployer) -> None:
