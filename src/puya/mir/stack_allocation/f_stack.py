@@ -28,19 +28,6 @@ def _get_lazy_fstack(entry: mir.MemoryBasicBlock) -> dict[str, mir.AbstractStore
     return result
 
 
-def _get_local_id_types(subroutine: mir.MemorySubroutine) -> dict[str, AVMType]:
-    variable_mapping = dict[str, AVMType]()
-    for block in subroutine.body:
-        for op in block.ops:
-            if isinstance(op, mir.AbstractStore):
-                try:
-                    existing_type = variable_mapping[op.local_id]
-                except KeyError:
-                    existing_type = op.atype
-                variable_mapping[op.local_id] = existing_type | op.atype
-    return variable_mapping
-
-
 def _get_pre_alloc(
     subroutine: mir.MemorySubroutine, all_variables: Sequence[str]
 ) -> mir.FStackPreAllocation:
@@ -48,7 +35,7 @@ def _get_pre_alloc(
     # and order them so bytes are listed first, followed by uints
     byte_vars = []
     uint64_vars = []
-    variable_type_mapping = _get_local_id_types(subroutine)
+    variable_type_mapping = subroutine.local_id_types
     for variable in all_variables:
         match variable_type_mapping.get(variable):
             case AVMType.uint64:

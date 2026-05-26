@@ -13,7 +13,7 @@ from puya.ir.utils import format_bytes
 from puya.program_refs import ProgramKind
 
 if t.TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterator, Mapping, Sequence
 
     from puya.ir.types_ import AVMBytesEncoding
     from puya.mir.visitor import MIRVisitor
@@ -704,6 +704,16 @@ class MemorySubroutine:
     body: Sequence[MemoryBasicBlock]
     pre_alloc: FStackPreAllocation | None
     source_location: SourceLocation | None
+
+    @cached_property
+    def local_id_types(self) -> Mapping[str, AVMType]:
+        result = dict[str, AVMType]()
+        for block in self.body:
+            for op in block.ops:
+                if isinstance(op, StoreOp | LoadOp):
+                    existing = result.get(op.local_id, op.atype)
+                    result[op.local_id] = existing | op.atype
+        return result
 
 
 @attrs.frozen(kw_only=True)
