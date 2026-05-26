@@ -516,13 +516,12 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let pivot#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         goto block@1
     block@1: // while_top_L210
-        let arr#2: Encoded(uint64[])* = φ(arr#0 <- block@0, arr#2 <- block@14)
         let left#3: uint64 = φ(window_left#0 <- block@0, left#5 <- block@14)
         let right#4: uint64 = φ(window_right#0 <- block@0, right#5 <- block@14)
         goto block@3
     block@3: // while_top_L212
         let left#1: uint64 = φ(left#3 <- block@1, left#2 <- block@4)
-        let slot_contents%1#0: Encoded(uint64[]) = load(arr#2)
+        let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
         let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%1#0, left#1)
         let tmp%3#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%4#0: bool = (< tmp%3#0 pivot#0)
@@ -534,7 +533,7 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         goto block@6
     block@6: // while_top_L215
         let right#1: uint64 = φ(right#4 <- block@5, right#2 <- block@9)
-        let slot_contents%2#0: Encoded(uint64[]) = load(arr#2)
+        let slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
         let array_item%2#0: Encoded(uint64) = extract_value(slot_contents%2#0, right#1)
         let tmp%6#0: uint64 = decode_bytes<uint64>(array_item%2#0)
         let tmp%7#0: bool = (< pivot#0 tmp%6#0)
@@ -549,20 +548,20 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let tmp%10#0: bool = (< left#1 right#1)
         goto tmp%10#0 ? block@11 : block@16
     block@11: // if_body_L223
-        let slot_contents%3#0: Encoded(uint64[]) = load(arr#2)
+        let slot_contents%3#0: Encoded(uint64[]) = load(arr#0)
         let array_item%3#0: Encoded(uint64) = extract_value(slot_contents%3#0, right#1)
         let tmp%11#0: uint64 = decode_bytes<uint64>(array_item%3#0)
-        let slot_contents%4#0: Encoded(uint64[]) = load(arr#2)
+        let slot_contents%4#0: Encoded(uint64[]) = load(arr#0)
         let array_item%4#0: Encoded(uint64) = extract_value(slot_contents%4#0, left#1)
         let tmp%12#0: uint64 = decode_bytes<uint64>(array_item%4#0)
         let encoded_value%0#0: Encoded(uint64) = array_item%3#0
-        let slot_contents%5#0: Encoded(uint64[]) = load(arr#2)
+        let slot_contents%5#0: Encoded(uint64[]) = load(arr#0)
         let updated_array%0#0: Encoded(uint64[]) = replace_value(slot_contents%5#0, left#1, encoded_value%0#0)
-        store(arr#2, updated_array%0#0)
+        store(arr#0, updated_array%0#0)
         let encoded_value%1#0: Encoded(uint64) = array_item%4#0
-        let slot_contents%6#0: Encoded(uint64[]) = load(arr#2)
+        let slot_contents%6#0: Encoded(uint64[]) = load(arr#0)
         let updated_array%1#0: Encoded(uint64[]) = replace_value(slot_contents%6#0, right#1, encoded_value%1#0)
-        store(arr#2, updated_array%1#0)
+        store(arr#0, updated_array%1#0)
         let left#5: uint64 = (+ left#1 1u)
         let tmp%14#0: bool = (! right#1)
         goto right#1 ? block@13 : block@12
@@ -597,13 +596,13 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let tmp%21#0: bool = (< window_left#0 right#7)
         goto tmp%21#0 ? block@23 : block@24
     block@23: // if_body_L249
-        test_cases.array.uint64.quicksort_window(arr#2, window_left#0, right#7)
+        test_cases.array.uint64.quicksort_window(arr#0, window_left#0, right#7)
         goto block@24
     block@24: // after_if_else_L248
         let tmp%22#0: bool = (< left#8 window_right#0)
         goto tmp%22#0 ? block@25 : block@26
     block@25: // if_body_L252
-        test_cases.array.uint64.quicksort_window(arr#2, left#8, window_right#0)
+        test_cases.array.uint64.quicksort_window(arr#0, left#8, window_right#0)
         goto block@26
     block@26: // after_if_else_L251
         return 
