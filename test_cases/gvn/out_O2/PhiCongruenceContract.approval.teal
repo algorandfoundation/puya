@@ -1,41 +1,103 @@
 #pragma version 11
 #pragma typetrack false
 
-// test_cases.gvn.phi_congruence.PhiCongruenceContract.approval_program() -> uint64:
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 5 1 42
-    intc_3 // 42
-    callsub test_cross_assignment
-    pushint 84
-    ==
-    assert
-    intc_0 // 0
-    callsub test_cross_assignment
+    intcblock 1 8 0
+    bytecblock 0x151f7c75
+    txn NumAppArgs
+    bz main___algopy_default_create@11
+    txn OnCompletion
     !
     assert
-    pushint 10
+    txn ApplicationID
+    assert
+    pushbytess 0x55ba48e6 0x68b563af 0x742aaa47 0x8977ab20 // method "call_test_redundant_phi(uint64,uint64)uint64", method "call_test_cross_assignment(uint64)uint64", method "call_test_triple_cycle(uint64)uint64", method "call_test_replacement_chain(uint64)uint64"
+    txna ApplicationArgs 0
+    match main_call_test_redundant_phi_route@4 main_call_test_cross_assignment_route@5 main_call_test_triple_cycle_route@6 main_call_test_replacement_chain_route@7
+    err
+
+main_call_test_replacement_chain_route@7:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_replacement_chain
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_call_test_triple_cycle_route@6:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
     callsub test_triple_cycle
-    pushint 30
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_call_test_cross_assignment_route@5:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
     ==
-    assert
-    txn NumAppArgs
-    intc_1 // 5
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub test_cross_assignment
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_call_test_redundant_phi_route@4:
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
     callsub test_redundant_phi
-    txn NumAppArgs
-    intc_1 // 5
-    |
-    ==
-    assert
-    intc_0 // 0
-    callsub test_replacement_chain
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main___algopy_default_create@11:
+    txn OnCompletion
     !
-    assert
-    intc_3 // 42
-    callsub test_replacement_chain
-    pushint 84
-    ==
-    assert
-    intc_2 // 1
+    txn ApplicationID
+    !
+    &&
     return
 
 
@@ -68,7 +130,7 @@ test_redundant_phi_else_body@2:
 // test_cases.gvn.phi_congruence.test_cross_assignment(n: uint64) -> uint64:
 test_cross_assignment:
     proto 1 1
-    intc_0 // 0
+    intc_2 // 0
 
 test_cross_assignment_for_header@1:
     frame_dig 0
@@ -76,7 +138,7 @@ test_cross_assignment_for_header@1:
     <
     bz test_cross_assignment_after_for@4
     frame_dig 0
-    intc_2 // 1
+    intc_0 // 1
     +
     frame_bury 0
     b test_cross_assignment_for_header@1
@@ -92,15 +154,15 @@ test_cross_assignment_after_for@4:
 // test_cases.gvn.phi_congruence.test_triple_cycle(n: uint64) -> uint64:
 test_triple_cycle:
     proto 1 1
-    intc_0 // 0
+    intc_2 // 0
 
 test_triple_cycle_for_header@1:
     frame_dig 0
-    intc_1 // 5
+    pushint 5
     <
     bz test_triple_cycle_after_for@4
     frame_dig 0
-    intc_2 // 1
+    intc_0 // 1
     +
     frame_bury 0
     b test_triple_cycle_for_header@1

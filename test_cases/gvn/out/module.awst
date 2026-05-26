@@ -104,23 +104,42 @@ subroutine test_through_phi(selector: uint64): void
 contract PhiCongruenceContract
 {
   method_resolution_order: (
+    algopy.arc4.ARC4Contract,
     algopy._contract.Contract,
   )
   
-  subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.approval_program(): bool
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
   {
-    assert(test_cases.gvn.phi_congruence.test_cross_assignment(42u) == 84u)
-    assert(test_cases.gvn.phi_congruence.test_cross_assignment(0u) == 0u)
-    assert(test_cases.gvn.phi_congruence.test_triple_cycle(10u) == 30u)
-    assert(test_cases.gvn.phi_congruence.test_redundant_phi(txn<NumAppArgs>(), 5u) == txn<NumAppArgs>() | 5u)
-    assert(test_cases.gvn.phi_congruence.test_replacement_chain(0u) == 0u)
-    assert(test_cases.gvn.phi_congruence.test_replacement_chain(42u) == 84u)
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
     return true
   }
   
-  subroutine test_cases.gvn.phi_congruence.PhiCongruenceContract.clear_state_program(): bool
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_redundant_phi(a: uint64, b: uint64): uint64
   {
-    return true
+    return test_cases.gvn.phi_congruence.test_redundant_phi(a, b)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_cross_assignment(n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.test_cross_assignment(n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_triple_cycle(n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.test_triple_cycle(n)
+  }
+  
+  abimethod test_cases.gvn.phi_congruence.PhiCongruenceContract.call_test_replacement_chain(n: uint64): uint64
+  {
+    return test_cases.gvn.phi_congruence.test_replacement_chain(n)
+  }
+  
+  baremethod test_cases.gvn.phi_congruence.PhiCongruenceContract.__algopy_default_create(): void
+  {
   }
   
   subroutine algopy._contract.Contract.__init__(): void
