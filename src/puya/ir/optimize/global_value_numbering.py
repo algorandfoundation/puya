@@ -1,11 +1,20 @@
 """
-Hash-based GVN that assigns a canonical value number (VN) to every SSA definition,
-then eliminates redundant computations where a dominated definition has the same VN
-as an earlier dominating one.
+Hash-based GVN with optimistic phi numbering.
+
+Assigns a canonical value number (VN) to every SSA definition via a dominator-tree
+walk, then eliminates redundant computations where a dominated definition shares a
+VN with a dominating one.
+
+Phi cycles are handled by optimistic iteration (GCC SCC-VN style): back-edge phi
+arguments are filtered out on the first walk (treated as the lattice top), and the
+walk is re-run with successively-refined VN assignments until the partition over
+registers stabilises. Non-redundant phis receive a stable per-phi VN that persists
+across iterations to ensure convergence.
 
 References:
     - Briggs, Cooper, Simpson. "Value Numbering." Software -- Practice and Experience, 1997.
-     (https://www.cs.tufts.edu/~nr/cs257/archive/keith-cooper/value-numbering.pdf)
+      (https://www.cs.tufts.edu/~nr/cs257/archive/keith-cooper/value-numbering.pdf)
+    - Cooper & Simpson. "SCC-Based Value Numbering." Rice CS-TR95-261.
     - Cooper & Torczon, Engineering a Compiler, 2nd ed., S8.4-8.5.
 """
 
@@ -16,7 +25,6 @@ from collections.abc import Collection, Mapping, Sequence, Set
 from functools import cached_property
 
 import attrs
-import networkx as nx  # type: ignore[import-untyped]
 
 from puya import algo_constants, log
 from puya.avm import AVMType
@@ -255,6 +263,12 @@ class _GVNTables:
     """
     Value numbering state accumulated during pre-order dominator walk,
     makes use of the "Unified has table" approach from Briggs et al.
+
+    Tables persist across optimistic iterations within a single
+    :func:`_number_values` call: ``_vn_counter`` and ``_provider_key_to_vns``
+    are monotonic, so the same syntactic expression with stable arg VNs gets
+    the same VN every iteration. ``register_vn`` is overwritten in place as
+    later iterations refine VN assignments.
     """
 
     _vn_counter: _IntCounter = attrs.field(factory=itertools.count)
@@ -262,6 +276,9 @@ class _GVNTables:
     _provider_key_to_vns: dict[_ProviderKey, tuple[VN, ...]] = attrs.field(factory=dict)
     _const_vn: dict[_ConstKey, VN] = attrs.field(factory=dict)
     vn_definition: dict[VN, _ConstKey | _ProviderKey] = attrs.field(factory=dict)
+    # Stable VN per non-redundant phi, pinned once minted so its identity
+    # survives optimistic re-iteration.
+    _phi_stable_vn: dict[models.Phi, VN] = attrs.field(factory=dict)
 
     def next_vn(self) -> VN:
         return next(self._vn_counter)
@@ -269,19 +286,33 @@ class _GVNTables:
     def set_register_vn(self, reg: models.Register, vn: VN) -> None:
         """Record an assignment of a VN to a register.
 
-        Use replaceable=False for constant copies where the register needs a VN
-        for expression hashing but shouldn't participate in replacement.
+        Overwrites any prior entry — the optimistic-iteration loop in
+        :func:`_number_values` re-walks the dominator tree, re-numbering each
+        register based on the previous iteration's VN map. Within a single
+        walk a register is still only assigned once (enforced by the
+        structure of the visitor, not a runtime check).
         """
-        if reg in self.register_vn:
-            raise InternalError(
-                f"register {reg} already has VN={self.register_vn[reg]}", reg.source_location
-            )
         self.register_vn[reg] = vn
 
     def assign_register_fresh_vn(self, reg: models.Register) -> VN:
         """Generate and assign a new VN to the register, returning it."""
         vn = self.next_vn()
         self.set_register_vn(reg, vn)
+        return vn
+
+    def stable_phi_vn(self, phi: models.Phi) -> VN:
+        """Return the persistent VN for a non-redundant phi, minting once.
+
+        The same VN is returned for the same ``phi`` object across iterations,
+        so the partition reaches a fixed point even when args never agree on
+        a single VN.
+        """
+        try:
+            return self._phi_stable_vn[phi]
+        except KeyError:
+            pass
+        vn = self.next_vn()
+        self._phi_stable_vn[phi] = vn
         return vn
 
     def fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
@@ -1230,46 +1261,58 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
 
     @typing.override
     def visit_phi(self, phi: models.Phi) -> None:
-        # Assign a VN to a phi node's register.
-        # Redundant phis (all args same VN) get the common VN.
-        # Non-redundant phis are hashed to detect congruent phis at the same block.
+        # Assign a VN to a phi node's register, under optimistic phi numbering:
+        #   1. Args whose source register has not been numbered yet (back-edge args
+        #      on iteration 1; not-yet-revisited registers on later iterations) are
+        #      filtered from the "all args agree" check, so the phi can match a
+        #      single forward-edge VN even before the cycle has been resolved.
+        #   2. If all remaining (non-top) args share a single VN, the phi is
+        #      redundant and inherits that VN.
+        #   3. Otherwise, the phi is hashed (using the source register as a
+        #      placeholder for un-numbered args, to preserve Register identity
+        #      across different back-edge sources) and compared against other phis
+        #      in the same block — congruent phis share a VN.
+        #   4. Otherwise, the phi receives its persistent ``stable_phi_vn``, so the
+        #      partition stops moving once every phi has been classified.
 
         if not phi.args:
             # A phi with no args is essentially undefined, and this can only occur in the entry
             # block. We don't treat Undefined as being a singleton, each instance is considered
             # unique for our purposes here - so treat no-arg phis the same.
-            self.tables.assign_register_fresh_vn(phi.register)
+            self.tables.set_register_vn(phi.register, self.tables.stable_phi_vn(phi))
             return
 
-        # If a register has not been numbered yet (e.g. a phi argument from a back edge),
-        # it will not be in the map - in which case to avoid issues, we just use the register
-        # itself as the "VN" here in the phis of this block only.
-        # This approach is less powerful than if we could somehow assign the "true VN" for
-        # each register now without issue, but it is more powerful than the following alternatives:
-        # - Ignoring phis with args without a VN yet.
-        # - Assigning a register a new VN each time it's seen in a phi arg without caching.
-        # Due to the definition of Register equality, it's equivalent to assigning each un-numbered
-        # phi-arg register a unique VN within the phis of that block, but without the additional
-        # bookkeeping required to do so.
-        vns_dict = {
-            arg.through: self.tables.register_vn.get(arg.value, arg.value) for arg in phi.args
-        }
-        match unique(vns_dict.values()):
-            case [VN() as unique_vn]:
-                self.tables.set_register_vn(phi.register, unique_vn)
-                logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={unique_vn})")
-            case _:
-                # note: technically it could be possible to have a single unique Register,
-                # but that would possibly indicate a use-before-def situation
-                phi_arg_vns = frozenset(vns_dict.items())
-                existing_vn = self.phi_table.get(phi_arg_vns)
-                if existing_vn is not None:
-                    self.tables.set_register_vn(phi.register, existing_vn)
-                    logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_vn})")
-                else:
-                    self.phi_table[phi_arg_vns] = self.tables.assign_register_fresh_vn(
-                        phi.register
-                    )
+        real_vns = list[VN]()
+        phi_key_entries = list[tuple[models.BasicBlock, VN | models.Register]]()
+        for arg in phi.args:
+            existing_vn = self.tables.register_vn.get(arg.value)
+            if existing_vn is None:
+                # Optimistic top: the source register isn't numbered yet in this
+                # walk. Use the register itself as the hash-table placeholder so
+                # different un-numbered sources stay distinguishable.
+                phi_key_entries.append((arg.through, arg.value))
+            else:
+                real_vns.append(existing_vn)
+                phi_key_entries.append((arg.through, existing_vn))
+
+        if real_vns:
+            unique_real = set(real_vns)
+            if len(unique_real) == 1:
+                (uniq,) = unique_real
+                self.tables.set_register_vn(phi.register, uniq)
+                logger.debug(f"GVN: redundant phi {phi.register.local_id} (VN={uniq})")
+                return
+
+        phi_key = frozenset(phi_key_entries)
+        existing_phi_vn = self.phi_table.get(phi_key)
+        if existing_phi_vn is not None:
+            self.tables.set_register_vn(phi.register, existing_phi_vn)
+            logger.debug(f"GVN: congruent phi {phi.register.local_id} (VN={existing_phi_vn})")
+            return
+
+        stable = self.tables.stable_phi_vn(phi)
+        self.phi_table[phi_key] = stable
+        self.tables.set_register_vn(phi.register, stable)
 
 
 def _process_blocks_pre_order(
@@ -1285,86 +1328,12 @@ def _process_blocks_pre_order(
         _process_blocks_pre_order(tables, dom_tree, child)
 
 
-def _refine_phi_congruence(
-    subroutine: models.Subroutine,
-    register_replacements: dict[models.Register, models.Register],
-) -> bool:
-    """Find phi-cycle equivalences that hash-based numbering missed.
-
-    Resolves phi args through the replacement map (from build_replacements),
-    builds a dependency graph of the remaining phis, finds SCCs, and checks
-    if all phis in an SCC resolve to the same single external register.
-
-    This catches patterns like:
-        x = phi(a, y)
-        y = phi(b, x)
-    where a and b resolve to the same representative — hash-based GVN assigns
-    x and y different VNs (due to back-edge conservatism), but SCC analysis
-    reveals they're equal.
-    """
-
-    # Collect phis not already being replaced in the current pass
-    phi_register_lookup = dict[models.Register, tuple[models.BasicBlock, models.Phi]]()
-    for block in subroutine.body:
-        for phi in block.phis:
-            if phi.register not in register_replacements:
-                phi_register_lookup[phi.register] = (block, phi)
-
-    if not phi_register_lookup:
-        return False
-
-    # this prevents replacement chains being created (which MemoryReplacer doesn't support),
-    # the alternative would be to flatten those chains ourselves, but that's trickier,
-    # and since this condition will only fail if register_replacements is populated,
-    # we know there will be another optimisation pass, and we can pick these up then
-    if not phi_register_lookup.keys().isdisjoint(register_replacements.values()):
-        return False
-
-    # Build a directed graph where:
-    # - Nodes are phi registers (those not already in register_replacements)
-    # - Edges go from phi.register → resolved, meaning "this phi has an argument that resolves
-    #   to another surviving phi"
-    #
-    # It's a phi dependency graph: an edge A → B means phi A's value depends on phi B's value.
-    # Nodes are only added implicitly via edges, so isolated phis (those whose args all resolve
-    # to non-phi values) never appear in the graph at all. Only phis with at least one
-    # phi-valued argument participate.
-    graph = nx.DiGraph()
-    for _, phi in phi_register_lookup.values():
-        for arg in phi.args:
-            if arg.value in phi_register_lookup:
-                graph.add_edge(phi.register, arg.value)
-
-    modified = False
-    for scc_set in nx.strongly_connected_components(graph):
-        if len(scc_set) <= 1:
-            continue
-
-        resolved_set = {
-            register_replacements.get(arg.value, arg.value)
-            for phi_reg in scc_set
-            for arg in phi_register_lookup[phi_reg][1].args
-            if arg.value not in scc_set
-        }
-
-        try:
-            (target,) = resolved_set
-        except ValueError:
-            continue
-
-        if all(
-            phi_reg.ir_type.maybe_avm_type == target.ir_type.maybe_avm_type for phi_reg in scc_set
-        ):
-            for phi_reg in scc_set:
-                block, phi = phi_register_lookup[phi_reg]
-                block.phis.remove(phi)
-                modified = True
-                register_replacements[phi_reg] = target
-            logger.debug(
-                "GVN: SCC phi congruence"
-                f" ({', '.join(sorted(phi_reg.local_id for phi_reg in scc_set))}) -> {target.local_id}"
-            )
-    return modified
+# Safety bound on optimistic iterations. The fixed point is reached when every
+# register's VN stops changing between consecutive walks. Each iteration can only
+# downgrade a phi's classification (redundant -> non-redundant pins the stable VN
+# permanently), so termination is guaranteed within a bounded number of iterations
+# in practice — this cap exists only to protect against pathological cases.
+_MAX_OPTIMISTIC_ITERATIONS: typing.Final = 8
 
 
 def _number_values(
@@ -1372,18 +1341,38 @@ def _number_values(
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     start: models.BasicBlock,
 ) -> _GVNTables:
+    """Number every SSA definition via optimistic iteration to a fixed point.
+
+    The dominator-tree walk is repeated until ``register_vn`` stops changing
+    between iterations. On iteration 1 every back-edge phi argument is treated
+    as the lattice top (filtered from the redundancy check); on later
+    iterations those args take their previous-iteration VN, letting cyclic
+    phi congruences surface naturally. Non-redundant phis pin a stable VN
+    (see :meth:`_GVNTables.stable_phi_vn`) so the partition stops moving.
+    """
     tables = _GVNTables()
     for param in subroutine.parameters:
         tables.assign_register_fresh_vn(param)
-    _process_blocks_pre_order(tables, dom_tree, start)
+
+    for iteration in range(_MAX_OPTIMISTIC_ITERATIONS):
+        prev_register_vn = dict(tables.register_vn)
+        _process_blocks_pre_order(tables, dom_tree, start)
+        if tables.register_vn == prev_register_vn:
+            logger.debug(f"GVN: {subroutine.id} converged after {iteration + 1} iteration(s)")
+            return tables
+    logger.debug(
+        f"GVN: {subroutine.id} did not converge within"
+        f" {_MAX_OPTIMISTIC_ITERATIONS} iterations; using last state"
+    )
     return tables
 
 
 def global_value_numbering(context: CompileContext, subroutine: models.Subroutine) -> bool:
     """Run GVN on a subroutine.
 
-    Flow: hash-based numbering -> constant materialization -> dominance-based
-    elimination -> SCC phi congruence.
+    Flow: optimistic hash-based numbering (fixed-point iteration over the
+    dominator tree) -> constant materialization -> dominance-based elimination.
+    Cyclic phi congruence falls out of the iterated numbering.
     """
     start, dom_tree = compute_dominator_tree(subroutine)
     tables = _number_values(subroutine, dom_tree, start)
@@ -1407,9 +1396,6 @@ def global_value_numbering(context: CompileContext, subroutine: models.Subroutin
     )
     modified = folded or eliminated
     register_replacements = build_replacements(subroutine, equivalence_sets)
-
-    if _refine_phi_congruence(subroutine, register_replacements):
-        modified = True
 
     if register_replacements:
         logger.debug(f"GVN: {len(register_replacements)} replacement(s) in {subroutine.id}")
