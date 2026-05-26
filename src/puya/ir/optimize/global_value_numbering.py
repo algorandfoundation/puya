@@ -1325,8 +1325,11 @@ def _refine_phi_congruence(
     graph = nx.DiGraph()
     for _, phi in phi_register_lookup.values():
         for arg in phi.args:
-            if arg.value in phi_register_lookup:
-                graph.add_edge(phi.register, arg.value)
+            # if arg.value in phi_register_lookup:
+            #     graph.add_edge(phi.register, arg.value)
+            resolved = register_replacements.get(arg.value, arg.value)
+            if resolved in phi_register_lookup:
+                graph.add_edge(phi.register, resolved)
 
     modified = False
     for scc_set in nx.strongly_connected_components(graph):
@@ -1351,6 +1354,11 @@ def _refine_phi_congruence(
             if reg.ir_type.maybe_avm_type == target.ir_type.maybe_avm_type:
                 block.phis.remove(phi)
                 modified = True
+                # Flatten any existing entries whose target was this SCC member, so the
+                # combined map remains chain-free for MemoryReplacer.
+                for existing_key, existing_target in register_replacements.items():
+                    if existing_target is reg:
+                        register_replacements[existing_key] = target
                 register_replacements[reg] = target
                 logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
     return modified
