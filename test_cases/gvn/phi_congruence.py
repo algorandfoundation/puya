@@ -1,25 +1,33 @@
-from algopy import Contract, Txn, UInt64, log, op, subroutine, urange
+from algopy import ARC4Contract, UInt64, log, op, public, subroutine, urange
 
 
-class PhiCongruenceContract(Contract):
+class PhiCongruenceContract(ARC4Contract):
     """Test contract for GVN phi handling.
 
     Contains patterns exercising:
     - SCC-based phi congruence (cross-assigned variables in loops)
     - Redundant phi elimination (different registers, same VN at join points)
+
+    Each ABI method is a thin wrapper around the matching module-level
+    @subroutine(inline=False), so the GVN-relevant IR shape is preserved
+    (algopy.public doesn't support inline= specification).
     """
 
-    def approval_program(self) -> bool:
-        assert test_cross_assignment(UInt64(42)) == 84
-        assert test_cross_assignment(UInt64(0)) == 0
-        assert test_triple_cycle(UInt64(10)) == 30
-        assert test_redundant_phi(Txn.num_app_args, UInt64(5)) == Txn.num_app_args | 5
-        assert test_replacement_chain(UInt64(0)) == 0
-        assert test_replacement_chain(UInt64(42)) == 84
-        return True
+    @public
+    def call_test_redundant_phi(self, a: UInt64, b: UInt64) -> UInt64:
+        return test_redundant_phi(a, b)
 
-    def clear_state_program(self) -> bool:
-        return True
+    @public
+    def call_test_cross_assignment(self, n: UInt64) -> UInt64:
+        return test_cross_assignment(n)
+
+    @public
+    def call_test_triple_cycle(self, n: UInt64) -> UInt64:
+        return test_triple_cycle(n)
+
+    @public
+    def call_test_replacement_chain(self, n: UInt64) -> UInt64:
+        return test_replacement_chain(n)
 
 
 @subroutine(inline=False)
