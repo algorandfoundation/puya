@@ -8,25 +8,24 @@ class PhiCongruenceContract(ARC4Contract):
     - SCC-based phi congruence (cross-assigned variables in loops)
     - Redundant phi elimination (different registers, same VN at join points)
 
-    Each ABI method is a thin wrapper around the matching module-level
-    @subroutine(inline=False), so the GVN-relevant IR shape is preserved
-    (algopy.public doesn't support inline= specification).
+    Each ABI method is a thin wrapper around a subroutine to make
+    the intermediate IR easier to inspect.
     """
 
     @public
-    def call_test_redundant_phi(self, a: UInt64, b: UInt64) -> UInt64:
+    def test_redundant_phi(self, a: UInt64, b: UInt64) -> UInt64:
         return test_redundant_phi(a, b)
 
     @public
-    def call_test_cross_assignment(self, n: UInt64) -> UInt64:
+    def test_cross_assignment(self, n: UInt64) -> UInt64:
         return test_cross_assignment(n)
 
     @public
-    def call_test_triple_cycle(self, n: UInt64) -> UInt64:
+    def test_triple_cycle(self, n: UInt64) -> UInt64:
         return test_triple_cycle(n)
 
     @public
-    def call_test_replacement_chain(self, n: UInt64) -> UInt64:
+    def test_replacement_chain(self, n: UInt64) -> UInt64:
         return test_replacement_chain(n)
 
 
