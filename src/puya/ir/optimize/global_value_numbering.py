@@ -1261,8 +1261,12 @@ class _ProviderVNBuilder(ValueProviderVisitor[tuple[VN, ...]]):
 
 
 class GVNBlockVisitor(NoOpIRVisitor[None]):
-    def __init__(self, tables: _GVNTables):
+    def __init__(self, tables: _GVNTables, *, pessimistic_phi: bool = False):
         self.tables = tables
+        # Pessimistic mode: any un-numbered phi arg blocks the redundancy
+        # branch. Used by the cap-out fallback (single sound pass without
+        # optimistic claims that would normally need iteration to validate).
+        self.pessimistic_phi = pessimistic_phi
         # phi table is per block because the through->block relationship is
         # effectively part of the identity
         self.phi_table = dict[frozenset[tuple[models.BasicBlock, VN | models.Register]], VN]()
@@ -1302,12 +1306,14 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
 
         real_vns = list[VN]()
         phi_key_entries = list[tuple[models.BasicBlock, VN | models.Register]]()
+        any_top = False
         for arg in phi.args:
             existing_vn = self.tables.register_vn.get(arg.value)
             if existing_vn is None:
                 # Optimistic top: the source register isn't numbered yet in this
                 # walk. Use the register itself as the hash-table placeholder so
                 # different un-numbered sources stay distinguishable.
+                any_top = True
                 phi_key_entries.append((arg.through, arg.value))
             else:
                 real_vns.append(existing_vn)
@@ -1325,8 +1331,14 @@ class GVNBlockVisitor(NoOpIRVisitor[None]):
         # the sibling-congruence branch would split block-local-congruent
         # cohorts onto distinct stable VNs, because `stable_phi_vn` is keyed
         # per-Phi — each cohort member has its own.
+        # In pessimistic mode the redundancy branch additionally requires that
+        # every arg was already numbered — without iteration, an un-numbered
+        # back-edge can't be optimistically equated with the forward args.
         candidate: VN | None = None
-        if real_vns and len(set(real_vns)) == 1:
+        can_be_redundant = real_vns and len(set(real_vns)) == 1
+        if self.pessimistic_phi and any_top:
+            can_be_redundant = False
+        if can_be_redundant:
             candidate = real_vns[0]
             prev_vn = self.tables.register_vn.get(phi.register)
             if prev_vn is not None and prev_vn != candidate:
@@ -1344,13 +1356,15 @@ def _process_blocks_pre_order(
     tables: _GVNTables,
     dom_tree: Mapping[models.BasicBlock, Sequence[models.BasicBlock]],
     block: models.BasicBlock,
+    *,
+    pessimistic_phi: bool = False,
 ) -> None:
-    visitor = GVNBlockVisitor(tables)
+    visitor = GVNBlockVisitor(tables, pessimistic_phi=pessimistic_phi)
     for op in block.all_ops:
         op.accept(visitor)
 
     for child in dom_tree.get(block, []):
-        _process_blocks_pre_order(tables, dom_tree, child)
+        _process_blocks_pre_order(tables, dom_tree, child, pessimistic_phi=pessimistic_phi)
 
 
 # Safety bound on optimistic iterations. The fixed point is reached when every
@@ -1385,10 +1399,22 @@ def _number_values(
         if tables.register_vn == prev_register_vn:
             logger.debug(f"GVN: {subroutine.id} converged after {iteration + 1} iteration(s)")
             return tables
+    # Cap-out: an un-converged partition can contain optimistic merges that
+    # would not have survived further iteration. Discard the in-progress
+    # tables and re-number with a single pessimistic pass — un-numbered
+    # back-edge args block phi redundancy, matching the algorithm used
+    # before optimistic iteration was introduced. Forward CSE, trivially-
+    # redundant phis, and constant materialisation still apply; only
+    # cyclic phi congruences are missed.
     logger.debug(
         f"GVN: {subroutine.id} did not converge within"
-        f" {_MAX_OPTIMISTIC_ITERATIONS} iterations; using last state"
+        f" {_MAX_OPTIMISTIC_ITERATIONS} iterations;"
+        f" falling back to pessimistic single-pass"
     )
+    tables = _GVNTables()
+    for param in subroutine.parameters:
+        tables.assign_register_fresh_vn(param)
+    _process_blocks_pre_order(tables, dom_tree, start, pessimistic_phi=True)
     return tables
 
 
