@@ -1287,7 +1287,7 @@ def _process_blocks_pre_order(
 
 def _refine_phi_congruence(
     subroutine: models.Subroutine,
-    register_map: dict[models.Register, models.Register],
+    register_replacements: dict[models.Register, models.Register],
 ) -> bool:
     """Find phi-cycle equivalences that hash-based numbering missed.
 
@@ -1301,56 +1301,58 @@ def _refine_phi_congruence(
     where a and b resolve to the same representative — hash-based GVN assigns
     x and y different VNs (due to back-edge conservatism), but SCC analysis
     reveals they're equal.
-
-    Analogous to how copy_propagation resolves phi args through its replacement
-    map to find trivially redundant phis.
     """
-    # Collect phis not already handled by build_replacements
-    modified = False
 
-    phi_by_register = dict[models.Register, models.Phi]()
-    phi_blocks = dict[models.Register, models.BasicBlock]()
+    # Collect phis not already handled by build_replacements
+    phi_register_lookup = dict[models.Register, tuple[models.BasicBlock, models.Phi]]()
     for block in subroutine.body:
         for phi in block.phis:
-            phi_blocks[phi.register] = block
-            if phi.register not in register_map:
-                phi_by_register[phi.register] = phi
+            if phi.register not in register_replacements:
+                phi_register_lookup[phi.register] = (block, phi)
 
-    if not phi_by_register:
-        return modified
+    if not phi_register_lookup:
+        return False
 
+    # Build a directed graph where:
+    # - Nodes are phi registers (those not already in register_replacements)
+    # - Edges go from phi.register → resolved, meaning "this phi has an argument that resolves
+    #   to another surviving phi"
+    #
+    # It's a phi dependency graph: an edge A → B means phi A's value depends on phi B's value.
+    # Nodes are only added implicitly via edges, so isolated phis (those whose args all resolve
+    # to non-phi values) never appear in the graph at all. Only phis with at least one
+    # phi-valued argument participate.
     graph = nx.DiGraph()
-    for phi in phi_by_register.values():
+    for _, phi in phi_register_lookup.values():
         for arg in phi.args:
-            resolved = register_map.get(arg.value, arg.value)
-            if resolved in phi_by_register:
-                graph.add_edge(phi.register, resolved)
+            if arg.value in phi_register_lookup:
+                graph.add_edge(phi.register, arg.value)
 
+    modified = False
     for scc_set in nx.strongly_connected_components(graph):
         if len(scc_set) <= 1:
             continue
 
-        external_regs = set[models.Register]()
-        for reg in scc_set:
-            phi = phi_by_register[reg]
-            for arg in phi.args:
-                resolved = register_map.get(arg.value, arg.value)
-                if resolved not in scc_set:
-                    external_regs.add(resolved)
+        scc_data = [phi_register_lookup[reg] for reg in sorted(scc_set, key=lambda r: r.local_id)]
 
-        if len(external_regs) != 1:
+        resolved_set = {
+            register_replacements.get(arg.value, arg.value)
+            for _block, phi in scc_data
+            for arg in phi.args
+        }
+
+        try:
+            (target,) = resolved_set - scc_set
+        except ValueError:
             continue
 
-        (target,) = external_regs
-        for reg in sorted(scc_set, key=lambda r: r.local_id):
-            block = phi_blocks[reg]
-            phi = phi_by_register[reg]
-            if reg.ir_type.maybe_avm_type != target.ir_type.maybe_avm_type:
-                continue
-            block.phis.remove(phi)
-            modified = True
-            register_map[reg] = target
-            logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
+        for block, phi in scc_data:
+            reg = phi.register
+            if reg.ir_type.maybe_avm_type == target.ir_type.maybe_avm_type:
+                block.phis.remove(phi)
+                modified = True
+                register_replacements[reg] = target
+                logger.debug(f"GVN: SCC phi congruence {reg.local_id} -> {target.local_id}")
     return modified
 
 
@@ -1393,14 +1395,14 @@ def global_value_numbering(context: CompileContext, subroutine: models.Subroutin
         ssa_reads,
     )
     modified = folded or eliminated
-    register_map = build_replacements(subroutine, equivalence_sets)
+    register_replacements = build_replacements(subroutine, equivalence_sets)
 
-    if _refine_phi_congruence(subroutine, register_map):
+    if _refine_phi_congruence(subroutine, register_replacements):
         modified = True
 
-    if register_map:
-        logger.debug(f"GVN: {len(register_map)} replacement(s) in {subroutine.id}")
-        replaced = MemoryReplacer.apply(subroutine.body, replacements=register_map)
+    if register_replacements:
+        logger.debug(f"GVN: {len(register_replacements)} replacement(s) in {subroutine.id}")
+        replaced = MemoryReplacer.apply(subroutine.body, replacements=register_replacements)
         if replaced > 0:
             modified = True
 
