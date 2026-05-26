@@ -312,13 +312,7 @@ class _GVNTables:
         so the partition reaches a fixed point even when args never agree on
         a single VN.
         """
-        try:
-            return self._phi_stable_vn[phi]
-        except KeyError:
-            pass
-        vn = self.next_vn()
-        self._phi_stable_vn[phi] = vn
-        return vn
+        return lazy_setdefault(self._phi_stable_vn, phi, lambda _: self.next_vn())
 
     def fresh_vns(self, vp: models.ValueProvider) -> tuple[VN, ...]:
         """Mint VNs for a value provider that can't be value-numbered structurally.
@@ -330,14 +324,9 @@ class _GVNTables:
         call to ``box_get`` / ``read_slot`` / a non-pure subroutine / etc. may
         return a different value).
         """
-        cache_key = id(vp)
-        try:
-            return self._identity_vns[cache_key]
-        except KeyError:
-            pass
-        vns = tuple(self.next_vn() for _ in vp.types)
-        self._identity_vns[cache_key] = vns
-        return vns
+        return lazy_setdefault(
+            self._identity_vns, id(vp), lambda _: tuple(self.next_vn() for _ in vp.types)
+        )
 
     def lookup_or_assign_vp(
         self, key: _ProviderKey, source: models.ValueProvider
