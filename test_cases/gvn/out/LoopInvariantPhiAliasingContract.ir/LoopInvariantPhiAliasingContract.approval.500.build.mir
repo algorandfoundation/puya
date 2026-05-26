@@ -93,10 +93,16 @@ subroutine loop_invariant_phi_aliasing:
         p-load y#0                                               (𝕡) x#0,y#0 | z#1,y#0 (copy)
         +                                                        (𝕡) x#0,y#0 | a#0
         v-store a#0                                              (𝕡) x#0,y#0 |
+        // gvn/loop_invariant_phi_aliasing.py:39
+        // b = x + y
+        p-load x#0                                               (𝕡) x#0,y#0 | x#0 (copy)
+        p-load y#0                                               (𝕡) x#0,y#0 | x#0 (copy),y#0 (copy)
+        +                                                        (𝕡) x#0,y#0 | b#0
+        v-store b#0                                              (𝕡) x#0,y#0 |
         // gvn/loop_invariant_phi_aliasing.py:40
         // z = a + b
         v-load a#0                                               (𝕡) x#0,y#0 | a#0
-        v-load a#0                                               (𝕡) x#0,y#0 | a#0,a#0
+        v-load b#0                                               (𝕡) x#0,y#0 | a#0,b#0
         +                                                        (𝕡) x#0,y#0 | z#1
         v-store z#1                                              (𝕡) x#0,y#0 |
         // gvn/loop_invariant_phi_aliasing.py:37
