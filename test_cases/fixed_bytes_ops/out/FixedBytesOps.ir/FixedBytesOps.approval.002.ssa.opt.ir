@@ -276,17 +276,14 @@ subroutine test_cases.fixed_bytes_ops.contract.test_sequence_ops(val: bytes[4]) 
         let slice_result#3: bytes = ((substring 0 3) val#0)
         let tmp%12#0: bool = (== slice_result#3 0xabcd12)
         (assert tmp%12#0)
-        let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L477
-        let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
-        let count#1: uint64 = φ(count#0 <- block@0, count#2 <- block@2)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 4u)
+        let count#1: uint64 = φ(item_index_internal%0#0 <- block@0, count#2 <- block@2)
+        let continue_looping%0#0: bool = (< count#1 4u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L478
         let count#2: uint64 = (+ count#1 1u)
-        let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L477
         let tmp%18#0: bool = (== count#1 4u)

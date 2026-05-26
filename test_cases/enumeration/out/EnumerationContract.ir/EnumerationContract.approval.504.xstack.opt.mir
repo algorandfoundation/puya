@@ -298,10 +298,6 @@ subroutine main:
         int 6                                                                                         index_sum#3,6
         ==                                                                                            tmp%11#0
         assert
-        // enumeration/contract.py:69
-        // iteration_count = UInt64(0)
-        int 0                                                                                         0
-        v-store iteration_count#3
         // enumeration/contract.py:70
         // item_concat = Bytes(b"")
         byte 0x                                                                                       0x
@@ -310,15 +306,15 @@ subroutine main:
         // index_sum = UInt64(0)
         int 0                                                                                         0
         v-store index_sum#3
-        int 0                                                                                         0
-        v-store item_index_internal%0#0
+        int 0                                                                                         item_index_internal%0#0
+        v-store iteration_count#3
         b main_for_header@26
 
     main_for_header@26:
         // enumeration/contract.py:73
         // for item in bytes_:
-        v-load item_index_internal%0#0                                                                item_index_internal%0#0
-        int 7                                                                                         item_index_internal%0#0,7
+        v-load iteration_count#3                                                                      iteration_count#3
+        int 7                                                                                         iteration_count#3,7
         <                                                                                             continue_looping%0#0
         bz main_after_for@29 ; b main_for_body@27
 
@@ -328,26 +324,22 @@ subroutine main:
         byte 0x61626364656667                                                                         0x61626364656667
         // enumeration/contract.py:73
         // for item in bytes_:
-        v-load item_index_internal%0#0                                                                0x61626364656667,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                        item_index_internal%0#0,0x61626364656667,item_index_internal%0#0 (copy)
-        int 1                                                                                         item_index_internal%0#0,0x61626364656667,item_index_internal%0#0 (copy),1
-        extract3                                                                                      item_index_internal%0#0,item#2
+        v-load iteration_count#3                                                                      0x61626364656667,iteration_count#3
+        l-store-copy iteration_count#3 1                                                              iteration_count#3,0x61626364656667,iteration_count#3 (copy)
+        int 1                                                                                         iteration_count#3,0x61626364656667,iteration_count#3 (copy),1
+        extract3                                                                                      iteration_count#3,item#2
         // enumeration/contract.py:74
         // iteration_count += 1
-        v-load iteration_count#3                                                                      item_index_internal%0#0,item#2,iteration_count#3
-        int 1                                                                                         item_index_internal%0#0,item#2,iteration_count#3,1
-        +                                                                                             item_index_internal%0#0,item#2,iteration_count#3
-        v-store iteration_count#3                                                                     item_index_internal%0#0,item#2
+        l-load iteration_count#3 1                                                                    item#2,iteration_count#3
+        int 1                                                                                         item#2,iteration_count#3,1
+        +                                                                                             item#2,iteration_count#3
+        v-store iteration_count#3                                                                     item#2
         // enumeration/contract.py:75
         // item_concat += item
-        v-load item_concat#2                                                                          item_index_internal%0#0,item#2,item_concat#2
-        l-load item#2 1                                                                               item_index_internal%0#0,item_concat#2,item#2
-        concat                                                                                        item_index_internal%0#0,item_concat#2
-        v-store item_concat#2                                                                         item_index_internal%0#0
-        l-load item_index_internal%0#0 0                                                              item_index_internal%0#0
-        int 1                                                                                         item_index_internal%0#0,1
-        +                                                                                             item_index_internal%0#0
-        v-store item_index_internal%0#0
+        v-load item_concat#2                                                                          item#2,item_concat#2
+        l-load item#2 1                                                                               item_concat#2,item#2
+        concat                                                                                        item_concat#2
+        v-store item_concat#2
         b main_for_header@26
 
     main_after_for@29:
